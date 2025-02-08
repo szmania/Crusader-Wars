@@ -91,7 +91,11 @@ namespace Crusader_Wars
 
         bool VerifyGamePaths()
         {
-            if (Properties.Settings.Default.VAR_ck3_path.Contains("ck3.exe") && Properties.Settings.Default.VAR_attila_path.Contains("Attila.exe"))
+	    string ck3Executable = Properties.Settings.Default.VAR_ck3_path.ToLower().Split(' ')[^1];
+	    string attilaExecutable = Properties.Settings.Default.VAR_attila_path.ToLower().Split(' ')[^1];
+
+	    // Strict matching to make sure the executable is given.
+	    if ((ck3Executable == "ck3" || ck3Executable = "ck3.exe") && (attilaExecutable == "attila" || attilaExecutable == "attila.exe"))
                 return true;
             else
                 return false;
@@ -721,7 +725,7 @@ namespace Crusader_Wars
 
 
         /*---------------------------------------------
-         * :::::::::::GAMES INICIALIZATION:::::::::::::
+         * :::::::::::GAMES INITIALIZATION:::::::::::::
          ---------------------------------------------*/
         struct Games
         {
