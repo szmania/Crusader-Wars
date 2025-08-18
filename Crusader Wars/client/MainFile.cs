@@ -91,8 +91,8 @@ namespace Crusader_Wars
 
         bool VerifyGamePaths()
         {
-	    string ck3Executable = Properties.Settings.Default.VAR_ck3_path.ToLower().Split(' ').Last();
-	    string attilaExecutable = Properties.Settings.Default.VAR_attila_path.ToLower().Split(' ').Last();
+	    string ck3Executable = Path.GetFileName(Properties.Settings.Default.VAR_ck3_path).ToLower();
+	    string attilaExecutable = Path.GetFileName(Properties.Settings.Default.VAR_attila_path).ToLower();
 
 	    // Strict matching to make sure the executable is given.
 	    if ((ck3Executable == "ck3" || ck3Executable == "ck3.exe") && (attilaExecutable == "attila" || attilaExecutable == "attila.exe"))
