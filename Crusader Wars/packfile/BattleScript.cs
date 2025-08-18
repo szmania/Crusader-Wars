@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
+using System.Text;
 
 
 namespace Crusader_Wars
@@ -13,7 +13,10 @@ namespace Crusader_Wars
 
         public static void CreateScript()
         {
-            string script_base = "\n\nfunction remaining_soldiers()\r\n    dev.log(\"-----REMAINING SOLDIERS-----!!\")";
+            string script_base = @"
+
+function remaining_soldiers()
+    dev.log(""-----REMAINING SOLDIERS-----!!"")";
             File.AppendAllText(filePath, script_base);
         }
 
@@ -22,18 +25,19 @@ namespace Crusader_Wars
             var left_side = DeclarationsFile.GetLeftSideArmies();
             var right_side = DeclarationsFile.GetRightSideArmies();
 
-            string text = "\n\n" +
-                           "function commander_system()" +
-                           "\n";
+            var scriptBuilder = new StringBuilder();
+            scriptBuilder.AppendLine();
+            scriptBuilder.AppendLine();
+            scriptBuilder.AppendLine("function commander_system()");
 
 
             for (int i = 1; i <= left_side.Count; i++) {
                 if (left_side[i-1].Commander != null)
                 {
-                    text += $"\tif(not Stark_Army{i}:is_commander_alive()) then\n" +
-                            $"\t\tdev.log(\"Commander{left_side[i-1].Commander.ID} from Army{left_side[i-1].ID} has fallen\")" +
-                             "\tend;"+
-                             "\n\n";
+                    scriptBuilder.AppendLine($"	if(not Stark_Army{i}:is_commander_alive()) then");
+                    scriptBuilder.AppendLine($"		dev.log(\"Commander{left_side[i - 1].Commander.ID} from Army{left_side[i - 1].ID} has fallen\")");
+                    scriptBuilder.AppendLine("	end;");
+                    scriptBuilder.AppendLine();
                 }
 
             }
@@ -41,16 +45,16 @@ namespace Crusader_Wars
             {
                 if (right_side[i-1].Commander != null)
                 {
-                    text += $"\tif(not Bolton_Army{i}:is_commander_alive()) then\n" +
-                            $"\t\tdev.log(\"Commander{right_side[i-1].Commander.ID} from Army{right_side[i-1].ID} has fallen\")" +
-                             "\tend;" +
-                             "\n\n";
+                    scriptBuilder.AppendLine($"	if(not Bolton_Army{i}:is_commander_alive()) then");
+                    scriptBuilder.AppendLine($"		dev.log(\"Commander{right_side[i - 1].Commander.ID} from Army{right_side[i - 1].ID} has fallen\")");
+                    scriptBuilder.AppendLine("	end;");
+                    scriptBuilder.AppendLine();
                 }
             }
 
-            text += "end;";
+            scriptBuilder.Append("end;");
 
-            File.AppendAllText(filePath, text);
+            File.AppendAllText(filePath, scriptBuilder.ToString());
 
         }
 
@@ -63,7 +67,10 @@ namespace Crusader_Wars
         public static void SetLocalsKills(List<(string unitName, string declarationName)> units_scripts_list)
         {
             //Units Script Start
-            string start = $"\n\nfunction kills()\r\n    dev.log(\"-----NUMBERS OF KILLS-----!!\")";
+            string start = @"
+
+function kills()
+    dev.log(""-----NUMBERS OF KILLS-----!!"")";
             File.AppendAllText(filePath, start);
 
             //Units Locals Kills
@@ -85,8 +92,103 @@ namespace Crusader_Wars
         //Add
         public static void EraseScript()
         {
-            string original = "\r\n-----------------------------------------------------------------------------------\r\n-----------------------------------------------------------------------------------\r\n--\r\n--\tINITIAL SCRIPT SETUP\r\n--\r\n-----------------------------------------------------------------------------------\r\n-----------------------------------------------------------------------------------\r\n\r\n-- clear out loaded files\r\nsystem.ClearRequiredFiles();\r\n\r\nlocal logging_enabled = true;\r\n\r\n-- load in battle script library\r\nrequire \"lua_scripts.Battle_Script_Header\";\r\n\r\n-- declare battlemanager object\r\nbm = battle_manager:new(empire_battle:new());\r\n\r\n-- get battle name from folder, and print header\r\nbattle_name, battle_shortform = get_folder_name_and_shortform();\r\n\r\n-- load in other script files associated with this battle\r\npackage.path = package.path .. \";data/Script/\" .. battle_name .. \"/?.lua\";\r\n\r\nrequire (battle_shortform .. \"_Declarations\");\r\n\r\n----------------------------------------------------------------------------------------------------------------------------\r\n----------------------------------------------------------------------------------------------------------------------------\r\n--\r\n--\tHISTORICAL BATTLE CUTSCENE AND UNIT POSITION SCRIPT\r\n--\r\n----------------------------------------------------------------------------------------------------------------------------\r\n----------------------------------------------------------------------------------------------------------------------------\r\n\r\ndev = require(\"lua_scripts.dev\");\r\n\r\nrequire(\"lua_scripts.logging_callbacks\");\r\n\r\nlocal date = os.date(\"%A, %c\");\r\n\r\ndev.log(\"\\n\" .. date);\r\ndev.log\"\\n Script Loaded\";\r\n\r\n\r\nbm:setup_victory_callback(function() file_debug() end);\r\nbm:register_phase_change_callback(\"Complete\", function() file_debug() end);\t\r\n\r\n \r\nfunction Deployment_Phase()\r\n\tbm:out(\"Battle is in deployment phase\");\r\nend;\r\n\r\nfunction Start_Battle()\r\n\tbm:out(\"Battle is Starting\");\r\n\t\r\nend;\r\n\r\nlocal scripting = require \"lua_scripts.episodicscripting\"\r\n-- Callbacks\r\nfunction EndBattle(context)\r\n   \r\n    if context.string == \"button_end_battle\" then\r\n        dev.log(\"Battle has finished\")\r\n    end;\r\n    \r\n    if context.string == \"button_dismiss_results\" then\r\n        dev.log(\"Battle has finished\")\r\n    end;\r\n\r\nend;\r\nscripting.AddEventCallBack(\"ComponentLClickUp\", EndBattle);\r\n\r\n\r\n\r\n--Crusader Wars Get Winner\r\nfunction file_debug()\r\n\r\n\tbm:callback(function() bm:end_battle() end, 1000);\r\n\n\tif is_routing_or_dead(Alliance_Stark) then\t\r\n\t\tbm:out(\"Player has lost, army is routing\");\r\n        dev.log(\"Defeat\")\r\n\telseif is_routing_or_dead(Alliance_Bolton) then\r\n\t\tbm:out(\"Player has won !\");\r\n\t\tdev.log(\"Victory\")\r\n\tend;\r\n\r\n    \r\n\tremaining_soldiers();\r\n\tkills();\r\n\tcommander_system();\r\n\tdev.log(\"-----PRINT ENDED-----!!\")\r\n\r\nend;";
-            File.WriteAllText(filePath, original) ;
+            string original = @"
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+--
+--	INITIAL SCRIPT SETUP
+--
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+-- clear out loaded files
+system.ClearRequiredFiles();
+
+local logging_enabled = true;
+
+-- load in battle script library
+require ""lua_scripts.Battle_Script_Header"";
+
+-- declare battlemanager object
+bm = battle_manager:new(empire_battle:new());
+
+-- get battle name from folder, and print header
+battle_name, battle_shortform = get_folder_name_and_shortform();
+
+-- load in other script files associated with this battle
+package.path = package.path .. "";data/Script/"" .. battle_name .. ""/?.lua"";
+
+require (battle_shortform .. ""_Declarations"");
+
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
+--
+--	HISTORICAL BATTLE CUTSCENE AND UNIT POSITION SCRIPT
+--
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
+
+dev = require(""lua_scripts.dev"");
+
+require(""lua_scripts.logging_callbacks"");
+
+local date = os.date(""\A, %c"");
+
+dev.log(""\n"" .. date);
+dev.log""\n Script Loaded"";
+
+
+bm:setup_victory_callback(function() file_debug() end);
+bm:register_phase_change_callback(""Complete"", function() file_debug() end);	
+
+ 
+function Deployment_Phase()
+	bm:out(""Battle is in deployment phase"");
+end;
+
+function Start_Battle()
+	bm:out(""Battle is Starting"");
+	
+end;
+
+local scripting = require ""lua_scripts.episodicscripting""
+-- Callbacks
+function EndBattle(context)
+   
+    if context.string == ""button_end_battle"" then
+        dev.log(""Battle has finished"")
+    end;
+    
+    if context.string == ""button_dismiss_results"" then
+        dev.log(""Battle has finished"")
+    end;
+
+end;
+scripting.AddEventCallBack(""ComponentLClickUp"", EndBattle);
+
+
+
+--Crusader Wars Get Winner
+function file_debug()
+
+	bm:callback(function() bm:end_battle() end, 1000);
+
+	if is_routing_or_dead(Alliance_Stark) then	
+		bm:out(""Player has lost, army is routing"");
+        dev.log(""Defeat"")
+	elseif is_routing_or_dead(Alliance_Bolton) then
+		bm:out(""Player has won !"");
+		dev.log(""Victory"")
+	end;
+
+    
+	remaining_soldiers();
+	kills();
+	commander_system();
+	dev.log(""-----PRINT ENDED-----!!"")
+
+end;";
+            File.WriteAllText(filePath, original);
         }
     }
 }
