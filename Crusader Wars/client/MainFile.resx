@@ -226,7 +226,7 @@
     <value>7</value>
   </data>
   <data name="infoLabel.Text" xml:space="preserve">
-    <value>Waiting for battle...</value>
+    <value>Waiting for CK3 battle...</value>
   </data>
   <data name="infoLabel.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>

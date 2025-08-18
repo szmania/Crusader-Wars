@@ -120,7 +120,7 @@ namespace Crusader_Wars
                 }
                 long endMemoryt = GC.GetTotalMemory(false);
                 long memoryUsaget = endMemoryt - startMemoryt;
-                Console.WriteLine($"----\nGetting data from save file\nMemory Usage: {memoryUsaget / 1048576} megabytes");
+                Console.WriteLine($"----\nGetting data from CK3 save file\nMemory Usage: {memoryUsaget / 1048576} megabytes");
                 reader.Close();
                 saveFile.Close();
             }

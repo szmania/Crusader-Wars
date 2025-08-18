@@ -249,7 +249,7 @@ namespace Crusader_Wars
             {
 
                 infoLabel.Text = "Ready to start!";
-                this.Text = "Crusader Wars (Waiting for battle...)";
+                this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                 try
                 {
@@ -312,7 +312,7 @@ namespace Crusader_Wars
                         logFile.Position = 0;
                         reader.DiscardBufferedData();
 
-                        infoLabel.Text = "Waiting for battle...";
+                        infoLabel.Text = "Waiting for CK3 battle...";
                         try
                         {
                             //Wait for CW keyword
@@ -350,11 +350,11 @@ namespace Crusader_Wars
 
                         try
                         {
-                            UpdateLoadingScreenMessage("Getting data from save file...");
+                            UpdateLoadingScreenMessage("Getting data from CK3 save file...");
                             StartLoadingScreen();
 
-                            infoLabel.Text = "Reading battle data...";
-                            this.Text = "Crusader Wars (Reading battle data...)";
+                            infoLabel.Text = "Reading battle CK3 data...";
+                            this.Text = "Crusader Wars (Reading CK3 battle data...)";
                             this.Hide();
 
                             logFile.Position = 0;
@@ -375,10 +375,10 @@ namespace Crusader_Wars
                         {
                             this.Show();
                             CloseLoadingScreen();
-                            MessageBox.Show($"Error reading battle data: {ex.Message}", "Data Error",
+                            MessageBox.Show($"Error reading Attila:TW battle data: {ex.Message}", "Data Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                            infoLabel.Text = "Waiting for battle...";
-                            this.Text = "Crusader Wars (Waiting for battle...)";
+                            infoLabel.Text = "Waiting for CK3 battle...";
+                            this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                             //Data Clear
                             Data.Reset();
@@ -400,7 +400,7 @@ namespace Crusader_Wars
 
                 try
                 {
-                    UpdateLoadingScreenMessage("Getting data from save file...");
+                    UpdateLoadingScreenMessage("Getting data from CK3 save file...");
                     await Task.Delay(2000); //Old was 3000ms
                     ProcessCommands.SuspendProcess();
 
@@ -417,7 +417,7 @@ namespace Crusader_Wars
                     CloseLoadingScreen();
                     MessageBox.Show($"Error reading the save file: {ex.Message}", "Save File Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    infoLabel.Text = "Waiting for battle...";
+                    infoLabel.Text = "Waiting for CK3 battle...";
                     ProcessCommands.ResumeProcess();
 
                     //Data Clear
@@ -431,7 +431,7 @@ namespace Crusader_Wars
                 {
 
                     //1.0 Beta Debug
-                    UpdateLoadingScreenMessage("Reading save file data...");
+                    UpdateLoadingScreenMessage("Reading CK3 save file data...");
                     var armies = ArmiesReader.ReadBattleArmies();
                     attacker_armies = armies.attacker;
                     defender_armies = armies.defender;
@@ -443,8 +443,8 @@ namespace Crusader_Wars
                     MessageBox.Show($"Error reading the battle armies: {ex.Message}\nDon't play in Ironman or in debug mode!\nYour Crusader Kings III saves MUST NOT be on the steam cloud.", "Beta Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     ProcessCommands.ResumeProcess();
-                    infoLabel.Text = "Waiting for battle...";
-                    this.Text = "Crusader Wars (Waiting for battle...)";
+                    infoLabel.Text = "Waiting for CK3 battle...";
+                    this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                     //Data Clear
                     Data.Reset();
@@ -504,8 +504,8 @@ namespace Crusader_Wars
                     MessageBox.Show($"Error creating the battle:{ex.Message}", "Data Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     ProcessCommands.ResumeProcess();
-                    infoLabel.Text = "Waiting for battle...";
-                    this.Text = "Crusader Wars (Waiting for battle...)";
+                    infoLabel.Text = "Waiting for CK3 battle...";
+                    this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                     //Data Clear
                     Data.Reset();
@@ -549,8 +549,8 @@ namespace Crusader_Wars
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     Games.CloseTotalWarAttilaProcess();
                     Games.StartCrusaderKingsProcess();
-                    infoLabel.Text = "Waiting for battle...";
-                    this.Text = "Crusader Wars (Waiting for battle...)";
+                    infoLabel.Text = "Waiting for CK3 battle...";
+                    this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                     //Data Clear
                     Data.Reset();
@@ -560,7 +560,7 @@ namespace Crusader_Wars
 
                 Games.CloseCrusaderKingsProcess();
 
-                Console.WriteLine("Battle created successfully");
+                Console.WriteLine("Attila:TW battle created successfully");
 
                 //               Retrieve battle result to ck3
                 //-----------------------------------------------------------
@@ -571,10 +571,10 @@ namespace Crusader_Wars
                 
                 bool battleEnded = false;
 
-                infoLabel.Text = "Waiting battle to end...";
-                this.Text = "Crusader Wars (Waiting battle to end...)";
+                infoLabel.Text = "Waiting for Attila:TW battle to end...";
+                this.Text = "Crusader Wars (Waiting for Attila:TW battle to end...)";
 
-                //  Waiting for battle to end...
+                //  Waiting for Attila:TW battle to end...
                 while (battleEnded == false)
                 {
                     battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
@@ -588,8 +588,8 @@ namespace Crusader_Wars
                     {
                         ModOptions.CloseAttila();
 
-                        infoLabel.Text = "Battle has ended!";
-                        this.Text = "Crusader Wars (Battle has ended)";
+                        infoLabel.Text = "Attila:TW battle has ended!";
+                        this.Text = "Crusader Wars (Attila:TW battle has ended)";
 
                         string path_log_attila = Properties.Settings.Default.VAR_log_attila;
 
@@ -627,10 +627,10 @@ namespace Crusader_Wars
                         BattleResult.EditArmyRegimentsFile(attacker_armies, defender_armies);
 
 
-                        //  WRITE TO SAVE FILE
+                        //  WRITE TO CK3 SAVE FILE
                         BattleResult.SendToSaveFile(path_editedSave);
 
-                        //  COMPRESS SAVE FILE AND SEND TO SAVE FILE FOLDER
+                        //  COMPRESS CK3 SAVE FILE AND SEND TO CK3 SAVE FILE FOLDER
                         SaveFile.Compress();
                         SaveFile.Finish();
 
@@ -640,12 +640,12 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
-                    MessageBox.Show($"Error retriving battle results: {ex.Message}", "Battle Results Error",
+                    MessageBox.Show($"Error retrieving Attila:TW battle results: {ex.Message}", "Attila:TW Battle Results Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     Games.CloseTotalWarAttilaProcess();
                     Games.StartCrusaderKingsProcess();
-                    infoLabel.Text = "Waiting for battle...";
-                    this.Text = "Crusader Wars (Waiting for battle...)";
+                    infoLabel.Text = "Waiting for CK3 battle...";
+                    this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                     //Data Clear
                     Data.Reset();
