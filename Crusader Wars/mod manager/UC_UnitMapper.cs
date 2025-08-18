@@ -120,7 +120,7 @@ namespace Crusader_Wars.mod_manager
             }
 
             //Verify workshop folder
-            string workshop_folder_path = Properties.Settings.Default.VAR_attila_path.Replace(@"common\Total War Attila\Attila.exe", @"workshop\content\325610\");
+            string workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
             if (Directory.Exists(workshop_folder_path))
             {
                 var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);

@@ -108,6 +108,31 @@ namespace Crusader_Wars.mod_manager
             }
         }
 
+        public static string GetWorkshopFolderPath()
+        {
+            string attilaPath = Properties.Settings.Default.VAR_attila_path;
+            if (string.IsNullOrEmpty(attilaPath) || !System.IO.File.Exists(attilaPath))
+            {
+                return null; 
+            }
+
+            DirectoryInfo dirInfo = new DirectoryInfo(Path.GetDirectoryName(attilaPath));
+
+            // Search upwards for the "steamapps" folder
+            while (dirInfo != null && dirInfo.Name.ToLower() != "steamapps")
+            {
+                dirInfo = dirInfo.Parent;
+            }
+
+            // If "steamapps" was found, construct the workshop path
+            if (dirInfo != null)
+            {
+                return Path.Combine(dirInfo.FullName, "workshop", "content", "325610");
+            }
+
+            return null; // "steamapps" not found
+        }
+
         public static void CreateUserModsFile()
         {
             // CREATE ESSENTIAL FILE TO OPEN ATTILA AUTOMATICALLY
@@ -222,7 +247,7 @@ namespace Crusader_Wars.mod_manager
         public static void ReadInstalledMods()
         {
             string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
-            string workshop_folder_path = Properties.Settings.Default.VAR_attila_path.Replace(@"common\Total War Attila\Attila.exe", @"workshop\content\325610\");
+            string workshop_folder_path = GetWorkshopFolderPath();
 
             ModsPaths = new List<Mod>();
             //Read data folder
