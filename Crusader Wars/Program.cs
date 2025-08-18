@@ -46,6 +46,17 @@ namespace Crusader_Wars
         public static class Logger
         {
             private static string logFilePath = @".\data\error.log"; // Path to the log file
+            private static string debugLogFilePath = @".\data\debug.log";
+
+            public static void Debug(string message)
+            {
+                string logMessage = $"[{DateTime.Now}] DEBUG: {message}";
+                Console.WriteLine(logMessage);
+                using (StreamWriter writer = new StreamWriter(debugLogFilePath, true))
+                {
+                    writer.WriteLine(logMessage);
+                }
+            }
 
             public static void Log(Exception ex)
             {
