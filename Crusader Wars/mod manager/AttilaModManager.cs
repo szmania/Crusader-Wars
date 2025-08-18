@@ -130,7 +130,7 @@ namespace Crusader_Wars.mod_manager
 
             //Working Directories
             var steamMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Steam && x.IsEnabled()).ToList();
-            if(steamMods != null)
+            if(steamMods != null || steamMods.Count != 0)
             {
                 workingDirectories = steamMods.Select(x => x.GetFullPath()).ToArray();
                 steamModNames = steamMods.Select(x => x.GetName()).ToArray();
@@ -138,7 +138,7 @@ namespace Crusader_Wars.mod_manager
 
             //Data Mods
             var dataMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Data && x.IsEnabled()).ToList();
-            if(dataMods != null)
+            if(dataMods != null || dataMods.Count != 0)
             {
                 dataModNames = dataMods.Select(x => x.GetName()).ToArray();
             }
