@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Xml.Linq;
 using System.Drawing;
+using System.Linq;
 
 namespace Crusader_Wars
 {
@@ -19,17 +20,14 @@ namespace Crusader_Wars
 
         private static readonly HttpClient client = new HttpClient();
         private const string LatestReleaseUrl = "https://api.github.com/repos/farayC/Crusader-Wars/releases/latest";
+        private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
         private const string UnitMappersLatestReleaseUrl = "https://api.github.com/repos/farayC/CW-Mappers/releases/latest";
-        private async Task<(bool IsUpdateAvailable, string DownloadUrl, string UpdateVersion)> CheckForUpdatesAsync(string currentVersion, string releaseUrl)
+        private async Task<(string version, string downloadUrl)> GetLatestReleaseInfoAsync(string releaseUrl)
         {
-            Program.Logger.Debug($"Checking for updates. Current version: {currentVersion}, URL: {releaseUrl}");
-            if (currentVersion == string.Empty) {
-                Program.Logger.Debug("Current version is empty, skipping update check.");
-                return (false, null, null);
-            }
-
+            Program.Logger.Debug($"Getting latest release info from: {releaseUrl}");
             try
             {
+                client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
                 string json = await client.GetStringAsync(releaseUrl);
 
@@ -39,31 +37,21 @@ namespace Crusader_Wars
                     JsonElement root = document.RootElement;
 
                     // Get the latest version tag
-                    string latestVersion = root.GetProperty("tag_name").GetString();
-                    Program.Logger.Debug($"Latest version from GitHub: {latestVersion}");
+                    string latestVersion = root.GetProperty("tag_name").GetString()?.TrimStart('v');
 
                     // Get the download URL of the first asset
                     string downloadUrl = root.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
-                    Program.Logger.Debug($"Download URL: {downloadUrl}");
+                    Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}");
 
-                    if (IsMostRecentUpdate(currentVersion, latestVersion.TrimStart('v')))
-                    {
-                        Program.Logger.Debug("A more recent update is available.");
-                        return (true, downloadUrl, latestVersion.TrimStart('v'));
-                    }
-                    else
-                    {
-                        Program.Logger.Debug("Application is up to date.");
-                    }
-                };
-               
+                    return (latestVersion, downloadUrl);
+                }
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error checking for updates: {ex.Message}");
+                Program.Logger.Debug($"Error getting release info from {releaseUrl}: {ex.Message}");
             }
 
-            return (false, null, null);
+            return (null, null);
         }
 
         string GetAppVersion()
@@ -153,62 +141,94 @@ namespace Crusader_Wars
         public async void CheckAppVersion()
         {
             Program.Logger.Debug("Checking app version...");
-            if (HasInternetConnection())
+            if (!HasInternetConnection())
             {
-                Program.Logger.Debug("Internet connection detected.");
-                var (isUpdateAvailable, downloadUrl, updateVersion) = await CheckForUpdatesAsync(GetAppVersion(), LatestReleaseUrl);
-                if (isUpdateAvailable)
+                Program.Logger.Debug("No internet connection detected.");
+                return;
+            }
+
+            Program.Logger.Debug("Internet connection detected.");
+            string currentVersion = GetAppVersion();
+            if (string.IsNullOrEmpty(currentVersion))
+            {
+                Program.Logger.Debug("Current version is empty, skipping update check.");
+                return;
+            }
+
+            var farayC_release = await GetLatestReleaseInfoAsync(LatestReleaseUrl);
+            var szmania_release = await GetLatestReleaseInfoAsync(SzmaniaLatestReleaseUrl);
+
+            var releases = new[] { farayC_release, szmania_release }
+                .Where(r => r.version != null)
+                .ToList();
+
+            if (!releases.Any())
+            {
+                Program.Logger.Debug("No releases found in any repository.");
+                return;
+            }
+
+            var latestRelease = releases.Aggregate((r1, r2) => IsMostRecentUpdate(r1.version, r2.version) ? r2 : r1);
+
+            if (IsMostRecentUpdate(currentVersion, latestRelease.version))
+            {
+                Program.Logger.Debug($"Update available for app: {latestRelease.version}. Starting updater...");
+                try
                 {
-                    Program.Logger.Debug($"Update available for app: {updateVersion}. Starting updater...");
-                    try
-                    {
-                        ProcessStartInfo startInfo = new ProcessStartInfo();
-                        startInfo.FileName = @".\data\updater\CW-Updater.exe";
-                        startInfo.Arguments = $"{downloadUrl} {updateVersion}";
-                        Process.Start(startInfo);
-                        Environment.Exit(0);
-                    }
-                    catch(Exception ex)
-                    {
-                        Program.Logger.Debug($"Failed to start updater: {ex.Message}");
-                        return;
-                    }
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    startInfo.FileName = @".\data\updater\CW-Updater.exe";
+                    startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version}";
+                    Process.Start(startInfo);
+                    Environment.Exit(0);
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Failed to start updater: {ex.Message}");
                 }
             }
             else
             {
-                Program.Logger.Debug("No internet connection detected.");
+                Program.Logger.Debug("Application is up to date.");
             }
         }
 
         public async void CheckUnitMappersVersion()
         {
             Program.Logger.Debug("Checking unit mappers version...");
-            if (HasInternetConnection())
+            if (!HasInternetConnection())
             {
-                Program.Logger.Debug("Internet connection detected.");
-                var (isUpdateAvailable, downloadUrl, updateVersion) = await CheckForUpdatesAsync(GetUnitMappersVersion(), UnitMappersLatestReleaseUrl);
-                if (isUpdateAvailable)
+                Program.Logger.Debug("No internet connection detected.");
+                return;
+            }
+
+            Program.Logger.Debug("Internet connection detected.");
+            string currentVersion = GetUnitMappersVersion();
+            if (string.IsNullOrEmpty(currentVersion))
+            {
+                Program.Logger.Debug("Current unit mappers version is empty, skipping update check.");
+                return;
+            }
+
+            var releaseInfo = await GetLatestReleaseInfoAsync(UnitMappersLatestReleaseUrl);
+            if (releaseInfo.version != null && IsMostRecentUpdate(currentVersion, releaseInfo.version))
+            {
+                Program.Logger.Debug($"Update available for unit mappers: {releaseInfo.version}. Starting updater...");
+                try
                 {
-                    Program.Logger.Debug($"Update available for unit mappers: {updateVersion}. Starting updater...");
-                    try
-                    {
-                        ProcessStartInfo startInfo = new ProcessStartInfo();
-                        startInfo.FileName = @".\data\updater\CW-Updater.exe";
-                        startInfo.Arguments = $"{downloadUrl} {updateVersion} {"unit_mapper"}";
-                        Process.Start(startInfo);
-                        Environment.Exit(0);
-                    }
-                    catch(Exception ex)
-                    {
-                        Program.Logger.Debug($"Failed to start updater: {ex.Message}");
-                        return;
-                    }
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    startInfo.FileName = @".\data\updater\CW-Updater.exe";
+                    startInfo.Arguments = $"{releaseInfo.downloadUrl} {releaseInfo.version} {"unit_mapper"}";
+                    Process.Start(startInfo);
+                    Environment.Exit(0);
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Failed to start updater: {ex.Message}");
                 }
             }
             else
             {
-                Program.Logger.Debug("No internet connection detected.");
+                Program.Logger.Debug("Unit mappers are up to date.");
             }
         }
     }
