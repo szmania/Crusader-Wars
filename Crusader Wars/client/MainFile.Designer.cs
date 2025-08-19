@@ -40,6 +40,7 @@
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.BottomPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
+            this.viewLogsLink = new System.Windows.Forms.Label();
             this.patreonBtn = new System.Windows.Forms.Button();
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
@@ -135,6 +136,7 @@
             this.BottomPanelLayout.BackColor = System.Drawing.Color.Transparent;
             this.BottomPanelLayout.Controls.Add(this.labelVersion);
             this.BottomPanelLayout.Controls.Add(this.EA_Label);
+            this.BottomPanelLayout.Controls.Add(this.viewLogsLink);
             resources.ApplyResources(this.BottomPanelLayout, "BottomPanelLayout");
             this.BottomPanelLayout.Name = "BottomPanelLayout";
             // 
@@ -144,6 +146,20 @@
             this.EA_Label.BackColor = System.Drawing.Color.Transparent;
             this.EA_Label.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.EA_Label.Name = "EA_Label";
+            // 
+            // viewLogsLink
+            // 
+            this.viewLogsLink.AutoSize = true;
+            this.viewLogsLink.BackColor = System.Drawing.Color.Transparent;
+            this.viewLogsLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.viewLogsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.9999981F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.viewLogsLink.Name = "viewLogsLink";
+            this.viewLogsLink.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.viewLogsLink.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.viewLogsLink.TabIndex = 27;
+            this.viewLogsLink.Text = "| View Logs";
+            this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
             // 
             // patreonBtn
             // 
@@ -228,23 +244,6 @@
             this.BottomPanelLayout.ResumeLayout(false);
             this.BottomPanelLayout.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
-
-            // viewLogsLink
-            this.viewLogsLink = new System.Windows.Forms.Label();
-            this.viewLogsLink.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
-            this.viewLogsLink.AutoSize = true;
-            this.viewLogsLink.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.viewLogsLink.Font = new System.Drawing.Font("Paradox King Script", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.viewLogsLink.Location = new System.Drawing.Point(1130, 680);
-            this.viewLogsLink.Name = "viewLogsLink";
-            this.viewLogsLink.Size = new System.Drawing.Size(61, 14);
-            this.viewLogsLink.TabIndex = 37;
-            this.viewLogsLink.Text = "View Logs";
-            this.viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
-            this.Controls.Add(this.viewLogsLink);
-
             this.ResumeLayout(false);
 
         }
@@ -268,4 +267,3 @@
         private System.Windows.Forms.Label EA_Label;
     }
 }
-
