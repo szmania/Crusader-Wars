@@ -22,7 +22,7 @@ namespace Crusader_Wars.data.save_file
         }
         public static (List<Army> attacker, List<Army> defender) ReadBattleArmies()
         {
-            Program.Logger.Debug("Reading battle armies from save data...");
+            Program.Logger.Debug("Reading battle armies from CK3 save data...");
             ReadSaveFileTraits();
 
             ReadArmiesData();

@@ -464,7 +464,7 @@ namespace Crusader_Wars
 
                     //1.0 Beta Debug
                     UpdateLoadingScreenMessage("Reading CK3 save file data...");
-                    Program.Logger.Debug("Reading battle armies from save file.");
+                    Program.Logger.Debug("Reading battle armies from CK3 save file.");
                     var armies = ArmiesReader.ReadBattleArmies();
                     attacker_armies = armies.attacker;
                     defender_armies = armies.defender;
@@ -501,7 +501,7 @@ namespace Crusader_Wars
 
                 try
                 {
-                    Program.Logger.Debug("Creating Attila battle files.");
+                    Program.Logger.Debug("Creating Attila:TW battle files.");
                     BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side_combat_side);
 
                     Games.CloseTotalWarAttilaProcess();
@@ -621,7 +621,7 @@ namespace Crusader_Wars
 
                 infoLabel.Text = "Waiting for Attila:TW battle to end...";
                 this.Text = "Crusader Wars (Waiting for Attila:TW battle to end...)";
-                Program.Logger.Debug("Waiting for Attila battle to end...");
+                Program.Logger.Debug("Waiting for Attila:TW battle to end...");
 
                 //  Waiting for Attila:TW battle to end...
                 while (battleEnded == false)
@@ -629,14 +629,14 @@ namespace Crusader_Wars
                     battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
                     await Task.Delay(10);
                 }
-                Program.Logger.Debug("Attila battle ended.");
+                Program.Logger.Debug("Attila:TW battle ended.");
 
 
                 try
                 {
                     if (battleEnded)
                     {
-                        Program.Logger.Debug("Processing Attila battle results.");
+                        Program.Logger.Debug("Processing Attila:TW battle results.");
                         ModOptions.CloseAttila();
 
                         infoLabel.Text = "Attila:TW battle has ended!";
