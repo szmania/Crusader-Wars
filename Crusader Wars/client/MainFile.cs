@@ -472,11 +472,35 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
-                    Program.Logger.Debug($"Error reading battle armies: {ex.Message}");
+                    string errorDetails = $"Error reading battle armies: {ex.Message}";
+                    string stackTrace = ex.StackTrace;
+                    Program.Logger.Debug(errorDetails);
+                    if (!string.IsNullOrEmpty(stackTrace))
+                    {
+                        // Extract relevant part of stack trace
+                        int index = stackTrace.IndexOf(" at Program");
+                        string relevantStack = index >= 0 ? stackTrace.Substring(0, index) : stackTrace;
+                        Program.Logger.Debug($"Stack Trace: {relevantStack}");
+                    }
+
                     this.Show();
                     CloseLoadingScreen();
-                    MessageBox.Show($"Error reading the battle armies: {ex.Message}\nDon't play in Ironman or in debug mode!\nYour Crusader Kings III saves MUST NOT be on the steam cloud.", "Beta Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    string errorMessage = "Error reading the battle armies.\n\n" +
+                            "Possible causes:\n" +
+                            "❌ Playing in Ironman mode\n" +
+                            "❌ Using Steam Cloud saves\n" +
+                            "❌ Playing in debug mode\n" +
+                            "❌ Save file using old format\n" +
+                            "❌ Unsupported game mods\n\n" +
+                            "Troubleshooting:\n" +
+                            "1. Disable Ironman mode\n" +
+                            "2. Use local saves instead of Steam Cloud\n" +
+                            "3. Start a new non-debug game\n" +
+                            "4. Verify game files in Steam\n" +
+                            "5. Try a different save file";
+
+                    MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Army Data Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     ProcessCommands.ResumeProcess();
                     infoLabel.Text = "Waiting for CK3 battle...";
                     this.Text = "Crusader Wars (Waiting for CK3 battle...)";

@@ -13,8 +13,8 @@ namespace Crusader_Wars.data.save_file
     {
 
         // V1.0 Beta
-        static List<Army> attacker_armies;
-        static List<Army> defender_armies;
+        static List<Army> attacker_armies = new List<Army>();
+        static List<Army> defender_armies = new List<Army>();
         public static List<(string name, int index)> save_file_traits { get; set; }
         public static void ReadCombats(string g)
         {
@@ -23,7 +23,19 @@ namespace Crusader_Wars.data.save_file
         public static (List<Army> attacker, List<Army> defender) ReadBattleArmies()
         {
             Program.Logger.Debug("Reading battle armies from CK3 save data...");
-            ReadSaveFileTraits();
+            try
+            {
+                ReadSaveFileTraits();
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading traits: {ex.Message}");
+                throw new Exception("Couldn't read traits data", ex);
+            }
+
+            // Initialize armies lists
+            attacker_armies = new List<Army>();
+            defender_armies = new List<Army>();
 
             ReadArmiesData();
             ReadArmiesUnits();
@@ -32,29 +44,44 @@ namespace Crusader_Wars.data.save_file
             ReadRegiments();
             ReadOriginsKeys();
 
-            LandedTitles.ReadProvinces(attacker_armies, defender_armies);
-            ReadCountiesManager();
-            ReadMercenaries();
-            BattleFile.SetArmiesSides(attacker_armies, defender_armies);
+            // Log army counts before proceeding
+            Program.Logger.Debug($"Armies after initialization: attacker={attacker_armies.Count}, defender={defender_armies.Count}");
 
-            CreateKnights();
-            CreateMainCommanders();
-            ReadCharacters();
-            ReadCourtPositions();
-            CheckForNullCultures();
-            ReadCultureManager();
+            if (attacker_armies.Count == 0 || defender_armies.Count == 0)
+            {
+                Program.Logger.Debug("ERROR: No armies were initialized");
+                throw new Exception("No armies found in save data. Possible corrupt save or unsupported game state.");
+            }
 
+            try
+            {
+                LandedTitles.ReadProvinces(attacker_armies, defender_armies);
+                ReadCountiesManager();
+                ReadMercenaries();
+                BattleFile.SetArmiesSides(attacker_armies, defender_armies);
 
+                CreateKnights();
+                CreateMainCommanders();
+                ReadCharacters();
+                ReadCourtPositions();
+                CheckForNullCultures();
+                ReadCultureManager();
 
-            // Organize Units
-            CreateUnits();
+                // Organize Units
+                CreateUnits();
 
-            // Print Armies
-            Print.PrintArmiesData(attacker_armies);
-            Print.PrintArmiesData(defender_armies);
+                // Print Armies
+                Print.PrintArmiesData(attacker_armies);
+                Print.PrintArmiesData(defender_armies);
 
-            Program.Logger.Debug($"Finished reading battle armies. Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
-            return (attacker_armies, defender_armies);
+                Program.Logger.Debug($"Finished reading battle armies. Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
+                return (attacker_armies, defender_armies);
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error processing army data: {ex.Message}");
+                throw new Exception("Error processing army data", ex);
+            }
         }
 
 
