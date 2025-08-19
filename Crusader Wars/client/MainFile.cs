@@ -1038,6 +1038,35 @@ namespace Crusader_Wars
 
         SoundPlayer sounds;
 
+        private void viewLogsLink_Click(object sender, EventArgs e)
+        {
+            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
+            sounds.Play();
+            
+            string logPath = Path.GetFullPath(@".\data\debug.log");
+            if (File.Exists(logPath))
+            {
+                // Open explorer and highlight debug.log
+                Process.Start("explorer.exe", $"/select, \"{logPath}\"");
+            }
+            else
+            {
+                // Fallback if file not found
+                string folderPath = Path.GetFullPath(@".\data");
+                if (Directory.Exists(folderPath))
+                {
+                    Process.Start("explorer.exe", folderPath);
+                }
+                else
+                {
+                    MessageBox.Show("Log folder not found! Please report this to developers.",
+                                    "Log Location Error",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                }
+            }
+        }
+
         private void patreonBtn_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Patreon button clicked.");
