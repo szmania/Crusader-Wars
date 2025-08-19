@@ -38,6 +38,10 @@ namespace Crusader_Wars
             Program.Logger.Debug("HomePage initializing...");
             LoadFont();
             InitializeComponent();
+
+            // Add hover effects for logs link
+            viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
+            viewLogsLink.MouseLeave += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             
             Thread.Sleep(1000);
 
