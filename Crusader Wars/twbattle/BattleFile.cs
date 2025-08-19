@@ -387,6 +387,7 @@ namespace Crusader_Wars
 
         public static void BETA_CreateBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            Program.Logger.Debug("Starting battle file creation...");
             //  TEMP OBJETS TO USE HERE
             List<Army> temp_attacker_armies = new List<Army>(),
                        temp_defender_armies = new List<Army>();
@@ -469,6 +470,7 @@ namespace Crusader_Wars
 
         private static void WriteArmy(Army army, int total_soldiers, bool isReinforcement, string x)
         {
+            Program.Logger.Debug($"Writing army {army.ID} to battle file. Side: {army.CombatSide}, Alliance: {x}");
             //Write essential data
             if (isReinforcement)
                 //OpenReinforcementArmy();

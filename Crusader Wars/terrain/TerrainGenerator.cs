@@ -1,36 +1,23 @@
 ﻿using Crusader_Wars.terrain;
 using System;
-using System.Drawing;
-using System.Globalization;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Crusader_Wars
 {
-    //Desert
-    //Desert Mountain
-    //Dryland
-    //Farmlands
-    //Floodplains -- X
-    //Forest
-    //Hills
-    //Jungle -- X
-    //Mountains
-    //Oasis -- X
-    //---------------------
-    //Plains
-    //Steppe
-    //Taiga
-    //Wetlands
-
 
     public static class TerrainGenerator
     {
-   
         public static string TerrainType { get; set; }
-        public static string Region { get; private set; }
-
-        public static bool isRiver { get; private set; }
-        public static bool isStrait { get; private set; }
-        public static bool isUnique { get; private set; }
+        public static string Region { get; set; }
+        public static bool isUnique { get; set; }
+        public static bool isRiver { get; set; }
+        public static bool isStrait { get; set; }
 
         public static void SetRegion(string a)
         {
@@ -38,90 +25,35 @@ namespace Crusader_Wars
         }
         public static void isUniqueBattle(bool yn)
         {
-            switch (yn)
-            {
-                case true:
-                    isUnique = true;
-                    return;
-                case false:
-                    isUnique = false;
-                    return;
-            }
+            isUnique = yn;
         }
-
         public static void isRiverBattle(bool yn)
         {
-            switch(yn) 
-            {
-                case true:
-                    isRiver = true;
-                    return;
-                case false:
-                    isRiver = false;
-                    return;
-            }
+            isRiver = yn;
         }
-
         public static void isStraitBattle(bool yn)
         {
-            switch (yn)
-            {
-                case true:
-                    isStrait = true;
-                    return;
-                case false:
-                    isStrait = false;
-                    return;
-            }
+            isStrait = yn;
         }
-        static void ClearData()
-        {
-            TerrainType = String.Empty;
-            isRiver = false;
-            isStrait = false;
-            isUnique = false;
-        }
-
-
 
         public static (string X, string Y, string[] attPositions, string[] defPositions) GetBattleMap()
-       {
-
-            //Special Battle Maps           
-            if(isUnique)
+        {
+            if (isUnique)
             {
-                var battlemap = UniqueMaps.GetBattleMap();
-                //ClearData();
-                return battlemap;
+                return UniqueMaps.GetBattleMap();
             }
-
-            //Straits Battle Maps
-            if(isStrait)
+            else if (isRiver)
             {
-                var battlemap = Straits.GetBattleMap(Region ,TerrainType);
-                //ClearData();
-                return battlemap;   
+                return Rivers.GetBattleMap(TerrainType);
             }
-
-            //River Battle Maps
-            if(isRiver) 
+            else if (isStrait)
             {
-                var battlemap = Lands.GetBattleMap(TerrainType);
-                //ClearData();
-                return battlemap;
+                return Straits.GetBattleMap(TerrainType);
             }
-
-            //Land Battle Maps
-            bool isLand = (!isStrait && !isRiver && !isUnique);
-            if (isLand) 
+            else
             {
-                var battlemap = Lands.GetBattleMap(TerrainType);
-                //ClearData();
-                return battlemap;
+                return Lands.GetBattleMap(TerrainType);
             }
-
-
-            return ("0.146", "0.177", new string[] { "All", "All" }, new string[] { "All", "All" });
-       }
+        }
     }
 }
