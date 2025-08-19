@@ -98,28 +98,22 @@ namespace Crusader_Wars
 
         bool VerifyGamePaths()
         {
-            Program.Logger.Debug("Verifying game paths...");
             string ck3Executable = Path.GetFileName(Properties.Settings.Default.VAR_ck3_path).ToLower();
             string attilaExecutable = Path.GetFileName(Properties.Settings.Default.VAR_attila_path).ToLower();
-            Program.Logger.Debug($"CK3 Path: {Properties.Settings.Default.VAR_ck3_path}");
-            Program.Logger.Debug($"Attila Path: {Properties.Settings.Default.VAR_attila_path}");
 
             // Strict matching to make sure the executable is given.
             if ((ck3Executable == "ck3" || ck3Executable == "ck3.exe") && (attilaExecutable == "attila" || attilaExecutable == "attila.exe"))
             {
-                Program.Logger.Debug("Game paths verified successfully.");
                 return true;
             }
             else
             {
-                Program.Logger.Debug("Game paths verification failed.");
                 return false;
             }
         }
 
         bool VerifyEnabledUnitMappers()
         {
-            Program.Logger.Debug("Verifying enabled unit mappers...");
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\settings\UnitMappers.xml");
             foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
@@ -127,12 +121,10 @@ namespace Crusader_Wars
                 if (node is XmlComment) continue;
                 if (node.InnerText == "True")
                 {
-                    Program.Logger.Debug($"Unit mapper '{node.Attributes["name"].Value}' is enabled.");
                     return true;
                 }
             }
 
-            Program.Logger.Debug("No unit mappers enabled.");
             return false;
         }
 
@@ -711,7 +703,7 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
-                    Program.Logger.Debug($"Error processing Attila battle results: {ex.Message}");
+                    Program.Logger.Debug($"Error retrieving Attila:TW battle results: {ex.Message}");
                     MessageBox.Show($"Error retrieving Attila:TW battle results: {ex.Message}", "Attila:TW Battle Results Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     Games.CloseTotalWarAttilaProcess();
