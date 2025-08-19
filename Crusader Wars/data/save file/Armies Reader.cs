@@ -165,7 +165,7 @@ namespace Crusader_Wars.data.save_file
                     }
                     else if (line.Contains("\t\t\temployee="))
                     {
-                        employeeID = Regex.Match(line, @"\d+").Groups[1].Value;
+                        employeeID = Regex.Match(line, @"\d+").Value;
                     }
                     else if (line.StartsWith("\t\t\temployer="))
                     {

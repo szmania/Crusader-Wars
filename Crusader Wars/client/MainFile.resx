@@ -175,7 +175,7 @@
     <value>273, 16</value>
   </data>
   <data name="btt_debug.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>4, 4, 4, 4</</value>
   </data>
   <data name="btt_debug.Size" type="System.Drawing.Size, System.Drawing">
     <value>179, 39</value>
@@ -331,7 +331,7 @@
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
   <data name="labelVersion.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
+    <value>NoControl</label>
   </data>
   <data name="labelVersion.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 0</value>
@@ -537,17 +537,8 @@
   <data name="pipeLabel2.Text" xml:space="preserve">
     <value>|</value>
   </data>
-  <data name="&gt;&gt;pipeLabel2.Name" xml:space="preserve">
-    <value>pipeLabel2</value>
-  </data>
-  <data name="&gt;&gt;pipeLabel2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pipeLabel2.Parent" xml:space="preserve">
-    <value>BottomPanelLayout</value>
-  </data>
-  <data name="&gt;&gt;pipeLabel2.ZOrder" xml:space="preserve">
-    <value>4</value>
+  <data name="discordLink.ToolTip" xml:space="preserve">
+    <value>Join our Discord community for help and updates.</value>
   </data>
   <data name="discordLink.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
@@ -676,8 +667,7 @@
     <value>10</value>
   </data>
   <data name="&gt;&gt;WebsiteBTN.Name" xml:space="preserve">
-    <value>WebsiteBTN</value>
-  </data>
+    <value>WebsiteBTN</sdata>
   <data name="&gt;&gt;WebsiteBTN.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

@@ -188,6 +188,7 @@
             resources.ApplyResources(this.discordLink, "discordLink");
             this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.discordLink.Name = "discordLink";
+            this.InformationToolTip.SetToolTip(this.discordLink, resources.GetString("discordLink.ToolTip"));
             this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // patreonBtn

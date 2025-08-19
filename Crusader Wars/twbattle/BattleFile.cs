@@ -602,7 +602,11 @@ namespace Crusader_Wars
                 string heritage = unit.GetHeritage();
                 string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
 
-                faction = aoj_list.Find(x => x.AttilaFaction == attila_faction).Faction ?? default_faction;
+                var foundFaction = aoj_list.FirstOrDefault(x => x.AttilaFaction == attila_faction);
+                if (foundFaction.Faction != null)
+                {
+                    faction = foundFaction.Faction;
+                }
             }
             return faction;
         }
