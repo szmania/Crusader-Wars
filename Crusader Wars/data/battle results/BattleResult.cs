@@ -826,10 +826,10 @@ namespace Crusader_Wars
         }
 
    
-        public static void EditCombatFile(List<Army> attacker_armies,List<Army> defender_armies,string player_armies_combat_side, string enemy_armies_combat_side, string path_log_attila)
+        public static void EditCombatFile(List<Army> attacker_armies,List<Army> defender_armies,string player_armies_combat_side, string enemy_armies_combat_side, string path_attila_log)
         {
             Program.Logger.Debug("Editing Combat file...");
-            string winner = GetAttilaWinner(path_log_attila, player_armies_combat_side, enemy_armies_combat_side);
+            string winner = GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
             SetWinner(winner);
 
             using (StreamReader streamReader = new StreamReader(DataFilesPaths.Combats_Path()))
@@ -991,7 +991,7 @@ namespace Crusader_Wars
         }
 
         //Get winner from Attila
-        static string GetAttilaWinner(string path_log_attila, string player_armies_combat_side, string enemy_armies_combat_side)
+        static string GetAttilaWinner(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
         {
             string winner = "";
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
