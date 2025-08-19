@@ -228,7 +228,7 @@
   <data name="infoLabel.Text" xml:space="preserve">
     <value>Waiting for CK3 battle...</value>
   </data>
-  <data name="infoLabel.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="infoLabel.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
     <value>MiddleCenter</value>
   </data>
   <data name="&gt;&gt;infoLabel.Name" xml:space="preserve">
@@ -351,7 +351,7 @@
   <data name="labelVersion.Text" xml:space="preserve">
     <value>V1.0</value>
   </data>
-  <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
     <value>TopCenter</value>
   </data>
   <data name="&gt;&gt;labelVersion.Name" xml:space="preserve">
@@ -462,7 +462,7 @@
   <data name="EA_Label.Text" xml:space="preserve">
     <value>Early Acess</value>
   </data>
-  <data name="EA_Label.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="EA_Label.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
     <value>TopCenter</value>
   </data>
   <data name="&gt;&gt;EA_Label.Name" xml:space="preserve">
@@ -792,4 +792,4 @@
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-</root>```
+</root>
