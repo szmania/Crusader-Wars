@@ -228,6 +228,23 @@
             this.BottomPanelLayout.ResumeLayout(false);
             this.BottomPanelLayout.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
+
+            // viewLogsLink
+            this.viewLogsLink = new System.Windows.Forms.Label();
+            this.viewLogsLink.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
+            this.viewLogsLink.AutoSize = true;
+            this.viewLogsLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.viewLogsLink.Font = new System.Drawing.Font("Paradox King Script", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.viewLogsLink.Location = new System.Drawing.Point(1130, 680);
+            this.viewLogsLink.Name = "viewLogsLink";
+            this.viewLogsLink.Size = new System.Drawing.Size(61, 14);
+            this.viewLogsLink.TabIndex = 37;
+            this.viewLogsLink.Text = "View Logs";
+            this.viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
+            this.Controls.Add(this.viewLogsLink);
+
             this.ResumeLayout(false);
 
         }
@@ -247,6 +264,7 @@
         private System.Windows.Forms.Button WebsiteBTN;
         private System.Windows.Forms.Button SteamBTN;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label viewLogsLink;
         private System.Windows.Forms.Label EA_Label;
     }
 }
