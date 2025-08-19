@@ -1044,7 +1044,7 @@ namespace Crusader_Wars
             sounds.Play();
             
             string logPath = Path.GetFullPath(@".\data\debug.log");
-            if (File.Exists(logPath))
+            if (System.IO.File.Exists(logPath))
             {
                 // Open explorer and highlight debug.log
                 Process.Start("explorer.exe", $"/select, \"{logPath}\"");
