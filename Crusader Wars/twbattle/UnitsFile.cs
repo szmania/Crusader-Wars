@@ -184,7 +184,7 @@ namespace Crusader_Wars
                 {
                     if(string.IsNullOrEmpty(levy_culture.GetAttilaFaction()))
                     {
-                        Console.WriteLine($"WARNING - LEVY UNIT WITHOUT A FACTION FOUND. Amount = {levy_culture.GetSoldiers()} soldiers");
+                        Program.Logger.Debug($"WARNING - LEVY UNIT WITHOUT A FACTION FOUND. Amount = {levy_culture.GetSoldiers()} soldiers");
                         continue;
                     }
 
@@ -237,7 +237,7 @@ namespace Crusader_Wars
         {
             if (faction_levy_porcentages == null || faction_levy_porcentages.Count < 1)
             {
-                Console.WriteLine("ERROR - LEVIES WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
+                Program.Logger.Debug("ERROR - LEVIES WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
                 return;
             }
 

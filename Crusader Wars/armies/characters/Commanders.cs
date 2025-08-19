@@ -341,7 +341,7 @@ namespace Crusader_Wars
                 if (str.Contains($"Commander{ID} from Army"))
                 {
                     hasFallen = true;
-                    Console.WriteLine($"Commander {ID} has fallen!");
+                    Program.Logger.Debug($"Commander {ID} has fallen!");
 
                     reader.Close();
                     logFile.Close();
@@ -377,37 +377,37 @@ namespace Crusader_Wars
                 // Determine which option to set based on its percentage chance
                 if (RandomNumber >= 0 && RandomNumber <= WoundedChance)
                 {
-                    Console.WriteLine($"Commander {ID} got "+"Wounded ");
+                    Program.Logger.Debug($"Commander {ID} got "+"Wounded ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Wounded().ToString()); 
                 }
                 else if (RandomNumber > WoundedChance && RandomNumber <= Severely_InjuredChance)
                 {
-                    Console.WriteLine($"Commander {ID} got " + "Severely_Injured ");
+                    Program.Logger.Debug($"Commander {ID} got " + "Severely_Injured ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Severely_Injured().ToString());
                 }
                 else if (RandomNumber > Severely_InjuredChance && RandomNumber <= Brutally_MauledChance)
                 {
-                    Console.WriteLine($"Commander {ID} got " + "Brutally Mauled ");
+                    Program.Logger.Debug($"Commander {ID} got " + "Brutally Mauled ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Brutally_Mauled().ToString());
                 }
                 else if (RandomNumber > Brutally_MauledChance && RandomNumber <= MaimedChance)
                 {
-                    Console.WriteLine($"Commander {ID} got " + "Maimed ");
+                    Program.Logger.Debug($"Commander {ID} got " + "Maimed ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Maimed().ToString());
                 }
                 else if (RandomNumber > MaimedChance && RandomNumber <= One_LeggedChance)
                 {
-                    Console.WriteLine($"Commander {ID} got " + "One Legged ");
+                    Program.Logger.Debug($"Commander {ID} got " + "One Legged ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Legged().ToString());
                 }
                 else if (RandomNumber > One_LeggedChance && RandomNumber <= One_EyedChance)
                 {
-                    Console.WriteLine($"Commander {ID} got " + "One Eyed ");
+                    Program.Logger.Debug($"Commander {ID} got " + "One Eyed ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Eyed().ToString());
                 }
                 else if (RandomNumber > One_EyedChance && RandomNumber <= Disfigured)
                 {
-                    Console.WriteLine($"Commander {ID} got " + "Disfigured ");
+                    Program.Logger.Debug($"Commander {ID} got " + "Disfigured ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString());
                 }
 

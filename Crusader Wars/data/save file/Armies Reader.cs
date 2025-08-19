@@ -22,6 +22,7 @@ namespace Crusader_Wars.data.save_file
         }
         public static (List<Army> attacker, List<Army> defender) ReadBattleArmies()
         {
+            Program.Logger.Debug("Reading battle armies from save data...");
             ReadSaveFileTraits();
 
             ReadArmiesData();
@@ -52,6 +53,7 @@ namespace Crusader_Wars.data.save_file
             Print.PrintArmiesData(attacker_armies);
             Print.PrintArmiesData(defender_armies);
 
+            Program.Logger.Debug($"Finished reading battle armies. Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
             return (attacker_armies, defender_armies);
         }
 
@@ -71,16 +73,16 @@ namespace Crusader_Wars.data.save_file
 
         static void CheckForNullCultures()
         {
-            Console.WriteLine("ATTACKER  WITH NULL CULTURE REGIMENTS:\n");
+            Program.Logger.Debug("ATTACKER  WITH NULL CULTURE REGIMENTS:\n");
             foreach(Regiment regiment in attacker_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
             {
-                Console.WriteLine($"WARNING - REGIMENT {regiment.ID} HAS A NULL CULTURE");
+                Program.Logger.Debug($"WARNING - REGIMENT {regiment.ID} HAS A NULL CULTURE");
             }
 
-            Console.WriteLine("DEFENDER  WITH NULL CULTURE REGIMENTS:\n");
+            Program.Logger.Debug("DEFENDER  WITH NULL CULTURE REGIMENTS:\n");
             foreach (Regiment regiment in defender_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
             {
-                Console.WriteLine($"WARNING - REGIMENT {regiment.ID} HAS A NULL CULTURE");
+                Program.Logger.Debug($"WARNING - REGIMENT {regiment.ID} HAS A NULL CULTURE");
             }
         }
 
@@ -100,6 +102,7 @@ namespace Crusader_Wars.data.save_file
         {
             int index;
             index = save_file_traits.FirstOrDefault(x => x.name == trait_name).index;
+            Program.Logger.Debug($"GetTraitIndex for '{trait_name}': found index {index}");
             return index;
 
         }
@@ -398,6 +401,7 @@ namespace Crusader_Wars.data.save_file
 
         static Accolade GetAccolade(string accoladeID)
         {
+            Program.Logger.Debug($"Searching for accolade with ID: {accoladeID}");
             bool searchStarted = false;
             string primaryAttribute = "";
             string secundaryAttribute = "";
@@ -426,11 +430,12 @@ namespace Crusader_Wars.data.save_file
                     else if (searchStarted && line == "\t\t}")
                     {
                         searchStarted = false;
+                        Program.Logger.Debug($"Found accolade {accoladeID}: Primary={primaryAttribute}, Secondary={secundaryAttribute}, Glory={glory}");
                         return new Accolade(accoladeID, primaryAttribute, secundaryAttribute, glory);
                     }
                 }
             }
-
+            Program.Logger.Debug($"Accolade with ID {accoladeID} not found.");
             return null;
         }
 
@@ -585,6 +590,7 @@ namespace Crusader_Wars.data.save_file
         
         public static List<Army> GetSideArmies(string side)
         {
+            Program.Logger.Debug($"Getting armies for side: {side}");
             List<Army> left_side = null, right_side = null;
             foreach (var army in attacker_armies)
             {
@@ -614,9 +620,15 @@ namespace Crusader_Wars.data.save_file
             }
 
             if (side == "left")
+            {
+                Program.Logger.Debug($"Returning {left_side?.Count ?? 0} armies for left side.");
                 return left_side;
+            }
             else
+            {
+                Program.Logger.Debug($"Returning {right_side?.Count ?? 0} armies for right side.");
                 return right_side;
+            }
         }
 
         static void CreateMainCommanders()

@@ -14,6 +14,7 @@ namespace Crusader_Wars.data.save_file
         static bool Combats_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
+            Program.Logger.Debug($"Starting to write data back to save file: {savePath}");
             bool resultsFound = false;
             bool combatsFound = false;
 
@@ -33,28 +34,34 @@ namespace Crusader_Wars.data.save_file
                     //Line Skipper
                     if (NeedSkiping && line == "pending_character_interactions={")
                     {
+                        Program.Logger.Debug("Skipping block until 'pending_character_interactions={' is found.");
                         NeedSkiping = false;
                     }
                     else if (CombatResults_NeedsSkiping && line == "\t\t}")
                     {
+                        Program.Logger.Debug("Finished skipping CombatResults block.");
                         CombatResults_NeedsSkiping = false;
                         resultsFound = false;
                     }
                     else if (Combats_NeedsSkiping && line == "\t\t}")
                     {
+                        Program.Logger.Debug("Finished skipping Combats block.");
                         Combats_NeedsSkiping = false;
                         combatsFound = false;
                     }
                     else if (NeedSkiping && line == "\tarmy_regiments={")
                     {
+                        Program.Logger.Debug("Skipping block until '\tarmy_regiments={' is found.");
                         NeedSkiping = false;
                     }
                     else if (NeedSkiping && line == "\tarmies={")
                     {
+                        Program.Logger.Debug("Skipping block until '\tarmies={' is found.");
                         NeedSkiping = false;
                     }
                     else if (NeedSkiping && line == "dead_unprunable={")
                     {
+                        Program.Logger.Debug("Skipping block until 'dead_unprunable={' is found.");
                         NeedSkiping = false;
                     }
 
@@ -76,8 +83,9 @@ namespace Crusader_Wars.data.save_file
                     //Combat Result
                     else if (line == $"\t\t{BattleResult.ResultID}={{" && resultsFound && !CombatResults_NeedsSkiping)
                     {
+                        Program.Logger.Debug("Writing modified CombatResults block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.CombatResults_Path(), FileType.CombatResults);
-                        Console.WriteLine("EDITED BATTLE RESULTS SENT!");
+                        Program.Logger.Debug("EDITED BATTLE RESULTS SENT!");
                         CombatResults_NeedsSkiping = true;
                     }
                     
@@ -90,26 +98,30 @@ namespace Crusader_Wars.data.save_file
                     //Combat
                     else if (line == $"\t\t{BattleResult.CombatID}={{" && combatsFound && !Combats_NeedsSkiping)
                     {
+                        Program.Logger.Debug("Writing modified Combats block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Combats_Path(), FileType.Combats);
-                        Console.WriteLine("EDITED COMBATS SENT!");
+                        Program.Logger.Debug("EDITED COMBATS SENT!");
                         Combats_NeedsSkiping = true;
                     }
                     else if (line == "\tregiments={" && !NeedSkiping)
                     {
+                        Program.Logger.Debug("Writing modified Regiments block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Regiments_Path(), FileType.Regiments);
-                        Console.WriteLine("EDITED REGIMENTS SENT!");
+                        Program.Logger.Debug("EDITED REGIMENTS SENT!");
                         NeedSkiping = true;
                     }
                     else if (line == "\tarmy_regiments={" && !NeedSkiping)
                     {
+                        Program.Logger.Debug("Writing modified ArmyRegiments block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.ArmyRegiments_Path(), FileType.ArmyRegiments);
-                        Console.WriteLine("EDITED ARMY REGIMENTS SENT!");
+                        Program.Logger.Debug("EDITED ARMY REGIMENTS SENT!");
                         NeedSkiping = true;
                     }
                     else if (line == "living={" && !NeedSkiping)
                     {
+                        Program.Logger.Debug("Writing modified Living block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Living_Path(), FileType.Living);
-                        Console.WriteLine("EDITED LIVING SENT!");
+                        Program.Logger.Debug("EDITED LIVING SENT!");
                         NeedSkiping = true;
                     }
                     else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping)
@@ -134,6 +146,7 @@ namespace Crusader_Wars.data.save_file
 
         static void WriteDataToSaveFile(StreamWriter streamWriter, string data_file_path, FileType fileType)
         {
+            Program.Logger.Debug($"Writing content from {data_file_path} into save file stream.");
             StringBuilder sb = new StringBuilder();
             using (StreamReader sr = new StreamReader(data_file_path))
             {
@@ -196,4 +209,3 @@ namespace Crusader_Wars.data.save_file
 
     }
 }
-

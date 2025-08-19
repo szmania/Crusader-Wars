@@ -35,6 +35,7 @@ namespace Crusader_Wars
         private int _myVariable = 0;
         public HomePage()
         {
+            Program.Logger.Debug("HomePage initializing...");
             LoadFont();
             InitializeComponent();
             
@@ -43,6 +44,9 @@ namespace Crusader_Wars
             documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             debugLog_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\console_history.txt";
             saveGames_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\save games";
+            Program.Logger.Debug($"Documents Path: {documentsPath}");
+            Program.Logger.Debug($"CK3 Log Path: {debugLog_Path}");
+            Program.Logger.Debug($"Save Games Path: {saveGames_Path}");
 
             //Icon
             this.Icon = Properties.Resources.logo;
@@ -56,16 +60,19 @@ namespace Crusader_Wars
             Properties.Settings.Default.VAR_log_ck3 = debugLog_Path;
             Properties.Settings.Default.Save();
 
+            Program.Logger.Debug("Starting updater checks...");
             Updater Updater = new Updater();
             Updater.CheckAppVersion();
             Updater.CheckUnitMappersVersion();
             labelVersion.Text = $"V{Updater.AppVersion}";
+            Program.Logger.Debug($"Current App Version: {Updater.AppVersion}");
 
             var _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 500; // check variable every second
             _timer.Tick += Timer_Tick;
             _timer.Start();
             Original_Color = infoLabel.ForeColor;
+            Program.Logger.Debug("HomePage initialization complete.");
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -91,18 +98,28 @@ namespace Crusader_Wars
 
         bool VerifyGamePaths()
         {
-	    string ck3Executable = Path.GetFileName(Properties.Settings.Default.VAR_ck3_path).ToLower();
-	    string attilaExecutable = Path.GetFileName(Properties.Settings.Default.VAR_attila_path).ToLower();
+            Program.Logger.Debug("Verifying game paths...");
+            string ck3Executable = Path.GetFileName(Properties.Settings.Default.VAR_ck3_path).ToLower();
+            string attilaExecutable = Path.GetFileName(Properties.Settings.Default.VAR_attila_path).ToLower();
+            Program.Logger.Debug($"CK3 Path: {Properties.Settings.Default.VAR_ck3_path}");
+            Program.Logger.Debug($"Attila Path: {Properties.Settings.Default.VAR_attila_path}");
 
-	    // Strict matching to make sure the executable is given.
-	    if ((ck3Executable == "ck3" || ck3Executable == "ck3.exe") && (attilaExecutable == "attila" || attilaExecutable == "attila.exe"))
+            // Strict matching to make sure the executable is given.
+            if ((ck3Executable == "ck3" || ck3Executable == "ck3.exe") && (attilaExecutable == "attila" || attilaExecutable == "attila.exe"))
+            {
+                Program.Logger.Debug("Game paths verified successfully.");
                 return true;
+            }
             else
+            {
+                Program.Logger.Debug("Game paths verification failed.");
                 return false;
+            }
         }
 
         bool VerifyEnabledUnitMappers()
         {
+            Program.Logger.Debug("Verifying enabled unit mappers...");
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\settings\UnitMappers.xml");
             foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
@@ -110,10 +127,12 @@ namespace Crusader_Wars
                 if (node is XmlComment) continue;
                 if (node.InnerText == "True")
                 {
+                    Program.Logger.Debug($"Unit mapper '{node.Attributes["name"].Value}' is enabled.");
                     return true;
                 }
             }
 
+            Program.Logger.Debug("No unit mappers enabled.");
             return false;
         }
 
@@ -149,7 +168,7 @@ namespace Crusader_Wars
         string saveGames_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\save games";
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
             Options.ReadGamePaths();    
 
@@ -168,7 +187,7 @@ namespace Crusader_Wars
             ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
             AttilaPreferences.ChangeUnitSizes();
 
-
+            Program.Logger.Debug("Form1_Load complete.");
         }
 
         //---------------------------------//
@@ -186,6 +205,7 @@ namespace Crusader_Wars
         private void CreateAttilaShortcut()
         {
             if(!System.IO.File.Exists(@".\CW.lnk")) {
+                Program.Logger.Debug("Attila shortcut not found, creating...");
                 object shDesktop = (object)"Desktop";
                 WshShell shell = new WshShell();
                 string shortcutAddress = @".\CW.lnk";
@@ -195,6 +215,7 @@ namespace Crusader_Wars
                 shortcut.Arguments = "used_mods_cw.txt";
                 shortcut.TargetPath = Properties.Settings.Default.VAR_attila_path;
                 shortcut.Save();
+                Program.Logger.Debug("Attila shortcut created successfully.");
             }
         }
 
@@ -204,6 +225,7 @@ namespace Crusader_Wars
         List<Army> defender_armies;
         private void HomePage_Shown(object sender, EventArgs e)
         {
+            Program.Logger.Debug("Main form shown.");
             infoLabel.Text = "Loading DLLs...";
             ExecuteButton.Enabled= false;
             //LoadDLLs();
@@ -222,6 +244,7 @@ namespace Crusader_Wars
         LoadingScreen loadingScreen;
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
+            Program.Logger.Debug("Execute button clicked.");
             sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
             sounds.Play();
             _myVariable = 1;
@@ -232,7 +255,7 @@ namespace Crusader_Wars
             /*
              *  ERASES OLD FILES
              */
-
+            Program.Logger.Debug("Erasing old files.");
             string gamestateFile = @".\data\save_file_data\gamestate_file\gamestate";
             string editedGamestateFile = @".\data\save_file_data\gamestate";
             string savefileZip = @".\data\save_file_data\last_save.zip";
@@ -247,16 +270,18 @@ namespace Crusader_Wars
 
             while (true)
             {
-
+                Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
                 infoLabel.Text = "Ready to start!";
                 this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                 try
                 {
                     CreateAttilaShortcut();
+                    Program.Logger.Debug("Attila shortcut created/verified.");
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
                     MessageBox.Show("Error creating Attila shortcut!", "File Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
@@ -273,9 +298,11 @@ namespace Crusader_Wars
                     DeclarationsFile.Erase();
                     BattleScript.EraseScript();
                     BattleResult.ClearAttilaLog();
+                    Program.Logger.Debug("Log files cleared.");
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Program.Logger.Debug($"Error clearing log files: {ex.Message}");
                     MessageBox.Show("No Log File Found!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
@@ -288,9 +315,11 @@ namespace Crusader_Wars
                 {
                     //Open Crusader Kings 3
                     Games.StartCrusaderKingsProcess();
+                    Program.Logger.Debug("CK3 process started/verified.");
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Program.Logger.Debug($"Error starting CK3: {ex.Message}");
                     MessageBox.Show("Couldn't find 'ck3.exe'. Change the Crusader Kings 3 path. ", "Path Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
@@ -313,6 +342,7 @@ namespace Crusader_Wars
                         reader.DiscardBufferedData();
 
                         infoLabel.Text = "Waiting for CK3 battle...";
+                        Program.Logger.Debug("Waiting for CRUSADERWARS3 keyword in CK3 log...");
                         try
                         {
                             //Wait for CW keyword
@@ -326,6 +356,7 @@ namespace Crusader_Wars
                                     //If Battle Started
                                     if (line.Contains(SEARCH_KEY))
                                     {
+                                        Program.Logger.Debug("Battle keyword found in CK3 log.");
                                         battleHasStarted = true;
                                         break;
                                     }
@@ -336,8 +367,9 @@ namespace Crusader_Wars
                                 await Task.Delay(1);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            Program.Logger.Debug($"Error searching for battle in log: {ex.Message}");
                             MessageBox.Show("Error searching for battle. ", "Critical Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Ready to start!";
@@ -364,15 +396,21 @@ namespace Crusader_Wars
 
                             if (battleHasStarted)
                             {
+                                Program.Logger.Debug("Reading CK3 battle data from log.");
+                                Program.Logger.Debug("Searching log data...");
                                 DataSearch.Search(log);
+                                Program.Logger.Debug("Reading installed Attila mods...");
                                 AttilaModManager.ReadInstalledMods();
+                                Program.Logger.Debug("Setting playthrough...");
                                 SetPlaythrough();
                                 UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString());
+                                Program.Logger.Debug("Creating user mods file for Attila...");
                                 AttilaModManager.CreateUserModsFile();
                             }
                         }
                         catch(Exception ex)
                         {
+                            Program.Logger.Debug($"Error reading battle data from log: {ex.Message}");
                             this.Show();
                             CloseLoadingScreen();
                             MessageBox.Show($"Error reading Attila:TW battle data: {ex.Message}", "Data Error",
@@ -406,6 +444,7 @@ namespace Crusader_Wars
 
                     //path_editedSave = Properties.Settings.Default.VAR_dir_save + @"\CrusaderWars_Battle.ck3";
                     path_editedSave = @".\data\save_file_data\gamestate_file\gamestate";
+                    Program.Logger.Debug("Uncompressing and reading save file.");
                     SaveFile.Uncompress();
                     Reader.ReadFile(path_editedSave);
                     BattleResult.GetPlayerCombatResult();
@@ -413,6 +452,7 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
+                    Program.Logger.Debug($"Error reading save file: {ex.Message}");
                     this.Show();
                     CloseLoadingScreen();
                     MessageBox.Show($"Error reading the save file: {ex.Message}", "Save File Error",
@@ -432,12 +472,15 @@ namespace Crusader_Wars
 
                     //1.0 Beta Debug
                     UpdateLoadingScreenMessage("Reading CK3 save file data...");
+                    Program.Logger.Debug("Reading battle armies from save file.");
                     var armies = ArmiesReader.ReadBattleArmies();
                     attacker_armies = armies.attacker;
                     defender_armies = armies.defender;
+                    Program.Logger.Debug($"Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
                 }
                 catch(Exception ex)
                 {
+                    Program.Logger.Debug($"Error reading battle armies: {ex.Message}");
                     this.Show();
                     CloseLoadingScreen();
                     MessageBox.Show($"Error reading the battle armies: {ex.Message}\nDon't play in Ironman or in debug mode!\nYour Crusader Kings III saves MUST NOT be on the steam cloud.", "Beta Error",
@@ -458,47 +501,58 @@ namespace Crusader_Wars
                 int right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
                 string left_side_combat_side = left_side[0].CombatSide;
                 string right_side_combat_side = right_side[0].CombatSide;
+                Program.Logger.Debug($"Left side ({left_side_combat_side}) total soldiers: {left_side_total}");
+                Program.Logger.Debug($"Right side ({right_side_combat_side}) total soldiers: {right_side_total}");
 
 
 
 
                 try
                 {
+                    Program.Logger.Debug("Creating Attila battle files.");
                     BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side_combat_side);
 
                     Games.CloseTotalWarAttilaProcess();
                     UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");
 
                     //Create Remaining Soldiers Script
+                    Program.Logger.Debug("Creating battle script...");
                     BattleScript.CreateScript();
 
                     // Set Battle Scale
                     int total_soldiers = attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
                                          defender_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers());
+                    Program.Logger.Debug($"Total soldiers for battle scale calculation: {total_soldiers}");
                     ArmyProportions.AutoSizeUnits(total_soldiers);
+                    Program.Logger.Debug($"Applying battle scale: {ModOptions.GetBattleScale()}");
                     foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
                     foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
 
                     //Create Battle
+                    Program.Logger.Debug("Creating battle file...");
                     BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);
 
                     //Close Script
                     BattleScript.CloseScript();
 
                     //Set Commanders Script
+                    Program.Logger.Debug("Setting commanders in script...");
                     BattleScript.SetCommandersLocals();
 
                     //Set Units Kills Script
+                    Program.Logger.Debug("Setting unit kill trackers in script...");
                     BattleScript.SetLocalsKills(Data.units_scripts);
 
                     //Close Script
                     BattleScript.CloseScript();
 
                     //Creates .pack mod file
+                    Program.Logger.Debug("Creating .pack file...");
                     PackFile.PackFileCreator();
                 }
                 catch(Exception ex)
                 {
+                    Program.Logger.Debug($"Error creating Attila battle: {ex.Message}");
                     this.Show();
                     CloseLoadingScreen();
                     MessageBox.Show($"Error creating the battle:{ex.Message}", "Data Error",
@@ -516,10 +570,12 @@ namespace Crusader_Wars
                 try
                 {
                     //Open Total War Attila
+                    Program.Logger.Debug("Starting Attila process.");
                     Games.StartTotalWArAttilaProcess();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Program.Logger.Debug($"Error starting Attila: {ex.Message}");
                     this.Show();
                     CloseLoadingScreen();
                     MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Path Error",
@@ -544,7 +600,7 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
-                    
+                    Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                     MessageBox.Show($"Error: {ex.Message}", "Application Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     Games.CloseTotalWarAttilaProcess();
@@ -560,7 +616,7 @@ namespace Crusader_Wars
 
                 Games.CloseCrusaderKingsProcess();
 
-                Console.WriteLine("Attila:TW battle created successfully");
+                Program.Logger.Debug("Attila:TW battle created successfully");
 
                 //               Retrieve battle result to ck3
                 //-----------------------------------------------------------
@@ -573,6 +629,7 @@ namespace Crusader_Wars
 
                 infoLabel.Text = "Waiting for Attila:TW battle to end...";
                 this.Text = "Crusader Wars (Waiting for Attila:TW battle to end...)";
+                Program.Logger.Debug("Waiting for Attila battle to end...");
 
                 //  Waiting for Attila:TW battle to end...
                 while (battleEnded == false)
@@ -580,12 +637,14 @@ namespace Crusader_Wars
                     battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
                     await Task.Delay(10);
                 }
+                Program.Logger.Debug("Attila battle ended.");
 
 
                 try
                 {
                     if (battleEnded)
                     {
+                        Program.Logger.Debug("Processing Attila battle results.");
                         ModOptions.CloseAttila();
 
                         infoLabel.Text = "Attila:TW battle has ended!";
@@ -595,15 +654,19 @@ namespace Crusader_Wars
 
 
                         //  SET CASUALITIES
+                        Program.Logger.Debug("Setting casualties for attacker armies...");
                         foreach (var army in attacker_armies)
                         {
+                            Program.Logger.Debug($"Processing army ID: {army.ID}");
                             BattleResult.ReadAttilaResults(army, path_log_attila);
                             BattleResult.CheckForDeathCommanders(army, path_log_attila);
                             BattleResult.CheckKnightsKills(army);
                             BattleResult.CheckForDeathKnights(army);
                         }
+                        Program.Logger.Debug("Setting casualties for defender armies...");
                         foreach (var army in defender_armies)
                         {
+                            Program.Logger.Debug($"Processing army ID: {army.ID}");
                             BattleResult.ReadAttilaResults(army, path_log_attila);
                             BattleResult.CheckForDeathCommanders(army, path_log_attila);
                             BattleResult.CheckKnightsKills(army);
@@ -612,26 +675,34 @@ namespace Crusader_Wars
                         }
 
                         //  EDIT LIVING FILE
+                        Program.Logger.Debug("Editing Living.txt file...");
                         BattleResult.EditLivingFile(attacker_armies, defender_armies);
 
                         //  EDIT COMBATS FILE
+                        Program.Logger.Debug("Editing Combats.txt file...");
                         BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
 
                         //  EDIT COMBATS RESULTS FILE
+                        Program.Logger.Debug("Editing BattleResults.txt file...");
                         BattleResult.EditCombatResultsFile(attacker_armies, defender_armies);
 
                         //  EDIT REGIMENTS FILE
+                        Program.Logger.Debug("Editing Regiments.txt file...");
                         BattleResult.EditRegimentsFile(attacker_armies, defender_armies);
 
                         //  EDIT ARMY REGIMENTS FILE
+                        Program.Logger.Debug("Editing ArmyRegiments.txt file...");
                         BattleResult.EditArmyRegimentsFile(attacker_armies, defender_armies);
 
 
                         //  WRITE TO CK3 SAVE FILE
+                        Program.Logger.Debug("Writing results to gamestate file...");
                         BattleResult.SendToSaveFile(path_editedSave);
 
                         //  COMPRESS CK3 SAVE FILE AND SEND TO CK3 SAVE FILE FOLDER
+                        Program.Logger.Debug("Compressing new save file...");
                         SaveFile.Compress();
+                        Program.Logger.Debug("Finalizing save file...");
                         SaveFile.Finish();
 
                         //  OPEN CK3 WITH BATTLE RESULTS
@@ -640,6 +711,7 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
+                    Program.Logger.Debug($"Error processing Attila battle results: {ex.Message}");
                     MessageBox.Show($"Error retrieving Attila:TW battle results: {ex.Message}", "Attila:TW Battle Results Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     Games.CloseTotalWarAttilaProcess();
@@ -655,6 +727,7 @@ namespace Crusader_Wars
 
                 await Task.Delay(10);
 
+                Program.Logger.Debug("Resetting unit sizes for next battle.");
                 ArmyProportions.ResetUnitSizes();
                 GC.Collect();
 
@@ -690,12 +763,14 @@ namespace Crusader_Wars
             }
             public static void SuspendProcess()
             {
+                Program.Logger.Debug("Suspending ck3.exe process.");
                 ProcessRuntime("ck3.exe");
 
             }
 
             public static void ResumeProcess()
             {
+                Program.Logger.Debug("Resuming ck3.exe process.");
                 ProcessRuntime("/r ck3.exe");
             }
 
@@ -707,6 +782,7 @@ namespace Crusader_Wars
          ---------------------------------------------*/
         void SetPlaythrough()
         {
+            Program.Logger.Debug("Setting playthrough...");
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\settings\UnitMappers.xml");
             string tagName = "";
@@ -716,6 +792,7 @@ namespace Crusader_Wars
                 if (node.InnerText == "True")
                 {
                     tagName = node.Attributes["name"].Value;
+                    Program.Logger.Debug($"Playthrough tag found: {tagName}");
                     break;
                 }
             }
@@ -731,18 +808,24 @@ namespace Crusader_Wars
         {
             public static void StartCrusaderKingsProcess()
             {
-
+                Program.Logger.Debug("Checking for CK3 process...");
                 Process[] process_ck3 = Process.GetProcessesByName("ck3");
                 if (process_ck3.Length == 0)
                 {
+                    Program.Logger.Debug("CK3 process not found. Starting CK3.");
                     Process.Start(Properties.Settings.Default.VAR_ck3_path);
                     DataSearch.ClearLogFile();
+                }
+                else
+                {
+                    Program.Logger.Debug("CK3 process already running.");
                 }
 
             }
 
             public static void CloseCrusaderKingsProcess()
             {
+                Program.Logger.Debug("Closing CK3 process...");
                 Process[] process_ck3 = Process.GetProcessesByName("ck3");
                 foreach (Process worker in process_ck3)
                 {
@@ -751,22 +834,25 @@ namespace Crusader_Wars
                     worker.Dispose();
                 }
 
-             
+                Program.Logger.Debug("CK3 process closed.");
             }
 
             public static void LoadBattleResults()
             {
+                Program.Logger.Debug("Loading CK3 with battle results...");
                 string ck3_path = Properties.Settings.Default.VAR_ck3_path;
                 Process.Start(ck3_path, "--continuelastsave");
             }
 
             public static void StartTotalWArAttilaProcess()
             {
+                Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
                 Process.Start(@".\CW.lnk");
             }
 
             public async static void CloseTotalWarAttilaProcess()
             {
+                Program.Logger.Debug("Closing Total War: Attila process...");
                 Process[] process_attila = Process.GetProcessesByName("Attila");
                 foreach (Process worker in process_attila)
                 {
@@ -776,7 +862,7 @@ namespace Crusader_Wars
                 }
 
                 await Task.Delay(1000);
-
+                Program.Logger.Debug("Total War: Attila process closed.");
             }
         };
 
@@ -786,6 +872,7 @@ namespace Crusader_Wars
 
         void ChangeLoadingScreenImage()
         {
+            Program.Logger.Debug("Changing loading screen image based on playthrough.");
             string file = @".\Settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
@@ -799,6 +886,7 @@ namespace Crusader_Wars
             if (tfeToggleStateStr == "True") playthrough = "LateAntiquity";
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
 
+            Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
             switch (playthrough)
             {
                 case "Medieval":
@@ -817,7 +905,7 @@ namespace Crusader_Wars
         }
         public void StartLoadingScreen()
         {
-
+            Program.Logger.Debug("Starting loading screen thread.");
             loadingThread = new Thread(new ThreadStart(() =>
             {
                 loadingScreen = new LoadingScreen();
@@ -854,6 +942,7 @@ namespace Crusader_Wars
 
         public void CloseLoadingScreen()
         {
+            Program.Logger.Debug("Closing loading screen.");
             if (loadingScreen.InvokeRequired)
             {
                 loadingScreen.Invoke(new Action(() => loadingScreen.Close()));
@@ -890,17 +979,21 @@ namespace Crusader_Wars
 
         private void LoadDLLs()
         {
+            Program.Logger.Debug("Loading DLLs from data\\dlls folder.");
             try
             {
                 string dll_folder = @".\data\dlls";
                 foreach (string dllFile in Directory.GetFiles(dll_folder, "*.dll"))
                 {
+                    Program.Logger.Debug($"Loading DLL: {dllFile}");
                     Assembly assembly = Assembly.LoadFrom(dllFile);
                     AppDomain.CurrentDomain.Load(assembly.GetName());
                 }
+                Program.Logger.Debug("Finished loading DLLs.");
             }
-            catch
+            catch (Exception ex)
             {
+                Program.Logger.Debug($"Error loading DLLs: {ex.Message}");
                 return;
             }
 
@@ -908,6 +1001,7 @@ namespace Crusader_Wars
 
         private void SettingsBtn_Click(object sender, EventArgs e)
         {
+            Program.Logger.Debug("Settings button clicked.");
             SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_click;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
@@ -918,6 +1012,7 @@ namespace Crusader_Wars
 
         private void HomePage_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Program.Logger.Debug("HomePage form closing.");
             ProcessCommands.ResumeProcess();
         }
 
@@ -925,6 +1020,7 @@ namespace Crusader_Wars
 
         private void patreonBtn_Click(object sender, EventArgs e)
         {
+            Program.Logger.Debug("Patreon button clicked.");
             patreonBtn.BackgroundImage = Properties.Resources.patreon_btn_clickpng;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
@@ -934,6 +1030,7 @@ namespace Crusader_Wars
 
         private void WebsiteBTN_Click(object sender, EventArgs e)
         {
+            Program.Logger.Debug("Website button clicked.");
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
@@ -943,6 +1040,7 @@ namespace Crusader_Wars
 
         private void SteamBTN_Click(object sender, EventArgs e)
         {
+            Program.Logger.Debug("Steam button clicked.");
             SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_click;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();

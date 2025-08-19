@@ -135,6 +135,7 @@ namespace Crusader_Wars.mod_manager
 
         public static void CreateUserModsFile()
         {
+            Program.Logger.Debug("Creating user mods file for Attila...");
             // CREATE ESSENTIAL FILE TO OPEN ATTILA AUTOMATICALLY
             string steam_app_id_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "steam_appid.txt");
             if (!File.Exists(steam_app_id_path))
@@ -208,36 +209,44 @@ namespace Crusader_Wars.mod_manager
             using (StreamWriter sw = new StreamWriter(modsFile))
             {
                 sw.NewLine = "\n";
-                foreach(string wD  in workingDirectories)
+                Program.Logger.Debug("Writing mods to used_mods_cw.txt...");
+                foreach (string wD  in workingDirectories)
                 {
                     string t = wD.Replace(@"\", @"/");
                     sw.WriteLine($"add_working_directory \"{t}\";");
+                    Program.Logger.Debug($"  - WD: {t}");
                 }
 
                 foreach (string wD in workingDirectoriesRequiredMods)
                 {
                     string t = wD.Replace(@"\", @"/");
                     sw.WriteLine($"add_working_directory \"{t}\";");
+                    Program.Logger.Debug($"  - Required WD: {t}");
                 }
 
                 sw.WriteLine($"mod \"CrusaderWars.pack\";");
+                Program.Logger.Debug("  - Mod: CrusaderWars.pack");
 
                 foreach (string mod in dataModNames)
                 {
                     sw.WriteLine($"mod \"{mod}\";");
+                    Program.Logger.Debug($"  - Data Mod: {mod}");
                 }
                 foreach (string mod in steamModNames)
                 {
                     sw.WriteLine($"mod \"{mod}\";");
+                    Program.Logger.Debug($"  - Steam Mod: {mod}");
                 }
 
                 foreach (string mod in dataModNamesRequiredMods)
                 {
                     sw.WriteLine($"mod \"{mod}\";");
+                    Program.Logger.Debug($"  - Required Data Mod: {mod}");
                 }
                 foreach (string mod in steamModNamesRequiredMods)
                 {
                     sw.WriteLine($"mod \"{mod}\";");
+                    Program.Logger.Debug($"  - Required Steam Mod: {mod}");
                 }
 
                 sw.Dispose();
@@ -246,6 +255,7 @@ namespace Crusader_Wars.mod_manager
         }
         public static void ReadInstalledMods()
         {
+            Program.Logger.Debug("Reading installed Attila mods...");
             string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
             string workshop_folder_path = GetWorkshopFolderPath();
 
@@ -328,7 +338,7 @@ namespace Crusader_Wars.mod_manager
 
             //SET ACTIVE MODS
             SetActiveMods();
-
+            Program.Logger.Debug($"Found {ModsPaths.Count} installed mods.");
         }
 
         public static void ReadInstalledModsAndPopulateModManager()
@@ -370,7 +380,7 @@ namespace Crusader_Wars.mod_manager
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading image: {ex.Message}");
+                Program.Logger.Debug($"Error loading image: {ex.Message}");
                 return null;
             }
         }

@@ -421,9 +421,11 @@ namespace Crusader_Wars
             int total_soldiers = 0;
             total_soldiers = temp_attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
                              temp_defender_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers());
+            Program.Logger.Debug($"Total soldiers for battle: {total_soldiers}");
 
             //  BATTLE MAP
             var battleMap = TerrainGenerator.GetBattleMap();
+            Program.Logger.Debug($"Battle map selected: X={battleMap.X}, Y={battleMap.Y}");
             var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
             var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
 

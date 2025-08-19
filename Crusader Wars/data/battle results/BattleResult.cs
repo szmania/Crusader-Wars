@@ -24,6 +24,7 @@ namespace Crusader_Wars
         public static string Player_Combat;
         public static void ReadPlayerCombat(string playerID)
         {
+            Program.Logger.Debug($"Reading player combat for player ID: {playerID}");
             try
             {
                 bool isSearchStarted = false;
@@ -74,15 +75,15 @@ namespace Crusader_Wars
                 }
                 BattleResult.CombatID = battleID;
                 Player_Combat = sb.ToString();
-                Console.WriteLine("Combat ID - " + battleID);
+                Program.Logger.Debug("Combat ID - " + battleID);
                 File.WriteAllText(DataFilesPaths.Combats_Path(), Player_Combat);
 
                 ArmiesReader.ReadCombats(Player_Combat);
-                Console.WriteLine("All combats were read successfully");
+                Program.Logger.Debug("All combats were read successfully");
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine("Error reading all combats!");
+                Program.Logger.Debug($"Error reading player combat: {ex.Message}");
             }
        
 
@@ -91,6 +92,7 @@ namespace Crusader_Wars
 
         public static void GetPlayerCombatResult()
         {
+            Program.Logger.Debug("Getting player combat result...");
             try
             {
                 string battle_id="";
@@ -146,19 +148,20 @@ namespace Crusader_Wars
                 }
 
                 BattleResult.ResultID = battle_id;
-                Console.WriteLine("ResultID - " + battle_id);
+                Program.Logger.Debug("ResultID - " + battle_id);
                 File.WriteAllText(@".\data\save_file_data\BattleResults.txt", f.ToString());
-                Console.WriteLine("All combat results were read successfully");
+                Program.Logger.Debug("All combat results were read successfully");
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine("Error reading all combat results!");
+                Program.Logger.Debug($"Error reading all combat results: {ex.Message}");
             }
         }
 
 
         public static void SendToSaveFile(string filePath)
         {
+            Program.Logger.Debug($"Sending battle results to save file: {filePath}");
             Writter.SendDataToFile(filePath);
             Data.Reset();
             Player_Combat = "";
@@ -228,7 +231,7 @@ namespace Crusader_Wars
         // Get attila remaining soldiers
         public static void ReadAttilaResults(Army army, string path_attila_log)
         {
-
+            Program.Logger.Debug($"Reading Attila results for army {army.ID} from log: {path_attila_log}");
             try
             {
                 UnitsResults units = new UnitsResults();
@@ -372,8 +375,8 @@ namespace Crusader_Wars
             var grouped = army.UnitsResults.Alive_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
             var pursuit_grouped = army.UnitsResults.Alive_PursuitPhase?.GroupBy(item => new { item.Type, item.CultureID });
 
-            Console.WriteLine("#############################");
-            Console.WriteLine($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
+            Program.Logger.Debug("#############################");
+            Program.Logger.Debug($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
             foreach(var group in grouped)
             {
                 // Set the regiment type to the correct one
@@ -413,12 +416,20 @@ namespace Crusader_Wars
 
         public static void CheckForDeathCommanders(Army army, string path_attila_log)
         {
+            Program.Logger.Debug($"Checking for commander death in army {army.ID}");
             if (army.Commander != null)
+            {
                 army.Commander.HasGeneralFallen(path_attila_log);
+                if (army.Commander.hasFallen)
+                {
+                    Program.Logger.Debug($"Commander {army.Commander.ID} in army {army.ID} has fallen.");
+                }
+            }
         }
 
         public static void CheckForDeathKnights(Army army)
         {
+            Program.Logger.Debug($"Checking for knight deaths in army {army.ID}");
             if(army.Knights != null && army.Knights.HasKnights())
             {
                 int remaining = 0;
@@ -431,15 +442,21 @@ namespace Crusader_Wars
                     remaining = Int32.Parse(army.UnitsResults.Alive_MainPhase.FirstOrDefault(x => x.Type == "knights").Remaining);
                 }
                 army.Knights.GetKilled(remaining);
+                foreach (var knight in army.Knights.GetKnightsList().Where(k => k.HasFallen()))
+                {
+                    Program.Logger.Debug($"Knight {knight.GetID()} ({knight.GetName()}) in army {army.ID} has fallen.");
+                }
             }
         }
 
         public static void CheckKnightsKills(Army army)
         {
+            Program.Logger.Debug($"Checking knight kills for army {army.ID}");
             if (army.Knights != null && army.Knights.HasKnights())
             {
                 int kills = Int32.Parse(army.UnitsResults.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights").Kills);
                 army.Knights.GetKills(kills);
+                Program.Logger.Debug($"Total knight kills for army {army.ID}: {kills}");
             }
             
         }
@@ -491,6 +508,7 @@ namespace Crusader_Wars
 
         public static void EditLivingFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            Program.Logger.Debug("Editing Living file...");
             using (StreamReader streamReader = new StreamReader(DataFilesPaths.Living_Path()))
             using (StreamWriter streamWriter = new StreamWriter(DataTEMPFilesPaths.Living_Path()))
             {
@@ -578,6 +596,7 @@ namespace Crusader_Wars
 
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            Program.Logger.Debug("Editing Combat Results file...");
             using (StreamReader streamReader = new StreamReader(DataFilesPaths.CombatResults_Path()))
             using (StreamWriter streamWriter = new StreamWriter(DataTEMPFilesPaths.CombatResults_Path()))
             {
@@ -814,6 +833,7 @@ namespace Crusader_Wars
    
         public static void EditCombatFile(List<Army> attacker_armies,List<Army> defender_armies,string player_armies_combat_side, string enemy_armies_combat_side, string path_log_attila)
         {
+            Program.Logger.Debug("Editing Combat file...");
             string winner = GetAttilaWinner(path_log_attila, player_armies_combat_side, enemy_armies_combat_side);
             SetWinner(winner);
 
@@ -950,6 +970,7 @@ namespace Crusader_Wars
 
         static void SetWinner(string winner)
         {
+            Program.Logger.Debug($"Setting battle winner to: {winner}");
             try
             {
                 //Set pursuit phase
@@ -965,11 +986,11 @@ namespace Crusader_Wars
 
                 File.WriteAllText(DataFilesPaths.Combats_Path(), Player_Combat);
 
-                Console.WriteLine("Winner of battle set sucessfully");
+                Program.Logger.Debug("Winner of battle set successfully");
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine("Error setting winner of battle!");
+                Program.Logger.Debug($"Error setting winner of battle: {ex.Message}");
             }
 
         }
@@ -999,6 +1020,7 @@ namespace Crusader_Wars
 
         public static void EditArmyRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            Program.Logger.Debug("Editing Army Regiments file...");
             bool editStarted = false;
             ArmyRegiment editArmyRegiment = null;
 
@@ -1106,6 +1128,7 @@ namespace Crusader_Wars
         }
         public static void EditRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            Program.Logger.Debug("Editing Regiments file...");
             bool editStarted = false;
             bool editIndex = false;
             Regiment editRegiment = null;

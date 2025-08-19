@@ -13,6 +13,7 @@ namespace Crusader_Wars
 
         public static void CreateScript()
         {
+            Program.Logger.Debug("Creating battle script...");
             string script_base = @"
 
 function remaining_soldiers()
@@ -24,6 +25,7 @@ function remaining_soldiers()
         {
             var left_side = DeclarationsFile.GetLeftSideArmies();
             var right_side = DeclarationsFile.GetRightSideArmies();
+            Program.Logger.Debug($"Setting commander locals for {left_side.Count} left side armies and {right_side.Count} right side armies.");
 
             var scriptBuilder = new StringBuilder();
             scriptBuilder.AppendLine();
@@ -34,6 +36,7 @@ function remaining_soldiers()
             for (int i = 1; i <= left_side.Count; i++) {
                 if (left_side[i-1].Commander != null)
                 {
+                    Program.Logger.Debug($"Adding commander death check for left side army {left_side[i - 1].ID}, commander {left_side[i - 1].Commander.ID}");
                     scriptBuilder.AppendLine($"	if(not Stark_Army{i}:is_commander_alive()) then");
                     scriptBuilder.AppendLine($"		dev.log(\"Commander{left_side[i - 1].Commander.ID} from Army{left_side[i - 1].ID} has fallen\")");
                     scriptBuilder.AppendLine("	end;");
@@ -45,6 +48,7 @@ function remaining_soldiers()
             {
                 if (right_side[i-1].Commander != null)
                 {
+                    Program.Logger.Debug($"Adding commander death check for right side army {right_side[i - 1].ID}, commander {right_side[i - 1].Commander.ID}");
                     scriptBuilder.AppendLine($"	if(not Bolton_Army{i}:is_commander_alive()) then");
                     scriptBuilder.AppendLine($"		dev.log(\"Commander{right_side[i - 1].Commander.ID} from Army{right_side[i - 1].ID} has fallen\")");
                     scriptBuilder.AppendLine("	end;");
@@ -66,6 +70,7 @@ function remaining_soldiers()
 
         public static void SetLocalsKills(List<(string unitName, string declarationName)> units_scripts_list)
         {
+            Program.Logger.Debug($"Setting kill tracking locals for {units_scripts_list.Count} units.");
             //Units Script Start
             string start = @"
 
@@ -85,6 +90,7 @@ function kills()
 
         public static void CloseScript()
         {
+            Program.Logger.Debug("Closing script function block.");
             string close = "\nend;";
             File.AppendAllText(filePath, close);
         }
@@ -92,6 +98,7 @@ function kills()
         //Add
         public static void EraseScript()
         {
+            Program.Logger.Debug("Erasing and resetting battle script to default.");
             string original = @"
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------

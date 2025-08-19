@@ -122,12 +122,14 @@ namespace Crusader_Wars
 
         public static void Search(string log)
         {
+            Program.Logger.Debug("Starting CK3 log search...");
             /*---------------------------------------------
              * ::::::::::::::::Army Ratio::::::::::::::::::
              ---------------------------------------------*/
 
             //Get Army Ratio in log file...
             ArmyProportions.SetRatio(ModOptions.GetBattleScale());
+            Program.Logger.Debug($"Battle scale set to: {ModOptions.GetBattleScale()}");
 
             /*---------------------------------------------
              * :::::::::::::::::::Geral Data:::::::::::::::
@@ -142,6 +144,7 @@ namespace Crusader_Wars
             var modifiers_texts = GetModifiersText(log);
             CK3LogData.LeftSide.SetModifiers(new Modifiers(modifiers_texts.left));
             CK3LogData.RightSide.SetModifiers(new Modifiers(modifiers_texts.right));
+            Program.Logger.Debug("Modifiers searched and set for both sides.");
 
             /*---------------------------------------------
              * ::::::::::::::Main Participants::::::::::::::
@@ -149,16 +152,19 @@ namespace Crusader_Wars
             string left_side_mainparticipant_id = Regex.Match(log, @"LeftSide_Owner_ID:(.+)\n").Groups[1].Value;
             string left_side_mainparticipant_culture_id = Regex.Match(log, @"LeftSide_Owner_Culture:(.+)\n").Groups[1].Value;
             CK3LogData.LeftSide.SetMainParticipant((left_side_mainparticipant_id, left_side_mainparticipant_culture_id));
+            Program.Logger.Debug($"Left side main participant: ID={left_side_mainparticipant_id}, CultureID={left_side_mainparticipant_culture_id}");
 
             string right_side_mainparticipant_id = Regex.Match(log, @"RightSide_Owner_ID:(.+)\n").Groups[1].Value;
             string right_side_mainparticipant_culture_id = Regex.Match(log, @"RightSide_Owner_Culture:(.+)\n").Groups[1].Value;
             CK3LogData.RightSide.SetMainParticipant((right_side_mainparticipant_id, right_side_mainparticipant_culture_id));
+            Program.Logger.Debug($"Right side main participant: ID={right_side_mainparticipant_id}, CultureID={right_side_mainparticipant_culture_id}");
             /*---------------------------------------------
              * ::::::::::::::Player Character::::::::::::::
              ---------------------------------------------*/
             string player_culture_id = Regex.Match(log, @"PlayerCharacter_Culture:(.+)\n").Groups[1].Value;
             string playerID = Regex.Match(log, @"PlayerCharacter_ID:(.+)\n").Groups[1].Value;
             Player_Character = new PlayerChar(playerID, player_culture_id);
+            Program.Logger.Debug($"Player character: ID={playerID}, CultureID={player_culture_id}");
 
             /*---------------------------------------------
              * ::::::::::::Commanders ID's:::::::::::::::::
@@ -167,10 +173,12 @@ namespace Crusader_Wars
             //Search player ID
             string left_side_commander_id = Regex.Match(log, @"PlayerID:(\d+)").Groups[1].Value;
             string left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:(\d+)").Groups[1].Value;
+            Program.Logger.Debug($"Left side commander: ID={left_side_commander_id}, CultureID={left_side_commander_culture_id}");
 
             //Search enemy ID
             string right_side_commander_id = Regex.Match(log, @"EnemyID:(\d+)").Groups[1].Value;
             string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(\d+)").Groups[1].Value;
+            Program.Logger.Debug($"Right side commander: ID={right_side_commander_id}, CultureID={right_side_commander_culture_id}");
 
             /*---------------------------------------------
              * :::::::::::::::::Terrain::::::::::::::::::::
@@ -224,13 +232,14 @@ namespace Crusader_Wars
              ---------------------------------------------*/
 
              RealmsNamesSearch(log);
-
+            Program.Logger.Debug("Finished CK3 log search.");
         }
 
         private static void BattleNameSearch(string log)
         {
             string battle_name = Regex.Match(log, @"BattleName:(?<BattleName>.+)\n").Groups["BattleName"].Value;
             BattleDetails.SetBattleName(battle_name);
+            Program.Logger.Debug($"Battle name set to: {battle_name}");
         }
 
         static void DateSearch(string log)
@@ -243,9 +252,11 @@ namespace Crusader_Wars
                 year = Regex.Match(log, @"DateYear:(\d+)").Groups[1].Value;
                 Date.Month = Int32.Parse(month);
                 Date.Year = Int32.Parse(year);
+                Program.Logger.Debug($"Date searched: Month={month}, Year={year}");
 
                 string season = Date.GetSeason();
                 Weather.SetSeason(season);
+                Program.Logger.Debug($"Season set to: {season}");
             }
             catch
             {
@@ -313,6 +324,7 @@ namespace Crusader_Wars
         static void TerrainSearch(string log)
         {
             TerrainGenerator.TerrainType = SearchForTerrain(log);
+            Program.Logger.Debug($"Terrain type found: {TerrainGenerator.TerrainType}");
             Weather.SetWinterSeverity(SearchForWinter(log));
         }
         static void CommanderSearch(string log, string army_data, DataSearchSides side, string id, string culture_id)
@@ -382,6 +394,8 @@ namespace Crusader_Wars
 
                 CK3LogData.LeftSide.SetRealmName(player_army);
                 CK3LogData.RightSide.SetRealmName(enemy_army);
+                Program.Logger.Debug($"Left side realm name: {player_army}");
+                Program.Logger.Debug($"Right side realm name: {enemy_army}");
             }
         }
 
@@ -459,7 +473,8 @@ namespace Crusader_Wars
 
         public static void ClearLogFile()
         {
-            if(!File.Exists(LogPath)) File.Create(LogPath);
+            Program.Logger.Debug($"Clearing CK3 log file at: {LogPath}");
+            if (!File.Exists(LogPath)) File.Create(LogPath);
 
             using (var fileStream = new FileStream(LogPath, FileMode.Truncate))
             {
@@ -505,10 +520,12 @@ namespace Crusader_Wars
             try
             {
                 provinceID = Regex.Match(log, @"ProvinceID:(.+)\n").Groups[1].Value;
+                Program.Logger.Debug($"Province ID found: {provinceID}");
             }
             catch
             {
                 provinceID = "not found";
+                Program.Logger.Debug("Province ID not found in log.");
             }
 
             BattleResult.ProvinceID = provinceID;

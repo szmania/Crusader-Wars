@@ -46,11 +46,11 @@ namespace Crusader_Wars
                 remaining = RemainingSoldiersBeforePursuit;
             else
                 remaining = RemainingSoldiersAfterPursuit;
-            Console.WriteLine("CASUALITIES REPORT: " + $"{Type}\n" + 
+            Program.Logger.Debug("CASUALITIES REPORT: " + $"{Type}\n" + 
                              $"Culture: {Culture.GetCultureName()}\n" + 
                              $"Starting: {StartingSoldiers}\n" + 
                              $"Alive: {remaining}");
-            Console.Write("\n\n");
+            Program.Logger.Debug("\n\n");
         }
 
         public void SetKilled(int i)

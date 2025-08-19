@@ -184,7 +184,7 @@ namespace Crusader_Wars.armies.commander_traits
 
 
                 xp_boost += trait.GetXPBoost();
-                Console.WriteLine($"TRAIT {trait.GetKey()} increased +{xp_boost}XP");
+                Program.Logger.Debug($"TRAIT {trait.GetKey()} increased +{xp_boost}XP");
             }
 
             return xp_boost;
@@ -237,7 +237,7 @@ namespace Crusader_Wars.armies.commander_traits
                                             whoAffects = TraitsAffectEnum.Enemies;
                                         else
                                         {
-                                            Console.WriteLine("WRONG VALUE IN AFFECT XML NODE");
+                                            Program.Logger.Debug("WRONG VALUE IN AFFECT XML NODE");
                                             whoAffects = TraitsAffectEnum.Friendlies;
                                         }
                                         break;
@@ -260,7 +260,7 @@ namespace Crusader_Wars.armies.commander_traits
                                             combatSide = "defender";
                                         else
                                         {
-                                            Console.WriteLine("WRONG VALUE IN COMBAT SIDE XML NODE");
+                                            Program.Logger.Debug("WRONG VALUE IN COMBAT SIDE XML NODE");
                                             combatSide = "attacker";
                                         }
                                         break;

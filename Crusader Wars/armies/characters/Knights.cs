@@ -143,37 +143,37 @@ namespace Crusader_Wars
                 // Determine which option to set based on its percentage chance
                 if (RandomNumber >= 0 && RandomNumber <= WoundedChance)
                 {
-                    Console.WriteLine("A Knight was Wounded ");
+                    Program.Logger.Debug("A Knight was Wounded ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Wounded().ToString());
                 }
                 else if (RandomNumber > WoundedChance && RandomNumber <= Severely_InjuredChance)
                 {
-                    Console.WriteLine("A Knight was Severely_Injured ");
+                    Program.Logger.Debug("A Knight was Severely_Injured ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Severely_Injured().ToString());
                 }
                 else if (RandomNumber > Severely_InjuredChance && RandomNumber <= Brutally_MauledChance)
                 {
-                    Console.WriteLine("A Knight was Brutally Mauled ");
+                    Program.Logger.Debug("A Knight was Brutally Mauled ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Brutally_Mauled().ToString());
                 }
                 else if (RandomNumber > Brutally_MauledChance && RandomNumber <= MaimedChance)
                 {
-                    Console.WriteLine("A Knight was Maimed ");
+                    Program.Logger.Debug("A Knight was Maimed ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Maimed().ToString());
                 }
                 else if (RandomNumber > MaimedChance && RandomNumber <= One_LeggedChance)
                 {
-                    Console.WriteLine("A Knight got One Legged ");
+                    Program.Logger.Debug("A Knight got One Legged ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Legged().ToString());
                 }
                 else if (RandomNumber > One_LeggedChance && RandomNumber <= One_EyedChance)
                 {
-                    Console.WriteLine("A Knight got One Eyed ");
+                    Program.Logger.Debug("A Knight got One Eyed ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Eyed().ToString());
                 }
                 else if (RandomNumber > One_EyedChance && RandomNumber <= Disfigured)
                 {
-                    Console.WriteLine("A Knight got Disfigured ");
+                    Program.Logger.Debug("A Knight got Disfigured ");
                     return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString());
                 }
             }

@@ -40,18 +40,22 @@ namespace Crusader_Wars
         {
             if (isUnique)
             {
+                Program.Logger.Debug("Getting unique battle map.");
                 return UniqueMaps.GetBattleMap();
             }
             else if (isRiver)
             {
+                Program.Logger.Debug($"Getting river battle map for terrain: {TerrainType}");
                 return Rivers.GetBattleMap(TerrainType);
             }
             else if (isStrait)
             {
+                Program.Logger.Debug($"Getting strait battle map for terrain: {TerrainType}");
                 return Straits.GetBattleMap(TerrainType);
             }
             else
             {
+                Program.Logger.Debug($"Getting land battle map for terrain: {TerrainType}");
                 return Lands.GetBattleMap(TerrainType);
             }
         }

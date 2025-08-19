@@ -362,7 +362,7 @@ namespace Crusader_Wars.data.save_file
                     {
                         if (regiment.Culture == null)
                         {
-                            Console.WriteLine($"WARNING - NULL CULTURE IN REGIMENT {regiment.ID}");
+                            Program.Logger.Debug($"WARNING - NULL CULTURE IN REGIMENT {regiment.ID}");
                             continue;
                         }
                         string regimentCultureID = regiment.Culture.ID;

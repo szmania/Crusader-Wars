@@ -19,6 +19,7 @@ namespace Crusader_Wars.data.save_file
 
         public static void ReadProvinces(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            Program.Logger.Debug("Reading landed titles...");
             ReadEnabledMods();
             ReadEachModPath();
             ReadModsLandedTitles(attacker_armies, defender_armies);
@@ -30,6 +31,7 @@ namespace Crusader_Wars.data.save_file
             ck3_mods_folder_path = Regex.Replace(ck3_mods_folder_path, @"console_history.txt", "mod");
 
             string ck3_mods_enabled_file_path = Regex.Replace(ck3_mods_folder_path, "mod", "dlc_load.json");
+            Program.Logger.Debug($"Reading enabled mods from: {ck3_mods_enabled_file_path}");
             string enabled_mods_json_text = File.ReadAllText(ck3_mods_enabled_file_path);
             var json = JsonSerializer.Deserialize<Dictionary<string, string[]>>(enabled_mods_json_text);
             EnabledMods = json.ElementAt(0).Value.ToList();
@@ -37,6 +39,7 @@ namespace Crusader_Wars.data.save_file
             {
                 EnabledMods[i] = EnabledMods[i].Replace("mod/", "");
             }
+            Program.Logger.Debug($"Found {EnabledMods.Count} enabled mods.");
         }
 
         static List<string> EnabledMods_Folders_Paths = new List<string>();
@@ -70,7 +73,7 @@ namespace Crusader_Wars.data.save_file
                                         string non_steam_path;
                                         non_steam_path = ck3_mods_folder_path.Replace("mod", "") + path.Replace('/', '\\');
                                         EnabledMods_Folders_Paths.Add(non_steam_path);
-                                        Console.WriteLine(non_steam_path);
+                                        Program.Logger.Debug($"Found non-Steam mod path: {non_steam_path}");
                                     }
                                     //STEAM VERSION
                                     else
@@ -78,7 +81,7 @@ namespace Crusader_Wars.data.save_file
                                         string steam_path;
                                         steam_path = path.Replace('/', '\\');
                                         EnabledMods_Folders_Paths.Add(steam_path);
-                                        Console.WriteLine(steam_path);
+                                        Program.Logger.Debug($"Found Steam mod path: {steam_path}");
                                     }
 
 
@@ -118,6 +121,7 @@ namespace Crusader_Wars.data.save_file
 
         static void ReadLandedTitles(string file_path, List<Army> attacker_armies, List<Army> defender_armies)
         {
+            Program.Logger.Debug($"Reading landed titles from file: {file_path}");
             using (StreamReader reader = new StreamReader(file_path))
             {
                 string line = reader.ReadLine();
@@ -145,6 +149,7 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"e_.+ = {"))
                     {
                         empire = Regex.Match(line, @"(e_.+) = {").Groups[1].Value;
+                        Program.Logger.Debug($"Found empire: {empire}");
                         empire_started = true;
                     }
                     else if(empire_started && line.StartsWith("\tcapital"))
@@ -157,6 +162,7 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"k_.+ = {"))
                     {
                         kingdom = Regex.Match(line, @"(k_.+) = {").Groups[1].Value;
+                        Program.Logger.Debug($"Found kingdom: {kingdom}");
                         kingdom_started = true;
                     }
                     else if (kingdom_started && line.StartsWith("\t\tcapital"))
@@ -169,6 +175,7 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"d_.+ = {"))
                     {
                         duchy = Regex.Match(line, @"(d_.+) = {").Groups[1].Value;
+                        Program.Logger.Debug($"Found duchy: {duchy}");
                         duchy_started = true;
                     }
                     else if (duchy_started && line.StartsWith("\t\t\tcapital"))
@@ -181,6 +188,7 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"c_.+ = {"))
                     {
                         county = Regex.Match(line, @"(c_.+) = {").Groups[1].Value;
+                        Program.Logger.Debug($"Found county: {county}");
                         county_started = true;
                         SetTitleRegimentsCountiesKeys(attacker_armies, county, county);
                         SetTitleRegimentsCountiesKeys(defender_armies, county, county);

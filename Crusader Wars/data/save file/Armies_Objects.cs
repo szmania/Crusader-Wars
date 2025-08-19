@@ -19,17 +19,17 @@ namespace Crusader_Wars.data.save_file
             int regimentsTotal = 0;
             foreach (var i in armies)
             {
-                Console.WriteLine($"#Army - {i.ID} | {i.CombatSide} | Commander {i.CommanderID}");
-                Console.WriteLine("------------------------------------------------------------");
+                Program.Logger.Debug($"#Army - {i.ID} | {i.CombatSide} | Commander {i.CommanderID}");
+                Program.Logger.Debug("------------------------------------------------------------");
                 foreach (var x in i.ArmyRegiments)
                 {
                     if (x.Type == RegimentType.Knight)
                     {
-                        Console.WriteLine($"##Army Regiment - {x.ID} |{x.Type} | Character ID {x.MAA_Name}");
+                        Program.Logger.Debug($"##Army Regiment - {x.ID} |{x.Type} | Character ID {x.MAA_Name}");
                     }
                     else
                     {
-                        Console.WriteLine($"##Army Regiment - {x.ID} |{x.Type} | {x.MAA_Name}");
+                        Program.Logger.Debug($"##Army Regiment - {x.ID} |{x.Type} | {x.MAA_Name}");
                         armyRegimentsTotal += x.CurrentNum;
                     }
                         
@@ -39,33 +39,33 @@ namespace Crusader_Wars.data.save_file
                         {
                             if (t.Culture is null)
                             {
-                                Console.WriteLine($"## ## Chunk Regiment: {t.ID} | Owner: {t.Owner} |Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture ID: null");
+                                Program.Logger.Debug($"## ## Chunk Regiment: {t.ID} | Owner: {t.Owner} |Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture ID: null");
                                 regimentsTotal += int.TryParse(t.CurrentNum, out int currentNum) ? currentNum : 0;
                             }
                             else
                             {
-                                Console.WriteLine($"## ## Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture: {t.Culture.GetCultureName()} | Heritage: {t.Culture.GetHeritageName()}");
+                                Program.Logger.Debug($"## ## Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture: {t.Culture.GetCultureName()} | Heritage: {t.Culture.GetHeritageName()}");
                                 regimentsTotal += int.TryParse(t.CurrentNum, out int currentNum) ? currentNum : 0;
                             }
                         }
                         else
                         {
-                            ///Console.WriteLine($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {t.CurrentNum} | County Key: {t.GetCountyKey()} | Culture ID: null");
-                            Console.WriteLine($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture: {t.Culture.GetCultureName()} | Heritage: {t.Culture.GetHeritageName()}");
+                            ///Program.Logger.Debug($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {t.CurrentNum} | County Key: {t.GetCountyKey()} | Culture ID: null");
+                            Program.Logger.Debug($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture: {t.Culture.GetCultureName()} | Heritage: {t.Culture.GetHeritageName()}");
                             regimentsTotal += int.TryParse(t.CurrentNum, out int currentNum) ? currentNum : 0;
                         }
                             
                     }
 
                 }
-                Console.WriteLine("\n");
+                Program.Logger.Debug("\n");
             }
             
-            Console.WriteLine("\n");
-            Console.WriteLine($"ARMY REGIMENTS TOTAL FOUND: {armyRegimentsTotal}\n" +
+            Program.Logger.Debug("\n");
+            Program.Logger.Debug($"ARMY REGIMENTS TOTAL FOUND: {armyRegimentsTotal}\n" +
                               $"REGIMENTS TOTAL FOUND: {regimentsTotal}\n");
-            Console.WriteLine("\n");
-            Console.WriteLine("\n");
+            Program.Logger.Debug("\n");
+            Program.Logger.Debug("\n");
 
         }
     }

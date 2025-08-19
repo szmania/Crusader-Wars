@@ -95,11 +95,15 @@ namespace Crusader_Wars.mod_manager
 
         List<string> VerifyIfAllModsAreInstalled()
         {
+            Program.Logger.Debug("Verifying if all required mods are installed...");
             List<string> notFoundMods = new List<string>();
             notFoundMods.AddRange(RequiredModsList);
+            Program.Logger.Debug($"Required mods list: {string.Join(", ", RequiredModsList)}");
+
 
             //Verify data folder
             string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
+            Program.Logger.Debug($"Checking Attila data folder: {data_folder_path}");
             if (Directory.Exists(data_folder_path))
             {
                 var dataModsPaths = Directory.GetFiles(data_folder_path);
@@ -109,7 +113,10 @@ namespace Crusader_Wars.mod_manager
                     foreach (var mod in RequiredModsList)
                     {
                         if (mod == fileName && Path.GetExtension(fileName) == ".pack")
+                        {
+                            Program.Logger.Debug($"Found required mod in data folder: {fileName}");
                             notFoundMods.Remove(mod);
+                        }
                     }
                 }
             }
@@ -121,6 +128,7 @@ namespace Crusader_Wars.mod_manager
 
             //Verify workshop folder
             string workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
+            Program.Logger.Debug($"Checking Attila workshop folder: {workshop_folder_path}");
             if (Directory.Exists(workshop_folder_path))
             {
                 var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);
@@ -133,12 +141,23 @@ namespace Crusader_Wars.mod_manager
                         foreach (var mod in RequiredModsList)
                         {
                             if (mod == fileName && Path.GetExtension(fileName) == ".pack")
+                            {
+                                Program.Logger.Debug($"Found required mod in workshop folder: {fileName}");
                                 notFoundMods.Remove(mod);
+                            }
                         }
                     }
                 }
             }
 
+            if (notFoundMods.Count > 0)
+            {
+                Program.Logger.Debug($"Mods not found: {string.Join(", ", notFoundMods)}");
+            }
+            else
+            {
+                Program.Logger.Debug("All required mods were found.");
+            }
             return notFoundMods;
         }
 
