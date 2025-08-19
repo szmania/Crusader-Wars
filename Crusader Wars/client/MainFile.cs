@@ -39,9 +39,11 @@ namespace Crusader_Wars
             LoadFont();
             InitializeComponent();
 
-            // Add hover effects for logs link
+            // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             viewLogsLink.MouseLeave += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            discordLink.MouseEnter += (sender, e) => discordLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
+            discordLink.MouseLeave += (sender, e) => discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             
             Thread.Sleep(1000);
 
@@ -1065,6 +1067,13 @@ namespace Crusader_Wars
                                     MessageBoxIcon.Information);
                 }
             }
+        }
+
+        private void discordLink_Click(object sender, EventArgs e)
+        {
+            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
+            sounds.Play();
+            Process.Start("https://discord.gg/WEGXdrqrpa");
         }
 
         private void patreonBtn_Click(object sender, EventArgs e)

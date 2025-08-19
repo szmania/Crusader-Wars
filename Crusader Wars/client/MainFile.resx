@@ -282,6 +282,45 @@
   <metadata name="InformationToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="viewLogsLink.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
+  </data>
+  <data name="viewLogsLink.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="viewLogsLink.Location" type="System.Drawing.Point, System.Drawing">
+    <value>235, 0</value>
+  </data>
+  <data name="viewLogsLink.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 0, 4, 0</value>
+  </data>
+  <data name="viewLogsLink.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="viewLogsLink.Size" type="System.Drawing.Size, System.Drawing">
+    <value>112, 31</value>
+  </data>
+  <data name="viewLogsLink.TabIndex" type="System.Int32, mscorlib">
+    <value>27</value>
+  </data>
+  <data name="viewLogsLink.Text" xml:space="preserve">
+    <value>View Logs</value>
+  </data>
+  <data name="viewLogsLink.ToolTip" xml:space="preserve">
+    <value>Click to find the debug.log file. Please share this file on our Discord for troubleshooting help.</value>
+  </data>
+  <data name="&gt;&gt;viewLogsLink.Name" xml:space="preserve">
+    <value>viewLogsLink</value>
+  </data>
+  <data name="&gt;&gt;viewLogsLink.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;viewLogsLink.Parent" xml:space="preserve">
+    <value>BottomPanelLayout</value>
+  </data>
+  <data name="&gt;&gt;viewLogsLink.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
   <data name="labelVersion.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>None</value>
   </data>
@@ -437,6 +476,114 @@
   </data>
   <data name="&gt;&gt;EA_Label.ZOrder" xml:space="preserve">
     <value>1</value>
+  </data>
+  <data name="pipeLabel1.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
+  </data>
+  <data name="pipeLabel1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pipeLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>216, 0</value>
+  </data>
+  <data name="pipeLabel1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 0, 4, 0</value>
+  </data>
+  <data name="pipeLabel1.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="pipeLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>15, 31</value>
+  </data>
+  <data name="pipeLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="pipeLabel1.Text" xml:space="preserve">
+    <value>|</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel1.Name" xml:space="preserve">
+    <value>pipeLabel1</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel1.Parent" xml:space="preserve">
+    <value>BottomPanelLayout</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="pipeLabel2.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
+  </data>
+  <data name="pipeLabel2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pipeLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>355, 0</value>
+  </data>
+  <data name="pipeLabel2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 0, 4, 0</value>
+  </data>
+  <data name="pipeLabel2.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="pipeLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>15, 31</value>
+  </data>
+  <data name="pipeLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>30</value>
+  </data>
+  <data name="pipeLabel2.Text" xml:space="preserve">
+    <value>|</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel2.Name" xml:space="preserve">
+    <value>pipeLabel2</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel2.Parent" xml:space="preserve">
+    <value>BottomPanelLayout</value>
+  </data>
+  <data name="&gt;&gt;pipeLabel2.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="discordLink.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
+  </data>
+  <data name="discordLink.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="discordLink.Location" type="System.Drawing.Point, System.Drawing">
+    <value>378, 0</value>
+  </data>
+  <data name="discordLink.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 0, 4, 0</value>
+  </data>
+  <data name="discordLink.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="discordLink.Size" type="System.Drawing.Size, System.Drawing">
+    <value>137, 31</value>
+  </data>
+  <data name="discordLink.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="discordLink.Text" xml:space="preserve">
+    <value>Join Discord</value>
+  </data>
+  <data name="&gt;&gt;discordLink.Name" xml:space="preserve">
+    <value>discordLink</value>
+  </data>
+  <data name="&gt;&gt;discordLink.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;discordLink.Parent" xml:space="preserve">
+    <value>BottomPanelLayout</value>
+  </data>
+  <data name="&gt;&gt;discordLink.ZOrder" xml:space="preserve">
+    <value>5</value>
   </data>
   <data name="BottomPanelLayout.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Bottom</value>
@@ -645,4 +792,4 @@
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-</root>
+</root>```

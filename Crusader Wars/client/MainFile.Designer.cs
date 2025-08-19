@@ -35,12 +35,15 @@
             this.infoLabel = new System.Windows.Forms.Label();
             this.SettingsBtn = new System.Windows.Forms.Button();
             this.InformationToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.viewLogsLink = new System.Windows.Forms.Label();
             this.labelVersion = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.BottomPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
-            this.viewLogsLink = new System.Windows.Forms.Label();
+            this.pipeLabel1 = new System.Windows.Forms.Label();
+            this.pipeLabel2 = new System.Windows.Forms.Label();
+            this.discordLink = new System.Windows.Forms.Label();
             this.patreonBtn = new System.Windows.Forms.Button();
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
@@ -107,6 +110,17 @@
             // 
             this.InformationToolTip.IsBalloon = true;
             // 
+            // viewLogsLink
+            // 
+            this.viewLogsLink.AutoSize = true;
+            this.viewLogsLink.BackColor = System.Drawing.Color.Transparent;
+            this.viewLogsLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            resources.ApplyResources(this.viewLogsLink, "viewLogsLink");
+            this.viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.viewLogsLink.Name = "viewLogsLink";
+            this.InformationToolTip.SetToolTip(this.viewLogsLink, resources.GetString("viewLogsLink.ToolTip"));
+            this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
+            // 
             // labelVersion
             // 
             resources.ApplyResources(this.labelVersion, "labelVersion");
@@ -136,7 +150,10 @@
             this.BottomPanelLayout.BackColor = System.Drawing.Color.Transparent;
             this.BottomPanelLayout.Controls.Add(this.labelVersion);
             this.BottomPanelLayout.Controls.Add(this.EA_Label);
+            this.BottomPanelLayout.Controls.Add(this.pipeLabel1);
             this.BottomPanelLayout.Controls.Add(this.viewLogsLink);
+            this.BottomPanelLayout.Controls.Add(this.pipeLabel2);
+            this.BottomPanelLayout.Controls.Add(this.discordLink);
             resources.ApplyResources(this.BottomPanelLayout, "BottomPanelLayout");
             this.BottomPanelLayout.Name = "BottomPanelLayout";
             // 
@@ -147,19 +164,31 @@
             this.EA_Label.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.EA_Label.Name = "EA_Label";
             // 
-            // viewLogsLink
+            // pipeLabel1
             // 
-            this.viewLogsLink.AutoSize = true;
-            this.viewLogsLink.BackColor = System.Drawing.Color.Transparent;
-            this.viewLogsLink.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.viewLogsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.9999981F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.viewLogsLink.Name = "viewLogsLink";
-            this.viewLogsLink.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.viewLogsLink.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.viewLogsLink.TabIndex = 27;
-            this.viewLogsLink.Text = "| View Logs";
-            this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
+            this.pipeLabel1.AutoSize = true;
+            this.pipeLabel1.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.pipeLabel1, "pipeLabel1");
+            this.pipeLabel1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.pipeLabel1.Name = "pipeLabel1";
+            // 
+            // pipeLabel2
+            // 
+            this.pipeLabel2.AutoSize = true;
+            this.pipeLabel2.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.pipeLabel2, "pipeLabel2");
+            this.pipeLabel2.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.pipeLabel2.Name = "pipeLabel2";
+            // 
+            // discordLink
+            // 
+            this.discordLink.AutoSize = true;
+            this.discordLink.BackColor = System.Drawing.Color.Transparent;
+            this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            resources.ApplyResources(this.discordLink, "discordLink");
+            this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.discordLink.Name = "discordLink";
+            this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // patreonBtn
             // 
@@ -265,5 +294,8 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label viewLogsLink;
         private System.Windows.Forms.Label EA_Label;
+        private System.Windows.Forms.Label discordLink;
+        private System.Windows.Forms.Label pipeLabel1;
+        private System.Windows.Forms.Label pipeLabel2;
     }
 }
