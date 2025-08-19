@@ -17,9 +17,7 @@ namespace Crusader_Wars.terrain
 
         //Radius
         static string ROTATION_0º = "0.00";
-        static string ROTATION_90º = "1.57";
         static string ROTATION_180º = "3.14";
-        static string ROTATION_270º = "4.71";
         static string ROTATION_360º = "6.28";
 
 
@@ -559,4 +557,3 @@ namespace Crusader_Wars.terrain
 
 
 }
-

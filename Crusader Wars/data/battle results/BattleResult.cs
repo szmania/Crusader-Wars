@@ -605,7 +605,6 @@ namespace Crusader_Wars
                 bool isAttacker = false;
                 bool isDefender = false;
 
-                bool isLevy = false;
                 bool isMAA = false;
                 bool isKnight = false;
 
@@ -645,7 +644,6 @@ namespace Crusader_Wars
                             string id = Regex.Match(line, @"\d+").Value;
                             if (id == "4294967295" && !isMAA)
                             {
-                                isLevy = true;
                                 regimentType = "Levy";
                             }    
                             else if(id == "4294967295" && isMAA)
@@ -722,7 +720,6 @@ namespace Crusader_Wars
                         }
                         else if(line == "\t\t\t\t\t}")
                         {
-                            isLevy = false;
                             isKnight = false;
                             isMAA = false;
                             knightID = "";
@@ -748,7 +745,6 @@ namespace Crusader_Wars
                             string id = Regex.Match(line, @"\d+").Value;
                             if (id == "4294967295" && !isMAA)
                             {
-                                isLevy = true;
                                 regimentType = "Levy";
                             }
                             else
@@ -817,7 +813,6 @@ namespace Crusader_Wars
                         }
                         else if (line == "\t\t\t\t\t}")
                         {
-                            isLevy = false;
                             isKnight = false;
                             isMAA = false;
                             knightID = "";
@@ -999,7 +994,7 @@ namespace Crusader_Wars
         static string GetAttilaWinner(string path_log_attila, string player_armies_combat_side, string enemy_armies_combat_side)
         {
             string winner = "";
-            using (FileStream logFile = File.Open(path_log_attila, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(logFile))
             {
                 string line;

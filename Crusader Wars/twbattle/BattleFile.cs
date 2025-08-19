@@ -43,11 +43,9 @@ namespace Crusader_Wars
 
         public static void SetArmiesSides(List<Army> attacker_armies, List<Army> defender_armies)
         {
-            bool isAttackerEnemy = false,
-                 isAttackerPlayer = false;
+            bool isAttackerPlayer = false;
 
-            bool isDefenderEnemy = false,
-                 isDefenderPlayer = false;
+            bool isDefenderPlayer = false;
 
             string left_side_commander_id = CK3LogData.LeftSide.GetCommander().id;
             string right_side_commander_id = CK3LogData.RightSide.GetCommander().id;
@@ -56,11 +54,9 @@ namespace Crusader_Wars
                 if (army.CommanderID == left_side_commander_id)
                 {
                     isAttackerPlayer = true;
-                    isDefenderEnemy = true;
                 }
                 else if (army.CommanderID == right_side_commander_id)
                 {
-                    isAttackerEnemy = true;
                     isDefenderPlayer = true;
                 }
             }

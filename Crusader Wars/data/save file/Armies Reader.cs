@@ -498,7 +498,6 @@ namespace Crusader_Wars.data.save_file
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.LandedTitles()))
             {
                 string line;
-                string title_id = "";
                 while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if (!line.StartsWith("\t") && line != "}")
@@ -514,7 +513,6 @@ namespace Crusader_Wars.data.save_file
                     else if (searchStarted && line == "}")
                     {
                         searchStarted= false;
-                        title_id = "";
                         originKey = "";
                         id = "";
                     }
