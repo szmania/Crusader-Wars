@@ -1,7 +1,7 @@
 using System.IO;
 using IWshRuntimeLibrary;
 
-namespace Crusader_Wars
+namespace Crusader_Wars.twbattle
 {
     public static class BattleState
     {

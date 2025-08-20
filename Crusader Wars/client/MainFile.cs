@@ -15,6 +15,7 @@ using Crusader_Wars.data.attila_settings;
 using Crusader_Wars.data.save_file;
 using Crusader_Wars.unit_mapper;
 using Crusader_Wars.terrain;
+using Crusader_Wars.twbattle;
 using System.Threading;
 using Crusader_Wars.mod_manager;
 using System.Xml;
@@ -45,17 +46,17 @@ namespace Crusader_Wars
             btt_ContinueBattle.Size = new Size(180, 50);
             btt_ContinueBattle.Location = new Point(ExecuteButton.Location.X, ExecuteButton.Location.Y + 55);
             btt_ContinueBattle.Text = "Continue Battle";
-            btt_ContinueBattle.BackgroundImage = Properties.Resources.continue_btn;
+            btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
             btt_ContinueBattle.FlatStyle = FlatStyle.Popup;
-            btt_ContinueBattle.ForeColor = Color.White;
+            btt_ContinueBattle.ForeColor = System.Drawing.Color.White;
             btt_ContinueBattle.Font = new Font(fonts.Families[0], 12f);
             btt_ContinueBattle.Visible = false;
             btt_ContinueBattle.Click += Btt_ContinueBattle_Click;
             this.Controls.Add(btt_ContinueBattle);
 
             // Add hover effects for continue battle button
-            btt_ContinueBattle.MouseEnter += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.continue_btn_hover;
-            btt_ContinueBattle.MouseLeave += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.continue_btn;
+            btt_ContinueBattle.MouseEnter += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new_hover;
+            btt_ContinueBattle.MouseLeave += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
 
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
@@ -648,7 +649,7 @@ namespace Crusader_Wars
                 }
 
                 //Open Total War Attila
-                Program.Logger.Debug("Starting Attila process.");
+                Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
                 Games.StartTotalWArAttilaProcess();
             }
             catch (Exception ex)
