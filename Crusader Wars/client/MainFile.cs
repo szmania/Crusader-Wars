@@ -384,7 +384,7 @@ namespace Crusader_Wars
                             UpdateLoadingScreenMessage("Getting data from CK3 save file...");
                             StartLoadingScreen();
 
-                            infoLabel.Text = "Reading battle CK3 data...";
+                            infoLabel.Text = "Reading CK3 battle data...";
                             this.Text = "Crusader Wars (Reading CK3 battle data...)";
                             this.Hide();
 
