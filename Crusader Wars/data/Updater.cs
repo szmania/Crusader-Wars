@@ -88,30 +88,53 @@ namespace Crusader_Wars
             return um_version;
         }
 
+        private static Version ParseVersion(string versionStr)
+        {
+            if (string.IsNullOrWhiteSpace(versionStr)) return new Version("0.0");
+
+            // Remove any non-digit characters except for the dot.
+            string cleanedVersion = Regex.Replace(versionStr, @"[^\d.]", "");
+
+            // Clean up potential multiple dots or leading/trailing dots that may result from the regex replace.
+            cleanedVersion = Regex.Replace(cleanedVersion, @"\.{2,}", "."); // Replace two or more dots with a single dot.
+            cleanedVersion = cleanedVersion.Trim('.'); // Remove leading or trailing dots.
+
+            if (string.IsNullOrWhiteSpace(cleanedVersion)) return new Version("0.0");
+
+            try
+            {
+                return new Version(cleanedVersion);
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Failed to parse version string '{versionStr}' (cleaned to '{cleanedVersion}'). Error: {ex.Message}");
+                return new Version("0.0"); // Fallback to a default version on failure.
+            }
+        }
+
         bool IsMostRecentUpdate(string app_version, string github_version)
         {
             Program.Logger.Debug($"Comparing versions - App: {app_version}, GitHub: {github_version}");
-            string[] AppComponents = app_version.Split('.');
-            string[] ModComponents = github_version.Split('.');
+            Version appVer = ParseVersion(app_version);
+            Version gitVer = ParseVersion(github_version);
 
-            for (int i = 0; i < Math.Max(AppComponents.Length, ModComponents.Length); i++)
+            if (gitVer > appVer)
             {
-                int v1 = i < AppComponents.Length ? int.Parse(AppComponents[i]) : 0;
-                int v2 = i < ModComponents.Length ? int.Parse(ModComponents[i]) : 0;
-
-                if (v2 > v1)
-                {
-                    Program.Logger.Debug("GitHub version is newer.");
-                    return true;
-                }
-                else if (v1 > v2)
-                {
-                    Program.Logger.Debug("App version is newer or same.");
-                    return false;
-                }
+                Program.Logger.Debug("GitHub version is newer.");
+                return true;
             }
-            Program.Logger.Debug("Versions are identical.");
-            return false;
+            else
+            {
+                if (appVer > gitVer)
+                {
+                    Program.Logger.Debug("App version is newer.");
+                }
+                else
+                {
+                    Program.Logger.Debug("Versions are identical.");
+                }
+                return false;
+            }
         }
         
 
