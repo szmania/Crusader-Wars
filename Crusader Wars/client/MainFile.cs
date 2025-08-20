@@ -412,7 +412,7 @@ namespace Crusader_Wars
                             Program.Logger.Debug($"Error reading battle data from log: {ex.Message}");
                             this.Show();
                             CloseLoadingScreen();
-                            MessageBox.Show($"Error reading Attila:TW battle data: {ex.Message}", "Crusader Wars: Data Error",
+                            MessageBox.Show($"Error reading TW:Attila battle data: {ex.Message}", "Crusader Wars: Data Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Waiting for CK3 battle...";
                             this.Text = "Crusader Wars (Waiting for CK3 battle...)";
@@ -443,7 +443,7 @@ namespace Crusader_Wars
 
                     //path_editedSave = Properties.Settings.Default.VAR_dir_save + @"\CrusaderWars_Battle.ck3";
                     path_editedSave = @".\data\save_file_data\gamestate_file\gamestate";
-                    Program.Logger.Debug("Uncompressing and reading save file.");
+                    Program.Logger.Debug("Uncompressing and reading CK3 save file.");
                     SaveFile.Uncompress();
                     Reader.ReadFile(path_editedSave);
                     BattleResult.GetPlayerCombatResult();
@@ -532,7 +532,7 @@ namespace Crusader_Wars
 
                 try
                 {
-                    Program.Logger.Debug("Creating Attila:TW battle files.");
+                    Program.Logger.Debug("Creating TW:Attila battle files.");
                     BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side_combat_side);
 
                     Games.CloseTotalWarAttilaProcess();
@@ -652,7 +652,7 @@ namespace Crusader_Wars
 
                 Games.CloseCrusaderKingsProcess();
 
-                Program.Logger.Debug("Attila:TW battle created successfully");
+                Program.Logger.Debug("TW:Attila battle created successfully");
 
                 //               Retrieve battle result to ck3
                 //-----------------------------------------------------------
@@ -663,28 +663,28 @@ namespace Crusader_Wars
                 
                 bool battleEnded = false;
 
-                infoLabel.Text = "Waiting for Attila:TW battle to end...";
-                this.Text = "Crusader Wars (Waiting for Attila:TW battle to end...)";
-                Program.Logger.Debug("Waiting for Attila:TW battle to end...");
+                infoLabel.Text = "Waiting for TW:Attila battle to end...";
+                this.Text = "Crusader Wars (Waiting for TW:Attila battle to end...)";
+                Program.Logger.Debug("Waiting for TW:Attila battle to end...");
 
-                //  Waiting for Attila:TW battle to end...
+                //  Waiting for TW:Attila battle to end...
                 while (battleEnded == false)
                 {
                     battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
                     await Task.Delay(10);
                 }
-                Program.Logger.Debug("Attila:TW battle ended.");
+                Program.Logger.Debug("TW:Attila battle ended.");
 
 
                 try
                 {
                     if (battleEnded)
                     {
-                        Program.Logger.Debug("Processing Attila:TW battle results.");
+                        Program.Logger.Debug("Processing TW:Attila battle results.");
                         ModOptions.CloseAttila();
 
-                        infoLabel.Text = "Attila:TW battle has ended!";
-                        this.Text = "Crusader Wars (Attila:TW battle has ended)";
+                        infoLabel.Text = "TW:Attila battle has ended!";
+                        this.Text = "Crusader Wars (TW:Attila battle has ended)";
 
                         string path_log_attila = Properties.Settings.Default.VAR_log_attila;
 
@@ -747,8 +747,8 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
-                    Program.Logger.Debug($"Error retrieving Attila:TW battle results: {ex.Message}");
-                    MessageBox.Show($"Error retrieving Attila:TW battle results: {ex.Message}", "Crusader Wars: Attila:TW Battle Results Error",
+                    Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
+                    MessageBox.Show($"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Wars: TW:Attila Battle Results Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     Games.CloseTotalWarAttilaProcess();
                     Games.StartCrusaderKingsProcess();
