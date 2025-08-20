@@ -625,7 +625,7 @@ namespace Crusader_Wars
                 this.Show();
                 if (loadingScreen != null) CloseLoadingScreen();
                 MessageBox.Show($"Error creating the battle:{ex.Message}", "Crusader Wars: Data Error",
-                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 ProcessCommands.ResumeProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
                 this.Text = "Crusader Wars (Waiting for CK3 battle...)";
@@ -661,7 +661,7 @@ namespace Crusader_Wars
                 this.Show();
                 if (loadingScreen != null) CloseLoadingScreen();
                 MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Wars: Path Error",
-                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 infoLabel.Text = "Ready to start!";
                 ProcessCommands.ResumeProcess();
                 ExecuteButton.Enabled = true;
@@ -684,7 +684,7 @@ namespace Crusader_Wars
             {
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                 MessageBox.Show($"Error: {ex.Message}", "Crusader Wars: Application Error",
-                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Games.CloseTotalWarAttilaProcess();
                 Games.StartCrusaderKingsProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
@@ -695,6 +695,7 @@ namespace Crusader_Wars
 
                 return true; // Continue
             }
+
 
             Games.CloseCrusaderKingsProcess();
 
@@ -795,7 +796,7 @@ namespace Crusader_Wars
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show($"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Wars: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Games.CloseTotalWarAttilaProcess();
                 Games.StartCrusaderKingsProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
@@ -1154,7 +1155,7 @@ namespace Crusader_Wars
                     MessageBox.Show("Log folder not found! Please report this to developers.",
                                     "Crusader Wars: Log Location Error",
                                     MessageBoxButtons.OK,
-                                    Icon.Information);
+                                    MessageBoxIcon.Information);
                 }
             }
         }
