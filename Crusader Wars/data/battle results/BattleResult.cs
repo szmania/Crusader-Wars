@@ -77,9 +77,6 @@ namespace Crusader_Wars
                 Player_Combat = sb.ToString();
                 Program.Logger.Debug("Combat ID - " + battleID);
                 File.WriteAllText(DataFilesPaths.Combats_Path(), Player_Combat);
-
-                ArmiesReader.ReadCombats(Player_Combat);
-                Program.Logger.Debug("All combats were read successfully");
             }
             catch(Exception ex)
             {
@@ -1231,7 +1228,7 @@ namespace Crusader_Wars
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(logFile))
             {
-                string str = reader.ReadToEnd();
+                                string str = reader.ReadToEnd();
 
 
                 if (str.Contains("Battle has finished"))
