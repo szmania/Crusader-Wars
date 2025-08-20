@@ -610,7 +610,7 @@ namespace Crusader_Wars.data.save_file
             }
         }
         
-        public static List<Army> GetSideArmies(string side)
+        public static List<Army> GetSideArmies(string side, List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug($"Getting armies for side: {side}");
             List<Army> left_side = null, right_side = null;
@@ -655,8 +655,8 @@ namespace Crusader_Wars.data.save_file
 
         static void CreateMainCommanders()
         {
-            var left_side_armies = GetSideArmies("left");
-            var right_side_armies = GetSideArmies("right");
+            var left_side_armies = GetSideArmies("left", attacker_armies, defender_armies);
+            var right_side_armies = GetSideArmies("right", attacker_armies, defender_armies);
 
             var left_main_commander_data = CK3LogData.LeftSide.GetCommander();
             left_side_armies.First(x => x.isMainArmy).SetCommander(new CommanderSystem(left_main_commander_data.name, left_main_commander_data.id, left_main_commander_data.prowess, left_main_commander_data.martial, left_main_commander_data.rank, true));
@@ -668,8 +668,8 @@ namespace Crusader_Wars.data.save_file
         {
             RemoveCommandersAsKnights();
 
-            var left_side_armies = GetSideArmies("left");
-            var right_side_armies = GetSideArmies("right");
+            var left_side_armies = GetSideArmies("left", attacker_armies, defender_armies);
+            var right_side_armies = GetSideArmies("right", attacker_armies, defender_armies);
 
             
 

@@ -555,8 +555,8 @@ namespace Crusader_Wars
 
         private async Task<bool> ProcessBattle()
         {
-            var left_side = ArmiesReader.GetSideArmies("left");
-            var right_side = ArmiesReader.GetSideArmies("right");
+            var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
+            var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
             int left_side_total = left_side.Sum(army => army.GetTotalSoldiers());
             int right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
             string left_side_combat_side = left_side[0].CombatSide;
