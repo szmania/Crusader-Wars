@@ -184,6 +184,7 @@ namespace Crusader_Wars
             Options.ReadOptionsFile();
             ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
             AttilaPreferences.ChangeUnitSizes();
+            AttilaPreferences.ValidateUserScriptFile();
 
             Program.Logger.Debug("Form1_Load complete.");
         }
@@ -591,6 +592,19 @@ namespace Crusader_Wars
 
                 try
                 {
+                    // Check for user.script.txt conflict before launching Attila
+                    if (!AttilaPreferences.ValidateUserScriptFile())
+                    {
+                        Program.Logger.Debug("Aborting Attila launch due to user script conflict.");
+                        this.Show();
+                        CloseLoadingScreen();
+                        ProcessCommands.ResumeProcess();
+                        infoLabel.Text = "Waiting for CK3 battle...";
+                        this.Text = "Crusader Wars (Waiting for CK3 battle...)";
+                        Data.Reset();
+                        continue;
+                    }
+
                     //Open Total War Attila
                     Program.Logger.Debug("Starting Attila process.");
                     Games.StartTotalWArAttilaProcess();

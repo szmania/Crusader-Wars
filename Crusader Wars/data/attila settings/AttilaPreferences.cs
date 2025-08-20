@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 
 namespace Crusader_Wars.data.attila_settings
@@ -9,6 +10,27 @@ namespace Crusader_Wars.data.attila_settings
     {
 
         static string preferences_file_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\The Creative Assembly\Attila\scripts\preferences.script.txt";
+        static string user_script_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\The Creative Assembly\Attila\scripts\user.script.txt";
+
+        public static bool ValidateUserScriptFile()
+        {
+            if (File.Exists(user_script_path))
+            {
+                string content = File.ReadAllText(user_script_path);
+                if (!string.IsNullOrWhiteSpace(content))
+                {
+                    string errorMessage = "Potential Mod Conflict Detected!\n\n" +
+                                          "The file 'user.script.txt' contains custom scripts that may conflict with Crusader Wars.\n\n" +
+                                          "To prevent issues, please clear the contents of this file.\n\n" +
+                                          $"Path: {user_script_path}";
+                    MessageBox.Show(errorMessage, "User Script Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Program.Logger.Debug($"User script file conflict detected at {user_script_path}.");
+                    return false; // Indicates a problem
+                }
+            }
+            Program.Logger.Debug("User script file is valid (empty or non-existent).");
+            return true; // OK
+        }
         public static void ChangeUnitSizes()
         {
             if(!isUnitsSetToUltra())
