@@ -186,6 +186,9 @@ namespace Crusader_Wars
             AttilaPreferences.ChangeUnitSizes();
             AttilaPreferences.ValidateOnStartup();
 
+            // Set Continue Battle button visibility if battle exists
+            btt_ContinueBattle.Visible = BattleState.IsBattleInProgress();
+
             Program.Logger.Debug("Form1_Load complete.");
         }
 
@@ -476,6 +479,9 @@ namespace Crusader_Wars
                     attacker_armies = armies.attacker;
                     defender_armies = armies.defender;
                     Program.Logger.Debug($"Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
+            
+                    // Mark battle as started only if setup succeeded
+                    BattleState.MarkBattleStarted();
                 }
                 catch(Exception ex)
                 {
@@ -766,6 +772,12 @@ namespace Crusader_Wars
                 Program.Logger.Debug("Resetting unit sizes for next battle.");
                 ArmyProportions.ResetUnitSizes();
                 GC.Collect();
+
+                // Clear battle state after successful completion
+                BattleState.ClearBattleState();
+            
+                // Update button visibility
+                btt_ContinueBattle.Visible = BattleState.IsBattleInProgress();
 
             }
         }
