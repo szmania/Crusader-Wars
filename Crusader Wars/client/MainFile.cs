@@ -31,6 +31,9 @@ namespace Crusader_Wars
     {
         private Button btt_ContinueBattle = new Button();
         private ToolTip ContinueBattleToolTip = new ToolTip();
+        private LoadingScreen loadingScreen;
+        private Thread loadingThread;
+        private string log;  // For CK3 log content
         
 
         const string SEARCH_KEY = "CRUSADERWARS3";
@@ -46,20 +49,20 @@ namespace Crusader_Wars
             btt_ContinueBattle.AutoSize = true;
             btt_ContinueBattle.FlatStyle = FlatStyle.Flat;
             btt_ContinueBattle.FlatAppearance.BorderSize = 0;
-            btt_ContinueBattle.BackColor = Color.Transparent;
+            btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
             btt_ContinueBattle.Text = "Continue Battle";
             btt_ContinueBattle.Font = new Font(fonts.Families[0], 10f, FontStyle.Underline);
-            btt_ContinueBattle.ForeColor = Color.LightSkyBlue;
+            btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
             btt_ContinueBattle.Visible = false;
             btt_ContinueBattle.Cursor = Cursors.Hand;
             btt_ContinueBattle.Click += Btt_ContinueBattle_Click;
             
             // Hover effects
             btt_ContinueBattle.MouseEnter += (sender, e) => {
-                btt_ContinueBattle.ForeColor = Color.CornflowerBlue;
+                btt_ContinueBattle.ForeColor = System.Drawing.Color.CornflowerBlue;
             };
             btt_ContinueBattle.MouseLeave += (sender, e) => {
-                btt_ContinueBattle.ForeColor = Color.LightSkyBlue;
+                btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
             };
 
             // Calculate centered position below Start button
@@ -251,6 +254,10 @@ namespace Crusader_Wars
         }
 
 
+        private void HomePage_Shown(object sender, EventArgs e)
+        {
+            // Empty event handler to satisfy designer
+        }
 
         List<Army> attacker_armies;
         List<Army> defender_armies;
