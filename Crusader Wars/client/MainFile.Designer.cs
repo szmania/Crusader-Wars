@@ -39,6 +39,7 @@
             this.labelVersion = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
+            this.btt_ContinueBattle = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
             this.pipeLabel1 = new System.Windows.Forms.Label();
@@ -143,7 +144,27 @@
             this.MainPanelLayout.Controls.Add(this.pictureBox1);
             this.MainPanelLayout.Controls.Add(this.ExecuteButton);
             this.MainPanelLayout.Controls.Add(this.infoLabel);
+            this.MainPanelLayout.Controls.Add(this.btt_ContinueBattle);
             this.MainPanelLayout.Name = "MainPanelLayout";
+            // 
+            // btt_ContinueBattle
+            // 
+            this.btt_ContinueBattle.AutoSize = true;
+            this.btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btt_ContinueBattle.FlatAppearance.BorderSize = 0;
+            this.btt_ContinueBattle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            resources.ApplyResources(this.btt_ContinueBattle, "btt_ContinueBattle");
+            this.btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
+            this.btt_ContinueBattle.Name = "btt_ContinueBattle";
+            this.btt_ContinueBattle.TabStop = false;
+            this.btt_ContinueBattle.UseVisualStyleBackColor = true;
+            this.btt_ContinueBattle.Visible = false;
+            this.btt_ContinueBattle.Click += new System.EventHandler(this.Btt_ContinueBattle_Click);
+            this.btt_ContinueBattle.MouseEnter += new System.EventHandler(this.btt_ContinueBattle_MouseEnter);
+            this.btt_ContinueBattle.MouseLeave += new System.EventHandler(this.btt_ContinueBattle_MouseLeave);
             // 
             // BottomPanelLayout
             // 
@@ -298,5 +319,6 @@
         private System.Windows.Forms.Label discordLink;
         private System.Windows.Forms.Label pipeLabel1;
         private System.Windows.Forms.Label pipeLabel2;
+        private System.Windows.Forms.Button btt_ContinueBattle;
     }
 }

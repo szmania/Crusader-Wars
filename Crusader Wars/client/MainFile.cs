@@ -29,7 +29,6 @@ namespace Crusader_Wars
 {
     public partial class HomePage : Form
     {
-        private Button btt_ContinueBattle = new Button();
         private ToolTip ContinueBattleToolTip = new ToolTip();
         private LoadingScreen loadingScreen;
         private Thread loadingThread;
@@ -45,39 +44,20 @@ namespace Crusader_Wars
             LoadFont();
             InitializeComponent();
 
-            // Initialize Continue Battle button as a text link
-            btt_ContinueBattle.AutoSize = true;
-            btt_ContinueBattle.FlatStyle = FlatStyle.Flat;
-            btt_ContinueBattle.FlatAppearance.BorderSize = 0;
-            btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
-            btt_ContinueBattle.Text = "Continue Battle";
+            // Apply custom font to Continue Battle button
             btt_ContinueBattle.Font = new Font(fonts.Families[0], 10f, FontStyle.Underline);
-            btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
-            btt_ContinueBattle.Visible = false;
-            btt_ContinueBattle.Cursor = Cursors.Hand;
-            btt_ContinueBattle.Click += Btt_ContinueBattle_Click;
             
-            // Hover effects
-            btt_ContinueBattle.MouseEnter += (sender, e) => {
-                btt_ContinueBattle.ForeColor = System.Drawing.Color.CornflowerBlue;
-            };
-            btt_ContinueBattle.MouseLeave += (sender, e) => {
-                btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
-            };
-            
-            // Position status label below Continue button
+            // Position status label below Execute button
             infoLabel.Location = new Point(
                 ExecuteButton.Location.X,
-                btt_ContinueBattle.Location.Y + btt_ContinueBattle.Height + 10
+                ExecuteButton.Location.Y + ExecuteButton.Height + 10
             );
             
-            // Calculate centered position below status label
+            // Position Continue button below status label
             btt_ContinueBattle.Location = new Point(
                 ExecuteButton.Location.X,
                 infoLabel.Location.Y + infoLabel.Height + 10
             );
-            // Add to MainPanelLayout
-            MainPanelLayout.Controls.Add(btt_ContinueBattle);
             
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
@@ -833,6 +813,16 @@ namespace Crusader_Wars
             _myVariable = 0;
         }
 
+        private void btt_ContinueBattle_MouseEnter(object sender, EventArgs e)
+        {
+            btt_ContinueBattle.ForeColor = System.Drawing.Color.CornflowerBlue;
+        }
+
+        private void btt_ContinueBattle_MouseLeave(object sender, EventArgs e)
+        {
+            btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
+        }
+
         /*---------------------------------------------
          * :::::::::::::PROCESS COMMANDS:::::::::::::::
          ---------------------------------------------*/
@@ -912,7 +902,6 @@ namespace Crusader_Wars
                 {
                     Program.Logger.Debug("CK3 process not found. Starting CK3.");
                     Process.Start(Properties.Settings.Default.VAR_ck3_path);
-                    DataSearch.ClearLogFile();
                 }
                 else
                 {
