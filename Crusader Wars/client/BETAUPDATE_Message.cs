@@ -41,7 +41,7 @@ namespace Crusader_Wars.client.BETAUPDATE_Message
             //Offline
             catch 
             {
-                MessageBox.Show("No Internet connection. Your ck3 mod version is for the new beta release, if you don't download the new the CW launcher from the website it may cause crashes!", "Error",
+                MessageBox.Show("No Internet connection. Your ck3 mod version is for the new beta release, if you don't download the new the CW launcher from the website it may cause crashes!", "Crusader Wars: Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 this.Close();
             }

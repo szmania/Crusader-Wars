@@ -163,7 +163,7 @@ namespace Crusader_Wars
                 }
                 catch
                 {
-                    MessageBox.Show("None of your armies is present on this battle!", "Zero Friendly Armies Error",
+                    MessageBox.Show("None of your armies is present on this battle!", "Crusader Wars: Zero Friendly Armies Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     throw new Exception();
                 }
@@ -291,7 +291,7 @@ namespace Crusader_Wars
                 }
                 catch
                 {
-                    MessageBox.Show("None of your armies is present on this battle!", "Zero Friendly Armies Error",
+                    MessageBox.Show("None of your armies is present on this battle!", "Crusader Wars: Zero Friendly Armies Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     throw new Exception();
                 }

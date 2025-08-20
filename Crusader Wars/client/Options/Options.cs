@@ -148,7 +148,7 @@ namespace Crusader_Wars
             }
             catch
             {
-                MessageBox.Show("Error reading game options. Restart the mod and try again", "Data Error",
+                MessageBox.Show("Error reading game options. Restart the mod and try again", "Crusader Wars: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
@@ -361,7 +361,7 @@ namespace Crusader_Wars
             }
             catch 
             {
-                MessageBox.Show("Error setting game paths. Restart the mod and try again", "Data Error",
+                MessageBox.Show("Error setting game paths. Restart the mod and try again", "Crusader Wars: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
@@ -393,7 +393,7 @@ namespace Crusader_Wars
             }
             catch 
             {
-                MessageBox.Show("Error reading game paths. Restart the mod and try again", "Data Error",
+                MessageBox.Show("Error reading game paths. Restart the mod and try again", "Crusader Wars: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
@@ -545,7 +545,7 @@ namespace Crusader_Wars
                             }
                             else
                             {
-                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Unit Mappers Error",
+                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Wars: Crusader Wars: Unit Mappers Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             }
                             break;
