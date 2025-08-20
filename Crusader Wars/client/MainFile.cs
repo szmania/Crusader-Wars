@@ -64,12 +64,6 @@ namespace Crusader_Wars
             btt_ContinueBattle.MouseLeave += (sender, e) => {
                 btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
             };
-
-            // Calculate centered position below Start button
-            btt_ContinueBattle.Location = new Point(
-                ExecuteButton.Location.X + (ExecuteButton.Width - btt_ContinueBattle.Width) / 2,
-                ExecuteButton.Location.Y + ExecuteButton.Height + 10
-            );
             
             // Position status label below Continue button
             infoLabel.Location = new Point(
@@ -77,6 +71,11 @@ namespace Crusader_Wars
                 btt_ContinueBattle.Location.Y + btt_ContinueBattle.Height + 10
             );
             
+            // Calculate centered position below status label
+            btt_ContinueBattle.Location = new Point(
+                ExecuteButton.Location.X,
+                infoLabel.Location.Y + infoLabel.Height + 10
+            );
             // Add to MainPanelLayout
             MainPanelLayout.Controls.Add(btt_ContinueBattle);
             
