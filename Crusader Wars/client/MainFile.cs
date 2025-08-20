@@ -43,8 +43,7 @@ namespace Crusader_Wars
             InitializeComponent();
 
             // Initialize Continue Battle button
-            btt_ContinueBattle.Size = new Size(180, 50);
-            btt_ContinueBattle.Location = new Point(ExecuteButton.Location.X, ExecuteButton.Location.Y + 55);
+            btt_ContinueBattle.Size = ExecuteButton.Size;  // Match Start button size
             btt_ContinueBattle.Text = "Continue Battle";
             btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
             btt_ContinueBattle.FlatStyle = FlatStyle.Popup;
@@ -52,12 +51,16 @@ namespace Crusader_Wars
             btt_ContinueBattle.Font = new Font(fonts.Families[0], 12f);
             btt_ContinueBattle.Visible = false;
             btt_ContinueBattle.Click += Btt_ContinueBattle_Click;
-            this.Controls.Add(btt_ContinueBattle);
 
             // Add hover effects for continue battle button
             btt_ContinueBattle.MouseEnter += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new_hover;
             btt_ContinueBattle.MouseLeave += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
 
+            // Add to MainPanelLayout below the ExecuteButton
+            int continueButtonIndex = MainPanelLayout.Controls.IndexOf(ExecuteButton) + 1;
+            MainPanelLayout.Controls.Add(btt_ContinueBattle);
+            MainPanelLayout.Controls.SetChildIndex(btt_ContinueBattle, continueButtonIndex);
+            
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             viewLogsLink.MouseLeave += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
@@ -622,7 +625,7 @@ namespace Crusader_Wars
                 this.Show();
                 if (loadingScreen != null) CloseLoadingScreen();
                 MessageBox.Show($"Error creating the battle:{ex.Message}", "Crusader Wars: Data Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 ProcessCommands.ResumeProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
                 this.Text = "Crusader Wars (Waiting for CK3 battle...)";
@@ -658,7 +661,7 @@ namespace Crusader_Wars
                 this.Show();
                 if (loadingScreen != null) CloseLoadingScreen();
                 MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Wars: Path Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 infoLabel.Text = "Ready to start!";
                 ProcessCommands.ResumeProcess();
                 ExecuteButton.Enabled = true;
@@ -681,7 +684,7 @@ namespace Crusader_Wars
             {
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                 MessageBox.Show($"Error: {ex.Message}", "Crusader Wars: Application Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Games.CloseTotalWarAttilaProcess();
                 Games.StartCrusaderKingsProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
@@ -792,7 +795,7 @@ namespace Crusader_Wars
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show($"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Wars: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Games.CloseTotalWarAttilaProcess();
                 Games.StartCrusaderKingsProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
@@ -1151,7 +1154,7 @@ namespace Crusader_Wars
                     MessageBox.Show("Log folder not found! Please report this to developers.",
                                     "Crusader Wars: Log Location Error",
                                     MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
+                                    Icon.Information);
                 }
             }
         }
