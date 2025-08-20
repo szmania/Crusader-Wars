@@ -20,7 +20,9 @@ namespace Crusader_Wars.twbattle
 
         public static bool IsBattleInProgress()
         {
-            return System.IO.File.Exists(StateFile);
+            bool battleInProgress = System.IO.File.Exists(StateFile);
+            Program.Logger.Debug($"Checking for battle state file: '{StateFile}'. Exists: {battleInProgress}");
+            return battleInProgress;
         }
 
         public static void MarkBattleStarted()
