@@ -28,7 +28,21 @@ namespace Crusader_Wars
 {
     public partial class HomePage : Form
     {
+        private Button btt_ContinueBattle = new Button();
+        private ToolTip ContinueBattleToolTip = new ToolTip();
+        
 
+        // Initialize Continue Battle button
+        btt_ContinueBattle.Size = new Size(180, 50);
+        btt_ContinueBattle.Location = new Point(ExecuteButton.Location.X, ExecuteButton.Location.Y + 55);
+        btt_ContinueBattle.Text = "Continue Battle";
+        btt_ContinueBattle.BackgroundImage = Properties.Resources.continue_btn;
+        btt_ContinueBattle.FlatStyle = FlatStyle.Popup;
+        btt_ContinueBattle.ForeColor = Color.White;
+        btt_ContinueBattle.Font = new Font(fonts.Families[0], 12f);
+        btt_ContinueBattle.Visible = false;
+        btt_ContinueBattle.Click += Btt_ContinueBattle_Click;
+        this.Controls.Add(btt_ContinueBattle);
 
         const string SEARCH_KEY = "CRUSADERWARS3";
 
@@ -53,6 +67,9 @@ namespace Crusader_Wars
             Program.Logger.Debug($"Documents Path: {documentsPath}");
             Program.Logger.Debug($"CK3 Log Path: {debugLog_Path}");
             Program.Logger.Debug($"Save Games Path: {saveGames_Path}");
+
+            // Set tooltip for Continue Battle button
+            ContinueBattleToolTip.SetToolTip(btt_ContinueBattle, "Restart an Attila battle without reloading Crusader Kings 3.\nUse this if you need to pause or restart a battle due to technical issues.");
 
             //Icon
             this.Icon = Properties.Resources.logo;
@@ -1053,6 +1070,10 @@ namespace Crusader_Wars
             SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_click;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
+            
+            // Add hover effects for continue battle button
+            btt_ContinueBattle.MouseEnter += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.continue_btn_hover;
+            btt_ContinueBattle.MouseLeave += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.continue_btn;
             Options optionsChild = new Options();
             optionsChild.ShowDialog();
         }
