@@ -23,7 +23,7 @@ namespace Crusader_Wars.data.attila_settings
                                           "The file 'user.script.txt' contains custom scripts that may conflict with Crusader Wars.\n\n" +
                                           "To prevent issues, please clear the contents of this file.\n\n" +
                                           $"Path: {user_script_path}";
-                    MessageBox.Show(errorMessage, "User Script Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(errorMessage, "Crusader Wars: User Script Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Program.Logger.Debug($"User script file conflict detected at {user_script_path}.");
                     return false; // Indicates a problem
                 }
