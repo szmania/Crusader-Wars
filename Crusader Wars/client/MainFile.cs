@@ -184,7 +184,7 @@ namespace Crusader_Wars
             Options.ReadOptionsFile();
             ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
             AttilaPreferences.ChangeUnitSizes();
-            AttilaPreferences.ValidateUserScriptFile();
+            AttilaPreferences.ValidateOnStartup();
 
             Program.Logger.Debug("Form1_Load complete.");
         }
@@ -593,7 +593,7 @@ namespace Crusader_Wars
                 try
                 {
                     // Check for user.script.txt conflict before launching Attila
-                    if (!AttilaPreferences.ValidateUserScriptFile())
+                    if (!AttilaPreferences.ValidateBeforeLaunch())
                     {
                         Program.Logger.Debug("Aborting Attila launch due to user script conflict.");
                         this.Show();
