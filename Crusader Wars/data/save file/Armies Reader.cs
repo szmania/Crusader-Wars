@@ -13,13 +13,9 @@ namespace Crusader_Wars.data.save_file
     {
 
         // V1.0 Beta
-        static List<Army> attacker_armies = new List<Army>();
-        static List<Army> defender_armies = new List<Army>();
+        static List<Army> attacker_armies;
+        static List<Army> defender_armies;
         public static List<(string name, int index)> save_file_traits { get; set; }
-        public static void ReadCombats(string g)
-        {
-            ReadCombatArmies(g);
-        }
         public static (List<Army> attacker, List<Army> defender) ReadBattleArmies()
         {
             Program.Logger.Debug("Reading battle armies from CK3 save data...");
@@ -37,6 +33,7 @@ namespace Crusader_Wars.data.save_file
             attacker_armies = new List<Army>();
             defender_armies = new List<Army>();
 
+            ReadCombatArmies(BattleResult.Player_Combat);
             ReadArmiesData();
             ReadArmiesUnits();
             ReadArmyRegiments();
