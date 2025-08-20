@@ -10,13 +10,13 @@ namespace Crusader_Wars.twbattle
 
         public static bool IsBattleInProgress()
         {
-            return File.Exists(StateFile);
+            return System.IO.File.Exists(StateFile);
         }
 
         public static void MarkBattleStarted()
         {
             // We use the existing shortcut as battle marker
-            if (!File.Exists(StateFile))
+            if (!System.IO.File.Exists(StateFile))
             {
                 CreateAttilaShortcut();
             }
@@ -24,15 +24,15 @@ namespace Crusader_Wars.twbattle
 
         public static void ClearBattleState()
         {
-            if (File.Exists(StateFile))
+            if (System.IO.File.Exists(StateFile))
             {
-                File.Delete(StateFile);
+                System.IO.File.Delete(StateFile);
             }
         }
 
         private static void CreateAttilaShortcut()
         {
-            if(File.Exists(StateFile)) return;
+            if(System.IO.File.Exists(StateFile)) return;
             
             // Using existing shortcut creation logic...
             object shDesktop = (object)"Desktop";
