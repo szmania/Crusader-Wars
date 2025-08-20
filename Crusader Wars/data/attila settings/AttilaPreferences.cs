@@ -22,7 +22,8 @@ namespace Crusader_Wars.data.attila_settings
                     string errorMessage = "Potential Mod Conflict Detected!\n\n" +
                                           "The file 'user.script.txt' contains custom scripts that may conflict with Crusader Wars.\n\n" +
                                           "To prevent issues, please clear the contents of this file.\n\n" +
-                                          "If you are using Total War Mod Manager () be sure to save your mod profile before clearing this file.\n\n" + 
+                                          "If you are using an external mod manager like Total War Mod Manager (https://sourceforge.net/projects/twmodmanager/), be sure to save your mod profile before clearing this file.\n\n" +
+                                          "Note: Crusader Wars has its own built-in mod manager for handling Attila mods.\n\n" +
                                           $"Path: {user_script_path}";
                     MessageBox.Show(errorMessage, "Crusader Wars: User Script Mod Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Program.Logger.Debug($"User script file mod conflict detected at {user_script_path}.");
