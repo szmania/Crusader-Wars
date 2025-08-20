@@ -42,24 +42,40 @@ namespace Crusader_Wars
             LoadFont();
             InitializeComponent();
 
-            // Initialize Continue Battle button
-            btt_ContinueBattle.Size = ExecuteButton.Size;  // Match Start button size
+            // Initialize Continue Battle button as a text link
+            btt_ContinueBattle.AutoSize = true;
+            btt_ContinueBattle.FlatStyle = FlatStyle.Flat;
+            btt_ContinueBattle.FlatAppearance.BorderSize = 0;
+            btt_ContinueBattle.BackColor = Color.Transparent;
             btt_ContinueBattle.Text = "Continue Battle";
-            btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
-            btt_ContinueBattle.FlatStyle = FlatStyle.Popup;
-            btt_ContinueBattle.ForeColor = System.Drawing.Color.White;
-            btt_ContinueBattle.Font = new Font(fonts.Families[0], 12f);
+            btt_ContinueBattle.Font = new Font(fonts.Families[0], 10f, FontStyle.Underline);
+            btt_ContinueBattle.ForeColor = Color.LightSkyBlue;
             btt_ContinueBattle.Visible = false;
+            btt_ContinueBattle.Cursor = Cursors.Hand;
             btt_ContinueBattle.Click += Btt_ContinueBattle_Click;
+            
+            // Hover effects
+            btt_ContinueBattle.MouseEnter += (sender, e) => {
+                btt_ContinueBattle.ForeColor = Color.CornflowerBlue;
+            };
+            btt_ContinueBattle.MouseLeave += (sender, e) => {
+                btt_ContinueBattle.ForeColor = Color.LightSkyBlue;
+            };
 
-            // Add hover effects for continue battle button
-            btt_ContinueBattle.MouseEnter += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new_hover;
-            btt_ContinueBattle.MouseLeave += (sender, e) => btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
-
-            // Add to MainPanelLayout below the ExecuteButton
-            int continueButtonIndex = MainPanelLayout.Controls.IndexOf(ExecuteButton) + 1;
+            // Calculate centered position below Start button
+            btt_ContinueBattle.Location = new Point(
+                ExecuteButton.Location.X + (ExecuteButton.Width - btt_ContinueBattle.Width) / 2,
+                ExecuteButton.Location.Y + ExecuteButton.Height + 10
+            );
+            
+            // Position status label below Continue button
+            infoLabel.Location = new Point(
+                ExecuteButton.Location.X,
+                btt_ContinueBattle.Location.Y + btt_ContinueBattle.Height + 10
+            );
+            
+            // Add to MainPanelLayout
             MainPanelLayout.Controls.Add(btt_ContinueBattle);
-            MainPanelLayout.Controls.SetChildIndex(btt_ContinueBattle, continueButtonIndex);
             
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
@@ -229,46 +245,15 @@ namespace Crusader_Wars
             culture.GetCultureName();
         }
 
+        // This method kept empty since shortcut creation is now obsolete
         private void CreateAttilaShortcut()
         {
-            if(!System.IO.File.Exists(@".\CW.lnk")) {
-                Program.Logger.Debug("Attila shortcut not found, creating...");
-                object shDesktop = (object)"Desktop";
-                WshShell shell = new WshShell();
-                string shortcutAddress = @".\CW.lnk";
-                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-                shortcut.Description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
-                shortcut.WorkingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
-                shortcut.Arguments = "used_mods_cw.txt";
-                shortcut.TargetPath = Properties.Settings.Default.VAR_attila_path;
-                shortcut.Save();
-                Program.Logger.Debug("Attila shortcut created successfully.");
-            }
         }
 
 
 
         List<Army> attacker_armies;
         List<Army> defender_armies;
-        private void HomePage_Shown(object sender, EventArgs e)
-        {
-            Program.Logger.Debug("Main form shown.");
-            infoLabel.Text = "Loading DLLs...";
-            ExecuteButton.Enabled= false;
-            //LoadDLLs();
-            ExecuteButton.Enabled= true;
-            infoLabel.Text = "Ready to Start!";
-
-            if (debugLog_Path != null)
-                DataSearch.ClearLogFile();
-
-
-        }
-
-
-        string log;
-        Thread loadingThread;
-        LoadingScreen loadingScreen;
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Execute button clicked.");

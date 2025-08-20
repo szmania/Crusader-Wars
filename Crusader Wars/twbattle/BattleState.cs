@@ -6,7 +6,17 @@ namespace Crusader_Wars.twbattle
 {
     public static class BattleState
     {
-        public static string StateFile => @".\CW.lnk";
+        private static string StateFolder => @".\data\attila_battle";
+        private static string StateFile => Path.Combine(StateFolder, "battle_state.txt");
+        
+        static BattleState()
+        {
+            // Ensure directory exists
+            if (!Directory.Exists(StateFolder))
+            {
+                Directory.CreateDirectory(StateFolder);
+            }
+        }
 
         public static bool IsBattleInProgress()
         {
@@ -15,10 +25,9 @@ namespace Crusader_Wars.twbattle
 
         public static void MarkBattleStarted()
         {
-            // We use the existing shortcut as battle marker
             if (!System.IO.File.Exists(StateFile))
             {
-                CreateAttilaShortcut();
+                System.IO.File.WriteAllText(StateFile, "battle_in_progress");
             }
         }
 
@@ -28,22 +37,6 @@ namespace Crusader_Wars.twbattle
             {
                 System.IO.File.Delete(StateFile);
             }
-        }
-
-        private static void CreateAttilaShortcut()
-        {
-            if(System.IO.File.Exists(StateFile)) return;
-            
-            // Using existing shortcut creation logic...
-            object shDesktop = (object)"Desktop";
-            WshShell shell = new WshShell();
-            string shortcutAddress = StateFile;
-            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-            shortcut.Description = "Shortcut for continuing Crusader Wars battles";
-            shortcut.WorkingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
-            shortcut.Arguments = "used_mods_cw.txt";
-            shortcut.TargetPath = Properties.Settings.Default.VAR_attila_path;
-            shortcut.Save();
         }
     }
 }
