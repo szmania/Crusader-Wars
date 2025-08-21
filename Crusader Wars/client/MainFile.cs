@@ -859,6 +859,8 @@ namespace Crusader_Wars
             try
             {
                 Program.Logger.Debug("Re-loading army data for continued battle.");
+                BattleResult.GetPlayerCombatResult();
+                BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
                 var armies = ArmiesReader.ReadBattleArmies();
                 attacker_armies = armies.attacker;
                 defender_armies = armies.defender;
