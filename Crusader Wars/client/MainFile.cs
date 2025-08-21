@@ -761,7 +761,7 @@ namespace Crusader_Wars
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
                         BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForDeathCommanders(army, path_log_attila);
+                        BattleResult.CheckForDeathCommanders(army, path_attila_log);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForDeathKnights(army);
 
@@ -855,6 +855,8 @@ namespace Crusader_Wars
             }
             DataSearch.Search(logSnippet);
             Program.Logger.Debug("Battle context restored.");
+
+            path_editedSave = @".\data\save_file_data\gamestate_file\gamestate";
 
             try
             {
