@@ -137,6 +137,26 @@
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.TabStop = false;
             // 
+            // btt_ContinueBattle
+            // 
+            resources.ApplyResources(this.btt_ContinueBattle, "btt_ContinueBattle");
+            this.btt_ContinueBattle.AutoSize = true;
+            this.btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btt_ContinueBattle.FlatAppearance.BorderSize = 0;
+            this.btt_ContinueBattle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
+            this.btt_ContinueBattle.Name = "btt_ContinueBattle";
+            this.btt_ContinueBattle.TabStop = false;
+            this.btt_ContinueBattle.UseVisualStyleBackColor = true;
+            this.btt_ContinueBattle.Visible = false;
+            this.btt_ContinueBattle.Enabled = true;
+            this.btt_ContinueBattle.Click += new System.EventHandler(this.Btt_ContinueBattle_Click);
+            this.btt_ContinueBattle.MouseEnter += new System.EventHandler(this.btt_ContinueBattle_MouseEnter);
+            this.btt_ContinueBattle.MouseLeave += new System.EventHandler(this.btt_ContinueBattle_MouseLeave);
+            // 
             // MainPanelLayout
             // 
             resources.ApplyResources(this.MainPanelLayout, "MainPanelLayout");
@@ -146,25 +166,6 @@
             this.MainPanelLayout.Controls.Add(this.infoLabel);
             this.MainPanelLayout.Controls.Add(this.btt_ContinueBattle);
             this.MainPanelLayout.Name = "MainPanelLayout";
-            // 
-            // btt_ContinueBattle
-            // 
-            this.btt_ContinueBattle.AutoSize = true;
-            this.btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btt_ContinueBattle.FlatAppearance.BorderSize = 0;
-            this.btt_ContinueBattle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            resources.ApplyResources(this.btt_ContinueBattle, "btt_ContinueBattle");
-            this.btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
-            this.btt_ContinueBattle.Name = "btt_ContinueBattle";
-            this.btt_ContinueBattle.TabStop = false;
-            this.btt_ContinueBattle.UseVisualStyleBackColor = true;
-            this.btt_ContinueBattle.Visible = false;
-            this.btt_ContinueBattle.Click += new System.EventHandler(this.Btt_ContinueBattle_Click);
-            this.btt_ContinueBattle.MouseEnter += new System.EventHandler(this.btt_ContinueBattle_MouseEnter);
-            this.btt_ContinueBattle.MouseLeave += new System.EventHandler(this.btt_ContinueBattle_MouseLeave);
             // 
             // BottomPanelLayout
             // 
