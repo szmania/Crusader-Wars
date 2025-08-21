@@ -83,7 +83,7 @@
             this.ContinueBattleButton.BackgroundImage = global::Crusader_Wars.Properties.Resources.start_new;
             resources.ApplyResources(this.ContinueBattleButton, "ContinueBattleButton");
             this.ContinueBattleButton.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ExecuteButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.ContinueBattleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.ContinueBattleButton.FlatAppearance.BorderSize = 0;
             this.ContinueBattleButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.ContinueBattleButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
@@ -320,17 +320,17 @@
         private System.Windows.Forms.Label labelVersion;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.FlowLayoutPanel MainPanelLayout;
+        private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
+        private System.Windows.Forms.Button ContinueBattleButton;
         private System.Windows.Forms.FlowLayoutPanel BottomPanelLayout;
+        private System.Windows.Forms.Label EA_Label;
+        private System.Windows.Forms.Label discordLink;
+        private System.Windows.Forms.Label pipeLabel1;
+        private System.Windows.Forms.Label pipeLabel2;
         private System.Windows.Forms.Button patreonBtn;
         private System.Windows.Forms.Button WebsiteBTN;
         private System.Windows.Forms.Button SteamBTN;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label viewLogsLink;
-        private System.Windows.Forms.Label EA_Label;
-        private System.Windows.Forms.Label discordLink;
-        private System.Windows.Forms.Label pipeLabel1;
-        private System.Windows.Forms.Label pipeLabel2;
-        private System.Windows.Forms.Button ContinueBattleButton;
-        private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
     }
 }
