@@ -193,7 +193,7 @@ namespace Crusader_Wars
             UpdateUIForBattleState();
 
             // Set ToolTips
-            InformationToolTip.SetToolTip(ExecuteButton, "Start a new or continue a Crusader Wars campaign by launching Crusader Kings 3.");
+            InformationToolTip.SetToolTip(ExecuteButton, "Start or continue a Crusader Wars campaign by launching Crusader Kings 3.");
             InformationToolTip.SetToolTip(ContinueBattleButton, "Restart the current Total War: Attila battle without reloading Crusader Kings 3. Use this if the battle crashed or you want to try again.");
             InformationToolTip.SetToolTip(SettingsBtn, "Configure game paths, battle options, and unit mappers.");
             InformationToolTip.SetToolTip(patreonBtn, "Support the development of Crusader Wars on Patreon.");
@@ -214,8 +214,8 @@ namespace Crusader_Wars
             if (battleInProgress)
             {
                 ExecuteButton.Text = "Start CK3";
-                ContinueBattleButton.Text = "Continue TW:Attila Battle";
-                infoLabel.Text = "A battle is in progress.";
+                ContinueBattleButton.Text = "Continue Battle";
+                infoLabel.Text = "Continue Battle In Progress!";
 
                 // Resize buttons to fit side-by-side
                 ExecuteButton.Size = new Size(197, 115);
