@@ -210,11 +210,18 @@ namespace Crusader_Wars
                 ExecuteButton.Text = "Start New";
                 ContinueBattleButton.Text = "Continue Battle";
                 infoLabel.Text = "A battle is in progress.";
+
+                // Resize buttons to fit side-by-side
+                ExecuteButton.Size = new Size(140, 82);
+                ContinueBattleButton.Size = new Size(140, 82);
             }
             else
             {
                 ExecuteButton.Text = ""; // Use image text
                 infoLabel.Text = "Ready to Start!";
+
+                // Restore original button size
+                ExecuteButton.Size = new Size(197, 115);
             }
         }
 
