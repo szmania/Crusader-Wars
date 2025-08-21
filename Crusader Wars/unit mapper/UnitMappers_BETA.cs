@@ -521,6 +521,69 @@ namespace Crusader_Wars.unit_mapper
 
         }
 
-        public static string GetAttilaFaction(string CultureName, string HeritageName)Here are the updated files:
+        public static string GetAttilaFaction(string CultureName, string HeritageName)
+        {
+            string faction = "";
+            string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
+            
+            var files_paths = Directory.GetFiles(cultures_folder_path);
+            foreach (var xml_file in files_paths)
+            {
+                if(Path.GetExtension(xml_file) == ".xml")
+                {
+                    XmlDocument CulturesFile = new XmlDocument();
+                    CulturesFile.Load(xml_file);
 
-Crusader Wars\client\MainFile.cs
+                    foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
+                    {
+                        if (heritage is XmlComment) continue;
+
+                        string heritage_name = heritage.Attributes["name"].Value;                       
+
+                        if(heritage_name == HeritageName)
+                        {
+                            faction = heritage.Attributes["faction"].Value;
+                        }
+
+                        foreach(XmlNode culture in heritage.ChildNodes)
+                        {
+                            if (culture is XmlComment) continue; 
+                            string culture_name = culture.Attributes["name"].Value;
+
+                            if (culture_name == CultureName)
+                            {
+                                faction = culture.Attributes["faction"].Value;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return faction;
+        }
+
+        public static void SetMapperImage()
+        {
+
+            try
+            {
+                //Copy mapper image to files
+                var image_path = Directory.GetFiles(LoadedUnitMapper_FolderPath).Where(x => x.EndsWith(".png")).FirstOrDefault();
+                string destination_path = Directory.GetCurrentDirectory() + @"\data\battle Files\campaign_maps\main_attila_map\main_attila_map.png";
+                File.Copy(image_path, destination_path, true);
+                return;
+            }
+            catch
+            {
+                //In case of error, use default image
+
+                string default_image_path = Directory.GetCurrentDirectory() + "\\settings\\main_attila_map.png";
+                string destination_path = Directory.GetCurrentDirectory() + @"\data\battle Files\campaign_maps\main_attila_map\main_attila_map.png";
+                File.Copy(default_image_path, destination_path, true);
+                return;
+            }
+
+
+        }
+    }
+}
