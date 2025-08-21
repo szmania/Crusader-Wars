@@ -393,6 +393,7 @@ namespace Crusader_Wars
                             reader.DiscardBufferedData();
                             log = reader.ReadToEnd();
                             log = RemoveASCII(log);
+                            BattleState.SaveLogSnippet(log);
 
                             if (battleHasStarted)
                             {
@@ -800,6 +801,22 @@ namespace Crusader_Wars
             ExecuteButton.Enabled = false;
             btt_ContinueBattle.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
+
+            // Restore battle context from saved log snippet
+            Program.Logger.Debug("Restoring battle context from log snippet...");
+            string logSnippet = BattleState.LoadLogSnippet();
+            if (string.IsNullOrEmpty(logSnippet))
+            {
+                Program.Logger.Debug("Failed to load battle context. Log snippet is missing or empty.");
+                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Wars: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _myVariable = 0;
+                ExecuteButton.Enabled = true;
+                btt_ContinueBattle.Enabled = true;
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                return;
+            }
+            DataSearch.Search(logSnippet);
+            Program.Logger.Debug("Battle context restored.");
 
             try
             {
