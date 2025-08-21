@@ -717,6 +717,13 @@ namespace Crusader_Wars
             this.Text = "Crusader Wars (Waiting for TW:Attila battle to end...)";
             Program.Logger.Debug("Waiting for TW:Attila battle to end...");
 
+            ExecuteButton.Enabled = true;
+            if (ExecuteButton.Enabled)
+            {
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+            }
+            ContinueBattleButton.Enabled = true;
+
             //  Waiting for TW:Attila battle to end...
             while (battleEnded == false)
             {
