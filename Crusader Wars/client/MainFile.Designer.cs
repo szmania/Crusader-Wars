@@ -41,6 +41,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.ButtonsContainer2Panel = new System.Windows.Forms.FlowLayoutPanel();
             this.ContinueBattleButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
@@ -53,6 +54,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.MainPanelLayout.SuspendLayout();
             this.ButtonsContainerPanel.SuspendLayout();
+            this.ButtonsContainer2Panel.SuspendLayout();
             this.BottomPanelLayout.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -177,6 +179,7 @@
             this.MainPanelLayout.Controls.Add(this.pictureBox1);
             this.MainPanelLayout.Controls.Add(this.ButtonsContainerPanel);
             this.MainPanelLayout.Controls.Add(this.infoLabel);
+            this.MainPanelLayout.Controls.Add(this.ButtonsContainer2Panel);
             this.MainPanelLayout.Name = "MainPanelLayout";
             // 
             // ButtonsContainerPanel
@@ -186,6 +189,13 @@
             this.ButtonsContainerPanel.Controls.Add(this.ExecuteButton);
             this.ButtonsContainerPanel.Controls.Add(this.ContinueBattleButton);
             this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
+            // 
+            // ButtonsContainer2Panel
+            // 
+            resources.ApplyResources(this.ButtonsContainer2Panel, "ButtonsContainer2Panel");
+            this.ButtonsContainer2Panel.BackColor = System.Drawing.Color.Transparent;
+            this.ButtonsContainer2Panel.Controls.Add(this.ContinueBattleButton);
+            this.ButtonsContainer2Panel.Name = "ButtonsContainer2Panel";
             // 
             // BottomPanelLayout
             // 
@@ -303,6 +313,7 @@
             this.MainPanelLayout.ResumeLayout(false);
             this.MainPanelLayout.PerformLayout();
             this.ButtonsContainerPanel.ResumeLayout(false);
+            this.ButtonsContainer2Panel.ResumeLayout(false);
             this.BottomPanelLayout.ResumeLayout(false);
             this.BottomPanelLayout.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -321,6 +332,7 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.FlowLayoutPanel MainPanelLayout;
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
+        private System.Windows.Forms.FlowLayoutPanel ButtonsContainer2Panel;
         private System.Windows.Forms.Button ContinueBattleButton;
         private System.Windows.Forms.FlowLayoutPanel BottomPanelLayout;
         private System.Windows.Forms.Label EA_Label;

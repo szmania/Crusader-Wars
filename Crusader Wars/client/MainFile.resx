@@ -181,7 +181,7 @@
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ContinueBattleButton.Parent" xml:space="preserve">
-    <value>ButtonsContainerPanel</value>
+    <value>ButtonsContainer2Panel</value>
   </data>
   <data name="&gt;&gt;ContinueBattleButton.ZOrder" xml:space="preserve">
     <value>1</value>
