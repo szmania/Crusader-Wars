@@ -142,6 +142,8 @@ namespace Crusader_Wars
         {
             if (_myVariable == 0)
             {
+                if (BattleState.IsBattleInProgress()) return;
+
                 bool gamePaths = VerifyGamePaths();
                 bool unitMappers = VerifyEnabledUnitMappers();
 
