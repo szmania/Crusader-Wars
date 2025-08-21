@@ -163,7 +163,7 @@
     <value>Flat</value>
   </data>
   <data name="ContinueBattleButton.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Yu Gothic UI, 16pt, style=Bold</value>
+    <value>Yu Gothic UI, 12pt, style=Bold</value>
   </data>
   <data name="ContinueBattleButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>

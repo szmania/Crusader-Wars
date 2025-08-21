@@ -217,7 +217,7 @@ namespace Crusader_Wars
             {
                 ExecuteButton.Text = "Start CK3";
                 ContinueBattleButton.Text = "Continue Battle";
-                infoLabel.Text = "Continue Battle In Progress!";
+                infoLabel.Text = "A battle is in progress!";
 
                 // Resize buttons to fit side-by-side
                 ExecuteButton.Size = new Size(197, 115);
