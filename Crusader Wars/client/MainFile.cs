@@ -801,6 +801,26 @@ namespace Crusader_Wars
             btt_ContinueBattle.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
 
+            try
+            {
+                Program.Logger.Debug("Re-loading army data for continued battle.");
+                var armies = ArmiesReader.ReadBattleArmies();
+                attacker_armies = armies.attacker;
+                defender_armies = armies.defender;
+                Program.Logger.Debug($"Successfully re-loaded {attacker_armies.Count} attacker and {defender_armies.Count} defender armies.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Wars: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Reset UI state
+                _myVariable = 0;
+                ExecuteButton.Enabled = true;
+                btt_ContinueBattle.Enabled = true;
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                return;
+            }
+
             await ProcessBattle();
 
             btt_ContinueBattle.Visible = BattleState.IsBattleInProgress();
