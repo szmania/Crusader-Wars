@@ -24,6 +24,7 @@ namespace Crusader_Wars.data.save_file
 
         public static bool SearchCounty(string county_key, List<Army> armies)
         {
+            Program.Logger.Debug($"Searching for county key '{county_key}' in armies...");
             foreach(Army army in armies)
             {
                 foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
@@ -43,18 +44,20 @@ namespace Crusader_Wars.data.save_file
                             string regiment_county_key = regiment.GetCountyKey();
                             if (regiment_county_key == county_key)
                             {
+                                Program.Logger.Debug($"Found county key '{county_key}' in regiment '{regiment.ID}'.");
                                 return true;
                             }
                         }
                     }
                 }
             }
-
+            Program.Logger.Debug($"County key '{county_key}' not found in armies.");
             return false;
         }
 
         public static void PopulateRegimentsWithCultures(List<(string county_key, string culture_id)> foundCultures, List<Army> armies)
         {
+            Program.Logger.Debug("Populating regiments with cultures...");
             var temp_characters_cultures = new List<(string char_id, string culture_id)>();
 
             foreach (Army army in armies)
@@ -90,10 +93,12 @@ namespace Crusader_Wars.data.save_file
                     }
                 }
             }
+            Program.Logger.Debug("Finished populating regiments with cultures.");
         }
 
         static string GetCharacterCultureID(string character_id)
         {
+            Program.Logger.Debug($"Getting culture ID for character '{character_id}'...");
             bool isSearchStarted = false;
             string culture_id = "";
             using (StreamReader stringReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
@@ -111,15 +116,17 @@ namespace Crusader_Wars.data.save_file
                     if (isSearchStarted && Regex.IsMatch(line, @"\tculture=\d+"))
                     {
                         culture_id = Regex.Match(line, @"\tculture=(\d+)").Groups[1].Value;
+                        Program.Logger.Debug($"Found culture ID '{culture_id}' for character '{character_id}'.");
                         return culture_id;
                     }
 
                     if (isSearchStarted && line == "}")
                     {
+                        Program.Logger.Debug($"Could not find culture ID for character '{character_id}'.");
                         return "";
                     }
                 }
-
+                Program.Logger.Debug($"Could not find culture ID for character '{character_id}' (end of file).");
                 return culture_id;
             }
 
@@ -134,6 +141,7 @@ namespace Crusader_Wars.data.save_file
 
         public static void ReadArmiesCultures(List<Army> armies)
         {
+            Program.Logger.Debug("Reading cultures for all armies...");
             bool isSearchStared = false;
             string culture_id = "";
             string culture_name = "";
@@ -229,6 +237,7 @@ namespace Crusader_Wars.data.save_file
                         heritage_name = heritage_name.Trim('-');
 
                         //End Line
+                        Program.Logger.Debug($"Found culture data: ID={culture_id}, Name={culture_name}, Heritage={heritage_name}");
                         found_cultures.Add((culture_id, culture_name, heritage_name));
                         isSearchStared = false;
                         culture_id = ""; culture_name = ""; heritage_name = "";
@@ -243,11 +252,13 @@ namespace Crusader_Wars.data.save_file
             }
 
             // This is only if there are still null cultures
+            Program.Logger.Debug("Checking for any remaining null cultures after initial pass...");
             foreach (Army army in armies)
             {
                 //  COMMANDERS
                 if (army.Commander != null && army.Commander.GetCultureObj() == null)
                 {
+                    Program.Logger.Debug($"Commander for army {army.ID} has null culture. Assigning from log data or owner.");
                     if (army.IsPlayer())
                     {
                         army.Commander.ChangeCulture(new Culture(CK3LogData.LeftSide.GetCommander().culture_id));
@@ -269,6 +280,7 @@ namespace Crusader_Wars.data.save_file
                     {
                         if (knight.GetCultureObj() == null)
                         {
+                            Program.Logger.Debug($"Knight {knight.GetID()} in army {army.ID} has null culture. Assigning fallback culture.");
                             Culture mainParticipantCulture = null;
                             if (army.IsPlayer())
                             {
@@ -290,7 +302,7 @@ namespace Crusader_Wars.data.save_file
                 }
 
             }
-
+            Program.Logger.Debug("Finished reading cultures for all armies.");
             SetCulturesToAll(armies, found_cultures);
         }
 
@@ -316,6 +328,7 @@ namespace Crusader_Wars.data.save_file
 
         internal static void SetCulturesToAll(List<Army> armies, List<(string culture_id, string culture_name, string heritage_name)> foundCultures)
         {
+            Program.Logger.Debug("Setting culture names and heritages for all relevant objects...");
             foreach (Army army in armies)
             {
 
@@ -376,6 +389,7 @@ namespace Crusader_Wars.data.save_file
                     }
                 }
             }
+            Program.Logger.Debug("Finished setting culture names and heritages.");
         }
 
         /*##############################################
@@ -387,13 +401,16 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchHasStarted, Army army) SearchUnit(string unitID, List<Army> armies)
         {
+            Program.Logger.Debug($"Searching for army unit ID '{unitID}'...");
             foreach (Army army in armies)
             {
                 if(unitID == army.ArmyUnitID)
                 {
+                    Program.Logger.Debug($"Found army unit ID '{unitID}' in army '{army.ID}'.");
                     return (true, army);
                 }
             }
+            Program.Logger.Debug($"Army unit ID '{unitID}' not found.");
             return (false, null);
         }
 
@@ -406,17 +423,19 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchHasStarted, ArmyRegiment regiment) SearchArmyRegiments(string armyRegimentId, List<Army> armies)
         {
+            Program.Logger.Debug($"Searching for army regiment ID '{armyRegimentId}'...");
             foreach (Army army in armies)
             {
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
                     if(armyRegimentId == armyRegiment.ID)
                     {
+                        Program.Logger.Debug($"Found army regiment ID '{armyRegimentId}' in army '{army.ID}'.");
                         return (true, armyRegiment);
                     }
                 }
             }
-
+            Program.Logger.Debug($"Army regiment ID '{armyRegimentId}' not found.");
             return (false, null);
         }
 
@@ -429,6 +448,7 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchHasStarted, Regiment regiment) SearchRegiments(string regiment_id, List<Army> armies)
         {
+            Program.Logger.Debug($"Searching for regiment ID '{regiment_id}'...");
             foreach(Army army in armies)
             {
                 foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
@@ -439,12 +459,14 @@ namespace Crusader_Wars.data.save_file
                         {
                             if(regiment.ID == regiment_id)
                             {
+                                Program.Logger.Debug($"Found regiment ID '{regiment_id}' in army '{army.ID}'.");
                                 return (true, regiment);
                             }
                         }
                     }
                 }
             }
+            Program.Logger.Debug($"Regiment ID '{regiment_id}' not found.");
             return (false, null);
         }
 
@@ -457,25 +479,30 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchStarted, Army searchingArmy, bool isCommander, bool isMainCommander, bool isKnight, Knight knight, bool isOwner) SearchCharacters(string id, List<Army> armies)
         {
+            Program.Logger.Debug($"Searching for character ID '{id}'...");
             foreach (Army army in armies)
             {
                 //Main Commanders
                 if(army.Commander != null && id == army.Commander.ID && id == army.Owner.GetID())
                 {
+                    Program.Logger.Debug($"Found character '{id}': Main Commander and Owner of army '{army.ID}'.");
                     return (true, army, false, true, false, null, true);
                 }
                 else if (army.Commander != null && id == army.Commander.ID)
                 {
+                    Program.Logger.Debug($"Found character '{id}': Main Commander of army '{army.ID}'.");
                     return (true, army, false, true,false, null, false);
                 }
 
                 //Commanders
                 if(id == army.CommanderID && id == army.Owner.GetID())
                 {
+                    Program.Logger.Debug($"Found character '{id}': Commander and Owner of army '{army.ID}'.");
                     return (true, army, true, false, false, null, true);
                 }
                 else if (id == army.CommanderID)
                 {
+                    Program.Logger.Debug($"Found character '{id}': Commander of army '{army.ID}'.");
                     return (true, army, true, false, false, null, false);
                 }
 
@@ -486,10 +513,12 @@ namespace Crusader_Wars.data.save_file
                     {
                         if (id == knight.GetID() && id == army.Owner.GetID())
                         {
+                            Program.Logger.Debug($"Found character '{id}': Knight and Owner of army '{army.ID}'.");
                             return (true, army, false, false,true, knight, true);
                         }
                         else if(id == knight.GetID())
                         {
+                            Program.Logger.Debug($"Found character '{id}': Knight in army '{army.ID}'.");
                             return (true, army, false, false, true, knight, false);
                         }
                     }
@@ -497,10 +526,11 @@ namespace Crusader_Wars.data.save_file
                 //ARMY OWNER
                 else if (id == army.Owner.GetID())
                 {
+                    Program.Logger.Debug($"Found character '{id}': Owner of army '{army.ID}'.");
                     return (true, army, false, false,false, null, true);
                 }
             }
-
+            Program.Logger.Debug($"Character ID '{id}' not found.");
             return (false, null, false, false,false, null, false);
         }
 
@@ -513,7 +543,7 @@ namespace Crusader_Wars.data.save_file
 
         internal static List<Unit> GetAllUnits_UnitKeys(List<Unit> units)
         {
-
+            Program.Logger.Debug("Getting Attila unit keys for all units...");
             //Set Unit Keys
             foreach (var unit in units)
             {
@@ -521,38 +551,44 @@ namespace Crusader_Wars.data.save_file
 
                 string key = UnitMappers_BETA.GetUnitKey(unit);
                 if (key == "not_found")
+                {
+                    Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' ({unit.GetCulture()}). Using default 'cha_spa_royal_cav'.");
                     unit.SetUnitKey("cha_spa_royal_cav");
+                }
                 else
                     unit.SetUnitKey(key);
             }
-
+            Program.Logger.Debug("Finished getting unit keys.");
             return units;
         }
 
         internal static List<Unit> GetAllUnits_AttilaFaction(List<Unit> units)
         {
+            Program.Logger.Debug("Getting Attila factions for all units...");
             //Get Unit Mapper Faction
             foreach (var unit in units)
             {
                 unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(unit.GetCulture(), unit.GetHeritage()));
             }
-
+            Program.Logger.Debug("Finished getting Attila factions.");
             return units;
         }
         internal static List<Unit> GetAllUnits_Max(List<Unit> units)
         {
+            Program.Logger.Debug("Getting max unit sizes for all units...");
             //Read Unit Limit
             foreach (var unit in units)
             {
                 unit.SetMax(UnitMappers_BETA.GetMax(unit));
             }
-
+            Program.Logger.Debug("Finished getting max unit sizes.");
             return units;
         }
 
         // Function to get the top N units by soldiers count
         internal static List<Unit> GetTopUnits(List<Unit> units, int topN)
         {
+            Program.Logger.Debug($"Getting top {topN} units by soldier count.");
             if (topN <= 0)
             {
                 throw new ArgumentException("topN must be greater than 0");
@@ -567,8 +603,10 @@ namespace Crusader_Wars.data.save_file
 
         internal static void CreateUnits(List<Army> armies)
         {
+            Program.Logger.Debug("Creating units from regiments for all armies...");
             foreach (var army in armies)
             {
+                Program.Logger.Debug($"Creating units for army {army.ID}...");
                 List<(Regiment regiment, RegimentType type, string maa_name)> list = new List<(Regiment regiment, RegimentType type, string maa_name)>();
                 foreach (var army_regiment in army.ArmyRegiments)
                 {
@@ -612,12 +650,15 @@ namespace Crusader_Wars.data.save_file
                 units = GetAllUnits_Max(units);
                 units = GetAllUnits_UnitKeys(units);
                 army.SetUnits(units);
+                Program.Logger.Debug($"Finished creating {units.Count} units for army {army.ID}.");
                 //army.PrintUnits();
             }
+            Program.Logger.Debug("Finished creating units for all armies.");
         }
 
         static List<Unit> OrganizeUnitsIntoCultures(List<Unit> units, Owner owner)
         {
+            Program.Logger.Debug("Organizing units by name and culture...");
             var organizedUnits = new List<Unit>();
 
             // Group units by Name and Culture
@@ -633,14 +674,19 @@ namespace Crusader_Wars.data.save_file
                 
                 organizedUnits.Add(mergedUnit);
             }
-
+            Program.Logger.Debug($"Organized {units.Count} units into {organizedUnits.Count} merged units.");
             return organizedUnits;
         }
 
         static List<Unit> OrganizeLeviesUnits(List<Unit> units)
         {
+            Program.Logger.Debug("Organizing levy units based on cultural preciseness...");
             var unitsBelowThreshold = units.Where(u => u.GetSoldiers() <= ModOptions.CulturalPreciseness() && u.GetName() == "Levy").ToList();
-            if (unitsBelowThreshold.Count == 0) return units;
+            if (unitsBelowThreshold.Count == 0)
+            {
+                Program.Logger.Debug("No levy units below cultural preciseness threshold. No organization needed.");
+                return units;
+            }
 
             int total = 0;
             Unit biggest = null;
@@ -683,10 +729,8 @@ namespace Crusader_Wars.data.save_file
                 else
                     units.Add(new Unit("Levy", unit_data.UnitSoldiers, levies_top_cultures[i].GetObjCulture(), RegimentType.Levy));
             }
-
+            Program.Logger.Debug("Finished organizing levy units.");
             return units;
         }
-
-
     }
 }
