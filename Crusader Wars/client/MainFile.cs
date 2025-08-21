@@ -29,7 +29,6 @@ namespace Crusader_Wars
 {
     public partial class HomePage : Form
     {
-        private ToolTip ContinueBattleToolTip = new ToolTip();
         private LoadingScreen loadingScreen;
         private Thread loadingThread;
         private string log;  // For CK3 log content
@@ -58,9 +57,6 @@ namespace Crusader_Wars
             Program.Logger.Debug($"Documents Path: {documentsPath}");
             Program.Logger.Debug($"CK3 Log Path: {debugLog_Path}");
             Program.Logger.Debug($"Save Games Path: {saveGames_Path}");
-
-            // Set tooltip for Continue Battle button
-            ContinueBattleToolTip.SetToolTip(ContinueBattleButton, "Restart an Attila battle without reloading Crusader Kings 3.\nUse this if you need to pause or restart a battle due to technical issues.");
 
             //Icon
             this.Icon = Properties.Resources.logo;

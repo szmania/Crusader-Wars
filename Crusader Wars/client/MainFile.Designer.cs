@@ -76,6 +76,7 @@
             this.ExecuteButton.MouseEnter += new System.EventHandler(this.ExecuteButton_MouseEnter);
             this.ExecuteButton.MouseLeave += new System.EventHandler(this.ExecuteButton_MouseLeave);
             this.ExecuteButton.MouseHover += new System.EventHandler(this.ExecuteButton_MouseHover);
+            this.InformationToolTip.SetToolTip(this.ExecuteButton, resources.GetString("ExecuteButton.ToolTip"));
             // 
             // ContinueBattleButton
             // 
@@ -95,6 +96,7 @@
             this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
             this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
             this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
+            this.InformationToolTip.SetToolTip(this.ContinueBattleButton, resources.GetString("ContinueBattleButton.ToolTip"));
             // 
             // btt_debug
             // 
@@ -128,6 +130,7 @@
             this.SettingsBtn.MouseEnter += new System.EventHandler(this.SettingsBtn_MouseEnter);
             this.SettingsBtn.MouseLeave += new System.EventHandler(this.SettingsBtn_MouseLeave);
             this.SettingsBtn.MouseHover += new System.EventHandler(this.SettingsBtn_MouseHover);
+            this.InformationToolTip.SetToolTip(this.SettingsBtn, resources.GetString("SettingsBtn.ToolTip"));
             // 
             // InformationToolTip
             // 
@@ -240,6 +243,7 @@
             this.patreonBtn.MouseEnter += new System.EventHandler(this.patreonBtn_MouseEnter);
             this.patreonBtn.MouseLeave += new System.EventHandler(this.patreonBtn_MouseLeave);
             this.patreonBtn.MouseHover += new System.EventHandler(this.patreonBtn_MouseHover_1);
+            this.InformationToolTip.SetToolTip(this.patreonBtn, resources.GetString("patreonBtn.ToolTip"));
             // 
             // WebsiteBTN
             // 
@@ -257,6 +261,7 @@
             this.WebsiteBTN.MouseEnter += new System.EventHandler(this.WebsiteBTN_MouseEnter);
             this.WebsiteBTN.MouseLeave += new System.EventHandler(this.WebsiteBTN_MouseLeave);
             this.WebsiteBTN.MouseHover += new System.EventHandler(this.WebsiteBTN_MouseHover);
+            this.InformationToolTip.SetToolTip(this.WebsiteBTN, resources.GetString("WebsiteBTN.ToolTip"));
             // 
             // SteamBTN
             // 
@@ -274,6 +279,7 @@
             this.SteamBTN.MouseEnter += new System.EventHandler(this.SteamBTN_MouseEnter);
             this.SteamBTN.MouseLeave += new System.EventHandler(this.SteamBTN_MouseLeave);
             this.SteamBTN.MouseHover += new System.EventHandler(this.SteamBTN_MouseHover);
+            this.InformationToolTip.SetToolTip(this.SteamBTN, resources.GetString("SteamBTN.ToolTip"));
             // 
             // tableLayoutPanel1
             // 
