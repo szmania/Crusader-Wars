@@ -524,8 +524,22 @@ namespace Crusader_Wars.unit_mapper
         public static string GetAttilaFaction(string CultureName, string HeritageName)
         {
             string faction = "";
+
+            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath))
+            {
+                Program.Logger.Debug("ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get Attila faction. Returning default.");
+                return "rom_seleucid"; // Return a default faction to prevent a crash
+            }
+
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
-            
+            Program.Logger.Debug($"Searching for Attila faction for Culture '{CultureName}', Heritage '{HeritageName}' in: {cultures_folder_path}");
+
+            if (!Directory.Exists(cultures_folder_path))
+            {
+                Program.Logger.Debug($"ERROR: Cultures folder does not exist at path: {cultures_folder_path}. Returning default.");
+                return "rom_seleucid"; // Return a default faction
+            }
+
             var files_paths = Directory.GetFiles(cultures_folder_path);
             foreach (var xml_file in files_paths)
             {
@@ -557,6 +571,15 @@ namespace Crusader_Wars.unit_mapper
                         }
                     }
                 }
+            }
+
+            if (string.IsNullOrEmpty(faction))
+            {
+                Program.Logger.Debug($"Faction not found for Culture '{CultureName}', Heritage '{HeritageName}'. A default may be used.");
+            }
+            else
+            {
+                Program.Logger.Debug($"Found faction '{faction}' for Culture '{CultureName}', Heritage '{HeritageName}'.");
             }
 
             return faction;
