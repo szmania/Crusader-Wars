@@ -41,7 +41,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.btt_ContinueBattle = new System.Windows.Forms.Button();
+            this.ContinueBattleButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
             this.pipeLabel1 = new System.Windows.Forms.Label();
@@ -165,26 +165,26 @@
             resources.ApplyResources(this.ButtonsContainerPanel, "ButtonsContainerPanel");
             this.ButtonsContainerPanel.BackColor = System.Drawing.Color.Transparent;
             this.ButtonsContainerPanel.Controls.Add(this.ExecuteButton);
-            this.ButtonsContainerPanel.Controls.Add(this.btt_ContinueBattle);
+            this.ButtonsContainerPanel.Controls.Add(this.ContinueBattleButton);
             this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
             // 
-            // btt_ContinueBattle
+            // ContinueBattleButton
             // 
-            this.btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.BackgroundImage = global::Crusader_Wars.Properties.Resources.start_new;
-            resources.ApplyResources(this.btt_ContinueBattle, "btt_ContinueBattle");
-            this.btt_ContinueBattle.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btt_ContinueBattle.FlatAppearance.BorderSize = 0;
-            this.btt_ContinueBattle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.Font = new System.Drawing.Font("Yu Gothic UI", 16F, System.Drawing.FontStyle.Bold);
-            this.btt_ContinueBattle.ForeColor = System.Drawing.Color.White;
-            this.btt_ContinueBattle.Name = "btt_ContinueBattle";
-            this.btt_ContinueBattle.TabStop = false;
-            this.btt_ContinueBattle.UseVisualStyleBackColor = true;
-            this.btt_ContinueBattle.Click += new System.EventHandler(this.Btt_ContinueBattle_Click);
-            this.btt_ContinueBattle.MouseEnter += new System.EventHandler(this.btt_ContinueBattle_MouseEnter);
-            this.btt_ContinueBattle.MouseLeave += new System.EventHandler(this.btt_ContinueBattle_MouseLeave);
+            this.ContinueBattleButton.BackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.BackgroundImage = global::Crusader_Wars.Properties.Resources.start_new;
+            resources.ApplyResources(this.ContinueBattleButton, "ContinueBattleButton");
+            this.ContinueBattleButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ContinueBattleButton.FlatAppearance.BorderSize = 0;
+            this.ContinueBattleButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 16F, System.Drawing.FontStyle.Bold);
+            this.ContinueBattleButton.ForeColor = System.Drawing.Color.White;
+            this.ContinueBattleButton.Name = "ContinueBattleButton";
+            this.ContinueBattleButton.TabStop = false;
+            this.ContinueBattleButton.UseVisualStyleBackColor = true;
+            this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
+            this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
+            this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
             // 
             // BottomPanelLayout
             // 
@@ -329,7 +329,7 @@
         private System.Windows.Forms.Label discordLink;
         private System.Windows.Forms.Label pipeLabel1;
         private System.Windows.Forms.Label pipeLabel2;
-        private System.Windows.Forms.Button btt_ContinueBattle;
+        private System.Windows.Forms.Button ContinueBattleButton;
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
     }
 }

@@ -60,7 +60,7 @@ namespace Crusader_Wars
             Program.Logger.Debug($"Save Games Path: {saveGames_Path}");
 
             // Set tooltip for Continue Battle button
-            ContinueBattleToolTip.SetToolTip(btt_ContinueBattle, "Restart an Attila battle without reloading Crusader Kings 3.\nUse this if you need to pause or restart a battle due to technical issues.");
+            ContinueBattleToolTip.SetToolTip(ContinueBattleButton, "Restart an Attila battle without reloading Crusader Kings 3.\nUse this if you need to pause or restart a battle due to technical issues.");
 
             //Icon
             this.Icon = Properties.Resources.logo;
@@ -203,12 +203,12 @@ namespace Crusader_Wars
         {
             bool battleInProgress = BattleState.IsBattleInProgress();
 
-            btt_ContinueBattle.Visible = battleInProgress;
+            ContinueBattleButton.Visible = battleInProgress;
 
             if (battleInProgress)
             {
                 ExecuteButton.Text = "Start New";
-                btt_ContinueBattle.Text = "Continue Battle";
+                ContinueBattleButton.Text = "Continue Battle";
                 infoLabel.Text = "A battle is in progress.";
             }
             else
@@ -808,14 +808,14 @@ namespace Crusader_Wars
             return true; // Success
         }
 
-        private async void Btt_ContinueBattle_Click(object sender, EventArgs e)
+        private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Continue Battle button clicked.");
             sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
             sounds.Play();
             _myVariable = 1;
             ExecuteButton.Enabled = false;
-            btt_ContinueBattle.Enabled = false;
+            ContinueBattleButton.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
 
             // Restore battle context from saved log snippet
@@ -827,7 +827,7 @@ namespace Crusader_Wars
                 MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Wars: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
-                btt_ContinueBattle.Enabled = true;
+                ContinueBattleButton.Enabled = true;
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
                 return;
             }
@@ -849,7 +849,7 @@ namespace Crusader_Wars
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
-                btt_ContinueBattle.Enabled = true;
+                ContinueBattleButton.Enabled = true;
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
                 return;
             }
@@ -858,7 +858,7 @@ namespace Crusader_Wars
 
             UpdateUIForBattleState();
             ExecuteButton.Enabled = true;
-            btt_ContinueBattle.Enabled = true;
+            ContinueBattleButton.Enabled = true;
             if (ExecuteButton.Enabled)
             {
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
@@ -866,14 +866,14 @@ namespace Crusader_Wars
             _myVariable = 0;
         }
 
-        private void btt_ContinueBattle_MouseEnter(object sender, EventArgs e)
+        private void ContinueBattleButton_MouseEnter(object sender, EventArgs e)
         {
-            btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new_hover;
+            ContinueBattleButton.BackgroundImage = Properties.Resources.start_new_hover;
         }
 
-        private void btt_ContinueBattle_MouseLeave(object sender, EventArgs e)
+        private void ContinueBattleButton_MouseLeave(object sender, EventArgs e)
         {
-            btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
+            ContinueBattleButton.BackgroundImage = Properties.Resources.start_new;
         }
 
         /*---------------------------------------------
