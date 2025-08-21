@@ -764,7 +764,7 @@ namespace Crusader_Wars
 
                 if (Start_CulturesFound && !End_CulturesFound)
                 {
-                    if (line == "}")
+                    if (line == "mercenary_company_manager={")
                     {
                         Program.Logger.Debug("Found end of culture_manager block.");
                         //Write Cultures Data to txt file
