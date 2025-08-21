@@ -181,7 +181,7 @@
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ContinueBattleButton.Parent" xml:space="preserve">
-    <value>ButtonsContainer2Panel</value>
+    <value>ButtonsContainerPanel</value>
   </data>
   <data name="&gt;&gt;ContinueBattleButton.ZOrder" xml:space="preserve">
     <value>1</value>
@@ -358,7 +358,7 @@
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
   <data name="labelVersion.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
+    <value>NoControl</
   </data>
   <data name="labelVersion.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 0</value>
