@@ -190,7 +190,7 @@
     <value>Restart the current Total War: Attila battle without reloading Crusader Kings 3. Use this if the battle crashed or you want to try again.</value>
   </data>
   <data name="ExecuteButton.ToolTip" xml:space="preserve">
-    <value>Start a new Crusader Wars campaign by launching Crusader Kings 3.</value>
+    <value>Start a new or continue a Crusader Wars campaign by launching Crusader Kings 3.</value>
   </data>
   <data name="patreonBtn.ToolTip" xml:space="preserve">
     <value>Support the development of Crusader Wars on Patreon.</value>
