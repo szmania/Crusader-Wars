@@ -24,7 +24,6 @@ namespace Crusader_Wars.data.save_file
 
         public static bool SearchCounty(string county_key, List<Army> armies)
         {
-            Program.Logger.Debug($"Searching for county key '{county_key}' in armies...");
             foreach(Army army in armies)
             {
                 foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
@@ -51,7 +50,6 @@ namespace Crusader_Wars.data.save_file
                     }
                 }
             }
-            Program.Logger.Debug($"County key '{county_key}' not found in armies.");
             return false;
         }
 
@@ -401,7 +399,6 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchHasStarted, Army army) SearchUnit(string unitID, List<Army> armies)
         {
-            Program.Logger.Debug($"Searching for army unit ID '{unitID}'...");
             foreach (Army army in armies)
             {
                 if(unitID == army.ArmyUnitID)
@@ -410,7 +407,6 @@ namespace Crusader_Wars.data.save_file
                     return (true, army);
                 }
             }
-            Program.Logger.Debug($"Army unit ID '{unitID}' not found.");
             return (false, null);
         }
 
@@ -423,7 +419,6 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchHasStarted, ArmyRegiment regiment) SearchArmyRegiments(string armyRegimentId, List<Army> armies)
         {
-            Program.Logger.Debug($"Searching for army regiment ID '{armyRegimentId}'...");
             foreach (Army army in armies)
             {
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
@@ -435,7 +430,6 @@ namespace Crusader_Wars.data.save_file
                     }
                 }
             }
-            Program.Logger.Debug($"Army regiment ID '{armyRegimentId}' not found.");
             return (false, null);
         }
 
@@ -448,7 +442,6 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchHasStarted, Regiment regiment) SearchRegiments(string regiment_id, List<Army> armies)
         {
-            Program.Logger.Debug($"Searching for regiment ID '{regiment_id}'...");
             foreach(Army army in armies)
             {
                 foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
@@ -466,7 +459,6 @@ namespace Crusader_Wars.data.save_file
                     }
                 }
             }
-            Program.Logger.Debug($"Regiment ID '{regiment_id}' not found.");
             return (false, null);
         }
 
@@ -479,7 +471,6 @@ namespace Crusader_Wars.data.save_file
 
         public static (bool searchStarted, Army searchingArmy, bool isCommander, bool isMainCommander, bool isKnight, Knight knight, bool isOwner) SearchCharacters(string id, List<Army> armies)
         {
-            Program.Logger.Debug($"Searching for character ID '{id}'...");
             foreach (Army army in armies)
             {
                 //Main Commanders
@@ -530,7 +521,6 @@ namespace Crusader_Wars.data.save_file
                     return (true, army, false, false,false, null, true);
                 }
             }
-            Program.Logger.Debug($"Character ID '{id}' not found.");
             return (false, null, false, false,false, null, false);
         }
 
