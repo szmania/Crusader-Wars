@@ -129,7 +129,7 @@
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="ExecuteButton.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Yu Gothic UI, 16F, style=Bold</value>
+    <value>Yu Gothic UI, 26.25pt, style=Bold</value>
   </data>
   <data name="ExecuteButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -163,7 +163,7 @@
     <value>Flat</value>
   </data>
   <data name="ContinueBattleButton.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Yu Gothic UI, 16F, style=Bold</value>
+    <value>Yu Gothic UI, 26.25pt, style=Bold</value>
   </data>
   <data name="ContinueBattleButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>

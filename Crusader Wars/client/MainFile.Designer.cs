@@ -77,6 +77,25 @@
             this.ExecuteButton.MouseLeave += new System.EventHandler(this.ExecuteButton_MouseLeave);
             this.ExecuteButton.MouseHover += new System.EventHandler(this.ExecuteButton_MouseHover);
             // 
+            // ContinueBattleButton
+            // 
+            this.ContinueBattleButton.BackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.BackgroundImage = global::Crusader_Wars.Properties.Resources.start_new;
+            resources.ApplyResources(this.ContinueBattleButton, "ContinueBattleButton");
+            this.ContinueBattleButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ExecuteButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.ContinueBattleButton.FlatAppearance.BorderSize = 0;
+            this.ContinueBattleButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 16F, System.Drawing.FontStyle.Bold);
+            this.ContinueBattleButton.ForeColor = System.Drawing.Color.White;
+            this.ContinueBattleButton.Name = "ContinueBattleButton";
+            this.ContinueBattleButton.TabStop = false;
+            this.ContinueBattleButton.UseVisualStyleBackColor = true;
+            this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
+            this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
+            this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
+            // 
             // btt_debug
             // 
             resources.ApplyResources(this.btt_debug, "btt_debug");
@@ -167,24 +186,6 @@
             this.ButtonsContainerPanel.Controls.Add(this.ExecuteButton);
             this.ButtonsContainerPanel.Controls.Add(this.ContinueBattleButton);
             this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
-            // 
-            // ContinueBattleButton
-            // 
-            this.ContinueBattleButton.BackColor = System.Drawing.Color.Transparent;
-            this.ContinueBattleButton.BackgroundImage = global::Crusader_Wars.Properties.Resources.start_new;
-            resources.ApplyResources(this.ContinueBattleButton, "ContinueBattleButton");
-            this.ContinueBattleButton.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ContinueBattleButton.FlatAppearance.BorderSize = 0;
-            this.ContinueBattleButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.ContinueBattleButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 16F, System.Drawing.FontStyle.Bold);
-            this.ContinueBattleButton.ForeColor = System.Drawing.Color.White;
-            this.ContinueBattleButton.Name = "ContinueBattleButton";
-            this.ContinueBattleButton.TabStop = false;
-            this.ContinueBattleButton.UseVisualStyleBackColor = true;
-            this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
-            this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
-            this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
             // 
             // BottomPanelLayout
             // 
