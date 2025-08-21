@@ -859,6 +859,12 @@ namespace Crusader_Wars
             try
             {
                 Program.Logger.Debug("Re-loading army data for continued battle.");
+
+                // Re-initialize mod and unit mapper context
+                AttilaModManager.ReadInstalledMods();
+                SetPlaythrough();
+                AttilaModManager.CreateUserModsFile();
+
                 BattleResult.GetPlayerCombatResult();
                 BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
                 var armies = ArmiesReader.ReadBattleArmies();
