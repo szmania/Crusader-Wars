@@ -47,18 +47,6 @@ namespace Crusader_Wars
             // Apply custom font to Continue Battle button
             btt_ContinueBattle.Font = new Font(fonts.Families[0], 10f, FontStyle.Underline);
             
-            // Position status label below Execute button
-            infoLabel.Location = new Point(
-                ExecuteButton.Location.X,
-                ExecuteButton.Location.Y + ExecuteButton.Height + 10
-            );
-            
-            // Position Continue button below status label
-            btt_ContinueBattle.Location = new Point(
-                ExecuteButton.Location.X,
-                infoLabel.Location.Y + infoLabel.Height + 10
-            );
-            
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             viewLogsLink.MouseLeave += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
