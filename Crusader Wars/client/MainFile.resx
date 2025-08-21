@@ -358,7 +358,7 @@
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
   <data name="labelVersion.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</
+    <value>NoControl</value>
   </data>
   <data name="labelVersion.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 0</value>

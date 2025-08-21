@@ -207,13 +207,13 @@ namespace Crusader_Wars
 
             if (battleInProgress)
             {
-                ExecuteButton.Text = "Start New";
-                ContinueBattleButton.Text = "Continue Battle";
+                ExecuteButton.Text = "Start CK3";
+                ContinueBattleButton.Text = "Continue TW:Attila Battle";
                 infoLabel.Text = "A battle is in progress.";
 
                 // Resize buttons to fit side-by-side
-                ExecuteButton.Size = new Size(140, 82);
-                ContinueBattleButton.Size = new Size(140, 82);
+                ExecuteButton.Size = new Size(197, 115);
+                ContinueBattleButton.Size = new Size(197, 115);
             }
             else
             {
@@ -256,8 +256,8 @@ namespace Crusader_Wars
 
             if (BattleState.IsBattleInProgress())
             {
-                var confirmResult = MessageBox.Show("Starting a new battle will discard your progress from the current one. Are you sure you want to continue?",
-                                                     "Confirm New Battle",
+                var confirmResult = MessageBox.Show("Starting a new battle will discard your progress from the current one in TW:Attila. Are you sure you want to continue?",
+                                                     "Confirm Start CK3",
                                                      MessageBoxButtons.YesNo,
                                                      MessageBoxIcon.Warning);
                 if (confirmResult == DialogResult.No)
