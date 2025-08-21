@@ -65,7 +65,7 @@ namespace Crusader_Wars.data.save_file
 
                                 if(line.StartsWith("path="))
                                 {
-                                    string path = Regex.Match(line, @""".+""").Value;
+                                    string path = Regex.Match(line, @"path=""([^""]*)""").Groups[1].Value;
 
                                     //NON-STEAM VERSION
                                     if (path.StartsWith("mod/"))
