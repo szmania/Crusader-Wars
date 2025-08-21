@@ -192,6 +192,16 @@ namespace Crusader_Wars
 
             UpdateUIForBattleState();
 
+            // Set ToolTips
+            InformationToolTip.SetToolTip(ExecuteButton, "Start a new or continue a Crusader Wars campaign by launching Crusader Kings 3.");
+            InformationToolTip.SetToolTip(ContinueBattleButton, "Restart the current Total War: Attila battle without reloading Crusader Kings 3. Use this if the battle crashed or you want to try again.");
+            InformationToolTip.SetToolTip(SettingsBtn, "Configure game paths, battle options, and unit mappers.");
+            InformationToolTip.SetToolTip(patreonBtn, "Support the development of Crusader Wars on Patreon.");
+            InformationToolTip.SetToolTip(WebsiteBTN, "Visit the official Crusader Wars website for news and updates.");
+            InformationToolTip.SetToolTip(SteamBTN, "View the Crusader Wars mod on the Steam Workshop.");
+            InformationToolTip.SetToolTip(viewLogsLink, "Click to find the debug.log file. Please share this file on our Discord for troubleshooting help.");
+            InformationToolTip.SetToolTip(discordLink, "Join our Discord community for help and updates.");
+
             Program.Logger.Debug("Form1_Load complete.");
         }
 

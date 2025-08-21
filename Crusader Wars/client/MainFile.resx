@@ -186,24 +186,6 @@
   <data name="&gt;&gt;ContinueBattleButton.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="ContinueBattleButton.ToolTip" xml:space="preserve">
-    <value>Restart the current Total War: Attila battle without reloading Crusader Kings 3. Use this if the battle crashed or you want to try again.</value>
-  </data>
-  <data name="ExecuteButton.ToolTip" xml:space="preserve">
-    <value>Start a new or continue a Crusader Wars campaign by launching Crusader Kings 3.</value>
-  </data>
-  <data name="patreonBtn.ToolTip" xml:space="preserve">
-    <value>Support the development of Crusader Wars on Patreon.</value>
-  </data>
-  <data name="SettingsBtn.ToolTip" xml:space="preserve">
-    <value>Configure game paths, battle options, and unit mappers.</value>
-  </data>
-  <data name="SteamBTN.ToolTip" xml:space="preserve">
-    <value>View the Crusader Wars mod on the Steam Workshop.</value>
-  </data>
-  <data name="WebsiteBTN.ToolTip" xml:space="preserve">
-    <value>Visit the official Crusader Wars website for news and updates.</value>
-  </data>
   <data name="btt_debug.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Left</value>
   </data>
@@ -350,9 +332,6 @@
   </data>
   <data name="viewLogsLink.Text" xml:space="preserve">
     <value>View Logs</value>
-  </data>
-  <data name="viewLogsLink.ToolTip" xml:space="preserve">
-    <value>Click to find the debug.log file. Please share this file on our Discord for troubleshooting help.</value>
   </data>
   <data name="&gt;&gt;viewLogsLink.Name" xml:space="preserve">
     <value>viewLogsLink</value>
@@ -581,9 +560,6 @@
   </data>
   <data name="pipeLabel2.Text" xml:space="preserve">
     <value>|</value>
-  </data>
-  <data name="discordLink.ToolTip" xml:space="preserve">
-    <value>Join our Discord community for help and updates.</value>
   </data>
   <data name="discordLink.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
