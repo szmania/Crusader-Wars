@@ -36,21 +36,23 @@
             this.SettingsBtn = new System.Windows.Forms.Button();
             this.InformationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.viewLogsLink = new System.Windows.Forms.Label();
+            this.discordLink = new System.Windows.Forms.Label();
             this.labelVersion = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
+            this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btt_ContinueBattle = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
             this.pipeLabel1 = new System.Windows.Forms.Label();
             this.pipeLabel2 = new System.Windows.Forms.Label();
-            this.discordLink = new System.Windows.Forms.Label();
             this.patreonBtn = new System.Windows.Forms.Button();
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.MainPanelLayout.SuspendLayout();
+            this.ButtonsContainerPanel.SuspendLayout();
             this.BottomPanelLayout.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -65,7 +67,8 @@
             this.ExecuteButton.FlatAppearance.BorderSize = 0;
             this.ExecuteButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.ExecuteButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.ExecuteButton.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.ExecuteButton.Font = new System.Drawing.Font("Yu Gothic UI", 16F, System.Drawing.FontStyle.Bold);
+            this.ExecuteButton.ForeColor = System.Drawing.Color.White;
             this.ExecuteButton.Name = "ExecuteButton";
             this.ExecuteButton.TabStop = false;
             this.ExecuteButton.UseVisualStyleBackColor = true;
@@ -122,6 +125,17 @@
             this.InformationToolTip.SetToolTip(this.viewLogsLink, resources.GetString("viewLogsLink.ToolTip"));
             this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
             // 
+            // discordLink
+            // 
+            this.discordLink.AutoSize = true;
+            this.discordLink.BackColor = System.Drawing.Color.Transparent;
+            this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            resources.ApplyResources(this.discordLink, "discordLink");
+            this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.discordLink.Name = "discordLink";
+            this.InformationToolTip.SetToolTip(this.discordLink, resources.GetString("discordLink.ToolTip"));
+            this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
+            // 
             // labelVersion
             // 
             resources.ApplyResources(this.labelVersion, "labelVersion");
@@ -137,36 +151,40 @@
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.TabStop = false;
             // 
-            // btt_ContinueBattle
-            // 
-            resources.ApplyResources(this.btt_ContinueBattle, "btt_ContinueBattle");
-            this.btt_ContinueBattle.AutoSize = true;
-            this.btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btt_ContinueBattle.FlatAppearance.BorderSize = 0;
-            this.btt_ContinueBattle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btt_ContinueBattle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
-            this.btt_ContinueBattle.Name = "btt_ContinueBattle";
-            this.btt_ContinueBattle.TabStop = false;
-            this.btt_ContinueBattle.Text = "Continue Battle";
-            this.btt_ContinueBattle.UseVisualStyleBackColor = true;
-            this.btt_ContinueBattle.Visible = false;
-            this.btt_ContinueBattle.Enabled = true;
-            this.btt_ContinueBattle.Click += new System.EventHandler(this.Btt_ContinueBattle_Click);
-            this.btt_ContinueBattle.MouseEnter += new System.EventHandler(this.btt_ContinueBattle_MouseEnter);
-            this.btt_ContinueBattle.MouseLeave += new System.EventHandler(this.btt_ContinueBattle_MouseLeave);
-            // 
             // MainPanelLayout
             // 
             resources.ApplyResources(this.MainPanelLayout, "MainPanelLayout");
             this.MainPanelLayout.BackColor = System.Drawing.Color.Transparent;
             this.MainPanelLayout.Controls.Add(this.pictureBox1);
-            this.MainPanelLayout.Controls.Add(this.ExecuteButton);
+            this.MainPanelLayout.Controls.Add(this.ButtonsContainerPanel);
             this.MainPanelLayout.Controls.Add(this.infoLabel);
-            this.MainPanelLayout.Controls.Add(this.btt_ContinueBattle);
             this.MainPanelLayout.Name = "MainPanelLayout";
+            // 
+            // ButtonsContainerPanel
+            // 
+            resources.ApplyResources(this.ButtonsContainerPanel, "ButtonsContainerPanel");
+            this.ButtonsContainerPanel.BackColor = System.Drawing.Color.Transparent;
+            this.ButtonsContainerPanel.Controls.Add(this.ExecuteButton);
+            this.ButtonsContainerPanel.Controls.Add(this.btt_ContinueBattle);
+            this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
+            // 
+            // btt_ContinueBattle
+            // 
+            this.btt_ContinueBattle.BackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.BackgroundImage = global::Crusader_Wars.Properties.Resources.start_new;
+            resources.ApplyResources(this.btt_ContinueBattle, "btt_ContinueBattle");
+            this.btt_ContinueBattle.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btt_ContinueBattle.FlatAppearance.BorderSize = 0;
+            this.btt_ContinueBattle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btt_ContinueBattle.Font = new System.Drawing.Font("Yu Gothic UI", 16F, System.Drawing.FontStyle.Bold);
+            this.btt_ContinueBattle.ForeColor = System.Drawing.Color.White;
+            this.btt_ContinueBattle.Name = "btt_ContinueBattle";
+            this.btt_ContinueBattle.TabStop = false;
+            this.btt_ContinueBattle.UseVisualStyleBackColor = true;
+            this.btt_ContinueBattle.Click += new System.EventHandler(this.Btt_ContinueBattle_Click);
+            this.btt_ContinueBattle.MouseEnter += new System.EventHandler(this.btt_ContinueBattle_MouseEnter);
+            this.btt_ContinueBattle.MouseLeave += new System.EventHandler(this.btt_ContinueBattle_MouseLeave);
             // 
             // BottomPanelLayout
             // 
@@ -202,17 +220,6 @@
             resources.ApplyResources(this.pipeLabel2, "pipeLabel2");
             this.pipeLabel2.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.pipeLabel2.Name = "pipeLabel2";
-            // 
-            // discordLink
-            // 
-            this.discordLink.AutoSize = true;
-            this.discordLink.BackColor = System.Drawing.Color.Transparent;
-            this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
-            resources.ApplyResources(this.discordLink, "discordLink");
-            this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.discordLink.Name = "discordLink";
-            this.InformationToolTip.SetToolTip(this.discordLink, resources.GetString("discordLink.ToolTip"));
-            this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // patreonBtn
             // 
@@ -294,6 +301,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.MainPanelLayout.ResumeLayout(false);
             this.MainPanelLayout.PerformLayout();
+            this.ButtonsContainerPanel.ResumeLayout(false);
             this.BottomPanelLayout.ResumeLayout(false);
             this.BottomPanelLayout.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -322,5 +330,6 @@
         private System.Windows.Forms.Label pipeLabel1;
         private System.Windows.Forms.Label pipeLabel2;
         private System.Windows.Forms.Button btt_ContinueBattle;
+        private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
     }
 }

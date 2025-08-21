@@ -43,21 +43,6 @@ namespace Crusader_Wars
             Program.Logger.Debug("HomePage initializing...");
             LoadFont();
             InitializeComponent();
-
-            // Apply custom font to Continue Battle button
-            btt_ContinueBattle.Font = new Font(fonts.Families[0], 10f, FontStyle.Underline);
-            
-            // Position status label below Execute button
-            infoLabel.Location = new Point(
-                ExecuteButton.Location.X,
-                ExecuteButton.Location.Y + ExecuteButton.Height + 10
-            );
-            
-            // Position Continue button below status label
-            btt_ContinueBattle.Location = new Point(
-                ExecuteButton.Location.X,
-                infoLabel.Location.Y + infoLabel.Height + 10
-            );
             
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
@@ -209,10 +194,28 @@ namespace Crusader_Wars
             AttilaPreferences.ChangeUnitSizes();
             AttilaPreferences.ValidateOnStartup();
 
-            // Set Continue Battle button visibility if battle exists
-            btt_ContinueBattle.Visible = BattleState.IsBattleInProgress();
+            UpdateUIForBattleState();
 
             Program.Logger.Debug("Form1_Load complete.");
+        }
+
+        private void UpdateUIForBattleState()
+        {
+            bool battleInProgress = BattleState.IsBattleInProgress();
+
+            btt_ContinueBattle.Visible = battleInProgress;
+
+            if (battleInProgress)
+            {
+                ExecuteButton.Text = "Start New";
+                btt_ContinueBattle.Text = "Continue Battle";
+                infoLabel.Text = "A battle is in progress.";
+            }
+            else
+            {
+                ExecuteButton.Text = ""; // Use image text
+                infoLabel.Text = "Ready to Start!";
+            }
         }
 
         //---------------------------------//
@@ -243,6 +246,19 @@ namespace Crusader_Wars
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Execute button clicked.");
+
+            if (BattleState.IsBattleInProgress())
+            {
+                var confirmResult = MessageBox.Show("Starting a new battle will discard your progress from the current one. Are you sure you want to continue?",
+                                                     "Confirm New Battle",
+                                                     MessageBoxButtons.YesNo,
+                                                     MessageBoxIcon.Warning);
+                if (confirmResult == DialogResult.No)
+                {
+                    return;
+                }
+            }
+
             sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
             sounds.Play();
             _myVariable = 1;
@@ -481,7 +497,7 @@ namespace Crusader_Wars
             
                     // Mark battle as started only if setup succeeded
                     BattleState.MarkBattleStarted();
-                    btt_ContinueBattle.Visible = true;
+                    UpdateUIForBattleState();
                 }
                 catch(Exception ex)
                 {
@@ -529,7 +545,7 @@ namespace Crusader_Wars
                     break;
                 }
 
-                btt_ContinueBattle.Visible = BattleState.IsBattleInProgress();
+                UpdateUIForBattleState();
 
             }
         }
@@ -840,7 +856,7 @@ namespace Crusader_Wars
 
             await ProcessBattle();
 
-            btt_ContinueBattle.Visible = BattleState.IsBattleInProgress();
+            UpdateUIForBattleState();
             ExecuteButton.Enabled = true;
             btt_ContinueBattle.Enabled = true;
             if (ExecuteButton.Enabled)
@@ -852,12 +868,12 @@ namespace Crusader_Wars
 
         private void btt_ContinueBattle_MouseEnter(object sender, EventArgs e)
         {
-            btt_ContinueBattle.ForeColor = System.Drawing.Color.CornflowerBlue;
+            btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new_hover;
         }
 
         private void btt_ContinueBattle_MouseLeave(object sender, EventArgs e)
         {
-            btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
+            btt_ContinueBattle.BackgroundImage = Properties.Resources.start_new;
         }
 
         /*---------------------------------------------
