@@ -20,6 +20,7 @@ namespace Crusader_Wars.data.save_file
 
             //string tempFilePath = Directory.GetCurrentDirectory() + "\\CrusaderWars_Battle.ck3";
             string tempFilePath = @".\data\save_file_data\gamestate";
+            Program.Logger.Debug($"Writing to temporary file: {Path.GetFullPath(tempFilePath)}");
 
             using (var inputFileStream = new FileStream(savePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var outputFileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
@@ -136,6 +137,7 @@ namespace Crusader_Wars.data.save_file
                 outputFileStream.Close();
                 inputFileStream.Close();
             }
+            Program.Logger.Debug($"Finished writing to temporary file: {Path.GetFullPath(tempFilePath)}");
 
             //string save_games_path = Properties.Settings.Default.VAR_dir_save;
             //string editedSavePath = save_games_path + @"\CrusaderWars_Battle.ck3";
@@ -166,6 +168,7 @@ namespace Crusader_Wars.data.save_file
                 }
             }
 
+            Program.Logger.Debug($"Read {sb.Length} characters from {data_file_path} to be written.");
             streamWriter.WriteLine(sb.ToString());
         }
 
