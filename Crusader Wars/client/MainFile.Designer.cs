@@ -150,6 +150,7 @@
             this.btt_ContinueBattle.ForeColor = System.Drawing.Color.LightSkyBlue;
             this.btt_ContinueBattle.Name = "btt_ContinueBattle";
             this.btt_ContinueBattle.TabStop = false;
+            this.btt_ContinueBattle.Text = "Continue Battle";
             this.btt_ContinueBattle.UseVisualStyleBackColor = true;
             this.btt_ContinueBattle.Visible = false;
             this.btt_ContinueBattle.Enabled = true;
