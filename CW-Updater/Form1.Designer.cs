@@ -71,13 +71,13 @@
             // 
             // WarningLabel
             // 
-            this.WarningLabel.AutoSize = true;
+            this.WarningLabel.AutoSize = false;
             this.WarningLabel.BackColor = System.Drawing.Color.Transparent;
             this.WarningLabel.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.WarningLabel.ForeColor = System.Drawing.Color.DarkRed;
-            this.WarningLabel.Location = new System.Drawing.Point(12, 51);
+            this.WarningLabel.Location = new System.Drawing.Point(12, 45);
             this.WarningLabel.Name = "WarningLabel";
-            this.WarningLabel.Size = new System.Drawing.Size(582, 18);
+            this.WarningLabel.Size = new System.Drawing.Size(582, 36);
             this.WarningLabel.TabIndex = 6;
             this.WarningLabel.Text = "(If you are a non-steam user, you need to overwrite the ck3 mod files manually)";
             this.WarningLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
