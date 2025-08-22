@@ -318,11 +318,9 @@ namespace Crusader_Wars
 
             UnitsCardsNames.RemoveFiles();
 
-            bool battleProcessedSuccessfully = false;
             while (true)
             {
                 Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
-                infoLabel.Text = "Ready to start!";
                 this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
                 try
@@ -618,35 +616,23 @@ namespace Crusader_Wars
                     break;
                 }
 
-                battleProcessedSuccessfully = true;
-                break;
-
-            }
-
-            if (battleProcessedSuccessfully)
-            {
-                _myVariable = 0;
-                ExecuteButton.Enabled = true;
-                if (ExecuteButton.Enabled)
-                {
-                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
-                }
+                // Battle processed successfully. Loop will continue.
+                // Manually reset some UI elements for the next iteration,
+                // without touching infoLabel.
                 ContinueBattleButton.Visible = false;
                 ExecuteButton.Text = "";
                 ExecuteButton.Size = new Size(197, 115);
             }
-            else
+
+            // Reset UI if the main loop is broken by a critical error
+            _myVariable = 0;
+            ExecuteButton.Enabled = true;
+            if (ExecuteButton.Enabled)
             {
-                // Reset UI if the main loop is broken by a critical error
-                _myVariable = 0;
-                ExecuteButton.Enabled = true;
-                if (ExecuteButton.Enabled)
-                {
-                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
-                }
-                UpdateUIForBattleState();
-                this.Text = "Crusader Wars";
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
             }
+            UpdateUIForBattleState();
+            this.Text = "Crusader Wars";
         }
 
         private async Task<bool> ProcessBattle()
