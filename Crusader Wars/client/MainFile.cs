@@ -754,8 +754,15 @@ namespace Crusader_Wars
             //  Waiting for TW:Attila battle to end...
             while (battleEnded == false)
             {
+                // Check if Attila process is still running
+                if (Process.GetProcessesByName("Attila").Length == 0)
+                {
+                    Program.Logger.Debug("Attila process not found while waiting for battle to end. Assuming crash or user exit.");
+                    return false; // Indicate abnormal termination. The caller will handle the UI reset.
+                }
+
                 battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
-                await Task.Delay(10);
+                await Task.Delay(1000); // Check every second
             }
             Program.Logger.Debug("TW:Attila battle ended.");
 
@@ -860,7 +867,7 @@ namespace Crusader_Wars
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Continue Battle button clicked.");
-            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
+            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185443.wav");
             sounds.Play();
             _myVariable = 1;
             ExecuteButton.Enabled = false;
