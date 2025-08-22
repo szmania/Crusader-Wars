@@ -105,6 +105,24 @@ namespace Crusader_Wars
 
         //this is to read the options values on the .xml file
         public static List<(string option, string value)> optionsValuesCollection { get; private set; }
+
+        private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
+        {
+            XmlNode node = doc.SelectSingleNode($"//Option [@name='{optionName}']");
+            if (node != null)
+            {
+                return node.InnerText;
+            }
+            else
+            {
+                Program.Logger.Debug($"Option '{optionName}' not found in Options.xml. Creating with default value '{defaultValue}'.");
+                XmlElement newOption = doc.CreateElement("Option");
+                newOption.SetAttribute("name", optionName);
+                newOption.InnerText = defaultValue;
+                doc.DocumentElement.AppendChild(newOption);
+                return defaultValue;
+            }
+        }
         public static void ReadOptionsFile()
         {
             Program.Logger.Debug("Reading options file...");
@@ -116,20 +134,22 @@ namespace Crusader_Wars
                 Program.Logger.Debug("XML options file loaded.");
 
                 optionsValuesCollection = new List<(string option, string value)>();
-                var CloseCK3_Value = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']").InnerText;
-                var CloseAttila_Value = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']").InnerText;
-                var FullArmies_Value = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']").InnerText;
-                var TimeLimit_Value = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']").InnerText;
-                var BattleMapsSize_Value = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']").InnerText;
-                var DefensiveDeployables_Value = xmlDoc.SelectSingleNode("//Option [@name='DefensiveDeployables']").InnerText;
-                var UnitCards_Value = xmlDoc.SelectSingleNode("//Option [@name='UnitCards']").InnerText;
-                var LeviesMax_Value = xmlDoc.SelectSingleNode("//Option [@name='LeviesMax']").InnerText;
-                var RangedMax_Value = xmlDoc.SelectSingleNode("//Option [@name='RangedMax']").InnerText;
-                var InfantryMax_Value = xmlDoc.SelectSingleNode("//Option [@name='InfantryMax']").InnerText;
-                var CavalryMax_Value = xmlDoc.SelectSingleNode("//Option [@name='CavalryMax']").InnerText;
-                var BattleScale_Value = xmlDoc.SelectSingleNode("//Option [@name='BattleScale']").InnerText;
-                var AutoScaleUnits_Value = xmlDoc.SelectSingleNode("//Option [@name='AutoScaleUnits']").InnerText;
-                var SeparateArmies_Value = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']").InnerText;
+                var CloseCK3_Value = GetOptionValue(xmlDoc, "CloseCK3", "Enabled");
+                var CloseAttila_Value = GetOptionValue(xmlDoc, "CloseAttila", "Enabled");
+                var FullArmies_Value = GetOptionValue(xmlDoc, "FullArmies", "Disabled");
+                var TimeLimit_Value = GetOptionValue(xmlDoc, "TimeLimit", "Enabled");
+                var BattleMapsSize_Value = GetOptionValue(xmlDoc, "BattleMapsSize", "Dynamic");
+                var DefensiveDeployables_Value = GetOptionValue(xmlDoc, "DefensiveDeployables", "Enabled");
+                var UnitCards_Value = GetOptionValue(xmlDoc, "UnitCards", "Enabled");
+                var LeviesMax_Value = GetOptionValue(xmlDoc, "LeviesMax", "10");
+                var RangedMax_Value = GetOptionValue(xmlDoc, "RangedMax", "4");
+                var InfantryMax_Value = GetOptionValue(xmlDoc, "InfantryMax", "8");
+                var CavalryMax_Value = GetOptionValue(xmlDoc, "CavalryMax", "4");
+                var BattleScale_Value = GetOptionValue(xmlDoc, "BattleScale", "100%");
+                var AutoScaleUnits_Value = GetOptionValue(xmlDoc, "AutoScaleUnits", "Enabled");
+                var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
+
+                xmlDoc.Save(file);
                 Program.Logger.Debug("All options read from XML.");
 
                 optionsValuesCollection.AddRange(new List<(string, string)>
