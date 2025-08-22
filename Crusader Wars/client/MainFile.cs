@@ -152,6 +152,8 @@ namespace Crusader_Wars
 
                 if(!gamePaths || !unitMappers)
                 {
+                    infoLabel.AutoSize = false;
+                    infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
                     if(!gamePaths) infoLabel.Text = "Games Paths Missing! Be sure to select your game paths on the Settings screen.";
                     else infoLabel.Text = "No Unit Mappers Enabled! Be sure to select a Playthrough on the Settings screen.";
                     ExecuteButton.Enabled = false;
@@ -159,6 +161,7 @@ namespace Crusader_Wars
                 }
                 else if(gamePaths && unitMappers)
                 {
+                    infoLabel.AutoSize = true;
                     ExecuteButton.Enabled = true;
                     infoLabel.Text = "Ready to Start!";
                     infoLabel.ForeColor = Original_Color;
@@ -776,7 +779,7 @@ namespace Crusader_Wars
             try
             {
                 DataSearch.ClearLogFile();
-                DeclarationsFile.Erase();
+                DeclarationsFile.EraseScript();
                 BattleScript.EraseScript();
                 BattleResult.ClearAttilaLog();
 
