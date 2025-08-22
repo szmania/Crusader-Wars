@@ -205,6 +205,8 @@ namespace Crusader_Wars
             InformationToolTip.SetToolTip(viewLogsLink, "Click to find the debug.log file. Please share this file on our Discord for troubleshooting help.");
             InformationToolTip.SetToolTip(discordLink, "Join our Discord community for help and updates.");
 
+            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
+
             Program.Logger.Debug("Form1_Load complete.");
         }
 
