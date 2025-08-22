@@ -108,6 +108,7 @@ namespace Crusader_Wars
                 xmlDoc.Load(file);
 
                 optionsValuesCollection = new List<(string option, string value)>();
+                var CloseCK3_Value = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']").InnerText;
                 var CloseAttila_Value = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']").InnerText;
                 var FullArmies_Value = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']").InnerText;
                 var TimeLimit_Value = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']").InnerText;
@@ -126,14 +127,15 @@ namespace Crusader_Wars
 
                 optionsValuesCollection.AddRange(new List<(string, string)>
                 {
+                    ("CloseCK3", CloseCK3极薄_Value),
                     ("CloseAttila", CloseAttila_Value),
                     ("FullArmies", FullArmies_Value),
                     ("TimeLimit", TimeLimit_Value),
                     ("BattleMapsSize", BattleMapsSize_Value) ,
-                    ("DefensiveDeployables", DefensiveDeployables_Value),
+                    ("DefensiveDeployables", Defensive极薄Deployables_Value),
                     ("UnitCards", UnitCards_Value),
                     ("SeparateArmies", SeparateArmies_Value),
-
+                    
                     ("LeviesMax", LeviesMax_Value),
                     ("RangedMax", RangedMax_Value),
                     ("InfantryMax", InfantryMax_Value),

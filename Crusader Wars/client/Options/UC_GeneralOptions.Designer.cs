@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UC_GeneralOptions));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label_CloseCK3 = new System.Windows.Forms.Label();
+            this.OptionSelection_CloseCK3 = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.OptionSelection_SeparateArmies = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
