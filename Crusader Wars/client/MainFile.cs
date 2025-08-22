@@ -152,8 +152,8 @@ namespace Crusader_Wars
 
                 if(!gamePaths || !unitMappers)
                 {
-                    if(!gamePaths) infoLabel.Text = "Games Paths Missing!";
-                    else infoLabel.Text = "No Unit Mappers Enabled!";
+                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Be sure to select your game paths on the Settings screen.";
+                    else infoLabel.Text = "No Unit Mappers Enabled! Be sure to select a Playthrough on the Settings screen.";
                     ExecuteButton.Enabled = false;
                     infoLabel.ForeColor = System.Drawing.Color.FromArgb(74, 0, 0);
                 }
@@ -395,7 +395,7 @@ namespace Crusader_Wars
 
                         if (battleJustCompleted && !ModOptions.CloseCK3DuringBattle())
                         {
-                            infoLabel.Text = "Waiting for CK3 battle... Load 'battle_results.ck3' to see results.";
+                            infoLabel.Text = "Waiting for CK3 battle... Load save game 'battle_results.ck3' to see results.";
                         }
                         else
                         {
