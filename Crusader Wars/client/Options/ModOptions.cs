@@ -92,6 +92,20 @@ namespace Crusader_Wars.client
         }
 
 
+        public static bool CloseCK3DuringBattle()
+        {
+            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseCK3");
+            switch(option.value)
+            {
+                case "Disabled":
+                    return false;
+                case "Enabled":
+                    return true;
+                default:
+                    return true;
+            }
+        }
+
         public static void CloseAttila()
         {
             var option = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseAttila");
