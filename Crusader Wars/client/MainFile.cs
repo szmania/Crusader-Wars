@@ -249,6 +249,19 @@ namespace Crusader_Wars
         // This method kept empty since shortcut creation is now obsolete
         private void CreateAttilaShortcut()
         {
+            if(!System.IO.File.Exists(@".\CW.lnk")) {
+                Program.Logger.Debug("Attila shortcut not found, creating...");
+                object shDesktop = (object)"Desktop";
+                WshShell shell = new WshShell();
+                string shortcutAddress = @".\CW.lnk";
+                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+                shortcut.Description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
+                shortcut.WorkingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
+                shortcut.Arguments = "used_mods_cw.txt";
+                shortcut.TargetPath = Properties.Settings.Default.VAR_attila_path;
+                shortcut.Save();
+                Program.Logger.Debug("Attila shortcut created successfully.");
+            }
         }
 
 
