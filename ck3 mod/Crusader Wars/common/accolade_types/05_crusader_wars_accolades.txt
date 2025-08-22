@@ -1,0 +1,6279 @@
+################################################################################################
+# Crusader Wars Accolade Adjustments (added bonuses for Attila Total War Battles) by flogi
+################################################################################################
+
+# only changes the parts that absolutely need to be changed for compatibility reasons
+
+################################################
+# Marauder
+################################################
+
+marauder_attribute = {
+	adjective = accolade_marauding
+	noun = accolade_marauder
+	#grouping accolades
+	accolade_categories = { common personality villainous martial intrigue dreadful disliked army_bonus amoral forceful aggressive militant }
+
+	#founding and successor requirements
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = sadistic
+			has_trait = callous
+			has_trait = vengeful
+		}
+	}
+	weight = {
+		value = accolade_uninteresting_base_value
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = warfare_legacy_3
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = fp1_pillage_legacy_3
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = glory_legacy_3
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_innovation = innovation_baliffs
+					}
+				}
+			}
+			add = -25
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_innovation = innovation_noblesse_oblige
+					}
+				}
+			}
+			add = -25
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						culture = {
+							OR = {
+								has_cultural_tradition = tradition_ruling_caste
+								has_cultural_tradition = tradition_eye_for_an_eye
+								has_cultural_pillar = ethos_bellicose 
+							}
+						}
+						faith = {
+							OR = {
+								trait_is_virtue = vengeful
+								has_doctrine = tenet_pursuit_of_power
+							}
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_ruling_caste
+						has_cultural_tradition = tradition_eye_for_an_eye
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				culture = {
+					has_cultural_tradition = tradition_charitable
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = sadistic
+						has_trait = callous
+						has_trait = vengeful
+						dread > 40
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				OR = {
+					has_trait = wrathful
+					has_trait = aggressive_attacker
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				dread > 20
+			}
+			add = 50
+		}
+		#weight for opinion
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = compassionate
+						has_trait = forgiving
+						has_trait = generous
+						culture = {
+							has_cultural_tradition = tradition_charitable
+						}
+						faith = {
+							OR = {
+								has_doctrine = tenet_pacifism
+								has_doctrine = tenet_dharmic_pacifism
+							}
+						}
+					}
+				}
+			}
+			multiply = 0
+		}
+	}
+	
+	
+	ranks = {
+		# glory_requirement =  { modifiers and unlocks }
+		100 = { # rank 1
+			liege_modifier = {
+				monthly_prestige_gain_per_dread_mult = 0.001
+			}
+			knight_army_modifier = {
+				uncontrolled_province_advantage = 2
+			}
+			accolade_parameters = {
+				cw_accolade_marauder_1
+			}
+		}
+		300 = { # rank 2
+			liege_modifier = {
+				monthly_prestige_gain_per_dread_mult = 0.001
+			}
+			knight_army_modifier = {
+				uncontrolled_province_advantage = 2
+			}
+			accolade_parameters = {
+				cw_accolade_marauder_1
+			}
+		}
+		600 = { # rank 3
+			liege_modifier = {
+				monthly_prestige_gain_per_dread_mult = 0.002
+			}
+			knight_army_modifier = {
+				uncontrolled_province_advantage = 3
+			}
+			accolade_parameters = {
+				cw_accolade_marauder_2
+			}
+		}
+		1000 = { # rank 4
+			liege_modifier = {
+				monthly_prestige_gain_per_dread_mult = 0.002
+			}
+			knight_army_modifier = {
+				uncontrolled_province_advantage = 3
+			}
+			accolade_parameters = {
+				cw_accolade_marauder_2
+			}
+		}
+			
+		1500 = { # rank 5
+			knight_army_modifier = {
+				uncontrolled_province_advantage = 5
+			}
+			liege_modifier = {
+				monthly_prestige_gain_per_dread_mult = 0.003
+			}
+			accolade_parameters = {
+				cw_accolade_marauder_3
+			}
+		}
+		2100 = { # rank 6
+			knight_army_modifier = {
+				uncontrolled_province_advantage = 5
+			}
+			liege_modifier = {
+				monthly_prestige_gain_per_dread_mult = 0.003
+			}
+			accolade_parameters = {
+				cw_accolade_marauder_3
+			}
+		}
+	}
+}
+
+################################################
+# Charmer
+################################################
+
+charmer_attribute = {
+	
+	adjective = accolade_charming
+	noun = accolade_charmer
+	#grouping accolades
+	accolade_categories = { common personality unscrupulous social diplomacy intrigue personal_schemer disliked courtly subtle }
+
+	#founding and successor requirements
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = lustful
+			has_trait = seducer
+		}
+	}
+	weight = {
+		value = accolade_uninteresting_base_value
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = glory_legacy_3
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_welcoming
+							has_cultural_pillar = ethos_courtly
+						}
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_cultural_tradition = tradition_wedding_ceremonies
+					}
+				}
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					faith = {
+						OR = {
+							has_doctrine = tenet_hedonistic
+							has_doctrine = tenet_carnal_exaltation
+							has_doctrine = tenet_polyamory
+							has_doctrine = tenet_natural_primitivism
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_cultural_tradition = tradition_chivalry
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_cultural_tradition = tradition_monogamous
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				faith = {
+					OR = {
+						has_doctrine = tenet_hedonistic
+						has_doctrine = tenet_carnal_exaltation
+						has_doctrine = tenet_polyamory
+						has_doctrine = tenet_natural_primitivism
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				culture = {
+					has_cultural_tradition = tradition_wedding_ceremonies
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				culture = {
+					has_cultural_tradition = tradition_chivalry
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = lustful
+						has_trait = seducer
+						has_trait = gregarious
+						has_trait = adulterer
+						has_trait = fornicator
+					}
+				}
+			}
+			add = 50
+		}
+		#weight for opinion
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = chaste
+						AND = {
+							has_trait = zealous
+							faith = { trait_is_sin = lustful }
+						}
+					}
+				}
+			}
+			multiply = 0
+		}
+	}
+	
+	ranks = {
+		# glory_requirement =  { modifiers and unlocks }
+		100 = { # rank 1
+			liege_modifier = {
+				seduce_scheme_power_add = 10
+			}
+			accolade_parameters = {
+				accolade_court_seduction_vulnerability
+				cw_accolade_charmer_1
+			}
+		}
+		300 = { # rank 2
+			liege_modifier = {
+				seduce_scheme_power_add = 10
+			}
+			accolade_parameters = {
+				accolade_court_seduction_vulnerability
+				cw_accolade_charmer_1
+			}
+		}
+		600 = { # rank 3
+			liege_modifier = {
+				seduce_scheme_power_add = 20
+			}
+			accolade_parameters = {
+				accolade_court_seduction_vulnerability
+				accolade_party_fertility
+				cw_accolade_charmer_2
+			}
+		}
+		1000 = { # rank 4
+			liege_modifier = {
+				seduce_scheme_power_add = 20
+			}
+			accolade_parameters = {
+				accolade_court_seduction_vulnerability
+				accolade_party_fertility
+				cw_accolade_charmer_2
+			}
+		}
+		1500 = { # rank 5
+			liege_modifier = {
+				seduce_scheme_power_add = 30
+			}
+			accolade_parameters = {
+				accolade_court_seduction_vulnerability
+				accolade_party_fertility_high
+				cw_accolade_charmer_3
+			}
+		}
+		2100 = { # rank 6
+			liege_modifier = {
+				seduce_scheme_power_add = 30
+			}
+			accolade_parameters = {
+				accolade_court_seduction_vulnerability
+				accolade_party_fertility_high
+				cw_accolade_charmer_3
+			}
+		}
+	}
+}
+
+################################################
+# Thug
+################################################
+
+thug_attribute = {
+	
+	adjective = accolade_thuggish
+	noun = accolade_thug
+	#grouping accolades
+	accolade_categories = { common personality unscrupulous prowess hostile_schemer activities dreadful disliked amoral forceful aggressive champion }
+
+	#founding and successor requirements
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = wrathful
+			has_trait = arbitrary
+			has_trait = impatient
+			has_trait = arrogant
+			has_trait = reaver
+		}
+	}
+	weight = {
+		value = accolade_uninteresting_base_value
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						OR = {
+							has_dynasty_perk = warfare_legacy_3
+							has_dynasty_perk = fp1_pillage_legacy_3
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						OR = {
+							has_dynasty_perk = glory_legacy_3
+							has_dynasty_perk = law_legacy_3
+						}
+					}
+				}
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						NOT = {
+							has_innovation = innovation_development_02
+						}
+					}
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_innovation = innovation_noblesse_oblige
+					}
+				}
+			}
+			add = -25
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_battlefield_looters
+							has_cultural_pillar = ethos_bellicose
+							has_cultural_tradition = tradition_ruling_caste
+						}
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_pacifism
+							has_cultural_pillar = ethos_egalitarian
+							has_cultural_tradition = tradition_chivalry
+						}
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				OR = {
+					scope:owner ?= {
+						culture = {
+							OR = {
+								has_cultural_tradition = tradition_forbearing
+								has_cultural_tradition = tradition_legalistic
+								has_cultural_tradition = tradition_equitable
+							}
+						}
+					}
+					scope:owner ?= {
+						faith = {
+							has_doctrine = tenet_legalism
+						}
+					}
+				}
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_cultural_tradition = tradition_quarrelsome
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_forbearing
+						has_cultural_tradition = tradition_equitable
+						has_cultural_tradition = tradition_pacifism
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				culture = {
+					has_cultural_tradition = tradition_quarrelsome
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = reaver
+						has_trait = sadistic
+						has_trait = callous
+						has_trait = impatient
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				has_trait = compassionate
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				OR = {
+					has_trait = sadistic
+					has_trait = callous
+					has_trait = vengeful
+				}
+			}
+			add = 50
+		}
+		#weight for opinion
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = just
+						has_trait = compassionate
+					}
+				}
+			}
+			multiply = 0
+		}
+	}
+	
+	ranks = {
+		# glory_requirement =  { modifiers and unlocks }
+		100 = { # rank 1
+			liege_modifier = {
+				dread_per_tyranny_add = 0.2
+			}
+			accolade_parameters = {
+				cw_accolade_thug_1
+			}
+		}
+		300 = { # rank 2
+			liege_modifier = {
+				dread_per_tyranny_add = 0.2
+			}
+			accolade_parameters = {
+				cw_accolade_thug_1
+			}
+		}
+		600 = { # rank 3
+			liege_modifier = {
+				dread_per_tyranny_add = 0.4
+			}
+			accolade_parameters = {
+				accolade_imprisonment_chance
+				cw_accolade_thug_2
+			}
+		}
+		1000 = { # rank 4
+			liege_modifier = {
+				dread_per_tyranny_add = 0.4
+			}
+			accolade_parameters = {
+				accolade_imprisonment_chance
+				cw_accolade_thug_2
+			}
+		}
+		1500 = { # rank 5
+			liege_modifier = {
+				dread_per_tyranny_add = 0.8
+			}
+			accolade_parameters = {
+				accolade_imprisonment_chance_high
+				cw_accolade_thug_3
+			}
+		}
+		2100 = { # rank 6
+			liege_modifier = {
+				dread_per_tyranny_add = 0.8
+			}
+			accolade_parameters = {
+				accolade_imprisonment_chance_high
+				cw_accolade_thug_3
+			}
+		}
+	}
+}
+
+################################################
+# Disciplinarian
+################################################
+
+disciplinarian_attribute = {
+
+	adjective = accolade_disciplined
+	noun = accolade_disciplinarian
+	#grouping accolades
+	accolade_categories = { common personality righteous stewardship martial army_bonus causes_stress ethical forceful militant leader }
+
+	#founding and successor requirements
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = stubborn
+			has_trait = diligent
+			has_trait = temperate
+			has_trait = organizer
+			has_trait = overseer
+		}
+	}
+	weight = {
+		value = accolade_uninteresting_base_value
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						OR = {
+							has_dynasty_perk = warfare_legacy_3
+							has_dynasty_perk = law_legacy_3
+						}
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						NOT = {
+							has_innovation = innovation_bannus
+						}
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_innovation = innovation_men_at_arms
+					}
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_innovation = innovation_royal_armory
+					}
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_hard_working
+							has_cultural_tradition = tradition_staunch_traditionalists
+							has_cultural_tradition = tradition_formation_fighting
+							has_cultural_tradition = tradition_strength_in_numbers
+						}
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					faith = {
+						has_doctrine = tenet_natural_primitivism
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				faith = {
+					has_doctrine = tenet_natural_primitivism
+				}
+			}
+			add = -25
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = temperate
+						has_trait = diligent
+						has_trait = stubborn
+						has_trait = callous
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				OR = {
+					has_trait = chaste
+					has_trait = just
+				}
+			}
+			add = 25
+		}
+		#weight for opinion
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					has_trait = lifestyle_reveler
+				}
+			}
+			multiply = 0
+		}
+	}
+	
+	ranks = {
+		# glory_requirement =  { modifiers and unlocks }
+		100 = { # rank 1
+			liege_modifier = {
+				levy_reinforcement_rate = 0.1
+			}
+			accolade_parameters = {
+				cw_accolade_disciplinarian_1
+			}
+		}
+		300 = { # rank 2
+			liege_modifier = {
+				levy_reinforcement_rate = 0.1
+			}
+			accolade_parameters = {
+				cw_accolade_disciplinarian_1
+			}
+		}
+		600 = { # rank 3
+			liege_modifier = {
+				levy_reinforcement_rate = 0.2
+				levy_maintenance = -0.1
+			}
+			knight_army_modifier = {
+				hostile_county_attrition = -0.4
+			}
+			accolade_parameters = {
+				cw_accolade_disciplinarian_2
+			}
+		}
+		1000 = { # rank 4
+			liege_modifier = {
+				levy_reinforcement_rate = 0.2
+				levy_maintenance = -0.1
+			}
+			knight_army_modifier = {
+				hostile_county_attrition = -0.4
+			}
+			accolade_parameters = {
+				cw_accolade_disciplinarian_2
+			}
+		}
+		1500 = { # rank 5
+			liege_modifier = {
+				levy_reinforcement_rate = 0.3
+				levy_maintenance = -0.2
+			}
+			knight_army_modifier = {
+				hostile_county_attrition = -0.8
+			}
+			accolade_parameters = {
+				cw_accolade_disciplinarian_3
+			}
+		}
+		2100 = { # rank 6
+			liege_modifier = {
+				levy_reinforcement_rate = 0.3
+				levy_maintenance = -0.2
+			}
+			knight_army_modifier = {
+				hostile_county_attrition = -0.8
+			}
+			accolade_parameters = {
+				cw_accolade_disciplinarian_3
+			}
+		}
+	}
+}
+
+################################################
+# Fanatic
+################################################
+
+fanatic_attribute = {
+	
+	adjective = accolade_fanatical
+	noun = accolade_fanatic
+	#grouping accolades
+	accolade_categories = { common personality righteous learning army_bonus disliked militant ethical forceful aggressive }
+
+	#founding and successor requirements
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		exists = liege
+		faith = liege.faith
+		OR = {
+			has_trait = zealous
+			has_trait = holy_warrior
+		}
+	}
+	weight = {
+		value = accolade_uninteresting_base_value
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = erudition_legacy_3
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = ep1_culture_legacy_3
+					}
+				}
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_warrior_monks
+							has_cultural_tradition = tradition_faith_bound
+						}
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_xenophilic
+							has_cultural_tradition = tradition_religion_blending
+							has_cultural_tradition = tradition_steppe_tolerance
+						}
+					}
+				}
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_pillar = ethos_spiritual
+							has_cultural_tradition = tradition_by_the_sword
+							has_cultural_tradition = tradition_zealous_people
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					faith = {
+						has_doctrine = doctrine_pluralism_fundamentalist
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					faith = {
+						OR = {
+							has_doctrine = tenet_pursuit_of_power
+							has_doctrine = tenet_unrelenting_faith
+							has_doctrine = tenet_struggle_submission
+							has_doctrine = tenet_warmonger
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					faith = {
+						OR = {
+							has_doctrine = tenet_pacifism
+							has_doctrine = tenet_dharmic_pacifism	
+						}
+					}
+				}
+			}
+			add = -75
+		}
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_xenophilic
+						has_cultural_tradition = tradition_religion_blending
+						has_cultural_tradition = tradition_steppe_tolerance
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_pillar = ethos_spiritual
+						has_cultural_tradition = tradition_by_the_sword
+						has_cultural_tradition = tradition_zealous_people
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = compassionate
+						has_trait = forgiving
+					}
+				}
+			}
+			add = -75
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = lifestyle_mystic
+						has_trait = faith_warrior
+					}
+				}
+			}
+			add = 75
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = holy_warrior
+						has_trait = zealous
+						has_trait = crusader_king
+						has_trait = order_member
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				OR = {
+					has_trait = lifestyle_mystic
+					has_trait = faith_warrior
+					has_trait = devoted
+					has_trait = order_member
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				OR = {
+					has_trait = compassionate
+					has_trait = forgiving
+				}
+			}
+			add = -50
+		}
+		#weight for opinion
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = cynical
+						faith = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
+				}
+			}
+			multiply = 0
+		}
+	}
+	
+	#accolade ranks from Glory XP
+	ranks = {
+		# glory_requirement =  { modifiers and unlocks }
+		100 = { # rank 1
+			liege_modifier = {
+				zealot_opinion = 10
+			}
+			accolade_parameters = {
+				cw_accolade_fanatic_1
+			}
+		}
+		300 = { # rank 2
+			liege_modifier = {
+				zealot_opinion = 10
+			}
+			accolade_parameters = {
+				cw_accolade_fanatic_1
+			}
+		}
+		600 = { # rank 3
+			liege_modifier = {
+				zealot_opinion = 15
+			}
+			accolade_parameters = {
+				acclaimed_knight_piety_from_battle
+				cw_accolade_fanatic_2
+			}
+		}
+		1000 = { # rank 4
+			liege_modifier = {
+				zealot_opinion = 15
+			}
+			#knight_army_modifier = {
+			#	tolerance_advantage_mod = 6
+			#}
+			accolade_parameters = {
+				acclaimed_knight_piety_from_battle
+				cw_accolade_fanatic_2
+			}
+		}
+		1500 = { # rank 5
+			liege_modifier = {
+				zealot_opinion = 25
+			}
+			accolade_parameters = {
+				acclaimed_knight_piety_from_battle_high
+				cw_accolade_fanatic_3
+			}
+		}
+		2100 = { # rank 6
+			liege_modifier = {
+				zealot_opinion = 25
+			}
+			accolade_parameters = {
+				acclaimed_knight_piety_from_battle_high
+				cw_accolade_fanatic_3
+			}
+		}
+	}
+}
+
+################################################
+# Valiant
+################################################
+
+valiant_attribute = {
+	
+	adjective = accolade_valiant
+	noun = accolade_valiant
+	#grouping accolades
+	accolade_categories = { common personality righteous prowess army_bonus army_penalty militant forceful aggressive militant champion }
+
+	#founding and successor requirements
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = brave
+			has_trait = berserker
+			has_trait = reckless
+		}
+	}
+	weight = {
+		value = accolade_uninteresting_base_value
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						OR = {
+							has_dynasty_perk = warfare_legacy_3
+							has_dynasty_perk = fp1_adventure_legacy_3
+						}
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_pillar = ethos_bellicose
+							has_cultural_pillar = ethos_stoic
+						}
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				culture = {
+					has_cultural_pillar = ethos_bellicose
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_formation_fighting
+							has_cultural_tradition = tradition_stalwart_defenders
+							has_cultural_tradition = tradition_modest
+							has_cultural_tradition = tradition_forbearing
+						}
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_talent_acquisition
+							has_cultural_tradition = tradition_only_the_strong
+							has_cultural_tradition = tradition_stand_and_fight
+							has_cultural_tradition = tradition_warrior_culture
+							has_cultural_tradition = tradition_fp1_performative_honour
+							has_cultural_tradition = tradition_fp1_the_right_to_prove
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_talent_acquisition
+						has_cultural_tradition = tradition_only_the_strong
+						has_cultural_tradition = tradition_stand_and_fight
+						has_cultural_tradition = tradition_warrior_culture
+						has_cultural_tradition = tradition_fp1_performative_honour
+						has_cultural_tradition = tradition_fp1_the_right_to_prove
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_formation_fighting
+						has_cultural_tradition = tradition_stalwart_defenders
+						has_cultural_tradition = tradition_modest
+						has_cultural_tradition = tradition_forbearing
+						has_cultural_tradition = tradition_byzantine_succession
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					has_trait = craven
+				}
+			}
+			add = -75
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = brave
+						has_trait = reckless
+						has_trait = ambitious
+						has_trait = aggressive_attacker
+						has_trait = reckless
+					}
+				}
+			}
+			add = 75
+		}
+		if = {
+			limit = {
+				OR = {
+					has_trait = aggressive_attacker
+					has_trait = zealous
+					has_trait = wrathful
+				}
+			}
+			add = 75
+		}
+		if = {
+			limit = {
+				OR = {
+					has_trait = lazy
+					has_trait = patient
+					has_trait = deceitful
+				}
+			}
+			add = -75
+		}
+		#weight for opinion
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+	}
+	
+	ranks = {
+		# glory_requirement =  { modifiers and unlocks }
+		100 = { # rank 1
+			knight_army_modifier = {
+				army_damage_mult = 0.1
+			}
+			accolade_parameters = {
+				cw_accolade_valiant_1
+			}
+		}
+		300 = { # rank 2
+			knight_army_modifier = {
+				army_damage_mult = 0.1
+			}
+			accolade_parameters = {
+				cw_accolade_valiant_1
+			}
+		}
+		600 = { # rank 3
+			knight_army_modifier = {
+				army_damage_mult = 0.2
+			}
+			liege_modifier = {
+				glory_hound_opinion = 15
+			}
+			accolade_parameters = {
+				cw_accolade_valiant_2
+			}
+		}
+		1000 = { # rank 4
+			knight_army_modifier = {
+				army_damage_mult = 0.2
+			}
+			liege_modifier = {
+				glory_hound_opinion = 15
+			}
+			accolade_parameters = {
+				cw_accolade_valiant_2
+			}
+		}
+		1500 = { # rank 5
+			knight_army_modifier = {
+				army_damage_mult = 0.3
+			}
+			liege_modifier = {
+				glory_hound_opinion = 25
+			}
+			accolade_parameters = {
+				cw_accolade_valiant_3
+			}
+		}
+		2100 = { # rank 6
+			knight_army_modifier = {
+				army_damage_mult = 0.3
+			}
+			liege_modifier = {
+				glory_hound_opinion = 25
+			}
+			accolade_parameters = {
+				cw_accolade_valiant_3
+			}
+		}
+	}
+}
+
+################################################
+# Stalwart
+################################################
+
+stalwart_attribute = {
+    
+	adjective = accolade_stalwart
+    noun = accolade_stalwart
+    #grouping accolades
+    accolade_categories = { common personality righteous army_bonus ethical forceful defensive leader benevolent }
+    #founding and successor requirements
+    potential = {
+        prowess >= accolade_prowess_requirement_value
+        OR = {
+            has_trait = honest
+            has_trait = just
+            has_trait = patient
+            has_trait = unyielding_defender
+            has_trait = loyal
+        }
+    }
+    weight = {
+        value = accolade_uninteresting_base_value
+        if = {
+            limit = {
+                scope:owner ?= {
+                    exists = dynasty
+                    dynasty = {
+                        OR = {
+                            has_dynasty_perk = warfare_legacy_3
+                            has_dynasty_perk = ep2_activities_legacy_3
+                        }
+                    }
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    culture = {
+                        OR = {
+                            has_cultural_pillar = ethos_communal
+                            has_cultural_pillar = ethos_stoic
+                        }
+                    }
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                culture = {
+                    has_cultural_pillar = ethos_stoic
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    culture = {
+                        OR = {
+                            has_cultural_tradition = tradition_stalwart_defenders
+                            has_cultural_tradition = tradition_forbearing
+                            has_cultural_tradition = tradition_stand_and_fight
+                        }
+                    }
+                }
+            }
+            add = 100
+        }
+        if = {
+            limit = {
+                culture = {
+                    OR = {
+                        has_cultural_tradition = tradition_stalwart_defenders
+                        has_cultural_tradition = tradition_formation_fighting
+                        has_cultural_tradition = tradition_stand_and_fight
+                        has_cultural_tradition = tradition_druzhina
+                        has_cultural_tradition = tradition_hird
+                        has_cultural_tradition = tradition_fp1_coastal_warriors
+                        has_cultural_tradition = tradition_desert_nomads
+                    }
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                culture = {
+                    OR = {
+                        has_cultural_tradition = tradition_hit_and_run
+                        has_cultural_tradition = tradition_quarrelsome
+                    }
+                }
+            }
+            add = -50
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    has_trait = reckless
+                }
+            }
+            add = -75
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    OR = {
+                        has_trait = just
+                        has_trait = honest
+                        has_trait = patient
+                        has_trait = unyielding_defender
+                        has_trait = loyal
+                    }
+                }
+            }
+            add = 75
+        }
+        if = {
+            limit = {
+                OR = {
+                    has_trait = cautious_leader
+                    has_trait = trusting
+                    has_trait = stubborn
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                OR = {
+                    has_trait = deceitful
+                    has_trait = arbitrary
+                    has_trait = impatient
+                    has_trait = aggressive_attacker
+                    has_trait = disloyal
+                    has_trait = reckless
+                    has_trait = fickle
+                    has_trait = craven
+                }
+            }
+            add = -75
+        }
+        #weight for opinion
+        if = {
+            limit = {
+                exists = liege
+            }
+            multiply = accolade_opinion_multiplier_value
+        }
+    }
+	
+    ranks = {
+        # glory_requirement =  { modifiers and unlocks }
+        100 = { # rank 1
+           liege_modifier = {
+                character_travel_safety = 5
+            }
+			accolade_parameters = {
+				cw_accolade_stalwart_1
+			}
+        }
+        300 = { # rank 2
+            liege_modifier = {
+                character_travel_safety = 5
+            }
+			accolade_parameters = {
+				cw_accolade_stalwart_1
+			}
+        }
+        600 = { # rank 3
+            knight_army_modifier = {
+                army_toughness_mult = 0.1
+            }
+            liege_modifier = {
+                character_travel_safety = 10
+            }
+			accolade_parameters = {
+				cw_accolade_stalwart_2
+			}
+        }
+        1000 = { # rank 4
+            knight_army_modifier = {
+                army_toughness_mult = 0.1
+            }
+            liege_modifier = {
+                character_travel_safety = 10
+            }
+			accolade_parameters = {
+				cw_accolade_stalwart_2
+			}
+        }
+        1500 = { # rank 5
+            knight_army_modifier = {
+                army_toughness_mult = 0.15
+            }
+            liege_modifier = {
+                character_travel_safety = 15
+            }
+			accolade_parameters = {
+				cw_accolade_stalwart_3
+			}
+        }
+        2100 = { # rank 6
+            knight_army_modifier = {
+                army_toughness_mult = 0.15
+            }
+            liege_modifier = {
+                character_travel_safety = 15
+            }
+			accolade_parameters = {
+				cw_accolade_stalwart_3
+			}
+        }
+    }
+}
+
+################################################
+# Scoundrel
+################################################
+
+scoundrel_attribute = {
+   
+   adjective = accolade_scoundrel
+    noun = accolade_scoundrel
+    #grouping accolades
+    accolade_categories = { common personality amoral martial intrigue army_bonus subtle unscrupulous }
+    #founding and successor requirements
+    potential = {
+        prowess >= accolade_prowess_requirement_value
+        OR = {
+            has_trait = ambitious
+            has_trait = gregarious
+            has_trait = greedy
+            has_trait = deceitful
+            has_trait = adventurer
+        }
+    }
+    weight = {
+        value = accolade_uninteresting_base_value
+        if = {
+            limit = {
+                scope:owner ?= {
+                    exists = dynasty
+                    dynasty = {
+                        OR = {
+                            has_dynasty_perk = guile_legacy_3
+                            has_dynasty_perk = warfare_legacy_3
+                        }
+                    }
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    culture = {
+                        has_cultural_pillar = ethos_bellicose
+                    }
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                culture = {
+                    has_cultural_pillar = ethos_bellicose
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    culture = {
+                        OR = {
+                            has_cultural_tradition = tradition_stand_and_fight
+                            has_cultural_tradition = tradition_stalwart_defenders
+                            has_cultural_tradition = tradition_forbearing
+                            has_cultural_tradition = tradition_legalistic
+                        }
+                    }
+                }
+            }
+            add = -50
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    culture = {
+                        OR = {
+                            has_cultural_tradition = tradition_swords_for_hire
+                            has_cultural_tradition = tradition_life_is_just_a_joke
+                            has_cultural_tradition = tradition_practiced_pirates
+                        }
+                    }
+                }
+            }
+            add = 100
+        }
+        if = {
+            limit = {
+                culture = {
+                    OR = {
+                        has_cultural_tradition = tradition_hit_and_run
+                        has_cultural_tradition = tradition_quarrelsome
+                        has_cultural_tradition = tradition_swords_for_hire
+                        has_cultural_tradition = tradition_fp1_coastal_warriors
+                        has_cultural_tradition = tradition_fp2_state_ransoming
+                        has_cultural_tradition = tradition_practiced_pirates
+                    }
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                culture = {
+                    OR = {
+                        has_cultural_tradition = tradition_stand_and_fight
+                        has_cultural_tradition = tradition_stalwart_defenders
+                        has_cultural_tradition = tradition_modest
+                        has_cultural_tradition = tradition_chivalry
+                    }
+                }
+            }
+            add = -50
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    has_trait = cautious_leader
+                }
+            }
+            add = -75
+        }
+        if = {
+            limit = {
+                scope:owner ?= {
+                    OR = {
+                        has_trait = ambitious
+                        has_trait = gregarious
+                        has_trait = greedy
+                        has_trait = deceitful
+                    }
+                }
+            }
+            add = 75
+        }
+        if = {
+            limit = {
+                OR = {
+                    has_trait = arbitrary
+                    has_trait = fickle
+                    has_trait = callous
+                }
+            }
+            add = 50
+        }
+        if = {
+            limit = {
+                OR = {
+                    has_trait = just
+                    has_trait = shy
+                    has_trait = generous
+                    has_trait = honest
+                    has_trait = compassionate
+                    has_trait = loyal
+                }
+            }
+            add = -75
+        }
+        #weight for opinion
+        if = {
+            limit = {
+                exists = liege
+            }
+            multiply = accolade_opinion_multiplier_value
+        }
+    }
+   
+    ranks = {
+        # glory_requirement =  { modifiers and unlocks }
+        100 = { # rank 1
+            liege_modifier = {
+               mercenary_hire_cost_mult = -0.1
+            }
+			accolade_parameters = {
+				cw_accolade_scoundrel_1
+			}
+        }
+        300 = { # rank 2
+            liege_modifier = {
+                mercenary_hire_cost_mult = -0.1
+            }
+			accolade_parameters = {
+				cw_accolade_scoundrel_1
+			}
+        }
+        600 = { # rank 3
+            liege_modifier = {
+                martial_per_stress_level = 2
+                mercenary_hire_cost_mult = -0.2
+            }
+			accolade_parameters = {
+				cw_accolade_scoundrel_2
+			}
+        }
+        1000 = { # rank 4
+            liege_modifier = {
+                martial_per_stress_level = 2
+                mercenary_hire_cost_mult = -0.2
+            }
+			accolade_parameters = {
+				cw_accolade_scoundrel_2
+			}
+        }
+        1500 = { # rank 5
+            liege_modifier = {
+                martial_per_stress_level = 5
+                mercenary_hire_cost_mult = -0.3
+            }
+			accolade_parameters = {
+				cw_accolade_scoundrel_3
+			}
+        }
+        2100 = { # rank 6
+            liege_modifier = {
+                martial_per_stress_level = 5
+                mercenary_hire_cost_mult = -0.3
+            }
+			accolade_parameters = {
+				cw_accolade_scoundrel_3
+			}
+        }
+    }
+}
+
+
+
+################################################
+# Idealist
+################################################
+
+idealist_attribute = {
+
+	adjective = accolade_idealistic
+	noun = accolade_idealist
+	#grouping accolades
+	accolade_categories = { common personality benevolent social diplomacy vassal_manager foreign_relations courtly ethical defensive leader }
+
+	#founding and successor requirements
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = compassionate
+			has_trait = forgiving
+			has_trait = trusting
+			has_trait = generous
+		}
+	}
+	weight = {
+		value = accolade_uninteresting_base_value
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						OR = {
+							has_dynasty_perk = glory_legacy_3
+							has_dynasty_perk = ep1_culture_legacy_3
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = guile_legacy_3
+					}
+				}
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					exists = dynasty
+					dynasty = {
+						has_dynasty_perk = fp1_pillage_legacy_3
+					}
+				}
+			}
+			add = -100
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						has_cultural_pillar = ethos_egalitarian
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					faith = {
+						OR = {
+							has_doctrine = tenet_pacifism
+							has_doctrine = tenet_dharmic_pacifism
+							has_doctrine = tenet_natural_primitivism
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				faith = {
+					OR = {
+						has_doctrine = tenet_pacifism
+						has_doctrine = tenet_dharmic_pacifism
+						has_doctrine = tenet_natural_primitivism
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_charitable
+							has_cultural_tradition = tradition_loyal_soldiers
+							has_cultural_tradition = tradition_chivalry
+						}
+					}
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_charitable
+						has_cultural_tradition = tradition_loyal_soldiers
+						has_cultural_tradition = tradition_chivalry
+					}
+				}
+			}
+			add = 50
+		}
+		if = {
+			limit = {
+				OR = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_ruling_caste
+							has_cultural_tradition = tradition_eye_for_an_eye
+						}
+					}
+					faith = {
+						has_doctrine = tenet_pursuit_of_power
+					}
+				}
+			}
+			add = -50
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = compassionate
+						has_trait = trusting
+						has_trait = loyal
+						has_trait = forgiving
+					}
+				}
+			}
+			add = 50
+		}
+		#weight for opinion
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		if = {
+			limit = {
+				scope:owner ?= {
+					OR = {
+						has_trait = sadistic
+						has_trait = callous
+						has_trait = vengeful
+						has_trait = paranoid
+						has_trait = greedy
+						dread > 20
+						tyranny > 20
+						culture = {
+							has_cultural_tradition = tradition_eye_for_an_eye
+						}
+						faith = {
+							has_doctrine = tenet_pursuit_of_power
+						}
+					}
+				}
+			}
+			multiply = 0
+		}
+	}
+
+	ranks = {
+		# glory_requirement =  { modifiers and unlocks }
+		100 = { # rank 1
+			liege_modifier = {
+				courtly_opinion = 5
+				minority_opinion = 3
+				barons_and_minor_landholders_opinion = 3
+			}
+			accolade_parameters = {
+				cw_accolade_idealist_1
+				}
+		}
+		300 = { # rank 2
+			liege_modifier = {
+				courtly_opinion = 5
+				minority_opinion = 3
+				barons_and_minor_landholders_opinion = 3
+			}
+			accolade_parameters = {
+				cw_accolade_idealist_1
+				}
+		}
+		600 = { # rank 3
+			liege_modifier = {
+				courtly_opinion = 8
+				minority_opinion = 6
+				barons_and_minor_landholders_opinion = 6
+			}
+			accolade_parameters = {
+				cw_accolade_idealist_2
+				}
+		}
+		1000 = { # rank 4
+			liege_modifier = {
+				courtly_opinion = 8
+				minority_opinion = 6
+				barons_and_minor_landholders_opinion = 6
+			}
+			accolade_parameters = {
+				cw_accolade_idealist_2
+				}
+		}
+		1500 = { # rank 5
+			liege_modifier = {
+				courtly_opinion = 10
+				minority_opinion = 10
+				barons_and_minor_landholders_opinion = 10
+			}
+			accolade_parameters = {
+				accolade_champions_white_peace
+				cw_accolade_idealist_3
+			}
+			
+		}
+		2100 = { # rank 6
+			liege_modifier = {
+				courtly_opinion = 10
+				minority_opinion = 10
+				barons_and_minor_landholders_opinion = 10
+			}
+			accolade_parameters = {
+				accolade_champions_white_peace
+				cw_accolade_idealist_3
+			}
+		}
+	}
+}
+
+# Politicker
+politicker_attribute = {
+	
+	adjective = accolade_politicking
+	noun = accolade_politicker
+	accolade_categories = { skilled skill social personality diplomacy vassal_manager courtly subtle }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			diplomacy >= @skill_accolade_qualifying_value
+			has_trait = diplomat
+		}
+	}
+	
+	weight = {
+		# These are less interesting, so we weight them down for the AI.
+		value = accolade_standard_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Skills.
+			add = {
+				value = diplomacy
+				multiply = 10
+			}
+			# Culture.
+			## Courtly ethos.
+			if = {
+				limit = {
+					culture ?= {
+						OR = {
+							has_cultural_pillar = ethos_courtly
+							has_cultural_pillar = ethos_egalitarian
+						}
+					}
+				}
+				add = 100
+			}
+			## Egalitarian ethos.
+			if = {
+				limit = {
+					culture ?= { has_cultural_pillar = ethos_egalitarian }
+				}
+				add = 100
+			}
+			## Era.
+			add = accolade_weighted_up_in_later_eras_value
+			# AI values.
+			add = {
+				value = ai_honor
+				multiply = 0.75
+			}
+			add = {
+				value = ai_energy
+				multiply = 0.5
+			}
+			# Traits.
+			## Additives.
+			### +++ Gregarious.
+			if = {
+				limit = { has_trait = gregarious }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### ++ Diplomacy Education.
+			if = {
+				limit = { has_trait = education_diplomacy }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### + Trusting.
+			if = {
+				limit = { has_trait = trusting }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### -- Paranoid.
+			if = {
+				limit = { has_trait = paranoid }
+				add = @accolade_trait_additive_minus_2_value
+			}
+			## Factor 0s.
+			### Shy
+			if = {
+				limit = { has_trait = shy }
+				multiply = 0
+			}
+			### Reclusive
+			if = {
+				limit = { has_trait = reclusive }
+				multiply = 0
+			}
+			### Content
+			if = {
+				limit = { has_trait = content }
+				multiply = 0
+			}
+		}
+		# weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			liege_modifier = {
+				courtly_opinion = 3
+				barons_and_minor_landholders_opinion = 3
+				minority_opinion = 5
+			}
+			accolade_parameters = {
+				cw_accolade_politicker_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = {
+				courtly_opinion = 3
+				barons_and_minor_landholders_opinion = 3
+				minority_opinion = 5
+			}
+			accolade_parameters = {
+				cw_accolade_politicker_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = {
+				courtly_opinion = 6
+				barons_and_minor_landholders_opinion = 6
+				minority_opinion = 8
+				diplomacy = 1
+			}
+			accolade_parameters = {
+				accolade_influences_regency
+				cw_accolade_politicker_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = {
+				courtly_opinion = 6
+				barons_and_minor_landholders_opinion = 6
+				minority_opinion = 8
+				diplomacy = 1
+			}
+			accolade_parameters = {
+				accolade_influences_regency
+				cw_accolade_politicker_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				courtly_opinion = 10
+				barons_and_minor_landholders_opinion = 10
+				minority_opinion = 10
+				diplomacy = 2
+			}
+			accolade_parameters = {
+				accolade_tour_end_bonus
+				accolade_influences_regency_high
+				cw_accolade_politicker_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				courtly_opinion = 10
+				barons_and_minor_landholders_opinion = 10
+				minority_opinion = 10
+				diplomacy = 2
+			}
+			accolade_parameters = {
+				accolade_tour_end_bonus
+				accolade_influences_regency_high
+				cw_accolade_politicker_3
+			}
+		}
+	}
+}
+
+# Tactician
+tactician_attribute = {
+
+	adjective = accolade_strategic
+	noun = accolade_tactician
+	accolade_categories = { skilled skill warlike leader subtle martial }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = strategist
+			martial >= @skill_accolade_qualifying_value
+		}
+	}
+	
+	weight = {
+		# These are less interesting, so we weight them down for the AI.
+		value = accolade_standard_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Skills.
+			add = {
+				value = martial
+				multiply = 10
+			}
+			# Culture.
+			## Bellicose ethos.
+			if = {
+				limit = {
+					culture ?= {
+						OR = {
+							has_cultural_pillar = ethos_bellicose
+							has_cultural_pillar = ethos_bureaucratic
+						}
+					}
+				}
+				add = 200
+			}
+			## Era.
+			add = accolade_weighted_up_in_earlier_eras_value
+			# AI values.
+			add = {
+				value = ai_boldness
+				multiply = 0.75
+			}
+			add = {
+				value = ai_vengefulness
+				multiply = 0.5
+			}
+			# Traits.
+			## Additives.
+			### +++ Patient
+			if = {
+				limit = { has_trait = patient }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### ++ Calm.
+			if = {
+				limit = { has_trait = calm }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### ++ Martial Education.
+			if = {
+				limit = { has_trait = education_martial }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### + Brave.
+			if = {
+				limit = { has_trait = brave }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### - Forgiving.
+			if = {
+				limit = { has_trait = forgiving }
+				add = @accolade_trait_additive_minus_1_value
+			}
+			### --- Wrathful.
+			if = {
+				limit = { has_trait = wrathful }
+				add = @accolade_trait_additive_minus_3_value
+			}
+			### --- Impatient.
+			if = {
+				limit = { has_trait = impatient }
+				add = @accolade_trait_additive_minus_3_value
+			}
+		}
+		# weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+	}
+
+	ranks = {
+		# Rank 1
+		100 = {
+			liege_modifier = { monthly_martial_lifestyle_xp_gain_mult = @lifestyle_bonus_tier_1_value }
+			accolade_parameters = {
+				cw_accolade_tactician_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = { monthly_martial_lifestyle_xp_gain_mult = @lifestyle_bonus_tier_1_value }
+			accolade_parameters = {
+				cw_accolade_tactician_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = { 
+				monthly_martial_lifestyle_xp_gain_mult = @lifestyle_bonus_tier_2_value
+				martial = 1
+			}
+			knight_army_modifier = {
+				counter_efficiency = @lifestyle_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				cw_accolade_tactician_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = { 
+				monthly_martial_lifestyle_xp_gain_mult = @lifestyle_bonus_tier_2_value
+				martial = 1
+			}
+			knight_army_modifier = {
+				counter_efficiency = @lifestyle_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				cw_accolade_tactician_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = { 
+				monthly_martial_lifestyle_xp_gain_mult = @lifestyle_bonus_tier_3_value
+				martial = 2
+			}
+			knight_army_modifier = {
+				counter_efficiency = @lifestyle_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				accolade_organize_army_bonus
+				cw_accolade_tactician_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				monthly_martial_lifestyle_xp_gain_mult = @lifestyle_bonus_tier_3_value
+				martial = 2
+			}
+			knight_army_modifier = {
+				counter_efficiency = @lifestyle_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				accolade_organize_army_bonus
+				cw_accolade_tactician_3
+			}
+		}
+	}
+}
+
+# Reeve
+reeve_attribute = {
+	
+	adjective = accolade_calculating
+	noun = accolade_reeve
+	accolade_categories = { skilled skill subtle courtly leader stewardship }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = administrator
+			stewardship >= @skill_accolade_qualifying_value
+		}
+	}
+	
+	weight = {
+		# These are less interesting, so we weight them down for the AI.
+		value = accolade_standard_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Skills.
+			add = {
+				value = stewardship
+				multiply = 10
+			}
+			# Culture.
+			## Bureaucratic ethos.
+			if = {
+				limit = {
+					culture ?= {
+						OR = {
+							has_cultural_pillar = ethos_bureaucratic
+							has_cultural_pillar = ethos_egalitarian
+						}
+					}
+				}
+				add = 200
+			}
+			## Era.
+			add = accolade_weighted_up_in_later_eras_value
+			# AI values.
+			add = {
+				value = ai_rationality
+				multiply = 0.75
+			}
+			add = {
+				value = ai_energy
+				multiply = 0.5
+			}
+			# Traits.
+			## Additives.
+			### +++ Diligent
+			if = {
+				limit = { has_trait = diligent }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### ++ Education Stewardship
+			if = {
+				limit = { has_trait = education_stewardship }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### + Gregarious.
+			if = {
+				limit = { has_trait = gregarious }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### - Shy.
+			if = {
+				limit = { has_trait = generous }
+				add = @accolade_trait_additive_minus_2_value
+			}
+			### -- Arbitrary.
+			if = {
+				limit = { has_trait = arbitrary }
+				add = @accolade_trait_additive_minus_2_value
+			}
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			liege_modifier = {
+				parochial_opinion = 10
+			}
+			accolade_parameters = {
+				cw_accolade_reeve_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = {
+				parochial_opinion = 10
+			}
+			accolade_parameters = {
+				cw_accolade_reeve_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = {
+				parochial_opinion = 15
+				stewardship = 1
+			}
+			accolade_parameters = { 
+			accolade_development_growth_on_tournament_completion_low 
+			cw_accolade_reeve_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = {
+				parochial_opinion = 15
+				stewardship = 1
+			}
+			accolade_parameters = { 
+			accolade_development_growth_on_tournament_completion_low 
+			cw_accolade_reeve_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				parochial_opinion = 25
+				stewardship = 2
+			}
+			accolade_parameters = {
+				accolade_development_growth_on_tournament_completion_high
+				accolade_increase_control_bonus
+				cw_accolade_reeve_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				parochial_opinion = 25
+				stewardship = 2
+			}
+			accolade_parameters = {
+				accolade_development_growth_on_tournament_completion_high
+				accolade_increase_control_bonus
+				cw_accolade_reeve_3
+			}
+		}
+	}
+}
+
+# Manipulator
+manipulator_attribute = {
+	
+	adjective = accolade_manipulative
+	noun = accolade_manipulator
+	accolade_categories = { skilled skill subtle courtly aggressive amoral intrigue }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			intrigue >= @skill_accolade_qualifying_value
+			has_trait = schemer
+		}
+	}
+	
+	weight = {
+		# These are less interesting, so we weight them down for the AI.
+		value = accolade_standard_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Skills.
+			add = {
+				value = intrigue
+				multiply = 10
+			}
+			# Culture.
+			## Courtly ethos.
+			if = {
+				limit = {
+					culture ?= {
+						OR = {
+							has_cultural_pillar = ethos_courtly
+							has_cultural_pillar = ethos_communal
+						}
+					}
+				}
+				add = 200
+			}
+			## Era.
+			add = accolade_weighted_up_in_later_eras_value
+			# AI values.
+			add = {
+				value = ai_vengefulness
+				multiply = 0.75
+			}
+			add = {
+				value = ai_honor
+				multiply = -1
+			}
+			# Traits.
+			## Additives.
+			### +++ Deceitful.
+			if = {
+				limit = { has_trait = deceitful }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### +++ Paranoid
+			if = {
+				limit = { has_trait = paranoid }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### ++ Intrigue Education.
+			if = {
+				limit = { has_trait = education_intrigue }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### + Arbitrary.
+			if = {
+				limit = { has_trait = arbitrary }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### + Sadistic
+			if = {
+				limit = { has_trait = sadistic }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### - Just.
+			if = {
+				limit = { has_trait = just }
+				add = @accolade_trait_additive_minus_1_value
+			}
+			## Factor 0s.
+			### Honest.
+			if = {
+				limit = { has_trait = honest }
+				multiply = 0
+			}
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			liege_modifier = {
+				intrigue_scheme_power = @intrigue_scheme_power_bonus_tier_1_value
+			}
+			accolade_parameters = {
+				cw_accolade_manipulator_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = {
+				intrigue_scheme_power = @intrigue_scheme_power_bonus_tier_1_value
+			}
+			accolade_parameters = {
+				cw_accolade_manipulator_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = {
+				intrigue_scheme_power = @intrigue_scheme_power_bonus_tier_2_value
+				knight_effectiveness_per_dread = @knight_effectiveness_per_dread_tier_2_value
+				intrigue = 1
+			}
+			accolade_parameters = {
+				cw_accolade_manipulator_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = {
+				intrigue_scheme_power = @intrigue_scheme_power_bonus_tier_2_value
+				knight_effectiveness_per_dread = @knight_effectiveness_per_dread_tier_2_value
+				intrigue = 1
+			}
+			accolade_parameters = {
+				cw_accolade_manipulator_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				intrigue_scheme_power = @intrigue_scheme_power_bonus_tier_3_value
+				knight_effectiveness_per_dread = @knight_effectiveness_per_dread_tier_3_value
+				dread_baseline_add = @dread_base_bonus_tier_3_value
+				intrigue = 2
+			}
+			accolade_parameters = {
+				cw_accolade_manipulator_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				intrigue_scheme_power = @intrigue_scheme_power_bonus_tier_3_value
+				knight_effectiveness_per_dread = @knight_effectiveness_per_dread_tier_3_value
+				dread_baseline_add = @dread_base_bonus_tier_3_value
+				intrigue = 2
+			}
+			accolade_parameters = {
+				cw_accolade_manipulator_3
+			}
+		}
+	}
+}
+
+# Mentor
+mentor_attribute = {
+	
+	adjective = accolade_sagely
+	noun = accolade_mentor
+	accolade_categories = { skilled skill subtle courtly ethical leader learning }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			learning >= @skill_accolade_qualifying_value
+			has_trait = whole_of_body
+		}
+	}
+	
+	weight = {
+		# These are less interesting, so we weight them down for the AI.
+		value = accolade_standard_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Skills.
+			add = {
+				value = learning
+				multiply = 10
+			}
+			# Culture.
+			## Communal ethos.
+			if = {
+				limit = {
+					culture ?= {
+						OR = {
+							has_cultural_pillar = ethos_communal
+							has_cultural_pillar = ethos_spiritual
+						}
+					}
+				}
+				add = 200
+			}
+			## Spiritual ethos.
+			if = {
+				limit = {
+					culture ?= { has_cultural_pillar = ethos_spiritual }
+				}
+				add = 100
+			}
+			## Era.
+			add = accolade_weighted_up_in_later_eras_value
+			# AI values.
+			add = {
+				value = ai_energy
+				multiply = -0.5
+			}
+			add = {
+				value = ai_boldness
+				multiply = -0.75
+			}
+			# Traits.
+			## Additives.
+			### +++ Patient.
+			if = {
+				limit = { has_trait = patient }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### +++ Calm
+			if = {
+				limit = { has_trait = calm }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### +++ Diligent.
+			if = {
+				limit = { has_trait = diligent }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### ++ Learning Education.
+			if = {
+				limit = { has_trait = education_learning }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### + Shy.
+			if = {
+				limit = { has_trait = shy }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### - Arbitrary.
+			if = {
+				limit = { has_trait = arbitrary }
+				add = @accolade_trait_additive_minus_1_value
+			}
+			### - Callous
+			if = {
+				limit = { has_trait = callous }
+				add = @accolade_trait_additive_minus_1_value
+			}
+			### -- Lazy.
+			if = {
+				limit = { has_trait = lazy }
+				add = @accolade_trait_additive_minus_2_value
+			}
+			## Factor 0s.
+			### Impatient.
+			if = {
+				limit = { has_trait = impatient }
+				multiply = 0
+			}
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			liege_modifier = {
+				knight_limit = 1
+			}
+			accolade_parameters = {
+				cw_accolade_mentor_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = {
+				knight_limit = 1
+			}
+			accolade_parameters = {
+				cw_accolade_mentor_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = {
+				knight_limit = 1
+				learning = 1
+			}
+			accolade_parameters = {
+				accolade_train_commanders_bonus
+				accolade_wise_educator
+				cw_accolade_mentor_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = {
+				knight_limit = 1
+				learning = 1
+			}
+			accolade_parameters = {
+				accolade_train_commanders_bonus
+				accolade_wise_educator
+				cw_accolade_mentor_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				knight_limit = 2
+				learning = 2
+			}
+			accolade_parameters = {
+				accolade_train_commanders_bonus_high
+				accolade_wise_educator_high
+				cw_accolade_mentor_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				knight_limit = 2
+				learning = 2
+			}
+			accolade_parameters = {
+				accolade_train_commanders_bonus_high
+				accolade_wise_educator_high
+				cw_accolade_mentor_3
+			}
+		}
+	}
+}
+
+# Contender
+contender_attribute = {
+	
+	adjective = accolade_fearsome
+	noun = accolade_contender
+	accolade_categories = { skilled skill champion forceful warlike prowess }
+
+	potential = {
+		OR = {
+			prowess >= 20
+			has_trait_xp = {
+				trait = tourney_participant
+				track = bow
+				value >= 50
+			}
+			has_trait_xp = {
+				trait = tourney_participant
+				track = horse
+				value >= 50
+			}
+			has_trait_xp = {
+				trait = tourney_participant
+				track = foot
+				value >= 50
+			}
+			has_trait_xp = {
+				trait = tourney_participant
+				track = wit
+				value >= 50
+			}
+		}
+	}
+	
+	weight = {
+		# These are less interesting, so we weight them down for the AI.
+		value = accolade_standard_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Skills.
+			add = {
+				value = prowess
+				multiply = 10
+			}
+			# Culture.
+			## Bellicose ethos.
+			if = {
+				limit = {
+					culture ?= {
+						OR = {
+							has_cultural_pillar = ethos_bellicose
+							has_cultural_pillar = ethos_stoic
+						}
+					}
+				}
+				add = 200
+			}
+			## Era.
+			add = accolade_weighted_up_in_earlier_eras_value
+			# AI values.
+			add = {
+				value = ai_boldness
+				multiply = 1
+			}
+			add = {
+				value = ai_vengefulness
+				multiply = 0.5
+			}
+			add = {
+				value = ai_compassion
+				multiply = -0.5
+			}
+			# Traits.
+			## Additives.
+			### +++ Brave.
+			if = {
+				limit = { has_trait = brave }
+				add = @accolade_trait_additive_plus_3_value
+			}
+			### ++ Wrathful.
+			if = {
+				limit = { has_trait = wrathful }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### ++ Vengeful.
+			if = {
+				limit = { has_trait = vengeful }
+				add = @accolade_trait_additive_plus_2_value
+			}
+			### + Callous.
+			if = {
+				limit = { has_trait = callous }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### + Sadistic.
+			if = {
+				limit = { has_trait = sadistic }
+				add = @accolade_trait_additive_plus_1_value
+			}
+			### -- Forgiving.
+			if = {
+				limit = { has_trait = forgiving }
+				add = @accolade_trait_additive_minus_2_value
+			}
+			### --- Craven.
+			if = {
+				limit = { has_trait = craven }
+				add = @accolade_trait_additive_minus_3_value
+			}
+			## Factor 0s.
+			### Compassionate.
+			if = {
+				limit = { has_trait = compassionate }
+				multiply = 0
+			}
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			accolade_parameters = {
+				accolade_tournament_xp_gain_contender_only_low
+			}
+			liege_modifier = {
+				tourney_participant_xp_gain_mult = @tourney_participant_xp_mult_bonus_tier_1_value
+			}
+			accolade_parameters = {
+				cw_accolade_contender_1
+			}
+		}
+		# Rank 2
+		300 = {
+			accolade_parameters = {
+				accolade_tournament_xp_gain_contender_only_low
+			}
+			liege_modifier = {
+				tourney_participant_xp_gain_mult = @tourney_participant_xp_mult_bonus_tier_1_value
+			}
+			accolade_parameters = {
+				cw_accolade_contender_1
+			}
+		}
+		# Rank 3
+		600 = {
+			accolade_parameters = {
+				accolade_tournament_xp_gain_contender_only
+				accolade_tournament_xp_gain_all_knights
+			}
+			liege_modifier = {
+				tourney_participant_xp_gain_mult = @tourney_participant_xp_mult_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				cw_accolade_contender_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			accolade_parameters = {
+				accolade_tournament_xp_gain_contender_only
+				accolade_tournament_xp_gain_all_knights
+			}
+			liege_modifier = {
+				tourney_participant_xp_gain_mult = @tourney_participant_xp_mult_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				cw_accolade_contender_2
+			}
+
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				monthly_prestige_gain_per_knight_mult = 0.02
+				tourney_participant_xp_gain_mult = @tourney_participant_xp_mult_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				accolade_tournament_xp_gain_contender_only_high
+				accolade_tournament_xp_gain_all_knights_high
+				cw_accolade_contender_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				monthly_prestige_gain_per_knight_mult = 0.02
+				tourney_participant_xp_gain_mult = @tourney_participant_xp_mult_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				accolade_tournament_xp_gain_contender_only_high
+				accolade_tournament_xp_gain_all_knights_high
+				cw_accolade_contender_3
+			}
+		}
+	}
+}
+
+# Huntsmaster
+huntsmaster_attribute = {
+	
+	adjective = "accolade_hunt_leading"
+	noun = "accolade_huntsmaster"
+	accolade_categories = { eminent rare_traits prowess ranged_fighter activities hunting educator logistics subtle courtly leader equestrian }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		has_trait = lifestyle_hunter
+		scope:owner ?= {
+			culture = {
+				NOT = {
+					has_cultural_tradition = tradition_vegetarianism
+				}
+			}
+		}
+	}
+	
+	weight = {
+		# Should be a pretty common pick if you've bothered to unlock the legacy
+		value = accolade_fascinating_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		# culture
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_bush_hunting
+						has_cultural_tradition = tradition_hunters
+						has_cultural_tradition = tradition_sacred_hunts
+					}
+				}
+			}
+			add = 200
+		}
+		# traits
+		if = {
+			limit = {
+				hunt_lifestyle_track_greater_equal_trigger = { TRACK = hunter GREATER_EQUAL = 100 }
+			}
+			add = 200
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		scope:owner ?= {
+			# Culture
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_forest_fighters
+							has_cultural_tradition = tradition_jungle_warriors
+							has_cultural_tradition = tradition_land_of_the_bow
+						}
+					}
+				}
+				add = 200
+			}
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_bush_hunting
+							has_cultural_tradition = tradition_hunters
+							has_cultural_tradition = tradition_sacred_hunts
+						}
+					}
+				}
+				add = 400
+			}
+			# liege's interest in hunting
+			if = {
+				limit = {
+					OR = {
+						hunt_lifestyle_track_greater_equal_trigger = { TRACK = hunter GREATER_EQUAL = 20 }
+						has_trait = brave
+						has_trait = diligent
+					}
+				}
+				add = 200
+			}
+			## Factor 0s.
+			if = {
+				limit = {
+					OR = {
+						has_trait = craven
+						has_trait = lazy
+					}
+				}
+				multiply = 0
+			}
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			liege_modifier = {
+				trait_track_hunter_xp_gain_mult = @lifestyle_bonus_tier_1_value
+			}
+			accolade_parameters = { 
+			acclaimed_knight_trains_hunting 
+			cw_accolade_huntsmaster_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = {
+				trait_track_hunter_xp_gain_mult = @lifestyle_bonus_tier_1_value
+			}
+			accolade_parameters = { 
+			acclaimed_knight_trains_hunting 
+			cw_accolade_huntsmaster_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = {
+				trait_track_hunter_xp_gain_mult = @lifestyle_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_hunting
+				acclaimed_knight_reduces_hunting_danger
+				cw_accolade_huntsmaster_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = {
+				trait_track_hunter_xp_gain_mult = @lifestyle_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_hunting
+				acclaimed_knight_reduces_hunting_danger
+				cw_accolade_huntsmaster_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				trait_track_hunter_xp_gain_mult = @lifestyle_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_hunting
+				acclaimed_knight_reduces_hunting_danger_high
+				cw_accolade_huntsmaster_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				trait_track_hunter_xp_gain_mult = @lifestyle_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_hunting
+				acclaimed_knight_reduces_hunting_danger_high
+				cw_accolade_huntsmaster_3
+			}
+		}
+	}
+}
+
+# Blademaster
+blademaster_attribute = {
+	
+	adjective = "accolade_blade_besting"
+	noun = "accolade_blademaster"
+	accolade_categories = { eminent rare_traits prowess infantry educator army_bonus knights_bonus tournaments activities militant champion aggressive }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		has_trait = lifestyle_blademaster
+		has_trait_xp = {
+			trait = lifestyle_blademaster
+			value >= 100
+		}
+	}
+	
+	weight = {
+		# Should be a pretty common pick if you've bothered to unlock the legacy
+		value = accolade_fascinating_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		# culture
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_druzhina
+						has_cultural_tradition = tradition_futuwaa
+						has_cultural_tradition = tradition_khadga_puja
+						has_cultural_tradition = tradition_talent_acquisition
+						has_cultural_tradition = tradition_swords_for_hire
+						has_cultural_tradition = tradition_warriors_by_merit
+						has_cultural_tradition = tradition_only_the_strong
+						has_cultural_tradition = tradition_martial_admiration
+						has_cultural_tradition = tradition_fp1_trials_by_combat
+						has_cultural_tradition = tradition_chanson_de_geste
+					}
+				}
+			}
+			add = 200
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		scope:owner ?= {
+			# Culture
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_pillar = ethos_bellicose
+							has_cultural_pillar = ethos_stoic
+						}
+					}
+				}
+				add = 100
+			}
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_druzhina
+							has_cultural_tradition = tradition_futuwaa
+							has_cultural_tradition = tradition_khadga_puja
+							has_cultural_tradition = tradition_talent_acquisition
+							has_cultural_tradition = tradition_swords_for_hire
+							has_cultural_tradition = tradition_warriors_by_merit
+							has_cultural_tradition = tradition_only_the_strong
+							has_cultural_tradition = tradition_martial_admiration
+							has_cultural_tradition = tradition_fp1_trials_by_combat
+							has_cultural_tradition = tradition_chanson_de_geste
+						}
+					}
+				}
+				add = 400
+			}
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_fp1_performative_honour
+							has_cultural_tradition = tradition_chivalry
+							has_cultural_tradition = tradition_warrior_culture
+							has_cultural_tradition = tradition_fp1_the_right_to_prove
+							has_cultural_tradition = tradition_garuda_warriors
+						}
+					}
+				}
+				add = 200
+			}
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_strength_in_numbers
+							has_cultural_tradition = tradition_pacifism
+						}
+					}
+				}
+				add = -400
+			}
+			# liege's interest in fighting
+			if = {
+				limit = {
+					OR = {
+						has_trait = brave
+						has_trait = gallant
+						has_trait = arrogant
+					}
+				}
+				add = 200
+			}
+			## Factor 0s.
+			if = {
+				limit = {
+					OR = {
+						has_trait = craven
+						has_trait = lazy
+					}
+				}
+				multiply = 0
+			}
+		}
+	}
+	
+	ranks = { 
+		# Rank 1
+		100 = {
+			liege_modifier = {
+				trait_track_lifestyle_blademaster_xp_gain_mult = @lifestyle_bonus_tier_1_value
+			}
+			accolade_parameters = { 
+				acclaimed_knight_trains_swordfighting
+				accolade_increase_hostile_knight_death_low
+				cw_accolade_blademaster_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = {
+				trait_track_lifestyle_blademaster_xp_gain_mult = @lifestyle_bonus_tier_1_value
+			}
+			accolade_parameters = { 
+				acclaimed_knight_trains_swordfighting
+				accolade_increase_hostile_knight_death_low
+				cw_accolade_blademaster_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = {
+				trait_track_lifestyle_blademaster_xp_gain_mult = @lifestyle_bonus_tier_2_value
+				knight_effectiveness_mult = @knight_effectiveness_tier_1_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_swordfighting
+				accolade_increase_hostile_knight_death_medium
+				cw_accolade_blademaster_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = {
+				trait_track_lifestyle_blademaster_xp_gain_mult = @lifestyle_bonus_tier_2_value
+				knight_effectiveness_mult = @knight_effectiveness_tier_1_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_swordfighting
+				accolade_increase_hostile_knight_death_medium
+				cw_accolade_blademaster_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				trait_track_lifestyle_blademaster_xp_gain_mult = @lifestyle_bonus_tier_3_value
+				knight_effectiveness_mult = @knight_effectiveness_tier_2_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_swordfighting
+				acclaimed_knight_tournament_invite_acceptance_bonus
+				accolade_increase_hostile_knight_death_high
+				cw_accolade_blademaster_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				trait_track_lifestyle_blademaster_xp_gain_mult = @lifestyle_bonus_tier_3_value
+				knight_effectiveness_mult = @knight_effectiveness_tier_2_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_swordfighting
+				acclaimed_knight_tournament_invite_acceptance_bonus
+				accolade_increase_hostile_knight_death_high
+				cw_accolade_blademaster_3
+			}
+		}
+	}
+}
+
+# Reveller
+master_of_revels_attribute = {
+	
+	adjective = "accolade_revel_leading"
+	noun = "accolade_master_of_revels"
+	accolade_categories = { eminent rare_traits social diplomacy activities foreign_relations vassal_manager educator army_bonus prestige courtly leader subtle }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		has_trait = lifestyle_reveler
+	}
+	
+	weight = {
+		# Should be a pretty common pick if you've bothered to unlock the legacy
+		value = accolade_fascinating_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Faith
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = tenet_monasticism
+							has_doctrine = tenet_gnosticism
+							has_doctrine = tenet_mendicant_preachers
+						}
+					}
+				}
+				add = -100
+			}
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = tenet_natural_primitivism
+							has_doctrine = tenet_ritual_hospitality
+							has_doctrine = tenet_sun_worship
+						}
+					}
+				}
+				add = 100
+			}
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = tenet_ritual_celebrations
+							has_doctrine = tenet_hedonistic
+						}
+					}
+				}
+				add = 400
+			}
+			# Culture
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_pillar = ethos_courtly
+							has_cultural_pillar = ethos_egalitarian
+						}
+					}
+				}
+				add = 200
+			}
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_esteemed_hospitality
+							has_cultural_tradition = tradition_wedding_ceremonies
+							has_cultural_tradition = tradition_welcoming
+							has_cultural_tradition = tradition_music_theory
+						}
+					}
+				}
+				add = 200
+			}
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_festivities
+							has_cultural_tradition = tradition_culinary_art
+						}
+					}
+				}
+				add = 500
+			}
+			if = {
+				limit = {
+					culture = {
+						has_cultural_tradition = tradition_modest
+					}
+				}
+				add = -200
+			}
+			# liege's interest in hunting
+			if = {
+				limit = {
+					OR = {
+						has_trait = lifestyle_reveler
+						has_trait = gluttonous
+						has_trait = gregarious
+						has_trait = profligate
+						has_trait = lustful
+						has_trait = drunkard
+					}
+				}
+				add = 200
+			}
+		}
+		# knight culture
+		if = {
+			limit = {
+				culture = {
+					OR = {
+						has_cultural_tradition = tradition_festivities
+						has_cultural_tradition = tradition_music_theory
+						has_cultural_tradition = tradition_welcoming
+					}
+				}
+			}
+			add = 200
+		}
+		# traits
+		if = {
+			limit = {
+				OR = {
+					has_trait_xp = {
+						trait = lifestyle_reveler
+						value >= 100
+					}
+					has_trait = gregarious
+				}
+			}
+			add = 200
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		## Factor 0s.
+		scope:owner ?= {
+			#Faith
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = tenet_asceticism
+					}
+				}
+				multiply = 0
+			}
+			if = {
+				limit = {
+					OR = {
+						has_trait = temperate
+						has_trait = shy
+						has_trait = diligent
+					}
+				}
+				multiply = 0
+			}
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			liege_modifier = {
+				lifestyle_reveler_xp_gain_mult = @lifestyle_bonus_tier_1_value
+			}
+			accolade_parameters = { 
+			acclaimed_knight_trains_reveling 
+			cw_accolade_master_of_revels_1
+			}
+		}
+		# Rank 2
+		300 = {
+			liege_modifier = {
+				lifestyle_reveler_xp_gain_mult = @lifestyle_bonus_tier_1_value
+			}
+			accolade_parameters = { 
+			acclaimed_knight_trains_reveling 
+			cw_accolade_master_of_revels_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = {
+				lifestyle_reveler_xp_gain_mult = @lifestyle_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_reveling
+				acclaimed_knight_prestige_from_victory
+				cw_accolade_master_of_revels_2
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = {
+				lifestyle_reveler_xp_gain_mult = @lifestyle_bonus_tier_2_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_reveling
+				acclaimed_knight_prestige_from_victory
+				cw_accolade_master_of_revels_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = {
+				lifestyle_reveler_xp_gain_mult = @lifestyle_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_reveling
+				acclaimed_knight_feast_wedding_invite_acceptance_bonus
+				acclaimed_knight_prestige_from_victory_high
+				cw_accolade_master_of_revels_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = {
+				lifestyle_reveler_xp_gain_mult = @lifestyle_bonus_tier_3_value
+			}
+			accolade_parameters = {
+				acclaimed_knight_trains_reveling
+				acclaimed_knight_feast_wedding_invite_acceptance_bonus
+				acclaimed_knight_prestige_from_victory_high
+				cw_accolade_master_of_revels_3
+			}
+		}
+	}
+}
+
+# House Knight
+house_knight_attribute = {
+	
+	adjective = "accolade_house"
+	noun = "accolade_house_knight"
+	accolade_categories = { eminent relationship dynasty educator defensive champion }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		exists = house
+		house = liege.house
+		NOT = {
+			has_trait = denounced
+		}
+		dynasty = {
+			has_dynasty_perk = kin_legacy_4
+		}
+	}
+	
+	weight = {
+		# Should be a pretty common pick if you've bothered to unlock the legacy
+		value = accolade_standard_base_value
+		# Scope over to the liege to see if they even want this accolade.
+		scope:owner ?= {
+			# Culture
+			if = {
+				limit = {
+					culture = { has_cultural_pillar = ethos_communal }
+				}
+				add = 100
+			}
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_tradition = tradition_family_entrepreneurship
+							has_cultural_tradition = tradition_tribe_unity
+							has_cultural_tradition = tradition_mystical_ancestors
+							has_cultural_tradition = tradition_strong_kinship
+						}
+					}
+				}
+				add = 200
+			}
+			# Faith
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = tenet_divine_marriage
+					}
+				}
+				add = 100
+			}
+			# family problems
+			if = {
+				limit = {
+					OR = {
+						has_trait = kinslayer_1
+						has_trait = kinslayer_2
+						has_trait = kinslayer_3
+						has_trait = disinherited
+					}
+				}
+				add = -200
+			}
+		}
+		# good blood
+		if = {
+			limit = {
+				OR = {
+					has_trait = consecrated_blood
+					has_trait = divine_blood
+					has_trait = sayyid
+					has_trait = saoshyant_descendant
+					has_trait = pure_blooded
+				}
+			}
+			add = 200
+		}
+		# bad blood
+		if = {
+			limit = {
+				OR = {
+					has_trait = scaly
+					has_trait = clubfooted
+					has_trait = dwarf
+					has_trait = hunchbacked
+					has_trait = spindly
+					has_trait = physique_bad
+					has_trait = beauty_bad
+					has_trait = intellect_bad
+				}
+			}
+			add = -200
+		}
+		# Finally, weight for opinion.
+		if = {
+			limit = {
+				exists = liege
+			}
+			multiply = accolade_opinion_multiplier_value
+		}
+		scope:owner ?= {
+			## Factor 0s.
+			if = {
+				limit = { has_trait = denounced }
+				multiply = 0
+			}
+		}
+	}
+	
+	ranks = {
+		# Rank 1
+		100 = {
+			accolade_parameters = {
+				accolade_defends_family_low
+				cw_accolade_house_paragon_1
+			}
+		}
+		# Rank 2
+		300 = {
+			accolade_parameters = {
+				accolade_defends_family_low
+				cw_accolade_house_paragon_1
+			}
+		}
+		# Rank 3
+		600 = {
+			liege_modifier = { monthly_dynasty_prestige_mult = 0.05 }
+			accolade_parameters = { 
+			acclaimed_knight_inspires_family accolade_defends_family_medium 
+			cw_accolade_house_paragon_2		
+			}
+		}
+		# Rank 4
+		1000 = {
+			liege_modifier = { monthly_dynasty_prestige_mult = 0.05 }
+			accolade_parameters = { 
+			acclaimed_knight_inspires_family accolade_defends_family_medium 
+			cw_accolade_house_paragon_2
+			}
+		}
+		# Rank 5
+		1500 = {
+			liege_modifier = { monthly_dynasty_prestige_mult = 0.15 }
+			accolade_parameters = { 
+			acclaimed_knight_inspires_family_high accolade_defends_family_high 
+			cw_accolade_house_paragon_3
+			}
+		}
+		# Rank 6
+		2100 = {
+			liege_modifier = { monthly_dynasty_prestige_mult = 0.15 }
+			accolade_parameters = { 
+			acclaimed_knight_inspires_family_high accolade_defends_family_high 
+			cw_accolade_house_paragon_3
+			}
+		}
+	}
+}
+
+
+# Archer
+archer_attribute = {
+	
+	adjective = accolade_bow_leading
+	noun = accolade_archer
+	accolade_categories = { men_at_arms army_bonus militant leader subtle ranged_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = bow
+				value >= 20
+			}
+			has_trait = forest_fighter
+		}
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type
+			if = {
+				limit = {
+					number_maa_regiments_of_base_type = {
+						type = archers
+						value >= 1
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archers
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archers
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archers
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archers
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_brythonic
+								has_cultural_pillar = heritage_east_african
+								has_cultural_pillar = heritage_indo_aryan
+								has_cultural_pillar = heritage_dravidian
+								has_cultural_pillar = heritage_burman
+								has_cultural_pillar = heritage_yoruba
+								has_cultural_pillar = heritage_baltic
+								has_cultural_pillar = heritage_balto_finnic
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_central_germanic
+								has_cultural_pillar = heritage_frankish
+							}
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				## Era.
+				add = accolade_weighted_up_in_earlier_eras_value
+				# AI values.
+				add = {
+					value = ai_rationality
+					multiply = 0.5
+				}
+				add = {
+					value = ai_honor
+					multiply = -0.5
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				archers_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_1
+				archers_toughness_mult = @accolade_maa_toughness_1 
+			}
+			accolade_parameters = {
+				cw_accolade_archer_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				archers_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_1 
+				archers_toughness_mult = @accolade_maa_toughness_1
+			}
+			accolade_parameters = {
+				cw_accolade_archer_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				archers_maintenance_mult = @accolade_maa_maint_2
+				archers_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_4
+				archers_toughness_mult = @accolade_maa_toughness_2 
+
+			}
+			accolade_parameters = {
+				cw_accolade_archer_2
+			}
+			men_at_arms = { accolade_maa_archers }
+		}
+		1000 = {
+			liege_modifier = { 
+				archers_maintenance_mult = @accolade_maa_maint_2
+				archers_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_4
+				archers_toughness_mult = @accolade_maa_toughness_2
+			}
+			accolade_parameters = {
+				cw_accolade_archer_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				archers_maintenance_mult = @accolade_maa_maint_4
+				archers_max_size_add = @number_maa_regiments_increment_4
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_6
+				archers_toughness_mult = @accolade_maa_toughness_3
+			}
+			accolade_parameters = {
+				cw_accolade_archer_3
+			}
+			men_at_arms = { accolade_maa_archers }
+		}
+		2100 = {
+			liege_modifier = { 
+				archers_maintenance_mult = @accolade_maa_maint_4
+				archers_max_size_add = @number_maa_regiments_increment_4
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_6
+				archers_toughness_mult = @accolade_maa_toughness_3
+			}
+			accolade_parameters = {
+				cw_accolade_archer_3
+			}
+		}
+	}
+}
+
+# Skirmisher
+skirmisher_attribute = {
+	
+	adjective = accolade_skirmishing
+	noun = accolade_skirmisher
+	accolade_categories = { men_at_arms army_bonus militant champion subtle ranged_fighter infantry }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = bow
+				value >= 20
+			}
+			has_trait_xp = {
+				trait = tourney_participant
+				track = foot
+				value >= 20
+			}
+			has_trait = winter_soldier
+			has_trait = jungle_stalker
+		}
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type
+			if = {
+				limit = {
+					number_maa_regiments_of_base_type = {
+						type = skirmishers
+						value >= 1
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = skirmishers
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = skirmishers
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = skirmishers
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = skirmishers
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_baltic
+								has_cultural_pillar = heritage_ugro_permian
+								has_cultural_pillar = heritage_balto_finnic
+								has_cultural_pillar = heritage_somalian
+								has_cultural_pillar = heritage_west_african
+								has_cultural_pillar = heritage_goidelic
+								has_cultural_pillar = heritage_brythonic
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_central_germanic
+								has_cultural_pillar = heritage_frankish
+								has_cultural_pillar = heritage_latin
+								has_cultural_pillar = heritage_byzantine
+							}
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				## Era.
+				### Let's uhh... let's not weight this up.
+				# AI values.
+				add = {
+					value = ai_boldness
+					multiply = 0.5
+				}
+				add = {
+					value = ai_honor
+					multiply = 0.5
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				skirmishers_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				skirmishers_damage_mult = @accolade_maa_damage_1
+				skirmishers_toughness_mult = @accolade_maa_toughness_1
+				skirmishers_screen_mult = @accolade_maa_screen_1
+				winter_movement_speed = @skirmisher_attr_winter_movement_speed_1 
+			}
+			accolade_parameters = {
+				cw_accolade_skirmisher_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				skirmishers_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				skirmishers_damage_mult = @accolade_maa_damage_1 
+				skirmishers_toughness_mult = @accolade_maa_toughness_1
+				skirmishers_screen_mult = @accolade_maa_screen_1
+				winter_movement_speed = @skirmisher_attr_winter_movement_speed_1
+			}
+			accolade_parameters = {
+				cw_accolade_skirmisher_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				skirmishers_maintenance_mult = @accolade_maa_maint_2
+				skirmishers_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				skirmishers_damage_mult = @accolade_maa_damage_4
+				skirmishers_toughness_mult = @accolade_maa_toughness_2
+				skirmishers_screen_mult = @accolade_maa_screen_3
+				winter_movement_speed = @skirmisher_attr_winter_movement_speed_2 
+			}
+			accolade_parameters = {
+				cw_accolade_skirmisher_2
+			}
+			men_at_arms = { accolade_maa_skirmishers }
+		}
+		1000 = {
+			liege_modifier = { 
+				skirmishers_maintenance_mult = @accolade_maa_maint_2
+				skirmishers_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				skirmishers_damage_mult = @accolade_maa_damage_4
+				skirmishers_toughness_mult = @accolade_maa_toughness_2
+				skirmishers_screen_mult = @accolade_maa_screen_3
+				winter_movement_speed = @skirmisher_attr_winter_movement_speed_2
+			}
+			accolade_parameters = {
+				cw_accolade_skirmisher_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				skirmishers_maintenance_mult = @accolade_maa_maint_4
+				skirmishers_max_size_add = @number_maa_regiments_increment_4
+			}
+			knight_army_modifier = { 
+				skirmishers_damage_mult = @accolade_maa_damage_6
+				skirmishers_toughness_mult = @accolade_maa_toughness_3
+				skirmishers_screen_mult = @accolade_maa_screen_5
+				winter_movement_speed = @skirmisher_attr_winter_movement_speed_3
+			}
+			accolade_parameters = {
+				cw_accolade_skirmisher_3
+			}
+			men_at_arms = { accolade_maa_skirmishers }
+		}
+		2100 = {
+			liege_modifier = { 
+				skirmishers_maintenance_mult = @accolade_maa_maint_4
+				skirmishers_max_size_add = @number_maa_regiments_increment_4
+			}
+			knight_army_modifier = { 
+				skirmishers_damage_mult = @accolade_maa_damage_6
+				skirmishers_toughness_mult = @accolade_maa_toughness_3
+				skirmishers_screen_mult = @accolade_maa_screen_5
+				winter_movement_speed = @skirmisher_attr_winter_movement_speed_3
+			}
+			accolade_parameters = {
+				cw_accolade_skirmisher_3
+			}
+		}
+	}
+}
+
+# Pike Captain
+pike_attribute = {
+	
+	# We can't say "Piking" due to two notable places:
+	## Sigil
+	## Britain
+	### All angles covered, folks.
+	adjective = accolade_pike_leading
+	noun = accolade_pike_captain
+	accolade_categories = { men_at_arms army_bonus militant leader defensive forceful infantry }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = foot
+				value >= 20
+			}
+			has_trait = rough_terrain_expert
+		}
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type
+			if = {
+				limit = {
+					number_maa_regiments_of_base_type = {
+						type = pikemen
+						value >= 1
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = pikemen
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = pikemen
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = pikemen
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = pikemen
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_central_germanic
+								has_cultural_pillar = heritage_latin
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_iranian
+								has_cultural_pillar = heritage_mongolic
+								has_cultural_pillar = heritage_turkic
+								has_cultural_pillar = heritage_berber
+							}
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				## Era.
+				### No specific era preference.
+				# AI values.
+				add = {
+					value = ai_rationality
+					multiply = 0.5
+				}
+				add = {
+					value = ai_honor
+					multiply = 0.5
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				pikemen_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				pikemen_damage_mult = @accolade_maa_damage_1
+				pikemen_toughness_mult = @accolade_maa_toughness_1 
+			}
+			accolade_parameters = {
+				cw_accolade_pike_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				pikemen_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				pikemen_damage_mult = @accolade_maa_damage_1 
+				pikemen_toughness_mult = @accolade_maa_toughness_1
+			}
+			accolade_parameters = {
+				cw_accolade_pike_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				pikemen_maintenance_mult = @accolade_maa_maint_1
+				pikemen_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				pikemen_damage_mult = @accolade_maa_damage_3
+				pikemen_toughness_mult = @accolade_maa_toughness_4
+			}
+			accolade_parameters = {
+				cw_accolade_pike_2
+			}
+			men_at_arms = { accolade_maa_pikes }
+		}
+		1000 = {
+			liege_modifier = { 
+				pikemen_maintenance_mult = @accolade_maa_maint_1
+				pikemen_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				pikemen_damage_mult = @accolade_maa_damage_3
+				pikemen_toughness_mult = @accolade_maa_toughness_4
+			}
+			accolade_parameters = {
+				cw_accolade_pike_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				pikemen_maintenance_mult = @accolade_maa_maint_3
+				pikemen_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				pikemen_damage_mult = @accolade_maa_damage_5
+				pikemen_toughness_mult = @accolade_maa_toughness_6
+			}
+			accolade_parameters = {
+				cw_accolade_pike_3
+			}
+			men_at_arms = { accolade_maa_pikes }
+		}
+		2100 = {
+			liege_modifier = { 
+				pikemen_maintenance_mult = @accolade_maa_maint_3
+				pikemen_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				pikemen_damage_mult = @accolade_maa_damage_5
+				pikemen_toughness_mult = @accolade_maa_toughness_6
+			}
+			accolade_parameters = {
+				cw_accolade_pike_3
+			}
+		}
+	}
+}
+
+# Outrider
+outrider_attribute = {
+	
+	adjective = accolade_outriding
+	noun = accolade_outrider
+	accolade_categories = { men_at_arms army_bonus militant equestrian subtle champion aggressive cavalry light_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = horse
+				value >= 20
+			}
+			has_trait = open_terrain_expert
+		}
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type
+			if = {
+				limit = {
+					number_maa_regiments_of_base_type = {
+						type = light_cavalry
+						value >= 1
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = light_cavalry
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = light_cavalry
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = light_cavalry
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = light_cavalry
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_iranian
+								has_cultural_pillar = heritage_turkic
+								has_cultural_pillar = heritage_mongolic
+								has_cultural_pillar = heritage_arabic
+								has_cultural_pillar = heritage_berber
+								has_cultural_pillar = heritage_iberian
+								has_cultural_pillar = heritage_indo_aryan
+								has_cultural_pillar = heritage_magyar
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_central_germanic
+								has_cultural_pillar = heritage_tibetan
+								has_cultural_pillar = heritage_baltic
+								has_cultural_pillar = heritage_burman
+								has_cultural_pillar = heritage_somalian
+							}
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				## Era.
+				### No specific era preference.
+				# AI values.
+				add = {
+					value = 1
+					multiply = ai_boldness
+				}
+				add = {
+					value = ai_energy
+					multiply = 1
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				light_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				light_cavalry_damage_mult = @accolade_maa_damage_1
+				light_cavalry_toughness_mult = @accolade_maa_toughness_1 
+				light_cavalry_pursuit_mult = @accolade_maa_pursuit_1
+				movement_speed = @outrider_attr_movement_speed_1
+			}
+			accolade_parameters = {
+				cw_accolade_outrider_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				light_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				light_cavalry_damage_mult = @accolade_maa_damage_1 
+				light_cavalry_toughness_mult = @accolade_maa_toughness_1
+				light_cavalry_pursuit_mult = @accolade_maa_pursuit_1
+				movement_speed = @outrider_attr_movement_speed_1
+			}
+			accolade_parameters = {
+				cw_accolade_outrider_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				light_cavalry_maintenance_mult = @accolade_maa_maint_1
+				light_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				light_cavalry_damage_mult = @accolade_maa_damage_4
+				light_cavalry_toughness_mult = @accolade_maa_toughness_2
+				light_cavalry_pursuit_mult = @accolade_maa_pursuit_2
+				movement_speed = @outrider_attr_movement_speed_2 
+			}
+			accolade_parameters = {
+				cw_accolade_outrider_2
+			}
+			men_at_arms = { accolade_maa_outriders }
+		}
+		1000 = {
+			liege_modifier = { 
+				light_cavalry_maintenance_mult = @accolade_maa_maint_1
+				light_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				light_cavalry_damage_mult = @accolade_maa_damage_4
+				light_cavalry_toughness_mult = @accolade_maa_toughness_2
+				light_cavalry_pursuit_mult = @accolade_maa_pursuit_2
+				movement_speed = @outrider_attr_movement_speed_2 
+			}
+			accolade_parameters = {
+				cw_accolade_outrider_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				light_cavalry_maintenance_mult = @accolade_maa_maint_3
+				light_cavalry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				light_cavalry_damage_mult = @accolade_maa_damage_6
+				light_cavalry_toughness_mult = @accolade_maa_toughness_3
+				light_cavalry_pursuit_mult = @accolade_maa_pursuit_4
+				movement_speed = @outrider_attr_movement_speed_3 
+			}
+			accolade_parameters = {
+				cw_accolade_outrider_3
+			}
+			men_at_arms = { accolade_maa_outriders }
+		}
+		2100 = {
+			liege_modifier = { 
+				light_cavalry_maintenance_mult = @accolade_maa_maint_3
+				light_cavalry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				light_cavalry_damage_mult = @accolade_maa_damage_6
+				light_cavalry_toughness_mult = @accolade_maa_toughness_3
+				light_cavalry_pursuit_mult = @accolade_maa_pursuit_4
+				movement_speed = @outrider_attr_movement_speed_3
+			}
+			accolade_parameters = {
+				cw_accolade_outrider_3
+			}
+		}
+	}
+}
+
+# Vanguard
+vanguard_attribute = {
+	
+	adjective = accolade_vanguard
+	noun = accolade_vanguard
+	accolade_categories = { men_at_arms army_bonus militant forceful aggressive defensive infantry heavy_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		# Has the MaA unlocked.
+		
+		OR = {
+			has_trait = strong
+			has_trait = athletic
+			has_trait = physique_good
+			has_trait_xp = {
+				trait = tourney_participant
+				track = foot
+				value >= 20
+			}
+		}
+		culture ?= {
+			OR = {
+				has_innovation = innovation_quilted_armor
+				has_cultural_tradition = tradition_fp1_coastal_warriors
+				has_cultural_tradition = tradition_hird
+				has_cultural_tradition = tradition_futuwaa
+				has_cultural_tradition = tradition_druzhina
+				has_cultural_tradition = tradition_khadga_puja
+				has_cultural_tradition = tradition_garuda_warriors
+				has_cultural_tradition = tradition_himalayan_settlers
+				has_cultural_tradition = tradition_mubarizuns
+				has_cultural_tradition = tradition_burman_royal_army
+				has_cultural_tradition = tradition_mountaineer_ruralism
+				has_innovation = innovation_sarawit
+				has_innovation = innovation_legionnaires
+			}
+		}
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type OR if the maa type is exciting and foreign
+			if = {
+				limit = {
+					OR = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_infantry
+							value >= 1
+						}
+						NOT = {
+							culture ?= { has_innovation = innovation_quilted_armor }
+						}
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_infantry
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_infantry
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_infantry
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_infantry
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_central_germanic
+								has_cultural_pillar = heritage_north_germanic
+								has_cultural_pillar = heritage_west_germanic
+								has_cultural_pillar = heritage_east_slavic
+								has_cultural_pillar = heritage_burman
+								has_cultural_pillar = heritage_qiangic
+								has_cultural_pillar = heritage_tibetan
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_mongolic
+								has_cultural_pillar = heritage_turkic
+								has_cultural_pillar = heritage_berber
+							}
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				## Era.
+				### No specific era preference.
+				# AI values.
+				add = {
+					value = ai_boldness
+					multiply = 1
+				}
+				add = {
+					value = ai_honor
+					multiply = 1
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				heavy_infantry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				heavy_infantry_damage_mult = @accolade_maa_damage_1
+				heavy_infantry_toughness_mult = @accolade_maa_toughness_1 
+			}
+			accolade_parameters = {
+				cw_accolade_vanguard_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				heavy_infantry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				heavy_infantry_damage_mult = @accolade_maa_damage_1 
+				heavy_infantry_toughness_mult = @accolade_maa_toughness_1
+			}
+			accolade_parameters = {
+				cw_accolade_vanguard_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				heavy_infantry_maintenance_mult = @accolade_maa_maint_1
+				heavy_infantry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				heavy_infantry_damage_mult = @accolade_maa_damage_4
+				heavy_infantry_toughness_mult = @accolade_maa_toughness_2
+			}
+			accolade_parameters = {
+				cw_accolade_vanguard_2
+			}
+			men_at_arms = { accolade_maa_vanguards }
+		}
+		1000 = {
+			liege_modifier = { 
+				heavy_infantry_maintenance_mult = @accolade_maa_maint_1
+				heavy_infantry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				heavy_infantry_damage_mult = @accolade_maa_damage_4
+				heavy_infantry_toughness_mult = @accolade_maa_toughness_2
+			}
+			accolade_parameters = {
+				cw_accolade_vanguard_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				heavy_infantry_maintenance_mult = @accolade_maa_maint_3
+				heavy_infantry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				heavy_infantry_damage_mult = @accolade_maa_damage_6
+				heavy_infantry_toughness_mult = @accolade_maa_toughness_3
+			}
+			accolade_parameters = {
+				cw_accolade_vanguard_3
+			}
+			men_at_arms = { accolade_maa_vanguards }
+		}
+		2100 = {
+			liege_modifier = { 
+				heavy_infantry_maintenance_mult = @accolade_maa_maint_3
+				heavy_infantry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				heavy_infantry_damage_mult = @accolade_maa_damage_6
+				heavy_infantry_toughness_mult = @accolade_maa_toughness_3
+			}
+			accolade_parameters = {
+				cw_accolade_vanguard_3
+			}
+		}
+	}
+}
+
+# Lancer
+lancer_attribute = {
+	
+	adjective = accolade_lancer
+	noun = accolade_lancer
+	accolade_categories = { men_at_arms army_bonus militant forceful aggressive equestrian cavalry heavy_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = horse
+				value >= 20
+			}
+			has_trait = aggressive_attacker
+		}
+		culture ?= {
+			OR = {
+				has_innovation = innovation_arched_saddle
+				has_cultural_tradition = tradition_caucasian_wolves
+				has_cultural_tradition = tradition_roman_legacy
+				has_innovation = innovation_valets
+			}
+		}
+	}
+
+	weight = {
+		value = accolade_fascinating_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type OR if the maa type is exciting and foreign
+			if = {
+				limit = {
+					OR = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_cavalry
+							value >= 1
+						}
+						NOT = {
+							culture ?= { has_innovation = innovation_arched_saddle }
+						}
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_cavalry
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_cavalry
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_cavalry
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = heavy_cavalry
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Era.
+				add = accolade_weighted_up_in_later_eras_value
+				# AI values.
+				add = {
+					value = ai_boldness
+					multiply = 1
+				}
+				add = {
+					value = ai_energy
+					multiply = 1
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_iranian
+								has_cultural_pillar = heritage_turkic
+								has_cultural_pillar = heritage_mongolic
+								has_cultural_pillar = heritage_central_germanic
+								has_cultural_pillar = heritage_frankish
+								has_cultural_pillar = heritage_indo_aryan
+								has_cultural_pillar = heritage_byzantine
+
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_tibetan
+								has_cultural_pillar = heritage_baltic
+								has_cultural_pillar = heritage_south_slavic
+								has_cultural_pillar = heritage_sahelian
+								has_cultural_pillar = heritage_senegambian
+								has_cultural_pillar = heritage_west_african
+								has_cultural_pillar = heritage_yoruba
+								has_cultural_pillar = heritage_somalian
+								has_cultural_pillar = heritage_east_african
+								has_cultural_pillar = heritage_burman
+							}
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				# lots of knights were preeeeetty into being heavy cavalry
+				add = 100
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				heavy_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				heavy_cavalry_damage_mult = @accolade_maa_damage_1
+				heavy_cavalry_toughness_mult = @accolade_maa_toughness_1 
+			}
+			accolade_parameters = {
+				cw_accolade_lancer_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				heavy_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				heavy_cavalry_damage_mult = @accolade_maa_damage_1 
+				heavy_cavalry_toughness_mult = @accolade_maa_toughness_1
+			}
+			accolade_parameters = {
+				cw_accolade_lancer_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				heavy_cavalry_maintenance_mult = @accolade_maa_maint_1
+				heavy_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				heavy_cavalry_damage_mult = @accolade_maa_damage_4
+				heavy_cavalry_toughness_mult = @accolade_maa_toughness_2
+			}
+			accolade_parameters = {
+				cw_accolade_lancer_2
+			}
+			men_at_arms = { accolade_maa_lancers }
+		}
+		1000 = {
+			liege_modifier = { 
+				heavy_cavalry_maintenance_mult = @accolade_maa_maint_1
+				heavy_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				heavy_cavalry_damage_mult = @accolade_maa_damage_4
+				heavy_cavalry_toughness_mult = @accolade_maa_toughness_2
+			}
+			accolade_parameters = {
+				cw_accolade_lancer_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				heavy_cavalry_maintenance_mult = @accolade_maa_maint_3
+				heavy_cavalry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				heavy_cavalry_damage_mult = @accolade_maa_damage_6
+				heavy_cavalry_toughness_mult = @accolade_maa_toughness_3
+			}
+			accolade_parameters = {
+				cw_accolade_lancer_3
+			}
+			men_at_arms = { accolade_maa_lancers }
+		}
+		2100 = {
+			liege_modifier = { 
+				heavy_cavalry_maintenance_mult = @accolade_maa_maint_3
+				heavy_cavalry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				heavy_cavalry_damage_mult = @accolade_maa_damage_6
+				heavy_cavalry_toughness_mult = @accolade_maa_toughness_3
+			}
+			accolade_parameters = {
+				cw_accolade_lancer_3
+			}
+		}
+	}
+}
+
+# Crossbowmen
+crossbowmen_attribute = {
+	
+	adjective = accolade_crossbow_leading
+	noun = accolade_crossbow_captain
+	accolade_categories = { men_at_arms army_bonus militant defensive leader subtle ranged_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = bow
+				value >= 20
+			}
+			has_trait = cautious_leader
+		}
+		culture ?= {
+			OR = {
+				has_innovation = innovation_advanced_bowmaking
+				has_innovation = innovation_repeating_crossbow
+			}
+		}
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type OR if the maa type is exciting and foreign
+			if = {
+				limit = {
+					OR = {
+						number_maa_regiments_of_type = {
+							type = crossbowmen
+							value >= 1
+						}
+						number_maa_regiments_of_type = {
+							type = chu_ko_nu
+							value >= 1
+						}
+						number_maa_regiments_of_type = {
+							type = accolade_maa_crossbowers
+							value >= 1
+						}
+					}
+					NOT = {
+						culture ?= { has_innovation = innovation_advanced_bowmaking }
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						OR = {
+							number_maa_regiments_of_type = {
+								type = crossbowmen
+								value >= @number_maa_regiments_increment_1
+							}
+							number_maa_regiments_of_type = {
+								type = chu_ko_nu
+								value >= @number_maa_regiments_increment_1
+							}
+							number_maa_regiments_of_type = {
+								type = accolade_maa_crossbowers
+								value >= @number_maa_regiments_increment_1
+							}
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						OR = {
+							number_maa_regiments_of_type = {
+								type = crossbowmen
+								value >= @number_maa_regiments_increment_2
+							}
+							number_maa_regiments_of_type = {
+								type = chu_ko_nu
+								value >= @number_maa_regiments_increment_2
+							}
+							number_maa_regiments_of_type = {
+								type = accolade_maa_crossbowers
+								value >= @number_maa_regiments_increment_2
+							}
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						OR = {
+							number_maa_regiments_of_type = {
+								type = crossbowmen
+								value >= @number_maa_regiments_increment_3
+							}
+							number_maa_regiments_of_type = {
+								type = chu_ko_nu
+								value >= @number_maa_regiments_increment_3
+							}
+							number_maa_regiments_of_type = {
+								type = accolade_maa_crossbowers
+								value >= @number_maa_regiments_increment_3
+							}
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						OR = {
+							number_maa_regiments_of_type = {
+								type = crossbowmen
+								value >= @number_maa_regiments_increment_4
+							}
+							number_maa_regiments_of_type = {
+								type = chu_ko_nu
+								value >= @number_maa_regiments_increment_4
+							}
+							number_maa_regiments_of_type = {
+								type = accolade_maa_crossbowers
+								value >= @number_maa_regiments_increment_4
+							}
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				#Culture
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_chinese
+								has_cultural_pillar = heritage_latin
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							has_cultural_pillar = heritage_west_germanic
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				## Era.
+				add = accolade_weighted_up_in_later_eras_value
+				# AI values.
+				add = {
+					value = ai_rationality
+					multiply = 0.75
+				}
+				add = {
+					value = ai_honor
+					multiply = -0.5
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+		ranks = {
+		100 = {
+			liege_modifier = { 
+				archers_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_1
+				archers_toughness_mult = @accolade_maa_toughness_1 
+			}
+			accolade_parameters = { 
+			accolade_increase_hostile_knight_death_low 
+			cw_accolade_crossbowmen_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				archers_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_1 
+				archers_toughness_mult = @accolade_maa_toughness_1
+			}
+			accolade_parameters = { 
+			accolade_increase_hostile_knight_death_low 
+			cw_accolade_crossbowmen_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				archers_maintenance_mult = @accolade_maa_maint_2
+				archers_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_4
+				archers_toughness_mult = @accolade_maa_toughness_2
+			}
+			men_at_arms = { accolade_maa_crossbowers }
+			accolade_parameters = { 
+			accolade_increase_hostile_knight_death_medium 
+			cw_accolade_crossbowmen_2
+			}
+		}
+		1000 = {
+			liege_modifier = { 
+				archers_maintenance_mult = @accolade_maa_maint_2
+				archers_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_4
+				archers_toughness_mult = @accolade_maa_toughness_2
+			}
+			accolade_parameters = { 
+			accolade_increase_hostile_knight_death_medium 
+			cw_accolade_crossbowmen_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				archers_maintenance_mult = @accolade_maa_maint_4
+				archers_max_size_add = @number_maa_regiments_increment_4
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_6
+				archers_toughness_mult = @accolade_maa_toughness_3
+			}
+			men_at_arms = { accolade_maa_crossbowers }
+			accolade_parameters = { 
+			accolade_increase_hostile_knight_death_high 
+			cw_accolade_crossbowmen_3
+			}
+		}
+		2100 = {
+			liege_modifier = { 
+				archers_maintenance_mult = @accolade_maa_maint_4
+				archers_max_size_add = @number_maa_regiments_increment_4
+			}
+			knight_army_modifier = { 
+				archers_damage_mult = @accolade_maa_damage_6
+				archers_toughness_mult = @accolade_maa_toughness_3
+			}
+			accolade_parameters = { 
+			accolade_increase_hostile_knight_death_high 
+			cw_accolade_crossbowmen_3
+			}
+		}
+	}
+}
+
+# Besieger
+besieger_attribute = {
+	
+	adjective = accolade_besieging
+	noun = accolade_besieger
+	accolade_categories = { men_at_arms army_bonus militant aggressive subtle leader ranged_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait = military_engineer
+			has_trait = logistician
+		}
+		culture ?= { has_innovation = innovation_mangonel }
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type
+			if = {
+				limit = {
+					number_maa_regiments_of_base_type = {
+						type = siege_weapon
+						value >= 1
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = siege_weapon
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = siege_weapon
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = siege_weapon
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = siege_weapon
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Era.
+				add = accolade_weighted_up_in_later_eras_value
+				# AI values.
+				add = {
+					value = ai_rationality
+					multiply = 1
+				}
+				add = {
+					value = ai_vengefulness
+					multiply = 0.5
+				}
+				if = {
+					limit = {
+						root.culture ?= {
+							NOT = { has_cultural_era_or_later = culture_era_early_medieval }
+						}
+					}
+					add = @disinterested_culture_for_maa_type_value
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		# Siege equipment, we want to just let you get real crazy with it, so you can have more and more and more siege equipment. Simultaneously, a sieging knight'll help you to bring places down faster.
+		100 = {
+			liege_modifier = { siege_weapon_max_size_add = @besieger_attr_siege_weapon_max_size_1 }
+			knight_army_modifier = {
+				siege_phase_time = @besieger_attr_siege_phase_time_1
+				siege_morale_loss = @besieger_attr_siege_mortal_loss_1
+			}
+			accolade_parameters = {
+				cw_accolade_besieger_1
+			}
+		}
+		300 = {
+			liege_modifier = { siege_weapon_max_size_add = @besieger_attr_siege_weapon_max_size_1 }
+			knight_army_modifier = {
+				siege_phase_time = @besieger_attr_siege_phase_time_1
+				siege_morale_loss = @besieger_attr_siege_mortal_loss_1
+			}
+			accolade_parameters = {
+				cw_accolade_besieger_1
+			}
+		}
+		600 = {
+			liege_modifier = { siege_weapon_max_size_add = @besieger_attr_siege_weapon_max_size_2 }
+			knight_army_modifier = {
+				siege_phase_time = @besieger_attr_siege_phase_time_2
+				siege_morale_loss = @besieger_attr_siege_mortal_loss_2
+			}
+			accolade_parameters = {
+				cw_accolade_besieger_2
+			}
+		}
+		1000 = {
+			liege_modifier = { siege_weapon_max_size_add = @besieger_attr_siege_weapon_max_size_2 }
+			knight_army_modifier = {
+				siege_phase_time = @besieger_attr_siege_phase_time_2
+				siege_morale_loss = @besieger_attr_siege_mortal_loss_2
+			}
+			accolade_parameters = {
+				cw_accolade_besieger_2
+			}
+		}
+		1500 = {
+			liege_modifier = { siege_weapon_max_size_add = @besieger_attr_siege_weapon_max_size_3 }
+			knight_army_modifier = {
+				siege_phase_time = @besieger_attr_siege_phase_time_3
+				siege_morale_loss = @besieger_attr_siege_mortal_loss_3
+			}
+			accolade_parameters = {
+				cw_accolade_besieger_3
+			}
+		}
+		2100 = {
+			liege_modifier = { siege_weapon_max_size_add = @besieger_attr_siege_weapon_max_size_3 }
+			knight_army_modifier = {
+				siege_phase_time = @besieger_attr_siege_phase_time_3
+				siege_morale_loss = @besieger_attr_siege_mortal_loss_3
+			}
+			accolade_parameters = {
+				cw_accolade_besieger_3
+			}
+		}
+	}
+}
+
+# Camel Rider
+camelry_attribute = {
+	
+	adjective = accolade_camel_riding
+	noun = accolade_camelier
+	accolade_categories = { men_at_arms army_bonus militant aggressive defensive cavalry light_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = horse
+				value >= 20
+			}
+			has_trait = desert_warrior
+		}
+		culture ?= { has_innovation = innovation_war_camels }
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type OR if the maa type is exciting and foreign
+			if = {
+				limit = {
+					OR = {
+						number_maa_regiments_of_base_type = {
+							type = camel_cavalry
+							value >= 1
+						}
+						culture ?= {
+							NOT = {
+								has_innovation = innovation_war_camels
+							}
+						}
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = camel_cavalry
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = camel_cavalry
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = camel_cavalry
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = camel_cavalry
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Era.
+				### No specific era preference.
+				# AI values.
+				add = {
+					value = ai_energy
+					multiply = 1
+				}
+				add = {
+					value = ai_honor
+					multiply = 1
+				}
+				#Culture
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_arabic
+								has_cultural_pillar = heritage_berber
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				camel_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				camel_cavalry_damage_mult = @accolade_maa_damage_1
+				camel_cavalry_toughness_mult = @accolade_maa_toughness_1 
+				camel_cavalry_pursuit_mult = @accolade_maa_pursuit_1
+				camel_cavalry_screen_mult = @accolade_maa_screen_1
+				movement_speed = @outrider_attr_movement_speed_1
+			}
+			accolade_parameters = {
+				cw_accolade_camelry_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				camel_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				camel_cavalry_damage_mult = @accolade_maa_damage_1 
+				camel_cavalry_toughness_mult = @accolade_maa_toughness_1
+				camel_cavalry_pursuit_mult = @accolade_maa_pursuit_1
+				camel_cavalry_screen_mult = @accolade_maa_screen_1
+				movement_speed = @outrider_attr_movement_speed_1
+			}
+			accolade_parameters = {
+				cw_accolade_camelry_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				camel_cavalry_maintenance_mult = @accolade_maa_maint_1
+				camel_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				camel_cavalry_damage_mult = @accolade_maa_damage_4
+				camel_cavalry_toughness_mult = @accolade_maa_toughness_2
+				camel_cavalry_pursuit_mult = @accolade_maa_pursuit_2
+				camel_cavalry_screen_mult = @accolade_maa_screen_2
+				movement_speed = @outrider_attr_movement_speed_2 
+			}
+			accolade_parameters = {
+				cw_accolade_camelry_2
+			}
+			men_at_arms = { accolade_maa_cameliers }
+		}
+		1000 = {
+			liege_modifier = { 
+				camel_cavalry_maintenance_mult = @accolade_maa_maint_1
+				camel_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				camel_cavalry_damage_mult = @accolade_maa_damage_4
+				camel_cavalry_toughness_mult = @accolade_maa_toughness_2
+				camel_cavalry_pursuit_mult = @accolade_maa_pursuit_2
+				camel_cavalry_screen_mult = @accolade_maa_screen_2
+				movement_speed = @outrider_attr_movement_speed_2 
+			}
+			accolade_parameters = {
+				cw_accolade_camelry_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				camel_cavalry_maintenance_mult = @accolade_maa_maint_3
+				camel_cavalry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				camel_cavalry_damage_mult = @accolade_maa_damage_6
+				camel_cavalry_toughness_mult = @accolade_maa_toughness_3
+				camel_cavalry_pursuit_mult = @accolade_maa_pursuit_3
+				camel_cavalry_screen_mult = @accolade_maa_screen_3
+				movement_speed = @outrider_attr_movement_speed_3 
+			}
+			accolade_parameters = {
+				cw_accolade_camelry_3
+			}
+			men_at_arms = { accolade_maa_cameliers }
+		}
+		2100 = {
+			liege_modifier = { 
+				camel_cavalry_maintenance_mult = @accolade_maa_maint_3
+				camel_cavalry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				camel_cavalry_damage_mult = @accolade_maa_damage_6
+				camel_cavalry_toughness_mult = @accolade_maa_toughness_3
+				camel_cavalry_pursuit_mult = @accolade_maa_pursuit_3
+				camel_cavalry_screen_mult = @accolade_maa_screen_3
+				movement_speed = @outrider_attr_movement_speed_3
+			}
+			accolade_parameters = {
+				cw_accolade_camelry_3
+			}
+		}
+	}
+}
+
+# Elephant Rider
+elephantry_attribute = {
+	
+	adjective = accolade_elephant_riding
+	noun = accolade_elephanteer
+	accolade_categories = { men_at_arms army_bonus militant forceful leader aggressive defensive cavalry heavy_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = horse
+				value >= 20
+			}
+			has_trait = jungle_stalker
+		}
+		culture ?= { has_innovation = innovation_elephantry }
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type OR if the maa type is exciting and foreign
+			if = {
+				limit = {
+					OR = {
+						number_maa_regiments_of_base_type = {
+							type = elephant_cavalry
+							value >= 1
+						}
+						culture ?= {
+							NOR = {
+								has_innovation = innovation_elephantry
+								has_cultural_tradition = tradition_lords_of_the_elephant
+							}
+						}
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = elephant_cavalry
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = elephant_cavalry
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = elephant_cavalry
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = elephant_cavalry
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				# AI values.
+				add = {
+					value = ai_boldness
+					multiply = 1
+				}
+				add = {
+					value = ai_honor
+					multiply = 1
+				}
+				#Culture
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_dravidian
+								has_cultural_pillar = heritage_indo_aryan
+								has_cultural_pillar = heritage_burman
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				# elephants are cool
+				add = 100
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+		}
+	}
+	
+	ranks = {
+		# Elephants are incredibly deadly but also really expensive. So what if. *What if*. We reduced the cost to run them as we started to buff them? Scream, cry, seethe, cope, etc.
+		100 = {
+			liege_modifier = {
+				elephant_cavalry_maintenance_mult = @elephantry_attr_eleph_maint_1
+				elephant_cavalry_max_size_add = @elephantry_attr_eleph_max_size_1
+			}
+			accolade_parameters = {
+				cw_accolade_elephantry_1
+			}
+		}
+		300 = {
+			liege_modifier = {
+				elephant_cavalry_maintenance_mult = @elephantry_attr_eleph_maint_1
+				elephant_cavalry_max_size_add = @elephantry_attr_eleph_max_size_1
+			}
+			accolade_parameters = {
+				cw_accolade_elephantry_1
+			}
+		}
+		600 = {
+			liege_modifier = {
+				elephant_cavalry_maintenance_mult = @elephantry_attr_eleph_maint_2
+				elephant_cavalry_max_size_add = @elephantry_attr_eleph_max_size_2
+			}
+			knight_army_modifier = { elephant_cavalry_damage_mult = @elephantry_attr_eleph_damage_2 }
+			accolade_parameters = {
+				cw_accolade_elephantry_2
+			}
+			men_at_arms = { accolade_maa_elephantiers }
+		}
+		1000 = {
+			liege_modifier = {
+				elephant_cavalry_maintenance_mult = @elephantry_attr_eleph_maint_2
+				elephant_cavalry_max_size_add = @elephantry_attr_eleph_max_size_2
+			}
+			knight_army_modifier = { elephant_cavalry_damage_mult = @elephantry_attr_eleph_damage_2 }
+			accolade_parameters = {
+				cw_accolade_elephantry_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				elephant_cavalry_maintenance_mult = @elephantry_attr_eleph_maint_3
+				elephant_cavalry_max_size_add = @elephantry_attr_eleph_max_size_3
+			}
+			knight_army_modifier = {
+				elephant_cavalry_damage_mult = @elephantry_attr_eleph_damage_3
+				elephant_cavalry_toughness_mult = @elephantry_attr_eleph_tough_3
+			}
+			accolade_parameters = {
+				cw_accolade_elephantry_3
+			}
+			men_at_arms = { accolade_maa_elephantiers }
+		}
+		2100 = {
+			liege_modifier = {
+				elephant_cavalry_maintenance_mult = @elephantry_attr_eleph_maint_3
+				elephant_cavalry_max_size_add = @elephantry_attr_eleph_max_size_3
+			}
+			knight_army_modifier = {
+				elephant_cavalry_damage_mult = @elephantry_attr_eleph_damage_3
+				elephant_cavalry_toughness_mult = @elephantry_attr_eleph_tough_3
+			}
+			accolade_parameters = {
+				cw_accolade_elephantry_3
+			}
+		}
+	}
+}
+
+# Horse Archers/Archer
+horse_archer_attribute = {
+	
+	adjective = accolade_horse_arching
+	noun = accolade_horse_archer
+	accolade_categories = { men_at_arms army_bonus militant subtle equestrian aggressive defensive cavalry ranged_fighter light_fighter }
+
+	potential = {
+		prowess >= accolade_prowess_requirement_value
+		OR = {
+			has_trait_xp = {
+				trait = tourney_participant
+				track = horse
+				value >= 20
+			}
+			has_trait_xp = {
+				trait = tourney_participant
+				track = bow
+				value >= 20
+			}
+			has_trait = flexible_leader
+		}
+		culture ?= { has_cultural_tradition = tradition_horse_lords }
+	}
+
+	weight = {
+		value = accolade_uninteresting_base_value
+		scope:owner ?= {
+			# Should only be interested at all if they have a unit of the type OR if the maa type is exciting and foreign
+			if = {
+				limit = {
+					OR = {
+						number_maa_regiments_of_base_type = {
+							type = archer_cavalry
+							value >= 1
+						}
+						culture ?= {
+							NOT = {
+								has_cultural_tradition = tradition_horse_lords
+							}
+						}
+					}
+				}
+				add = @has_relevant_maa_weight_up_value
+				# Weight up a bit further for more MaA of the same type.
+				## A few.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archer_cavalry
+							value >= @number_maa_regiments_increment_1
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archer_cavalry
+							value >= @number_maa_regiments_increment_2
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archer_cavalry
+							value >= @number_maa_regiments_increment_3
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				## Many-lots.
+				if = {
+					limit = {
+						number_maa_regiments_of_base_type = {
+							type = archer_cavalry
+							value >= @number_maa_regiments_increment_4
+						}
+					}
+					add = @has_relevant_maa_weight_up_value
+				}
+				#Culture
+				if = {
+					limit = {
+						root.culture ?= {
+							OR = {
+								has_cultural_pillar = heritage_mongolic
+								has_cultural_pillar = heritage_turkic
+							}
+						}
+					}
+					add = @respected_culture_for_maa_type_value
+				}
+				# AI values.
+				add = {
+					value = ai_energy
+					multiply = 1
+				}
+				add = {
+					value = ai_boldness
+					multiply = 1
+				}
+				#MaA is cool and good
+				add = @respected_culture_for_maa_type_value
+				# Finally, weight for opinion.
+				multiply = accolade_opinion_multiplier_value
+			}
+			## Era.
+			### No specific era preference.
+		}
+	}
+	
+	ranks = {
+		100 = {
+			liege_modifier = { 
+				archer_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				archer_cavalry_damage_mult = @accolade_maa_damage_1
+				archer_cavalry_toughness_mult = @accolade_maa_toughness_1 
+				archer_cavalry_pursuit_mult = @accolade_maa_pursuit_1
+				movement_speed = @outrider_attr_movement_speed_1
+			}
+			accolade_parameters = {
+				cw_accolade_horse_archer_1
+			}
+		}
+		300 = {
+			liege_modifier = { 
+				archer_cavalry_max_size_add = @number_maa_regiments_increment_1
+			}
+			knight_army_modifier = { 
+				archer_cavalry_damage_mult = @accolade_maa_damage_1 
+				archer_cavalry_toughness_mult = @accolade_maa_toughness_1
+				archer_cavalry_pursuit_mult = @accolade_maa_pursuit_1
+				movement_speed = @outrider_attr_movement_speed_1
+			}
+			accolade_parameters = {
+				cw_accolade_horse_archer_1
+			}
+		}
+		600 = {
+			liege_modifier = { 
+				archer_cavalry_maintenance_mult = @accolade_maa_maint_1
+				archer_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				archer_cavalry_damage_mult = @accolade_maa_damage_4
+				archer_cavalry_toughness_mult = @accolade_maa_toughness_2
+				archer_cavalry_pursuit_mult = @accolade_maa_pursuit_2
+				movement_speed = @outrider_attr_movement_speed_2 
+			}
+			accolade_parameters = {
+				cw_accolade_horse_archer_2
+			}
+			men_at_arms = { accolade_maa_horse_archers }
+		}
+		1000 = {
+			liege_modifier = { 
+				archer_cavalry_maintenance_mult = @accolade_maa_maint_1
+				archer_cavalry_max_size_add = @number_maa_regiments_increment_2
+			}
+			knight_army_modifier = { 
+				archer_cavalry_damage_mult = @accolade_maa_damage_4
+				archer_cavalry_toughness_mult = @accolade_maa_toughness_2
+				archer_cavalry_pursuit_mult = @accolade_maa_pursuit_2
+				movement_speed = @outrider_attr_movement_speed_2 
+			}
+			accolade_parameters = {
+				cw_accolade_horse_archer_2
+			}
+		}
+		1500 = {
+			liege_modifier = {
+				archer_cavalry_maintenance_mult = @accolade_maa_maint_3
+				archer_cavalry_max_size_add = @number_maa_regiments_increment_3
+			}
+			knight_army_modifier = { 
+				archer_cavalry_damage_mult = @accolade_maa_damage_6
+				archer_cavalry_toughness_mult = @accolade_maa_toughness_3
+				archer_cavalry_pursuit_mult = @accolade_maa_pursuit_4
+				movement_speed = @outrider_attr_movement_speed_3 
+			}
+			accolade_parameters = {
+				cw_accolade_horse_archer_3
+			}
+			men_at_arms = { accolade_maa_horse_archers }
+		}
+		2100 = {
+			liege_modifier = { 
+				archer_cavalry_maintenance_mult = @accolade_maa_maint_3
+				archer_cavalry_max_size_add = @number_maa_regiments_increment_4
+			}
+			knight_army_modifier = { 
+				archer_cavalry_damage_mult = @accolade_maa_damage_6
+				archer_cavalry_toughness_mult = @accolade_maa_toughness_3
+				archer_cavalry_pursuit_mult = @accolade_maa_pursuit_4
+				movement_speed = @outrider_attr_movement_speed_3
+			}
+			accolade_parameters = {
+				cw_accolade_horse_archer_3
+			}
+		}
+	}
+}

@@ -1,0 +1,6 @@
+! - DO THIS FOR EVERY CRUSADER WARS UPDATE IF YOU ARE A NON-STEAM USER OF CRUSADER KINGS III. 
+
+###	INSTALLATION	###
+1. Drag and drop these files in to "Documents\Paradox Interactive\Crusader Kings III\mod" folder.
+2. Open Crusader Kings III and add them to your playset.
+3. Done!

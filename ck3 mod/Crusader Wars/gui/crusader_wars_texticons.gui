@@ -1,0 +1,634 @@
+﻿################################################
+# Crusader Wars Icons by flogi
+################################################
+
+
+texticon = {
+	icon = crusader_wars
+	iconsize = {
+		texture = "gfx/interface/icons/crusader_wars_icon.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = crusader_wars_2
+	iconsize = {
+		texture = "gfx/interface/icons/crusader_wars_icon.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_experience
+	iconsize = {
+		texture = "gfx/interface/icons/cw_icon_experience.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_experience_modifier
+	iconsize = {
+		texture = "gfx/interface/icons/cw_icon_experience_modifier.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_general_unit
+	iconsize = {
+		texture = "gfx/interface/icons/cw_icon_general_unit.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_knight_unit
+	iconsize = {
+		texture = "gfx/interface/icons/cw_icon_general_unit.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_blademaster_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/blademaster_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_blademaster_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/blademaster_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_blademaster_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/blademaster_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_charmer_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/charmer_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_charmer_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/charmer_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_charmer_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/charmer_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_contender_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/contender_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_contender_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/contender_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_contender_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/contender_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_disciplinarian_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/disciplinarian_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_disciplinarian_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/disciplinarian_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_disciplinarian_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/disciplinarian_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_fanatic_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/fanatic_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_fanatic_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/fanatic_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_fanatic_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/fanatic_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_house_paragon_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/house_paragon_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_house_paragon_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/house_paragon_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_house_paragon_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/house_paragon_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_huntsmaster_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/huntsmaster_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_huntsmaster_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/huntsmaster_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_huntsmaster_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/huntsmaster_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_idealist_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/idealist_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_idealist_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/idealist_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_idealist_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/idealist_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_manipulator_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/manipulator_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_manipulator_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/manipulator_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_manipulator_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/manipulator_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_marauder_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/marauder_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_marauder_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/marauder_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_marauder_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/marauder_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_master_of_revels_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/master_of_revels_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_master_of_revels_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/master_of_revels_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_master_of_revels_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/master_of_revels_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_mentor_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/mentor_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_mentor_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/mentor_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_mentor_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/mentor_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_politicker_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/politicker_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_politicker_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/politicker_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_politicker_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/politicker_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_reeve_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/reeve_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_reeve_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/reeve_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_reeve_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/reeve_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_scoundrel_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/scoundrel_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_scoundrel_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/scoundrel_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_scoundrel_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/scoundrel_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_stalwart_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/stalwart_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_stalwart_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/stalwart_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_stalwart_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/stalwart_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_tactician_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/tactician_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_tactician_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/tactician_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_tactician_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/tactician_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_thug_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/thug_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_thug_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/thug_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_thug_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/thug_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_valiant_rank1
+	iconsize = {
+		texture = "gfx/interface/icons/valiant_rank1.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_valiant_rank2
+	iconsize = {
+		texture = "gfx/interface/icons/valiant_rank2.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = cw_icon_valiant_rank3
+	iconsize = {
+		texture = "gfx/interface/icons/valiant_rank3.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}

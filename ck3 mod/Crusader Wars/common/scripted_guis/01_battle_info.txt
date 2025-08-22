@@ -1,0 +1,87 @@
+clear_log = {
+    effect = {
+        debug_log = "CRUSADERWARS3"
+    }
+    
+}
+
+left_main_participant = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = left_side_warleader value = scope:left_main_participant}
+    }
+}
+
+special_building = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = unique_map  value = scope:special_building}
+    }
+}
+
+province_culture = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = t value = scope:province_culture}
+    }
+}
+
+left_commander = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = left_side_commander value = scope:left_commander}
+    }
+}
+
+left_prowess = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = left_side_prowess value = scope:left_prowess}
+    }
+}
+
+left_name = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = left_side_name value = scope:left_name}
+    }
+}
+
+right_commander = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = right_side_commander value = scope:right_commander}
+    }
+}
+
+right_prowess = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = right_side_prowess value = scope:right_prowess}
+    }
+}
+
+
+right_name = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = right_side_name value = scope:right_name}
+    }
+}
+
+combat_data = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = combat_var value = scope:combat_data}
+    }
+}
+
+ids_string_variable = {
+    effect = {
+        debug_log_scope = yes
+        set_variable = {name = id_var value = scope:ids_string_variable}
+    }
+}
+
+
+

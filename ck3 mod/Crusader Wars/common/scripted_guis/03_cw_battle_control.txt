@@ -1,0 +1,79 @@
+control_toggle_1 = {
+	scope = character
+
+	is_shown = {
+		has_variable = control_toggle_1
+	}
+
+	effect = {
+		if = {
+			limit = {
+				has_variable = control_toggle_1
+			}
+			remove_variable = control_toggle_1
+		}
+		else = {
+			set_variable = control_toggle_1
+		}
+	}
+}
+
+control_toggle_2 = {
+	scope = character
+
+	is_shown = {
+		has_variable = control_toggle_2
+	}
+
+	effect = {
+		if = {
+			limit = {
+				has_variable = control_toggle_2
+			}
+			remove_variable = control_toggle_2
+		}
+		else = {
+			set_variable = control_toggle_2
+		}
+	}
+}
+
+control_toggle_3 = {
+	scope = character
+
+	is_shown = {
+		has_variable = control_toggle_3
+	}
+
+	effect = {
+		if = {
+			limit = {
+				has_variable = control_toggle_3
+			}
+			remove_variable = control_toggle_3
+		}
+		else = {
+			set_variable = control_toggle_3
+		}
+	}
+}
+
+control_toggle_4 = {
+	scope = character
+
+	is_shown = {
+		has_variable = control_toggle_4
+	}
+
+	effect = {
+		if = {
+			limit = {
+				has_variable = control_toggle_4
+			}
+			remove_variable = control_toggle_4
+		}
+		else = {
+			set_variable = control_toggle_4
+		}
+	}
+}

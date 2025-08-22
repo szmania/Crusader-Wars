@@ -1,0 +1,31 @@
+﻿on_game_start = {
+	effect = {
+		every_player = {
+			debug_log = "CW_SAVE_PURGE_debug_log_on_game_start"
+		}
+	}
+	on_actions = {
+		cwalert_setup_on_actions
+	}
+}
+
+# Like on_game_start, except it is called once the host (or player, in single player) exits the lobby. Good for anything where you need to know who the players are, or what the game rules are
+on_game_start_after_lobby = {
+	on_actions = {
+		cwalert_setup_after_game_start_on_actions
+	}
+}
+
+cwalert_setup_after_game_start_on_actions = {
+	effect = {
+		every_player = { # Intro event
+		 	trigger_event = cwalert.1
+			debug_log = "CW_SAVE_PURGE_debug_log_on_action3"
+			console_log = "CW_SAVE_PURGE_console_log_on_action"
+			console_history = "CW_SAVE_PURGE_console_history_on_action"
+			console_hist = "CW_SAVE_PURGE_console_history_on_action"
+			"[ExecuteConsoleCommand(Concatenate('battle_max:', 'purge'))]"
+		}
+	}
+}
+

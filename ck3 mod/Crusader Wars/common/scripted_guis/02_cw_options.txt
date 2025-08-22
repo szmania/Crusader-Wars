@@ -1,0 +1,181 @@
+print_battle_scale_25 = {
+    effect = {
+        debug_log = "battle_scale:25"
+    }
+
+}
+
+print_battle_scale_50 = {
+    effect = {
+        debug_log = "battle_scale:50"
+    }
+
+}
+
+print_battle_scale_100 = {
+    effect = {
+        debug_log = "battle_scale:100"
+    }
+
+}
+
+print_battle_max_20 = {
+    effect = {
+        debug_log = "battle_max:20000"
+    }
+
+}
+
+print_battle_max_40 = {
+    effect = {
+        debug_log = "battle_max:40000"
+    }
+
+}
+
+print_battle_max_80 = {
+    effect = {
+        debug_log = "battle_max:80000"
+    }
+
+}
+
+print_auto_scale_enable = {
+    effect = {
+        debug_log = "auto_scale:1"
+    }
+
+}
+
+print_auto_scale_disable = {
+    effect = {
+        debug_log = "auto_scale:0"
+    }
+
+}
+
+print_unit_levy_1 = {
+    effect = {
+        debug_log = "unit_levy:200"
+    }
+
+}
+
+print_unit_levy_2 = {
+    effect = {
+        debug_log = "unit_levy:300"
+    }
+
+}
+
+print_unit_levy_3 = {
+    effect = {
+        debug_log = "unit_levy:400"
+    }
+
+}
+
+print_unit_melee_maa_1 = {
+    effect = {
+        debug_log = "unit_melee_maa:160"
+    }
+
+}
+
+print_unit_melee_maa_2 = {
+    effect = {
+        debug_log = "unit_melee_maa:200"
+    }
+
+}
+
+print_unit_melee_maa_3 = {
+    effect = {
+        debug_log = "unit_melee_maa:300"
+    }
+
+}
+
+print_unit_ranged_maa_1 = {
+    effect = {
+        debug_log = "unit_ranged_maa:100"
+    }
+
+}
+
+print_unit_ranged_maa_2 = {
+    effect = {
+        debug_log = "unit_ranged_maa:200"
+    }
+
+}
+
+print_unit_ranged_maa_3 = {
+    effect = {
+        debug_log = "unit_ranged_maa:300"
+    }
+
+}
+
+print_unit_mounted_maa_1 = {
+    effect = {
+        debug_log = "unit_mounted_maa:50"
+    }
+
+}
+
+print_unit_mounted_maa_2 = {
+    effect = {
+        debug_log = "unit_mounted_maa:100"
+    }
+
+}
+
+print_unit_mounted_maa_3 = {
+    effect = {
+        debug_log = "unit_mounted_maa:150"
+    }
+	
+}
+
+print_print_control_1 = {
+    effect = {
+        debug_log = "control:1"
+    }
+
+}
+
+print_print_control_2 = {
+    effect = {
+        debug_log = "control:2"
+    }
+
+}
+
+print_print_control_3 = {
+    effect = {
+        debug_log = "control:3"
+    }
+
+}
+
+print_print_control_4 = {
+    effect = {
+        debug_log = "control:4"
+    }
+
+}
+
+print_unitnames_1 = {
+    effect = {
+        debug_log = "unitnames:1"
+    }
+
+}
+
+print_unitnames_2 = {
+    effect = {
+        debug_log = "unitnames:2"
+    }
+
+}
