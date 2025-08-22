@@ -1,4 +1,4 @@
-﻿using Crusader_Wars.client;
+using Crusader_Wars.client;
 using Crusader_Wars.client.WarningMessage;
 using System;
 using System.Collections;
@@ -127,12 +127,12 @@ namespace Crusader_Wars
 
                 optionsValuesCollection.AddRange(new List<(string, string)>
                 {
-                    ("CloseCK3", CloseCK3极薄_Value),
+                    ("CloseCK3", CloseCK3_Value),
                     ("CloseAttila", CloseAttila_Value),
                     ("FullArmies", FullArmies_Value),
                     ("TimeLimit", TimeLimit_Value),
                     ("BattleMapsSize", BattleMapsSize_Value) ,
-                    ("DefensiveDeployables", Defensive极薄Deployables_Value),
+                    ("DefensiveDeployables", DefensiveDeployables_Value),
                     ("UnitCards", UnitCards_Value),
                     ("SeparateArmies", SeparateArmies_Value),
                     
@@ -158,6 +158,7 @@ namespace Crusader_Wars
 
         void SetOptionsUIData()
         {
+            var CloseCK3_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
             var CloseAttila_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
             var FullArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
             var TimeLimit_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
@@ -175,6 +176,7 @@ namespace Crusader_Wars
             var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
 
+            CloseCK3_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseCK3").value;
             CloseAttila_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseAttila").value; 
             FullArmies_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "FullArmies").value;
             TimeLimit_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "TimeLimit").value;
@@ -202,6 +204,7 @@ namespace Crusader_Wars
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
+            var CloseCK3_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseCK3", true)[0] as ComboBox;
             var CloseAttila_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseAttila", true)[0] as ComboBox;
             var FullArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_FullArmies", true)[0] as ComboBox;
             var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true)[0] as ComboBox;
@@ -221,6 +224,8 @@ namespace Crusader_Wars
 
 
 
+            var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
+            CloseCK3_Node.InnerText = CloseCK3_ComboBox.Text;
             var CloseAttila_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']");
             CloseAttila_Node.InnerText = CloseAttila_ComboBox.Text;
             var FullArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']");
