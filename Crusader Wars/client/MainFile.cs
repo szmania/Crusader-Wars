@@ -761,7 +761,7 @@ namespace Crusader_Wars
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
                         BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForDeathCommanders(army, path_attila_log);
+                        BattleResult.CheckForDeathCommanders(army, path_log_attila);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForDeathKnights(army);
 
