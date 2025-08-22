@@ -779,7 +779,7 @@ namespace Crusader_Wars
             try
             {
                 DataSearch.ClearLogFile();
-                DeclarationsFile.EraseScript();
+                DeclarationsFile.Erase();
                 BattleScript.EraseScript();
                 BattleResult.ClearAttilaLog();
 
