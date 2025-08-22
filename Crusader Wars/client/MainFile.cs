@@ -951,7 +951,7 @@ namespace Crusader_Wars
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Continue Battle button clicked.");
-            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
+            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
             sounds.Play();
             _myVariable = 1;
             ExecuteButton.Enabled = false;
