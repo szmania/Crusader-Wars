@@ -563,6 +563,16 @@ namespace Crusader_Wars
                 UpdateUIForBattleState();
 
             }
+
+            // Reset UI if the main loop is broken by a critical error
+            _myVariable = 0;
+            ExecuteButton.Enabled = true;
+            if (ExecuteButton.Enabled)
+            {
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+            }
+            UpdateUIForBattleState();
+            this.Text = "Crusader Wars";
         }
 
         private async Task<bool> ProcessBattle()
@@ -886,16 +896,23 @@ namespace Crusader_Wars
                 return;
             }
 
-            await ProcessBattle();
-
-            UpdateUIForBattleState();
-            ExecuteButton.Enabled = true;
-            ContinueBattleButton.Enabled = true;
-            if (ExecuteButton.Enabled)
+            if (await ProcessBattle())
             {
-                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                // The battle finished successfully, start the main loop to wait for the next one.
+                ExecuteButton.PerformClick();
             }
-            _myVariable = 0;
+            else
+            {
+                // A critical error occurred (e.g., couldn't start Attila). Reset UI.
+                UpdateUIForBattleState();
+                ExecuteButton.Enabled = true;
+                ContinueBattleButton.Enabled = true;
+                if (ExecuteButton.Enabled)
+                {
+                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                }
+                _myVariable = 0;
+            }
         }
 
         private void ContinueBattleButton_MouseEnter(object sender, EventArgs e)
