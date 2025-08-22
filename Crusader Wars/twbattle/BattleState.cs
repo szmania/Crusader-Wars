@@ -15,6 +15,7 @@ namespace Crusader_Wars.twbattle
             // Ensure directory exists
             if (!Directory.Exists(StateFolder))
             {
+                Program.Logger.Debug($"BattleState: State folder not found at '{StateFolder}'. Creating it.");
                 Directory.CreateDirectory(StateFolder);
             }
         }
@@ -22,6 +23,7 @@ namespace Crusader_Wars.twbattle
         public static bool IsBattleInProgress()
         {
             bool battleInProgress = System.IO.File.Exists(StateFile);
+            Program.Logger.Debug($"Checking if battle is in progress. State file '{StateFile}' exists: {battleInProgress}");
             return battleInProgress;
         }
 
@@ -29,26 +31,36 @@ namespace Crusader_Wars.twbattle
         {
             if (!System.IO.File.Exists(StateFile))
             {
+                Program.Logger.Debug($"Marking battle as started. Creating state file: '{StateFile}'");
                 System.IO.File.WriteAllText(StateFile, "battle_in_progress");
+            }
+            else
+            {
+                Program.Logger.Debug($"Battle already marked as started. State file exists: '{StateFile}'");
             }
         }
 
         public static void ClearBattleState()
         {
+            Program.Logger.Debug("Clearing battle state...");
             if (System.IO.File.Exists(StateFile))
             {
+                Program.Logger.Debug($"Deleting battle state file: '{StateFile}'");
                 System.IO.File.Delete(StateFile);
             }
             if (System.IO.File.Exists(LogSnippetFile))
             {
+                Program.Logger.Debug($"Deleting battle log snippet file: '{LogSnippetFile}'");
                 System.IO.File.Delete(LogSnippetFile);
             }
+            Program.Logger.Debug("Battle state cleared.");
         }
 
         public static void SaveLogSnippet(string logContent)
         {
+            Program.Logger.Debug($"Saving battle log snippet to: '{LogSnippetFile}'");
             System.IO.File.WriteAllText(LogSnippetFile, logContent);
-            Program.Logger.Debug($"Saved battle log snippet to: '{LogSnippetFile}'");
+            Program.Logger.Debug($"Saved battle log snippet.");
         }
 
         public static string LoadLogSnippet()
@@ -56,7 +68,9 @@ namespace Crusader_Wars.twbattle
             if (System.IO.File.Exists(LogSnippetFile))
             {
                 Program.Logger.Debug($"Loading battle log snippet from: '{LogSnippetFile}'");
-                return System.IO.File.ReadAllText(LogSnippetFile);
+                string content = System.IO.File.ReadAllText(LogSnippetFile);
+                Program.Logger.Debug("Successfully loaded battle log snippet.");
+                return content;
             }
             else
             {
