@@ -78,7 +78,7 @@ namespace Crusader_Wars
             Program.Logger.Debug($"Current App Version: {Updater.AppVersion}");
 
             var _timer = new System.Windows.Forms.Timer();
-            _timer.Interval = 500; // check variable every second
+            _timer.Interval = 1000; // check variable every second
             _timer.Tick += Timer_Tick;
             _timer.Start();
             Original_Color = infoLabel.ForeColor;
