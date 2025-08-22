@@ -33,6 +33,7 @@ namespace Crusader_Wars
         private Thread loadingThread;
         private string log;  // For CK3 log content
         private bool _programmaticClick = false;
+        private bool battleJustCompleted = false;
         
 
         const string SEARCH_KEY = "CRUSADERWARS3";
@@ -392,7 +393,14 @@ namespace Crusader_Wars
                         logFile.Position = 0;
                         reader.DiscardBufferedData();
 
-                        infoLabel.Text = "Waiting for CK3 battle...";
+                        if (battleJustCompleted && !ModOptions.CloseCK3DuringBattle())
+                        {
+                            infoLabel.Text = "Waiting for CK3 battle... Load 'battle_results.ck3' to see results.";
+                        }
+                        else
+                        {
+                            infoLabel.Text = "Waiting for CK3 battle...";
+                        }
                         Program.Logger.Debug("Waiting for CRUSADERWARS3 keyword in CK3 log...");
                         try
                         {
@@ -408,6 +416,7 @@ namespace Crusader_Wars
                                     if (line.Contains(SEARCH_KEY))
                                     {
                                         Program.Logger.Debug("Battle keyword found in CK3 log.");
+                                        battleJustCompleted = false;
                                         battleHasStarted = true;
                                         break;
                                     }
@@ -919,6 +928,7 @@ namespace Crusader_Wars
 
                     infoLabel.Text = "Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
                     this.Text = "Crusader Wars (Battle Complete)";
+                    battleJustCompleted = true;
                 }
             }
             catch (Exception ex)
