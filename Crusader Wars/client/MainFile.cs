@@ -32,6 +32,7 @@ namespace Crusader_Wars
         private LoadingScreen loadingScreen;
         private Thread loadingThread;
         private string log;  // For CK3 log content
+        private bool _programmaticClick = false;
         
 
         const string SEARCH_KEY = "CRUSADERWARS3";
@@ -274,8 +275,13 @@ namespace Crusader_Wars
                 }
             }
 
-            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
-            sounds.Play();
+            if (!_programmaticClick)
+            {
+                sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
+                sounds.Play();
+            }
+            _programmaticClick = false; // Always reset after check
+
             _myVariable = 1;
             ExecuteButton.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
@@ -920,6 +926,7 @@ namespace Crusader_Wars
                 return;
             }
 
+            _programmaticClick = true;
             if (await ProcessBattle())
             {
                 // The battle finished successfully, start the main loop to wait for the next one.
