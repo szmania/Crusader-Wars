@@ -149,7 +149,6 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"e_.+ = {"))
                     {
                         empire = Regex.Match(line, @"(e_.+) = {").Groups[1].Value;
-                        Program.Logger.Debug($"Found empire: {empire}");
                         empire_started = true;
                     }
                     else if(empire_started && line.StartsWith("\tcapital"))
@@ -162,7 +161,6 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"k_.+ = {"))
                     {
                         kingdom = Regex.Match(line, @"(k_.+) = {").Groups[1].Value;
-                        Program.Logger.Debug($"Found kingdom: {kingdom}");
                         kingdom_started = true;
                     }
                     else if (kingdom_started && line.StartsWith("\t\tcapital"))
@@ -175,7 +173,6 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"d_.+ = {"))
                     {
                         duchy = Regex.Match(line, @"(d_.+) = {").Groups[1].Value;
-                        Program.Logger.Debug($"Found duchy: {duchy}");
                         duchy_started = true;
                     }
                     else if (duchy_started && line.StartsWith("\t\t\tcapital"))
@@ -188,7 +185,6 @@ namespace Crusader_Wars.data.save_file
                     if (Regex.IsMatch(line, @"c_.+ = {"))
                     {
                         county = Regex.Match(line, @"(c_.+) = {").Groups[1].Value;
-                        Program.Logger.Debug($"Found county: {county}");
                         county_started = true;
                         SetTitleRegimentsCountiesKeys(attacker_armies, county, county);
                         SetTitleRegimentsCountiesKeys(defender_armies, county, county);

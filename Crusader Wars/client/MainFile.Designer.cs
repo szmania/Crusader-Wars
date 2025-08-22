@@ -87,7 +87,7 @@
             this.ContinueBattleButton.FlatAppearance.BorderSize = 0;
             this.ContinueBattleButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.ContinueBattleButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 16F, System.Drawing.FontStyle.Bold);
+            this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold);
             this.ContinueBattleButton.ForeColor = System.Drawing.Color.White;
             this.ContinueBattleButton.Name = "ContinueBattleButton";
             this.ContinueBattleButton.TabStop = false;

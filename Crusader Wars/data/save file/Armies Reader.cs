@@ -537,7 +537,6 @@ namespace Crusader_Wars.data.save_file
 
         static void SetRegimentsOriginsKeys(string title_id, string originKey)
         {
-            Program.Logger.Debug($"Processing title ID '{title_id}' with key '{originKey}' for regiment origins.");
             foreach (Regiment regiment in attacker_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiments => armyRegiments.Regiments))
             {
                 if(!string.IsNullOrEmpty(regiment.OwningTitle) && string.IsNullOrEmpty(regiment.OriginKey))
@@ -1007,3 +1006,643 @@ namespace Crusader_Wars.data.save_file
             }
             Program.Logger.Debug("Finished reading counties manager data.");
         }
+        
+
+
+        private static void ReadRegiments()
+        {
+            bool isSearchStarted = false;
+            Regiment regiment = null;
+
+            int index = -1;
+            int reg_chunk_index = 0;
+
+            using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
+            {
+                while (true)
+                {
+                    string line = sr.ReadLine();
+                    if (line == null) break;
+
+                    // Regiment ID Line
+                    if (Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
+                    {
+                        string regiment_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
+
+                        var searchingData = Armies_Functions.SearchRegiments(regiment_id, attacker_armies);
+                        if(searchingData.searchHasStarted)
+                        {
+                            isSearchStarted = true;
+                            regiment = searchingData.regiment;
+                        }
+                        else
+                        {
+                            searchingData = Armies_Functions.SearchRegiments(regiment_id, defender_armies);
+                            if( searchingData.searchHasStarted )
+                            {
+                                isSearchStarted = true;
+                                regiment = searchingData.regiment;
+                            }
+                        }
+                    }
+
+                    // Index Counter
+                    else if (line == "\t\t\t\t{" && isSearchStarted)
+                    {
+                        string str_index = regiment.Index;
+                        if (!string.IsNullOrEmpty(str_index))
+                        {
+                            reg_chunk_index = Int32.Parse(str_index);
+                            index++;
+                        }
+                        else
+                        {
+                            reg_chunk_index = 0;
+                            index++;
+                        }
+                    }
+
+                    // isMercenary 
+                    else if (isSearchStarted && line.Contains("\t\t\tsource=hired"))
+                    {
+                        regiment.isMercenary(true);
+
+                    }
+
+                    // isGarrison 
+                    else if (isSearchStarted && line.Contains("\t\t\tsource=garrison"))
+                    {
+                        regiment.IsGarrison(true);
+
+                    }
+                    // Origin 
+                    else if (isSearchStarted && line.Contains("\t\t\torigin="))
+                    {
+                        string origin = Regex.Match(line, @"\d+").Value;
+                        regiment.SetOrigin(origin);
+
+                    }
+                    // Owner 
+                    else if (isSearchStarted && line.Contains("\t\t\towner="))
+                    {
+                        string owner = Regex.Match(line, @"\d+").Value;
+                        regiment.SetOwner(owner);
+
+                    }
+                    else if(isSearchStarted && line.Contains("\t\t\towning_title="))
+                    {
+                        string owiningTitle = Regex.Match(line, @"\d+").Value;
+                        regiment.SetOwningTitle(owiningTitle);
+                    }
+                    // Max
+                    else if (isSearchStarted && line.Contains("\t\t\t\t\tmax="))
+                    {
+                        string max = Regex.Match(line, @"\d+").Value;
+                        regiment.SetMax(max);
+                    }
+
+                    // Soldiers
+                    else if (isSearchStarted && (line.Contains("\t\t\t\t\tcurrent=") || line.Contains("\t\t\tsize=")))
+                    {
+                        string current = Regex.Match(line, @"\d+").Value;
+                        if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
+                        {
+                            regiment.SetSoldiers(current);
+                        }
+
+                        if(line.Contains("\t\t\tsize="))
+                        {
+                            regiment.SetMax(current);
+                        }
+                    }
+
+                    //Regiment End Line
+                    else if (isSearchStarted && line == "\t\t}")
+                    {
+                        isSearchStarted = false;
+                        index = -1;
+                        reg_chunk_index = 0;
+
+                        EditOgRegiment(regiment, attacker_armies, defender_armies);
+
+                        regiment = null;
+                       
+                    }
+                }
+            }
+            RemoveGarrisonRegiments(attacker_armies, defender_armies);
+        }
+
+        static void RemoveGarrisonRegiments(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            for (int i = 0; i < attacker_armies.Count; i++)
+            {
+                attacker_armies[i].RemoveGarrisonRegiments();
+            }
+            for (int i = 0; i < defender_armies.Count; i++)
+            {
+                defender_armies[i].RemoveGarrisonRegiments();
+            }
+        }
+        static void EditOgRegiment(Regiment editedRegiment ,List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            foreach(Army army in attacker_armies)
+            {
+                foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
+                {
+                    foreach(Regiment regiment in armyRegiment.Regiments)
+                    {
+                        if(editedRegiment.ID == regiment.ID)
+                        {
+                            regiment.SetOrigin(editedRegiment.Origin);
+                            regiment.SetMax(editedRegiment.Max);
+                            regiment.SetSoldiers(editedRegiment.CurrentNum);
+                            regiment.SetOwner(editedRegiment.Owner);
+                            regiment.isMercenary(editedRegiment.isMercenary());
+                            regiment.IsGarrison(editedRegiment.IsGarrison());
+                            return;
+                        }
+                        
+                    }
+                }
+            }
+
+            foreach (Army army in defender_armies)
+            {
+                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
+                {
+                    foreach (Regiment regiment in armyRegiment.Regiments)
+                    {
+                        if (editedRegiment.ID == regiment.ID)
+                        {
+                            regiment.SetOrigin(editedRegiment.Origin);
+                            regiment.SetMax(editedRegiment.Max);
+                            regiment.SetSoldiers(editedRegiment.CurrentNum);
+                            regiment.SetOwner(editedRegiment.Owner);
+                            regiment.isMercenary(editedRegiment.isMercenary());
+                            regiment.IsGarrison(editedRegiment.IsGarrison());
+                            return;
+                        }
+
+                    }
+                }
+            }
+
+        }
+
+
+        private static void ReadArmiesUnits()
+        {
+            bool isSearchStarted = false;
+            Army army = null;
+
+            using (StreamReader SR = new StreamReader(Writter.DataFilesPaths.Units_Path()))
+            {
+                while(!SR.EndOfStream)
+                {
+                    string line  = SR.ReadLine();
+                    if (line == null) break;
+
+                    if (Regex.IsMatch(line, @"\t\d+={") && !isSearchStarted)
+                    {
+                        string id = Regex.Match(line, @"\t(\d+)={").Groups[1].Value;
+                        var searchingData = Armies_Functions.SearchUnit(id, attacker_armies);
+                        if(searchingData.searchHasStarted)
+                        {
+                            isSearchStarted = true;
+                            army = searchingData.army;
+                        }
+                        else
+                        {
+                            searchingData = Armies_Functions.SearchUnit(id, defender_armies);
+                            if(searchingData.searchHasStarted)
+                            {
+                                isSearchStarted = true;
+                                army= searchingData.army;
+                            }
+                        }
+                    }
+                    else if(isSearchStarted && line.Contains("\t\towner="))
+                    {
+                        string id = Regex.Match(line, @"\d+").Value;
+                        army.SetOwner(id);
+
+                    }
+                    else if (isSearchStarted && line == "\t}")
+                    {
+                        isSearchStarted = false;
+                    }
+
+                }
+            }
+        }
+
+        
+        private static void ReadArmyRegiments()
+        {
+            List<Regiment> found_regiments = new List<Regiment>();
+
+            bool isSearchStarted = false;
+            ArmyRegiment armyRegiment = null;
+
+            string regiment_id = "";
+            string index = "";
+
+            bool isNameSet = false;
+            bool isReadingChunks = false;
+
+            using (StreamReader SR = new StreamReader(Writter.DataFilesPaths.ArmyRegiments_Path()))
+            {
+                while (true)
+                {
+                    string line = SR.ReadLine();
+
+                    if (line == null) break;
+
+                    // Army Regiment ID Line
+                    if (Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
+                    {
+                        string army_regiment_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
+                        var searchingData = Armies_Functions.SearchArmyRegiments(army_regiment_id, attacker_armies);
+                        if(searchingData.searchHasStarted)
+                        {
+                            isSearchStarted = true;
+                            armyRegiment = searchingData.regiment;
+                        }
+                        else
+                        {
+                            searchingData = Armies_Functions.SearchArmyRegiments(army_regiment_id, defender_armies);
+                            if(searchingData.searchHasStarted)
+                            {
+                                isSearchStarted = true;
+                                armyRegiment = searchingData.regiment;
+                            }
+                        }
+                    }
+
+                    //Regiment ID
+                    if(isSearchStarted && line.Contains("\t\t\t\t\tregiment="))
+                    {
+                        if(isNameSet == false)
+                        {
+                            armyRegiment.SetType(RegimentType.Levy);
+                        }
+
+                        regiment_id = Regex.Match(line, @"(\d+)").Groups[1].Value;                    
+
+                    }
+
+                    else if(isSearchStarted && line.Contains("\t\t\tchunks={"))
+                    {
+                        isReadingChunks = true;
+                    }
+
+                    //Regiment Index
+                    else if (isSearchStarted && line.Contains("\t\t\t\t\tindex="))
+                    {
+                        index = Regex.Match(line, @"(\d+)").Groups[1].Value;
+                    }
+
+                    //Add Found Regiment
+                    else if (isSearchStarted && line == "\t\t\t\t}" && isReadingChunks)
+                    {
+                        Regiment regiment = new Regiment(regiment_id, index);
+                        found_regiments.Add(regiment);
+                    }
+                    else if (isSearchStarted && line == " }" && isReadingChunks)
+                    {
+                        isReadingChunks = false;
+                    }
+
+                    //Current Number
+                    else if(isSearchStarted && line.Contains("\t\t\t\tcurrent="))
+                    {
+                        string currentNum = Regex.Match(line, @"\d+").Value;
+                        armyRegiment.SetCurrentNum(currentNum);
+                    }
+
+                    //Max
+                    else if (isSearchStarted && line.Contains("\t\t\t\tmax="))
+                    {
+                        string max = Regex.Match(line, @"\d+").Value;
+                        armyRegiment.SetMax(max);
+                    }
+
+                    //Men At Arms
+                    else if (isSearchStarted && line.Contains("\t\t\ttype="))
+                    {
+                        string type = Regex.Match(line, "type=(.+)").Groups[1].Value;
+                        armyRegiment.SetType(RegimentType.MenAtArms, type);
+                        isNameSet = true;
+                    }
+
+                    //Knight
+                    else if (isSearchStarted && line.Contains("\t\t\tknight="))
+                    {
+                        string character_id = Regex.Match(line, @"knight=(\d+)").Groups[1].Value;
+                        armyRegiment.SetType(RegimentType.Knight, character_id);
+                        isNameSet = true;
+                    }
+
+                    
+                    //Levies
+                    else if (isSearchStarted && line == "\t\t\t\tlevies={")
+                    {
+                        armyRegiment.SetType(RegimentType.Levy);
+                        isNameSet = true;
+                    }
+
+                    // Army Regiment End Line
+                    else if (line == "\t\t}" && isSearchStarted)
+                    {
+                        //Debug purposes, remove later...
+                        if(found_regiments != null)
+                        {
+                            armyRegiment.SetRegiments(found_regiments);
+                        }
+
+                        found_regiments = new List<Regiment>();
+                        regiment_id = "";
+                        index = "";
+                        isSearchStarted = false;
+                        isNameSet= false;
+                        isReadingChunks = false;
+                    }
+
+                }
+            }
+
+            ClearNullArmyRegiments();
+        }
+
+
+        private static void ReadArmiesData()
+        {
+            bool isSearchStarted = false;
+            bool isDefender = false, isAttacker = false;
+            int index = 0;
+            using (StreamReader SR = new StreamReader(Writter.DataFilesPaths.Armies_Path()))
+            {
+                while(true)
+                {
+                    string line = SR.ReadLine();
+                    if (line == null) break;
+
+                    // Army ID Line
+                    if(Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
+                    {
+                        // Check if it's a battle army
+
+                        string army_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
+                        for (int i = 0; i < attacker_armies.Count; i++)
+                        {
+                            if (attacker_armies[i].ID == army_id)
+                            {
+                                index = i;
+                                isAttacker = true;
+                                isDefender = false;
+                                isSearchStarted = true;
+                                break;
+                            }
+
+                        }
+                        if(!isSearchStarted)
+                        {
+                            for (int i = 0; i < defender_armies.Count; i++)
+                            {
+                                if (defender_armies[i].ID == army_id)
+                                {
+                                    index = i;
+                                    isDefender = true;
+                                    isAttacker = false;
+                                    isSearchStarted = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+
+                    // Regiments ID's Line
+                    if (isSearchStarted && line.Contains("\t\t\tregiments={"))
+                    {
+                        MatchCollection regiments_ids = Regex.Matches(line, @"(\d+) ");
+                        List<ArmyRegiment> army_regiments = new List<ArmyRegiment>();
+                        foreach(Match match in regiments_ids)
+                        {
+                            string id_ = match.Groups[1].Value;
+                            ArmyRegiment army_regiment = new ArmyRegiment(id_);
+                            army_regiments.Add(army_regiment);
+                        }
+
+                        if(isAttacker)
+                        {
+                            attacker_armies[index].SetArmyRegiments(army_regiments);
+                        }
+                        else if(isDefender)
+                        {
+                            defender_armies[index].SetArmyRegiments(army_regiments);
+                        }
+
+                    }
+                    else if(isSearchStarted && line.Contains("\t\t\tcommander="))
+                    {
+                        string id = Regex.Match(line, @"commander=(\d+)").Groups[1].Value;
+                        if (isAttacker)
+                        {
+                            attacker_armies[index].CommanderID = id;
+                        }
+                        else if (isDefender)
+                        {
+                            defender_armies[index].CommanderID = id;
+                        }
+                    }
+                    else if (isSearchStarted && line.Contains("\t\t\tunit="))
+                    {
+                        string armyUnitId = Regex.Match(line, @"\d+").Value;
+                        if(isAttacker)
+                        {
+                            attacker_armies[index].ArmyUnitID = armyUnitId;
+                        }
+                        else if(isDefender)
+                        {
+                            defender_armies[index].ArmyUnitID = armyUnitId;
+                        }
+                    }
+
+
+
+                    // Army End Line
+                    if (isSearchStarted && line == "\t\t}")
+                    {
+                        index = 0;
+                        isAttacker = false;
+                        isDefender = false;
+                        isSearchStarted = false;
+                    }
+
+                }
+            }
+        }
+
+        private static void ReadCombatArmies(string g)
+        {
+            bool isAttacker = false, isDefender = false;
+
+            using (StringReader SR = new StringReader(g))//Player_Combat
+            {
+                while (true)
+                {
+                    string line = SR.ReadLine();
+                    if (line == null) break;
+
+                    if (line == "\t\t\tattacker={")
+                    {
+                        isAttacker = true;
+                        isDefender = false;
+                    }
+                    else if (line == "\t\t\tdefender={")
+                    {
+                        isAttacker = false;
+                        isDefender = true;
+                    }
+                    else if (line == "\t\t\t}")
+                    {
+                        isDefender = false;
+                        isAttacker = false;
+                    }
+
+                    if (isAttacker && line.Contains("\t\t\t\tarmies={"))
+                    {
+                        MatchCollection found_armies = Regex.Matches(line, @"(\d+) ");
+                        attacker_armies = new List<Army>();
+
+                        for(int i = 0; i < found_armies.Count; i++)
+                        {
+                            //Create new Army with combat sides on the constructor
+                            //Army army
+                            string id = found_armies[i].Groups[1].Value;
+                            string combat_side = "attacker";
+
+                            // main army
+                            if(i == 0) //<-------------------------------------------------------------------[FIX THIS] !!!
+                            {
+                                Army army = new Army(id, combat_side, true);
+                                attacker_armies.Add(army);
+                            }
+                            // ally army
+                            else
+                            {
+                               Army army = new Army(id, combat_side, false);
+                               attacker_armies.Add(army);
+                            }
+                        }
+  
+                    }
+                    else if (isDefender && line.Contains("\t\t\t\tarmies={"))
+                    {
+                        MatchCollection found_armies = Regex.Matches(line, @"(\d+) ");
+                        defender_armies = new List<Army>();
+
+                        for (int i = 0; i < found_armies.Count; i++)
+                        {
+                            //Create new Army with combat sides on the constructor
+                            //Army army
+                            string id = found_armies[i].Groups[1].Value;
+                            string combat_side = "defender";
+
+                            // main army
+                            if (i == 0)//<-------------------------------------------------------------------[FIX THIS] !!!
+                            {
+                                Army army = new Army(id, combat_side, true);
+                                defender_armies.Add(army);
+                            }
+                            // ally army
+                            else
+                            {
+                                Army army = new Army(id, combat_side, false);
+                                defender_armies.Add(army);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        static void ReadCombatSoldiersNum(string combat_string)
+        {
+            bool isAttacker = false, isDefender = false;
+            string searchingArmyRegiment = null;
+            using (StringReader SR = new StringReader(combat_string))//Player_Combat
+            {
+                while (true)
+                {
+                    string line = SR.ReadLine();
+                    if (line == null) break;
+
+                    if (line == "\t\t\tattacker={")
+                    {
+                        isAttacker = true;
+                        isDefender = false;
+                    }
+                    else if (line == "\t\t\tdefender={")
+                    {
+                        isAttacker = false;
+                        isDefender = true;
+                    }
+                    else if (line == "\t\t\t}")
+                    {
+                        isDefender = false;
+                        isAttacker = false;
+                    }
+
+                    else if (isAttacker && line.Contains("\t\t\t\t\t\tregiment="))
+                    {
+                        searchingArmyRegiment = Regex.Match(line, @"\d+").Value;
+                    }
+                    else if (isDefender && line.Contains("\t\t\t\t\t\tregiment="))
+                    {
+                        searchingArmyRegiment = Regex.Match(line, @"\d+").Value;
+                    }
+
+                    else if(isAttacker && line.Contains("\t\t\t\t\t\tstarting="))
+                    {
+                        string startingNum = Regex.Match(line,@"\d+").Value;
+
+                        foreach(var army in attacker_armies)
+                        {
+                            army.ArmyRegiments.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                        }
+
+                    }
+                    else if(isDefender && line.Contains("\t\t\t\t\t\tstarting="))
+                    {
+                        string startingNum = Regex.Match(line, @"\d+").Value;
+                        foreach (var army in defender_armies)
+                        {
+                            army.ArmyRegiments.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                        }
+                    }
+
+                    else if((isAttacker || isDefender) && line == "\t\t\t}")
+                    {
+                        isAttacker = false;
+                        isDefender = false;
+                        searchingArmyRegiment = null;
+                    }
+
+                    //end line
+                    else if(line == "\t\t}")
+                    {
+                        break;
+                    }
+ 
+
+                }
+            }
+        }
+
+
+    }
+}

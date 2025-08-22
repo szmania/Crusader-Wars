@@ -202,6 +202,7 @@
     <Compile Include="sieges\Sieges.cs" />
     <Compile Include="twbattle\Reinforcements.cs" />
     <Compile Include="twbattle\UnitsFile.cs" />
+    <Compile Include="twbattle\BattleState.cs" />
     <Compile Include="armies\characters\Characters_Data.cs" />
     <Compile Include="armies\battle scale\ArmyProportions.cs" />
     <Compile Include="data\save file\Reader.cs" />
