@@ -624,7 +624,7 @@ namespace Crusader_Wars
                 Program.Logger.Debug("Creating TW:Attila battle files.");
                 BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side_combat_side);
 
-                Games.CloseTotalWarAttilaProcess();
+                await Games.CloseTotalWarAttilaProcess();
                 UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");
 
                 //Create Remaining Soldiers Script
@@ -728,7 +728,7 @@ namespace Crusader_Wars
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                 MessageBox.Show($"Error: {ex.Message}", "Crusader Wars: Application Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                Games.CloseTotalWarAttilaProcess();
+                await Games.CloseTotalWarAttilaProcess();
                 Games.StartCrusaderKingsProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
                 this.Text = "Crusader Wars (Waiting for CK3 battle...)";
@@ -857,7 +857,7 @@ namespace Crusader_Wars
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show($"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Wars: TW:Attila Battle Results Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                Games.CloseTotalWarAttilaProcess();
+                await Games.CloseTotalWarAttilaProcess();
                 Games.StartCrusaderKingsProcess();
                 infoLabel.Text = "Waiting for CK3 battle...";
                 this.Text = "Crusader Wars (Waiting for CK3 battle...)";
@@ -883,7 +883,7 @@ namespace Crusader_Wars
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Continue Battle button clicked.");
-            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
+            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
             sounds.Play();
             _myVariable = 1;
             ExecuteButton.Enabled = false;
@@ -1080,7 +1080,7 @@ namespace Crusader_Wars
                 Process.Start(@".\CW.lnk");
             }
 
-            public async static void CloseTotalWarAttilaProcess()
+            public async static Task CloseTotalWarAttilaProcess()
             {
                 Program.Logger.Debug("Closing Total War: Attila process...");
                 Process[] process_attila = Process.GetProcessesByName("Attila");
