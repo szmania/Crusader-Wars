@@ -635,7 +635,7 @@ namespace Crusader_Wars
             this.Text = "Crusader Wars";
         }
 
-        private async Task<bool> ProcessBattle()
+        private async Task<bool> ProcessBattle(bool regenerateAndRestart = true)
         {
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
@@ -647,114 +647,120 @@ namespace Crusader_Wars
             Program.Logger.Debug($"Right side ({right_side_combat_side}) total soldiers: {right_side_total}");
 
 
-
-
-            try
+            if (regenerateAndRestart)
             {
-                Program.Logger.Debug("Creating TW:Attila battle files.");
-                BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side_combat_side);
-
-                await Games.CloseTotalWarAttilaProcess();
-                UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");
-
-                //Create Remaining Soldiers Script
-                Program.Logger.Debug("Creating battle script...");
-                BattleScript.CreateScript();
-
-                // Set Battle Scale
-                int total_soldiers = attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
-                                     defender_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers());
-                Program.Logger.Debug($"Total soldiers for battle scale calculation: {total_soldiers}");
-                ArmyProportions.AutoSizeUnits(total_soldiers);
-                Program.Logger.Debug($"Applying battle scale: {ModOptions.GetBattleScale()}");
-                foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
-                foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
-
-                //Create Battle
-                Program.Logger.Debug("Creating battle file...");
-                BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);
-
-                //Close Script
-                BattleScript.CloseScript();
-
-                //Set Commanders Script
-                Program.Logger.Debug("Setting commanders in script...");
-                BattleScript.SetCommandersLocals();
-
-                //Set Units Kills Script
-                Program.Logger.Debug("Setting unit kill trackers in script...");
-                BattleScript.SetLocalsKills(Data.units_scripts);
-
-                //Close Script
-                BattleScript.CloseScript();
-
-                //Creates .pack mod file
-                Program.Logger.Debug("Creating .pack file...");
-                PackFile.PackFileCreator();
-            }
-            catch (Exception ex)
-            {
-                Program.Logger.Debug($"Error creating Attila battle: {ex.Message}");
-                this.Show();
-                if (loadingScreen != null) CloseLoadingScreen();
-                MessageBox.Show($"Error creating the battle:{ex.Message}", "Crusader Wars: Data Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                if (ModOptions.CloseCK3DuringBattle())
+                try
                 {
-                    Games.StartCrusaderKingsProcess();
+                    Program.Logger.Debug("Creating TW:Attila battle files.");
+                    BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side_combat_side);
+
+                    await Games.CloseTotalWarAttilaProcess();
+                    UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");
+
+                    //Create Remaining Soldiers Script
+                    Program.Logger.Debug("Creating battle script...");
+                    BattleScript.CreateScript();
+
+                    // Set Battle Scale
+                    int total_soldiers = attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
+                                         defender_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers());
+                    Program.Logger.Debug($"Total soldiers for battle scale calculation: {total_soldiers}");
+                    ArmyProportions.AutoSizeUnits(total_soldiers);
+                    Program.Logger.Debug($"Applying battle scale: {ModOptions.GetBattleScale()}");
+                    foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
+                    foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
+
+                    //Create Battle
+                    Program.Logger.Debug("Creating battle file...");
+                    BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);
+
+                    //Close Script
+                    BattleScript.CloseScript();
+
+                    //Set Commanders Script
+                    Program.Logger.Debug("Setting commanders in script...");
+                    BattleScript.SetCommandersLocals();
+
+                    //Set Units Kills Script
+                    Program.Logger.Debug("Setting unit kill trackers in script...");
+                    BattleScript.SetLocalsKills(Data.units_scripts);
+
+                    //Close Script
+                    BattleScript.CloseScript();
+
+                    //Creates .pack mod file
+                    Program.Logger.Debug("Creating .pack file...");
+                    PackFile.PackFileCreator();
                 }
-                else
+                catch (Exception ex)
                 {
-                    ProcessCommands.ResumeProcess();
-                }
-                infoLabel.Text = "Waiting for CK3 battle...";
-                this.Text = "Crusader Wars (Waiting for CK3 battle...)";
-
-                //Data Clear
-                Data.Reset();
-
-                return true; // Continue
-            }
-
-            try
-            {
-                // Check for user.script.txt conflict before launching Attila
-                if (!AttilaPreferences.ValidateBeforeLaunch())
-                {
-                    Program.Logger.Debug("Aborting Attila launch due to user script conflict.");
+                    Program.Logger.Debug($"Error creating Attila battle: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
-                    ProcessCommands.ResumeProcess();
+                    MessageBox.Show($"Error creating the battle:{ex.Message}", "Crusader Wars: Data Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    if (ModOptions.CloseCK3DuringBattle())
+                    {
+                        Games.StartCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.ResumeProcess();
+                    }
                     infoLabel.Text = "Waiting for CK3 battle...";
                     this.Text = "Crusader Wars (Waiting for CK3 battle...)";
+
+                    //Data Clear
                     Data.Reset();
+
                     return true; // Continue
                 }
 
-                //Open Total War Attila
-                Program.Logger.Debug("Starting Total War: Attila process...");
-                Games.StartTotalWArAttilaProcess();
+                try
+                {
+                    // Check for user.script.txt conflict before launching Attila
+                    if (!AttilaPreferences.ValidateBeforeLaunch())
+                    {
+                        Program.Logger.Debug("Aborting Attila launch due to user script conflict.");
+                        this.Show();
+                        if (loadingScreen != null) CloseLoadingScreen();
+                        ProcessCommands.ResumeProcess();
+                        infoLabel.Text = "Waiting for CK3 battle...";
+                        this.Text = "Crusader Wars (Waiting for CK3 battle...)";
+                        Data.Reset();
+                        return true; // Continue
+                    }
+
+                    //Open Total War Attila
+                    Program.Logger.Debug("Starting Total War: Attila process...");
+                    Games.StartTotalWArAttilaProcess();
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error starting Attila: {ex.Message}");
+                    this.Show();
+                    if (loadingScreen != null) CloseLoadingScreen();
+                    MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Wars: Path Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    infoLabel.Text = "Ready to start!";
+                    if (ModOptions.CloseCK3DuringBattle())
+                    {
+                        Games.StartCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.ResumeProcess();
+                    }
+                    ExecuteButton.Enabled = true;
+                    this.Text = "Crusader Wars";
+                    return false; // Break
+                }
             }
-            catch (Exception ex)
+            else
             {
-                Program.Logger.Debug($"Error starting Attila: {ex.Message}");
-                this.Show();
-                if (loadingScreen != null) CloseLoadingScreen();
-                MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Wars: Path Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                infoLabel.Text = "Ready to start!";
-                if (ModOptions.CloseCK3DuringBattle())
-                {
-                    Games.StartCrusaderKingsProcess();
-                }
-                else
-                {
-                    ProcessCommands.ResumeProcess();
-                }
-                ExecuteButton.Enabled = true;
-                this.Text = "Crusader Wars";
-                return false; // Break
+                Program.Logger.Debug("Skipping battle file regeneration and Attila restart. Using current session.");
             }
+
 
             try
             {
@@ -1004,8 +1010,43 @@ namespace Crusader_Wars
                 return;
             }
 
+            bool regenerateAndRestart = true; // Default behavior
+
+            Process[] attilaProcesses = Process.GetProcessesByName("Attila");
+            if (attilaProcesses.Length > 0)
+            {
+                string message = "Total War: Attila is already running.\n\n" +
+                                 "Do you want to restart it to ensure the latest battle data is loaded?\n\n" +
+                                 "• Yes: Restart Attila. (Recommended to retry the battle)\n" +
+                                 "• No: Continue with the current session. (If the launcher closed unexpectedly)\n" +
+                                 "• Cancel: Do nothing.";
+                string title = "Attila is Running";
+                DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    regenerateAndRestart = true;
+                }
+                else if (result == DialogResult.No)
+                {
+                    regenerateAndRestart = false;
+                }
+                else // Cancel
+                {
+                    // Re-enable buttons and return
+                    _myVariable = 0;
+                    ExecuteButton.Enabled = true;
+                    ContinueBattleButton.Enabled = true;
+                    if (ExecuteButton.Enabled)
+                    {
+                        ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                    }
+                    return;
+                }
+            }
+
             _programmaticClick = true;
-            if (await ProcessBattle())
+            if (await ProcessBattle(regenerateAndRestart))
             {
                 // The battle finished successfully, start the main loop to wait for the next one.
                 ExecuteButton.PerformClick();
