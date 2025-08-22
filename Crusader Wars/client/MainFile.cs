@@ -318,6 +318,7 @@ namespace Crusader_Wars
 
             UnitsCardsNames.RemoveFiles();
 
+            bool battleProcessedSuccessfully = false;
             while (true)
             {
                 Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
@@ -617,19 +618,35 @@ namespace Crusader_Wars
                     break;
                 }
 
-                UpdateUIForBattleState();
+                battleProcessedSuccessfully = true;
+                break;
 
             }
 
-            // Reset UI if the main loop is broken by a critical error
-            _myVariable = 0;
-            ExecuteButton.Enabled = true;
-            if (ExecuteButton.Enabled)
+            if (battleProcessedSuccessfully)
             {
-                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                _myVariable = 0;
+                ExecuteButton.Enabled = true;
+                if (ExecuteButton.Enabled)
+                {
+                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                }
+                ContinueBattleButton.Visible = false;
+                ExecuteButton.Text = "";
+                ExecuteButton.Size = new Size(197, 115);
             }
-            UpdateUIForBattleState();
-            this.Text = "Crusader Wars";
+            else
+            {
+                // Reset UI if the main loop is broken by a critical error
+                _myVariable = 0;
+                ExecuteButton.Enabled = true;
+                if (ExecuteButton.Enabled)
+                {
+                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                }
+                UpdateUIForBattleState();
+                this.Text = "Crusader Wars";
+            }
         }
 
         private async Task<bool> ProcessBattle()
@@ -838,8 +855,8 @@ namespace Crusader_Wars
                     Program.Logger.Debug("Processing TW:Attila battle results.");
                     ModOptions.CloseAttila();
 
-                    infoLabel.Text = "TW:Attila battle has ended!";
-                    this.Text = "Crusader Wars (TW:Attila battle has ended)";
+                    infoLabel.Text = "Processing battle results...";
+                    this.Text = "Crusader Wars (Processing results)";
 
                     string path_log_attila = Properties.Settings.Default.VAR_log_attila;
 
@@ -905,6 +922,9 @@ namespace Crusader_Wars
                     {
                         ProcessCommands.ResumeProcess();
                     }
+
+                    infoLabel.Text = "Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
+                    this.Text = "Crusader Wars (Battle Complete)";
                 }
             }
             catch (Exception ex)
