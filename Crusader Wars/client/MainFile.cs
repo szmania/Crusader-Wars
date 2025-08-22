@@ -495,7 +495,14 @@ namespace Crusader_Wars
                 {
                     UpdateLoadingScreenMessage("Getting data from CK3 save file...");
                     await Task.Delay(2000); //Old was 3000ms
-                    ProcessCommands.SuspendProcess();
+                    if (ModOptions.CloseCK3DuringBattle())
+                    {
+                        Games.CloseCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.SuspendProcess();
+                    }
 
                     //path_editedSave = Properties.Settings.Default.VAR_dir_save + @"\CrusaderWars_Battle.ck3";
                     path_editedSave = @".\data\save_file_data\gamestate_file\gamestate";
@@ -733,7 +740,10 @@ namespace Crusader_Wars
             }
 
 
-            Games.CloseCrusaderKingsProcess();
+            if (ModOptions.CloseCK3DuringBattle())
+            {
+                Games.CloseCrusaderKingsProcess();
+            }
 
             Program.Logger.Debug("TW:Attila battle created successfully");
 
