@@ -393,9 +393,26 @@ namespace Crusader_Wars
                                     }
 
                                 }
+
+                                // Check if CK3 process is still running
+                                Process[] ck3Processes = Process.GetProcessesByName("ck3");
+                                if (ck3Processes.Length == 0)
+                                {
+                                    Program.Logger.Debug("CK3 process not found while waiting for battle. Resetting UI.");
+                                    _myVariable = 0;
+                                    ExecuteButton.Enabled = true;
+                                    if (ExecuteButton.Enabled)
+                                    {
+                                        ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                                    }
+                                    UpdateUIForBattleState();
+                                    this.Text = "Crusader Wars";
+                                    return;
+                                }
+
                                 logFile.Position = 0;
                                 reader.DiscardBufferedData();
-                                await Task.Delay(1);
+                                await Task.Delay(500); // Increased delay for efficiency
                             }
                         }
                         catch (Exception ex)
