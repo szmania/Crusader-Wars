@@ -307,6 +307,7 @@ namespace Crusader_Wars
             ProcessCommands.ResumeProcess();
 
             BattleState.ClearBattleState();
+            UpdateUIForBattleState();
 
             /*
              *  ERASES OLD FILES
