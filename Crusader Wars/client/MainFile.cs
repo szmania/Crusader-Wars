@@ -154,8 +154,8 @@ namespace Crusader_Wars
                 {
                     infoLabel.AutoSize = false;
                     infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
-                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Be sure to select your game paths on the Settings screen.";
-                    else infoLabel.Text = "No Unit Mappers Enabled! Be sure to select a Playthrough on the Settings screen.";
+                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Settings screen.";
+                    else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Settings screen.";
                     ExecuteButton.Enabled = false;
                     infoLabel.ForeColor = System.Drawing.Color.FromArgb(74, 0, 0);
                 }
@@ -1033,7 +1033,7 @@ namespace Crusader_Wars
                 string message = "Total War: Attila is already running.\n\n" +
                                  "Do you want to restart it to ensure the latest battle data is loaded?\n\n" +
                                  "• Yes: Restart Attila. (Recommended to retry the battle)\n" +
-                                 "• No: Continue with the current session. (If the launcher closed unexpectedly)\n" +
+                                 "• No: Continue with the current session. (If the CW launcher closed unexpectedly)\n" +
                                  "• Cancel: Do nothing.";
                 string title = "Attila is Running";
                 DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
