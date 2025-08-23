@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -41,6 +42,7 @@
             this.OptionSelection_RangedMax = new System.Windows.Forms.ComboBox();
             this.OptionSelection_LeviesMax = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -165,6 +167,7 @@
             this.OptionSelection_InfantryMax.Name = "OptionSelection_InfantryMax";
             this.OptionSelection_InfantryMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_InfantryMax.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.OptionSelection_InfantryMax, "Sets the maximum number of soldiers for a single infantry unit in Attila.");
             // 
             // OptionSelection_CavalryMax
             // 
@@ -183,6 +186,7 @@
             this.OptionSelection_CavalryMax.Name = "OptionSelection_CavalryMax";
             this.OptionSelection_CavalryMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_CavalryMax.TabIndex = 7;
+            this.toolTip1.SetToolTip(this.OptionSelection_CavalryMax, "Sets the maximum number of soldiers for a single cavalry unit in Attila.");
             // 
             // pictureBox3
             // 
@@ -225,6 +229,7 @@
             this.OptionSelection_RangedMax.Name = "OptionSelection_RangedMax";
             this.OptionSelection_RangedMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_RangedMax.TabIndex = 6;
+            this.toolTip1.SetToolTip(this.OptionSelection_RangedMax, "Sets the maximum number of soldiers for a single ranged unit in Attila.");
             // 
             // OptionSelection_LeviesMax
             // 
@@ -241,6 +246,7 @@
             this.OptionSelection_LeviesMax.Name = "OptionSelection_LeviesMax";
             this.OptionSelection_LeviesMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_LeviesMax.TabIndex = 5;
+            this.toolTip1.SetToolTip(this.OptionSelection_LeviesMax, "Sets the maximum number of soldiers for a single levy unit in Attila.");
             // 
             // label1
             // 
@@ -256,6 +262,11 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "Levies";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.AutomaticDelay = 100000;
+            this.toolTip1.IsBalloon = true;
             // 
             // UC_UnitsOptions
             // 
@@ -291,5 +302,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
