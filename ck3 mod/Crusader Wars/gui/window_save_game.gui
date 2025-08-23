@@ -17,10 +17,13 @@ window = {
 		### START ALL CRUSADER WARS EDITS TO window_save_game.gui ###
 		############################################################
 		############################################################
+		
 	state = {
         name = confirm_save
+        duration = 1
         on_finish = "[SaveGameWindow.Save]"
         on_finish = "[SaveGameWindow.Cancel]"
+        on_finish = "[PdxGuiTriggerAllAnimations('cw_confirm_overwrite_save')]"
         on_finish = "[PdxGuiTriggerAllAnimations('resume_game')]"
     }
 

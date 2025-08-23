@@ -59,6 +59,8 @@ window = {
         name = resume_game
 		on_finish = "[PauseMenu.Resume]"
 		on_finish = "[ExecuteConsoleCommand(Concatenate('Keyword:', 'CRUSADERWARS3'))]"   # Crusader Wars KEYWORD to start Attila
+		on_finish = "[PauseMenu.ExitGame( '(bool)yes' )]"
+		on_finish = "[PdxGuiTriggerAllAnimations('cw_exit_to_menu')]"	#exit to menu
     }
 
 		############################################################

@@ -77,7 +77,7 @@
             this.WarningLabel.ForeColor = System.Drawing.Color.DarkRed;
             this.WarningLabel.Location = new System.Drawing.Point(12, 45);
             this.WarningLabel.Name = "WarningLabel";
-            this.WarningLabel.Size = new System.Drawing.Size(582, 36);
+            this.WarningLabel.Size = new System.Drawing.Size(625, 36);
             this.WarningLabel.TabIndex = 6;
             this.WarningLabel.Text = "(If you are a non-steam user, you need to overwrite the ck3 mod files manually)";
             this.WarningLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -103,7 +103,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::CW_Updater.Properties.Resources.tooltip_bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(604, 190);
+            this.ClientSize = new System.Drawing.Size(650, 190);
             this.Controls.Add(this.TitleLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.WarningLabel);
