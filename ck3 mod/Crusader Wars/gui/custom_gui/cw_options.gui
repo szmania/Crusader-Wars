@@ -726,7 +726,7 @@ window = {
                                         onclick = "[PdxGuiTriggerAllAnimations('print_control_4')]"
                                         # When clicked this button will write to the C:\Users\username\Documents\Paradox Interactive\Crusader Kings III\console_history.txt
 			                            state = {
-				                            name = "print_control_3"
+				                            name = "print_control_4"
 				                            duration = 0.01
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('control:', '4'))]"    # Set commander type for direct control to any character
 			                            }

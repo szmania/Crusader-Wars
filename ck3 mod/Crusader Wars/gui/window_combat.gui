@@ -2362,7 +2362,7 @@ window = {
 			#onclick = "[GetVariableSystem.Set( 'cw_op_meleesize', 'meleesize2' )]"
 			#onclick = "[GetVariableSystem.Set( 'cw_op_rangedsize', 'rangedsize2' )]"
 			#onclick = "[GetVariableSystem.Set( 'cw_op_mountedsize', 'mountedsize2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_control', 'control1' )]"
+			onclick = "[And(Not(GetVariableSystem.Exists('cw_op_tabs')), GetVariableSystem.Set( 'cw_op_control', 'control1' ))]"
 			#onclick = "[GetVariableSystem.Set( 'cw_op_unitnames', 'unitnames1' )]"
 		}
 		
@@ -2387,7 +2387,7 @@ window = {
 			#onclick = "[GetVariableSystem.Set( 'cw_op_meleesize', 'meleesize2' )]"
 			#onclick = "[GetVariableSystem.Set( 'cw_op_rangedsize', 'rangedsize2' )]"
 			#onclick = "[GetVariableSystem.Set( 'cw_op_mountedsize', 'mountedsize1' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_control', 'control1' )]"
+			onclick = "[And(Not(GetVariableSystem.Exists('cw_op_tabs')), GetVariableSystem.Set( 'cw_op_control', 'control1' ))]"
 			#onclick = "[GetVariableSystem.Set( 'cw_op_unitnames', 'unitnames1' )]"
 		}
 
