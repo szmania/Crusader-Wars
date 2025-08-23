@@ -185,6 +185,7 @@
             this.ToolTip_UnitMappers.AutomaticDelay = 0;
             this.ToolTip_UnitMappers.AutoPopDelay = 20000;
             this.ToolTip_UnitMappers.InitialDelay = 100;
+            this.ToolTip_UnitMappers.IsBalloon = true;
             this.ToolTip_UnitMappers.ReshowDelay = 0;
             // 
             // label3
@@ -437,6 +438,7 @@
             this.Btn_CK3Tab.Size = new System.Drawing.Size(113, 28);
             this.Btn_CK3Tab.TabIndex = 0;
             this.Btn_CK3Tab.Text = "Crusader Kings";
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CK3Tab, "Standard Crusader Kings time frame with the 912 AD and 1212 AD mods for Attila.");
             this.Btn_CK3Tab.UseVisualStyleBackColor = false;
             this.Btn_CK3Tab.Click += new System.EventHandler(this.Btn_CK3Tab_Click);
             // 
@@ -455,6 +457,7 @@
             this.Btn_TFETab.Size = new System.Drawing.Size(123, 28);
             this.Btn_TFETab.TabIndex = 1;
             this.Btn_TFETab.Text = "The Fallen Eagle";
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_TFETab, "Uses The Fallen Eagle Mod for CK3, with the FireForged Empire Mod for Attila.");
             this.Btn_TFETab.UseVisualStyleBackColor = false;
             this.Btn_TFETab.Click += new System.EventHandler(this.Btn_TFETab_Click);
             // 
@@ -473,6 +476,7 @@
             this.Btn_LOTRTab.Size = new System.Drawing.Size(114, 28);
             this.Btn_LOTRTab.TabIndex = 2;
             this.Btn_LOTRTab.Text = "Realms in Exile";
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Uses the CK3 mod LOTR: Realms in Exile and the Attila mod \"Dawnless Days\".");
             this.Btn_LOTRTab.UseVisualStyleBackColor = false;
             this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
             // 
