@@ -599,9 +599,6 @@
   <data name="BottomPanelLayout.Margin" type="System.Windows.Forms.Padding">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="BottomPanelLayout.Size" type="System.Drawing.Size">
-    <value>1219, 37</value>
-  </data>
   <data name="BottomPanelLayout.TabIndex" type="System.Int32">
     <value>32</value>
   </data>
@@ -808,5 +805,11 @@
   </data>
   <data name="BottomRightFlowPanel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
+  </data>
+  <data name="BottomPanelLayout.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="BottomPanelLayout.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+    <value>GrowAndShrink</value>
   </data>
 </root>

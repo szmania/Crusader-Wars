@@ -205,6 +205,8 @@
             // 
             // BottomPanelLayout
             // 
+            this.BottomPanelLayout.AutoSize = true;
+            this.BottomPanelLayout.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BottomPanelLayout.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.BottomPanelLayout, "BottomPanelLayout");
             this.BottomPanelLayout.ColumnCount = 3;
@@ -215,7 +217,7 @@
             this.BottomPanelLayout.Controls.Add(this.BottomRightFlowPanel, 2, 0);
             this.BottomPanelLayout.Name = "BottomPanelLayout";
             this.BottomPanelLayout.RowCount = 1;
-            this.BottomPanelLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.BottomPanelLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             // 
             // BottomLeftFlowPanel
             // 
@@ -341,6 +343,7 @@
             this.BottomRightFlowPanel.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
