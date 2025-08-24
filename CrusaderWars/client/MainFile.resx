@@ -192,7 +192,7 @@
   <data name="btt_debug.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
-  <data name="btt_debug.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="btt_debug.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt</value>
   </data>
   <data name="btt_debug.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
@@ -231,7 +231,7 @@
   <data name="infoLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="infoLabel.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="infoLabel.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
   <data name="infoLabel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
@@ -243,7 +243,7 @@
   <data name="infoLabel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 0, 4, 0</value>
   </data>
-  <data name="infoLabel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="infoLabel.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
   <data name="infoLabel.Size" type="System.Drawing.Size, System.Drawing">
@@ -309,25 +309,25 @@
   <metadata name="InformationToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="viewLogsLink.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="viewLogsLink.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
-  <data name="viewLogsLink.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="viewLogsLink.ImeMode" type="System.Windows.Forms.ImeMode">
     <value>NoControl</value>
   </data>
-  <data name="viewLogsLink.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="viewLogsLink.Location" type="System.Drawing.Point">
     <value>235, 0</value>
   </data>
-  <data name="viewLogsLink.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="viewLogsLink.Margin" type="System.Windows.Forms.Padding">
     <value>4, 0, 4, 0</value>
   </data>
-  <data name="viewLogsLink.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="viewLogsLink.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="viewLogsLink.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="viewLogsLink.Size" type="System.Drawing.Size">
     <value>112, 31</value>
   </data>
-  <data name="viewLogsLink.TabIndex" type="System.Int32, mscorlib">
+  <data name="viewLogsLink.TabIndex" type="System.Int32">
     <value>27</value>
   </data>
   <data name="viewLogsLink.Text" xml:space="preserve">
@@ -345,37 +345,37 @@
   <data name="&gt;&gt;viewLogsLink.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="labelVersion.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="labelVersion.Anchor" type="System.Windows.Forms.AnchorStyles">
     <value>None</value>
   </data>
-  <data name="labelVersion.AutoSize" type="System.Boolean, mscorlib">
+  <data name="labelVersion.AutoSize" type="System.Boolean">
     <value>True</value>
   </data>
-  <data name="labelVersion.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="labelVersion.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
-  <data name="labelVersion.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="labelVersion.ImeMode" type="System.Windows.Forms.ImeMode">
     <value>NoControl</value>
   </data>
-  <data name="labelVersion.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="labelVersion.Location" type="System.Drawing.Point">
     <value>4, 0</value>
   </data>
-  <data name="labelVersion.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="labelVersion.Margin" type="System.Windows.Forms.Padding">
     <value>4, 0, 4, 0</value>
   </data>
-  <data name="labelVersion.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="labelVersion.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="labelVersion.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="labelVersion.Size" type="System.Drawing.Size">
     <value>63, 31</value>
   </data>
-  <data name="labelVersion.TabIndex" type="System.Int32, mscorlib">
+  <data name="labelVersion.TabIndex" type="System.Int32">
     <value>25</value>
   </data>
   <data name="labelVersion.Text" xml:space="preserve">
     <value>V1.0</value>
   </data>
-  <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+  <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment">
     <value>TopCenter</value>
   </data>
   <data name="&gt;&gt;labelVersion.Name" xml:space="preserve">
@@ -390,37 +390,37 @@
   <data name="&gt;&gt;labelVersion.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="labelMappersVersion.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="labelMappersVersion.Anchor" type="System.Windows.Forms.AnchorStyles">
     <value>None</value>
   </data>
-  <data name="labelMappersVersion.AutoSize" type="System.Boolean, mscorlib">
+  <data name="labelMappersVersion.AutoSize" type="System.Boolean">
     <value>True</value>
   </data>
-  <data name="labelMappersVersion.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="labelMappersVersion.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
-  <data name="labelMappersVersion.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="labelMappersVersion.ImeMode" type="System.Windows.Forms.ImeMode">
     <value>NoControl</value>
   </data>
-  <data name="labelMappersVersion.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="labelMappersVersion.Location" type="System.Drawing.Point">
     <value>71, 0</value>
   </data>
-  <data name="labelMappersVersion.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="labelMappersVersion.Margin" type="System.Windows.Forms.Padding">
     <value>4, 0, 4, 0</value>
   </data>
-  <data name="labelMappersVersion.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="labelMappersVersion.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="labelMappersVersion.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="labelMappersVersion.Size" type="System.Drawing.Size">
     <value>150, 31</value>
   </data>
-  <data name="labelMappersVersion.TabIndex" type="System.Int32, mscorlib">
+  <data name="labelMappersVersion.TabIndex" type="System.Int32">
     <value>31</value>
   </data>
   <data name="labelMappersVersion.Text" xml:space="preserve">
     <value>(mappers v0.0)</value>
   </data>
-  <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+  <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment">
     <value>TopCenter</value>
   </data>
   <data name="&gt;&gt;labelMappersVersion.Name" xml:space="preserve">
@@ -435,28 +435,28 @@
   <data name="&gt;&gt;labelMappersVersion.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="pictureBox1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="pictureBox1.Anchor" type="System.Windows.Forms.AnchorStyles">
     <value>None</value>
   </data>
-  <data name="pictureBox1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+  <data name="pictureBox1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout">
     <value>Center</value>
   </data>
-  <data name="pictureBox1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="pictureBox1.ImeMode" type="System.Windows.Forms.ImeMode">
     <value>NoControl</value>
   </data>
-  <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="pictureBox1.Location" type="System.Drawing.Point">
     <value>4, 4</value>
   </data>
-  <data name="pictureBox1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="pictureBox1.Margin" type="System.Windows.Forms.Padding">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="pictureBox1.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="pictureBox1.Size" type="System.Drawing.Size">
     <value>295, 300</value>
   </data>
-  <data name="pictureBox1.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
+  <data name="pictureBox1.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode">
     <value>Zoom</value>
   </data>
-  <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
+  <data name="pictureBox1.TabIndex" type="System.Int32">
     <value>26</value>
   </data>
   <data name="&gt;&gt;pictureBox1.Name" xml:space="preserve">
@@ -471,22 +471,22 @@
   <data name="&gt;&gt;pictureBox1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="MainPanelLayout.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="MainPanelLayout.Anchor" type="System.Windows.Forms.AnchorStyles">
     <value>Top, Bottom, Left, Right</value>
   </data>
-  <data name="MainPanelLayout.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+  <data name="MainPanelLayout.FlowDirection" type="System.Windows.Forms.FlowDirection">
     <value>TopDown</value>
   </data>
-  <data name="MainPanelLayout.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="MainPanelLayout.Location" type="System.Drawing.Point">
     <value>460, 0</value>
   </data>
-  <data name="MainPanelLayout.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="MainPanelLayout.Margin" type="System.Windows.Forms.Padding">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="MainPanelLayout.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="MainPanelLayout.Size" type="System.Drawing.Size">
     <value>299, 705</value>
   </data>
-  <data name="MainPanelLayout.TabIndex" type="System.Int32, mscorlib">
+  <data name="MainPanelLayout.TabIndex" type="System.Int32">
     <value>31</value>
   </data>
   <data name="&gt;&gt;MainPanelLayout.Name" xml:space="preserve">
@@ -501,37 +501,37 @@
   <data name="&gt;&gt;MainPanelLayout.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="EA_Label.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="EA_Label.Anchor" type="System.Windows.Forms.AnchorStyles">
     <value>None</value>
   </data>
-  <data name="EA_Label.AutoSize" type="System.Boolean, mscorlib">
+  <data name="EA_Label.AutoSize" type="System.Boolean">
     <value>True</value>
   </data>
-  <data name="EA_Label.Font" type="System.Drawing.Font, System.Drawing">
+  <data name="EA_Label.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
-  <data name="EA_Label.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="EA_Label.ImeMode" type="System.Windows.Forms.ImeMode">
     <value>NoControl</value>
   </data>
-  <data name="EA_Label.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="EA_Label.Location" type="System.Drawing.Point">
     <value>75, 0</value>
   </data>
-  <data name="EA_Label.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="EA_Label.Margin" type="System.Windows.Forms.Padding">
     <value>4, 0, 4, 0</value>
   </data>
-  <data name="EA_Label.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="EA_Label.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="EA_Label.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="EA_Label.Size" type="System.Drawing.Size">
     <value>133, 31</value>
   </data>
-  <data name="EA_Label.TabIndex" type="System.Int32, mscorlib">
+  <data name="EA_Label.TabIndex" type="System.Int32">
     <value>26</value>
   </data>
   <data name="EA_Label.Text" xml:space="preserve">
     <value>Early Acess</value>
   </data>
-  <data name="EA_Label.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+  <data name="EA_Label.TextAlign" type="System.Drawing.ContentAlignment">
     <value>TopCenter</value>
   </data>
   <data name="&gt;&gt;EA_Label.Name" xml:space="preserve">
@@ -630,11 +630,8 @@
   <data name="discordLink.Text" xml:space="preserve">
     <value>Join Discord</value>
   </data>
-  <data name="discordLink.ImageAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+  <data name="discordLink.ImageAlign" type="System.Drawing.ContentAlignment">
     <value>MiddleLeft</value>
-  </data>
-  <data name="discordLink.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
-    <value>ImageBeforeText</value>
   </data>
   <data name="&gt;&gt;discordLink.Name" xml:space="preserve">
     <value>discordLink</value>
