@@ -20,6 +20,7 @@ namespace CWUpdater
 
         public AutoUpdater()
         {
+            Logger.Log("Initializing AutoUpdater form.");
             if(GetArguments())
             {
                 
@@ -36,6 +37,7 @@ namespace CWUpdater
             }                
             else
             {
+                Logger.Log("Failed to get required arguments. Exiting.");
                 Environment.Exit(1);
             }
         }
@@ -43,12 +45,14 @@ namespace CWUpdater
         bool GetArguments()
         {
             string[] args = Environment.GetCommandLineArgs();
+            Logger.Log($"Arguments received: {string.Join(" ", args)}");
 
             if (args.Length == 3) // Check if at least 2 arguments are present
             {
                 DownloadUrl = args[1];
                 UpdateVersion = args[2];
                 IsUnitMappers = false;
+                Logger.Log($"App update detected. URL: {DownloadUrl}, Version: {UpdateVersion}");
                 return true;
             }
             else if (args.Length == 4) // Check if at least 3 arguments are present
@@ -56,8 +60,10 @@ namespace CWUpdater
                 DownloadUrl = args[1];
                 UpdateVersion = args[2];
                 IsUnitMappers = true;
+                Logger.Log($"Unit Mappers update detected. URL: {DownloadUrl}, Version: {UpdateVersion}");
                 return true;
             }
+            Logger.Log("Invalid number of arguments.");
             return false;
         }
 
@@ -65,12 +71,14 @@ namespace CWUpdater
         {
             try
             {
+                Logger.Log("Update button clicked.");
                 btnUpdate.Enabled = false;
                 btnUpdate.Text = "Updating..";
                 await DownloadUpdateAsync(DownloadUrl);
             }
-            catch 
+            catch (Exception ex)
             {
+                Logger.Log($"An error occurred in btnUpdate_Click: {ex.ToString()}");
                 Process.Start(@".\CrusaderWars.exe");
                 Environment.Exit(1);
             }
@@ -79,6 +87,7 @@ namespace CWUpdater
 
         public async Task DownloadUpdateAsync(string downloadUrl)
         {
+            Logger.Log($"Starting download from: {downloadUrl}");
  
             try
             {
@@ -94,12 +103,15 @@ namespace CWUpdater
                     // Asynchronously download the file
                     await webClient.DownloadFileTaskAsync(new Uri(downloadUrl), downloadPath);
                     Console.WriteLine("Update downloaded successfully.");
+                    Logger.Log("Update downloaded successfully.");
 
                     if(!IsUnitMappers) {
+                        Logger.Log("Applying application update.");
                         ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
                     }
                     else
                     {
+                        Logger.Log("Applying Unit Mappers update.");
                         ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
                     }
                     
@@ -108,6 +120,7 @@ namespace CWUpdater
             }
             catch (Exception ex)
             {
+                Logger.Log($"Error downloading update: {ex.ToString()}");
                 MessageBox.Show($"Error downloading update: {ex.Message}", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 this.Close();
@@ -117,24 +130,29 @@ namespace CWUpdater
 
         public void ApplyUpdate(string updateFilePath, string applicationPath)
         {
+            Logger.Log($"Applying update from '{updateFilePath}' to '{applicationPath}'.");
             label1.Text = "Applying update...";
             string backupPath = Path.Combine(Path.GetTempPath(), "app_backup");
             string tempDirectory = Path.Combine(Path.GetTempPath(), "update");
             try
             {
                 // Step 1: Backup existing files
+                Logger.Log("Backing up application files.");
                 BackupApplicationFiles(applicationPath, backupPath);
 
                 if (Directory.Exists(tempDirectory))
                 {
                     Directory.Delete(tempDirectory, true);
                 }
+                Logger.Log("Extracting update file.");
                 ZipFile.ExtractToDirectory(updateFilePath, tempDirectory);
 
                 // Delete obsolete files and directories
+                Logger.Log("Deleting obsolete files and directories.");
                 DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
 
                 // Copy new and updated files
+                Logger.Log("Copying new and updated files.");
                 foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
                 {
                     if(IsUnitMappers)//<-- UNIT MAPPERS UPDATER
@@ -181,16 +199,20 @@ namespace CWUpdater
                 }
 
                 // Step 5: Clean up backup if update was successful
+                Logger.Log("Update successful, deleting backup.");
                 Directory.Delete(backupPath, true);
 
                 Console.WriteLine("Update applied successfully.");
+                Logger.Log("Update applied successfully.");
                 RestartApplication();
             }
             catch (Exception ex)
             {
+                Logger.Log($"Error applying update: {ex.ToString()}");
                 MessageBox.Show($"Error applying update: {ex.Message}{ex.TargetSite}", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 // Step 6: Rollback to the backup if an error occurs
+                Logger.Log("Rolling back to backup.");
                 RestoreBackup(backupPath, applicationPath);
                 this.Close();
             }
@@ -206,6 +228,7 @@ namespace CWUpdater
         }
         private void DeleteObsoleteFilesAndDirectories(string applicationPath, string tempDirectory)
         {
+            Logger.Log("Starting deletion of obsolete files and directories.");
             // Delete obsolete files
             if(IsUnitMappers)
             {
@@ -286,6 +309,7 @@ namespace CWUpdater
                     }
                 }
             }
+            Logger.Log("Finished deletion of obsolete files and directories.");
 
         }
 
@@ -296,6 +320,7 @@ namespace CWUpdater
 
         private void BackupApplicationFiles(string applicationPath, string backupPath)
         {
+            Logger.Log($"Backing up from '{applicationPath}' to '{backupPath}'.");
             if (Directory.Exists(backupPath))
             {
                 Directory.Delete(backupPath, true);  // Ensure the backup directory is clean
@@ -312,10 +337,12 @@ namespace CWUpdater
             {
                 File.Copy(filePath, filePath.Replace(applicationPath, backupPath), true);
             }
+            Logger.Log("Backup complete.");
         }
 
         private void RestoreBackup(string backupPath, string applicationPath)
         {
+            Logger.Log($"Restoring backup from '{backupPath}' to '{applicationPath}'.");
             if (Directory.Exists(applicationPath))
             {
                 Directory.Delete(applicationPath, true);  // Clean the application directory
@@ -332,28 +359,34 @@ namespace CWUpdater
             {
                 File.Copy(filePath, filePath.Replace(backupPath, applicationPath), true);
             }
+            Logger.Log("Restore complete.");
         }
 
         public void RestartApplication()
         {
+            Logger.Log("Restarting application.");
 
             if(!IsUnitMappers)
             {
                 //Update application .txt file version
                 string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
+                Logger.Log($"Updating app version file: {version_path} to version {UpdateVersion}");
                 File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
             }
             else if(IsUnitMappers)
             {
                 //Update unit mappers .txt file version
                 string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
+                Logger.Log($"Updating unit mappers version file: {version_path} to version {UpdateVersion}");
                 File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
             }
 
             //Reopen CW
+            Logger.Log("Starting CrusaderWars.exe.");
             Process.Start(@".\CrusaderWars.exe");
 
             //Close Updater
+            Logger.Log("Closing updater.");
             Environment.Exit(0);
         }
 

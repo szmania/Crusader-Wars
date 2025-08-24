@@ -14,6 +14,7 @@ namespace CWUpdater
         [STAThread]
         static void Main()
         {
+            Logger.Log("CWUpdater started.");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new AutoUpdater());
