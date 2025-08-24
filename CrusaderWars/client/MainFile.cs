@@ -75,9 +75,9 @@ namespace CrusaderWars
             Program.Logger.Debug("Starting updater checks...");
             Updater Updater = new Updater();
             Updater.CheckAppVersion();
-            //Updater.CheckUnitMappersVersion();
+            Updater.CheckUnitMappersVersion();
             labelVersion.Text = $"V{Updater.AppVersion}";
-            //labelMappersVersion.Text = $"(mappers v{Updater.UnitMappersVersion})";
+            labelMappersVersion.Text = $"(mappers v{Updater.UnitMappersVersion})";
             Program.Logger.Debug($"Current App Version: {Updater.AppVersion}");
 
             var _timer = new System.Windows.Forms.Timer();
