@@ -336,7 +336,7 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;viewLogsLink.Parent" xml:space="preserve">
-    <value>BottomPanelLayout</value>
+    <value>BottomRightFlowPanel</value>
   </data>
   <data name="&gt;&gt;viewLogsLink.ZOrder" xml:space="preserve">
     <value>3</value>
@@ -378,7 +378,7 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;labelVersion.Parent" xml:space="preserve">
-    <value>BottomPanelLayout</value>
+    <value>BottomLeftFlowPanel</value>
   </data>
   <data name="&gt;&gt;labelVersion.ZOrder" xml:space="preserve">
     <value>0</value>
@@ -420,7 +420,7 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;labelMappersVersion.Parent" xml:space="preserve">
-    <value>BottomPanelLayout</value>
+    <value>BottomLeftFlowPanel</value>
   </data>
   <data name="&gt;&gt;labelMappersVersion.ZOrder" xml:space="preserve">
     <value>1</value>
@@ -528,43 +528,10 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;EA_Label.Parent" xml:space="preserve">
-    <value>BottomPanelLayout</value>
+    <value>BottomLeftFlowPanel</value>
   </data>
   <data name="&gt;&gt;EA_Label.ZOrder" xml:space="preserve">
     <value>1</value>
-  </data>
-  <data name="pipeLabel1.Font" type="System.Drawing.Font">
-    <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
-  </data>
-  <data name="pipeLabel1.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
-  </data>
-  <data name="pipeLabel1.Location" type="System.Drawing.Point">
-    <value>216, 0</value>
-  </data>
-  <data name="pipeLabel1.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 0, 4, 0</value>
-  </data>
-  <data name="pipeLabel1.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
-  </data>
-  <data name="pipeLabel1.TabIndex" type="System.Int32">
-    <value>29</value>
-  </data>
-  <data name="pipeLabel1.Text" xml:space="preserve">
-    <value>|</value>
-  </data>
-  <data name="&gt;&gt;pipeLabel1.Name" xml:space="preserve">
-    <value>pipeLabel1</value>
-  </data>
-  <data name="&gt;&gt;pipeLabel1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pipeLabel1.Parent" xml:space="preserve">
-    <value>BottomPanelLayout</value>
-  </data>
-  <data name="&gt;&gt;pipeLabel1.ZOrder" xml:space="preserve">
-    <value>2</value>
   </data>
   <data name="pipeLabel2.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
@@ -618,7 +585,7 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;discordLink.Parent" xml:space="preserve">
-    <value>BottomPanelLayout</value>
+    <value>BottomRightFlowPanel</value>
   </data>
   <data name="&gt;&gt;discordLink.ZOrder" xml:space="preserve">
     <value>5</value>
@@ -642,7 +609,7 @@
     <value>BottomPanelLayout</value>
   </data>
   <data name="&gt;&gt;BottomPanelLayout.Type" xml:space="preserve">
-    <value>System.Windows.Forms.FlowLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.TableLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;BottomPanelLayout.Parent" xml:space="preserve">
     <value>$this</value>
@@ -830,13 +797,16 @@
   <data name="viewLogsLink.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="pipeLabel1.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
   <data name="pipeLabel2.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
   <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="BottomLeftFlowPanel.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="BottomRightFlowPanel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
 </root>

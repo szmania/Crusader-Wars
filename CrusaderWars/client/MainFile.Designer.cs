@@ -43,9 +43,10 @@
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.ContinueBattleButton = new System.Windows.Forms.Button();
-            this.BottomPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
+            this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.BottomRightFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
-            this.pipeLabel1 = new System.Windows.Forms.Label();
             this.pipeLabel2 = new System.Windows.Forms.Label();
             this.patreonBtn = new System.Windows.Forms.Button();
             this.WebsiteBTN = new System.Windows.Forms.Button();
@@ -55,6 +56,8 @@
             this.MainPanelLayout.SuspendLayout();
             this.ButtonsContainerPanel.SuspendLayout();
             this.BottomPanelLayout.SuspendLayout();
+            this.BottomLeftFlowPanel.SuspendLayout();
+            this.BottomRightFlowPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -203,15 +206,36 @@
             // BottomPanelLayout
             // 
             this.BottomPanelLayout.BackColor = System.Drawing.Color.Transparent;
-            this.BottomPanelLayout.Controls.Add(this.labelVersion);
-            this.BottomPanelLayout.Controls.Add(this.labelMappersVersion);
-            this.BottomPanelLayout.Controls.Add(this.EA_Label);
-            this.BottomPanelLayout.Controls.Add(this.pipeLabel1);
-            this.BottomPanelLayout.Controls.Add(this.viewLogsLink);
-            this.BottomPanelLayout.Controls.Add(this.pipeLabel2);
-            this.BottomPanelLayout.Controls.Add(this.discordLink);
             resources.ApplyResources(this.BottomPanelLayout, "BottomPanelLayout");
+            this.BottomPanelLayout.ColumnCount = 3;
+            this.BottomPanelLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.BottomPanelLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.BottomPanelLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.BottomPanelLayout.Controls.Add(this.BottomLeftFlowPanel, 0, 0);
+            this.BottomPanelLayout.Controls.Add(this.BottomRightFlowPanel, 2, 0);
             this.BottomPanelLayout.Name = "BottomPanelLayout";
+            this.BottomPanelLayout.RowCount = 1;
+            this.BottomPanelLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            // 
+            // BottomLeftFlowPanel
+            // 
+            this.BottomLeftFlowPanel.AutoSize = true;
+            this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
+            this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
+            this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
+            this.BottomLeftFlowPanel.Controls.Add(this.EA_Label);
+            resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
+            this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
+            // 
+            // BottomRightFlowPanel
+            // 
+            this.BottomRightFlowPanel.AutoSize = true;
+            this.BottomRightFlowPanel.BackColor = System.Drawing.Color.Transparent;
+            this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
+            this.BottomRightFlowPanel.Controls.Add(this.pipeLabel2);
+            this.BottomRightFlowPanel.Controls.Add(this.discordLink);
+            resources.ApplyResources(this.BottomRightFlowPanel, "BottomRightFlowPanel");
+            this.BottomRightFlowPanel.Name = "BottomRightFlowPanel";
             // 
             // EA_Label
             // 
@@ -219,14 +243,6 @@
             this.EA_Label.BackColor = System.Drawing.Color.Transparent;
             this.EA_Label.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.EA_Label.Name = "EA_Label";
-            // 
-            // pipeLabel1
-            // 
-            this.pipeLabel1.AutoSize = true;
-            this.pipeLabel1.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.pipeLabel1, "pipeLabel1");
-            this.pipeLabel1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.pipeLabel1.Name = "pipeLabel1";
             // 
             // pipeLabel2
             // 
@@ -319,6 +335,10 @@
             this.ButtonsContainerPanel.ResumeLayout(false);
             this.BottomPanelLayout.ResumeLayout(false);
             this.BottomPanelLayout.PerformLayout();
+            this.BottomLeftFlowPanel.ResumeLayout(false);
+            this.BottomLeftFlowPanel.PerformLayout();
+            this.BottomRightFlowPanel.ResumeLayout(false);
+            this.BottomRightFlowPanel.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -336,10 +356,9 @@
         private System.Windows.Forms.FlowLayoutPanel MainPanelLayout;
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
         private System.Windows.Forms.Button ContinueBattleButton;
-        private System.Windows.Forms.FlowLayoutPanel BottomPanelLayout;
+        private System.Windows.Forms.TableLayoutPanel BottomPanelLayout;
         private System.Windows.Forms.Label EA_Label;
         private System.Windows.Forms.Label discordLink;
-        private System.Windows.Forms.Label pipeLabel1;
         private System.Windows.Forms.Label pipeLabel2;
         private System.Windows.Forms.Button patreonBtn;
         private System.Windows.Forms.Button WebsiteBTN;
@@ -347,5 +366,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label viewLogsLink;
         private System.Windows.Forms.Label labelMappersVersion;
+        private System.Windows.Forms.FlowLayoutPanel BottomLeftFlowPanel;
+        private System.Windows.Forms.FlowLayoutPanel BottomRightFlowPanel;
     }
 }
