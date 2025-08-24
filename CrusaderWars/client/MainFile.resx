@@ -24,8 +24,7 @@
     </data>
     <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
+        <comment>This is a comment</comment></data>
                 
     There are any number of "resheader" rows that contain simple 
     name/value pairs.
@@ -204,7 +203,7 @@
   <data name="btt_debug.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="btt_debug.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="btt_debug.Size" type="System.Drawing.Size">
     <value>179, 39</value>
   </data>
   <data name="btt_debug.TabIndex" type="System.Int32, mscorlib">
@@ -288,7 +287,7 @@
   <data name="SettingsBtn.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="SettingsBtn.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="SettingsBtn.Size" type="System.Drawing.Size">
     <value>248, 158</value>
   </data>
   <data name="SettingsBtn.TabIndex" type="System.Int32, mscorlib">
@@ -323,9 +322,6 @@
   </data>
   <data name="viewLogsLink.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
-  </data>
-  <data name="viewLogsLink.Size" type="System.Drawing.Size">
-    <value>112, 31</value>
   </data>
   <data name="viewLogsLink.TabIndex" type="System.Int32">
     <value>27</value>
@@ -848,5 +844,17 @@
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="viewLogsLink.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="pipeLabel1.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="pipeLabel2.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
 </root>

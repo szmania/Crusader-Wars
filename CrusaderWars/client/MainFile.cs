@@ -211,6 +211,9 @@ namespace CrusaderWars
             InformationToolTip.SetToolTip(viewLogsLink, "Click to find the debug.log file. Please share this file on our Discord for troubleshooting help.");
             InformationToolTip.SetToolTip(discordLink, "Join our Discord community for help and updates.");
 
+            InformationToolTip.SetToolTip(labelVersion, "Crusader Wars application version.");
+            InformationToolTip.SetToolTip(labelMappersVersion, "Version of the installed Unit Mappers.");
+
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
 
             Program.Logger.Debug("Form1_Load complete.");
@@ -1521,7 +1524,7 @@ namespace CrusaderWars
 
         private void SteamBTN_MouseLeave(object sender, EventArgs e)
         {
-            SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new;
+            WebsiteBTN.BackgroundImage = Properties.Resources.steam_btn_new;
         }
     }
 }
