@@ -34,6 +34,8 @@ namespace CrusaderWars
         private string log;  // For CK3 log content
         private bool _programmaticClick = false;
         private bool battleJustCompleted = false;
+        private string _appVersion;
+        private string _umVersion;
         
 
         const string SEARCH_KEY = "CRUSADERWARS3";
@@ -50,6 +52,11 @@ namespace CrusaderWars
             viewLogsLink.MouseLeave += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             discordLink.MouseEnter += (sender, e) => discordLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             discordLink.MouseLeave += (sender, e) => discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+
+            labelVersion.MouseEnter += (sender, e) => { labelVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); labelVersion.Cursor = Cursors.Hand; };
+            labelVersion.MouseLeave += (sender, e) => { labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke; labelVersion.Cursor = Cursors.Default; };
+            labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); labelMappersVersion.Cursor = Cursors.Hand; };
+            labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; labelMappersVersion.Cursor = Cursors.Default; };
             
             Thread.Sleep(1000);
 
@@ -76,8 +83,10 @@ namespace CrusaderWars
             Updater Updater = new Updater();
             Updater.CheckAppVersion();
             Updater.CheckUnitMappersVersion();
-            labelVersion.Text = $"V{Updater.AppVersion}";
-            labelMappersVersion.Text = $"(mappers v{Updater.UMVersion})";
+            _appVersion = Updater.AppVersion;
+            _umVersion = Updater.UMVersion;
+            labelVersion.Text = $"V{_appVersion}";
+            labelMappersVersion.Text = $"(mappers v{_umVersion})";
             Program.Logger.Debug($"Current App Version: {Updater.AppVersion}");
 
             var _timer = new System.Windows.Forms.Timer();
@@ -1525,6 +1534,22 @@ namespace CrusaderWars
         private void SteamBTN_MouseLeave(object sender, EventArgs e)
         {
             WebsiteBTN.BackgroundImage = Properties.Resources.steam_btn_new;
+        }
+
+        private void labelVersion_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_appVersion))
+            {
+                Process.Start($"https://github.com/farayC/Crusader-Wars/releases/tag/v{_appVersion}");
+            }
+        }
+
+        private void labelMappersVersion_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_umVersion))
+            {
+                Process.Start($"https://github.com/farayC/CW-Mappers/releases/tag/v{_umVersion}");
+            }
         }
     }
 }

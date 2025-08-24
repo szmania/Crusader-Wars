@@ -362,9 +362,6 @@
   <data name="labelVersion.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="labelVersion.Size" type="System.Drawing.Size">
-    <value>63, 31</value>
-  </data>
   <data name="labelVersion.TabIndex" type="System.Int32">
     <value>25</value>
   </data>
@@ -406,9 +403,6 @@
   </data>
   <data name="labelMappersVersion.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
-  </data>
-  <data name="labelMappersVersion.Size" type="System.Drawing.Size">
-    <value>150, 31</value>
   </data>
   <data name="labelMappersVersion.TabIndex" type="System.Int32">
     <value>31</value>
@@ -518,9 +512,6 @@
   <data name="EA_Label.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="EA_Label.Size" type="System.Drawing.Size">
-    <value>133, 31</value>
-  </data>
   <data name="EA_Label.TabIndex" type="System.Int32">
     <value>26</value>
   </data>
@@ -557,9 +548,6 @@
   <data name="pipeLabel1.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="pipeLabel1.Size" type="System.Drawing.Size">
-    <value>15, 31</value>
-  </data>
   <data name="pipeLabel1.TabIndex" type="System.Int32">
     <value>29</value>
   </data>
@@ -593,9 +581,6 @@
   <data name="pipeLabel2.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="pipeLabel2.Size" type="System.Drawing.Size">
-    <value>15, 31</value>
-  </data>
   <data name="pipeLabel2.TabIndex" type="System.Int32">
     <value>30</value>
   </data>
@@ -616,9 +601,6 @@
   </data>
   <data name="discordLink.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
-  </data>
-  <data name="discordLink.Size" type="System.Drawing.Size">
-    <value>137, 31</value>
   </data>
   <data name="discordLink.TabIndex" type="System.Int32">
     <value>28</value>

@@ -143,6 +143,7 @@
             this.labelVersion.BackColor = System.Drawing.Color.Transparent;
             this.labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelVersion.Name = "labelVersion";
+            this.labelVersion.Click += new System.EventHandler(this.labelVersion_Click);
             // 
             // labelMappersVersion
             // 
@@ -150,6 +151,7 @@
             this.labelMappersVersion.BackColor = System.Drawing.Color.Transparent;
             this.labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelMappersVersion.Name = "labelMappersVersion";
+            this.labelMappersVersion.Click += new System.EventHandler(this.labelMappersVersion_Click);
             // 
             // pictureBox1
             // 
