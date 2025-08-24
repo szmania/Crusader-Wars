@@ -22,6 +22,7 @@ namespace Crusader_Wars
         private const string LatestReleaseUrl = "https://api.github.com/repos/farayC/Crusader-Wars/releases/latest";
         private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
         private const string UnitMappersLatestReleaseUrl = "https://api.github.com/repos/farayC/CW-Mappers/releases/latest";
+        private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CW-Mappers/releases/latest";
         private async Task<(string version, string downloadUrl)> GetLatestReleaseInfoAsync(string releaseUrl)
         {
             Program.Logger.Debug($"Getting latest release info from: {releaseUrl}");
@@ -232,15 +233,30 @@ namespace Crusader_Wars
                 return;
             }
 
-            var releaseInfo = await GetLatestReleaseInfoAsync(UnitMappersLatestReleaseUrl);
-            if (releaseInfo.version != null && IsMostRecentUpdate(currentVersion, releaseInfo.version))
+            var farayC_release = await GetLatestReleaseInfoAsync(UnitMappersLatestReleaseUrl);
+            var szmania_release = await GetLatestReleaseInfoAsync(SzmaniaUnitMappersLatestReleaseUrl);
+
+            var releases = new[] { farayC_release, szmania_release }
+                .Where(r => r.version != null)
+                .ToList();
+
+            if (!releases.Any())
             {
-                Program.Logger.Debug($"Update available for unit mappers: {releaseInfo.version}. Starting updater...");
+                Program.Logger.Debug("No unit mapper releases found in any repository.");
+                return;
+            }
+
+            var latestRelease = releases.Aggregate((r1, r2) => IsMostRecentUpdate(r1.version, r2.version) ? r2 : r1);
+
+
+            if (IsMostRecentUpdate(currentVersion, latestRelease.version))
+            {
+                Program.Logger.Debug($"Update available for unit mappers: {latestRelease.version}. Starting updater...");
                 try
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo();
                     startInfo.FileName = @".\data\updater\CW-Updater.exe";
-                    startInfo.Arguments = $"{releaseInfo.downloadUrl} {releaseInfo.version} {"unit_mapper"}";
+                    startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version} {"unit_mapper"}";
                     Process.Start(startInfo);
                     Environment.Exit(0);
                 }
