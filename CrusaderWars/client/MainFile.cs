@@ -77,6 +77,7 @@ namespace CrusaderWars
             Updater.CheckAppVersion();
             Updater.CheckUnitMappersVersion();
             labelVersion.Text = $"V{Updater.AppVersion}";
+            labelMappersVersion.Text = $"(mappers v{Updater.UnitMappersVersion})";
             Program.Logger.Debug($"Current App Version: {Updater.AppVersion}");
 
             var _timer = new System.Windows.Forms.Timer();
@@ -190,6 +191,7 @@ namespace CrusaderWars
             System.Drawing.Color myColor = System.Drawing.Color.FromArgb(53, 25, 5, 5);
             infoLabel.BackColor = myColor;
             labelVersion.BackColor = myColor;
+            labelMappersVersion.BackColor = myColor;
             EA_Label.BackColor = myColor;
 
             Options.ReadOptionsFile();

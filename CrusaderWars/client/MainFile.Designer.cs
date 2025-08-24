@@ -38,6 +38,7 @@
             this.viewLogsLink = new System.Windows.Forms.Label();
             this.discordLink = new System.Windows.Forms.Label();
             this.labelVersion = new System.Windows.Forms.Label();
+            this.labelMappersVersion = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -76,25 +77,6 @@
             this.ExecuteButton.MouseEnter += new System.EventHandler(this.ExecuteButton_MouseEnter);
             this.ExecuteButton.MouseLeave += new System.EventHandler(this.ExecuteButton_MouseLeave);
             this.ExecuteButton.MouseHover += new System.EventHandler(this.ExecuteButton_MouseHover);
-            // 
-            // ContinueBattleButton
-            // 
-            this.ContinueBattleButton.BackColor = System.Drawing.Color.Transparent;
-            this.ContinueBattleButton.BackgroundImage = global::CrusaderWars.Properties.Resources.start_new;
-            resources.ApplyResources(this.ContinueBattleButton, "ContinueBattleButton");
-            this.ContinueBattleButton.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ContinueBattleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.ContinueBattleButton.FlatAppearance.BorderSize = 0;
-            this.ContinueBattleButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.ContinueBattleButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold);
-            this.ContinueBattleButton.ForeColor = System.Drawing.Color.White;
-            this.ContinueBattleButton.Name = "ContinueBattleButton";
-            this.ContinueBattleButton.TabStop = false;
-            this.ContinueBattleButton.UseVisualStyleBackColor = true;
-            this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
-            this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
-            this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
             // 
             // btt_debug
             // 
@@ -150,7 +132,10 @@
             this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
             resources.ApplyResources(this.discordLink, "discordLink");
             this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord_icon;
+            this.discordLink.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.discordLink.Name = "discordLink";
+            this.discordLink.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // labelVersion
@@ -159,6 +144,13 @@
             this.labelVersion.BackColor = System.Drawing.Color.Transparent;
             this.labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelVersion.Name = "labelVersion";
+            // 
+            // labelMappersVersion
+            // 
+            resources.ApplyResources(this.labelMappersVersion, "labelMappersVersion");
+            this.labelMappersVersion.BackColor = System.Drawing.Color.Transparent;
+            this.labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelMappersVersion.Name = "labelMappersVersion";
             // 
             // pictureBox1
             // 
@@ -188,10 +180,30 @@
             this.ButtonsContainerPanel.Margin = new System.Windows.Forms.Padding(47, 4, 4, 4);
             this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
             // 
+            // ContinueBattleButton
+            // 
+            this.ContinueBattleButton.BackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.BackgroundImage = global::CrusaderWars.Properties.Resources.start_new;
+            resources.ApplyResources(this.ContinueBattleButton, "ContinueBattleButton");
+            this.ContinueBattleButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ContinueBattleButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.ContinueBattleButton.FlatAppearance.BorderSize = 0;
+            this.ContinueBattleButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold);
+            this.ContinueBattleButton.ForeColor = System.Drawing.Color.White;
+            this.ContinueBattleButton.Name = "ContinueBattleButton";
+            this.ContinueBattleButton.TabStop = false;
+            this.ContinueBattleButton.UseVisualStyleBackColor = true;
+            this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
+            this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
+            this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
+            // 
             // BottomPanelLayout
             // 
             this.BottomPanelLayout.BackColor = System.Drawing.Color.Transparent;
             this.BottomPanelLayout.Controls.Add(this.labelVersion);
+            this.BottomPanelLayout.Controls.Add(this.labelMappersVersion);
             this.BottomPanelLayout.Controls.Add(this.EA_Label);
             this.BottomPanelLayout.Controls.Add(this.pipeLabel1);
             this.BottomPanelLayout.Controls.Add(this.viewLogsLink);
@@ -333,5 +345,6 @@
         private System.Windows.Forms.Button SteamBTN;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label viewLogsLink;
+        private System.Windows.Forms.Label labelMappersVersion;
     }
 }
