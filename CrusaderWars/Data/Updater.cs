@@ -10,7 +10,7 @@ using System.Xml.Linq;
 using System.Drawing;
 using System.Linq;
 
-namespace Crusader_Wars
+namespace CrusaderWars
 {
     public  class Updater
     {
@@ -200,7 +200,7 @@ namespace Crusader_Wars
                 try
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.FileName = @".\data\updater\CW-Updater.exe";
+                    startInfo.FileName = @".\data\updater\CWUpdater.exe";
                     startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version}";
                     Process.Start(startInfo);
                     Environment.Exit(0);
@@ -255,7 +255,7 @@ namespace Crusader_Wars
                 try
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.FileName = @".\data\updater\CW-Updater.exe";
+                    startInfo.FileName = @".\data\updater\CWUpdater.exe";
                     startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version} {"unit_mapper"}";
                     Process.Start(startInfo);
                     Environment.Exit(0);
