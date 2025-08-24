@@ -366,7 +366,7 @@
     <value>25</value>
   </data>
   <data name="labelVersion.Text" xml:space="preserve">
-    <value>V1.0</value>
+    <value>v1.0</value>
   </data>
   <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment">
     <value>TopCenter</value>
@@ -399,7 +399,7 @@
     <value>71, 0</value>
   </data>
   <data name="labelMappersVersion.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 0, 4, 0</value>
+    <value>4, 3, 4, 0</value>
   </data>
   <data name="labelMappersVersion.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
@@ -533,27 +533,6 @@
   <data name="&gt;&gt;EA_Label.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="pipeLabel2.Font" type="System.Drawing.Font">
-    <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
-  </data>
-  <data name="pipeLabel2.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
-  </data>
-  <data name="pipeLabel2.Location" type="System.Drawing.Point">
-    <value>355, 0</value>
-  </data>
-  <data name="pipeLabel2.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 0, 4, 0</value>
-  </data>
-  <data name="pipeLabel2.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
-  </data>
-  <data name="pipeLabel2.TabIndex" type="System.Int32">
-    <value>30</value>
-  </data>
-  <data name="pipeLabel2.Text" xml:space="preserve">
-    <value>|</value>
-  </data>
   <data name="discordLink.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
@@ -564,7 +543,7 @@
     <value>378, 0</value>
   </data>
   <data name="discordLink.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 0, 4, 0</value>
+    <value>4, 3, 4, 0</value>
   </data>
   <data name="discordLink.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
@@ -794,9 +773,6 @@
   <data name="viewLogsLink.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="pipeLabel2.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
   <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -811,5 +787,20 @@
   </data>
   <data name="BottomPanelLayout.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
+  </data>
+  <data name="discordLink.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
+    <value>ImageBeforeText</value>
+  </data>
+  <data name="BottomLeftFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+    <value>TopDown</value>
+  </data>
+  <data name="BottomLeftFlowPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 5, 0, 0</value>
+  </data>
+  <data name="BottomRightFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
+    <value>TopDown</value>
+  </data>
+  <data name="BottomRightFlowPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 5, 0, 0</value>
   </data>
 </root>

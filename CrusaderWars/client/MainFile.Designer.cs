@@ -47,7 +47,6 @@
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.BottomRightFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.EA_Label = new System.Windows.Forms.Label();
-            this.pipeLabel2 = new System.Windows.Forms.Label();
             this.patreonBtn = new System.Windows.Forms.Button();
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
@@ -138,6 +137,7 @@
             this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord_icon;
             this.discordLink.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.discordLink.Name = "discordLink";
+            this.discordLink.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // labelVersion
@@ -226,18 +226,21 @@
             this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
             this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
             this.BottomLeftFlowPanel.Controls.Add(this.EA_Label);
+            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
+            this.BottomLeftFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             // 
             // BottomRightFlowPanel
             // 
             this.BottomRightFlowPanel.AutoSize = true;
             this.BottomRightFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
-            this.BottomRightFlowPanel.Controls.Add(this.pipeLabel2);
             this.BottomRightFlowPanel.Controls.Add(this.discordLink);
+            this.BottomRightFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             resources.ApplyResources(this.BottomRightFlowPanel, "BottomRightFlowPanel");
             this.BottomRightFlowPanel.Name = "BottomRightFlowPanel";
+            this.BottomRightFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             // 
             // EA_Label
             // 
@@ -245,14 +248,6 @@
             this.EA_Label.BackColor = System.Drawing.Color.Transparent;
             this.EA_Label.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.EA_Label.Name = "EA_Label";
-            // 
-            // pipeLabel2
-            // 
-            this.pipeLabel2.AutoSize = true;
-            this.pipeLabel2.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.pipeLabel2, "pipeLabel2");
-            this.pipeLabel2.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.pipeLabel2.Name = "pipeLabel2";
             // 
             // patreonBtn
             // 
@@ -362,7 +357,6 @@
         private System.Windows.Forms.TableLayoutPanel BottomPanelLayout;
         private System.Windows.Forms.Label EA_Label;
         private System.Windows.Forms.Label discordLink;
-        private System.Windows.Forms.Label pipeLabel2;
         private System.Windows.Forms.Button patreonBtn;
         private System.Windows.Forms.Button WebsiteBTN;
         private System.Windows.Forms.Button SteamBTN;
