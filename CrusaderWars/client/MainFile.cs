@@ -36,6 +36,7 @@ namespace CrusaderWars
         private bool battleJustCompleted = false;
         private string _appVersion;
         private string _umVersion;
+        private Updater _updater;
         
 
         const string SEARCH_KEY = "CRUSADERWARS3";
@@ -80,14 +81,14 @@ namespace CrusaderWars
             Properties.Settings.Default.Save();
 
             Program.Logger.Debug("Starting updater checks...");
-            Updater Updater = new Updater();
-            Updater.CheckAppVersion();
-            Updater.CheckUnitMappersVersion();
-            _appVersion = Updater.AppVersion;
-            _umVersion = Updater.UMVersion;
+            _updater = new Updater();
+            _updater.CheckAppVersion();
+            _updater.CheckUnitMappersVersion();
+            _appVersion = _updater.AppVersion;
+            _umVersion = _updater.UMVersion;
             labelVersion.Text = $"V{_appVersion}";
             labelMappersVersion.Text = $"(mappers v{_umVersion})";
-            Program.Logger.Debug($"Current App Version: {Updater.AppVersion}");
+            Program.Logger.Debug($"Current App Version: {_updater.AppVersion}");
 
             var _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 1000; // check variable every second
@@ -794,7 +795,7 @@ namespace CrusaderWars
             try
             {
                 DataSearch.ClearLogFile();
-                DeclarationsFile.Erase();
+                DeclarationsFile.EraseScript();
                 BattleScript.EraseScript();
                 BattleResult.ClearAttilaLog();
 
@@ -1536,19 +1537,27 @@ namespace CrusaderWars
             WebsiteBTN.BackgroundImage = Properties.Resources.steam_btn_new;
         }
 
-        private void labelVersion_Click(object sender, EventArgs e)
+        private async void labelVersion_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(_appVersion))
             {
-                Process.Start($"https://github.com/farayC/Crusader-Wars/releases/tag/v{_appVersion}");
+                string url = await _updater.GetReleaseUrlForVersion(_appVersion, false);
+                if(!string.IsNullOrEmpty(url))
+                {
+                    Process.Start(url);
+                }
             }
         }
 
-        private void labelMappersVersion_Click(object sender, EventArgs e)
+        private async void labelMappersVersion_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(_umVersion))
             {
-                Process.Start($"https://github.com/farayC/CW-Mappers/releases/tag/v{_umVersion}");
+                string url = await _updater.GetReleaseUrlForVersion(_umVersion, true);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    Process.Start(url);
+                }
             }
         }
     }

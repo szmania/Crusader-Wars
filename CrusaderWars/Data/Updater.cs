@@ -270,6 +270,44 @@ namespace CrusaderWars
                 Program.Logger.Debug("Unit mappers are up to date.");
             }
         }
+
+        public async Task<string> GetReleaseUrlForVersion(string version, bool isUnitMapper)
+        {
+            Program.Logger.Debug($"Searching release URL for version {version} (isUnitMapper: {isUnitMapper})");
+            string repoName = isUnitMapper ? "CW-Mappers" : "Crusader-Wars";
+            string[] users = { "farayC", "szmania" };
+
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Add("User-Agent", "CW App Version Checker");
+
+            foreach (var user in users)
+            {
+                string apiUrl = $"https://api.github.com/repos/{user}/{repoName}/releases/tags/v{version}";
+                try
+                {
+                    var response = await client.GetAsync(apiUrl);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/v{version}";
+                        Program.Logger.Debug($"Found release at: {releaseUrl}");
+                        return releaseUrl;
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Release not found for user {user}. Status: {response.StatusCode}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error checking release for user {user}: {ex.Message}");
+                }
+            }
+
+            // Fallback if not found in any repo
+            string fallbackUrl = $"https://github.com/farayC/{repoName}/releases";
+            Program.Logger.Debug($"Version tag not found in any user repo. Falling back to main releases page: {fallbackUrl}");
+            return fallbackUrl;
+        }
     }
 
    
