@@ -135,7 +135,7 @@
             this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
             resources.ApplyResources(this.discordLink, "discordLink");
             this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
-            //this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord_icon;
+            this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord_icon;
             this.discordLink.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.discordLink.Name = "discordLink";
             this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
@@ -160,7 +160,7 @@
             // 
             resources.ApplyResources(this.pictureBox1, "pictureBox1");
             this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.Image = global::CrusaderWars.Properties.Resources.Sem_nome;
+            this.pictureBox1.Image = global::CrusaderWars.Properties.Resources.sem_nome;
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.TabStop = false;
             // 
