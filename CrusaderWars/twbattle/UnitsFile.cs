@@ -188,7 +188,16 @@ namespace CrusaderWars
                         continue;
                     }
 
-                    var levy_porcentages = UnitMappers_BETA.GetFactionLevies(levy_culture.GetAttilaFaction());
+                    Culture levyCulture = levy_culture.GetObjCulture() ?? army.Owner.GetCulture();
+                    string attilaFaction = UnitMappers_BETA.GetAttilaFaction(levyCulture.GetCultureName(), levyCulture.GetHeritageName());
+                    var levy_porcentages = UnitMappers_BETA.GetFactionLevies(attilaFaction);
+                    
+                    if (levy_porcentages == null || levy_porcentages.Count < 1)
+                    {
+                        Program.Logger.Debug($"WARNING - No levy types found for faction: {attilaFaction}");
+                        continue;
+                    }
+
                     BETA_LevyComposition(levy_culture, army, levy_porcentages, army_xp);
                 }
             }
