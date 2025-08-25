@@ -87,7 +87,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug($"Starting to read save file: {savePath}");
             //Clean all data in save file data files
-            ClearFilesData();
+            // ClearFilesData();
             long startMemoryt = GC.GetTotalMemory(false);
 
             using (FileStream saveFile = File.Open(savePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
