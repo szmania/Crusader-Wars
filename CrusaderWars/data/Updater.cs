@@ -38,7 +38,7 @@ namespace CrusaderWars
                     JsonElement root = document.RootElement;
 
                     // Get the latest version tag
-                    string latestVersion = root.GetProperty("tag_name").GetString()?.TrimStart('v');
+                    string latestVersion = root.GetProperty("tag_name").GetString();
 
                     // Get the download URL of the first asset
                     string downloadUrl = root.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
@@ -93,49 +93,57 @@ namespace CrusaderWars
         {
             if (string.IsNullOrWhiteSpace(versionStr)) return new Version("0.0");
 
-            // Remove any non-digit characters except for the dot.
-            string cleanedVersion = Regex.Replace(versionStr, @"[^\d.]", "");
+            // Remove leading 'v' if present
+            string processedVersion = versionStr.StartsWith("v") ? versionStr.Substring(1) : versionStr;
 
-            // Clean up potential multiple dots or leading/trailing dots that may result from the regex replace.
-            cleanedVersion = Regex.Replace(cleanedVersion, @"\.{2,}", "."); // Replace two or more dots with a single dot.
-            cleanedVersion = cleanedVersion.Trim('.'); // Remove leading or trailing dots.
+            // Take only the numeric and dot part of the version, stopping at the first letter (pre-release tag)
+            string mainVersionPart = new string(processedVersion.TakeWhile(c => char.IsDigit(c) || c == '.').ToArray()).TrimEnd('.');
 
-            if (string.IsNullOrWhiteSpace(cleanedVersion)) return new Version("0.0");
+            if (string.IsNullOrWhiteSpace(mainVersionPart)) return new Version("0.0");
 
             try
             {
-                return new Version(cleanedVersion);
+                return new Version(mainVersionPart);
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Failed to parse version string '{versionStr}' (cleaned to '{cleanedVersion}'). Error: {ex.Message}");
+                Program.Logger.Debug($"Failed to parse version string '{versionStr}' (processed to '{mainVersionPart}'). Error: {ex.Message}");
                 return new Version("0.0"); // Fallback to a default version on failure.
             }
         }
 
-        bool IsMostRecentUpdate(string app_version, string github_version)
+        bool IsNewerVersion(string localVersion, string remoteVersion)
         {
-            Program.Logger.Debug($"Comparing versions - App: {app_version}, GitHub: {github_version}");
-            Version appVer = ParseVersion(app_version);
-            Version gitVer = ParseVersion(github_version);
+            Program.Logger.Debug($"Comparing versions - Local: {localVersion}, Remote: {remoteVersion}");
 
-            if (gitVer > appVer)
+            Version localVer = ParseVersion(localVersion);
+            Version remoteVer = ParseVersion(remoteVersion);
+
+            if (remoteVer > localVer)
             {
-                Program.Logger.Debug("GitHub version is newer.");
+                Program.Logger.Debug("Remote version is newer based on version number.");
                 return true;
             }
-            else
+
+            if (remoteVer < localVer)
             {
-                if (appVer > gitVer)
-                {
-                    Program.Logger.Debug("App version is newer.");
-                }
-                else
-                {
-                    Program.Logger.Debug("Versions are identical.");
-                }
+                Program.Logger.Debug("Local version is newer based on version number.");
                 return false;
             }
+
+            // If base versions are equal (e.g., 1.0.15), check for pre-release vs stable.
+            // A stable release is considered an update to a pre-release.
+            bool isLocalPreRelease = Regex.IsMatch(localVersion, "[a-zA-Z]");
+            bool isRemoteStable = !Regex.IsMatch(remoteVersion, "[a-zA-Z]");
+
+            if (isLocalPreRelease && isRemoteStable)
+            {
+                Program.Logger.Debug("Remote version is a stable release of the local pre-release version.");
+                return true;
+            }
+
+            Program.Logger.Debug("Versions are considered equivalent or local is newer/same.");
+            return false;
         }
         
 
@@ -162,6 +170,23 @@ namespace CrusaderWars
             return false;
         }
 
+        private async Task<(string version, string downloadUrl)> GetLatestReleaseFromReposAsync(string[] releaseUrls)
+        {
+            var releaseTasks = releaseUrls.Select(url => GetLatestReleaseInfoAsync(url)).ToArray();
+            var releases = await Task.WhenAll(releaseTasks);
+
+            var validReleases = releases.Where(r => r.version != null).ToList();
+
+            if (!validReleases.Any())
+            {
+                Program.Logger.Debug("No releases found in any repository.");
+                return (null, null);
+            }
+
+            var latestRelease = validReleases.Aggregate((r1, r2) => IsNewerVersion(r1.version, r2.version) ? r2 : r1);
+            return latestRelease;
+        }
+
         public async void CheckAppVersion()
         {
             Program.Logger.Debug("Checking app version...");
@@ -179,22 +204,13 @@ namespace CrusaderWars
                 return;
             }
 
-            var farayC_release = await GetLatestReleaseInfoAsync(LatestReleaseUrl);
-            var szmania_release = await GetLatestReleaseInfoAsync(SzmaniaLatestReleaseUrl);
+            string[] appReleaseUrls = { LatestReleaseUrl, SzmaniaLatestReleaseUrl };
+            var latestRelease = await GetLatestReleaseFromReposAsync(appReleaseUrls);
 
-            var releases = new[] { farayC_release, szmania_release }
-                .Where(r => r.version != null)
-                .ToList();
+            if (latestRelease.version == null) return;
 
-            if (!releases.Any())
-            {
-                Program.Logger.Debug("No releases found in any repository.");
-                return;
-            }
 
-            var latestRelease = releases.Aggregate((r1, r2) => IsMostRecentUpdate(r1.version, r2.version) ? r2 : r1);
-
-            if (IsMostRecentUpdate(currentVersion, latestRelease.version))
+            if (IsNewerVersion(currentVersion, latestRelease.version))
             {
                 Program.Logger.Debug($"Update available for app: {latestRelease.version}. Starting updater...");
                 try
@@ -233,23 +249,13 @@ namespace CrusaderWars
                 return;
             }
 
-            var farayC_release = await GetLatestReleaseInfoAsync(UnitMappersLatestReleaseUrl);
-            var szmania_release = await GetLatestReleaseInfoAsync(SzmaniaUnitMappersLatestReleaseUrl);
+            string[] umReleaseUrls = { UnitMappersLatestReleaseUrl, SzmaniaUnitMappersLatestReleaseUrl };
+            var latestRelease = await GetLatestReleaseFromReposAsync(umReleaseUrls);
 
-            var releases = new[] { farayC_release, szmania_release }
-                .Where(r => r.version != null)
-                .ToList();
-
-            if (!releases.Any())
-            {
-                Program.Logger.Debug("No unit mapper releases found in any repository.");
-                return;
-            }
-
-            var latestRelease = releases.Aggregate((r1, r2) => IsMostRecentUpdate(r1.version, r2.version) ? r2 : r1);
+            if (latestRelease.version == null) return;
 
 
-            if (IsMostRecentUpdate(currentVersion, latestRelease.version))
+            if (IsNewerVersion(currentVersion, latestRelease.version))
             {
                 Program.Logger.Debug($"Update available for unit mappers: {latestRelease.version}. Starting updater...");
                 try
@@ -282,19 +288,40 @@ namespace CrusaderWars
 
             foreach (var user in users)
             {
-                string apiUrl = $"https://api.github.com/repos/{user}/{repoName}/releases/tags/v{version}";
+                string apiUrl = $"https://api.github.com/repos/{user}/{repoName}/releases/tags/{version}";
+                if (!version.StartsWith("v"))
+                {
+                    apiUrl = $"https://api.github.com/repos/{user}/{repoName}/releases/tags/v{version}";
+                }
+
                 try
                 {
                     var response = await client.GetAsync(apiUrl);
                     if (response.IsSuccessStatusCode)
                     {
-                        string releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/v{version}";
+                        string releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/{version}";
+                        if (!version.StartsWith("v"))
+                        {
+                            releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/v{version}";
+                        }
                         Program.Logger.Debug($"Found release at: {releaseUrl}");
                         return releaseUrl;
                     }
                     else
                     {
-                        Program.Logger.Debug($"Release not found for user {user}. Status: {response.StatusCode}");
+                        // Try without 'v' if it was added
+                        if (!version.StartsWith("v"))
+                        {
+                            apiUrl = $"https://api.github.com/repos/{user}/{repoName}/releases/tags/{version}";
+                            response = await client.GetAsync(apiUrl);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                string releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/{version}";
+                                Program.Logger.Debug($"Found release at: {releaseUrl}");
+                                return releaseUrl;
+                            }
+                        }
+                        Program.Logger.Debug($"Release not found for user {user} with tag {version} or v{version}. Status: {response.StatusCode}");
                     }
                 }
                 catch (Exception ex)
