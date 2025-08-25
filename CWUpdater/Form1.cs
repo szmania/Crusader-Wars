@@ -67,6 +67,19 @@ namespace CWUpdater
             return false;
         }
 
+        private string GetCrusaderWarsExecutable()
+        {
+            string currentDir = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+            string exe1 = Path.Combine(currentDir, "CrusaderWars.exe");
+            string exe2 = Path.Combine(currentDir, "Crusader Wars.exe");
+
+            if (File.Exists(exe1)) return exe1;
+            if (File.Exists(exe2)) return exe2;
+
+            Logger.Log("Neither CrusaderWars.exe nor Crusader Wars.exe was found.");
+            return null;
+        }
+
         private async void btnUpdate_Click(object sender, EventArgs e)
         {
             try
@@ -79,7 +92,11 @@ namespace CWUpdater
             catch (Exception ex)
             {
                 Logger.Log($"An error occurred in btnUpdate_Click: {ex.ToString()}");
-                Process.Start(@".\CrusaderWars.exe");
+                string executable = GetCrusaderWarsExecutable();
+                if (executable != null)
+                {
+                    Process.Start(executable);
+                }
                 Environment.Exit(1);
             }
             
@@ -382,8 +399,16 @@ namespace CWUpdater
             }
 
             //Reopen CW
-            Logger.Log("Starting CrusaderWars.exe.");
-            Process.Start(@".\CrusaderWars.exe");
+            Logger.Log("Starting main application.");
+            string executable = GetCrusaderWarsExecutable();
+            if (executable != null)
+            {
+                Process.Start(executable);
+            }
+            else
+            {
+                Logger.Log("No executable found to start.");
+            }
 
             //Close Updater
             Logger.Log("Closing updater.");
