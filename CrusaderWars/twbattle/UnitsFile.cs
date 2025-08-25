@@ -131,6 +131,180 @@ namespace CrusaderWars
                 Unit knights_unit;
                 if (army.Knights.GetMajorCulture() != null)
                     // Set major culture on the knights unit
-                    knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiersOk, I will add the enhanced logging as requested.
+                    knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Knights.GetMajorCulture(), RegimentType.Knight,false, army.Owner);
+                else
+                    // Set owner culture if it doesn't have a major culture
+                    knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Owner.GetCulture(), RegimentType.Knight, false, army.Owner);
 
-CrusaderWars\data\save_file\Armies_Functions.cs
+
+                knights_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(knights_unit.GetCulture(), knights_unit.GetHeritage()));
+                knights_unit.SetUnitKey(UnitMappers_BETA.GetUnitKey(knights_unit));
+                army.Units.Insert(1, knights_unit);
+
+                string knights_script_name;
+                if (army.Knights.GetMajorCulture() != null)
+                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture().ID}_";
+                else
+                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture().ID}_";
+
+
+                BattleFile.AddKnightUnit(army.Knights, knights_unit.GetAttilaUnitKey(), knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide));
+                i++;
+            }
+
+
+            //##################
+            //     ARMY XP     #
+            //##################
+            if (army.IsPlayer()) { 
+                traits_xp = GetTraitsXP(true, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
+                modifiers_xp = CK3LogData.LeftSide.GetModifiers().GetXP();
+            }
+            else { 
+                traits_xp = GetTraitsXP(false, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
+                modifiers_xp = CK3LogData.RightSide.GetModifiers().GetXP();
+            }
+
+            army_xp += commander_army_xp;
+            army_xp += modifiers_xp;
+            army_xp += traits_xp;
+            if (army_xp < 0) { army_xp = 0; }
+            if (army_xp > 9) { army_xp = 9; }
+
+            //##################
+            //                 #
+            //      LEVIES     #
+            //                 #
+            //##################
+
+            var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy);
+            if (levies_units.Count() > 0)
+            {
+                foreach (var levy_culture in levies_units)
+                {
+                    if(string.IsNullOrEmpty(levy_culture.GetAttilaFaction()))
+                    {
+                        Program.Logger.Debug($"WARNING - LEVY UNIT WITHOUT A FACTION FOUND. Amount = {levy_culture.GetSoldiers()} soldiers");
+                        continue;
+                    }
+
+                    Culture levyCulture = levy_culture.GetObjCulture() ?? (army.Commander?.GetCultureObj() ?? army.Owner.GetCulture());
+                    string attilaFaction = UnitMappers_BETA.GetAttilaFaction(
+                        levyCulture.GetCultureName(), 
+                        levyCulture.GetHeritageName()
+                    );
+                    
+                    if (string.IsNullOrEmpty(attilaFaction))
+                    {
+                        Program.Logger.Debug($"WARNING - No Attila faction found for levies in army {army.ID}");
+                        continue;
+                    }
+
+                    var levy_porcentages = UnitMappers_BETA.GetFactionLevies(attilaFaction);
+                    BETA_LevyComposition(levy_culture, army, levy_porcentages, army_xp);
+                }
+            }
+
+            //##################
+            //                 #
+            //   MEN-AT-ARMS   #
+            //                 #
+            //##################
+            foreach (var unit in army.Units)
+            {
+                string unitName = unit.GetName();
+                //Skip if its not a Men at Arms Unit
+                if (unitName == "General" || unit.GetRegimentType() == RegimentType.Knight || unit.GetRegimentType() == RegimentType.Levy) continue;
+
+                var MAA_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
+
+                if (unit.GetObjCulture() == null)
+                    unit.ChangeCulture(unit.GetOwner().GetCulture());
+
+                //If is retinue maa, increase 2xp.
+                if (unitName.Contains("accolade"))
+                {
+                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
+                    int accolade_xp = army_xp + 2;
+                    if (accolade_xp < 0) accolade_xp = 0;
+                    if (accolade_xp > 9) accolade_xp = 9;
+                    BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                }
+                //If is normal maa
+                else
+                {
+                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
+                    BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                }
+                i++;
+
+
+            }
+
+            army.PrintUnits();
+        }
+
+
+        static void BETA_LevyComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_levy_porcentages, int army_xp)
+        {
+            if (faction_levy_porcentages == null || faction_levy_porcentages.Count < 1)
+            {
+                Program.Logger.Debug("ERROR - LEVIES WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
+                return;
+            }
+
+            var Levies_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
+
+            int total_soldiers = unit.GetSoldiers();
+
+            //  SINGULAR UNIT
+            //  select random levy type
+            if (unit.GetSoldiers() <= unit.GetMax())
+            {
+                Random r = new Random();
+                var random = faction_levy_porcentages[r.Next(faction_levy_porcentages.Count - 1)];
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
+                BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                i++;
+                return;
+            }
+
+
+            //  MULTIPLE UNITS
+            //  fulfill every levy type
+            int totalPorcentage = faction_levy_porcentages.Sum(x => x.porcentage);
+            int levySoldiers = unit.GetSoldiers();
+            int cumulativeSoldiers = 0;
+
+            if (totalPorcentage == 0)
+            {
+                Program.Logger.Debug($"WARNING - Total levy porcentage is 0 for Attila faction {unit.GetAttilaFaction()}");
+                return;
+            }
+
+            for (int p = 0; p < faction_levy_porcentages.Count; p++)
+            {
+                var porcentageData = faction_levy_porcentages[p];
+                double t = (double)porcentageData.porcentage / totalPorcentage;
+                int result = (int)Math.Round(levySoldiers * t);
+
+                // For the last porcentage, use remaining soldiers
+                if (p == faction_levy_porcentages.Count - 1)
+                {
+                    result = levySoldiers - cumulativeSoldiers;
+                }
+                else
+                {
+                    cumulativeSoldiers += result;
+                }
+
+                var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
+                BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                i++;
+            }
+
+        }
+
+    }
+}
