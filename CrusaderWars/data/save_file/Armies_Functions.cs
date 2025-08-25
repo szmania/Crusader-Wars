@@ -596,7 +596,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Creating units from regiments for all armies...");
             foreach (var army in armies)
             {
-                Program.Logger.Debug($"Creating units from {list.Count} regiments for army {army.ID}");
+                Program.Logger.Debug($"Creating units from {armies.Count} total armies, for army {army.ID}");
                 List<(Regiment regiment, RegimentType type, string maa_name)> list = new List<(Regiment regiment, RegimentType type, string maa_name)>();
                 foreach (var army_regiment in army.ArmyRegiments)
                 {
