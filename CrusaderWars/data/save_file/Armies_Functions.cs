@@ -140,7 +140,7 @@ namespace CrusaderWars.data.save_file
         public static void ReadArmiesCultures(List<Army> armies)
         {
             // Add detailed start log
-            Program.Logger.Debug("🔽 START ReadArmiesCultures: Matching cultures in armies");
+            Program.Logger.Debug("START ReadArmiesCultures: Matching cultures in armies");
             bool isSearchStared = false;
             string culture_id = "";
             string culture_name = "";
@@ -158,21 +158,21 @@ namespace CrusaderWars.data.save_file
                     if (Regex.IsMatch(line, @"^\t\t\d+={$") && !isSearchStared)
                     {
                         culture_id = Regex.Match(line, @"(\d+)").Groups[1].Value;
-                        Program.Logger.Debug($"┣━━ Found CultureID: {culture_id}");
+                        Program.Logger.Debug($"  Found CultureID: {culture_id}");
 
                         // Log culture match checking
-                        Program.Logger.Debug("┃   ┣━━ Checking culture matches in armies...");
+                        Program.Logger.Debug("    Checking culture matches in armies...");
                         foreach (Army army in armies)
                         {
                             // Owner match log
                             if (army.Owner.GetCulture()?.ID == culture_id)
                             {
-                                Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) OWNER culture: {culture_id}");
+                                Program.Logger.Debug($"      Matched ARMY ({army.ID}) OWNER culture: {culture_id}");
                             }
                             // Commander match log
                             if (army.Commander?.GetCultureObj()?.ID == culture_id)
                             {
-                                Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) COMMANDER culture: {culture_id}");
+                                Program.Logger.Debug($"      Matched ARMY ({army.ID}) COMMANDER culture: {culture_id}");
                             }
                             // Knights match log
                             if (army.Knights?.GetKnightsList() != null)
@@ -181,7 +181,7 @@ namespace CrusaderWars.data.save_file
                                 {
                                     if (knight.GetCultureObj()?.ID == culture_id)
                                     {
-                                        Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) KNIGHT {knight.GetID()} culture: {culture_id}");
+                                        Program.Logger.Debug($"      Matched ARMY ({army.ID}) KNIGHT {knight.GetID()} culture: {culture_id}");
                                     }
                                 }
                             }
@@ -194,13 +194,13 @@ namespace CrusaderWars.data.save_file
                                     Culture regCulture = regiment.Culture;
                                     if(regCulture != null && regCulture.ID == culture_id)
                                     {
-                                        Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) REGIMENT {regiment.ID} culture: {culture_id}");
+                                        Program.Logger.Debug($"      Matched ARMY ({army.ID}) REGIMENT {regiment.ID} culture: {culture_id}");
                                     }
                                 }
                             }
                         }
 
-                        Program.Logger.Debug("┃   ┣━━ Starting line-by-line culture parsing...");
+                        Program.Logger.Debug("    Starting line-by-line culture parsing...");
                     }
 
                     // Add log for found culture name
@@ -210,7 +210,7 @@ namespace CrusaderWars.data.save_file
                         culture_name = culture_name.Replace("-", "");
                         culture_name = RemoveDiacritics(culture_name);
                         culture_name = culture_name.Replace(" ", "");
-                        Program.Logger.Debug($"┃   ┣━━ Found CultureName: {culture_name}");
+                        Program.Logger.Debug($"  Found CultureName: {culture_name}");
                     }
 
                     // Add log for found heritage
@@ -218,11 +218,11 @@ namespace CrusaderWars.data.save_file
                     {
                         heritage_name = Regex.Match(line, @"heritage=(.+)\t\t\tlanguage=").Groups[1].Value;
                         heritage_name = heritage_name.Trim('-');
-                        Program.Logger.Debug($"┃   ┣━━ Found Heritage: {heritage_name}");
+                        Program.Logger.Debug($"  Found Heritage: {heritage_name}");
 
                         found_cultures.Add((culture_id, culture_name, heritage_name));
                         isSearchStared = false;
-                        Program.Logger.Debug($"┣━━ Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
+                        Program.Logger.Debug($"Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
                     }
                 }
             }
@@ -312,19 +312,19 @@ namespace CrusaderWars.data.save_file
         internal static void SetCulturesToAll(List<Army> armies, List<(string culture_id, string culture_name, string heritage_name)> foundCultures)
         {
             // Add detailed start log
-            Program.Logger.Debug("🔽 START SetCulturesToAll: Applying culture names");
-            Program.Logger.Debug($"┣━━ Found {foundCultures.Count} cultures to apply");
+            Program.Logger.Debug("START SetCulturesToAll: Applying culture names");
+            Program.Logger.Debug($"Found {foundCultures.Count} cultures to apply");
             
             foreach (Army army in armies)
             {
-                Program.Logger.Debug($"┣━━ Applying to ARMY: {army.ID}");
+                Program.Logger.Debug($"Applying to ARMY: {army.ID}");
                 
                 // Owner culture log
                 if (army.Owner.GetCulture() != null && foundCultures.Exists(c => c.culture_id == army.Owner.GetCulture().ID))
                 {
                     var found = foundCultures.First(c => c.culture_id == army.Owner.GetCulture().ID);
-                    Program.Logger.Debug($"┃   ┣━━ APPLYING OWNER CULTURE | Old: {(army.Owner.GetCulture().GetCultureName() ?? "null")}/{(army.Owner.GetCulture().GetHeritageName() ?? "null")}");
-                    Program.Logger.Debug($"┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                    Program.Logger.Debug($"  APPLYING OWNER CULTURE | Old: {(army.Owner.GetCulture().GetCultureName() ?? "null")}/{(army.Owner.GetCulture().GetHeritageName() ?? "null")}");
+                    Program.Logger.Debug($"    New: {found.culture_name}/{found.heritage_name}");
                     army.Owner.GetCulture().SetName(found.culture_name);
                     army.Owner.GetCulture().SetHeritage(found.heritage_name);
                 }
@@ -335,8 +335,8 @@ namespace CrusaderWars.data.save_file
                     if (foundCultures.Exists(c => c.culture_id == army.Commander.GetCultureObj().ID))
                     {
                         var found = foundCultures.First(c => c.culture_id == army.Commander.GetCultureObj().ID);
-                        Program.Logger.Debug($"┃   ┣━━ APPLYING COMMANDER CULTURE | Old: {(army.Commander.GetCultureName() ?? "null")}/{(army.Commander.GetHeritageName() ?? "null")}");
-                        Program.Logger.Debug($"┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                        Program.Logger.Debug($"  APPLYING COMMANDER CULTURE | Old: {(army.Commander.GetCultureName() ?? "null")}/{(army.Commander.GetHeritageName() ?? "null")}");
+                        Program.Logger.Debug($"    New: {found.culture_name}/{found.heritage_name}");
                         army.Commander.GetCultureObj().SetName(found.culture_name);
                         army.Commander.GetCultureObj().SetHeritage(found.heritage_name);
                     }
@@ -351,8 +351,8 @@ namespace CrusaderWars.data.save_file
                         if (knightCultureID != null && foundCultures.Exists(c => c.culture_id == knightCultureID))
                         {
                             var found = foundCultures.Find(c => c.culture_id == knightCultureID);
-                            Program.Logger.Debug($"┃   ┣━━ APPLYING KNIGHT CULTURE | Old: {(knight.GetCultureName() ?? "null")}/{(knight.GetHeritageName() ?? "null")}");
-                            Program.Logger.Debug($"┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                            Program.Logger.Debug($"  APPLYING KNIGHT CULTURE | Old: {(knight.GetCultureName() ?? "null")}/{(knight.GetHeritageName() ?? "null")}");
+                            Program.Logger.Debug($"    New: {found.culture_name}/{found.heritage_name}");
                             knight.GetCultureObj().SetName(found.culture_name);
                             knight.GetCultureObj().SetHeritage(found.heritage_name);
                         }
@@ -360,7 +360,7 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // Regiments culture log
-                Program.Logger.Debug($"┃   ┣━━ Processing {army.ArmyRegiments.Sum(r => r.Regiments?.Count ?? 0)} regiments");
+                Program.Logger.Debug($"  Processing {army.ArmyRegiments.Sum(r => r.Regiments?.Count ?? 0)} regiments");
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
                     if (armyRegiment.Regiments == null) continue;
@@ -368,7 +368,7 @@ namespace CrusaderWars.data.save_file
                     {
                         if (regiment.Culture == null)
                         {
-                            Program.Logger.Debug($"┃   ┃   ┣━━ SKIPPING NULL CULTURE REGIMENT: {regiment.ID}");
+                            Program.Logger.Debug($"    SKIPPING NULL CULTURE REGIMENT: {regiment.ID}");
                             continue;
                         }
                         
@@ -376,16 +376,16 @@ namespace CrusaderWars.data.save_file
                         if (foundCultures.Exists(c => c.culture_id == regimentCultureID))
                         {
                             var found = foundCultures.Find(c => c.culture_id == regimentCultureID);
-                            Program.Logger.Debug($"┃   ┃   ┣━━ APPLYING REGIMENT CULTURE: {regiment.ID}");
-                            Program.Logger.Debug($"┃   ┃   ┃       Old: {(regiment.Culture.GetCultureName() ?? "null")}/{(regiment.Culture.GetHeritageName() ?? "null")}");
-                            Program.Logger.Debug($"┃   ┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                            Program.Logger.Debug($"    APPLYING REGIMENT CULTURE: {regiment.ID}");
+                            Program.Logger.Debug($"      Old: {(regiment.Culture.GetCultureName() ?? "null")}/{(regiment.Culture.GetHeritageName() ?? "null")}");
+                            Program.Logger.Debug($"      New: {found.culture_name}/{found.heritage_name}");
                             regiment.Culture.SetName(found.culture_name);
                             regiment.Culture.SetHeritage(found.heritage_name);
                         }
                     }
                 }
             }
-            Program.Logger.Debug("🔼 END SetCulturesToAll");
+            Program.Logger.Debug("END SetCulturesToAll");
         }
 
         /*##############################################

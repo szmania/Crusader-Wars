@@ -553,7 +553,7 @@ namespace CrusaderWars.unit_mapper
             var files_paths = Directory.GetFiles(cultures_folder_path);
             foreach (var xml_file in files_paths)
             {
-                if(Path.GetExtension(xml_file) == ".xml")
+                if (Path.GetExtension(xml_file) == ".xml")
                 {
                     XmlDocument CulturesFile = new XmlDocument();
                     CulturesFile.Load(xml_file);

@@ -153,7 +153,7 @@ namespace CrusaderWars
             if(Commander != null)
             {
                 sb.AppendLine($"## GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()}");
-                Program.Logger.Debug($"## GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()}");
+                Program.Logger.Debug($"GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()}");
             }
             if (Knights.GetKnightsList() != null)
             {
@@ -162,12 +162,12 @@ namespace CrusaderWars
                     if(knight.IsAccolade())
                     {
                         sb.AppendLine($"## ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
-                        Program.Logger.Debug($"## ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
+                        Program.Logger.Debug($"ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
                     }
                     else
                     {
                         sb.AppendLine($"## KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
-                        Program.Logger.Debug($"## KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
+                        Program.Logger.Debug($"KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
                     }
                 }
             }
@@ -180,7 +180,7 @@ namespace CrusaderWars
                     $"Culture: {culture} | Heritage: {heritage} | " +
                     $"Key: {unit.GetAttilaUnitKey()}");
                 
-                Program.Logger.Debug($"## {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | " +
+                Program.Logger.Debug($"{unit.GetName()} | Soldiers: {unit.GetSoldiers()} | " +
                     $"Culture: {culture} | Heritage: {heritage} | " +
                     $"Key: {unit.GetAttilaUnitKey()}");
             }
