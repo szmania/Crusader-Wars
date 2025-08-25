@@ -1604,7 +1604,7 @@ namespace CrusaderWars.data.save_file
 
                     else if(isAttacker && line.Contains("\t\t\t\t\t\tstarting="))
                     {
-                        string startingNum = Regex.Match(line,@"\d+").Value;
+                        string startingNum = Regex.Match(line, @"\d+").Value;
 
                         foreach(var army in attacker_armies)
                         {
