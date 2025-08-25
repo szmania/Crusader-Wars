@@ -11,6 +11,13 @@ namespace CWUpdater
         {
             try
             {
+                // Ensure the directory exists before writing the log file
+                string logDirectory = Path.GetDirectoryName(logFilePath);
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
                 string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}{Environment.NewLine}";
                 File.AppendAllText(logFilePath, logMessage);
             }
