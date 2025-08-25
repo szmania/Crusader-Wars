@@ -523,6 +523,16 @@ namespace CrusaderWars.unit_mapper
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)
         {
+            Program.Logger.Debug($"Searching faction for Culture:{CultureName}, Heritage:{HeritageName}");
+            if (string.IsNullOrEmpty(CultureName))
+            {
+                Program.Logger.Debug("WARNING: CultureName is null/empty");
+            }
+            if (string.IsNullOrEmpty(HeritageName))
+            {
+                Program.Logger.Debug("WARNING: HeritageName is null/empty");
+            }
+
             string faction = "";
 
             if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath))
@@ -556,6 +566,7 @@ namespace CrusaderWars.unit_mapper
 
                         if(heritage_name == HeritageName)
                         {
+                            Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{faction}");
                             faction = heritage.Attributes["faction"].Value;
                         }
 
@@ -564,9 +575,14 @@ namespace CrusaderWars.unit_mapper
                             if (culture is XmlComment) continue; 
                             string culture_name = culture.Attributes["name"].Value;
 
-                            if (culture_name == CultureName)
+                            if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
                             {
+                                Program.Logger.Debug($"Matched culture: {CultureName}->faction:{faction}");
                                 faction = culture.Attributes["faction"].Value;
+                            }
+                            if (heritage_name == HeritageName && !string.IsNullOrEmpty(HeritageName))
+                            {
+                                Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{faction}");
                             }
                         }
                     }

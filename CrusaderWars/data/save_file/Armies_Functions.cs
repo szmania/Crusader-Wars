@@ -596,7 +596,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Creating units from regiments for all armies...");
             foreach (var army in armies)
             {
-                Program.Logger.Debug($"Creating units for army {army.ID}...");
+                Program.Logger.Debug($"Creating units from {list.Count} regiments for army {army.ID}");
                 List<(Regiment regiment, RegimentType type, string maa_name)> list = new List<(Regiment regiment, RegimentType type, string maa_name)>();
                 foreach (var army_regiment in army.ArmyRegiments)
                 {
@@ -651,7 +651,14 @@ namespace CrusaderWars.data.save_file
 
         static List<Unit> OrganizeUnitsIntoCultures(List<Unit> units, Owner owner)
         {
-            Program.Logger.Debug("Organizing units by name and culture...");
+            Program.Logger.Debug($"Organizing {units.Count} units by culture for owner {owner.GetID()}");
+            foreach (var unit in units)
+            {
+                Program.Logger.Debug($"- Unit: {unit.GetName()}, Soldiers: {unit.GetSoldiers()}, " +
+                    $"Culture: {unit.GetObjCulture()?.GetCultureName() ?? "null"}, " +
+                    $"Heritage: {unit.GetObjCulture()?.GetHeritageName() ?? "null"}");
+            }
+
             var organizedUnits = new List<Unit>();
 
             // Group units by Name and Culture
@@ -673,13 +680,9 @@ namespace CrusaderWars.data.save_file
 
         static List<Unit> OrganizeLeviesUnits(List<Unit> units)
         {
-            Program.Logger.Debug("Organizing levy units based on cultural preciseness...");
             var unitsBelowThreshold = units.Where(u => u.GetSoldiers() <= ModOptions.CulturalPreciseness() && u.GetName() == "Levy").ToList();
-            if (unitsBelowThreshold.Count == 0)
-            {
-                Program.Logger.Debug("No levy units below cultural preciseness threshold. No organization needed.");
-                return units;
-            }
+            Program.Logger.Debug($"Organizing {unitsBelowThreshold.Count} levy units below threshold {ModOptions.CulturalPreciseness()}");
+            if (unitsBelowThreshold.Count == 0) return units;
 
             int total = 0;
             Unit biggest = null;
@@ -703,6 +706,7 @@ namespace CrusaderWars.data.save_file
             int null_soldiers = 0;
 
             var null_cultures_levies = units.Where(x => x.GetObjCulture() == null).ToList();
+            Console.WriteLine($"Found {null_cultures_levies.Count} null-culture levies");
             if (null_cultures_levies.Count > 0)
             {
                 foreach (var null_levie in null_cultures_levies)
@@ -722,7 +726,7 @@ namespace CrusaderWars.data.save_file
                 else
                     units.Add(new Unit("Levy", unit_data.UnitSoldiers, levies_top_cultures[i].GetObjCulture(), RegimentType.Levy));
             }
-            Program.Logger.Debug("Finished organizing levy units.");
+
             return units;
         }
     }
