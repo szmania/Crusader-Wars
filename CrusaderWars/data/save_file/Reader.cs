@@ -101,7 +101,7 @@ namespace CrusaderWars
                 while (line != null && !reader.EndOfStream)
                 {
                     lineCount++;
-                    if (lineCount % 500000 == 0)
+                    if (lineCount % 50000 == 0)
                     {
                         Program.Logger.Debug($"... Read {lineCount} lines from save file ...");
                     }
