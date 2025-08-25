@@ -233,24 +233,27 @@
             // 
             // BottomLeftFlowPanel
             // 
-            this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
             this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
             this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
             this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.BottomLeftFlowPanel.WrapContents = false;
+            this.BottomLeftFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
             this.BottomLeftFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            
             // 
             // BottomRightFlowPanel
             // 
-            this.BottomRightFlowPanel.AutoSize = true;
             this.BottomRightFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
             this.BottomRightFlowPanel.Controls.Add(this.labelSeparatorRight);
             this.BottomRightFlowPanel.Controls.Add(this.discordLink);
             this.BottomRightFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.BottomRightFlowPanel.WrapContents = false;
+            this.BottomRightFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomRightFlowPanel, "BottomRightFlowPanel");
             this.BottomRightFlowPanel.Name = "BottomRightFlowPanel";
             this.BottomRightFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -341,23 +344,24 @@
             // 
             // labelSeparatorLeft
             // 
-            this.labelSeparatorLeft.Anchor = System.Windows.Forms.AnchorStyles.None;
+            // this.labelSeparatorLeft.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.labelSeparatorLeft.Text = "|";
             this.labelSeparatorLeft.AutoSize = true;
             this.labelSeparatorLeft.BackColor = System.Drawing.Color.Transparent;
-            this.labelSeparatorLeft.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.labelSeparatorLeft.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelSeparatorLeft.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold);
             this.labelSeparatorLeft.Name = "labelSeparatorLeft";
             resources.ApplyResources(this.labelSeparatorLeft, "labelSeparatorLeft");
             // 
             // labelSeparatorRight
             // 
-            this.labelSeparatorRight.Anchor = System.Windows.Forms.AnchorStyles.None;
+            resources.ApplyResources(this.labelSeparatorRight, "labelSeparatorRight");
+            this.labelSeparatorRight.Text = "|";
             this.labelSeparatorRight.AutoSize = true;
             this.labelSeparatorRight.BackColor = System.Drawing.Color.Transparent;
-            this.labelSeparatorRight.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.labelSeparatorRight.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelSeparatorRight.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold);
             this.labelSeparatorRight.Name = "labelSeparatorRight";
-            resources.ApplyResources(this.labelSeparatorRight, "labelSeparatorRight");
             // 
             // HomePage
             // 
