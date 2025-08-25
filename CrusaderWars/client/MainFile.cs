@@ -86,7 +86,7 @@ namespace CrusaderWars
             _updater.CheckUnitMappersVersion();
             _appVersion = _updater.AppVersion;
             _umVersion = _updater.UMVersion;
-            labelVersion.Text = $"V{_appVersion}";
+            labelVersion.Text = $"v{_appVersion}";
             labelMappersVersion.Text = $"(mappers v{_umVersion})";
             Program.Logger.Debug($"Current App Version: {_updater.AppVersion}");
 
@@ -795,7 +795,7 @@ namespace CrusaderWars
             try
             {
                 DataSearch.ClearLogFile();
-                DeclarationsFile.EraseScript();
+                DeclarationsFile.Erase();
                 BattleScript.EraseScript();
                 BattleResult.ClearAttilaLog();
 
