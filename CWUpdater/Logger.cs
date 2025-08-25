@@ -5,7 +5,7 @@ namespace CWUpdater
 {
     public static class Logger
     {
-        private static readonly string logFilePath = "debug_cwupdater.log";
+        private static readonly string logFilePath = Path.GetFullPath(@".\data\debug_cwupdater.log");
 
         public static void Log(string message)
         {
