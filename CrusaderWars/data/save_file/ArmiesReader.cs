@@ -29,10 +29,6 @@ namespace CrusaderWars.data.save_file
                 throw new Exception("Couldn't read traits data", ex);
             }
 
-            // Initialize armies lists
-            attacker_armies = new List<Army>();
-            defender_armies = new List<Army>();
-
             ReadCombatArmies(BattleResult.Player_Combat);
             ReadArmiesData();
             ReadArmiesUnits();
