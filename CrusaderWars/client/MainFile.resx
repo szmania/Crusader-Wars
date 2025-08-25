@@ -533,8 +533,11 @@
   <data name="&gt;&gt;EA_Label.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="discordLink.Font" type="System.Drawing.Font">
-    <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
+  <data name="discordLink.Anchor" type="System.Windows.Forms.AnchorStyles">
+    <value>None</value>
+  </data>
+  <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
+    <value>False</value>
   </data>
   <data name="discordLink.ImeMode" type="System.Windows.Forms.ImeMode">
     <value>NoControl</value>
@@ -545,17 +548,8 @@
   <data name="discordLink.Margin" type="System.Windows.Forms.Padding">
     <value>4, 3, 4, 0</value>
   </data>
-  <data name="discordLink.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
-  </data>
   <data name="discordLink.TabIndex" type="System.Int32">
     <value>28</value>
-  </data>
-  <data name="discordLink.Text" xml:space="preserve">
-    <value>Join Discord</value>
-  </data>
-  <data name="discordLink.ImageAlign" type="System.Drawing.ContentAlignment">
-    <value>MiddleLeft</value>
   </data>
   <data name="&gt;&gt;discordLink.Name" xml:space="preserve">
     <value>discordLink</value>
@@ -773,9 +767,6 @@
   <data name="viewLogsLink.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
   <data name="BottomLeftFlowPanel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -787,9 +778,6 @@
   </data>
   <data name="BottomPanelLayout.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
-  </data>
-  <data name="discordLink.TextImageRelation" type="System.Windows.Forms.TextImageRelation, System.Windows.Forms">
-    <value>ImageBeforeText</value>
   </data>
   <data name="BottomLeftFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>TopDown</value>
@@ -839,9 +827,6 @@
   <data name="discordLink.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
-  <data name="discordLink.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
-    <value>MiddleLeft</value>
-  </data>
   <data name="discordLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
@@ -857,7 +842,7 @@
   <data name="labelVersion.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="labelVersion.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+  <data name="labelVersion.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
   </data>
   <data name="labelVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
@@ -878,7 +863,7 @@
   <data name="labelMappersVersion.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="labelMappersVersion.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+  <data name="labelMappersVersion.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
   </data>
   <data name="labelMappersVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
@@ -886,5 +871,11 @@
   </data>
   <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
     <value>MiddleLeft</value>
+  </data>
+  <data name="discordLink.Size" type="System.Drawing.Size, System.Drawing">
+    <value>32, 32</value>
+  </data>
+  <data name="discordLink.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Zoom</value>
   </data>
 </root>

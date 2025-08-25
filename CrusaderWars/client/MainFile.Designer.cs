@@ -36,7 +36,6 @@
             this.SettingsBtn = new System.Windows.Forms.Button();
             this.InformationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.viewLogsLink = new System.Windows.Forms.Button();
-            this.discordLink = new System.Windows.Forms.Button();
             this.labelVersion = new System.Windows.Forms.Button();
             this.labelMappersVersion = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -51,6 +50,7 @@
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.discordLink = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.MainPanelLayout.SuspendLayout();
             this.ButtonsContainerPanel.SuspendLayout();
@@ -131,24 +131,6 @@
             this.viewLogsLink.Name = "viewLogsLink";
             this.viewLogsLink.UseVisualStyleBackColor = false;
             this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
-            // 
-            // discordLink
-            // 
-            this.discordLink.AutoSize = true;
-            this.discordLink.BackColor = System.Drawing.Color.Transparent;
-            this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.discordLink.FlatAppearance.BorderSize = 0;
-            this.discordLink.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.discordLink.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.discordLink, "discordLink");
-            this.discordLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord;
-            this.discordLink.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.discordLink.Name = "discordLink";
-            this.discordLink.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.discordLink.UseVisualStyleBackColor = false;
-            this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // labelVersion
             // 
@@ -333,6 +315,21 @@
             this.tableLayoutPanel1.Controls.Add(this.SettingsBtn, 0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             // 
+            // discordLink
+            // 
+            this.discordLink.BackColor = System.Drawing.Color.Transparent;
+            this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.discordLink.FlatAppearance.BorderSize = 0;
+            this.discordLink.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.discordLink.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.discordLink, "discordLink");
+            this.discordLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.discordLink.BackgroundImage = global::CrusaderWars.Properties.Resources.discord;
+            this.discordLink.Name = "discordLink";
+            this.discordLink.UseVisualStyleBackColor = false;
+            this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
+            // 
             // HomePage
             // 
             resources.ApplyResources(this, "$this");
@@ -374,7 +371,6 @@
         private System.Windows.Forms.Button SettingsBtn;
         private System.Windows.Forms.ToolTip InformationToolTip;
         private System.Windows.Forms.Button viewLogsLink;
-        private System.Windows.Forms.Button discordLink;
         private System.Windows.Forms.Button labelVersion;
         private System.Windows.Forms.Button labelMappersVersion;
         private System.Windows.Forms.PictureBox pictureBox1;
@@ -387,6 +383,7 @@
         private System.Windows.Forms.Button WebsiteBTN;
         private System.Windows.Forms.Button SteamBTN;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Button discordLink;
         private System.Windows.Forms.FlowLayoutPanel BottomLeftFlowPanel;
         private System.Windows.Forms.FlowLayoutPanel BottomRightFlowPanel;
     }
