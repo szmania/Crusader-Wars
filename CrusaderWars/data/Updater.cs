@@ -194,6 +194,27 @@ namespace CrusaderWars
             return latestRelease;
         }
 
+        private string GetUpdaterPath()
+        {
+            string primaryPath = @".\data\updater\CWUpdater.exe";
+            string fallbackPath = @".\data\updater\CW-Updater.exe";
+
+            if (File.Exists(primaryPath))
+            {
+                Program.Logger.Debug($"Found updater at: {primaryPath}");
+                return primaryPath;
+            }
+
+            if (File.Exists(fallbackPath))
+            {
+                Program.Logger.Debug($"Updater not found at primary path. Using fallback: {fallbackPath}");
+                return fallbackPath;
+            }
+
+            Program.Logger.Debug($"Updater executable not found at '{primaryPath}' or '{fallbackPath}'.");
+            return null;
+        }
+
         public async void CheckAppVersion()
         {
             Program.Logger.Debug("Checking app version...");
@@ -222,8 +243,13 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Update available for app: {latestRelease.version}. Starting updater...");
                 try
                 {
+                    string updaterPath = GetUpdaterPath();
+                    if (updaterPath == null)
+                    {
+                        throw new FileNotFoundException("Updater executable not found.");
+                    }
                     ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.FileName = @".\data\updater\CWUpdater.exe";
+                    startInfo.FileName = updaterPath;
                     startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version}";
                     Process.Start(startInfo);
                     Environment.Exit(0);
@@ -267,8 +293,13 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Update available for unit mappers: {latestRelease.version}. Starting updater...");
                 try
                 {
+                    string updaterPath = GetUpdaterPath();
+                    if (updaterPath == null)
+                    {
+                        throw new FileNotFoundException("Updater executable not found.");
+                    }
                     ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.FileName = @".\data\updater\CWUpdater.exe";
+                    startInfo.FileName = updaterPath;
                     startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version} {"unit_mapper"}";
                     Process.Start(startInfo);
                     Environment.Exit(0);
