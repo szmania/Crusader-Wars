@@ -35,10 +35,10 @@
             this.infoLabel = new System.Windows.Forms.Label();
             this.SettingsBtn = new System.Windows.Forms.Button();
             this.InformationToolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.viewLogsLink = new System.Windows.Forms.Label();
-            this.discordLink = new System.Windows.Forms.Label();
-            this.labelVersion = new System.Windows.Forms.Label();
-            this.labelMappersVersion = new System.Windows.Forms.Label();
+            this.viewLogsLink = new System.Windows.Forms.Button();
+            this.discordLink = new System.Windows.Forms.Button();
+            this.labelVersion = new System.Windows.Forms.Button();
+            this.labelMappersVersion = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -122,9 +122,14 @@
             this.viewLogsLink.AutoSize = true;
             this.viewLogsLink.BackColor = System.Drawing.Color.Transparent;
             this.viewLogsLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.viewLogsLink.FlatAppearance.BorderSize = 0;
+            this.viewLogsLink.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.viewLogsLink.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.viewLogsLink, "viewLogsLink");
+            this.viewLogsLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.viewLogsLink.Name = "viewLogsLink";
+            this.viewLogsLink.UseVisualStyleBackColor = false;
             this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
             // 
             // discordLink
@@ -132,28 +137,47 @@
             this.discordLink.AutoSize = true;
             this.discordLink.BackColor = System.Drawing.Color.Transparent;
             this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.discordLink.FlatAppearance.BorderSize = 0;
+            this.discordLink.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.discordLink.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.discordLink, "discordLink");
+            this.discordLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord_icon;
             this.discordLink.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.discordLink.Name = "discordLink";
             this.discordLink.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.discordLink.UseVisualStyleBackColor = false;
             this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // labelVersion
             // 
             resources.ApplyResources(this.labelVersion, "labelVersion");
+            this.labelVersion.AutoSize = true;
             this.labelVersion.BackColor = System.Drawing.Color.Transparent;
+            this.labelVersion.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.labelVersion.FlatAppearance.BorderSize = 0;
+            this.labelVersion.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.labelVersion.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.labelVersion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelVersion.Name = "labelVersion";
+            this.labelVersion.UseVisualStyleBackColor = false;
             this.labelVersion.Click += new System.EventHandler(this.labelVersion_Click);
             // 
             // labelMappersVersion
             // 
             resources.ApplyResources(this.labelMappersVersion, "labelMappersVersion");
+            this.labelMappersVersion.AutoSize = true;
             this.labelMappersVersion.BackColor = System.Drawing.Color.Transparent;
+            this.labelMappersVersion.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.labelMappersVersion.FlatAppearance.BorderSize = 0;
+            this.labelMappersVersion.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.labelMappersVersion.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.labelMappersVersion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelMappersVersion.Name = "labelMappersVersion";
+            this.labelMappersVersion.UseVisualStyleBackColor = false;
             this.labelMappersVersion.Click += new System.EventHandler(this.labelMappersVersion_Click);
             // 
             // pictureBox1
@@ -349,20 +373,20 @@
         private System.Windows.Forms.Label infoLabel;
         private System.Windows.Forms.Button SettingsBtn;
         private System.Windows.Forms.ToolTip InformationToolTip;
-        private System.Windows.Forms.Label labelVersion;
+        private System.Windows.Forms.Button viewLogsLink;
+        private System.Windows.Forms.Button discordLink;
+        private System.Windows.Forms.Button labelVersion;
+        private System.Windows.Forms.Button labelMappersVersion;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.FlowLayoutPanel MainPanelLayout;
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
         private System.Windows.Forms.Button ContinueBattleButton;
         private System.Windows.Forms.TableLayoutPanel BottomPanelLayout;
         private System.Windows.Forms.Label EA_Label;
-        private System.Windows.Forms.Label discordLink;
         private System.Windows.Forms.Button patreonBtn;
         private System.Windows.Forms.Button WebsiteBTN;
         private System.Windows.Forms.Button SteamBTN;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label viewLogsLink;
-        private System.Windows.Forms.Label labelMappersVersion;
         private System.Windows.Forms.FlowLayoutPanel BottomLeftFlowPanel;
         private System.Windows.Forms.FlowLayoutPanel BottomRightFlowPanel;
     }

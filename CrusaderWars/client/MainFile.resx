@@ -333,7 +333,7 @@
     <value>viewLogsLink</value>
   </data>
   <data name="&gt;&gt;viewLogsLink.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;viewLogsLink.Parent" xml:space="preserve">
     <value>BottomRightFlowPanel</value>
@@ -375,7 +375,7 @@
     <value>labelVersion</value>
   </data>
   <data name="&gt;&gt;labelVersion.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;labelVersion.Parent" xml:space="preserve">
     <value>BottomLeftFlowPanel</value>
@@ -417,7 +417,7 @@
     <value>labelMappersVersion</value>
   </data>
   <data name="&gt;&gt;labelMappersVersion.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;labelMappersVersion.Parent" xml:space="preserve">
     <value>BottomLeftFlowPanel</value>
@@ -561,7 +561,7 @@
     <value>discordLink</value>
   </data>
   <data name="&gt;&gt;discordLink.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;discordLink.Parent" xml:space="preserve">
     <value>BottomRightFlowPanel</value>
@@ -802,5 +802,89 @@
   </data>
   <data name="BottomRightFlowPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 5, 0, 0</value>
+  </data>
+  <data name="viewLogsLink.Cursor" type="System.Windows.Forms.Cursor, System.Windows.Forms">
+    <value>Hand</value>
+  </data>
+  <data name="viewLogsLink.FlatAppearance.BorderSize" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="viewLogsLink.FlatAppearance.MouseDownBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="viewLogsLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="viewLogsLink.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="viewLogsLink.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="viewLogsLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="discordLink.Cursor" type="System.Windows.Forms.Cursor, System.Windows.Forms">
+    <value>Hand</value>
+  </data>
+  <data name="discordLink.FlatAppearance.BorderSize" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="discordLink.FlatAppearance.MouseDownBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="discordLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="discordLink.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="discordLink.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="discordLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="labelVersion.Cursor" type="System.Windows.Forms.Cursor, System.Windows.Forms">
+    <value>Hand</value>
+  </data>
+  <data name="labelVersion.FlatAppearance.BorderSize" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="labelVersion.FlatAppearance.MouseDownBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="labelVersion.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="labelVersion.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="labelVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="labelMappersVersion.Cursor" type="System.Windows.Forms.Cursor, System.Windows.Forms">
+    <value>Hand</value>
+  </data>
+  <data name="labelMappersVersion.FlatAppearance.BorderSize" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="labelMappersVersion.FlatAppearance.MouseDownBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="labelMappersVersion.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
+    <value>Transparent</value>
+  </data>
+  <data name="labelMappersVersion.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="labelMappersVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+    <value>MiddleLeft</value>
   </data>
 </root>
