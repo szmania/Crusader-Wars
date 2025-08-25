@@ -780,13 +780,13 @@
     <value>GrowAndShrink</value>
   </data>
   <data name="BottomLeftFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
-    <value>TopDown</value>
+    <value>LeftToRight</value>
   </data>
   <data name="BottomLeftFlowPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 5, 0, 0</value>
   </data>
   <data name="BottomRightFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
-    <value>TopDown</value>
+    <value>LeftToRight</value>
   </data>
   <data name="BottomRightFlowPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 5, 0, 0</value>
@@ -824,7 +824,7 @@
   <data name="discordLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="discordLink.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+  <data name="discordLink.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
   </data>
   <data name="discordLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
