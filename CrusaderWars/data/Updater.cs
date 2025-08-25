@@ -112,37 +112,44 @@ namespace CrusaderWars
             }
         }
 
-        bool IsNewerVersion(string localVersion, string remoteVersion)
+        private bool IsPreRelease(string versionStr)
         {
-            Program.Logger.Debug($"Comparing versions - Local: {localVersion}, Remote: {remoteVersion}");
+            if (string.IsNullOrEmpty(versionStr)) return false;
+            string processedVersion = versionStr.StartsWith("v") ? versionStr.Substring(1) : versionStr;
+            return Regex.IsMatch(processedVersion, "[a-zA-Z]");
+        }
 
-            Version localVer = ParseVersion(localVersion);
-            Version remoteVer = ParseVersion(remoteVersion);
+        bool IsNewerVersion(string versionA, string versionB)
+        {
+            Program.Logger.Debug($"Comparing versions - A: {versionA}, B: {versionB}");
 
-            if (remoteVer > localVer)
+            Version verA = ParseVersion(versionA);
+            Version verB = ParseVersion(versionB);
+
+            if (verB > verA)
             {
-                Program.Logger.Debug("Remote version is newer based on version number.");
+                Program.Logger.Debug("Version B is newer based on version number.");
                 return true;
             }
 
-            if (remoteVer < localVer)
+            if (verB < verA)
             {
-                Program.Logger.Debug("Local version is newer based on version number.");
+                Program.Logger.Debug("Version A is newer based on version number.");
                 return false;
             }
 
             // If base versions are equal (e.g., 1.0.15), check for pre-release vs stable.
-            // A stable release is considered an update to a pre-release.
-            bool isLocalPreRelease = Regex.IsMatch(localVersion, "[a-zA-Z]");
-            bool isRemoteStable = !Regex.IsMatch(remoteVersion, "[a-zA-Z]");
+            // A stable release (B) is considered an update to a pre-release (A).
+            bool isAPreRelease = IsPreRelease(versionA);
+            bool isBStable = !IsPreRelease(versionB);
 
-            if (isLocalPreRelease && isRemoteStable)
+            if (isAPreRelease && isBStable)
             {
-                Program.Logger.Debug("Remote version is a stable release of the local pre-release version.");
+                Program.Logger.Debug("Version B is a stable release of the pre-release Version A.");
                 return true;
             }
 
-            Program.Logger.Debug("Versions are considered equivalent or local is newer/same.");
+            Program.Logger.Debug("Versions are considered equivalent or B is not newer.");
             return false;
         }
         
