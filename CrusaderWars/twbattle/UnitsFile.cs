@@ -303,7 +303,6 @@ namespace CrusaderWars
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
-            }
 
         }
 

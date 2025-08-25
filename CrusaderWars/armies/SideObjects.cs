@@ -175,13 +175,13 @@ namespace CrusaderWars
             {
                 if (unit.IsMerc())
                 {
-                    sb.AppendLine($"## Hired {unit.GetRegimentType()} | Name: {unit.GetName()} |Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
-                    Program.Logger.Debug($"## Hired {unit.GetRegimentType()} | Name: {unit.GetName()} |Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
+                    sb.AppendLine($"## Hired {unit.GetRegimentType()} | Name: {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
+                    Program.Logger.Debug($"## Hired {unit.GetRegimentType()} | Name: {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
                 }
                 else
                 {
-                    sb.AppendLine($"## {unit.GetRegimentType()} | Name: {unit.GetName()} |Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
-                    Program.Logger.Debug($"## {unit.GetRegimentType()} | Name: {unit.GetName()} |Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
+                    sb.AppendLine($"## {unit.GetRegimentType()} | Name: {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
+                    Program.Logger.Debug($"## {unit.GetRegimentType()} | Name: {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | Culture: {unit.GetCulture()} | Heritage: {unit.GetHeritage()} | Unit Key: {unit.GetAttilaUnitKey()}");
                 }
             }
             Program.Logger.Debug("");
