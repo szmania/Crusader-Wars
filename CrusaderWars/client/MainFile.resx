@@ -318,7 +318,7 @@
     <value>235, 0</value>
   </data>
   <data name="viewLogsLink.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 0, 4, 0</value>
+    <value>4, 3, 4, 0</value>
   </data>
   <data name="viewLogsLink.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
@@ -357,7 +357,7 @@
     <value>4, 0</value>
   </data>
   <data name="labelVersion.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 0, 4, 0</value>
+    <value>4, 3, 4, 0</value>
   </data>
   <data name="labelVersion.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
@@ -369,7 +369,7 @@
     <value>v1.0</value>
   </data>
   <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment">
-    <value>TopCenter</value>
+    <value>MiddleLeft</value>
   </data>
   <data name="&gt;&gt;labelVersion.Name" xml:space="preserve">
     <value>labelVersion</value>
@@ -411,7 +411,7 @@
     <value>(mappers v0.0)</value>
   </data>
   <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment">
-    <value>TopCenter</value>
+    <value>MiddleLeft</value>
   </data>
   <data name="&gt;&gt;labelMappersVersion.Name" xml:space="preserve">
     <value>labelMappersVersion</value>
@@ -869,7 +869,7 @@
   <data name="labelMappersVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+  <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment">
     <value>MiddleLeft</value>
   </data>
   <data name="discordLink.Size" type="System.Drawing.Size, System.Drawing">

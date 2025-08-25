@@ -132,6 +132,7 @@
             this.viewLogsLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.viewLogsLink.Name = "viewLogsLink";
+            this.viewLogsLink.TabStop = false;
             this.viewLogsLink.UseVisualStyleBackColor = false;
             this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
             // 
@@ -147,6 +148,7 @@
             this.labelVersion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelVersion.Name = "labelVersion";
+            this.labelVersion.TabStop = false;
             this.labelVersion.UseVisualStyleBackColor = false;
             this.labelVersion.Click += new System.EventHandler(this.labelVersion_Click);
             // 
@@ -162,6 +164,7 @@
             this.labelMappersVersion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelMappersVersion.Name = "labelMappersVersion";
+            this.labelMappersVersion.TabStop = false;
             this.labelMappersVersion.UseVisualStyleBackColor = false;
             this.labelMappersVersion.Click += new System.EventHandler(this.labelMappersVersion_Click);
             // 
@@ -332,6 +335,7 @@
             this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.discordLink.BackgroundImage = global::CrusaderWars.Properties.Resources.discord;
             this.discordLink.Name = "discordLink";
+            this.discordLink.TabStop = false;
             this.discordLink.UseVisualStyleBackColor = false;
             this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
