@@ -143,7 +143,7 @@
             resources.ApplyResources(this.discordLink, "discordLink");
             this.discordLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord_icon;
+            this.discordLink.Image = global::CrusaderWars.Properties.Resources.discord;
             this.discordLink.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.discordLink.Name = "discordLink";
             this.discordLink.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
