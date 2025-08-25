@@ -51,6 +51,8 @@
             this.SteamBTN = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.discordLink = new System.Windows.Forms.Button();
+            this.labelSeparatorLeft = new System.Windows.Forms.Label();
+            this.labelSeparatorRight = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.MainPanelLayout.SuspendLayout();
             this.ButtonsContainerPanel.SuspendLayout();
@@ -119,6 +121,7 @@
             // 
             // viewLogsLink
             // 
+            this.viewLogsLink.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.viewLogsLink.AutoSize = true;
             this.viewLogsLink.BackColor = System.Drawing.Color.Transparent;
             this.viewLogsLink.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -230,9 +233,9 @@
             this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
+            this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
             this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
-            this.BottomLeftFlowPanel.Controls.Add(this.EA_Label);
-            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
             this.BottomLeftFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -242,8 +245,9 @@
             this.BottomRightFlowPanel.AutoSize = true;
             this.BottomRightFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
+            this.BottomRightFlowPanel.Controls.Add(this.labelSeparatorRight);
             this.BottomRightFlowPanel.Controls.Add(this.discordLink);
-            this.BottomRightFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.BottomRightFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             resources.ApplyResources(this.BottomRightFlowPanel, "BottomRightFlowPanel");
             this.BottomRightFlowPanel.Name = "BottomRightFlowPanel";
             this.BottomRightFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -317,6 +321,7 @@
             // 
             // discordLink
             // 
+            this.discordLink.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.discordLink.BackColor = System.Drawing.Color.Transparent;
             this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
             this.discordLink.FlatAppearance.BorderSize = 0;
@@ -329,6 +334,26 @@
             this.discordLink.Name = "discordLink";
             this.discordLink.UseVisualStyleBackColor = false;
             this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
+            // 
+            // labelSeparatorLeft
+            // 
+            this.labelSeparatorLeft.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.labelSeparatorLeft.AutoSize = true;
+            this.labelSeparatorLeft.BackColor = System.Drawing.Color.Transparent;
+            this.labelSeparatorLeft.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
+            this.labelSeparatorLeft.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelSeparatorLeft.Name = "labelSeparatorLeft";
+            resources.ApplyResources(this.labelSeparatorLeft, "labelSeparatorLeft");
+            // 
+            // labelSeparatorRight
+            // 
+            this.labelSeparatorRight.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.labelSeparatorRight.AutoSize = true;
+            this.labelSeparatorRight.BackColor = System.Drawing.Color.Transparent;
+            this.labelSeparatorRight.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
+            this.labelSeparatorRight.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelSeparatorRight.Name = "labelSeparatorRight";
+            resources.ApplyResources(this.labelSeparatorRight, "labelSeparatorRight");
             // 
             // HomePage
             // 
@@ -378,13 +403,15 @@
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
         private System.Windows.Forms.Button ContinueBattleButton;
         private System.Windows.Forms.TableLayoutPanel BottomPanelLayout;
+        private System.Windows.Forms.FlowLayoutPanel BottomLeftFlowPanel;
+        private System.Windows.Forms.FlowLayoutPanel BottomRightFlowPanel;
         private System.Windows.Forms.Label EA_Label;
         private System.Windows.Forms.Button patreonBtn;
         private System.Windows.Forms.Button WebsiteBTN;
         private System.Windows.Forms.Button SteamBTN;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button discordLink;
-        private System.Windows.Forms.FlowLayoutPanel BottomLeftFlowPanel;
-        private System.Windows.Forms.FlowLayoutPanel BottomRightFlowPanel;
+        private System.Windows.Forms.Label labelSeparatorLeft;
+        private System.Windows.Forms.Label labelSeparatorRight;
     }
 }
