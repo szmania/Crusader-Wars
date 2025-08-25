@@ -139,7 +139,8 @@ namespace CrusaderWars.data.save_file
 
         public static void ReadArmiesCultures(List<Army> armies)
         {
-            Program.Logger.Debug("Reading cultures for all armies...");
+            // Add detailed start log
+            Program.Logger.Debug("🔽 START ReadArmiesCultures: Matching cultures in armies");
             bool isSearchStared = false;
             string culture_id = "";
             string culture_name = "";
@@ -153,98 +154,75 @@ namespace CrusaderWars.data.save_file
                     string line = sr.ReadLine();
                     if (line == null) break;
 
-                    //Culture Line
+                    // Add log for parsed culture ID
                     if (Regex.IsMatch(line, @"^\t\t\d+={$") && !isSearchStared)
                     {
                         culture_id = Regex.Match(line, @"(\d+)").Groups[1].Value;
+                        Program.Logger.Debug($"┣━━ Found CultureID: {culture_id}");
 
-                        //Armies
+                        // Log culture match checking
+                        Program.Logger.Debug("┃   ┣━━ Checking culture matches in armies...");
                         foreach (Army army in armies)
                         {
-                            //Owner
-                            if (army.Owner.GetCulture() != null && army.Owner.GetCulture() != null && army.Owner.GetCulture().ID == culture_id)
+                            // Owner match log
+                            if (army.Owner.GetCulture()?.ID == culture_id)
                             {
-                                isSearchStared = true;
-                                break;
+                                Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) OWNER culture: {culture_id}");
                             }
-                            //Commanders
-                            else if (army.Commander != null && army.Commander.GetCultureObj() != null && army.Commander.GetCultureObj().ID == culture_id)
+                            // Commander match log
+                            if (army.Commander?.GetCultureObj()?.ID == culture_id)
                             {
-                                isSearchStared = true;
-                                break;
+                                Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) COMMANDER culture: {culture_id}");
                             }
-                            //Knights
-                            else if (army.Knights != null && army.Knights.GetKnightsList() != null)
+                            // Knights match log
+                            if (army.Knights?.GetKnightsList() != null)
                             {
                                 foreach (var knight in army.Knights.GetKnightsList())
                                 {
-                                    if (knight.GetCultureObj() != null && knight.GetCultureObj().ID == culture_id)
+                                    if (knight.GetCultureObj()?.ID == culture_id)
                                     {
-                                        isSearchStared = true;
-                                        break;
+                                        Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) KNIGHT {knight.GetID()} culture: {culture_id}");
                                     }
                                 }
-
-                                if (isSearchStared)
-                                    break;
                             }
-                            //Army Regiments
+                            // Regiments match log
                             foreach(ArmyRegiment armyRegiments in army.ArmyRegiments)
                             {
-                                if (armyRegiments.Regiments == null) 
-                                    continue;
-                                //Regiments
+                                if (armyRegiments.Regiments == null) continue;
                                 foreach(Regiment regiment in armyRegiments.Regiments)
                                 {
-                                    if(regiment.Culture == null)
+                                    Culture regCulture = regiment.Culture;
+                                    if(regCulture != null && regCulture.ID == culture_id)
                                     {
-                                        continue;
-                                    }
-                                    else if(string.IsNullOrEmpty(regiment.Culture.ID))
-                                    {
-                                        continue;
-                                    }
-                                    else if(regiment.Culture.ID == culture_id)
-                                    {
-                                        isSearchStared = true;
-                                        break;
+                                        Program.Logger.Debug($"┃   ┃   ┣━━ Matched ARMY ({army.ID}) REGIMENT {regiment.ID} culture: {culture_id}");
                                     }
                                 }
-                                if (isSearchStared)
-                                    break;
                             }
-                            if (isSearchStared)
-                                break;
                         }
+
+                        Program.Logger.Debug("┃   ┣━━ Starting line-by-line culture parsing...");
                     }
 
-
-                    //Culture Name
+                    // Add log for found culture name
                     if (isSearchStared && line.Contains("\t\t\tname="))
                     {
                         culture_name = Regex.Match(line, @"""(.+)""").Groups[1].Value;
                         culture_name = culture_name.Replace("-", "");
                         culture_name = RemoveDiacritics(culture_name);
                         culture_name = culture_name.Replace(" ", "");
-
+                        Program.Logger.Debug($"┃   ┣━━ Found CultureName: {culture_name}");
                     }
-                    //Heritage Name
+
+                    // Add log for found heritage
                     else if (isSearchStared && line.Contains("\t\t\theritage="))
                     {
                         heritage_name = Regex.Match(line, @"heritage=(.+)\t\t\tlanguage=").Groups[1].Value;
                         heritage_name = heritage_name.Trim('-');
+                        Program.Logger.Debug($"┃   ┣━━ Found Heritage: {heritage_name}");
 
-                        //End Line
-                        Program.Logger.Debug($"Found culture data: ID={culture_id}, Name={culture_name}, Heritage={heritage_name}");
                         found_cultures.Add((culture_id, culture_name, heritage_name));
                         isSearchStared = false;
-                        culture_id = ""; culture_name = ""; heritage_name = "";
-                    }
-
-                    //End Line
-                    if (isSearchStared && line == "\t\t}")
-                    {
-
+                        Program.Logger.Debug($"┣━━ Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
                     }
                 }
             }
@@ -307,72 +285,60 @@ namespace CrusaderWars.data.save_file
                 }
 
             }
-            Program.Logger.Debug("Finished reading cultures for all armies.");
-            SetCulturesToAll(armies, found_cultures);
-        }
-
-        static string RemoveDiacritics(string text)
-        {
-            var normalizedString = text.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder(capacity: normalizedString.Length);
-
-            for (int i = 0; i < normalizedString.Length; i++)
-            {
-                char c = normalizedString[i];
-                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
-            }
-
-            return stringBuilder
-                .ToString()
-                .Normalize(NormalizationForm.FormC);
         }
 
         internal static void SetCulturesToAll(List<Army> armies, List<(string culture_id, string culture_name, string heritage_name)> foundCultures)
         {
-            Program.Logger.Debug("Setting culture names and heritages for all relevant objects...");
+            // Add detailed start log
+            Program.Logger.Debug("🔽 START SetCulturesToAll: Applying culture names");
+            Program.Logger.Debug($"┣━━ Found {foundCultures.Count} cultures to apply");
+            
             foreach (Army army in armies)
             {
-
-                //Owner
-                if (army.Owner.GetCulture() != null && foundCultures.Exists(culture => culture.culture_id == army.Owner.GetCulture().ID))
+                Program.Logger.Debug($"┣━━ Applying to ARMY: {army.ID}");
+                
+                // Owner culture log
+                if (army.Owner.GetCulture() != null && foundCultures.Exists(c => c.culture_id == army.Owner.GetCulture().ID))
                 {
-                    var foundCulture = foundCultures.Find(culture => culture.culture_id == army.Owner.GetCulture().ID);
-                    army.Owner.GetCulture().SetName(foundCulture.culture_name);
-                    army.Owner.GetCulture().SetHeritage(foundCulture.heritage_name);
+                    var found = foundCultures.First(c => c.culture_id == army.Owner.GetCulture().ID);
+                    Program.Logger.Debug($"┃   ┣━━ APPLYING OWNER CULTURE | Old: {(army.Owner.GetCulture().GetCultureName() ?? "null")}/{(army.Owner.GetCulture().GetHeritageName() ?? "null")}");
+                    Program.Logger.Debug($"┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                    army.Owner.GetCulture().SetName(found.culture_name);
+                    army.Owner.GetCulture().SetHeritage(found.heritage_name);
                 }
 
-                //Commanders
+                // Commander culture log
                 if (army.Commander != null)
                 {
-                    if (foundCultures.Exists(culture => culture.culture_id == army.Commander.GetCultureObj().ID))
+                    if (foundCultures.Exists(c => c.culture_id == army.Commander.GetCultureObj().ID))
                     {
-                        var foundCulture = foundCultures.Find(culture => culture.culture_id == army.Commander.GetCultureObj().ID);
-                        army.Commander.GetCultureObj().SetName(foundCulture.culture_name);
-                        army.Commander.GetCultureObj().SetHeritage(foundCulture.heritage_name);
+                        var found = foundCultures.First(c => c.culture_id == army.Commander.GetCultureObj().ID);
+                        Program.Logger.Debug($"┃   ┣━━ APPLYING COMMANDER CULTURE | Old: {(army.Commander.GetCultureName() ?? "null")}/{(army.Commander.GetHeritageName() ?? "null")}");
+                        Program.Logger.Debug($"┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                        army.Commander.GetCultureObj().SetName(found.culture_name);
+                        army.Commander.GetCultureObj().SetHeritage(found.heritage_name);
                     }
                 }
 
-                //Knights
+                // Knights culture log
                 if (army.Knights.GetKnightsList() != null)
                 {
                     foreach (var knight in army.Knights.GetKnightsList())
                     {
-                        string knight_culture_id = knight.GetCultureObj().ID;
-                        if (foundCultures.Exists(culture => culture.culture_id == knight_culture_id))
+                        string knightCultureID = knight.GetCultureObj()?.ID;
+                        if (knightCultureID != null && foundCultures.Exists(c => c.culture_id == knightCultureID))
                         {
-                            var foundCulture = foundCultures.Find(culture => culture.culture_id == knight_culture_id);
-                            knight.GetCultureObj().SetName(foundCulture.culture_name);
-                            knight.GetCultureObj().SetHeritage(foundCulture.heritage_name);
+                            var found = foundCultures.Find(c => c.culture_id == knightCultureID);
+                            Program.Logger.Debug($"┃   ┣━━ APPLYING KNIGHT CULTURE | Old: {(knight.GetCultureName() ?? "null")}/{(knight.GetHeritageName() ?? "null")}");
+                            Program.Logger.Debug($"┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                            knight.GetCultureObj().SetName(found.culture_name);
+                            knight.GetCultureObj().SetHeritage(found.heritage_name);
                         }
                     }
                 }
 
-
-                //Army Regiments
+                // Regiments culture log
+                Program.Logger.Debug($"┃   ┣━━ Processing {army.ArmyRegiments.Sum(r => r.Regiments?.Count ?? 0)} regiments");
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
                     if (armyRegiment.Regiments == null) continue;
@@ -380,21 +346,24 @@ namespace CrusaderWars.data.save_file
                     {
                         if (regiment.Culture == null)
                         {
-                            Program.Logger.Debug($"WARNING - NULL CULTURE IN REGIMENT {regiment.ID}");
+                            Program.Logger.Debug($"┃   ┃   ┣━━ SKIPPING NULL CULTURE REGIMENT: {regiment.ID}");
                             continue;
                         }
+                        
                         string regimentCultureID = regiment.Culture.ID;
-                        if (foundCultures.Exists(culture => culture.culture_id == regimentCultureID))
+                        if (foundCultures.Exists(c => c.culture_id == regimentCultureID))
                         {
-                            var foundCulture = foundCultures.Find(culture => culture.culture_id == regimentCultureID);
-                            regiment.Culture.SetName(foundCulture.culture_name);
-                            regiment.Culture.SetHeritage(foundCulture.heritage_name);
+                            var found = foundCultures.Find(c => c.culture_id == regimentCultureID);
+                            Program.Logger.Debug($"┃   ┃   ┣━━ APPLYING REGIMENT CULTURE: {regiment.ID}");
+                            Program.Logger.Debug($"┃   ┃   ┃       Old: {(regiment.Culture.GetCultureName() ?? "null")}/{(regiment.Culture.GetHeritageName() ?? "null")}");
+                            Program.Logger.Debug($"┃   ┃   ┃       ➔ New: {found.culture_name}/{found.heritage_name}");
+                            regiment.Culture.SetName(found.culture_name);
+                            regiment.Culture.SetHeritage(found.heritage_name);
                         }
-
                     }
                 }
             }
-            Program.Logger.Debug("Finished setting culture names and heritages.");
+            Program.Logger.Debug("🔼 END SetCulturesToAll");
         }
 
         /*##############################################
