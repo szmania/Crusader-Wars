@@ -527,8 +527,8 @@ namespace CrusaderWars.unit_mapper
 
             if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath))
             {
-                Program.Logger.Debug("ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get Attila faction. Returning default.");
-                return "rom_seleucid"; // Return a default faction to prevent a crash
+                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get Attila faction.");
+                throw new Exception("Unit mapper folder path not configured");
             }
             
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
@@ -575,7 +575,44 @@ namespace CrusaderWars.unit_mapper
 
             if (string.IsNullOrEmpty(faction))
             {
-                Program.Logger.Debug($"Faction not found for Culture '{CultureName}', Heritage '{HeritageName}'. A default may be used.");
+                // Try fallback to Default heritage and Default culture
+                foreach (var xml_file in files_paths)
+                {
+                    if (Path.GetExtension(xml_file) == ".xml")
+                    {
+                        XmlDocument CulturesFile = new XmlDocument();
+                        CulturesFile.Load(xml_file);
+
+                        foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
+                        {
+                            if (heritage is XmlComment) continue;
+                            string heritage_name = heritage.Attributes["name"].Value;
+                            if (heritage_name == "Default")
+                            {
+                                foreach(XmlNode culture in heritage.ChildNodes)
+                                {
+                                    if (culture is XmlComment) continue;
+                                    string culture_name = culture.Attributes["name"].Value;
+                                    if (culture_name == "Default" && heritage.Attributes["faction"] != null)
+                                    {
+                                        faction = heritage.Attributes["faction"].Value;
+                                        if (!string.IsNullOrEmpty(faction))
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!string.IsNullOrEmpty(faction)) break;
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(faction)) break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(faction))
+            {
+                Program.Logger.Debug($"Faction not found for Culture '{CultureName}', Heritage '{HeritageName}' and fallback to Default/Default failed.");
             }
             else
             {
