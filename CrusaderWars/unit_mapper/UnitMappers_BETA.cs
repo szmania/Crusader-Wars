@@ -544,12 +544,6 @@ namespace CrusaderWars.unit_mapper
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
             Program.Logger.Debug($"Searching for Attila faction for Culture '{CultureName}', Heritage '{HeritageName}' in: {cultures_folder_path}");
 
-            if (!Directory.Exists(cultures_folder_path))
-            {
-                Program.Logger.Debug($"ERROR: Cultures folder does not exist at path: {cultures_folder_path}. Returning default.");
-                return "rom_seleucid"; // Return a default faction
-            }
-
             var files_paths = Directory.GetFiles(cultures_folder_path);
             foreach (var xml_file in files_paths)
             {

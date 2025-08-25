@@ -188,19 +188,7 @@ namespace CrusaderWars
                         continue;
                     }
 
-                    Culture levyCulture = levy_culture.GetObjCulture() ?? (army.Commander?.GetCultureObj() ?? army.Owner.GetCulture());
-                    string attilaFaction = UnitMappers_BETA.GetAttilaFaction(
-                        levyCulture.GetCultureName(), 
-                        levyCulture.GetHeritageName()
-                    );
-                    
-                    if (string.IsNullOrEmpty(attilaFaction))
-                    {
-                        Program.Logger.Debug($"WARNING - No Attila faction found for levies in army {army.ID}");
-                        continue;
-                    }
-
-                    var levy_porcentages = UnitMappers_BETA.GetFactionLevies(attilaFaction);
+                    var levy_porcentages = UnitMappers_BETA.GetFactionLevies(levy_culture.GetAttilaFaction());
                     BETA_LevyComposition(levy_culture, army, levy_porcentages, army_xp);
                 }
             }
@@ -272,33 +260,20 @@ namespace CrusaderWars
 
             //  MULTIPLE UNITS
             //  fulfill every levy type
-            int totalPorcentage = faction_levy_porcentages.Sum(x => x.porcentage);
             int levySoldiers = unit.GetSoldiers();
-            int cumulativeSoldiers = 0;
 
-            if (totalPorcentage == 0)
-            {
-                Program.Logger.Debug($"WARNING - Total levy porcentage is 0 for Attila faction {unit.GetAttilaFaction()}");
-                return;
-            }
+            int compareNum = 0;
 
-            for (int p = 0; p < faction_levy_porcentages.Count; p++)
+            foreach (var porcentageData in faction_levy_porcentages)
             {
-                var porcentageData = faction_levy_porcentages[p];
-                double t = (double)porcentageData.porcentage / totalPorcentage;
+
+
+                double t = (double)porcentageData.porcentage / 100;
+                //int result = (int)Math.Round(Levies_Data.UnitNum * t);
                 int result = (int)Math.Round(levySoldiers * t);
-
-                // For the last porcentage, use remaining soldiers
-                if (p == faction_levy_porcentages.Count - 1)
-                {
-                    result = levySoldiers - cumulativeSoldiers;
-                }
-                else
-                {
-                    cumulativeSoldiers += result;
-                }
-
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
+                compareNum += (levy_type_data.UnitSoldiers * levy_type_data.UnitNum);
+                //if (Levies_Data.UnitNum * t >= 0.5 && Levies_Data.UnitNum * t < 1) result = 1;
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;

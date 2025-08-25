@@ -101,7 +101,7 @@ namespace CrusaderWars
                 while (line != null && !reader.EndOfStream)
                 {
                     lineCount++;
-                    if (lineCount % 50000 == 0)
+                    if (lineCount % 500000 == 0)
                     {
                         Program.Logger.Debug($"... Read {lineCount} lines from save file ...");
                     }
@@ -772,7 +772,7 @@ namespace CrusaderWars
 
                 if (Start_CulturesFound && !End_CulturesFound)
                 {
-                    if (line == "mercenary_company_manager={")
+                    if (line == "}")
                     {
                         Program.Logger.Debug("Found end of culture_manager block.");
                         Program.Logger.Debug($"Writing {Data.SB_Cultures.Length} characters to Cultures.txt");
