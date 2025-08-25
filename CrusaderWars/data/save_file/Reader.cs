@@ -77,6 +77,7 @@ namespace CrusaderWars
 
             //Clear Accolades File
             File.WriteAllText(Writter.DataFilesPaths.Accolades(), "");
+            Program.Logger.Debug("Finished clearing all temporary save file data.");
         }
 
         /// <summary>  
@@ -85,17 +86,25 @@ namespace CrusaderWars
         /// <param name="savePath">Path to the ck3 save file</param>  
         public static void ReadFile(string savePath)
         {
-            Program.Logger.Debug($"Starting to read save file: {savePath}");
+            Program.Logger.Debug($"Starting to read save file: {Path.GetFullPath(savePath)}");
             //Clean all data in save file data files
-            // ClearFilesData();
+            Program.Logger.Debug("Clearing previous save data from temp files...");
+            ClearFilesData();
+            Program.Logger.Debug("Previous save data cleared.");
             long startMemoryt = GC.GetTotalMemory(false);
 
             using (FileStream saveFile = File.Open(savePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(saveFile))
             {
                 string line = reader.ReadLine();
+                int lineCount = 0;
                 while (line != null && !reader.EndOfStream)
                 {
+                    lineCount++;
+                    if (lineCount % 500000 == 0)
+                    {
+                        Program.Logger.Debug($"... Read {lineCount} lines from save file ...");
+                    }
                     line = reader.ReadLine();
                     //GetterKeys.ReadProvinceBuildings(line, "5984");
 
@@ -173,6 +182,7 @@ namespace CrusaderWars
 
         public static void Reset()
         {
+            Program.Logger.Debug("Resetting all data containers and extraction flags.");
             units_scripts.Clear();
             PlayerIDsAccolades = new List<string> ();
             EnemyIDsAccolades = new List<string>();
@@ -213,17 +223,20 @@ namespace CrusaderWars
             if(line.Contains("provinces={"))
             {
                 isSearchPermitted = true;
+                Program.Logger.Debug("GetterKeys: province search permitted.");
             }
 
             
             if(isSearchPermitted && line.Contains($"\t{province_id}={{"))
             {
                 isSearchBuildingsPermitted = true;
+                Program.Logger.Debug($"GetterKeys: province buildings search permitted for province {province_id}.");
             }
 
             if(isSearchBuildingsPermitted && line.Contains("buildings={"))
             {
                 isExtractBuildingsPermitted = true;
+                Program.Logger.Debug("GetterKeys: building extraction permitted.");
             }
 
             if(isExtractBuildingsPermitted)
@@ -233,6 +246,7 @@ namespace CrusaderWars
 
                     string building_key = Regex.Match(line, @"=(.+)").Groups[1].Value.Trim('"').Trim('/');
                     Data.Province_Buildings.Add(building_key);
+                    Program.Logger.Debug($"GetterKeys: Found building key: {building_key}");
                 }
 
 
@@ -247,15 +261,18 @@ namespace CrusaderWars
                 if(int.TryParse(fort_level, out int level))
                 {
                     Sieges.SetFortLevel(level);
+                    Program.Logger.Debug($"GetterKeys: Found fort level: {level}");
                 }
                 else
                 {
                     Sieges.SetFortLevel(0);
+                    Program.Logger.Debug("GetterKeys: Could not parse fort level, setting to 0.");
                 }
                 
                 isExtractBuildingsPermitted = false;
                 isSearchBuildingsPermitted = false;
                 isSearchPermitted = false;
+                Program.Logger.Debug("GetterKeys: Finished province search, resetting flags.");
                 return;
 
             }
@@ -288,7 +305,6 @@ namespace CrusaderWars
                     if (line == "provinces={")
                     {
                         Program.Logger.Debug("Found end of traits_lookup block.");
-                        End_TraitsFound = true;
                         //SaveFile.ReadWoundedTraits();
                         return;
                     }
@@ -332,6 +348,7 @@ namespace CrusaderWars
                     if (line == "pending_character_interactions={") 
                     {
                         Program.Logger.Debug("Found end of combats block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Combats.Length} characters to Combats.txt");
                         //Write Combats Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Combats.txt"))
                         {
@@ -384,6 +401,7 @@ namespace CrusaderWars
                     if (line == "\tcombats={")
                     {
                         Program.Logger.Debug("Found end of combat_results block.");
+                        Program.Logger.Debug($"Writing {Data.SB_CombatResults.Length} characters to BattleResults.txt");
                         //Write CombatResults Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\BattleResults.txt"))
                         {
@@ -433,6 +451,7 @@ namespace CrusaderWars
                     if (line == "\tarmy_regiments={") 
                     {
                         Program.Logger.Debug("Found end of regiments block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Regiments.Length} characters to Regiments.txt");
                         //Write Regiments Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Regiments.txt"))
                         {
@@ -480,6 +499,7 @@ namespace CrusaderWars
                     if (line == "\tarmies={") 
                     {
                         Program.Logger.Debug("Found end of army_regiments block.");
+                        Program.Logger.Debug($"Writing {Data.SB_ArmyRegiments.Length} characters to ArmyRegiments.txt");
                         //Write ArmyRegiments Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\ArmyRegiments.txt"))
                         {
@@ -527,6 +547,7 @@ namespace CrusaderWars
                     if (line == "\t}")
                     {
                         Program.Logger.Debug("Found end of armies block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Armies.Length} characters to Armies.txt");
                         //Write Armies Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Armies.txt"))
                         {
@@ -574,6 +595,7 @@ namespace CrusaderWars
                     if (line == "dead_unprunable={") 
                     {
                         Program.Logger.Debug("Found end of living block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Living.Length} characters to Living.txt");
                         //Write Living Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Living.txt"))
                         {
@@ -623,6 +645,7 @@ namespace CrusaderWars
                     if (line == "}")
                     {
                         Program.Logger.Debug("Found end of counties block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Counties.Length} characters to Counties.txt");
                         //Write Counties Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Counties.txt"))
                         {
@@ -671,6 +694,7 @@ namespace CrusaderWars
                     if (line == "}")
                     {
                         Program.Logger.Debug("Found end of units block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Units.Length} characters to Units.txt");
                         //Write Units Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Units.txt"))
                         {
@@ -719,6 +743,7 @@ namespace CrusaderWars
                     if (line == "}")
                     {
                         Program.Logger.Debug("Found end of court_positions block.");
+                        Program.Logger.Debug($"Writing {Data.SB_CourtPositions.Length} characters to CourtPositions.txt");
                         //Write Units Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\CourtPositions.txt"))
                         {
@@ -767,6 +792,7 @@ namespace CrusaderWars
                     if (line == "mercenary_company_manager={")
                     {
                         Program.Logger.Debug("Found end of culture_manager block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Cultures.Length} characters to Cultures.txt");
                         //Write Cultures Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Cultures.txt"))
                         {
@@ -818,6 +844,7 @@ namespace CrusaderWars
                     if (line == "}")
                     {
                         Program.Logger.Debug("Found end of mercenary_company_manager block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Mercenaries.Length} characters to Mercenaries.txt");
                         //Write Mercenaries Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Mercenaries.txt"))
                         {
@@ -869,6 +896,7 @@ namespace CrusaderWars
                     if (line.StartsWith("\tindex="))
                     {
                         Program.Logger.Debug("Found end of landed_titles block.");
+                        Program.Logger.Debug($"Writing {Data.SB_LandedTitles.Length} characters to LandedTitles.txt");
                         //Write Landed Titles Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\LandedTitles.txt"))
                         {
@@ -921,6 +949,7 @@ namespace CrusaderWars
                     if (line.StartsWith("tax_slot_manager={"))
                     {
                         Program.Logger.Debug("Found end of accolades block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Accolades.Length} characters to Accolades.txt");
                         //Write Accolades Data to txt file
                         using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Accolades.txt"))
                         {

@@ -14,7 +14,7 @@ namespace CrusaderWars.data.save_file
         static bool Combats_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
-            Program.Logger.Debug($"Starting to write data back to save file: {savePath}");
+            Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             bool resultsFound = false;
             bool combatsFound = false;
 
@@ -29,40 +29,52 @@ namespace CrusaderWars.data.save_file
             {
                 streamWriter.NewLine = "\n";
                 string line;
+                int lineCount = 0;
                 while ((line = streamReader.ReadLine()) != null || !streamReader.EndOfStream)
                 {
+                    lineCount++;
+                    if (lineCount % 500000 == 0)
+                    {
+                        Program.Logger.Debug($"... Processed {lineCount} lines for writing ...");
+                    }
 
                     //Line Skipper
                     if (NeedSkiping && line == "pending_character_interactions={")
                     {
                         Program.Logger.Debug("Skipping block until 'pending_character_interactions={' is found.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
                         NeedSkiping = false;
                     }
                     else if (CombatResults_NeedsSkiping && line == "\t\t}")
                     {
                         Program.Logger.Debug("Finished skipping CombatResults block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
                         CombatResults_NeedsSkiping = false;
                         resultsFound = false;
                     }
                     else if (Combats_NeedsSkiping && line == "\t\t}")
                     {
                         Program.Logger.Debug("Finished skipping Combats block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Combats_NeedsSkiping = false;
                         combatsFound = false;
                     }
                     else if (NeedSkiping && line == "\tarmy_regiments={")
                     {
                         Program.Logger.Debug("Skipping block until '\tarmy_regiments={' is found.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
                         NeedSkiping = false;
                     }
                     else if (NeedSkiping && line == "\tarmies={")
                     {
                         Program.Logger.Debug("Skipping block until '\tarmies={' is found.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
                         NeedSkiping = false;
                     }
                     else if (NeedSkiping && line == "dead_unprunable={")
                     {
                         Program.Logger.Debug("Skipping block until 'dead_unprunable={' is found.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
                         NeedSkiping = false;
                     }
 
@@ -132,6 +144,7 @@ namespace CrusaderWars.data.save_file
 
                 }
 
+                Program.Logger.Debug("Finished writing to temporary file. All blocks processed.");
                 streamWriter.Close();
                 streamReader.Close();
                 outputFileStream.Close();
@@ -148,7 +161,7 @@ namespace CrusaderWars.data.save_file
 
         static void WriteDataToSaveFile(StreamWriter streamWriter, string data_file_path, FileType fileType)
         {
-            Program.Logger.Debug($"Writing content from {data_file_path} into save file stream.");
+            Program.Logger.Debug($"Reading content from {data_file_path} to write into save file stream.");
             StringBuilder sb = new StringBuilder();
             using (StreamReader sr = new StreamReader(data_file_path))
             {
@@ -168,7 +181,7 @@ namespace CrusaderWars.data.save_file
                 }
             }
 
-            Program.Logger.Debug($"Read {sb.Length} characters from {data_file_path} to be written.");
+            Program.Logger.Debug($"Writing {sb.Length} characters of {fileType} data to save file stream.");
             streamWriter.WriteLine(sb.ToString());
         }
 
