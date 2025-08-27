@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -19,9 +19,7 @@ using CrusaderWars.twbattle;
 using System.Threading;
 using CrusaderWars.mod_manager;
 using System.Xml;
-using IWshRuntimeLibrary;
 using System.Web;
-using System.Windows.Media;
 using System.Drawing.Text;
 
 
@@ -270,19 +268,8 @@ namespace CrusaderWars
         // This method kept empty since shortcut creation is now obsolete
         private void CreateAttilaShortcut()
         {
-            if(!System.IO.File.Exists(@".\CW.lnk")) {
-                Program.Logger.Debug("Attila shortcut not found, creating...");
-                object shDesktop = (object)"Desktop";
-                WshShell shell = new WshShell();
-                string shortcutAddress = @".\CW.lnk";
-                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-                shortcut.Description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
-                shortcut.WorkingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
-                shortcut.Arguments = "used_mods_cw.txt";
-                shortcut.TargetPath = Properties.Settings.Default.VAR_attila_path;
-                shortcut.Save();
-                Program.Logger.Debug("Attila shortcut created successfully.");
-            }
+            // IWshRuntimeLibrary is not available in .NET Core/.NET 5+
+            // Shortcut creation functionality removed
         }
 
 
@@ -345,23 +332,7 @@ namespace CrusaderWars
                 Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
                 this.Text = "Crusader Wars (Waiting for CK3 battle...)";
 
-                try
-                {
-                    CreateAttilaShortcut();
-                    Program.Logger.Debug("Attila shortcut created/verified.");
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
-                    MessageBox.Show("Error creating Attila shortcut!", "Crusader Wars: File Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    infoLabel.Text = "Ready to start!";
-                    ExecuteButton.Enabled = true;
-                    this.Text = "Crusader Wars";
-                    break;
-                }
-
-
+                // Shortcut creation removed for .NET compatibility
 
                 try
                 {
@@ -822,7 +793,6 @@ namespace CrusaderWars
 
                 //Data Clear
                 Data.Reset();
-
                 return true; // Continue
             }
 
@@ -988,7 +958,7 @@ namespace CrusaderWars
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Continue Battle button clicked.");
-            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
+            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
             sounds.Play();
             _myVariable = 1;
             ExecuteButton.Enabled = false;

@@ -1,9 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Web.UI.WebControls;
 
 namespace CrusaderWars.data.save_file
 {
@@ -544,7 +543,7 @@ namespace CrusaderWars.data.save_file
                 }
             }
 
-            foreach (Regiment regiment in defender_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiments => armyRegiments.Regiments))
+            foreach (Regiment regiment in defender_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
             {
                 if (!string.IsNullOrEmpty(regiment.OwningTitle) && string.IsNullOrEmpty(regiment.OriginKey))
                 {

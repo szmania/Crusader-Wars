@@ -1,4 +1,4 @@
-﻿using CrusaderWars.armies.commander_traits;
+using CrusaderWars.armies.commander_traits;
 using CrusaderWars.twbattle;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Windows.Media.Media3D;
 using CrusaderWars.armies;
 using CrusaderWars.data.save_file;
 

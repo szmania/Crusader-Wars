@@ -428,6 +428,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_RegimentsFound { get; set; }
         private static bool End_RegimentsFound { get; set; }
         public static bool HasRegimentsExtracted { get; set; }
+
         public static void Regiments(string line)
         {
             if (!HasRegimentsExtracted)
@@ -474,6 +475,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_ArmyRegimentsFound { get; set; }
         private static bool End_ArmyRegimentsFound { get; set; }
         public static bool HasArmyRegimentsExtracted { get; set; }
+
         public static void ArmyRegiments(string line)
         {
             if (!HasArmyRegimentsExtracted)
@@ -520,6 +522,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_ArmiesFound { get; set; }
         private static bool End_ArmiesFound { get; set; }
         public static bool HasArmiesExtracted { get; set; }
+
         public static void Armies(string line)
         {
             if (!HasArmiesExtracted)
@@ -566,6 +569,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_LivingFound { get; set; }
         private static bool End_LivingFound { get; set; }
         public static bool HasLivingExtracted { get; set; }
+
         public static void Living(string line)
         {
             if (!HasLivingExtracted)
@@ -613,6 +617,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_CountiesFound { get; set; }
         private static bool End_CountiesFound { get; set; }
         public static bool HasCountiesExtracted { get; set; }
+
         public static void Counties(string line)
         {
             if (!HasCountiesExtracted)
@@ -660,6 +665,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_UnitsFound { get; set; }
         private static bool End_UnitsFound { get; set; }
         public static bool HasUnitsExtracted { get; set; }
+
         public static void Units(string line)
         {
             if (!HasUnitsExtracted)
@@ -707,6 +713,7 @@ namespace CrusaderWars.data.save_file
 		private static bool Start_CourtPositionsFound { get; set; }
 		private static bool End_CourtPositionsFound { get; set; }
 		public static bool HasCourtPositionsExtracted { get; set; }
+
 		public static void CourtPositions(string line)
 		{
 			if (!HasCourtPositionsExtracted)
@@ -754,6 +761,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_CulturesFound { get; set; }
         private static bool End_CulturesFound { get; set; }
         public static bool HasCulturesExtracted { get; set; }
+
         public static void Cultures(string line)
         {
             if (!HasCulturesExtracted)
@@ -802,6 +810,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_MercenariesFound { get; set; }
         private static bool End_MercenariesFound { get; set; }
         public static bool HasMercenariesExtracted { get; set; }
+
         public static void Mercenaries(string line)
         {
 
@@ -852,6 +861,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_LandedTitlesFound { get; set; }
         private static bool End_LandedTitlesFound { get; set; }
         public static bool HasLandedTitlesExtracted { get; set; }
+
         public static void LandedTitles(string line)
         {
 
@@ -903,6 +913,7 @@ namespace CrusaderWars.data.save_file
         private static bool Start_AccoladesFound { get; set; }
         private static bool End_AccoladesFound { get; set; }
         public static bool HasAccoladesExtracted { get; set; }
+
         public static void Accolades(string line)
         {
 

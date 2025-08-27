@@ -251,7 +251,7 @@ namespace CrusaderWars.data.save_file
         static void SetRegimentsCountiesKeys(List<Army> armies, string county_key, string province_id)
         {
 
-            foreach (Regiment regiment in armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiments => armyRegiments.Regiments))
+            foreach (Regiment regiment in armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiments => armyRegiment.Regiments))
             {
                 if (regiment.Origin == province_id && string.IsNullOrEmpty(regiment.GetCountyKey()) && !regiment.isMercenary())
                 {
