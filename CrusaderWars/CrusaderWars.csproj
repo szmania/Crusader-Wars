@@ -18,6 +18,8 @@
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
+    <PackageReference Include="System.Web.Extensions" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

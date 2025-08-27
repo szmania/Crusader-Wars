@@ -1,5 +1,4 @@
 using System.IO;
-using IWshRuntimeLibrary;
 
 
 namespace CrusaderWars.twbattle
