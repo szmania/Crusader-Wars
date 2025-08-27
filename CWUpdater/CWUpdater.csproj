@@ -29,7 +29,13 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <!-- The following line is for an auto-generated file, typically not edited directly -->
     <Compile Include="obj\Debug\.NETFramework,Version=v4.7.2.AssemblyAttributes.cs" />
+  </ItemGroup>
+
+  <!-- Explicitly remove Properties\AssemblyInfo.cs from compilation to avoid duplicate assembly attributes -->
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
