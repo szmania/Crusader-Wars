@@ -13,41 +13,29 @@ namespace CrusaderWars.client
 {
     public partial class UC_Toggle : UserControl
     {
-        private bool _state = false;
-        
-        public bool State 
-        {  
-            get { return _state; } 
-            set 
-            { 
-                _state = value;
-                SetState(_state);
-            } 
-        }
-        
+        public bool State { get; set; } = false;
+
         public UC_Toggle()
         {
             InitializeComponent();
+            UpdateBackground();
         }
 
         void ChangeState()
         {
-            if (State == true)
-            {
-                State = false;
-                this.BackgroundImage = Properties.Resources.toggle_no;
-            }
-            else
-            {
-                State = true;
-                this.BackgroundImage = Properties.Resources.toggle_yes;
-            }
+            State = !State;
+            UpdateBackground();
         }
 
         public void SetState(bool state)
         {
             State = state;
-            if (State == true)
+            UpdateBackground();
+        }
+
+        private void UpdateBackground()
+        {
+            if (State)
             {
                 this.BackgroundImage = Properties.Resources.toggle_yes;
             }
