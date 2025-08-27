@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,7 +13,18 @@ namespace CrusaderWars.client
 {
     public partial class UC_Toggle : UserControl
     {
-        public bool State {  get; set; }
+        private bool _state = false;
+        
+        public bool State 
+        {  
+            get { return _state; } 
+            set 
+            { 
+                _state = value;
+                SetState(_state);
+            } 
+        }
+        
         public UC_Toggle()
         {
             InitializeComponent();

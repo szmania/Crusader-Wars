@@ -21,9 +21,6 @@ using CrusaderWars.mod_manager;
 using System.Xml;
 using System.Web;
 using System.Drawing.Text;
-using Microsoft.WindowsAPICodePack.Shell;
-using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
-
 
 namespace CrusaderWars
 {
@@ -267,7 +264,7 @@ namespace CrusaderWars
             culture.GetCultureName();
         }
 
-        // This method creates a shortcut for Attila using Windows API Code Pack
+        // This method creates a shortcut for Attila
         private void CreateAttilaShortcut()
         {
             try
@@ -294,15 +291,35 @@ namespace CrusaderWars
 
         private void CreateShortcut(string shortcutPath, string targetPath, string workingDirectory, string arguments, string description)
         {
-            using (var shellLink = (IShellLinkW)new CShellLink())
+            // Use Windows Script Host to create shortcut
+            try
             {
-                shellLink.SetPath(targetPath);
-                shellLink.SetWorkingDirectory(workingDirectory);
-                shellLink.SetArguments(arguments);
-                shellLink.SetDescription(description);
-
-                var persistFile = (IPersistFile)shellLink;
-                persistFile.Save(shortcutPath, false);
+                Type t = Type.GetTypeFromProgID("WScript.Shell");
+                dynamic shell = Activator.CreateInstance(t);
+                var shortcut = shell.CreateShortcut(shortcutPath);
+                shortcut.TargetPath = targetPath;
+                shortcut.WorkingDirectory = workingDirectory;
+                shortcut.Arguments = arguments;
+                shortcut.Description = description;
+                shortcut.Save();
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error creating shortcut with WSH: {ex.Message}");
+                // Fallback: create a simple batch file
+                try
+                {
+                    string batchPath = shortcutPath.Replace(".lnk", ".bat");
+                    string batchContent = $"@echo off\n" +
+                                         $"cd /d \"{workingDirectory}\"\n" +
+                                         $"start \"\" \"{targetPath}\" {arguments}\n";
+                    System.IO.File.WriteAllText(batchPath, batchContent);
+                    Program.Logger.Debug($"Created batch file fallback: {batchPath}");
+                }
+                catch (Exception batchEx)
+                {
+                    Program.Logger.Debug($"Error creating batch file fallback: {batchEx.Message}");
+                }
             }
         }
 

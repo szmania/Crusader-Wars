@@ -19,7 +19,6 @@
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0" />
     <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
-    <PackageReference Include="Microsoft.WindowsAPICodePack-Shell" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
