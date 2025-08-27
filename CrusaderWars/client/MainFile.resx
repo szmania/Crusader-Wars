@@ -130,9 +130,6 @@
   <data name="ExecuteButton.Font" type="System.Drawing.Font, System.Drawing">
     <value>Yu Gothic UI, 16pt, style=Bold</value>
   </data>
-  <data name="ExecuteButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
   <data name="ExecuteButton.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>
   </data>
@@ -164,9 +161,6 @@
   <data name="ContinueBattleButton.Font" type="System.Drawing.Font, System.Drawing">
     <value>Yu Gothic UI, 12pt, style=Bold</value>
   </data>
-  <data name="ContinueBattleButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
   <data name="ContinueBattleButton.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>
   </data>
@@ -193,9 +187,6 @@
   </data>
   <data name="btt_debug.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt</value>
-  </data>
-  <data name="btt_debug.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
   </data>
   <data name="btt_debug.Location" type="System.Drawing.Point, System.Drawing">
     <value>273, 16</value>
@@ -232,9 +223,6 @@
   </data>
   <data name="infoLabel.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
-  </data>
-  <data name="infoLabel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
   </data>
   <data name="infoLabel.Location" type="System.Drawing.Point, System.Drawing">
     <value>52, 493</value>
@@ -278,9 +266,6 @@
   <data name="SettingsBtn.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
-  <data name="SettingsBtn.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
   <data name="SettingsBtn.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 4</value>
   </data>
@@ -310,9 +295,6 @@
   </metadata>
   <data name="viewLogsLink.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
-  </data>
-  <data name="viewLogsLink.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
   </data>
   <data name="viewLogsLink.Location" type="System.Drawing.Point">
     <value>235, 0</value>
@@ -349,9 +331,6 @@
   </data>
   <data name="labelVersion.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
-  </data>
-  <data name="labelVersion.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
   </data>
   <data name="labelVersion.Location" type="System.Drawing.Point">
     <value>4, 0</value>
@@ -392,9 +371,6 @@
   <data name="labelMappersVersion.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
-  <data name="labelMappersVersion.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
-  </data>
   <data name="labelMappersVersion.Location" type="System.Drawing.Point">
     <value>71, 0</value>
   </data>
@@ -430,9 +406,6 @@
   </data>
   <data name="pictureBox1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout">
     <value>Center</value>
-  </data>
-  <data name="pictureBox1.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
   </data>
   <data name="pictureBox1.Location" type="System.Drawing.Point">
     <value>4, 4</value>
@@ -500,9 +473,6 @@
   <data name="EA_Label.Font" type="System.Drawing.Font">
     <value>Microsoft Sans Serif, 11.9999981pt, style=Bold</value>
   </data>
-  <data name="EA_Label.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
-  </data>
   <data name="EA_Label.Location" type="System.Drawing.Point">
     <value>75, 0</value>
   </data>
@@ -538,9 +508,6 @@
   </data>
   <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
-  </data>
-  <data name="discordLink.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
   </data>
   <data name="discordLink.Location" type="System.Drawing.Point">
     <value>378, 0</value>
@@ -596,9 +563,6 @@
   <data name="patreonBtn.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
   </data>
-  <data name="patreonBtn.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
-  </data>
   <data name="patreonBtn.Location" type="System.Drawing.Point">
     <value>46, 520</value>
   </data>
@@ -631,9 +595,6 @@
   </data>
   <data name="WebsiteBTN.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
-  </data>
-  <data name="WebsiteBTN.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
   </data>
   <data name="WebsiteBTN.Location" type="System.Drawing.Point">
     <value>46, 353</value>
@@ -670,9 +631,6 @@
   </data>
   <data name="SteamBTN.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
-  </data>
-  <data name="SteamBTN.ImeMode" type="System.Windows.Forms.ImeMode">
-    <value>NoControl</value>
   </data>
   <data name="SteamBTN.Location" type="System.Drawing.Point">
     <value>46, 186</value>
