@@ -216,6 +216,25 @@ namespace CrusaderWars
             pictureBox1.Size = new Size(295, 300);
             discordLink.Size = new Size(32, 32);
 
+            // Set anchors programmatically
+            ExecuteButton.Anchor = AnchorStyles.None;
+            ContinueBattleButton.Anchor = AnchorStyles.None;
+            btt_debug.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            infoLabel.Anchor = AnchorStyles.None;
+            SettingsBtn.Anchor = AnchorStyles.None;
+            viewLogsLink.Anchor = AnchorStyles.None;
+            labelVersion.Anchor = AnchorStyles.None;
+            labelMappersVersion.Anchor = AnchorStyles.None;
+            pictureBox1.Anchor = AnchorStyles.None;
+            EA_Label.Anchor = AnchorStyles.None;
+            discordLink.Anchor = AnchorStyles.None;
+            patreonBtn.Anchor = AnchorStyles.None;
+            WebsiteBTN.Anchor = AnchorStyles.None;
+            SteamBTN.Anchor = AnchorStyles.None;
+            MainPanelLayout.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            BottomPanelLayout.Dock = DockStyle.Bottom;
+            tableLayoutPanel1.Dock = DockStyle.Left;
+
             //Hide debug button
             btt_debug.Visible = false;
 
