@@ -209,6 +209,13 @@ namespace CrusaderWars
             EA_Label.Location = new Point(75, 0);
             discordLink.Location = new Point(378, 0);
 
+            // Set sizes programmatically
+            btt_debug.Size = new Size(179, 39);
+            infoLabel.Size = new Size(199, 31);
+            SettingsBtn.Size = new Size(248, 158);
+            pictureBox1.Size = new Size(295, 300);
+            discordLink.Size = new Size(32, 32);
+
             //Hide debug button
             btt_debug.Visible = false;
 

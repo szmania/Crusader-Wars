@@ -182,9 +182,6 @@
   <data name="btt_debug.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="btt_debug.Size" type="System.Drawing.Size">
-    <value>179, 39</value>
-  </data>
   <data name="btt_debug.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
   </data>
@@ -214,9 +211,6 @@
   </data>
   <data name="infoLabel.Padding" type="System.Windows.Forms.Padding">
     <value>3, 3, 3, 3</value>
-  </data>
-  <data name="infoLabel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>199, 31</value>
   </data>
   <data name="infoLabel.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
@@ -250,9 +244,6 @@
   </data>
   <data name="SettingsBtn.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>
-  </data>
-  <data name="SettingsBtn.Size" type="System.Drawing.Size">
-    <value>248, 158</value>
   </data>
   <data name="SettingsBtn.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
@@ -370,9 +361,6 @@
   </data>
   <data name="pictureBox1.Margin" type="System.Windows.Forms.Padding">
     <value>4, 4, 4, 4</value>
-  </data>
-  <data name="pictureBox1.Size" type="System.Drawing.Size">
-    <value>295, 300</value>
   </data>
   <data name="pictureBox1.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode">
     <value>Zoom</value>
@@ -518,9 +506,6 @@
   <data name="patreonBtn.Margin" type="System.Windows.Forms.Padding">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="patreonBtn.Size" type="System.Drawing.Size">
-    <value>164, 129</value>
-  </data>
   <data name="patreonBtn.TabIndex" type="System.Int32">
     <value>9</value>
   </data>
@@ -551,9 +536,6 @@
   <data name="WebsiteBTN.RightToLeft" type="System.Windows.Forms.RightToLeft">
     <value>No</value>
   </data>
-  <data name="WebsiteBTN.Size" type="System.Drawing.Size">
-    <value>164, 129</value>
-  </data>
   <data name="WebsiteBTN.TabIndex" type="System.Int32">
     <value>10</value>
   </data>
@@ -580,9 +562,6 @@
   </data>
   <data name="SteamBTN.Margin" type="System.Windows.Forms.Padding">
     <value>4, 4, 4, 4</value>
-  </data>
-  <data name="SteamBTN.Size" type="System.Drawing.Size">
-    <value>164, 129</value>
   </data>
   <data name="SteamBTN.TabIndex" type="System.Int32">
     <value>11</value>
@@ -772,9 +751,6 @@
   </data>
   <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment">
     <value>MiddleLeft</value>
-  </data>
-  <data name="discordLink.Size" type="System.Drawing.Size, System.Drawing">
-    <value>32, 32</value>
   </data>
   <data name="discordLink.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
     <value>Zoom</value>
