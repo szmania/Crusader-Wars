@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using CrusaderWars.client;
 
 namespace CrusaderWars.terrain
@@ -305,7 +304,6 @@ namespace CrusaderWars.terrain
                     case "Huge":
                         X = "700.00";
                         Y = "0.00";
-                        VerticalSize();
                         break;
                 }
             }

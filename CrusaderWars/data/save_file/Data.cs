@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -7,8 +7,6 @@ using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Media.Media3D;
-using System.Windows.Media.TextFormatting;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
 
@@ -648,7 +646,7 @@ namespace CrusaderWars
 
                 if (Start_CulturesFound && !End_CulturesFound)
                 {
-                    if (line == "mercenary_company_manager={")
+                    if (line == "}")
                     {
                         Program.Logger.Debug("Found end of culture_manager block.");
                         Program.Logger.Debug($"Writing {Data.SB_Cultures.Length} characters to Cultures.txt");

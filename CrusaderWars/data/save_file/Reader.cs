@@ -7,8 +7,6 @@ using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Media.Media3D;
-using System.Windows.Media.TextFormatting;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
 
