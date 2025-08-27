@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -12,7 +12,7 @@ using System.Windows.Media.TextFormatting;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
 
-namespace CrusaderWars
+namespace CrusaderWars.data.save_file
 {
     /*
      * IMPORTANT NOTE
