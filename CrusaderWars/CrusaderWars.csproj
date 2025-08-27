@@ -21,11 +21,6 @@
     <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
   </ItemGroup>
 
-  <!-- Explicit Windows Forms framework reference for .NET 9 compatibility -->
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.Windows.Forms" />
-  </ItemGroup>
-
   <ItemGroup>
     <Compile Update="client\MainFile.cs">
       <SubType>Form</SubType>
