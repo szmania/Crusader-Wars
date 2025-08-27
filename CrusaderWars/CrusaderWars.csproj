@@ -248,19 +248,19 @@
     <Content Include="logo.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Program.cs" Link="Program.cs" />
-    <Compile Include="..\Settings.cs" Link="Settings.cs" />
-    <Compile Include="..\data\save file\Armies Reader.cs" Link="data\save_file\Armies Reader.cs" />
-    <Compile Include="..\data\save file\Armies_Functions.cs" Link="data\save_file\Armies_Functions.cs" />
-    <Compile Include="..\data\save file\Armies_Objects.cs" Link="data\save_file\Armies_Objects.cs" />
-    <Compile Include="..\data\save file\Reader.cs" Link="data\save_file\Reader.cs" />
-    <Compile Include="..\data\save file\SaveFile.cs" Link="data\save_file\SaveFile.cs" />
-    <Compile Include="..\data\attila settings\AttilaPreferences.cs" Link="data\attila_settings\AttilaPreferences.cs" />
-    <Compile Include="..\twbattle\ArmiesControl.cs" Link="twbattle\ArmiesControl.cs" />
-    <Compile Include="..\twbattle\BattleFile.cs" Link="twbattle\BattleFile.cs" />
-    <Compile Include="..\twbattle\BattleState.cs" Link="twbattle\BattleState.cs" />
-    <Compile Include="..\twbattle\Reinforcements.cs" Link="twbattle\Reinforcements.cs" />
-    <Compile Include="..\twbattle\UnitsFile.cs" Link="twbattle\UnitsFile.cs" />
+    <Compile Include="Program.cs" Link="Program.cs" />
+    <Compile Include="Settings.cs" Link="Settings.cs" />
+    <Compile Include="data\save_file\Armies Reader.cs" Link="data\save_file\Armies Reader.cs" />
+    <Compile Include="data\save_file\Armies_Functions.cs" Link="data\save_file\Armies_Functions.cs" />
+    <Compile Include="data\save_file\Armies_Objects.cs" Link="data\save_file\Armies_Objects.cs" />
+    <Compile Include="data\save_file\Reader.cs" Link="data\save_file\Reader.cs" />
+    <Compile Include="data\save_file\SaveFile.cs" Link="data\save_file\SaveFile.cs" />
+    <Compile Include="data\attila_settings\AttilaPreferences.cs" Link="data\attila_settings\AttilaPreferences.cs" />
+    <Compile Include="twbattle\ArmiesControl.cs" Link="twbattle\ArmiesControl.cs" />
+    <Compile Include="twbattle\BattleFile.cs" Link="twbattle\BattleFile.cs" />
+    <Compile Include="twbattle\BattleState.cs" Link="twbattle\BattleState.cs" />
+    <Compile Include="twbattle\Reinforcements.cs" Link="twbattle\Reinforcements.cs" />
+    <Compile Include="twbattle\UnitsFile.cs" Link="twbattle\UnitsFile.cs" />
   </ItemGroup>
 
 </Project>
