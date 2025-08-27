@@ -45,6 +45,15 @@ namespace CrusaderWars
             LoadFont();
             InitializeComponent();
             
+            // Set fonts programmatically
+            ExecuteButton.Font = new Font("Yu Gothic UI", 16f, FontStyle.Bold);
+            ContinueBattleButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
+            btt_debug.Font = new Font("Microsoft Sans Serif", 12f);
+            infoLabel.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
+            viewLogsLink.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
+            labelVersion.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
+            labelMappersVersion.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
+
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             viewLogsLink.MouseLeave += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
