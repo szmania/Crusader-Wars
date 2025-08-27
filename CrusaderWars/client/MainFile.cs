@@ -53,6 +53,7 @@ namespace CrusaderWars
             viewLogsLink.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             labelVersion.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             labelMappersVersion.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
+            EA_Label.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold); // Programmatically set EA_Label font
 
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
