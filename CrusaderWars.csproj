@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="client\MainFile.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="data\save file\Armies Reader.cs" />
