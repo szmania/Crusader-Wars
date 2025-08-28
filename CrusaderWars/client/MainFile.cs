@@ -1732,7 +1732,7 @@ namespace CrusaderWars
                 string url = await _updater.GetReleaseUrlForVersion(_umVersion, true);
                 if (!string.IsNullOrEmpty(url))
                 {
-                    Process.Start(url);
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
                 }
             }
         }
