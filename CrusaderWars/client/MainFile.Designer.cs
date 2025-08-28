@@ -183,6 +183,7 @@
             this.MainPanelLayout.Controls.Add(this.pictureBox1);
             this.MainPanelLayout.Controls.Add(this.ButtonsContainerPanel);
             this.MainPanelLayout.Controls.Add(this.infoLabel);
+            this.MainPanelLayout.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.MainPanelLayout.Name = "MainPanelLayout";
             // 
             // ButtonsContainerPanel
