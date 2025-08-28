@@ -37,4 +37,219 @@
       <DependentUpon>LoadingScreen.cs</DependentUpon>
     </Compile>
     <Compile Update="client\Options\Options.cs">
-      <SubType
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="client\Options\Options.Designer.cs">
+      <DependentUpon>Options.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\Options\UC_BattleScaleOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\Options\UC_BattleScaleOptions.Designer.cs">
+      <DependentUpon>UC_BattleScaleOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\Options\UC_GeneralOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\Options\UC_GeneralOptions.Designer.cs">
+      <DependentUpon>UC_GeneralOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\Options\UC_UnitsOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\Options\UC_UnitsOptions.Designer.cs">
+      <DependentUpon>UC_UnitsOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\BETAUPDATE_Message.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="client\BETAUPDATE_Message.Designer.cs">
+      <DependentUpon>BETAUPDATE_Message.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\UC_Toggle.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\UC_Toggle.Designer.cs">
+      <DependentUpon>UC_Toggle.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\WarningMessage\WarningMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="client\WarningMessage\WarningMessage.Designer.cs">
+      <DependentUpon>WarningMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Update="mod_manager\UC_UnitMapper.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="mod_manager\UC_UnitMapper.Designer.cs">
+      <DependentUpon>UC_UnitMapper.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="client\MainFile.resx">
+      <DependentUpon>MainFile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\LoadingScreen.resx">
+      <DependentUpon>LoadingScreen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\Options\Options.resx">
+      <DependentUpon>Options.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\Options\UC_BattleScaleOptions.resx">
+      <DependentUpon>UC_BattleScaleOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\Options\UC_GeneralOptions.resx">
+      <DependentUpon>UC_GeneralOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\Options\UC_UnitsOptions.resx">
+      <DependentUpon>UC_UnitsOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\BETAUPDATE_Message.resx">
+      <DependentUpon>BETAUPDATE_Message.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\UC_Toggle.resx">
+      <DependentUpon>UC_Toggle.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="client\WarningMessage\WarningMessage.resx">
+      <DependentUpon>WarningMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="mod_manager\UC_UnitMapper.resx">
+      <DependentUpon>UC_UnitMapper.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\ModDesign%28Alpha%29.png" />
+    <None Include="Resources\ModDesign%28Alpha%291.png" />
+    <None Include="Resources\ModDesign%28Alpha1%29.png" />
+    <None Include="Resources\playbutton.png" />
+    <None Include="Resources\Declare_war_interaction.png" />
+    <None Include="Resources\app_background.jpg" />
+    <None Include="Resources\app_background1.jpg" />
+    <None Include="Resources\background.png" />
+    <None Include="Resources\attila_background.jpg" />
+    <None Include="Resources\TextLogo_(1).png" />
+    <None Include="Resources\LOADINGIMAGE.jpg" />
+    <None Include="Resources\option.png" />
+    <None Include="Resources\option.jpg" />
+    <None Include="Resources\option %282%29.png" />
+    <None Include="Resources\imageedit_2_3450978699.png" />
+    <None Include="Resources\options.jpg" />
+    <None Include="Resources\warning_(1).png" />
+    <None Include="Resources\warning_(1)1.png" />
+    <None Include="Resources\correct.png" />
+    <None Include="Resources\heavy_infantry.png" />
+    <None Include="Resources\levies.png" />
+    <None Include="Resources\archers.png" />
+    <None Include="Resources\heavy_cavalry.png" />
+    <None Include="Resources\archers1.png" />
+    <None Include="Resources\attilaicon_(1).png" />
+    <None Include="Resources\ck3_(1).jpeg" />
+    <None Include="Resources\120px-Icon_CK3.png" />
+    <None Include="Resources\bookpage.jpg" />
+    <None Include="Resources\cancel_(1).png" />
+    <None Include="Resources\loadingscrenn.png" />
+    <None Include="Resources\logo.ico" />
+    <None Include="Resources\searchModsIcon.png" />
+    <None Include="Resources\LOTR.png" />
+    <None Include="Resources\tfe1.png" />
+    <None Include="Resources\tfe.png" />
+    <None Include="Resources\toggle_yes.png" />
+    <None Include="Resources\toggle_no.png" />
+    <None Include="Resources\default.png" />
+    <None Include="Resources\warfare_loadingscreen_smallerlogo.png" />
+    <None Include="Resources\website_btn_new_hover1.png" />
+    <None Include="Resources\steam_btn_new_hover1.png" />
+    <None Include="Resources\website_btn_new_hover.png" />
+    <None Include="Resources\website_btn_new_click.png" />
+    <None Include="Resources\steam_btn_new_hover.png" />
+    <None Include="Resources\steam_btn_new_click.png" />
+    <None Include="Resources\modcon_loadingscreen2.png" />
+    <None Include="Resources\warfare_loadingscreen.png" />
+    <None Include="Resources\options_btn_new_click.png" />
+    <None Include="Resources\options_btn_new_hover.png" />
+    <None Include="Resources\start_new_click.png" />
+    <None Include="Resources\start_new_disabled.png" />
+    <None Include="Resources\start_new_hover.png" />
+    <None Include="Resources\patreon_btn_clickpng.png" />
+    <None Include="Resources\patreon_btn_hover.png" />
+    <None Include="Resources\main_beta1.png" />
+    <None Include="Resources\steam_btn_new.png" />
+    <None Include="Resources\website_btn_new.png" />
+    <None Include="Resources\patreon_btn_new.png" />
+    <None Include="Resources\options_btn_new.png" />
+    <None Include="Resources\start_new.png" />
+    <None Include="Resources\patreon1.png" />
+    <None Include="Resources\patreon.png" />
+    <None Include="Resources\start.png" />
+    <None Include="Resources\options_btn.png" />
+    <None Include="Resources\start_btn.png" />
+    <None Include="Resources\main_beta.png" />
+    <None Include="Resources\progress_orange.png" />
+    <None Include="Resources\modcon_loadingscreen1.png" />
+    <None Include="Resources\modcon_loadingscreen.png" />
+    <None Include="Resources\rotating_loading.gif" />
+    <None Include="Resources\loading_screen.gif" />
+    <None Include="Resources\cha_evpic_charlemagne_prepares_for_war.png" />
+    <None Include="Resources\loadingscreen2.png" />
+    <None Include="Resources\rotating_logo1.gif" />
+    <None Include="Resources\loadingscreen1.png" />
+    <None Include="Resources\rotating_logo.gif" />
+    <None Include="Resources\loadingscreen_lower1.png" />
+    <None Include="Resources\loadingscreen_lower.png" />
+    <None Include="Resources\loadingscreen.png" />
+    <None Include="Resources\btnbk.png" />
+    <None Include="Resources\options_bk.png" />
+    <None Include="Resources\options1.png" />
+    <None Include="Resources\options.png" />
+    <None Include="Resources\website1.png" />
+    <None Include="Resources\website.png" />
+    <None Include="Resources\patch.png" />
+    <None Include="Resources\steam.png" />
+    <None Include="Resources\discord.png" />
+    <None Include="Resources\wider_original.jpg" />
+    <None Include="Resources\fortress-gd06cefbea_1280.jpg" />
+    <None Include="Resources\discord_icon.jpg" />
+    <None Include="Resources\discord_icon2.jpg" />
+    <None Include="Resources\info_smaller.png" />
+    <None Include="Resources\ui.png" />
+    <None Include="Resources\sem_nome.png" />
+    <None Include="Resources\moving.png" />
+    <None Include="Resources\features.png" />
+    <None Include="Resources\EarlyRenainance.png" />
+    <None Include="Resources\resume.png" />
+    <None Include="Resources\tapafaray_a_medieval_battlefield_wallpaper_._Purple_and_Orange__736b3ecb-9c1a-4c05-9d6d-fb5342c957e3.png" />
+    <None Include="Resources\Node_martial.png" />
+    <None Include="Resources\Vassal_stance_minority.png" />
+    <None Include="Resources\paper.jpg" />
+    <None Include="Resources\info.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="logo.ico" />
+  </ItemGroup>
+
+</Project>
