@@ -1603,7 +1603,7 @@ namespace CrusaderWars
         {
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
-            Process.Start("https://discord.gg/WEGXdrqrpa");
+            Process.Start(new ProcessStartInfo("https://discord.gg/WEGXdrqrpa") { UseShellExecute = true });
         }
 
         private void patreonBtn_Click(object sender, EventArgs e)
