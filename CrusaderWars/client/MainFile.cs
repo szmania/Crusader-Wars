@@ -270,6 +270,13 @@ namespace CrusaderWars
             this.BackgroundImageLayout = ImageLayout.Stretch;
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
 
+            // Set TextAlign properties programmatically
+            infoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            EA_Label.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+
             // Set margins and paddings programmatically
             ExecuteButton.Margin = new Padding(4, 4, 4, 4);
             ContinueBattleButton.Margin = new Padding(4, 4, 4, 4);
