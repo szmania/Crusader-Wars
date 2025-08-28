@@ -56,6 +56,17 @@ namespace CrusaderWars
             labelMappersVersion.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             EA_Label.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold); // Programmatically set EA_Label font
 
+            // Set FlatStyle programmatically
+            ExecuteButton.FlatStyle = FlatStyle.Flat;
+            ContinueBattleButton.FlatStyle = FlatStyle.Flat;
+            btt_debug.FlatStyle = FlatStyle.Flat;
+            SettingsBtn.FlatStyle = FlatStyle.Flat;
+            viewLogsLink.FlatStyle = FlatStyle.Flat;
+            patreonBtn.FlatStyle = FlatStyle.Flat;
+            WebsiteBTN.FlatStyle = FlatStyle.Flat;
+            SteamBTN.FlatStyle = FlatStyle.Flat;
+            discordLink.FlatStyle = FlatStyle.Flat;
+
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             viewLogsLink.MouseLeave += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.WhiteSmoke;
