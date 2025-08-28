@@ -225,7 +225,10 @@
     <value>3</value>
   </data>
   <data name="labelVersion.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+    <value>False</value>
+  </data>
+  <data name="labelVersion.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 30</value>
   </data>
   <data name="labelVersion.TabIndex" type="System.Int32, mscorlib">
     <value>25</value>
