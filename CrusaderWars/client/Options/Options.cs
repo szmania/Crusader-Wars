@@ -140,6 +140,7 @@ namespace CrusaderWars
             if (activeButton != null)
             {
                 activeButton.BackColor = activeColor;
+                activeButton.FlatAppearance.BorderSize = 2;
             }
         }
 
