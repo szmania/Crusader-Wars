@@ -187,7 +187,6 @@
             this.MainPanelLayout.Controls.Add(this.pictureBox1);
             this.MainPanelLayout.Controls.Add(this.ButtonsContainerPanel);
             this.MainPanelLayout.Controls.Add(this.infoLabel);
-            this.MainPanelLayout.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.MainPanelLayout.Name = "MainPanelLayout";
             // 
             // ButtonsContainerPanel
@@ -242,7 +241,6 @@
             this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
             this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
             this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
-            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.BottomLeftFlowPanel.WrapContents = false;
             this.BottomLeftFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
@@ -255,7 +253,6 @@
             this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
             this.BottomRightFlowPanel.Controls.Add(this.labelSeparatorRight);
             this.BottomRightFlowPanel.Controls.Add(this.discordLink);
-            this.BottomRightFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.BottomRightFlowPanel.WrapContents = false;
             this.BottomRightFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomRightFlowPanel, "BottomRightFlowPanel");
