@@ -121,6 +121,7 @@
             this.CloseBtn.Size = new System.Drawing.Size(53, 54);
             this.CloseBtn.TabIndex = 9;
             this.CloseBtn.UseVisualStyleBackColor = false;
+            this.CloseBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.CloseBtn.Click += new System.EventHandler(this.CloseBtn_Click);
             // 
             // Status_Attila_Icon

@@ -102,13 +102,23 @@ namespace CrusaderWars
             OptionsPanel.Controls.Add(control);
             control.BringToFront();
 
+            // Define colors
+            Color inactiveColor = System.Drawing.Color.FromArgb(64, 64, 64);
+            Color activeColor = System.Drawing.Color.FromArgb(100, 100, 100);
+
             // Reset all buttons
-            Btn_GeneralTab.FlatAppearance.BorderSize = 1;
-            Btn_UnitsTab.FlatAppearance.BorderSize = 1;
-            Btn_BattleScaleTab.FlatAppearance.BorderSize = 1;
+            Btn_GeneralTab.BackgroundImage = null;
+            Btn_UnitsTab.BackgroundImage = null;
+            Btn_BattleScaleTab.BackgroundImage = null;
+            Btn_GeneralTab.BackColor = inactiveColor;
+            Btn_UnitsTab.BackColor = inactiveColor;
+            Btn_BattleScaleTab.BackColor = inactiveColor;
             Btn_GeneralTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_UnitsTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_BattleScaleTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_GeneralTab.FlatAppearance.BorderSize = 1;
+            Btn_UnitsTab.FlatAppearance.BorderSize = 1;
+            Btn_BattleScaleTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
             Button activeButton = null;
@@ -118,8 +128,7 @@ namespace CrusaderWars
 
             if (activeButton != null)
             {
-                activeButton.FlatAppearance.BorderSize = 2;
-                activeButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+                activeButton.BackColor = activeColor;
             }
         }
 
@@ -586,6 +595,35 @@ namespace CrusaderWars
             UMpanel.Controls.Clear();
             UMpanel.Controls.Add(control);
             control.BringToFront();
+
+            // Define colors
+            Color inactiveColor = System.Drawing.Color.FromArgb(64, 64, 64);
+            Color activeColor = System.Drawing.Color.FromArgb(100, 100, 100);
+
+            // Reset all buttons
+            Btn_CK3Tab.BackgroundImage = null;
+            Btn_TFETab.BackgroundImage = null;
+            Btn_LOTRTab.BackgroundImage = null;
+            Btn_CK3Tab.BackColor = inactiveColor;
+            Btn_TFETab.BackColor = inactiveColor;
+            Btn_LOTRTab.BackColor = inactiveColor;
+            Btn_CK3Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_CK3Tab.FlatAppearance.BorderSize = 1;
+            Btn_TFETab.FlatAppearance.BorderSize = 1;
+            Btn_LOTRTab.FlatAppearance.BorderSize = 1;
+
+            // Highlight active button
+            Button activeButton = null;
+            if (control == CrusaderKings_Tab) activeButton = Btn_CK3Tab;
+            else if (control == TheFallenEagle_Tab) activeButton = Btn_TFETab;
+            else if (control == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
+
+            if (activeButton != null)
+            {
+                activeButton.BackColor = activeColor;
+            }
         }
 
         List<string> GetUnitMappersModsCollectionFromTag(string tag)
