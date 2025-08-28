@@ -290,9 +290,6 @@
   <data name="&gt;&gt;pictureBox1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="MainPanelLayout.FlowDirection" type="System.Windows.Forms.FlowDirection">
-    <value>TopDown</value>
-  </data>
   <data name="MainPanelLayout.TabIndex" type="System.Int32">
     <value>31</value>
   </data>
@@ -466,12 +463,6 @@
   </data>
   <data name="BottomPanelLayout.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
-  </data>
-  <data name="BottomLeftFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
-    <value>LeftToRight</value>
-  </data>
-  <data name="BottomRightFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
-    <value>LeftToRight</value>
   </data>
   <data name="viewLogsLink.Cursor" type="System.Windows.Forms.Cursor, System.Windows.Forms">
     <value>Hand</value>
