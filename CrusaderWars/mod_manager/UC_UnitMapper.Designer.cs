@@ -66,7 +66,7 @@ namespace CrusaderWars.mod_manager
             this.BtnVerifyMods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnVerifyMods.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnVerifyMods.ForeColor = System.Drawing.Color.White;
-            this.BtnVerifyMods.Location = new System.Drawing.Point(326, -1);
+            this.BtnVerifyMods.Location = new System.Drawing.Point(280, -1);
             this.BtnVerifyMods.Name = "BtnVerifyMods";
             this.BtnVerifyMods.Size = new System.Drawing.Size(45, 41);
             this.BtnVerifyMods.TabIndex = 3;
