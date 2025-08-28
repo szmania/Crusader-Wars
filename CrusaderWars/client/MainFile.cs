@@ -1622,7 +1622,7 @@ namespace CrusaderWars
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
-            Process.Start("https://www.crusaderwars.com");
+            Process.Start(new ProcessStartInfo("https://www.crusaderwars.com") { UseShellExecute = true });
 
         }
 
