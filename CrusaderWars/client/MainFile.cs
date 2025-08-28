@@ -44,6 +44,7 @@ namespace CrusaderWars
             Program.Logger.Debug("HomePage initializing...");
             LoadFont();
             InitializeComponent();
+            this.Font = new Font("Microsoft Sans Serif", 8.25f);
             
             // Set fonts programmatically
             ExecuteButton.Font = new Font("Yu Gothic UI", 16f, FontStyle.Bold);
