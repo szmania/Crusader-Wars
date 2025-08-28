@@ -1632,7 +1632,7 @@ namespace CrusaderWars
             SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_click;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
-            Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2977969008");
+            Process.Start(new ProcessStartInfo("https://steamcommunity.com/sharedfiles/filedetails/?id=2977969008") { UseShellExecute = true });
         }
 
         private void patreonBtn_MouseEnter(object sender, EventArgs e)
