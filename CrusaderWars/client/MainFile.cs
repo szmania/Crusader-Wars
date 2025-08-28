@@ -107,8 +107,14 @@ namespace CrusaderWars
             _updater.CheckUnitMappersVersion();
             _appVersion = _updater.AppVersion;
             _umVersion = _updater.UMVersion;
-            labelVersion.Text = $"v{_appVersion?.TrimStart('v')}";
-            labelMappersVersion.Text = $"(mappers v{_umVersion?.TrimStart('v')})";
+            if (!string.IsNullOrEmpty(_appVersion))
+            {
+                labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
+            }
+            if (!string.IsNullOrEmpty(_umVersion))
+            {
+                labelMappersVersion.Text = $"(mappers v{_umVersion.TrimStart('v')})";
+            }
             Program.Logger.Debug($"Current App Version: {_updater.AppVersion}");
 
             var _timer = new System.Windows.Forms.Timer();
@@ -242,16 +248,18 @@ namespace CrusaderWars
             ContinueBattleButton.Anchor = AnchorStyles.None;
             btt_debug.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             infoLabel.Anchor = AnchorStyles.None;
-            SettingsBtn.Anchor = AnchorStyles.None;
             viewLogsLink.Anchor = AnchorStyles.None;
             labelVersion.Anchor = AnchorStyles.None;
             labelMappersVersion.Anchor = AnchorStyles.None;
             pictureBox1.Anchor = AnchorStyles.None;
             EA_Label.Anchor = AnchorStyles.None;
             discordLink.Anchor = AnchorStyles.None;
-            patreonBtn.Anchor = AnchorStyles.None;
-            WebsiteBTN.Anchor = AnchorStyles.None;
-            SteamBTN.Anchor = AnchorStyles.None;
+
+            // Set DockStyle for buttons in tableLayoutPanel1 to make them fill the cell
+            SettingsBtn.Dock = DockStyle.Fill;
+            patreonBtn.Dock = DockStyle.Fill;
+            WebsiteBTN.Dock = DockStyle.Fill;
+            SteamBTN.Dock = DockStyle.Fill;
             MainPanelLayout.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             BottomPanelLayout.Dock = DockStyle.Bottom;
             tableLayoutPanel1.Dock = DockStyle.Left;
