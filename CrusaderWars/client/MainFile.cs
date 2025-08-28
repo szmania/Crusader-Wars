@@ -240,6 +240,17 @@ namespace CrusaderWars
             // Set RightToLeft property programmatically
             WebsiteBTN.RightToLeft = RightToLeft.No;
 
+            // Set BackgroundImageLayout properties programmatically
+            ExecuteButton.BackgroundImageLayout = ImageLayout.Zoom;
+            ContinueBattleButton.BackgroundImageLayout = ImageLayout.Zoom;
+            SettingsBtn.BackgroundImageLayout = ImageLayout.Zoom;
+            patreonBtn.BackgroundImageLayout = ImageLayout.Zoom;
+            WebsiteBTN.BackgroundImageLayout = ImageLayout.Zoom;
+            SteamBTN.BackgroundImageLayout = ImageLayout.Zoom;
+            pictureBox1.BackgroundImageLayout = ImageLayout.Center;
+            this.BackgroundImageLayout = ImageLayout.Stretch;
+
+
             //Hide debug button
             btt_debug.Visible = false;
 
