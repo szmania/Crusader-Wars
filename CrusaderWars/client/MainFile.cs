@@ -111,9 +111,17 @@ namespace CrusaderWars
             {
                 labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
             }
+            else
+            {
+                labelVersion.Text = "v1.0"; // Default
+            }
             if (!string.IsNullOrWhiteSpace(_umVersion))
             {
                 labelMappersVersion.Text = $"(mappers v{_umVersion.TrimStart('v')})";
+            }
+            else
+            {
+                labelMappersVersion.Text = "(mappers v0.0)"; // Default
             }
             Program.Logger.Debug($"Current App Version: {_updater.AppVersion}");
 
