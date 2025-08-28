@@ -107,11 +107,11 @@ namespace CrusaderWars
             _updater.CheckUnitMappersVersion();
             _appVersion = _updater.AppVersion;
             _umVersion = _updater.UMVersion;
-            if (!string.IsNullOrEmpty(_appVersion))
+            if (!string.IsNullOrWhiteSpace(_appVersion))
             {
                 labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
             }
-            if (!string.IsNullOrEmpty(_umVersion))
+            if (!string.IsNullOrWhiteSpace(_umVersion))
             {
                 labelMappersVersion.Text = $"(mappers v{_umVersion.TrimStart('v')})";
             }
