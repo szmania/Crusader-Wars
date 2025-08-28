@@ -258,7 +258,11 @@ namespace CrusaderWars
             infoLabel.Anchor = AnchorStyles.None;
             viewLogsLink.Anchor = AnchorStyles.None;
             labelVersion.Anchor = AnchorStyles.None;
+            labelVersion.AutoSize = false;
+            labelVersion.Size = new System.Drawing.Size(100, 30);
             labelMappersVersion.Anchor = AnchorStyles.None;
+            labelMappersVersion.AutoSize = false;
+            labelMappersVersion.Size = new System.Drawing.Size(150, 30);
             pictureBox1.Anchor = AnchorStyles.None;
             EA_Label.Anchor = AnchorStyles.None;
             discordLink.Anchor = AnchorStyles.None;
