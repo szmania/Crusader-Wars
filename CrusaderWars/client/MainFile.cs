@@ -1612,7 +1612,7 @@ namespace CrusaderWars
             patreonBtn.BackgroundImage = Properties.Resources.patreon_btn_clickpng;
             sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
             sounds.Play();
-            Process.Start("https://www.patreon.com/user?u=83859552");
+            Process.Start(new ProcessStartInfo("https://www.patreon.com/user?u=83859552") { UseShellExecute = true });
 
         }
 
