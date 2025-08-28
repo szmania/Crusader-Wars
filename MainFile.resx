@@ -176,7 +176,7 @@
     <value>Waiting for CK3 battle...</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="infoLabel.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+  <data name="infoLabel.TextAlign" type="System.Windows.Forms.ContentAlignment, System.Windows.Forms">
     <value>MiddleCenter</value>
   </data>
   <data name="&gt;&gt;infoLabel.Name" xml:space="preserve">
