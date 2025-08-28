@@ -1710,7 +1710,7 @@ namespace CrusaderWars
 
         private void SteamBTN_MouseLeave(object sender, EventArgs e)
         {
-            WebsiteBTN.BackgroundImage = Properties.Resources.steam_btn_new;
+            SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new;
         }
 
         private async void labelVersion_Click(object sender, EventArgs e)
