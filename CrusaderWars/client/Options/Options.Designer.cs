@@ -422,7 +422,7 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(400, 34);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(370, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             // 
             // Btn_CK3Tab
