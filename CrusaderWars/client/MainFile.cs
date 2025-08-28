@@ -221,6 +221,9 @@ namespace CrusaderWars
             SettingsBtn.Location = new Point(4, 4);
             EA_Label.Location = new Point(75, 0);
             discordLink.Location = new Point(378, 0);
+            MainPanelLayout.Location = new Point(460, 0);
+            BottomPanelLayout.Location = new Point(0, 668);
+            tableLayoutPanel1.Location = new Point(0, 0);
 
             // Set sizes programmatically
             btt_debug.Size = new Size(179, 39);
@@ -263,6 +266,7 @@ namespace CrusaderWars
             SteamBTN.BackgroundImageLayout = ImageLayout.Zoom;
             pictureBox1.BackgroundImageLayout = ImageLayout.Center;
             this.BackgroundImageLayout = ImageLayout.Stretch;
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
 
             // Set margins and paddings programmatically
             ExecuteButton.Margin = new Padding(4, 4, 4, 4);
