@@ -33,6 +33,12 @@ namespace CrusaderWars
             _highlightTimer.Tick += HighlightTimer_Tick;
         }
 
+        private void HighlightTimer_Tick(object sender, EventArgs e)
+        {
+            // This method is currently not fully implemented.
+            // It is intended to handle a highlighting effect.
+        }
+
         private void CloseBtn_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Options form closing...");
