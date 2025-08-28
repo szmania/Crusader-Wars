@@ -117,9 +117,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="ExecuteButton.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="ExecuteButton.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -136,9 +133,6 @@
   <data name="&gt;&gt;ExecuteButton.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="ContinueBattleButton.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
   <data name="ContinueBattleButton.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
@@ -153,9 +147,6 @@
   </data>
   <data name="&gt;&gt;ContinueBattleButton.ZOrder" xml:space="preserve">
     <value>1</value>
-  </data>
-  <data name="btt_debug.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
   </data>
   <data name="btt_debug.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -185,7 +176,7 @@
     <value>Waiting for CK3 battle...</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="infoLabel.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+  <data name="infoLabel.TextAlign" type="System.Windows.Forms.ContentAlignment, System.Windows.Forms">
     <value>MiddleCenter</value>
   </data>
   <data name="&gt;&gt;infoLabel.Name" xml:space="preserve">
@@ -199,9 +190,6 @@
   </data>
   <data name="&gt;&gt;infoLabel.ZOrder" xml:space="preserve">
     <value>2</value>
-  </data>
-  <data name="SettingsBtn.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
   </data>
   <data name="SettingsBtn.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
@@ -377,9 +365,6 @@
   <data name="&gt;&gt;BottomPanelLayout.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="patreonBtn.FlatStyle" type="System.Windows.Forms.FlatStyle">
-    <value>Flat</value>
-  </data>
   <data name="patreonBtn.TabIndex" type="System.Int32">
     <value>9</value>
   </data>
@@ -395,9 +380,6 @@
   <data name="&gt;&gt;patreonBtn.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="WebsiteBTN.FlatStyle" type="System.Windows.Forms.FlatStyle">
-    <value>Flat</value>
-  </data>
   <data name="WebsiteBTN.TabIndex" type="System.Int32">
     <value>10</value>
   </data>
@@ -412,9 +394,6 @@
   </data>
   <data name="&gt;&gt;WebsiteBTN.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <data name="SteamBTN.FlatStyle" type="System.Windows.Forms.FlatStyle">
-    <value>Flat</value>
   </data>
   <data name="SteamBTN.TabIndex" type="System.Int32">
     <value>11</value>
@@ -434,11 +413,11 @@
   <data name="tableLayoutPanel1.ColumnCount" type="System.Int32">
     <value>1</value>
   </data>
-  <data name="tableLayoutPanel1.RowCount" type="System.Int32">
-    <value>4</value>
-  </data>
   <data name="tableLayoutPanel1.TabIndex" type="System.Int32">
     <value>36</value>
+  </data>
+  <data name="tableLayoutPanel1.RowCount" type="System.Int32">
+    <value>4</value>
   </data>
   <data name="&gt;&gt;tableLayoutPanel1.Name" xml:space="preserve">
     <value>tableLayoutPanel1</value>
@@ -506,10 +485,7 @@
   <data name="viewLogsLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="viewLogsLink.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
-  <data name="viewLogsLink.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
+  <data name="viewLogsLink.TextAlign" type="System.Windows.Forms.ContentAlignment, System.Windows.Forms">
     <value>MiddleLeft</value>
   </data>
   <data name="viewLogsLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
@@ -527,9 +503,6 @@
   <data name="discordLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="discordLink.FlatStyle" type="System.Windows.Forms.FlatStyle">
-    <value>Flat</value>
-  </data>
   <data name="discordLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
@@ -544,9 +517,6 @@
   </data>
   <data name="labelVersion.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
-  </data>
-  <data name="labelVersion.FlatStyle" type="System.Windows.Forms.FlatStyle">
-    <value>Flat</value>
   </data>
   <data name="labelVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>
@@ -565,9 +535,6 @@
   </data>
   <data name="labelMappersVersion.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
-  </data>
-  <data name="labelMappersVersion.FlatStyle" type="System.Windows.Forms.FlatStyle">
-    <value>Flat</value>
   </data>
   <data name="labelMappersVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>

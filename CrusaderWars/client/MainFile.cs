@@ -66,6 +66,8 @@ namespace CrusaderWars
             WebsiteBTN.FlatStyle = FlatStyle.Flat;
             SteamBTN.FlatStyle = FlatStyle.Flat;
             discordLink.FlatStyle = FlatStyle.Flat;
+            labelVersion.FlatStyle = FlatStyle.Flat;
+            labelMappersVersion.FlatStyle = FlatStyle.Flat;
 
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
