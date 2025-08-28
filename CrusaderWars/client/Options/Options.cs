@@ -103,8 +103,8 @@ namespace CrusaderWars
             control.BringToFront();
 
             // Define colors
-            Color inactiveColor = System.Drawing.Color.FromArgb(64, 64, 64);
-            Color activeColor = System.Drawing.Color.FromArgb(100, 100, 100);
+            Color inactiveColor = System.Drawing.Color.FromArgb(94, 51, 35);
+            Color activeColor = System.Drawing.Color.FromArgb(140, 87, 63);
 
             // Reset all buttons
             Btn_GeneralTab.BackgroundImage = null;

@@ -245,6 +245,7 @@
             this.Btn_GeneralTab.TabIndex = 0;
             this.Btn_GeneralTab.Text = "General";
             this.Btn_GeneralTab.UseVisualStyleBackColor = false;
+            this.Btn_GeneralTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_GeneralTab.Click += new System.EventHandler(this.Btn_GeneralTab_Click);
             // 
             // Btn_UnitsTab
