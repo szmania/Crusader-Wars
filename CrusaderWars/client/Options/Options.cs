@@ -101,6 +101,26 @@ namespace CrusaderWars
             OptionsPanel.Controls.Clear();
             OptionsPanel.Controls.Add(control);
             control.BringToFront();
+
+            // Reset all buttons
+            Btn_GeneralTab.FlatAppearance.BorderSize = 1;
+            Btn_UnitsTab.FlatAppearance.BorderSize = 1;
+            Btn_BattleScaleTab.FlatAppearance.BorderSize = 1;
+            Btn_GeneralTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_UnitsTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_BattleScaleTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+
+            // Highlight active button
+            Button activeButton = null;
+            if (control == General_Tab) activeButton = Btn_GeneralTab;
+            else if (control == Units_Tab) activeButton = Btn_UnitsTab;
+            else if (control == BattleScale_Tab) activeButton = Btn_BattleScaleTab;
+
+            if (activeButton != null)
+            {
+                activeButton.FlatAppearance.BorderSize = 2;
+                activeButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            }
         }
 
         //this is to read the options values on the .xml file
