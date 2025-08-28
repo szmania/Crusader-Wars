@@ -237,6 +237,9 @@ namespace CrusaderWars
             BottomPanelLayout.Dock = DockStyle.Bottom;
             tableLayoutPanel1.Dock = DockStyle.Left;
 
+            // Set RightToLeft property programmatically
+            WebsiteBTN.RightToLeft = RightToLeft.No;
+
             //Hide debug button
             btt_debug.Visible = false;
 
@@ -456,7 +459,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error clearing log files: {ex.Message}");
+                Program.Logger.Debug($"Error clearing log files: {ex.Message}");
                     MessageBox.Show("No Log File Found!", "Crusader Wars: Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";

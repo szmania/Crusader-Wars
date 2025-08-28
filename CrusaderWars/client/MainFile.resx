@@ -488,9 +488,6 @@
   <data name="WebsiteBTN.Margin" type="System.Windows.Forms.Padding">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="WebsiteBTN.RightToLeft" type="System.Windows.Forms.RightToLeft">
-    <value>No</value>
-  </data>
   <data name="WebsiteBTN.TabIndex" type="System.Int32">
     <value>10</value>
   </data>
