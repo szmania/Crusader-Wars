@@ -250,7 +250,7 @@ namespace CrusaderWars
                     }
                     ProcessStartInfo startInfo = new ProcessStartInfo();
                     startInfo.FileName = updaterPath;
-                    startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version}";
+                    startInfo.Arguments = $"\"{latestRelease.downloadUrl}\" \"{latestRelease.version}\"";
                     Process.Start(startInfo);
                     Environment.Exit(0);
                 }

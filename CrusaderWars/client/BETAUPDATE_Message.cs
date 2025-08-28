@@ -35,7 +35,7 @@ namespace CrusaderWars.client.BETAUPDATE_Message
             //Internet Connection
             try
             {
-                Process.Start("https://crusaderwars.com/#download-page");
+                Process.Start(new ProcessStartInfo("https://crusaderwars.com/#download-page") { UseShellExecute = true });
                 this.Close();
             }
             //Offline

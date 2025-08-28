@@ -1720,7 +1720,7 @@ namespace CrusaderWars
                 string url = await _updater.GetReleaseUrlForVersion(_appVersion, false);
                 if(!string.IsNullOrEmpty(url))
                 {
-                    Process.Start(url);
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
                 }
             }
         }
