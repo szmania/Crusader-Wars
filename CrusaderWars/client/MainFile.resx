@@ -455,7 +455,7 @@
   <data name="viewLogsLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="viewLogsLink.TextAlign" type="`1, System.Windows.Forms">
+  <data name="viewLogsLink.TextAlign" type="System.Windows.Forms">
     <value>MiddleLeft</value>
   </data>
   <data name="viewLogsLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
