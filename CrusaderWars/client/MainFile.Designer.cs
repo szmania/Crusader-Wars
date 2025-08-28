@@ -242,7 +242,6 @@
             this.BottomLeftFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
-            this.BottomLeftFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             
             // 
             // BottomRightFlowPanel
@@ -256,7 +255,6 @@
             this.BottomRightFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomRightFlowPanel, "BottomRightFlowPanel");
             this.BottomRightFlowPanel.Name = "BottomRightFlowPanel";
-            this.BottomRightFlowPanel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             // 
             // EA_Label
             // 

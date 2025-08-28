@@ -120,10 +120,6 @@
   <data name="ExecuteButton.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="ExecuteButton.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
-  </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="ExecuteButton.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -143,9 +139,6 @@
   <data name="ContinueBattleButton.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
-  <data name="ContinueBattleButton.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
-  </data>
   <data name="ContinueBattleButton.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
@@ -163,9 +156,6 @@
   </data>
   <data name="btt_debug.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
-  </data>
-  <data name="btt_debug.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
   </data>
   <data name="btt_debug.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -188,18 +178,13 @@
   <data name="infoLabel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="infoLabel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
-  </data>
-  <data name="infoLabel.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
-  </data>
   <data name="infoLabel.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
   </data>
   <data name="infoLabel.Text" xml:space="preserve">
     <value>Waiting for CK3 battle...</value>
   </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="infoLabel.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
     <value>MiddleCenter</value>
   </data>
@@ -217,9 +202,6 @@
   </data>
   <data name="SettingsBtn.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
-  </data>
-  <data name="SettingsBtn.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
   </data>
   <data name="SettingsBtn.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
@@ -239,12 +221,6 @@
   <metadata name="InformationToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="viewLogsLink.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 3, 4, 0</value>
-  </data>
-  <data name="viewLogsLink.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
-  </data>
   <data name="viewLogsLink.TabIndex" type="System.Int32">
     <value>27</value>
   </data>
@@ -265,12 +241,6 @@
   </data>
   <data name="labelVersion.AutoSize" type="System.Boolean">
     <value>True</value>
-  </data>
-  <data name="labelVersion.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 3, 4, 0</value>
-  </data>
-  <data name="labelVersion.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
   </data>
   <data name="labelVersion.TabIndex" type="System.Int32">
     <value>25</value>
@@ -296,12 +266,6 @@
   <data name="labelMappersVersion.AutoSize" type="System.Boolean">
     <value>True</value>
   </data>
-  <data name="labelMappersVersion.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 3, 4, 0</value>
-  </data>
-  <data name="labelMappersVersion.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
-  </data>
   <data name="labelMappersVersion.TabIndex" type="System.Int32">
     <value>31</value>
   </data>
@@ -322,9 +286,6 @@
   </data>
   <data name="&gt;&gt;labelMappersVersion.ZOrder" xml:space="preserve">
     <value>1</value>
-  </data>
-  <data name="pictureBox1.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
   </data>
   <data name="pictureBox1.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode">
     <value>Zoom</value>
@@ -350,9 +311,6 @@
   <data name="MainPanelLayout.Location" type="System.Drawing.Point">
     <value>460, 0</value>
   </data>
-  <data name="MainPanelLayout.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
-  </data>
   <data name="MainPanelLayout.TabIndex" type="System.Int32">
     <value>31</value>
   </data>
@@ -370,12 +328,6 @@
   </data>
   <data name="EA_Label.AutoSize" type="System.Boolean">
     <value>True</value>
-  </data>
-  <data name="EA_Label.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 0, 4, 0</value>
-  </data>
-  <data name="EA_Label.Padding" type="System.Windows.Forms.Padding">
-    <value>3, 3, 3, 3</value>
   </data>
   <data name="EA_Label.TabIndex" type="System.Int32">
     <value>26</value>
@@ -401,9 +353,6 @@
   <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="discordLink.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 3, 4, 0</value>
-  </data>
   <data name="discordLink.TabIndex" type="System.Int32">
     <value>28</value>
   </data>
@@ -421,9 +370,6 @@
   </data>
   <data name="BottomPanelLayout.Location" type="System.Drawing.Point">
     <value>0, 668</value>
-  </data>
-  <data name="BottomPanelLayout.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
   </data>
   <data name="BottomPanelLayout.TabIndex" type="System.Int32">
     <value>32</value>
@@ -443,9 +389,6 @@
   <data name="patreonBtn.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
   </data>
-  <data name="patreonBtn.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
-  </data>
   <data name="patreonBtn.TabIndex" type="System.Int32">
     <value>9</value>
   </data>
@@ -464,9 +407,6 @@
   <data name="WebsiteBTN.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
   </data>
-  <data name="WebsiteBTN.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
-  </data>
   <data name="WebsiteBTN.TabIndex" type="System.Int32">
     <value>10</value>
   </data>
@@ -484,9 +424,6 @@
   </data>
   <data name="SteamBTN.FlatStyle" type="System.Windows.Forms.FlatStyle">
     <value>Flat</value>
-  </data>
-  <data name="SteamBTN.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
   </data>
   <data name="SteamBTN.TabIndex" type="System.Int32">
     <value>11</value>
@@ -508,9 +445,6 @@
   </data>
   <data name="tableLayoutPanel1.Location" type="System.Drawing.Point">
     <value>0, 0</value>
-  </data>
-  <data name="tableLayoutPanel1.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
   </data>
   <data name="tableLayoutPanel1.RowCount" type="System.Int32">
     <value>4</value>
@@ -536,9 +470,6 @@
   <metadata name="$this.Localizable" type="System.Boolean">
     <value>True</value>
   </metadata>
-  <data name="$this.Margin" type="System.Windows.Forms.Padding">
-    <value>4, 4, 4, 4</value>
-  </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Crusader Wars</value>
   </data>
@@ -572,14 +503,8 @@
   <data name="BottomLeftFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>LeftToRight</value>
   </data>
-  <data name="BottomLeftFlowPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 5, 0, 0</value>
-  </data>
   <data name="BottomRightFlowPanel.FlowDirection" type="System.Windows.Forms.FlowDirection, System.Windows.Forms">
     <value>LeftToRight</value>
-  </data>
-  <data name="BottomRightFlowPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 5, 0, 0</value>
   </data>
   <data name="viewLogsLink.Cursor" type="System.Windows.Forms.Cursor, System.Windows.Forms">
     <value>Hand</value>

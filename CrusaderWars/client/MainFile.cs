@@ -253,6 +253,32 @@ namespace CrusaderWars
             pictureBox1.BackgroundImageLayout = ImageLayout.Center;
             this.BackgroundImageLayout = ImageLayout.Stretch;
 
+            // Set margins and paddings programmatically
+            ExecuteButton.Margin = new Padding(4, 4, 4, 4);
+            ContinueBattleButton.Margin = new Padding(4, 4, 4, 4);
+            btt_debug.Margin = new Padding(4, 4, 4, 4);
+            infoLabel.Margin = new Padding(4, 0, 4, 0);
+            infoLabel.Padding = new Padding(3, 3, 3, 3);
+            SettingsBtn.Margin = new Padding(4, 4, 4, 4);
+            viewLogsLink.Margin = new Padding(4, 3, 4, 0);
+            viewLogsLink.Padding = new Padding(3, 3, 3, 3);
+            labelVersion.Margin = new Padding(4, 3, 4, 0);
+            labelVersion.Padding = new Padding(3, 3, 3, 3);
+            labelMappersVersion.Margin = new Padding(4, 3, 4, 0);
+            labelMappersVersion.Padding = new Padding(3, 3, 3, 3);
+            pictureBox1.Margin = new Padding(4, 4, 4, 4);
+            MainPanelLayout.Margin = new Padding(4, 4, 4, 4);
+            EA_Label.Margin = new Padding(4, 0, 4, 0);
+            EA_Label.Padding = new Padding(3, 3, 3, 3);
+            discordLink.Margin = new Padding(4, 3, 4, 0);
+            BottomPanelLayout.Margin = new Padding(4, 4, 4, 4);
+            patreonBtn.Margin = new Padding(4, 4, 4, 4);
+            WebsiteBTN.Margin = new Padding(4, 4, 4, 4);
+            SteamBTN.Margin = new Padding(4, 4, 4, 4);
+            tableLayoutPanel1.Margin = new Padding(4, 4, 4, 4);
+            this.Margin = new Padding(4, 4, 4, 4); // For the form itself
+            BottomLeftFlowPanel.Padding = new Padding(0, 5, 0, 0);
+            BottomRightFlowPanel.Padding = new Padding(0, 5, 0, 0);
 
             //Hide debug button
             btt_debug.Visible = false;
@@ -1188,9 +1214,9 @@ namespace CrusaderWars
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
                 if (ExecuteButton.Enabled)
-                {
-                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
-                }
+                    {
+                        ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                    }
                 _myVariable = 0;
             }
         }
