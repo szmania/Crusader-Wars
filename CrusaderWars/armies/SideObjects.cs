@@ -16,25 +16,25 @@ namespace CrusaderWars
     public class Army
     {
         public string ID { get; set; }
-        public Owner Owner { get; private set; }
-        public string ArmyUnitID { get; set; }
+        public Owner? Owner { get; private set; }
+        public string? ArmyUnitID { get; set; }
 
-        public List<Army> MergedArmies { get; private set; }
-        public List<ArmyRegiment> ArmyRegiments { get; private set; }
-        public List<Unit> Units { get; private set; }
-        public KnightSystem Knights { get; private set; }
-        public CommanderSystem Commander { get; private set; }
-        public DefensiveSystem Defences { get; private set; }
+        public List<Army> MergedArmies { get; private set; } = new List<Army>();
+        public List<ArmyRegiment> ArmyRegiments { get; private set; } = new List<ArmyRegiment>();
+        public List<Unit> Units { get; private set; } = new List<Unit>();
+        public KnightSystem? Knights { get; private set; }
+        public CommanderSystem? Commander { get; private set; }
+        public DefensiveSystem? Defences { get; private set; }
 
-        public string CommanderID { get; set; }
+        public string? CommanderID { get; set; }
         public bool isMainArmy { get; private set; }
         bool IsPlayerArmy { get; set; }
         bool IsEnemyArmy { get; set; }
 
-        public string RealmName { get; set; }
+        public string? RealmName { get; set; }
         public string CombatSide { get; set; }
-        public UnitsResults UnitsResults { get; set; }
-        public List<UnitCasualitiesReport> CasualitiesReports { get; private set; }
+        public UnitsResults? UnitsResults { get; set; }
+        public List<UnitCasualitiesReport> CasualitiesReports { get; private set; } = new List<UnitCasualitiesReport>();
 
 
         public Army(string id, string combat_side, bool is_main)
@@ -51,7 +51,6 @@ namespace CrusaderWars
 
         //Setters
         public void AddMergedArmy(Army army) {
-            if (MergedArmies == null) { MergedArmies = new List<Army>(); }
             MergedArmies.Add(army); 
         }
         public void IsPlayer(bool u) { IsPlayerArmy = u; }
@@ -201,21 +200,21 @@ namespace CrusaderWars
     public class Character
     {
         // MAIN DATA
-        string ID { get; set; }
-        string Name { get; set; }
+        string? ID { get; set; }
+        string? Name { get; set; }
         int Prowess { get; set; }
         int Martial { get; set; }
         int FeudalRank {  get; set; }
 
         // SECUNDARY DATA
-        Culture CultureObj { get; set; }
-        List<(int Index, string Key)> Traits { get; set; }
-        BaseSkills BaseSkills { get; set; }
+        Culture? CultureObj { get; set; }
+        List<(int Index, string Key)>? Traits { get; set; }
+        BaseSkills? BaseSkills { get; set; }
 
         // IDENTIFIER BOOLS
         CharacterType CharacterType { get; set; }
         bool isAccolade { get; set; }
-        Accolade Accolade { get; set; }
+        Accolade? Accolade { get; set; }
 
         //AFTER BATTLE DATA
         bool hasFallen { get; set; }
