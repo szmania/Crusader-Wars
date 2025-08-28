@@ -176,9 +176,6 @@
     <value>Waiting for CK3 battle...</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="infoLabel.TextAlign" type="System.Windows.Forms.ContentAlignment, System.Windows.Forms">
-    <value>MiddleCenter</value>
-  </data>
   <data name="&gt;&gt;infoLabel.Name" xml:space="preserve">
     <value>infoLabel</value>
   </data>
@@ -236,9 +233,6 @@
   <data name="labelVersion.Text" xml:space="preserve">
     <value>v1.0</value>
   </data>
-  <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment">
-    <value>MiddleLeft</value>
-  </data>
   <data name="&gt;&gt;labelVersion.Name" xml:space="preserve">
     <value>labelVersion</value>
   </data>
@@ -259,9 +253,6 @@
   </data>
   <data name="labelMappersVersion.Text" xml:space="preserve">
     <value>(mappers v0.0)</value>
-  </data>
-  <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment">
-    <value>MiddleLeft</value>
   </data>
   <data name="&gt;&gt;labelMappersVersion.Name" xml:space="preserve">
     <value>labelMappersVersion</value>
@@ -316,9 +307,6 @@
   </data>
   <data name="EA_Label.Text" xml:space="preserve">
     <value>Early Acess</value>
-  </data>
-  <data name="EA_Label.TextAlign" type="System.Drawing.ContentAlignment">
-    <value>TopCenter</value>
   </data>
   <data name="&gt;&gt;EA_Label.Name" xml:space="preserve">
     <value>EA_Label</value>
@@ -410,8 +398,14 @@
   <data name="&gt;&gt;SteamBTN.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
+  <data name="tableLayoutPanel1.ColumnCount" type="System.Int32">
+    <value>1</value>
+  </data>
   <data name="tableLayoutPanel1.TabIndex" type="System.Int32">
     <value>36</value>
+  </data>
+  <data name="tableLayoutPanel1.RowCount" type="System.Int32">
+    <value>4</value>
   </data>
   <data name="&gt;&gt;tableLayoutPanel1.Name" xml:space="preserve">
     <value>tableLayoutPanel1</value>
@@ -424,6 +418,9 @@
   </data>
   <data name="&gt;&gt;tableLayoutPanel1.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="tableLayoutPanel1.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings">
+    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="WebsiteBTN" Row="2" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="SteamBTN" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="patreonBtn" Row="3" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="SettingsBtn" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,100" /&gt;&lt;Rows Styles="Percent,25,Percent,25,Percent,25,Percent,25,Absolute,26" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean">
     <value>True</value>
@@ -476,9 +473,6 @@
   <data name="viewLogsLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="viewLogsLink.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
-    <value>MiddleLeft</value>
-  </data>
   <data name="viewLogsLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
@@ -512,9 +506,6 @@
   <data name="labelVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="labelVersion.TextAlign" type="System.Drawing.ContentAlignment, System.Windows.Forms">
-    <value>MiddleLeft</value>
-  </data>
   <data name="labelMappersVersion.Cursor" type="System.Windows.Forms.Cursor, System.Windows.Forms">
     <value>Hand</value>
   </data>
@@ -529,9 +520,6 @@
   </data>
   <data name="labelMappersVersion.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
     <value>False</value>
-  </data>
-  <data name="labelMappersVersion.TextAlign" type="System.Drawing.ContentAlignment">
-    <value>MiddleLeft</value>
   </data>
   <data name="discordLink.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
     <value>Zoom</value>
