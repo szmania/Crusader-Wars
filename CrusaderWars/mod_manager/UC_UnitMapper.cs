@@ -10,6 +10,7 @@ namespace CrusaderWars.mod_manager
 {
     public partial class UC_UnitMapper : UserControl
     {
+        public event EventHandler ToggleClicked;
         List<UC_UnitMapper> AllControlsReferences { get; set; }
 
         string SteamCollectionLink {  get; set; }

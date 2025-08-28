@@ -403,7 +403,7 @@ namespace CWUpdater
             string executable = GetCrusaderWarsExecutable();
             if (executable != null)
             {
-                Process.Start(executable);
+                Process.Start(new ProcessStartInfo(executable) { UseShellExecute = true });
             }
             else
             {

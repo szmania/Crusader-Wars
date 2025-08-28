@@ -1579,7 +1579,7 @@ namespace CrusaderWars
             if (System.IO.File.Exists(logPath))
             {
                 // Open explorer and highlight debug.log
-                Process.Start("explorer.exe", $"/select, \"{logPath}\"");
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select, \"{logPath}\""));
             }
             else
             {
@@ -1587,7 +1587,7 @@ namespace CrusaderWars
                 string folderPath = Path.GetFullPath(@".\data");
                 if (Directory.Exists(folderPath))
                 {
-                    Process.Start("explorer.exe", folderPath);
+                    Process.Start(new ProcessStartInfo("explorer.exe", folderPath));
                 }
                 else
                 {

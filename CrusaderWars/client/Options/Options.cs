@@ -18,6 +18,8 @@ namespace CrusaderWars
 {
     public partial class Options : Form
     {
+        private Timer _highlightTimer;
+        private bool _isHighlighted = false;
         private string CK3_Path { get; set; }
         private string Attila_Path { get; set; }
 
@@ -26,6 +28,9 @@ namespace CrusaderWars
             InitializeComponent();
             this.Icon = Properties.Resources.logo;
 
+            _highlightTimer = new Timer();
+            _highlightTimer.Interval = 700;
+            _highlightTimer.Tick += HighlightTimer_Tick;
         }
 
         private void CloseBtn_Click(object sender, EventArgs e)
