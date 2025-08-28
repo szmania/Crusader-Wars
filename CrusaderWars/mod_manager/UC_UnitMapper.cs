@@ -34,7 +34,7 @@ namespace CrusaderWars.mod_manager
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Process.Start(SteamCollectionLink);
+            Process.Start(new ProcessStartInfo(SteamCollectionLink) { UseShellExecute = true });
         }
 
         public bool GetState()
