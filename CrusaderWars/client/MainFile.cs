@@ -217,6 +217,9 @@ namespace CrusaderWars
             SettingsBtn.Size = new Size(248, 158);
             pictureBox1.Size = new Size(295, 300);
             discordLink.Size = new Size(32, 32);
+            MainPanelLayout.Size = new Size(299, 705); // Programmatically set MainPanelLayout size
+            tableLayoutPanel1.Size = new Size(256, 668); // Programmatically set tableLayoutPanel1 size
+            this.ClientSize = new Size(1219, 705); // Programmatically set form ClientSize
 
             // Set anchors programmatically
             ExecuteButton.Anchor = AnchorStyles.None;
