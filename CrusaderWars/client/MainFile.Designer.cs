@@ -323,6 +323,7 @@
             // 
             this.tableLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.tableLayoutPanel1, "tableLayoutPanel1");
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowCount = 4;
@@ -334,7 +335,6 @@
             this.tableLayoutPanel1.Controls.Add(this.SteamBTN, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.patreonBtn, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.SettingsBtn, 0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             // 
             // discordLink
             // 
