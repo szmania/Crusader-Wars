@@ -206,7 +206,7 @@
   <metadata name="InformationToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="viewLogsLink.TabIndex" type="System.Int32">
+  <data name="viewLogsLink.TabIndex" type="System.Int32, mscorlib">
     <value>27</value>
   </data>
   <data name="viewLogsLink.Text" xml:space="preserve">
@@ -224,10 +224,10 @@
   <data name="&gt;&gt;viewLogsLink.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="labelVersion.AutoSize" type="System.Boolean">
+  <data name="labelVersion.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="labelVersion.TabIndex" type="System.Int32">
+  <data name="labelVersion.TabIndex" type="System.Int32, mscorlib">
     <value>25</value>
   </data>
   <data name="labelVersion.Text" xml:space="preserve">
@@ -245,10 +245,10 @@
   <data name="&gt;&gt;labelVersion.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="labelMappersVersion.AutoSize" type="System.Boolean">
+  <data name="labelMappersVersion.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="labelMappersVersion.TabIndex" type="System.Int32">
+  <data name="labelMappersVersion.TabIndex" type="System.Int32, mscorlib">
     <value>31</value>
   </data>
   <data name="labelMappersVersion.Text" xml:space="preserve">
@@ -266,7 +266,7 @@
   <data name="&gt;&gt;labelMappersVersion.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="pictureBox1.TabIndex" type="System.Int32">
+  <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
     <value>26</value>
   </data>
   <data name="&gt;&gt;pictureBox1.Name" xml:space="preserve">
@@ -281,7 +281,7 @@
   <data name="&gt;&gt;pictureBox1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="MainPanelLayout.TabIndex" type="System.Int32">
+  <data name="MainPanelLayout.TabIndex" type="System.Int32, mscorlib">
     <value>31</value>
   </data>
   <data name="&gt;&gt;MainPanelLayout.Name" xml:space="preserve">
@@ -296,10 +296,10 @@
   <data name="&gt;&gt;MainPanelLayout.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="EA_Label.AutoSize" type="System.Boolean">
+  <data name="EA_Label.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="EA_Label.TabIndex" type="System.Int32">
+  <data name="EA_Label.TabIndex" type="System.Int32, mscorlib">
     <value>26</value>
   </data>
   <data name="EA_Label.Text" xml:space="preserve">
@@ -320,7 +320,7 @@
   <data name="discordLink.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="discordLink.TabIndex" type="System.Int32">
+  <data name="discordLink.TabIndex" type="System.Int32, mscorlib">
     <value>28</value>
   </data>
   <data name="&gt;&gt;discordLink.Name" xml:space="preserve">
@@ -335,7 +335,7 @@
   <data name="&gt;&gt;discordLink.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
-  <data name="BottomPanelLayout.TabIndex" type="System.Int32">
+  <data name="BottomPanelLayout.TabIndex" type="System.Int32, mscorlib">
     <value>32</value>
   </data>
   <data name="&gt;&gt;BottomPanelLayout.Name" xml:space="preserve">
@@ -350,7 +350,7 @@
   <data name="&gt;&gt;BottomPanelLayout.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="patreonBtn.TabIndex" type="System.Int32">
+  <data name="patreonBtn.TabIndex" type="System.Int32, mscorlib">
     <value>9</value>
   </data>
   <data name="&gt;&gt;patreonBtn.Name" xml:space="preserve">
@@ -365,7 +365,7 @@
   <data name="&gt;&gt;patreonBtn.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="WebsiteBTN.TabIndex" type="System.Int32">
+  <data name="WebsiteBTN.TabIndex" type="System.Int32, mscorlib">
     <value>10</value>
   </data>
   <data name="&gt;&gt;WebsiteBTN.Name" xml:space="preserve">
@@ -380,7 +380,7 @@
   <data name="&gt;&gt;WebsiteBTN.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="SteamBTN.TabIndex" type="System.Int32">
+  <data name="SteamBTN.TabIndex" type="System.Int32, mscorlib">
     <value>11</value>
   </data>
   <data name="&gt;&gt;SteamBTN.Name" xml:space="preserve">
@@ -395,7 +395,7 @@
   <data name="&gt;&gt;SteamBTN.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="tableLayoutPanel1.TabIndex" type="System.Int32">
+  <data name="tableLayoutPanel1.TabIndex" type="System.Int32, mscorlib">
     <value>36</value>
   </data>
   <data name="&gt;&gt;tableLayoutPanel1.Name" xml:space="preserve">
@@ -455,7 +455,7 @@
   <data name="viewLogsLink.FlatAppearance.MouseOverBackColor" type="System.Drawing.Color, System.Drawing">
     <value>Transparent</value>
   </data>
-  <data name="viewLogsLink.TextAlign" type="System.Windows.Forms">
+  <data name="viewLogsLink.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleLeft</value>
   </data>
   <data name="viewLogsLink.UseVisualStyleBackColor" type="System.Boolean, mscorlib">
