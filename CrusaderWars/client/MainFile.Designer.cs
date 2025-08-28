@@ -96,6 +96,7 @@
             this.infoLabel.BackColor = System.Drawing.Color.Transparent;
             this.infoLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.infoLabel.Name = "infoLabel";
+            this.infoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // SettingsBtn
             // 
@@ -135,6 +136,7 @@
             this.viewLogsLink.TabStop = false;
             this.viewLogsLink.UseVisualStyleBackColor = false;
             this.viewLogsLink.Click += new System.EventHandler(this.viewLogsLink_Click);
+            this.viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // labelVersion
             // 
@@ -151,6 +153,7 @@
             this.labelVersion.TabStop = false;
             this.labelVersion.UseVisualStyleBackColor = false;
             this.labelVersion.Click += new System.EventHandler(this.labelVersion_Click);
+            this.labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // labelMappersVersion
             // 
@@ -167,6 +170,7 @@
             this.labelMappersVersion.TabStop = false;
             this.labelMappersVersion.UseVisualStyleBackColor = false;
             this.labelMappersVersion.Click += new System.EventHandler(this.labelMappersVersion_Click);
+            this.labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // pictureBox1
             // 
@@ -263,6 +267,7 @@
             this.EA_Label.BackColor = System.Drawing.Color.Transparent;
             this.EA_Label.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.EA_Label.Name = "EA_Label";
+            this.EA_Label.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // patreonBtn
             // 
