@@ -6,24 +6,20 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
     <Reference Include="ICSharpCode.SharpZipLib" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="client\MainFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="data\save file\Armies Reader.cs" />
-    <Compile Include="twbattle\ArmiesControl.cs" />
-    <Compile Include="twbattle\Reinforcements.cs" />
-    <Compile Include="data\attila settings\AttilaPreferences.cs" />
-    <Compile Include="data\save file\Reader.cs" />
-    <Compile Include="data\save file\SaveFile.cs" />
-    <Compile Include="twbattle\BattleFile.cs" />
-    <Compile Include="data\save file\Armies_Functions.cs" />
-    <Compile Include="data\save file\Armies_Objects.cs" />
-    <Compile Include="twbattle\UnitsFile.cs" />
-    <Compile Include="twbattle\BattleState.cs" />
+    <Compile Include="CrusaderWars\data\save_file\Armies Reader.cs" />
+    <Compile Include="CrusaderWars\data\twbattle\ArmiesControl.cs" />
+    <Compile Include="CrusaderWars\data\twbattle\Reinforcements.cs" />
+    <Compile Include="CrusaderWars\data\attila settings\AttilaPreferences.cs" />
+    <Compile Include="CrusaderWars\data\twbattle\BattleFile.cs" />
+    <Compile Include="CrusaderWars\data\twbattle\UnitsFile.cs" />
+    <Compile Include="CrusaderWars\data\twbattle\BattleState.cs" />
   </ItemGroup>
 </Project>
