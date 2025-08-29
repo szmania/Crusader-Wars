@@ -804,6 +804,10 @@ namespace CrusaderWars
 
         private void toggleModManagerButton_Click(object sender, EventArgs e)
         {
+            this.SuspendLayout();
+            var originalAnchor = this.TableLayoutModManager.Anchor;
+            this.TableLayoutModManager.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+
             int panelHeight = panel1.Height;
             _isModManagerExpanded = !_isModManagerExpanded;
             panel1.Visible = _isModManagerExpanded;
@@ -824,6 +828,9 @@ namespace CrusaderWars
                 toggleModManagerButton.Text = "Mod Manager [▼]";
                 ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to expand the Mod Manager. This section shows optional mods.");
             }
+
+            this.TableLayoutModManager.Anchor = originalAnchor;
+            this.ResumeLayout(true);
         }
 
 
