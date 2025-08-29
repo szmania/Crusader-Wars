@@ -512,4 +512,52 @@
   <data name="discordLink.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
     <value>Zoom</value>
   </data>
+  <data name="labelSeparatorLeft.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelSeparatorLeft.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 16pt, style=Bold</value>
+  </data>
+  <data name="labelSeparatorLeft.ForeColor" type="System.Drawing.Color, System.Drawing">
+    <value>WhiteSmoke</value>
+  </data>
+  <data name="labelSeparatorLeft.Text" xml:space="preserve">
+    <value>|</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorLeft.Name" xml:space="preserve">
+    <value>labelSeparatorLeft</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorLeft.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorLeft.Parent" xml:space="preserve">
+    <value>BottomLeftFlowPanel</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorLeft.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="labelSeparatorRight.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="labelSeparatorRight.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 16pt, style=Bold</value>
+  </data>
+  <data name="labelSeparatorRight.ForeColor" type="System.Drawing.Color, System.Drawing">
+    <value>WhiteSmoke</value>
+  </data>
+  <data name="labelSeparatorRight.Text" xml:space="preserve">
+    <value>|</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorRight.Name" xml:space="preserve">
+    <value>labelSeparatorRight</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorRight.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorRight.Parent" xml:space="preserve">
+    <value>BottomRightFlowPanel</value>
+  </data>
+  <data name="&gt;&gt;labelSeparatorRight.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
 </root>

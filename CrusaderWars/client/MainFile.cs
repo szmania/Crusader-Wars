@@ -83,6 +83,8 @@ namespace CrusaderWars
             labelVersion.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             labelMappersVersion.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             EA_Label.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold); // Programmatically set EA_Label font
+            labelSeparatorLeft.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
+            labelSeparatorRight.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
 
             // Set FlatStyle programmatically
             ExecuteButton.FlatStyle = FlatStyle.Flat;
@@ -295,6 +297,9 @@ namespace CrusaderWars
             MainPanelLayout.Location = new Point(460, 0);
             BottomPanelLayout.Location = new Point(0, 668);
             tableLayoutPanel1.Location = new Point(0, 0);
+            labelSeparatorLeft.Location = new Point(100, 0); // Example, adjust as needed
+            labelSeparatorRight.Location = new Point(100, 0); // Example, adjust as needed
+
 
             // Set sizes programmatically
             btt_debug.Size = new Size(179, 39);
@@ -317,6 +322,8 @@ namespace CrusaderWars
             pictureBox1.Anchor = AnchorStyles.None;
             EA_Label.Anchor = AnchorStyles.None;
             discordLink.Anchor = AnchorStyles.None;
+            labelSeparatorLeft.Anchor = AnchorStyles.None;
+            labelSeparatorRight.Anchor = AnchorStyles.None;
 
             // Set DockStyle for buttons in tableLayoutPanel1 to make them fill the cell
             SettingsBtn.Dock = DockStyle.Fill;
@@ -347,6 +354,8 @@ namespace CrusaderWars
             labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             EA_Label.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            labelSeparatorLeft.TextAlign = ContentAlignment.MiddleCenter;
+            labelSeparatorRight.TextAlign = ContentAlignment.MiddleCenter;
 
             // Set margins and paddings programmatically
             ExecuteButton.Margin = new Padding(4, 4, 4, 4);
@@ -374,6 +383,9 @@ namespace CrusaderWars
             this.Margin = new Padding(4, 4, 4, 4); // For the form itself
             BottomLeftFlowPanel.Padding = new Padding(0, 5, 0, 0);
             BottomRightFlowPanel.Padding = new Padding(0, 5, 0, 0);
+            labelSeparatorLeft.Margin = new Padding(4, 3, 4, 0);
+            labelSeparatorRight.Margin = new Padding(4, 3, 4, 0);
+
 
             // Configure tableLayoutPanel1 layout settings programmatically
             this.tableLayoutPanel1.ColumnCount = 1;
@@ -996,7 +1008,7 @@ namespace CrusaderWars
                     }
 
                     //Open Total War Attila
-                    Program.Logger.Debug("Starting Total War: Attila process...");
+                    Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
                     Games.StartTotalWArAttilaProcess();
                 }
                 catch (Exception ex)

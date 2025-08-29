@@ -44,15 +44,15 @@
             this.ContinueBattleButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelSeparatorLeft = new System.Windows.Forms.Label();
             this.BottomRightFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelSeparatorRight = new System.Windows.Forms.Label();
+            this.discordLink = new System.Windows.Forms.Button();
             this.EA_Label = new System.Windows.Forms.Label();
             this.patreonBtn = new System.Windows.Forms.Button();
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.discordLink = new System.Windows.Forms.Button();
-            this.labelSeparatorLeft = new System.Windows.Forms.Label();
-            this.labelSeparatorRight = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.MainPanelLayout.SuspendLayout();
             this.ButtonsContainerPanel.SuspendLayout();
@@ -238,28 +238,58 @@
             // 
             // BottomLeftFlowPanel
             // 
+            this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
             this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
             this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
             this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.BottomLeftFlowPanel.WrapContents = false;
-            this.BottomLeftFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
-            
+            this.BottomLeftFlowPanel.WrapContents = false;
+            // 
+            // labelSeparatorLeft
+            // 
+            resources.ApplyResources(this.labelSeparatorLeft, "labelSeparatorLeft");
+            this.labelSeparatorLeft.BackColor = System.Drawing.Color.Transparent;
+            this.labelSeparatorLeft.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelSeparatorLeft.Name = "labelSeparatorLeft";
             // 
             // BottomRightFlowPanel
             // 
+            this.BottomRightFlowPanel.AutoSize = true;
             this.BottomRightFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
             this.BottomRightFlowPanel.Controls.Add(this.labelSeparatorRight);
             this.BottomRightFlowPanel.Controls.Add(this.discordLink);
             this.BottomRightFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.BottomRightFlowPanel.WrapContents = false;
-            this.BottomRightFlowPanel.AutoSize = true; // optional, depending on your layout needs
             resources.ApplyResources(this.BottomRightFlowPanel, "BottomRightFlowPanel");
             this.BottomRightFlowPanel.Name = "BottomRightFlowPanel";
+            this.BottomRightFlowPanel.WrapContents = false;
+            // 
+            // labelSeparatorRight
+            // 
+            resources.ApplyResources(this.labelSeparatorRight, "labelSeparatorRight");
+            this.labelSeparatorRight.BackColor = System.Drawing.Color.Transparent;
+            this.labelSeparatorRight.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelSeparatorRight.Name = "labelSeparatorRight";
+            // 
+            // discordLink
+            // 
+            this.discordLink.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.discordLink.BackColor = System.Drawing.Color.Transparent;
+            this.discordLink.BackgroundImage = global::CrusaderWars.Properties.Resources.discord;
+            resources.ApplyResources(this.discordLink, "discordLink");
+            this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.discordLink.FlatAppearance.BorderSize = 0;
+            this.discordLink.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.discordLink.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.discordLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.discordLink.Name = "discordLink";
+            this.discordLink.TabStop = false;
+            this.discordLink.UseVisualStyleBackColor = false;
+            this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
             // 
             // EA_Label
             // 
@@ -278,7 +308,6 @@
             this.patreonBtn.FlatAppearance.BorderSize = 0;
             this.patreonBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.patreonBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.patreonBtn.Location = new System.Drawing.Point(46, 514); // Moved up from 520
             this.patreonBtn.Name = "patreonBtn";
             this.patreonBtn.UseVisualStyleBackColor = false;
             this.patreonBtn.Click += new System.EventHandler(this.patreonBtn_Click);
@@ -312,7 +341,6 @@
             this.SteamBTN.FlatAppearance.BorderSize = 0;
             this.SteamBTN.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.SteamBTN.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.SteamBTN.Location = new System.Drawing.Point(46, 180); // Moved up from 186
             this.SteamBTN.Name = "SteamBTN";
             this.SteamBTN.TabStop = false;
             this.SteamBTN.UseVisualStyleBackColor = false;
@@ -325,56 +353,18 @@
             // 
             this.tableLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.tableLayoutPanel1, "tableLayoutPanel1");
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.WebsiteBTN, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.SteamBTN, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.patreonBtn, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.SettingsBtn, 0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.Controls.Add(this.WebsiteBTN, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.SteamBTN, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.patreonBtn, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.SettingsBtn, 0, 0);
-            // 
-            // discordLink
-            // 
-            this.discordLink.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.discordLink.BackColor = System.Drawing.Color.Transparent;
-            this.discordLink.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.discordLink.FlatAppearance.BorderSize = 0;
-            this.discordLink.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.discordLink.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.discordLink, "discordLink");
-            this.discordLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.discordLink.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.discordLink.BackgroundImage = global::CrusaderWars.Properties.Resources.discord;
-            this.discordLink.Name = "discordLink";
-            this.discordLink.TabStop = false;
-            this.discordLink.UseVisualStyleBackColor = false;
-            this.discordLink.Click += new System.EventHandler(this.discordLink_Click);
-            // 
-            // labelSeparatorLeft
-            // 
-            // this.labelSeparatorLeft.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.labelSeparatorLeft.Text = "|";
-            this.labelSeparatorLeft.AutoSize = true;
-            this.labelSeparatorLeft.BackColor = System.Drawing.Color.Transparent;
-            this.labelSeparatorLeft.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.labelSeparatorLeft.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold);
-            this.labelSeparatorLeft.Name = "labelSeparatorLeft";
-            resources.ApplyResources(this.labelSeparatorLeft, "labelSeparatorLeft");
-            // 
-            // labelSeparatorRight
-            // 
-            resources.ApplyResources(this.labelSeparatorRight, "labelSeparatorRight");
-            this.labelSeparatorRight.Text = "|";
-            this.labelSeparatorRight.AutoSize = true;
-            this.labelSeparatorRight.BackColor = System.Drawing.Color.Transparent;
-            this.labelSeparatorRight.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.labelSeparatorRight.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold);
-            this.labelSeparatorRight.Name = "labelSeparatorRight";
             // 
             // HomePage
             // 
@@ -383,7 +373,6 @@
             this.BackColor = System.Drawing.Color.IndianRed;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.main_beta1;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1219, 705);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btt_debug);
             this.Controls.Add(this.MainPanelLayout);

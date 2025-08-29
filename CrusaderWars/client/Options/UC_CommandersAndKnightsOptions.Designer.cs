@@ -67,6 +67,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightTotal = new System.Windows.Forms.Label();
             this.btnReset = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.mainTableLayout.SuspendLayout();
             this.groupCommanders.SuspendLayout();
             this.tableCommanders.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderWounded)).BeginInit();
@@ -605,13 +606,13 @@ namespace CrusaderWars.client.Options
             this.groupCommanders.ResumeLayout(false);
             this.tableCommanders.ResumeLayout(false);
             this.tableCommanders.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderWounded)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderSeverelyInjured)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderBrutallyMauled)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderMaimed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneLegged)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneEyed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderDisfigured)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderWounded)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderSeverelyInjured)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderBrutallyMauled)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderMaimed)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneLegged)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneEyed)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderDisfigured)).EndInit();
             this.groupKnights.ResumeLayout(false);
             this.tableKnights.ResumeLayout(false);
             this.tableKnights.PerformLayout();
@@ -621,7 +622,7 @@ namespace CrusaderWars.client.Options
             ((System.ComponentModel.ISupportInitialize)(this.numKnightMaimed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightOneLegged)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightOneEyed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numKnightDisfigured)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numKnightDisfigured)).EndInit();
             this.mainTableLayout.ResumeLayout(false);
             this.ResumeLayout(false);
         }
