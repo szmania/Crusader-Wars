@@ -1392,7 +1392,7 @@ namespace CrusaderWars
                 if (process_ck3.Length == 0)
                 {
                     Program.Logger.Debug("CK3 process not found. Starting CK3.");
-                    Process.Start(Properties.Settings.Default.VAR_ck3_path);
+                    Process.Start(new ProcessStartInfo(Properties.Settings.Default.VAR_ck3_path) { UseShellExecute = true });
                 }
                 else
                 {
