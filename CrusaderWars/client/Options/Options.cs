@@ -331,57 +331,54 @@ namespace CrusaderWars
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
-                var CloseCK3_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseCK3", true)[0] as ComboBox;
-                var CloseAttila_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseAttila", true)[0] as ComboBox;
-                var FullArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_FullArmies", true)[0] as ComboBox;
-                var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true)[0] as ComboBox;
-                var BattleMapsSize_ComboBox = General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true)[0] as ComboBox;
-                var DefensiveDeployables_ComboBox = General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true)[0] as ComboBox;
-                var UnitCards_ComboBox = General_Tab.Controls.Find("OptionSelection_UnitCards", true)[0] as ComboBox;
-                var SeparateArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_SeparateArmies", true)[0] as ComboBox;
+                var CloseCK3_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
+                var CloseAttila_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
+                var FullArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
+                var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
+                var BattleMapsSize_ComboBox = General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
+                var DefensiveDeployables_ComboBox = General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
+                var UnitCards_ComboBox = General_Tab.Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
+                var SeparateArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
 
-                var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true)[0] as ComboBox;
-                var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true)[0] as ComboBox;
-                var InfantryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_InfantryMax", true)[0] as ComboBox;
-                var CavalryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_CavalryMax", true)[0] as ComboBox;
+                var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
+                var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
+                var InfantryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
+                var CavalryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
 
-                var BattleScale_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_BattleSizeScale", true)[0] as ComboBox;
-                var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_AutoScale", true)[0] as ComboBox;
-                
-
+                var BattleScale_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
+                var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
 
                 var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
-                CloseCK3_Node.InnerText = CloseCK3_ComboBox.Text;
+                if (CloseCK3_Node != null && CloseCK3_ComboBox != null) CloseCK3_Node.InnerText = CloseCK3_ComboBox.Text;
                 var CloseAttila_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']");
-                CloseAttila_Node.InnerText = CloseAttila_ComboBox.Text;
+                if (CloseAttila_Node != null && CloseAttila_ComboBox != null) CloseAttila_Node.InnerText = CloseAttila_ComboBox.Text;
                 var FullArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']");
-                FullArmies_Node.InnerText = FullArmies_ComboBox.Text;
+                if (FullArmies_Node != null && FullArmies_ComboBox != null) FullArmies_Node.InnerText = FullArmies_ComboBox.Text;
                 var TimeLimit_Node = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']");
-                TimeLimit_Node.InnerText = TimeLimit_ComboBox.Text;
+                if (TimeLimit_Node != null && TimeLimit_ComboBox != null) TimeLimit_Node.InnerText = TimeLimit_ComboBox.Text;
                 var BattleMapsSize_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']");
-                BattleMapsSize_Node.InnerText = BattleMapsSize_ComboBox.Text;
+                if (BattleMapsSize_Node != null && BattleMapsSize_ComboBox != null) BattleMapsSize_Node.InnerText = BattleMapsSize_ComboBox.Text;
                 var DefensiveDeployables_Node = xmlDoc.SelectSingleNode("//Option [@name='DefensiveDeployables']");
-                DefensiveDeployables_Node.InnerText = DefensiveDeployables_ComboBox.Text;
+                if (DefensiveDeployables_Node != null && DefensiveDeployables_ComboBox != null) DefensiveDeployables_Node.InnerText = DefensiveDeployables_ComboBox.Text;
                 var UnitCards_Node = xmlDoc.SelectSingleNode("//Option [@name='UnitCards']");
-                UnitCards_Node.InnerText = UnitCards_ComboBox.Text;
+                if (UnitCards_Node != null && UnitCards_ComboBox != null) UnitCards_Node.InnerText = UnitCards_ComboBox.Text;
                 var SeparateArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']");
-                SeparateArmies_Node.InnerText = SeparateArmies_ComboBox.Text;
-                var CulturalPreciseness_Node = xmlDoc.SelectSingleNode("//Option [@name='CulturalPreciseness']");
+                if (SeparateArmies_Node != null && SeparateArmies_ComboBox != null) SeparateArmies_Node.InnerText = SeparateArmies_ComboBox.Text;
 
                 var LeviesMax_Node = xmlDoc.SelectSingleNode("//Option [@name='LeviesMax']");
-                LeviesMax_Node.InnerText = LeviesMax_ComboBox.Text;
+                if (LeviesMax_Node != null && LeviesMax_ComboBox != null) LeviesMax_Node.InnerText = LeviesMax_ComboBox.Text;
                 var RangedMax_Node = xmlDoc.SelectSingleNode("//Option [@name='RangedMax']");
-                RangedMax_Node.InnerText = RangedMax_ComboBox.Text;
+                if (RangedMax_Node != null && RangedMax_ComboBox != null) RangedMax_Node.InnerText = RangedMax_ComboBox.Text;
                 var InfantryMax_Node = xmlDoc.SelectSingleNode("//Option [@name='InfantryMax']");
-                InfantryMax_Node.InnerText = InfantryMax_ComboBox.Text;
+                if (InfantryMax_Node != null && InfantryMax_ComboBox != null) InfantryMax_Node.InnerText = InfantryMax_ComboBox.Text;
                 var CavalryMax_Node = xmlDoc.SelectSingleNode("//Option [@name='CavalryMax']");
-                CavalryMax_Node.InnerText = CavalryMax_ComboBox.Text;
+                if (CavalryMax_Node != null && CavalryMax_ComboBox != null) CavalryMax_Node.InnerText = CavalryMax_ComboBox.Text;
 
                 var BattleScale_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleScale']");
-                BattleScale_Node.InnerText = BattleScale_ComboBox.Text;
+                if (BattleScale_Node != null && BattleScale_ComboBox != null) BattleScale_Node.InnerText = BattleScale_ComboBox.Text;
                 var AutoScaleUnits_Node = xmlDoc.SelectSingleNode("//Option [@name='AutoScaleUnits']");
-                AutoScaleUnits_Node.InnerText = AutoScaleUnits_ComboBox.Text;
+                if (AutoScaleUnits_Node != null && AutoScaleUnits_ComboBox != null) AutoScaleUnits_Node.InnerText = AutoScaleUnits_ComboBox.Text;
 
 
                 xmlDoc.Save(file);
