@@ -46,7 +46,7 @@ namespace CrusaderWars
             Program.Logger.Debug(".pack file created and moved to Attila data folder successfully.");
         }
 
-        private static string CreatePackFile(string command)
+        private static string? CreatePackFile(string command)
         {
             Program.Logger.Debug($"Executing RPFM command: {command}");
             string rpfm_client_path =  @".\data\rpfm\rpfm_cli.exe";

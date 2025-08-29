@@ -458,7 +458,7 @@ namespace CrusaderWars
             
         }
 
-        static (bool searchStarted, bool isCommander, CommanderSystem commander, bool isKnight, Knight knight) SearchCharacters(string char_id, List<Army> armies)
+        static (bool searchStarted, bool isCommander, CommanderSystem? commander, bool isKnight, Knight? knight) SearchCharacters(string char_id, List<Army> armies)
         {
 
             foreach (Army army in armies)
