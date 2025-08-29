@@ -382,7 +382,7 @@ namespace CrusaderWars.client.Options
             this.tableKnights.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.tableKnights.RowCount = 8;
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
-            this.tableKnights.RowStyles.Add(new System.Windows.Forms.SizeType.Percent, 12.5F));
+            this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
