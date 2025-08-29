@@ -249,6 +249,24 @@ namespace CrusaderWars
                 var AutoScaleUnits_Value = GetOptionValue(xmlDoc, "AutoScaleUnits", "Enabled");
                 var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
 
+                // New Commander and Knight wound chances
+                var CommanderWoundedChance_Value = GetOptionValue(xmlDoc, "CommanderWoundedChance", "50");
+                var CommanderSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "CommanderSeverelyInjuredChance", "20");
+                var CommanderBrutallyMauledChance_Value = GetOptionValue(xmlDoc, "CommanderBrutallyMauledChance", "20");
+                var CommanderMaimedChance_Value = GetOptionValue(xmlDoc, "CommanderMaimedChance", "3");
+                var CommanderOneLeggedChance_Value = GetOptionValue(xmlDoc, "CommanderOneLeggedChance", "3");
+                var CommanderOneEyedChance_Value = GetOptionValue(xmlDoc, "CommanderOneEyedChance", "3");
+                var CommanderDisfiguredChance_Value = GetOptionValue(xmlDoc, "CommanderDisfiguredChance", "1");
+
+                var KnightWoundedChance_Value = GetOptionValue(xmlDoc, "KnightWoundedChance", "50");
+                var KnightSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "KnightSeverelyInjuredChance", "20");
+                var KnightBrutallyMauledChance_Value = GetOptionValue(xmlDoc, "KnightBrutallyMauledChance", "20");
+                var KnightMaimedChance_Value = GetOptionValue(xmlDoc, "KnightMaimedChance", "3");
+                var KnightOneLeggedChance_Value = GetOptionValue(xmlDoc, "KnightOneLeggedChance", "3");
+                var KnightOneEyedChance_Value = GetOptionValue(xmlDoc, "KnightOneEyedChance", "3");
+                var KnightDisfiguredChance_Value = GetOptionValue(xmlDoc, "KnightDisfiguredChance", "1");
+
+
                 xmlDoc.Save(file);
                 Program.Logger.Debug("All options read from XML.");
 
@@ -268,7 +286,20 @@ namespace CrusaderWars
                     ("CavalryMax", CavalryMax_Value),
                     ("BattleScale", BattleScale_Value),
                     ("AutoScaleUnits", AutoScaleUnits_Value),
-
+                    ("CommanderWoundedChance", CommanderWoundedChance_Value),
+                    ("CommanderSeverelyInjuredChance", CommanderSeverelyInjuredChance_Value),
+                    ("CommanderBrutallyMauledChance", CommanderBrutallyMauledChance_Value),
+                    ("CommanderMaimedChance", CommanderMaimedChance_Value),
+                    ("CommanderOneLeggedChance", CommanderOneLeggedChance_Value),
+                    ("CommanderOneEyedChance", CommanderOneEyedChance_Value),
+                    ("CommanderDisfiguredChance", CommanderDisfiguredChance_Value),
+                    ("KnightWoundedChance", KnightWoundedChance_Value),
+                    ("KnightSeverelyInjuredChance", KnightSeverelyInjuredChance_Value),
+                    ("KnightBrutallyMauledChance", KnightBrutallyMauledChance_Value),
+                    ("KnightMaimedChance", KnightMaimedChance_Value),
+                    ("KnightOneLeggedChance", KnightOneLeggedChance_Value),
+                    ("KnightOneEyedChance", KnightOneEyedChance_Value),
+                    ("KnightDisfiguredChance", KnightDisfiguredChance_Value),
                 });
                 Program.Logger.Debug("Options collection populated.");
 
@@ -305,6 +336,24 @@ namespace CrusaderWars
                 var BattleScale_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
                 var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
+                // Commander NumericUpDowns
+                var numCommanderWounded = CandK_Tab.Controls.Find("numCommanderWounded", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderSeverelyInjured = CandK_Tab.Controls.Find("numCommanderSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderBrutallyMauled = CandK_Tab.Controls.Find("numCommanderBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderMaimed = CandK_Tab.Controls.Find("numCommanderMaimed", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderOneLegged = CandK_Tab.Controls.Find("numCommanderOneLegged", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderOneEyed = CandK_Tab.Controls.Find("numCommanderOneEyed", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderDisfigured = CandK_Tab.Controls.Find("numCommanderDisfigured", true).FirstOrDefault() as NumericUpDown;
+
+                // Knight NumericUpDowns
+                var numKnightWounded = CandK_Tab.Controls.Find("numKnightWounded", true).FirstOrDefault() as NumericUpDown;
+                var numKnightSeverelyInjured = CandK_Tab.Controls.Find("numKnightSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
+                var numKnightBrutallyMauled = CandK_Tab.Controls.Find("numKnightBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
+                var numKnightMaimed = CandK_Tab.Controls.Find("numKnightMaimed", true).FirstOrDefault() as NumericUpDown;
+                var numKnightOneLegged = CandK_Tab.Controls.Find("numKnightOneLegged", true).FirstOrDefault() as NumericUpDown;
+                var numKnightOneEyed = CandK_Tab.Controls.Find("numKnightOneEyed", true).FirstOrDefault() as NumericUpDown;
+                var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
+
 
                 CloseCK3_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseCK3").value;
                 CloseAttila_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseAttila").value;
@@ -323,6 +372,29 @@ namespace CrusaderWars
                 BattleScale_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleScale").value;
                 AutoScaleUnits_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "AutoScaleUnits").value;
 
+                // Set Commander NumericUpDown values
+                if (numCommanderWounded != null) numCommanderWounded.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderWoundedChance").value);
+                if (numCommanderSeverelyInjured != null) numCommanderSeverelyInjured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderSeverelyInjuredChance").value);
+                if (numCommanderBrutallyMauled != null) numCommanderBrutallyMauled.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderBrutallyMauledChance").value);
+                if (numCommanderMaimed != null) numCommanderMaimed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderMaimedChance").value);
+                if (numCommanderOneLegged != null) numCommanderOneLegged.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneLeggedChance").value);
+                if (numCommanderOneEyed != null) numCommanderOneEyed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneEyedChance").value);
+                if (numCommanderDisfigured != null) numCommanderDisfigured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderDisfiguredChance").value);
+
+                // Set Knight NumericUpDown values
+                if (numKnightWounded != null) numKnightWounded.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightWoundedChance").value);
+                if (numKnightSeverelyInjured != null) numKnightSeverelyInjured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightSeverelyInjuredChance").value);
+                if (numKnightBrutallyMauled != null) numKnightBrutallyMauled.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightBrutallyMauledChance").value);
+                if (numKnightMaimed != null) numKnightMaimed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightMaimedChance").value);
+                if (numKnightOneLegged != null) numKnightOneLegged.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneLeggedChance").value);
+                if (numKnightOneEyed != null) numKnightOneEyed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneEyedChance").value);
+                if (numKnightDisfigured != null) numKnightDisfigured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightDisfiguredChance").value);
+
+                // Manually trigger UpdateTotal for CandK_Tab after setting values
+                if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
+                {
+                    candKOptions.SetDefaults(); // This will call UpdateTotal internally
+                }
 
                 Program.Logger.Debug("Options UI data set.");
                 ChangeOptionsTab(General_Tab);
@@ -362,6 +434,24 @@ namespace CrusaderWars
                 var BattleScale_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
                 var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
+                // Commander NumericUpDowns
+                var numCommanderWounded = CandK_Tab.Controls.Find("numCommanderWounded", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderSeverelyInjured = CandK_Tab.Controls.Find("numCommanderSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderBrutallyMauled = CandK_Tab.Controls.Find("numCommanderBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderMaimed = CandK_Tab.Controls.Find("numCommanderMaimed", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderOneLegged = CandK_Tab.Controls.Find("numCommanderOneLegged", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderOneEyed = CandK_Tab.Controls.Find("numCommanderOneEyed", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderDisfigured = CandK_Tab.Controls.Find("numCommanderDisfigured", true).FirstOrDefault() as NumericUpDown;
+
+                // Knight NumericUpDowns
+                var numKnightWounded = CandK_Tab.Controls.Find("numKnightWounded", true).FirstOrDefault() as NumericUpDown;
+                var numKnightSeverelyInjured = CandK_Tab.Controls.Find("numKnightSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
+                var numKnightBrutallyMauled = CandK_Tab.Controls.Find("numKnightBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
+                var numKnightMaimed = CandK_Tab.Controls.Find("numKnightMaimed", true).FirstOrDefault() as NumericUpDown;
+                var numKnightOneLegged = CandK_Tab.Controls.Find("numKnightOneLegged", true).FirstOrDefault() as NumericUpDown;
+                var numKnightOneEyed = CandK_Tab.Controls.Find("numKnightOneEyed", true).FirstOrDefault() as NumericUpDown;
+                var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
+
 
                 var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
                 if (CloseCK3_Node != null && CloseCK3_ComboBox != null) CloseCK3_Node.InnerText = CloseCK3_ComboBox.Text;
@@ -393,6 +483,38 @@ namespace CrusaderWars
                 if (BattleScale_Node != null && BattleScale_ComboBox != null) BattleScale_Node.InnerText = BattleScale_ComboBox.Text;
                 var AutoScaleUnits_Node = xmlDoc.SelectSingleNode("//Option [@name='AutoScaleUnits']");
                 if (AutoScaleUnits_Node != null && AutoScaleUnits_ComboBox != null) AutoScaleUnits_Node.InnerText = AutoScaleUnits_ComboBox.Text;
+
+                // Save Commander NumericUpDown values
+                var CommanderWoundedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderWoundedChance']");
+                if (CommanderWoundedChance_Node != null && numCommanderWounded != null) CommanderWoundedChance_Node.InnerText = numCommanderWounded.Value.ToString();
+                var CommanderSeverelyInjuredChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderSeverelyInjuredChance']");
+                if (CommanderSeverelyInjuredChance_Node != null && numCommanderSeverelyInjured != null) CommanderSeverelyInjuredChance_Node.InnerText = numCommanderSeverelyInjured.Value.ToString();
+                var CommanderBrutallyMauledChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderBrutallyMauledChance']");
+                if (CommanderBrutallyMauledChance_Node != null && numCommanderBrutallyMauled != null) CommanderBrutallyMauledChance_Node.InnerText = numCommanderBrutallyMauled.Value.ToString();
+                var CommanderMaimedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderMaimedChance']");
+                if (CommanderMaimedChance_Node != null && numCommanderMaimed != null) CommanderMaimedChance_Node.InnerText = numCommanderMaimed.Value.ToString();
+                var CommanderOneLeggedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderOneLeggedChance']");
+                if (CommanderOneLeggedChance_Node != null && numCommanderOneLegged != null) CommanderOneLeggedChance_Node.InnerText = numCommanderOneLegged.Value.ToString();
+                var CommanderOneEyedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderOneEyedChance']");
+                if (CommanderOneEyedChance_Node != null && numCommanderOneEyed != null) CommanderOneEyedChance_Node.InnerText = numCommanderOneEyed.Value.ToString();
+                var CommanderDisfiguredChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderDisfiguredChance']");
+                if (CommanderDisfiguredChance_Node != null && numCommanderDisfigured != null) CommanderDisfiguredChance_Node.InnerText = numCommanderDisfigured.Value.ToString();
+
+                // Save Knight NumericUpDown values
+                var KnightWoundedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightWoundedChance']");
+                if (KnightWoundedChance_Node != null && numKnightWounded != null) KnightWoundedChance_Node.InnerText = numKnightWounded.Value.ToString();
+                var KnightSeverelyInjuredChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightSeverelyInjuredChance']");
+                if (KnightSeverelyInjuredChance_Node != null && numKnightSeverelyInjured != null) KnightSeverelyInjuredChance_Node.InnerText = numKnightSeverelyInjured.Value.ToString();
+                var KnightBrutallyMauledChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightBrutallyMauledChance']");
+                if (KnightBrutallyMauledChance_Node != null && numKnightBrutallyMauled != null) KnightBrutallyMauledChance_Node.InnerText = numKnightBrutallyMauled.Value.ToString();
+                var KnightMaimedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightMaimedChance']");
+                if (KnightMaimedChance_Node != null && numKnightMaimed != null) KnightMaimedChance_Node.InnerText = numKnightMaimed.Value.ToString();
+                var KnightOneLeggedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightOneLeggedChance']");
+                if (KnightOneLeggedChance_Node != null && numKnightOneLegged != null) KnightOneLeggedChance_Node.InnerText = numKnightOneLegged.Value.ToString();
+                var KnightOneEyedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightOneEyedChance']");
+                if (KnightOneEyedChance_Node != null && numKnightOneEyed != null) KnightOneEyedChance_Node.InnerText = numKnightOneEyed.Value.ToString();
+                var KnightDisfiguredChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightDisfiguredChance']");
+                if (KnightDisfiguredChance_Node != null && numKnightDisfigured != null) KnightDisfiguredChance_Node.InnerText = numKnightDisfigured.Value.ToString();
 
 
                 xmlDoc.Save(file);
