@@ -116,7 +116,7 @@ namespace CrusaderWars.client.Options
             this.groupCommanders.Size = new System.Drawing.Size(405, 190);
             this.groupCommanders.TabIndex = 0;
             this.groupCommanders.TabStop = false;
-            this.groupCommanders.Text = "Commander Wound Chances on Defeat";
+            this.groupCommanders.Text = "Commander Wound Chances When Fallen";
             // 
             // tableCommanders
             // 
@@ -162,7 +162,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderWounded.Size = new System.Drawing.Size(72, 19);
             this.lblCommanderWounded.TabIndex = 0;
             this.lblCommanderWounded.Text = "Wounded:";
-            this.toolTip1.SetToolTip(this.lblCommanderWounded, "Chance for commander to be wounded when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblCommanderWounded, "Chance for commander to be wounded when fallen in battle");
             // 
             // numCommanderWounded
             // 
@@ -171,7 +171,7 @@ namespace CrusaderWars.client.Options
             this.numCommanderWounded.Name = "numCommanderWounded";
             this.numCommanderWounded.Size = new System.Drawing.Size(89, 20);
             this.numCommanderWounded.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.numCommanderWounded, "Chance for commander to be wounded when defeated in battle");
+            this.toolTip1.SetToolTip(this.numCommanderWounded, "Chance for commander to be wounded when fallen in battle");
             this.numCommanderWounded.Value = new decimal(new int[] {
             50,
             0,
@@ -187,7 +187,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderSeverelyInjured.Size = new System.Drawing.Size(117, 19);
             this.lblCommanderSeverelyInjured.TabIndex = 2;
             this.lblCommanderSeverelyInjured.Text = "Severely Injured:";
-            this.toolTip1.SetToolTip(this.lblCommanderSeverelyInjured, "Chance for commander to be severely injured when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblCommanderSeverelyInjured, "Chance for commander to be severely injured when fallen in battle");
             // 
             // numCommanderSeverelyInjured
             // 
@@ -196,7 +196,7 @@ namespace CrusaderWars.client.Options
             this.numCommanderSeverelyInjured.Name = "numCommanderSeverelyInjured";
             this.numCommanderSeverelyInjured.Size = new System.Drawing.Size(89, 20);
             this.numCommanderSeverelyInjured.TabIndex = 3;
-            this.toolTip1.SetToolTip(this.numCommanderSeverelyInjured, "Chance for commander to be severely injured when defeated in battle");
+            this.toolTip1.SetToolTip(this.numCommanderSeverelyInjured, "Chance for commander to be severely injured when fallen in battle");
             this.numCommanderSeverelyInjured.Value = new decimal(new int[] {
             20,
             0,
@@ -212,7 +212,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderBrutallyMauled.Size = new System.Drawing.Size(115, 19);
             this.lblCommanderBrutallyMauled.TabIndex = 4;
             this.lblCommanderBrutallyMauled.Text = "Brutally Mauled:";
-            this.toolTip1.SetToolTip(this.lblCommanderBrutallyMauled, "Chance for commander to be brutally mauled when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblCommanderBrutallyMauled, "Chance for commander to be brutally mauled when fallen in battle");
             // 
             // numCommanderBrutallyMauled
             // 
@@ -221,7 +221,7 @@ namespace CrusaderWars.client.Options
             this.numCommanderBrutallyMauled.Name = "numCommanderBrutallyMauled";
             this.numCommanderBrutallyMauled.Size = new System.Drawing.Size(89, 20);
             this.numCommanderBrutallyMauled.TabIndex = 5;
-            this.toolTip1.SetToolTip(this.numCommanderBrutallyMauled, "Chance for commander to be brutally mauled when defeated in battle");
+            this.toolTip1.SetToolTip(this.numCommanderBrutallyMauled, "Chance for commander to be brutally mauled when fallen in battle");
             this.numCommanderBrutallyMauled.Value = new decimal(new int[] {
             20,
             0,
@@ -237,7 +237,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderMaimed.Size = new System.Drawing.Size(63, 19);
             this.lblCommanderMaimed.TabIndex = 6;
             this.lblCommanderMaimed.Text = "Maimed:";
-            this.toolTip1.SetToolTip(this.lblCommanderMaimed, "Chance for commander to be maimed when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblCommanderMaimed, "Chance for commander to be maimed when fallen in battle");
             // 
             // numCommanderMaimed
             // 
@@ -246,7 +246,7 @@ namespace CrusaderWars.client.Options
             this.numCommanderMaimed.Name = "numCommanderMaimed";
             this.numCommanderMaimed.Size = new System.Drawing.Size(89, 20);
             this.numCommanderMaimed.TabIndex = 7;
-            this.toolTip1.SetToolTip(this.numCommanderMaimed, "Chance for commander to be maimed when defeated in battle");
+            this.toolTip1.SetToolTip(this.numCommanderMaimed, "Chance for commander to be maimed when fallen in battle");
             this.numCommanderMaimed.Value = new decimal(new int[] {
             3,
             0,
@@ -262,7 +262,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderOneLegged.Size = new System.Drawing.Size(88, 19);
             this.lblCommanderOneLegged.TabIndex = 8;
             this.lblCommanderOneLegged.Text = "One-Legged:";
-            this.toolTip1.SetToolTip(this.lblCommanderOneLegged, "Chance for commander to lose a leg when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblCommanderOneLegged, "Chance for commander to lose a leg when fallen in battle");
             // 
             // numCommanderOneLegged
             // 
@@ -271,7 +271,7 @@ namespace CrusaderWars.client.Options
             this.numCommanderOneLegged.Name = "numCommanderOneLegged";
             this.numCommanderOneLegged.Size = new System.Drawing.Size(89, 20);
             this.numCommanderOneLegged.TabIndex = 9;
-            this.toolTip1.SetToolTip(this.numCommanderOneLegged, "Chance for commander to lose a leg when defeated in battle");
+            this.toolTip1.SetToolTip(this.numCommanderOneLegged, "Chance for commander to lose a leg when fallen in battle");
             this.numCommanderOneLegged.Value = new decimal(new int[] {
             3,
             0,
@@ -287,7 +287,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderOneEyed.Size = new System.Drawing.Size(77, 19);
             this.lblCommanderOneEyed.TabIndex = 10;
             this.lblCommanderOneEyed.Text = "One-Eyed:";
-            this.toolTip1.SetToolTip(this.lblCommanderOneEyed, "Chance for commander to lose an eye when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblCommanderOneEyed, "Chance for commander to lose an eye when fallen in battle");
             // 
             // numCommanderOneEyed
             // 
@@ -296,7 +296,7 @@ namespace CrusaderWars.client.Options
             this.numCommanderOneEyed.Name = "numCommanderOneEyed";
             this.numCommanderOneEyed.Size = new System.Drawing.Size(89, 20);
             this.numCommanderOneEyed.TabIndex = 11;
-            this.toolTip1.SetToolTip(this.numCommanderOneEyed, "Chance for commander to lose an eye when defeated in battle");
+            this.toolTip1.SetToolTip(this.numCommanderOneEyed, "Chance for commander to lose an eye when fallen in battle");
             this.numCommanderOneEyed.Value = new decimal(new int[] {
             3,
             0,
@@ -312,7 +312,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderDisfigured.Size = new System.Drawing.Size(81, 19);
             this.lblCommanderDisfigured.TabIndex = 12;
             this.lblCommanderDisfigured.Text = "Disfigured:";
-            this.toolTip1.SetToolTip(this.lblCommanderDisfigured, "Chance for commander to be disfigured when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblCommanderDisfigured, "Chance for commander to be disfigured when fallen in battle");
             // 
             // numCommanderDisfigured
             // 
@@ -321,7 +321,7 @@ namespace CrusaderWars.client.Options
             this.numCommanderDisfigured.Name = "numCommanderDisfigured";
             this.numCommanderDisfigured.Size = new System.Drawing.Size(89, 20);
             this.numCommanderDisfigured.TabIndex = 13;
-            this.toolTip1.SetToolTip(this.numCommanderDisfigured, "Chance for commander to be disfigured when defeated in battle");
+            this.toolTip1.SetToolTip(this.numCommanderDisfigured, "Chance for commander to be disfigured when fallen in battle");
             this.numCommanderDisfigured.Value = new decimal(new int[] {
             1,
             0,
@@ -350,7 +350,7 @@ namespace CrusaderWars.client.Options
             this.groupKnights.Size = new System.Drawing.Size(405, 190);
             this.groupKnights.TabIndex = 1;
             this.groupKnights.TabStop = false;
-            this.groupKnights.Text = "Knight Wound Chances on Defeat";
+            this.groupKnights.Text = "Knight Wound Chances When Fallen";
             // 
             // tableKnights
             // 
@@ -396,7 +396,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightWounded.Size = new System.Drawing.Size(72, 19);
             this.lblKnightWounded.TabIndex = 0;
             this.lblKnightWounded.Text = "Wounded:";
-            this.toolTip1.SetToolTip(this.lblKnightWounded, "Chance for knight to be wounded when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblKnightWounded, "Chance for knight to be wounded when fallen in battle");
             // 
             // numKnightWounded
             // 
@@ -405,7 +405,7 @@ namespace CrusaderWars.client.Options
             this.numKnightWounded.Name = "numKnightWounded";
             this.numKnightWounded.Size = new System.Drawing.Size(89, 20);
             this.numKnightWounded.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.numKnightWounded, "Chance for knight to be wounded when defeated in battle");
+            this.toolTip1.SetToolTip(this.numKnightWounded, "Chance for knight to be wounded when fallen in battle");
             this.numKnightWounded.Value = new decimal(new int[] {
             50,
             0,
@@ -421,7 +421,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightSeverelyInjured.Size = new System.Drawing.Size(117, 19);
             this.lblKnightSeverelyInjured.TabIndex = 2;
             this.lblKnightSeverelyInjured.Text = "Severely Injured:";
-            this.toolTip1.SetToolTip(this.lblKnightSeverelyInjured, "Chance for knight to be severely injured when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblKnightSeverelyInjured, "Chance for knight to be severely injured when fallen in battle");
             // 
             // numKnightSeverelyInjured
             // 
@@ -430,7 +430,7 @@ namespace CrusaderWars.client.Options
             this.numKnightSeverelyInjured.Name = "numKnightSeverelyInjured";
             this.numKnightSeverelyInjured.Size = new System.Drawing.Size(89, 20);
             this.numKnightSeverelyInjured.TabIndex = 3;
-            this.toolTip1.SetToolTip(this.numKnightSeverelyInjured, "Chance for knight to be severely injured when defeated in battle");
+            this.toolTip1.SetToolTip(this.numKnightSeverelyInjured, "Chance for knight to be severely injured when fallen in battle");
             this.numKnightSeverelyInjured.Value = new decimal(new int[] {
             20,
             0,
@@ -446,7 +446,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightBrutallyMauled.Size = new System.Drawing.Size(115, 19);
             this.lblKnightBrutallyMauled.TabIndex = 4;
             this.lblKnightBrutallyMauled.Text = "Brutally Mauled:";
-            this.toolTip1.SetToolTip(this.lblKnightBrutallyMauled, "Chance for knight to be brutally mauled when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblKnightBrutallyMauled, "Chance for knight to be brutally mauled when fallen in battle");
             // 
             // numKnightBrutallyMauled
             // 
@@ -455,7 +455,7 @@ namespace CrusaderWars.client.Options
             this.numKnightBrutallyMauled.Name = "numKnightBrutallyMauled";
             this.numKnightBrutallyMauled.Size = new System.Drawing.Size(89, 20);
             this.numKnightBrutallyMauled.TabIndex = 5;
-            this.toolTip1.SetToolTip(this.numKnightBrutallyMauled, "Chance for knight to be brutally mauled when defeated in battle");
+            this.toolTip1.SetToolTip(this.numKnightBrutallyMauled, "Chance for knight to be brutally mauled when fallen in battle");
             this.numKnightBrutallyMauled.Value = new decimal(new int[] {
             20,
             0,
@@ -471,7 +471,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightMaimed.Size = new System.Drawing.Size(63, 19);
             this.lblKnightMaimed.TabIndex = 6;
             this.lblKnightMaimed.Text = "Maimed:";
-            this.toolTip1.SetToolTip(this.lblKnightMaimed, "Chance for knight to be maimed when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblKnightMaimed, "Chance for knight to be maimed when fallen in battle");
             // 
             // numKnightMaimed
             // 
@@ -480,7 +480,7 @@ namespace CrusaderWars.client.Options
             this.numKnightMaimed.Name = "numKnightMaimed";
             this.numKnightMaimed.Size = new System.Drawing.Size(89, 20);
             this.numKnightMaimed.TabIndex = 7;
-            this.toolTip1.SetToolTip(this.numKnightMaimed, "Chance for knight to be maimed when defeated in battle");
+            this.toolTip1.SetToolTip(this.numKnightMaimed, "Chance for knight to be maimed when fallen in battle");
             this.numKnightMaimed.Value = new decimal(new int[] {
             3,
             0,
@@ -496,7 +496,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightOneLegged.Size = new System.Drawing.Size(88, 19);
             this.lblKnightOneLegged.TabIndex = 8;
             this.lblKnightOneLegged.Text = "One-Legged:";
-            this.toolTip1.SetToolTip(this.lblKnightOneLegged, "Chance for knight to lose a leg when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblKnightOneLegged, "Chance for knight to lose a leg when fallen in battle");
             // 
             // numKnightOneLegged
             // 
@@ -505,7 +505,7 @@ namespace CrusaderWars.client.Options
             this.numKnightOneLegged.Name = "numKnightOneLegged";
             this.numKnightOneLegged.Size = new System.Drawing.Size(89, 20);
             this.numKnightOneLegged.TabIndex = 9;
-            this.toolTip1.SetToolTip(this.numKnightOneLegged, "Chance for knight to lose a leg when defeated in battle");
+            this.toolTip1.SetToolTip(this.numKnightOneLegged, "Chance for knight to lose a leg when fallen in battle");
             this.numKnightOneLegged.Value = new decimal(new int[] {
             3,
             0,
@@ -521,7 +521,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightOneEyed.Size = new System.Drawing.Size(77, 19);
             this.lblKnightOneEyed.TabIndex = 10;
             this.lblKnightOneEyed.Text = "One-Eyed:";
-            this.toolTip1.SetToolTip(this.lblKnightOneEyed, "Chance for knight to lose an eye when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblKnightOneEyed, "Chance for knight to lose an eye when fallen in battle");
             // 
             // numKnightOneEyed
             // 
@@ -530,7 +530,7 @@ namespace CrusaderWars.client.Options
             this.numKnightOneEyed.Name = "numKnightOneEyed";
             this.numKnightOneEyed.Size = new System.Drawing.Size(89, 20);
             this.numKnightOneEyed.TabIndex = 11;
-            this.toolTip1.SetToolTip(this.numKnightOneEyed, "Chance for knight to lose an eye when defeated in battle");
+            this.toolTip1.SetToolTip(this.numKnightOneEyed, "Chance for knight to lose an eye when fallen in battle");
             this.numKnightOneEyed.Value = new decimal(new int[] {
             3,
             0,
@@ -546,7 +546,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightDisfigured.Size = new System.Drawing.Size(81, 19);
             this.lblKnightDisfigured.TabIndex = 12;
             this.lblKnightDisfigured.Text = "Disfigured:";
-            this.toolTip1.SetToolTip(this.lblKnightDisfigured, "Chance for knight to be disfigured when defeated in battle");
+            this.toolTip1.SetToolTip(this.lblKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
             // 
             // numKnightDisfigured
             // 
@@ -555,7 +555,7 @@ namespace CrusaderWars.client.Options
             this.numKnightDisfigured.Name = "numKnightDisfigured";
             this.numKnightDisfigured.Size = new System.Drawing.Size(89, 20);
             this.numKnightDisfigured.TabIndex = 13;
-            this.toolTip1.SetToolTip(this.numKnightDisfigured, "Chance for knight to be disfigured when defeated in battle");
+            this.toolTip1.SetToolTip(this.numKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
             this.numKnightDisfigured.Value = new decimal(new int[] {
             1,
             0,
