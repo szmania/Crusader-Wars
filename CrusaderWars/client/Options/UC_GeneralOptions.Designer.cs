@@ -87,7 +87,7 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(444, 288);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(494, 288);
             this.tableLayoutPanel1.TabIndex = 28;
             // 
             // label_CloseCK3
@@ -113,9 +113,9 @@ namespace CrusaderWars.client
             this.OptionSelection_CloseCK3.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_CloseCK3.Location = new System.Drawing.Point(295, 3);
+            this.OptionSelection_CloseCK3.Location = new System.Drawing.Point(327, 3);
             this.OptionSelection_CloseCK3.Name = "OptionSelection_CloseCK3";
-            this.OptionSelection_CloseCK3.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_CloseCK3.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_CloseCK3.TabIndex = 15;
             this.General_ToopTip.SetToolTip(this.OptionSelection_CloseCK3, "Enabled: Crusader Kings 3 will close during TW:Attila battles\r\nDisabled: CK3 will" +
         " stay open but suspended during battles");
@@ -144,9 +144,9 @@ namespace CrusaderWars.client
             "All Controled",
             "Friendly Only",
             "All Separate"});
-            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(295, 227);
+            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(327, 227);
             this.OptionSelection_SeparateArmies.Name = "OptionSelection_SeparateArmies";
-            this.OptionSelection_SeparateArmies.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_SeparateArmies.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_SeparateArmies.TabIndex = 13;
             this.General_ToopTip.SetToolTip(this.OptionSelection_SeparateArmies, resources.GetString("OptionSelection_SeparateArmies.ToolTip"));
             // 
@@ -173,9 +173,9 @@ namespace CrusaderWars.client
             this.OptionSelection_TimeLimit.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_TimeLimit.Location = new System.Drawing.Point(295, 99);
+            this.OptionSelection_TimeLimit.Location = new System.Drawing.Point(327, 99);
             this.OptionSelection_TimeLimit.Name = "OptionSelection_TimeLimit";
-            this.OptionSelection_TimeLimit.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_TimeLimit.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_TimeLimit.TabIndex = 5;
             this.General_ToopTip.SetToolTip(this.OptionSelection_TimeLimit, "Enabled: 60 minutes time limit for battles.\r\nDisabled: No time limit.");
             // 
@@ -213,9 +213,9 @@ namespace CrusaderWars.client
             this.OptionSelection_CloseAttila.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_CloseAttila.Location = new System.Drawing.Point(295, 35);
+            this.OptionSelection_CloseAttila.Location = new System.Drawing.Point(327, 35);
             this.OptionSelection_CloseAttila.Name = "OptionSelection_CloseAttila";
-            this.OptionSelection_CloseAttila.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_CloseAttila.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_CloseAttila.TabIndex = 0;
             this.General_ToopTip.SetToolTip(this.OptionSelection_CloseAttila, "Enabled: Attila will shutdown after battles, making you not see the results scree" +
         "n on Attila.\r\nDisabled: Attila will not shutdown after battles, needing you to c" +
@@ -245,9 +245,9 @@ namespace CrusaderWars.client
             this.OptionSelection_FullArmies.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_FullArmies.Location = new System.Drawing.Point(295, 67);
+            this.OptionSelection_FullArmies.Location = new System.Drawing.Point(327, 67);
             this.OptionSelection_FullArmies.Name = "OptionSelection_FullArmies";
-            this.OptionSelection_FullArmies.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_FullArmies.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_FullArmies.TabIndex = 2;
             this.General_ToopTip.SetToolTip(this.OptionSelection_FullArmies, "Enabled: Attila battles number will be the starting amount of soldiers from CK3 b" +
         "attles.\r\nDisabled: Attila battles numbers will be the current amount of soldiers" +
@@ -289,9 +289,9 @@ namespace CrusaderWars.client
             "Medium",
             "Big",
             "Huge"});
-            this.OptionSelection_BattleMapsSize.Location = new System.Drawing.Point(295, 163);
+            this.OptionSelection_BattleMapsSize.Location = new System.Drawing.Point(327, 163);
             this.OptionSelection_BattleMapsSize.Name = "OptionSelection_BattleMapsSize";
-            this.OptionSelection_BattleMapsSize.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_BattleMapsSize.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_BattleMapsSize.TabIndex = 7;
             this.General_ToopTip.SetToolTip(this.OptionSelection_BattleMapsSize, resources.GetString("OptionSelection_BattleMapsSize.ToolTip"));
             // 
@@ -307,9 +307,9 @@ namespace CrusaderWars.client
             this.OptionSelection_DefensiveDeployables.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_DefensiveDeployables.Location = new System.Drawing.Point(295, 131);
+            this.OptionSelection_DefensiveDeployables.Location = new System.Drawing.Point(327, 131);
             this.OptionSelection_DefensiveDeployables.Name = "OptionSelection_DefensiveDeployables";
-            this.OptionSelection_DefensiveDeployables.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_DefensiveDeployables.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_DefensiveDeployables.TabIndex = 9;
             this.General_ToopTip.SetToolTip(this.OptionSelection_DefensiveDeployables, "Enabled: Defending armies get defensive deployables.\r\nDisabled: No defensive depl" +
         "oyables.");
@@ -326,9 +326,9 @@ namespace CrusaderWars.client
             this.OptionSelection_UnitCards.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_UnitCards.Location = new System.Drawing.Point(295, 195);
+            this.OptionSelection_UnitCards.Location = new System.Drawing.Point(327, 195);
             this.OptionSelection_UnitCards.Name = "OptionSelection_UnitCards";
-            this.OptionSelection_UnitCards.Size = new System.Drawing.Size(146, 26);
+            this.OptionSelection_UnitCards.Size = new System.Drawing.Size(164, 26);
             this.OptionSelection_UnitCards.TabIndex = 11;
             this.General_ToopTip.SetToolTip(this.OptionSelection_UnitCards, "Disabled: Unit card names will be from the Attila mods.\r\nEnabled: Unit card names" +
         " will use the names from CK3.");
@@ -348,7 +348,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.tableLayoutPanel1);
             this.DoubleBuffered = true;
             this.Name = "UC_GeneralOptions";
-            this.Size = new System.Drawing.Size(444, 412);
+            this.Size = new System.Drawing.Size(494, 412);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
