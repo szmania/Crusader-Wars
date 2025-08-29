@@ -1419,13 +1419,13 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug("Loading CK3 with battle results...");
                 string ck3_path = Properties.Settings.Default.VAR_ck3_path;
-                Process.Start(ck3_path, "--continuelastsave");
+                Process.Start(new ProcessStartInfo(ck3_path, "--continuelastsave") { UseShellExecute = true });
             }
 
             public static void StartTotalWArAttilaProcess()
             {
                 Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
-                Process.Start(@".\CW.lnk");
+                Process.Start(new ProcessStartInfo(@".\CW.lnk") { UseShellExecute = true });
             }
 
             public async static Task CloseTotalWarAttilaProcess()
