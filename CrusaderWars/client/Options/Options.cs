@@ -770,28 +770,33 @@ namespace CrusaderWars
 
         private void CheckPlaythroughSelection()
         {
-            if (!IsAnyPlaythroughSelected())
+            var activePlaythrough = GetActivePlaythrough();
+
+            // Stop pulsing on all tabs first
+            CrusaderKings_Tab?.SetPulsing(false);
+            TheFallenEagle_Tab?.SetPulsing(false);
+            RealmsInExile_Tab?.SetPulsing(false);
+
+            if (activePlaythrough == null)
             {
-                if (!_isPulsing)
+                // No playthrough selected, pulse the container
+                _isPulsing = true;
+                if (!_pulseTimer.Enabled)
                 {
-                    _isPulsing = true;
                     _pulseTimer.Start();
                 }
             }
             else
             {
-                if (_isPulsing)
+                // A playthrough is selected, stop pulsing the container and pulse the active tab
+                _isPulsing = false;
+                TableLayoutPlaythroughs.Invalidate(); // Redraw to remove border if it was there
+                activePlaythrough.SetPulsing(true);
+                if (!_pulseTimer.Enabled)
                 {
-                    _isPulsing = false;
-                    _pulseTimer.Stop();
-                    TableLayoutPlaythroughs.Invalidate();
+                    _pulseTimer.Start();
                 }
             }
-        }
-
-        private bool IsAnyPlaythroughSelected()
-        {
-            return CrusaderKings_Tab.GetState() || TheFallenEagle_Tab.GetState() || RealmsInExile_Tab.GetState();
         }
 
         private void PlaythroughToggle_Clicked(object sender, EventArgs e)
