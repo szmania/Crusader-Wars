@@ -134,6 +134,7 @@ namespace CrusaderWars
         UserControl General_Tab;
         UserControl Units_Tab;
         UserControl BattleScale_Tab;
+        UserControl CandK_Tab;
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != General_Tab)
