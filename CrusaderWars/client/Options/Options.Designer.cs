@@ -512,8 +512,8 @@
             this.Btn_LOTRTab.Name = "Btn_LOTRTab";
             this.Btn_LOTRTab.Size = new System.Drawing.Size(114, 28);
             this.Btn_LOTRTab.TabIndex = 2;
-            this.Btn_LOTRTab.Text = "Realms in Exile";
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Uses the CK3 mod LOTR: Realms in Exile and the Attila mod \"Dawnless Days\".");
+            this.Btn_LOTRTab.Text = "Realms in Exile";
             this.Btn_LOTRTab.UseVisualStyleBackColor = false;
             this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
@@ -559,7 +559,7 @@
             // 
             // TableLayoutPlaythroughs
             // 
-            this.TableLayoutPlaythroughs.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.TableLayoutPlaythroughs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.TableLayoutPlaythroughs.AutoSize = true;
             this.TableLayoutPlaythroughs.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutPlaythroughs.ColumnCount = 1;
@@ -615,7 +615,7 @@
             this.ShowInTaskbar = true;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Options";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Options_FormClosing);
+            this.FormClosing += new System.EventHandler(this.Options_FormClosing);
             this.Load += new System.EventHandler(this.Options_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Options_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Options_MouseMove);
