@@ -324,7 +324,7 @@
             this.toggleModManagerButton.Size = new System.Drawing.Size(361, 21); // Initial size, will autosize based on content
             this.toggleModManagerButton.TabIndex = 29; // Reusing label4's old TabIndex
             this.toggleModManagerButton.Text = "Mod Manager [▲]"; // Default text for expanded state
-            this.toggleModManagerButton.TextAlign = System.Windows.Forms.ContentAlignment.MiddleLeft;
+            this.toggleModManagerButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.toggleModManagerButton.UseVisualStyleBackColor = false;
             this.toggleModManagerButton.Click += new System.EventHandler(this.toggleModManagerButton_Click);
             // 
