@@ -18,6 +18,8 @@ namespace CrusaderWars
         static void Main()
        {
             Logger.Debug("Application starting...");
+            Logger.Debug(AppDomain.CurrentDomain.BaseDirectory);
+            System.IO.Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             

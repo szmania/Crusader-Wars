@@ -128,8 +128,8 @@ Huge: 100% bigger than default Attila battle maps.
 </value>
   </data>
   <data name="OptionSelection_SeparateArmies.ToolTip" xml:space="preserve">
-    <value>All Controled: Every allied and friendly army will be controled by the you.
-Friendly Only: Friendly armies are controled by you but allied armies are controled by AI. (DEFAULT)
-All Separate: Every separate army is controled by AI but your main army.</value>
+    <value>All Controlled: Every allied and friendly army will be controlled by you. 
+Friendly Only: Friendly armies are controlled by you, but allied armies are controlled by the AI. (DEFAULT) 
+All Separate: You only control your main army, all other armies are controlled by the AI.</value>
   </data>
 </root>

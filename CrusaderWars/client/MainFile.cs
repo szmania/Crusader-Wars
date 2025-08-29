@@ -648,7 +648,7 @@ namespace CrusaderWars
                         if (battleJustCompleted && !ModOptions.CloseCK3DuringBattle())
                         {
                             await Task.Delay(5000); // Delay to allow CK3 to recognize the new save file
-                            infoLabel.Text = "Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
+                            infoLabel.Text = "Waiting for CK3 battle... Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
                         }
                         else
                         {
