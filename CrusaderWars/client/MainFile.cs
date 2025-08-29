@@ -43,9 +43,33 @@ namespace CrusaderWars
         const string SEARCH_KEY = "CRUSADERWARS3";
 
         private int _myVariable = 0;
+
+        private void CreateRequiredDirectories()
+        {
+            Program.Logger.Debug("Creating required directories...");
+            try
+            {
+                Directory.CreateDirectory(@".\data\save_file_data\gamestate_file");
+                Directory.CreateDirectory(@".\data\save_file_data\temp");
+                Directory.CreateDirectory(@".\data\dlls");
+                Directory.CreateDirectory(@".\data\runtime");
+                Directory.CreateDirectory(@".\data\sounds");
+                Directory.CreateDirectory(@".\font");
+                Directory.CreateDirectory(@".\Settings");
+                Directory.CreateDirectory(@".\unit mappers");
+                Program.Logger.Debug("Required directories created/verified.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error creating directories: {ex.Message}");
+                MessageBox.Show($"Could not create required application directories. Please check permissions.\n\nError: {ex.Message}", "Crusader Wars: Directory Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Environment.Exit(1);
+            }
+        }
         public HomePage()
         {
             Program.Logger.Debug("HomePage initializing...");
+            CreateRequiredDirectories();
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
