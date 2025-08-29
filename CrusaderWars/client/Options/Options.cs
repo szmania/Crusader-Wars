@@ -236,12 +236,6 @@ namespace CrusaderWars
                 var BattleMapsSize_Value = GetOptionValue(xmlDoc, "BattleMapsSize", "Dynamic");
                 var DefensiveDeployables_Value = GetOptionValue(xmlDoc, "DefensiveDeployables", "Enabled");
                 var UnitCards_Value = GetOptionValue(xmlDoc, "UnitCards", "Enabled");
-                var LeviesMax_Value = GetOptionValue(xmlDoc, "LeviesMax", "10");
-                var RangedMax_Value = GetOptionValue(xmlDoc, "RangedMax", "4");
-                var InfantryMax_Value = GetOptionValue(xmlDoc, "InfantryMax", "8");
-                var CavalryMax_Value = GetOptionValue(xmlDoc, "CavalryMax", "4");
-                var BattleScale_Value = GetOptionValue(xmlDoc, "BattleScale", "100%");
-                var AutoScaleUnits_Value = GetOptionValue(xmlDoc, "AutoScaleUnits", "Enabled");
                 var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
 
                 // New Commander and Knight wound chances
@@ -804,20 +798,23 @@ namespace CrusaderWars
 
         private void toggleModManagerButton_Click(object sender, EventArgs e)
         {
+            int panelHeight = panel1.Height;
             _isModManagerExpanded = !_isModManagerExpanded;
             panel1.Visible = _isModManagerExpanded;
 
             if (_isModManagerExpanded)
             {
                 // Expanding
-                this.Height += panel1.Height;
+                this.Height += panelHeight;
+                this.TableLayoutModManager.Height += panelHeight;
                 toggleModManagerButton.Text = "Mod Manager [▲]";
                 ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
             }
             else
             {
                 // Collapsing
-                this.Height -= panel1.Height;
+                this.Height -= panelHeight;
+                this.TableLayoutModManager.Height -= panelHeight;
                 toggleModManagerButton.Text = "Mod Manager [▼]";
                 ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to expand the Mod Manager. This section shows optional mods.");
             }

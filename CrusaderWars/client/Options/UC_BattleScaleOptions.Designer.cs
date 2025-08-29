@@ -57,7 +57,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(521, 201);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(571, 201);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // OptionSelection_BattleSizeScale
@@ -73,9 +73,9 @@
             "50%",
             "75%",
             "100%"});
-            this.OptionSelection_BattleSizeScale.Location = new System.Drawing.Point(349, 3);
+            this.OptionSelection_BattleSizeScale.Location = new System.Drawing.Point(383, 3);
             this.OptionSelection_BattleSizeScale.Name = "OptionSelection_BattleSizeScale";
-            this.OptionSelection_BattleSizeScale.Size = new System.Drawing.Size(169, 26);
+            this.OptionSelection_BattleSizeScale.Size = new System.Drawing.Size(185, 26);
             this.OptionSelection_BattleSizeScale.TabIndex = 5;
             this.toolTip1.SetToolTip(this.OptionSelection_BattleSizeScale, "Scales the Attila battles to lower numbers to improve performance.\r\nThe battle re" +
         "sults from Attila will be scaled 100% to CK3.");
@@ -103,9 +103,9 @@
             this.OptionSelection_AutoScale.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_AutoScale.Location = new System.Drawing.Point(349, 43);
+            this.OptionSelection_AutoScale.Location = new System.Drawing.Point(383, 43);
             this.OptionSelection_AutoScale.Name = "OptionSelection_AutoScale";
-            this.OptionSelection_AutoScale.Size = new System.Drawing.Size(169, 26);
+            this.OptionSelection_AutoScale.Size = new System.Drawing.Size(185, 26);
             this.OptionSelection_AutoScale.TabIndex = 8;
             this.toolTip1.SetToolTip(this.OptionSelection_AutoScale, "Enabled: CW will auto size the maximum number of soldiers an Attila can have acco" +
         "rding to huge scale battles. (Recommended)\r\nDisabled: Units maximum size will al" +
@@ -137,7 +137,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.DoubleBuffered = true;
             this.Name = "UC_BattleScaleOptions";
-            this.Size = new System.Drawing.Size(521, 201);
+            this.Size = new System.Drawing.Size(571, 201);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

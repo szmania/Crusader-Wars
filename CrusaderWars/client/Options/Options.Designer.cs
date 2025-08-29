@@ -117,7 +117,7 @@
             this.CloseBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.CloseBtn.FlatAppearance.BorderSize = 0;
             this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CloseBtn.Location = new System.Drawing.Point(853, 35);
+            this.CloseBtn.Location = new System.Drawing.Point(903, 35);
             this.CloseBtn.Name = "CloseBtn";
             this.CloseBtn.Size = new System.Drawing.Size(53, 54);
             this.CloseBtn.TabIndex = 9;
@@ -215,7 +215,7 @@
             this.OptionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.OptionsPanel.Location = new System.Drawing.Point(3, 64);
             this.OptionsPanel.Name = "OptionsPanel";
-            this.OptionsPanel.Size = new System.Drawing.Size(509, 437);
+            this.OptionsPanel.Size = new System.Drawing.Size(559, 437);
             this.OptionsPanel.TabIndex = 28;
             // 
             // flowLayoutPanel1
@@ -228,7 +228,7 @@
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(509, 34);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(559, 34);
             this.flowLayoutPanel1.TabIndex = 28;
             // 
             // Btn_GeneralTab
@@ -324,7 +324,7 @@
             this.toggleModManagerButton.Size = new System.Drawing.Size(361, 21); // Initial size, will autosize based on content
             this.toggleModManagerButton.TabIndex = 29; // Reusing label4's old TabIndex
             this.toggleModManagerButton.Text = "Mod Manager [▲]"; // Default text for expanded state
-            this.toggleModManagerButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.toggleModManagerButton.TextAlign = System.Windows.Forms.ContentAlignment.MiddleLeft;
             this.toggleModManagerButton.UseVisualStyleBackColor = false;
             this.toggleModManagerButton.Click += new System.EventHandler(this.toggleModManagerButton_Click);
             // 
@@ -554,7 +554,7 @@
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutSettings.Size = new System.Drawing.Size(515, 504);
+            this.TableLayoutSettings.Size = new System.Drawing.Size(565, 504);
             this.TableLayoutSettings.TabIndex = 37;
             // 
             // TableLayoutPlaythroughs
@@ -579,18 +579,19 @@
             // 
             // TableLayoutModManager
             // 
+            this.TableLayoutModManager.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.TableLayoutModManager.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutModManager.ColumnCount = 1;
             this.TableLayoutModManager.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutModManager.Controls.Add(this.panel1, 0, 1);
             this.TableLayoutModManager.Controls.Add(this.toggleModManagerButton, 0, 0);
-            this.TableLayoutModManager.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.TableLayoutModManager.Location = new System.Drawing.Point(0, 649);
             this.TableLayoutModManager.Name = "TableLayoutModManager";
             this.TableLayoutModManager.RowCount = 2;
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutModManager.Size = new System.Drawing.Size(927, 279);
+            this.TableLayoutModManager.Size = new System.Drawing.Size(977, 279);
             this.TableLayoutModManager.TabIndex = 0;
             // 
             // Options
@@ -600,7 +601,7 @@
             this.AutoSize = false;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.options_bk;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(927, 928);
+            this.ClientSize = new System.Drawing.Size(977, 928);
             this.Controls.Add(this.TableLayoutModManager);
             this.Controls.Add(this.TableLayoutPlaythroughs);
             this.Controls.Add(this.TableLayoutSettings);

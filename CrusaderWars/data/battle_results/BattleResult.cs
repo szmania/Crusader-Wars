@@ -1007,19 +1007,17 @@ namespace CrusaderWars
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(logFile))
             {
-                string line;
-                //winning_side=attacker/defender
-                while ((line = reader.ReadLine()) != null)
+                                string str = reader.ReadToEnd();
+
+
+                if (str.Contains("Battle has finished"))
                 {
-                    if (line.Contains("Victory")) { winner = player_armies_combat_side; break; }
-                    else if (line.Contains("Defeat")) { winner = enemy_armies_combat_side; break; }
-                    else winner = enemy_armies_combat_side;
+                    reader.Close();
+                    logFile.Close();
+                    return true;
                 }
+                else { return false; }
 
-                reader.Close();
-                logFile.Close();
-
-                return winner;
             }
         }
 
