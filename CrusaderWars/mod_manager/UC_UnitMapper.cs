@@ -15,13 +15,10 @@ namespace CrusaderWars.mod_manager
 
         string SteamCollectionLink {  get; set; }
         List<string> RequiredModsList { get; set; }
-        private bool _isPulsing = false;
-        private bool _pulseState = false;
 
         public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods,bool state)
         {
             InitializeComponent();
-            this.Paint += UC_UnitMapper_Paint;
 
             pictureBox1.BackgroundImage = image;
             pictureBox1.BackgroundImageLayout = ImageLayout.Stretch;

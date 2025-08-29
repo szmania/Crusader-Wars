@@ -38,9 +38,28 @@ namespace CrusaderWars
         {
             _pulseState = !_pulseState;
             var activePlaythrough = GetActivePlaythrough();
+
+            // Reset all buttons to default non-pulsing state
+            Btn_CK3Tab.FlatAppearance.BorderSize = 1;
+            Btn_TFETab.FlatAppearance.BorderSize = 1;
+            Btn_LOTRTab.FlatAppearance.BorderSize = 1;
+            Btn_CK3Tab.FlatAppearance.BorderColor = Color.Black;
+            Btn_TFETab.FlatAppearance.BorderColor = Color.Black;
+            Btn_LOTRTab.FlatAppearance.BorderColor = Color.Black;
+
+
             if (activePlaythrough != null)
             {
-                activePlaythrough.Pulse();
+                Button activeButton = null;
+                if (activePlaythrough == CrusaderKings_Tab) activeButton = Btn_CK3Tab;
+                else if (activePlaythrough == TheFallenEagle_Tab) activeButton = Btn_TFETab;
+                else if (activePlaythrough == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
+
+                if (activeButton != null)
+                {
+                    activeButton.FlatAppearance.BorderColor = _pulseState ? Color.FromArgb(255, 215, 0) : Color.FromArgb(255, 165, 0); // Gold/Orange pulse
+                    activeButton.FlatAppearance.BorderSize = 2;
+                }
             }
             else
             {
