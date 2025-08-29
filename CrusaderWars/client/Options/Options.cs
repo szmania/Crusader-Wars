@@ -175,15 +175,19 @@ namespace CrusaderWars
             Btn_GeneralTab.BackgroundImage = null;
             Btn_UnitsTab.BackgroundImage = null;
             Btn_BattleScaleTab.BackgroundImage = null;
+            Btn_CandKTab.BackgroundImage = null;
             Btn_GeneralTab.BackColor = inactiveColor;
             Btn_UnitsTab.BackColor = inactiveColor;
             Btn_BattleScaleTab.BackColor = inactiveColor;
+            Btn_CandKTab.BackColor = inactiveColor;
             Btn_GeneralTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_UnitsTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_BattleScaleTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_CandKTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_GeneralTab.FlatAppearance.BorderSize = 1;
             Btn_UnitsTab.FlatAppearance.BorderSize = 1;
             Btn_BattleScaleTab.FlatAppearance.BorderSize = 1;
+            Btn_CandKTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
             Button activeButton = null;
