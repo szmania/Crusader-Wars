@@ -34,7 +34,11 @@ namespace CrusaderWars
         private string _appVersion;
         private string _umVersion;
         private Updater _updater;
-        
+        private System.Windows.Forms.Timer _pulseTimer;
+        private bool _isPulsing = false;
+        private int _pulseStep = 0;
+        private Color _originalInfoLabelBackColor;
+
 
         const string SEARCH_KEY = "CRUSADERWARS3";
 
@@ -131,6 +135,18 @@ namespace CrusaderWars
             _timer.Start();
             Original_Color = infoLabel.ForeColor;
             Program.Logger.Debug("HomePage initialization complete.");
+
+            _pulseTimer = new System.Windows.Forms.Timer();
+            _pulseTimer.Interval = 100;
+            _pulseTimer.Tick += PulseTimer_Tick;
+        }
+
+        private void PulseTimer_Tick(object sender, EventArgs e)
+        {
+            _pulseStep = (_pulseStep + 1) % 20; // 20 steps for a full cycle (10 up, 10 down)
+            int redComponent = 120 + (_pulseStep < 10 ? _pulseStep * 10 : (20 - _pulseStep) * 10);
+            SettingsBtn.FlatAppearance.BorderColor = Color.FromArgb(redComponent, 30, 30);
+            SettingsBtn.FlatAppearance.BorderSize = 2;
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -203,7 +219,14 @@ namespace CrusaderWars
                     if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Settings screen.";
                     else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Settings screen.";
                     ExecuteButton.Enabled = false;
-                    infoLabel.ForeColor = System.Drawing.Color.FromArgb(74, 0, 0);
+                    infoLabel.ForeColor = Color.White;
+                    infoLabel.BackColor = Color.FromArgb(180, 74, 0, 0);
+
+                    if(!_isPulsing)
+                    {
+                        _isPulsing = true;
+                        _pulseTimer.Start();
+                    }
                 }
                 else if(gamePaths && unitMappers)
                 {
@@ -211,6 +234,14 @@ namespace CrusaderWars
                     ExecuteButton.Enabled = true;
                     infoLabel.Text = "Ready to Start!";
                     infoLabel.ForeColor = Original_Color;
+                    infoLabel.BackColor = _originalInfoLabelBackColor;
+                    if (_isPulsing)
+                    {
+                        _isPulsing = false;
+                        _pulseTimer.Stop();
+                        SettingsBtn.FlatAppearance.BorderSize = 0;
+                        SettingsBtn.Invalidate();
+                    }
                 }
             }
 
@@ -338,6 +369,7 @@ namespace CrusaderWars
             EA_Label.Visible = false;
 
             System.Drawing.Color myColor = System.Drawing.Color.FromArgb(53, 25, 5, 5);
+            _originalInfoLabelBackColor = myColor;
             infoLabel.BackColor = myColor;
             labelVersion.BackColor = myColor;
             labelMappersVersion.BackColor = myColor;
