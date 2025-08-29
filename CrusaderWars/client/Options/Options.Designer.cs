@@ -643,6 +643,7 @@
         private System.Windows.Forms.Button Btn_GeneralTab;
         private System.Windows.Forms.Button Btn_UnitsTab;
         private System.Windows.Forms.Button Btn_BattleScaleTab;
+        private System.Windows.Forms.Button Btn_CandKTab;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.DataGridView ModManager;
         private System.Windows.Forms.Panel panel1;
