@@ -142,14 +142,6 @@ namespace CrusaderWars.client.Options
             // Add tooltip to reset button
             toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");
             
-            // Adjust commanders table row styles
-            tableCommanders.RowStyles.Clear();
-            tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 10F)); // Header row (10% height)
-            for (int i = 0; i < 8; i++) // Remaining 8 rows for options (90% / 8 each)
-            {
-                tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 11.25F));
-            }
-
             // Add padding for better vertical alignment
             tableCommanders.Padding = new Padding(0, 5, 0, 0);
             

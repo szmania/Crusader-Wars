@@ -385,8 +385,21 @@ namespace CrusaderWars
                 // Search for type, culture, starting soldiers and remaining soldiers of a Unit
                 if(army.Units == null) { continue; }
                 string type = Regex.Match(group.Key.Type, @"\D+").Value;
-                Culture culture = army.Units.FirstOrDefault(x => x.GetObjCulture().ID == group.Key.CultureID).GetObjCulture();
-                int starting = army.Units.Find(x => x.GetRegimentType() == unitType && x.GetObjCulture().ID == culture.ID && x.GetName() == type).GetSoldiers();
+                // Safely get the unit, then its culture. If unit is null, culture will be null.
+                // The warning CS8600 is because GetObjCulture() is called on a potentially null result of FirstOrDefault().
+                var matchingUnit = army.Units.FirstOrDefault(x => x.GetRegimentType() == unitType && x.GetObjCulture()?.ID == group.Key.CultureID && x.GetName() == type);
+                Culture culture = matchingUnit?.GetObjCulture();
+                
+                // If culture is null at this point, it means either no matching unit was found,
+                // or the matching unit itself had a null culture object.
+                // This scenario should be logged and skipped to prevent further errors.
+                if (culture == null)
+                {
+                    Program.Logger.Debug($"Warning: Could not find valid culture for unit type '{type}' and culture ID '{group.Key.CultureID}' in army {army.ID}. Skipping report for this unit group.");
+                    continue; // Skip this group if culture is unexpectedly null
+                }
+
+                int starting = matchingUnit.GetSoldiers();
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
