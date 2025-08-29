@@ -153,6 +153,12 @@ namespace CrusaderWars
                 ChangeOptionsTab(BattleScale_Tab);
         }
 
+        private void Btn_CandKTab_Click(object sender, EventArgs e)
+        {
+            if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != CandK_Tab)
+                ChangeOptionsTab(CandK_Tab);
+        }
+
         void ChangeOptionsTab(Control control)
         {
             control.Dock = DockStyle.Fill;
@@ -192,7 +198,7 @@ namespace CrusaderWars
         }
 
         //this is to read the options values on the .xml file
-        public static List<(string option, string value)> optionsValuesCollection { get; private set; }
+        public static List<(string option, string value)>? optionsValuesCollection { get; private set; }
 
         private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
         {

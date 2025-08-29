@@ -21,7 +21,7 @@ namespace CrusaderWars
 
 
         //Combats
-        public static string Player_Combat;
+        public static string? Player_Combat;
         public static void ReadPlayerCombat(string playerID)
         {
             Program.Logger.Debug($"Reading player combat for player ID: {playerID}");
