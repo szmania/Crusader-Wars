@@ -202,7 +202,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderWounded.Name = "lblCommanderWounded";
             this.lblCommanderWounded.Size = new System.Drawing.Size(72, 19);
             this.lblCommanderWounded.TabIndex = 0;
-            this.lblCommanderWounded.Text = "Wounded:";
+            this.lblCommanderWounded.Text = "Wounded (%):";
             this.toolTip1.SetToolTip(this.lblCommanderWounded, "Chance for commander to be wounded when fallen in battle");
             // 
             // numCommanderWounded
@@ -227,7 +227,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderSeverelyInjured.Name = "lblCommanderSeverelyInjured";
             this.lblCommanderSeverelyInjured.Size = new System.Drawing.Size(117, 19);
             this.lblCommanderSeverelyInjured.TabIndex = 2;
-            this.lblCommanderSeverelyInjured.Text = "Severely Injured:";
+            this.lblCommanderSeverelyInjured.Text = "Severely Injured (%):";
             this.toolTip1.SetToolTip(this.lblCommanderSeverelyInjured, "Chance for commander to be severely injured when fallen in battle");
             // 
             // numCommanderSeverelyInjured
@@ -252,7 +252,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderBrutallyMauled.Name = "lblCommanderBrutallyMauled";
             this.lblCommanderBrutallyMauled.Size = new System.Drawing.Size(115, 19);
             this.lblCommanderBrutallyMauled.TabIndex = 4;
-            this.lblCommanderBrutallyMauled.Text = "Brutally Mauled:";
+            this.lblCommanderBrutallyMauled.Text = "Brutally Mauled (%):";
             this.toolTip1.SetToolTip(this.lblCommanderBrutallyMauled, "Chance for commander to be brutally mauled when fallen in battle");
             // 
             // numCommanderBrutallyMauled
@@ -277,7 +277,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderMaimed.Name = "lblCommanderMaimed";
             this.lblCommanderMaimed.Size = new System.Drawing.Size(63, 19);
             this.lblCommanderMaimed.TabIndex = 6;
-            this.lblCommanderMaimed.Text = "Maimed:";
+            this.lblCommanderMaimed.Text = "Maimed (%):";
             this.toolTip1.SetToolTip(this.lblCommanderMaimed, "Chance for commander to be maimed when fallen in battle");
             // 
             // numCommanderMaimed
@@ -302,7 +302,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderOneLegged.Name = "lblCommanderOneLegged";
             this.lblCommanderOneLegged.Size = new System.Drawing.Size(88, 19);
             this.lblCommanderOneLegged.TabIndex = 8;
-            this.lblCommanderOneLegged.Text = "One-Legged:";
+            this.lblCommanderOneLegged.Text = "One-Legged (%):";
             this.toolTip1.SetToolTip(this.lblCommanderOneLegged, "Chance for commander to lose a leg when fallen in battle");
             // 
             // numCommanderOneLegged
@@ -327,7 +327,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderOneEyed.Name = "lblCommanderOneEyed";
             this.lblCommanderOneEyed.Size = new System.Drawing.Size(77, 19);
             this.lblCommanderOneEyed.TabIndex = 10;
-            this.lblCommanderOneEyed.Text = "One-Eyed:";
+            this.lblCommanderOneEyed.Text = "One-Eyed (%):";
             this.toolTip1.SetToolTip(this.lblCommanderOneEyed, "Chance for commander to lose an eye when fallen in battle");
             // 
             // numCommanderOneEyed
@@ -352,7 +352,7 @@ namespace CrusaderWars.client.Options
             this.lblCommanderDisfigured.Name = "lblCommanderDisfigured";
             this.lblCommanderDisfigured.Size = new System.Drawing.Size(81, 19);
             this.lblCommanderDisfigured.TabIndex = 12;
-            this.lblCommanderDisfigured.Text = "Disfigured:";
+            this.lblCommanderDisfigured.Text = "Disfigured (%):";
             this.toolTip1.SetToolTip(this.lblCommanderDisfigured, "Chance for commander to be disfigured when fallen in battle");
             // 
             // numCommanderDisfigured
@@ -390,7 +390,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightWounded.Name = "lblKnightWounded";
             this.lblKnightWounded.Size = new System.Drawing.Size(72, 19);
             this.lblKnightWounded.TabIndex = 0;
-            this.lblKnightWounded.Text = "Wounded:";
+            this.lblKnightWounded.Text = "Wounded (%):";
             this.toolTip1.SetToolTip(this.lblKnightWounded, "Chance for knight to be wounded when fallen in battle");
             // 
             // numKnightWounded
@@ -415,7 +415,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightSeverelyInjured.Name = "lblKnightSeverelyInjured";
             this.lblKnightSeverelyInjured.Size = new System.Drawing.Size(117, 19);
             this.lblKnightSeverelyInjured.TabIndex = 2;
-            this.lblKnightSeverelyInjured.Text = "Severely Injured:";
+            this.lblKnightSeverelyInjured.Text = "Severely Injured (%):";
             this.toolTip1.SetToolTip(this.lblKnightSeverelyInjured, "Chance for knight to be severely injured when fallen in battle");
             // 
             // numKnightSeverelyInjured
@@ -440,7 +440,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightBrutallyMauled.Name = "lblKnightBrutallyMauled";
             this.lblKnightBrutallyMauled.Size = new System.Drawing.Size(115, 19);
             this.lblKnightBrutallyMauled.TabIndex = 4;
-            this.lblKnightBrutallyMauled.Text = "Brutally Mauled:";
+            this.lblKnightBrutallyMauled.Text = "Brutally Mauled (%):";
             this.toolTip1.SetToolTip(this.lblKnightBrutallyMauled, "Chance for knight to be brutally mauled when fallen in battle");
             // 
             // numKnightBrutallyMauled
@@ -465,7 +465,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightMaimed.Name = "lblKnightMaimed";
             this.lblKnightMaimed.Size = new System.Drawing.Size(63, 19);
             this.lblKnightMaimed.TabIndex = 6;
-            this.lblKnightMaimed.Text = "Maimed:";
+            this.lblKnightMaimed.Text = "Maimed (%):";
             this.toolTip1.SetToolTip(this.lblKnightMaimed, "Chance for knight to be maimed when fallen in battle");
             // 
             // numKnightMaimed
@@ -490,7 +490,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightOneLegged.Name = "lblKnightOneLegged";
             this.lblKnightOneLegged.Size = new System.Drawing.Size(88, 19);
             this.lblKnightOneLegged.TabIndex = 8;
-            this.lblKnightOneLegged.Text = "One-Legged:";
+            this.lblKnightOneLegged.Text = "One-Legged (%):";
             this.toolTip1.SetToolTip(this.lblKnightOneLegged, "Chance for knight to lose a leg when fallen in battle");
             // 
             // numKnightOneLegged
@@ -515,7 +515,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightOneEyed.Name = "lblKnightOneEyed";
             this.lblKnightOneEyed.Size = new System.Drawing.Size(77, 19);
             this.lblKnightOneEyed.TabIndex = 10;
-            this.lblKnightOneEyed.Text = "One-Eyed:";
+            this.lblKnightOneEyed.Text = "One-Eyed (%):";
             this.toolTip1.SetToolTip(this.lblKnightOneEyed, "Chance for knight to lose an eye when fallen in battle");
             // 
             // numKnightOneEyed
@@ -540,7 +540,7 @@ namespace CrusaderWars.client.Options
             this.lblKnightDisfigured.Name = "lblKnightDisfigured";
             this.lblKnightDisfigured.Size = new System.Drawing.Size(81, 19);
             this.lblKnightDisfigured.TabIndex = 12;
-            this.lblKnightDisfigured.Text = "Disfigured:";
+            this.lblKnightDisfigured.Text = "Disfigured (%):";
             this.toolTip1.SetToolTip(this.lblKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
             // 
             // numKnightDisfigured
