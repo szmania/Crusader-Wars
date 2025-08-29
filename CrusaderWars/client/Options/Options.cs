@@ -88,20 +88,8 @@ namespace CrusaderWars
 
         private void CloseBtn_Click(object sender, EventArgs e)
         {
-            Program.Logger.Debug("Options form closing...");
-            SaveValuesToOptionsFile();
-            ReadOptionsFile();
-            ModOptions.StoreOptionsValues(optionsValuesCollection);
-            WriteUnitMappersOptions();
-
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
-            {
-                Program.Logger.Debug("Saving active mods...");
-                AttilaModManager.SaveActiveMods();
-            }
-
-            this.Dispose();
-            this.Close();
+            Program.Logger.Debug("Close button clicked, attempting to close Options form.");
+            this.Close(); // This will trigger the FormClosing event
         }
 
 
@@ -142,7 +130,7 @@ namespace CrusaderWars
         UserControl General_Tab;
         UserControl Units_Tab;
         UserControl BattleScale_Tab;
-        UserControl CandK_Tab;
+        UC_CommandersAndKnightsOptions CandK_Tab; // Changed type to UC_CommandersAndKnightsOptions
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != General_Tab)
@@ -1038,6 +1026,54 @@ namespace CrusaderWars
         private void PlaythroughToggle_Clicked(object sender, EventArgs e)
         {
             CheckPlaythroughSelection();
+        }
+
+        private void Options_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Program.Logger.Debug("Options form closing event triggered.");
+
+            // Perform validation for Commander and Knight wound chances
+            if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
+            {
+                bool commanderValid = candKOptions.IsCommanderTotalValid();
+                bool knightValid = candKOptions.IsKnightTotalValid();
+
+                if (!commanderValid || !knightValid)
+                {
+                    string errorMessage = "Wound chance percentages must total 100% for both Commanders and Knights.\n\n";
+                    if (!commanderValid)
+                    {
+                        errorMessage += $"Commander Total: {candKOptions.GetCommanderTotal()}%\n";
+                    }
+                    if (!knightValid)
+                    {
+                        errorMessage += $"Knight Total: {candKOptions.GetKnightTotal()}%\n";
+                    }
+                    errorMessage += "\nPlease adjust the values in the 'Cmdr/Knights' tab.";
+
+                    MessageBox.Show(errorMessage, "Crusader Wars: Configuration Error",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    // Switch to the Cmdr/Knights tab to show the user where the error is
+                    ChangeOptionsTab(CandK_Tab);
+                    e.Cancel = true; // Prevent the form from closing
+                    return;
+                }
+            }
+
+            // If validation passes, proceed with saving and cleanup
+            SaveValuesToOptionsFile();
+            ReadOptionsFile();
+            ModOptions.StoreOptionsValues(optionsValuesCollection);
+            WriteUnitMappersOptions();
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
+            {
+                Program.Logger.Debug("Saving active mods...");
+                AttilaModManager.SaveActiveMods();
+            }
+
+            this.Dispose(); // Dispose resources
         }
     }
 }

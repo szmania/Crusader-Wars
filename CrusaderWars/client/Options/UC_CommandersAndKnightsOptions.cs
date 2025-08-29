@@ -142,20 +142,21 @@ namespace CrusaderWars.client.Options
             // Add tooltip to reset button
             toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");
             
-            // Adjust commanders table
+            // Adjust commanders table row styles
             tableCommanders.RowStyles.Clear();
-            for (int i = 0; i < 8; i++)
+            tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 10F)); // Header row (10% height)
+            for (int i = 0; i < 8; i++) // Remaining 8 rows for options (90% / 8 each)
             {
-                tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 12.5F));
+                tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 11.25F));
             }
-            
+
             // Add padding for better vertical alignment
             tableCommanders.Padding = new Padding(0, 5, 0, 0);
             
             // Ensure controls are properly anchored in the combined tableCommanders
             foreach (Control control in tableCommanders.Controls)
             {
-                if (control is Label && control != lblCommanderTotal && control != lblKnightTotal) // Exclude both total labels
+                if (control is Label && control != lblCommanderTotal && control != lblKnightTotal && control != lblCommanderHeader && control != lblKnightHeader) // Exclude total and header labels
                 {
                     control.Anchor = AnchorStyles.Left;
                 }
@@ -163,11 +164,35 @@ namespace CrusaderWars.client.Options
                 {
                     control.Anchor = AnchorStyles.Left;
                 }
+                else if (control == lblCommanderHeader || control == lblKnightHeader) // Both header labels
+                {
+                    control.Anchor = AnchorStyles.None; // Center them
+                }
                 else if (control is NumericUpDown)
                 {
                     control.Anchor = AnchorStyles.Left;
                 }
             }
+        }
+
+        public bool IsCommanderTotalValid()
+        {
+            return commanderControls.Sum(c => (int)c.Value) == 100;
+        }
+
+        public bool IsKnightTotalValid()
+        {
+            return knightControls.Sum(c => (int)c.Value) == 100;
+        }
+
+        public int GetCommanderTotal()
+        {
+            return commanderControls.Sum(c => (int)c.Value);
+        }
+
+        public int GetKnightTotal()
+        {
+            return knightControls.Sum(c => (int)c.Value);
         }
     }
 }

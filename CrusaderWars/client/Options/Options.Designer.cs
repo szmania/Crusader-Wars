@@ -614,6 +614,7 @@
             this.ShowInTaskbar = true;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Options";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Options_FormClosing);
             this.Load += new System.EventHandler(this.Options_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Options_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Options_MouseMove);
