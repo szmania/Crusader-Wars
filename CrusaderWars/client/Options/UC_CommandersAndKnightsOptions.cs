@@ -88,23 +88,38 @@ namespace CrusaderWars.client.Options
             
             // Adjust commanders table
             tableCommanders.RowStyles.Clear();
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 8; i++)
             {
-                tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 11.11F));
+                tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 12.5F));
             }
-            tableCommanders.RowCount = 9; // Ensure row count is explicitly set
             
             // Adjust knights table
             tableKnights.RowStyles.Clear();
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 8; i++)
             {
-                tableKnights.RowStyles.Add(new RowStyle(SizeType.Percent, 11.11F));
+                tableKnights.RowStyles.Add(new RowStyle(SizeType.Percent, 12.5F));
             }
-            tableKnights.RowCount = 9; // Ensure row count is explicitly set
             
-            // Set row positions for total labels
-            tableCommanders.SetRow(lblCommanderTotal, 8);
-            tableKnights.SetRow(lblKnightTotal, 8);
+            // Add padding for better vertical alignment
+            tableCommanders.Padding = new Padding(0, 5, 0, 0);
+            tableKnights.Padding = new Padding(0, 5, 0, 0);
+            
+            // Ensure labels are properly anchored
+            foreach (Control control in tableCommanders.Controls)
+            {
+                if (control is Label)
+                {
+                    control.Anchor = AnchorStyles.Left;
+                }
+            }
+            
+            foreach (Control control in tableKnights.Controls)
+            {
+                if (control is Label)
+                {
+                    control.Anchor = AnchorStyles.Left;
+                }
+            }
         }
     }
 }
