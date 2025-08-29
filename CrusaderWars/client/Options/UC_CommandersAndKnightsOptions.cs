@@ -170,7 +170,7 @@ namespace CrusaderWars.client.Options
                 }
                 else if (control == lblCommanderTotal)
                 {
-                    control.Anchor = AnchorStyles.Right;
+                    control.Anchor = AnchorStyles.Left; // Changed from Right
                 }
             }
             
@@ -182,7 +182,7 @@ namespace CrusaderWars.client.Options
                 }
                 else if (control == lblKnightTotal)
                 {
-                    control.Anchor = AnchorStyles.Right;
+                    control.Anchor = AnchorStyles.Left; // Changed from Right
                 }
             }
         }

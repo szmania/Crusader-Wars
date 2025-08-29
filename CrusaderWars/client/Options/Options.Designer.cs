@@ -117,7 +117,7 @@
             this.CloseBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.CloseBtn.FlatAppearance.BorderSize = 0;
             this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CloseBtn.Location = new System.Drawing.Point(753, 35);
+            this.CloseBtn.Location = new System.Drawing.Point(803, 35);
             this.CloseBtn.Name = "CloseBtn";
             this.CloseBtn.Size = new System.Drawing.Size(53, 54);
             this.CloseBtn.TabIndex = 9;
@@ -358,7 +358,7 @@
             this.ModManager.RowTemplate.Height = 50;
             this.ModManager.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.ModManager.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.ModManager.Size = new System.Drawing.Size(781, 256);
+            this.ModManager.Size = new System.Drawing.Size(831, 256);
             this.ModManager.TabIndex = 30;
             this.ModManager.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ModManager_CellMouseDoubleClick);
             this.ModManager.CellMouseUp += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ModManager_CellMouseUp);
@@ -425,7 +425,7 @@
             this.panel1.Location = new System.Drawing.Point(3, 24);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(20, 0, 20, 5);
-            this.panel1.Size = new System.Drawing.Size(821, 261);
+            this.panel1.Size = new System.Drawing.Size(871, 261);
             this.panel1.TabIndex = 31;
             // 
             // UMpanel
@@ -539,7 +539,7 @@
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(398, 142);
+            this.TableLayoutSettings.Location = new System.Drawing.Point(448, 142);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -581,7 +581,7 @@
             this.TableLayoutModManager.RowCount = 2;
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutModManager.Size = new System.Drawing.Size(827, 279);
+            this.TableLayoutModManager.Size = new System.Drawing.Size(877, 279);
             this.TableLayoutModManager.TabIndex = 0;
             // 
             // Options
@@ -591,7 +591,7 @@
             this.AutoSize = false;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.options_bk;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(827, 928);
+            this.ClientSize = new System.Drawing.Size(877, 928);
             this.Controls.Add(this.TableLayoutModManager);
             this.Controls.Add(this.TableLayoutPlaythroughs);
             this.Controls.Add(this.TableLayoutSettings);
