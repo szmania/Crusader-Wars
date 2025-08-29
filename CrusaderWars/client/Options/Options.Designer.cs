@@ -264,6 +264,7 @@
             this.Btn_UnitsTab.TabIndex = 1;
             this.Btn_UnitsTab.Text = "Units Max";
             this.Btn_UnitsTab.UseVisualStyleBackColor = false;
+            this.Btn_UnitsTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_UnitsTab.Click += new System.EventHandler(this.Btn_UnitsTab_Click);
             // 
             // Btn_BattleScaleTab
