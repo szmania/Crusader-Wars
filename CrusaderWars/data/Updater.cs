@@ -300,9 +300,12 @@ namespace CrusaderWars
                     {
                         throw new FileNotFoundException("Updater executable not found.");
                     }
-                    ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.FileName = updaterPath;
-                    startInfo.Arguments = $"{latestRelease.downloadUrl} {latestRelease.version} {"unit_mapper"}";
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = updaterPath,
+                        Arguments = $"\"{latestRelease.downloadUrl}\" \"{latestRelease.version}\" unit_mapper",
+                        UseShellExecute = true
+                    };
                     Process.Start(startInfo);
                     Environment.Exit(0);
                 }
