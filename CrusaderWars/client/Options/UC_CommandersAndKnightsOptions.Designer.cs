@@ -122,8 +122,8 @@ namespace CrusaderWars.client.Options
             // tableCommanders
             // 
             this.tableCommanders.ColumnCount = 2;
-            this.tableCommanders.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
-            this.tableCommanders.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableCommanders.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F)); // Changed from 70F
+            this.tableCommanders.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F)); // Changed from 30F
             this.tableCommanders.Controls.Add(this.lblCommanderWounded, 0, 0);
             this.tableCommanders.Controls.Add(this.numCommanderWounded, 1, 0);
             this.tableCommanders.Controls.Add(this.lblCommanderSeverelyInjured, 0, 1);
@@ -168,10 +168,10 @@ namespace CrusaderWars.client.Options
             // 
             // numCommanderWounded
             // 
-            this.numCommanderWounded.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numCommanderWounded.Location = new System.Drawing.Point(344, 4);
+            this.numCommanderWounded.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numCommanderWounded.Location = new System.Drawing.Point(272, 4); // Adjusted X from 344 to 272
             this.numCommanderWounded.Name = "numCommanderWounded";
-            this.numCommanderWounded.Size = new System.Drawing.Size(100, 22);
+            this.numCommanderWounded.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numCommanderWounded.TabIndex = 1;
             this.toolTip1.SetToolTip(this.numCommanderWounded, "Chance for commander to be wounded when fallen in battle");
             this.numCommanderWounded.Value = new decimal(new int[] {
@@ -193,10 +193,10 @@ namespace CrusaderWars.client.Options
             // 
             // numCommanderSeverelyInjured
             // 
-            this.numCommanderSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numCommanderSeverelyInjured.Location = new System.Drawing.Point(344, 24);
+            this.numCommanderSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numCommanderSeverelyInjured.Location = new System.Drawing.Point(272, 24); // Adjusted X from 344 to 272
             this.numCommanderSeverelyInjured.Name = "numCommanderSeverelyInjured";
-            this.numCommanderSeverelyInjured.Size = new System.Drawing.Size(100, 22);
+            this.numCommanderSeverelyInjured.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numCommanderSeverelyInjured.TabIndex = 3;
             this.toolTip1.SetToolTip(this.numCommanderSeverelyInjured, "Chance for commander to be severely injured when fallen in battle");
             this.numCommanderSeverelyInjured.Value = new decimal(new int[] {
@@ -218,10 +218,10 @@ namespace CrusaderWars.client.Options
             // 
             // numCommanderBrutallyMauled
             // 
-            this.numCommanderBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numCommanderBrutallyMauled.Location = new System.Drawing.Point(344, 44);
+            this.numCommanderBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numCommanderBrutallyMauled.Location = new System.Drawing.Point(272, 44); // Adjusted X from 344 to 272
             this.numCommanderBrutallyMauled.Name = "numCommanderBrutallyMauled";
-            this.numCommanderBrutallyMauled.Size = new System.Drawing.Size(100, 22);
+            this.numCommanderBrutallyMauled.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numCommanderBrutallyMauled.TabIndex = 5;
             this.toolTip1.SetToolTip(this.numCommanderBrutallyMauled, "Chance for commander to be brutally mauled when fallen in battle");
             this.numCommanderBrutallyMauled.Value = new decimal(new int[] {
@@ -243,10 +243,10 @@ namespace CrusaderWars.client.Options
             // 
             // numCommanderMaimed
             // 
-            this.numCommanderMaimed.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numCommanderMaimed.Location = new System.Drawing.Point(344, 64);
+            this.numCommanderMaimed.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numCommanderMaimed.Location = new System.Drawing.Point(272, 64); // Adjusted X from 344 to 272
             this.numCommanderMaimed.Name = "numCommanderMaimed";
-            this.numCommanderMaimed.Size = new System.Drawing.Size(100, 22);
+            this.numCommanderMaimed.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numCommanderMaimed.TabIndex = 7;
             this.toolTip1.SetToolTip(this.numCommanderMaimed, "Chance for commander to be maimed when fallen in battle");
             this.numCommanderMaimed.Value = new decimal(new int[] {
@@ -268,10 +268,10 @@ namespace CrusaderWars.client.Options
             // 
             // numCommanderOneLegged
             // 
-            this.numCommanderOneLegged.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numCommanderOneLegged.Location = new System.Drawing.Point(344, 84);
+            this.numCommanderOneLegged.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numCommanderOneLegged.Location = new System.Drawing.Point(272, 84); // Adjusted X from 344 to 272
             this.numCommanderOneLegged.Name = "numCommanderOneLegged";
-            this.numCommanderOneLegged.Size = new System.Drawing.Size(100, 22);
+            this.numCommanderOneLegged.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numCommanderOneLegged.TabIndex = 9;
             this.toolTip1.SetToolTip(this.numCommanderOneLegged, "Chance for commander to lose a leg when fallen in battle");
             this.numCommanderOneLegged.Value = new decimal(new int[] {
@@ -293,10 +293,10 @@ namespace CrusaderWars.client.Options
             // 
             // numCommanderOneEyed
             // 
-            this.numCommanderOneEyed.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numCommanderOneEyed.Location = new System.Drawing.Point(344, 104);
+            this.numCommanderOneEyed.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numCommanderOneEyed.Location = new System.Drawing.Point(272, 104); // Adjusted X from 344 to 272
             this.numCommanderOneEyed.Name = "numCommanderOneEyed";
-            this.numCommanderOneEyed.Size = new System.Drawing.Size(100, 22);
+            this.numCommanderOneEyed.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numCommanderOneEyed.TabIndex = 11;
             this.toolTip1.SetToolTip(this.numCommanderOneEyed, "Chance for commander to lose an eye when fallen in battle");
             this.numCommanderOneEyed.Value = new decimal(new int[] {
@@ -318,10 +318,10 @@ namespace CrusaderWars.client.Options
             // 
             // numCommanderDisfigured
             // 
-            this.numCommanderDisfigured.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numCommanderDisfigured.Location = new System.Drawing.Point(344, 124);
+            this.numCommanderDisfigured.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numCommanderDisfigured.Location = new System.Drawing.Point(272, 124); // Adjusted X from 344 to 272
             this.numCommanderDisfigured.Name = "numCommanderDisfigured";
-            this.numCommanderDisfigured.Size = new System.Drawing.Size(100, 22);
+            this.numCommanderDisfigured.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numCommanderDisfigured.TabIndex = 13;
             this.toolTip1.SetToolTip(this.numCommanderDisfigured, "Chance for commander to be disfigured when fallen in battle");
             this.numCommanderDisfigured.Value = new decimal(new int[] {
@@ -359,8 +359,8 @@ namespace CrusaderWars.client.Options
             // tableKnights
             // 
             this.tableKnights.ColumnCount = 2;
-            this.tableKnights.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
-            this.tableKnights.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableKnights.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F)); // Changed from 70F
+            this.tableKnights.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F)); // Changed from 30F
             this.tableKnights.Controls.Add(this.lblKnightWounded, 0, 0);
             this.tableKnights.Controls.Add(this.numKnightWounded, 1, 0);
             this.tableKnights.Controls.Add(this.lblKnightSeverelyInjured, 0, 1);
@@ -382,7 +382,7 @@ namespace CrusaderWars.client.Options
             this.tableKnights.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.tableKnights.RowCount = 8;
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
-            this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
+            this.tableKnights.RowStyles.Add(new System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
             this.tableKnights.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
@@ -405,10 +405,10 @@ namespace CrusaderWars.client.Options
             // 
             // numKnightWounded
             // 
-            this.numKnightWounded.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numKnightWounded.Location = new System.Drawing.Point(344, 4);
+            this.numKnightWounded.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numKnightWounded.Location = new System.Drawing.Point(272, 4); // Adjusted X from 344 to 272
             this.numKnightWounded.Name = "numKnightWounded";
-            this.numKnightWounded.Size = new System.Drawing.Size(100, 22);
+            this.numKnightWounded.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numKnightWounded.TabIndex = 1;
             this.toolTip1.SetToolTip(this.numKnightWounded, "Chance for knight to be wounded when fallen in battle");
             this.numKnightWounded.Value = new decimal(new int[] {
@@ -430,10 +430,10 @@ namespace CrusaderWars.client.Options
             // 
             // numKnightSeverelyInjured
             // 
-            this.numKnightSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numKnightSeverelyInjured.Location = new System.Drawing.Point(344, 24);
+            this.numKnightSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numKnightSeverelyInjured.Location = new System.Drawing.Point(272, 24); // Adjusted X from 344 to 272
             this.numKnightSeverelyInjured.Name = "numKnightSeverelyInjured";
-            this.numKnightSeverelyInjured.Size = new System.Drawing.Size(100, 22);
+            this.numKnightSeverelyInjured.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numKnightSeverelyInjured.TabIndex = 3;
             this.toolTip1.SetToolTip(this.numKnightSeverelyInjured, "Chance for knight to be severely injured when fallen in battle");
             this.numKnightSeverelyInjured.Value = new decimal(new int[] {
@@ -455,10 +455,10 @@ namespace CrusaderWars.client.Options
             // 
             // numKnightBrutallyMauled
             // 
-            this.numKnightBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numKnightBrutallyMauled.Location = new System.Drawing.Point(344, 44);
+            this.numKnightBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numKnightBrutallyMauled.Location = new System.Drawing.Point(272, 44); // Adjusted X from 344 to 272
             this.numKnightBrutallyMauled.Name = "numKnightBrutallyMauled";
-            this.numKnightBrutallyMauled.Size = new System.Drawing.Size(100, 22);
+            this.numKnightBrutallyMauled.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numKnightBrutallyMauled.TabIndex = 5;
             this.toolTip1.SetToolTip(this.numKnightBrutallyMauled, "Chance for knight to be brutally mauled when fallen in battle");
             this.numKnightBrutallyMauled.Value = new decimal(new int[] {
@@ -480,10 +480,10 @@ namespace CrusaderWars.client.Options
             // 
             // numKnightMaimed
             // 
-            this.numKnightMaimed.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numKnightMaimed.Location = new System.Drawing.Point(344, 64);
+            this.numKnightMaimed.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numKnightMaimed.Location = new System.Drawing.Point(272, 64); // Adjusted X from 344 to 272
             this.numKnightMaimed.Name = "numKnightMaimed";
-            this.numKnightMaimed.Size = new System.Drawing.Size(100, 22);
+            this.numKnightMaimed.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numKnightMaimed.TabIndex = 7;
             this.toolTip1.SetToolTip(this.numKnightMaimed, "Chance for knight to be maimed when fallen in battle");
             this.numKnightMaimed.Value = new decimal(new int[] {
@@ -505,10 +505,10 @@ namespace CrusaderWars.client.Options
             // 
             // numKnightOneLegged
             // 
-            this.numKnightOneLegged.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numKnightOneLegged.Location = new System.Drawing.Point(344, 84);
+            this.numKnightOneLegged.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numKnightOneLegged.Location = new System.Drawing.Point(272, 84); // Adjusted X from 344 to 272
             this.numKnightOneLegged.Name = "numKnightOneLegged";
-            this.numKnightOneLegged.Size = new System.Drawing.Size(100, 22);
+            this.numKnightOneLegged.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numKnightOneLegged.TabIndex = 9;
             this.toolTip1.SetToolTip(this.numKnightOneLegged, "Chance for knight to lose a leg when fallen in battle");
             this.numKnightOneLegged.Value = new decimal(new int[] {
@@ -530,10 +530,10 @@ namespace CrusaderWars.client.Options
             // 
             // numKnightOneEyed
             // 
-            this.numKnightOneEyed.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numKnightOneEyed.Location = new System.Drawing.Point(344, 104);
+            this.numKnightOneEyed.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numKnightOneEyed.Location = new System.Drawing.Point(272, 104); // Adjusted X from 344 to 272
             this.numKnightOneEyed.Name = "numKnightOneEyed";
-            this.numKnightOneEyed.Size = new System.Drawing.Size(100, 22);
+            this.numKnightOneEyed.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numKnightOneEyed.TabIndex = 11;
             this.toolTip1.SetToolTip(this.numKnightOneEyed, "Chance for knight to lose an eye when fallen in battle");
             this.numKnightOneEyed.Value = new decimal(new int[] {
@@ -555,10 +555,10 @@ namespace CrusaderWars.client.Options
             // 
             // numKnightDisfigured
             // 
-            this.numKnightDisfigured.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numKnightDisfigured.Location = new System.Drawing.Point(344, 124);
+            this.numKnightDisfigured.Anchor = System.Windows.Forms.AnchorStyles.Left; // Changed from None
+            this.numKnightDisfigured.Location = new System.Drawing.Point(272, 124); // Adjusted X from 344 to 272
             this.numKnightDisfigured.Name = "numKnightDisfigured";
-            this.numKnightDisfigured.Size = new System.Drawing.Size(100, 22);
+            this.numKnightDisfigured.Size = new System.Drawing.Size(120, 22); // Adjusted size from 100 to 120
             this.numKnightDisfigured.TabIndex = 13;
             this.toolTip1.SetToolTip(this.numKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
             this.numKnightDisfigured.Value = new decimal(new int[] {

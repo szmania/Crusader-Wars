@@ -172,6 +172,10 @@ namespace CrusaderWars.client.Options
                 {
                     control.Anchor = AnchorStyles.Left; // Changed from Right
                 }
+                else if (control is NumericUpDown) // Add this block
+                {
+                    control.Anchor = AnchorStyles.Left;
+                }
             }
             
             foreach (Control control in tableKnights.Controls)
@@ -183,6 +187,10 @@ namespace CrusaderWars.client.Options
                 else if (control == lblKnightTotal)
                 {
                     control.Anchor = AnchorStyles.Left; // Changed from Right
+                }
+                else if (control is NumericUpDown) // Add this block
+                {
+                    control.Anchor = AnchorStyles.Left;
                 }
             }
         }

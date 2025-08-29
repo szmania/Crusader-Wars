@@ -215,7 +215,7 @@
             this.OptionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.OptionsPanel.Location = new System.Drawing.Point(3, 64);
             this.OptionsPanel.Name = "OptionsPanel";
-            this.OptionsPanel.Size = new System.Drawing.Size(411, 437);
+            this.OptionsPanel.Size = new System.Drawing.Size(459, 437); // Adjusted width from 411 to 459
             this.OptionsPanel.TabIndex = 28;
             // 
             // flowLayoutPanel1
@@ -228,7 +228,7 @@
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(411, 34);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(459, 34); // Adjusted width from 411 to 459
             this.flowLayoutPanel1.TabIndex = 28;
             // 
             // Btn_GeneralTab
@@ -539,13 +539,13 @@
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(448, 142);
+            this.TableLayoutSettings.Location = new System.Drawing.Point(400, 142); // Adjusted X from 448 to 400
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutSettings.Size = new System.Drawing.Size(417, 504);
+            this.TableLayoutSettings.Size = new System.Drawing.Size(465, 504); // Adjusted width from 417 to 465
             this.TableLayoutSettings.TabIndex = 37;
             // 
             // TableLayoutPlaythroughs
