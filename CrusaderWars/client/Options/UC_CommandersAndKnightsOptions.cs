@@ -30,18 +30,35 @@ namespace CrusaderWars.client.Options
                 numKnightMaimed, numKnightOneLegged, numKnightOneEyed, numKnightDisfigured
             };
 
+            // Initial subscription
+            SubscribeEventHandlers();
+            
+            // Set default values
+            SetDefaults();
+        }
+
+        private void UnsubscribeEventHandlers()
+        {
+            foreach (var control in commanderControls)
+            {
+                control.ValueChanged -= Commander_ValueChanged;
+            }
+            foreach (var control in knightControls)
+            {
+                control.ValueChanged -= Knight_ValueChanged;
+            }
+        }
+
+        private void SubscribeEventHandlers()
+        {
             foreach (var control in commanderControls)
             {
                 control.ValueChanged += Commander_ValueChanged;
             }
-
             foreach (var control in knightControls)
             {
                 control.ValueChanged += Knight_ValueChanged;
             }
-
-            // Set default values
-            SetDefaults();
         }
 
         private void Commander_ValueChanged(object sender, EventArgs e)
@@ -114,7 +131,13 @@ namespace CrusaderWars.client.Options
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            SetDefaults();
+            UnsubscribeEventHandlers(); // Temporarily disable event handlers
+            SetDefaults();              // Set all default values
+            SubscribeEventHandlers();   // Re-enable event handlers
+
+            // Manually update totals to reflect the newly set defaults
+            UpdateCommanderTotal();
+            UpdateKnightTotal();
         }
 
         private void AdjustTableLayouts()
