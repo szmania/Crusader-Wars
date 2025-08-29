@@ -223,6 +223,7 @@
             this.flowLayoutPanel1.Controls.Add(this.Btn_GeneralTab);
             this.flowLayoutPanel1.Controls.Add(this.Btn_UnitsTab);
             this.flowLayoutPanel1.Controls.Add(this.Btn_BattleScaleTab);
+            this.flowLayoutPanel1.Controls.Add(this.Btn_CandKTab);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";

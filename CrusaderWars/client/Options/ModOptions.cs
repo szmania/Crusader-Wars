@@ -267,6 +267,20 @@ namespace CrusaderWars.client
             }
         }
 
+        public static int GetCommanderWoundedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderWoundedChance").value);
+        public static int GetCommanderSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderSeverelyInjuredChance").value);
+        public static int GetCommanderBrutallyMauledChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderBrutallyMauledChance").value);
+        public static int GetCommanderMaimedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderMaimedChance").value);
+        public static int GetCommanderOneLeggedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneLeggedChance").value);
+        public static int GetCommanderOneEyedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneEyedChance").value);
+        public static int GetCommanderDisfiguredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderDisfiguredChance").value);
 
+        public static int GetKnightWoundedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightWoundedChance").value);
+        public static int GetKnightSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightSeverelyInjuredChance").value);
+        public static int GetKnightBrutallyMauledChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightBrutallyMauledChance").value);
+        public static int GetKnightMaimedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightMaimedChance").value);
+        public static int GetKnightOneLeggedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneLeggedChance").value);
+        public static int GetKnightOneEyedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneEyedChance").value);
+        public static int GetKnightDisfiguredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightDisfiguredChance").value);
     }
 }

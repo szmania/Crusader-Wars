@@ -1,4 +1,5 @@
 using CrusaderWars.client;
+using CrusaderWars.client.Options;
 using CrusaderWars.client.WarningMessage;
 using System;
 using System.Collections;
