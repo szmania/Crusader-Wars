@@ -25,6 +25,11 @@ function remaining_soldiers()
         {
             var left_side = DeclarationsFile.GetLeftSideArmies();
             var right_side = DeclarationsFile.GetRightSideArmies();
+            
+            // Add null checks for the lists to prevent CS8602 warnings
+            if (left_side == null) left_side = new List<Army>();
+            if (right_side == null) right_side = new List<Army>();
+
             Program.Logger.Debug($"Setting commander locals for {left_side.Count} left side armies and {right_side.Count} right side armies.");
 
             var scriptBuilder = new StringBuilder();
@@ -70,6 +75,13 @@ function remaining_soldiers()
 
         public static void SetLocalsKills(List<(string unitName, string declarationName)> units_scripts_list)
         {
+            // Add null check for the list parameter to prevent CS8602 warning
+            if (units_scripts_list == null)
+            {
+                Program.Logger.Debug("Warning: units_scripts_list is null. Skipping kill tracking locals.");
+                return; // Exit the method if the list is null
+            }
+
             Program.Logger.Debug($"Setting kill tracking locals for {units_scripts_list.Count} units.");
             //Units Script Start
             string start = @"
