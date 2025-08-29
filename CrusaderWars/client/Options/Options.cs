@@ -48,6 +48,23 @@ namespace CrusaderWars
             }
         }
 
+        private UC_UnitMapper GetActivePlaythrough()
+        {
+            if (CrusaderKings_Tab != null && CrusaderKings_Tab.GetState())
+            {
+                return CrusaderKings_Tab;
+            }
+            if (TheFallenEagle_Tab != null && TheFallenEagle_Tab.GetState())
+            {
+                return TheFallenEagle_Tab;
+            }
+            if (RealmsInExile_Tab != null && RealmsInExile_Tab.GetState())
+            {
+                return RealmsInExile_Tab;
+            }
+            return null;
+        }
+
         private void CloseBtn_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Options form closing...");
