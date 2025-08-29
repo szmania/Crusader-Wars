@@ -173,32 +173,32 @@ namespace CrusaderWars.client.Options
             // lblCommanderHeader
             // 
             this.lblCommanderHeader = new System.Windows.Forms.Label();
-            this.lblCommanderHeader.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblCommanderHeader.Anchor = System.Windows.Forms.AnchorStyles.Left; // CHANGE THIS LINE: from AnchorStyles.None to AnchorStyles.Left
             this.lblCommanderHeader.AutoSize = true;
             this.tableCommanders.SetColumnSpan(this.lblCommanderHeader, 2);
             this.lblCommanderHeader.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCommanderHeader.ForeColor = System.Drawing.Color.White;
-            this.lblCommanderHeader.Location = new System.Drawing.Point(35, 13); // Adjust Y based on new row height
+            this.lblCommanderHeader.Location = new System.Drawing.Point(3, 13); // Adjust Y based on new row height
             this.lblCommanderHeader.Name = "lblCommanderHeader";
             this.lblCommanderHeader.Size = new System.Drawing.Size(100, 19); // Example size, adjust if needed
             this.lblCommanderHeader.TabIndex = 15; // Next available TabIndex
             this.lblCommanderHeader.Text = "Commanders";
-            this.lblCommanderHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblCommanderHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft; // CHANGE THIS LINE: from MiddleCenter to MiddleLeft
             // 
             // lblKnightHeader
             // 
             this.lblKnightHeader = new System.Windows.Forms.Label();
-            this.lblKnightHeader.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblKnightHeader.Anchor = System.Windows.Forms.AnchorStyles.Left; // CHANGE THIS LINE: from AnchorStyles.None to AnchorStyles.Left
             this.lblKnightHeader.AutoSize = true;
             this.tableCommanders.SetColumnSpan(this.lblKnightHeader, 2);
             this.lblKnightHeader.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblKnightHeader.ForeColor = System.Drawing.Color.White;
-            this.lblKnightHeader.Location = new System.Drawing.Point(260, 13); // Adjust X and Y
+            this.lblKnightHeader.Location = new System.Drawing.Point(227, 13); // Adjust X and Y
             this.lblKnightHeader.Name = "lblKnightHeader";
             this.lblKnightHeader.Size = new System.Drawing.Size(70, 19); // Example size, adjust if needed
             this.lblKnightHeader.TabIndex = 16; // Next available TabIndex
             this.lblKnightHeader.Text = "Knights";
-            this.lblKnightHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblKnightHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft; // CHANGE THIS LINE: from MiddleCenter to MiddleLeft
             // 
             // lblCommanderWounded
             // 
