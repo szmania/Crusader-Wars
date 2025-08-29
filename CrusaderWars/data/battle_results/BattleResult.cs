@@ -388,7 +388,7 @@ namespace CrusaderWars
                 // Safely get the unit, then its culture. If unit is null, culture will be null.
                 // The warning CS8600 is because GetObjCulture() is called on a potentially null result of FirstOrDefault().
                 var matchingUnit = army.Units.FirstOrDefault(x => x.GetRegimentType() == unitType && x.GetObjCulture()?.ID == group.Key.CultureID && x.GetName() == type);
-                Culture culture = matchingUnit?.GetObjCulture();
+                Culture? culture = matchingUnit?.GetObjCulture(); // CHANGE THIS LINE: Add '?' to make Culture nullable
                 
                 // If culture is null at this point, it means either no matching unit was found,
                 // or the matching unit itself had a null culture object.

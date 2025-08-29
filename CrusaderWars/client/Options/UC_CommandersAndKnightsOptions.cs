@@ -148,15 +148,15 @@ namespace CrusaderWars.client.Options
             // Ensure controls are properly anchored in the combined tableCommanders
             foreach (Control control in tableCommanders.Controls)
             {
-                if (control is Label && control != lblCommanderTotal && control != lblKnightTotal && control != lblCommanderHeader && control != lblKnightHeader) // Exclude total and header labels
+                if (control is Label && control.Name != "lblCommanderTotal" && control.Name != "lblKnightTotal" && control.Name != "lblCommanderHeader" && control.Name != "lblKnightHeader") // Exclude total and header labels
                 {
                     control.Anchor = AnchorStyles.Left;
                 }
-                else if (control == lblCommanderTotal || control == lblKnightTotal) // Both total labels
+                else if (control.Name == "lblCommanderTotal" || control.Name == "lblKnightTotal") // Both total labels
                 {
                     control.Anchor = AnchorStyles.Left;
                 }
-                else if (control == lblCommanderHeader || control == lblKnightHeader) // Both header labels
+                else if (control.Name == "lblCommanderHeader" || control.Name == "lblKnightHeader") // Both header labels
                 {
                     control.Anchor = AnchorStyles.None; // Center them
                 }
