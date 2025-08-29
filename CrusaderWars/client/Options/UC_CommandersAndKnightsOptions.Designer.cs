@@ -137,7 +137,7 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.Controls.Add(this.numCommanderOneEyed, 1, 5);
             this.tableCommanders.Controls.Add(this.lblCommanderDisfigured, 0, 6);
             this.tableCommanders.Controls.Add(this.numCommanderDisfigured, 1, 6);
-            this.tableCommanders.Controls.Add(this.lblCommanderTotal, 0, 7);
+            this.tableCommanders.Controls.Add(this.lblCommanderTotal, 1, 7);
             this.tableCommanders.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableCommanders.Location = new System.Drawing.Point(3, 23);
             this.tableCommanders.Name = "tableCommanders";
@@ -331,10 +331,10 @@ namespace CrusaderWars.client.Options
             // 
             // lblCommanderTotal
             // 
-            this.lblCommanderTotal.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblCommanderTotal.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblCommanderTotal.AutoSize = true;
-            this.tableCommanders.SetColumnSpan(this.lblCommanderTotal, 2);
-            this.lblCommanderTotal.Location = new System.Drawing.Point(3, 146);
+            this.tableCommanders.SetColumnSpan(this.lblCommanderTotal, 1);
+            this.lblCommanderTotal.Location = new System.Drawing.Point(318, 146);
             this.lblCommanderTotal.Name = "lblCommanderTotal";
             this.lblCommanderTotal.Size = new System.Drawing.Size(78, 13);
             this.lblCommanderTotal.TabIndex = 14;
@@ -372,7 +372,7 @@ namespace CrusaderWars.client.Options
             this.tableKnights.Controls.Add(this.numKnightOneEyed, 1, 5);
             this.tableKnights.Controls.Add(this.lblKnightDisfigured, 0, 6);
             this.tableKnights.Controls.Add(this.numKnightDisfigured, 1, 6);
-            this.tableKnights.Controls.Add(this.lblKnightTotal, 0, 7);
+            this.tableKnights.Controls.Add(this.lblKnightTotal, 1, 7);
             this.tableKnights.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableKnights.Location = new System.Drawing.Point(3, 23);
             this.tableKnights.Name = "tableKnights";
@@ -566,10 +566,10 @@ namespace CrusaderWars.client.Options
             // 
             // lblKnightTotal
             // 
-            this.lblKnightTotal.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblKnightTotal.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblKnightTotal.AutoSize = true;
-            this.tableKnights.SetColumnSpan(this.lblKnightTotal, 2);
-            this.lblKnightTotal.Location = new System.Drawing.Point(3, 146);
+            this.tableKnights.SetColumnSpan(this.lblKnightTotal, 1);
+            this.lblKnightTotal.Location = new System.Drawing.Point(318, 146);
             this.lblKnightTotal.Name = "lblKnightTotal";
             this.lblKnightTotal.Size = new System.Drawing.Size(78, 13);
             this.lblKnightTotal.TabIndex = 14;
@@ -578,6 +578,7 @@ namespace CrusaderWars.client.Options
             // btnReset
             // 
             this.btnReset.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnReset.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnReset.Font = new System.Drawing.Font("Paradox King Script", 10F);
             this.btnReset.ForeColor = System.Drawing.Color.Black;
             this.btnReset.Location = new System.Drawing.Point(125, 402);

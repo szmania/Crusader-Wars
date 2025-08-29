@@ -107,17 +107,25 @@ namespace CrusaderWars.client.Options
             // Ensure labels are properly anchored
             foreach (Control control in tableCommanders.Controls)
             {
-                if (control is Label)
+                if (control is Label && control != lblCommanderTotal)
                 {
                     control.Anchor = AnchorStyles.Left;
+                }
+                else if (control == lblCommanderTotal)
+                {
+                    control.Anchor = AnchorStyles.Right;
                 }
             }
             
             foreach (Control control in tableKnights.Controls)
             {
-                if (control is Label)
+                if (control is Label && control != lblKnightTotal)
                 {
                     control.Anchor = AnchorStyles.Left;
+                }
+                else if (control == lblKnightTotal)
+                {
+                    control.Anchor = AnchorStyles.Right;
                 }
             }
         }
