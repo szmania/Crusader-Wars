@@ -286,6 +286,7 @@
             this.Btn_BattleScaleTab.Text = "Battle Scale";
             this.Btn_BattleScaleTab.UseVisualStyleBackColor = false;
             this.Btn_BattleScaleTab.Click += new System.EventHandler(this.Btn_BattleScaleTab_Click);
+            this.Btn_BattleScaleTab.Cursor = System.Windows.Forms.Cursors.Hand;
             // 
             // Btn_CandKTab
             // 
@@ -304,6 +305,7 @@
             this.Btn_CandKTab.Text = "Cmdr/Knights";
             this.Btn_CandKTab.UseVisualStyleBackColor = false;
             this.Btn_CandKTab.Click += new System.EventHandler(this.Btn_CandKTab_Click);
+            this.Btn_CandKTab.Cursor = System.Windows.Forms.Cursors.Hand;
             // 
             // label4
             // 

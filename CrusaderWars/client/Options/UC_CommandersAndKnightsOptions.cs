@@ -36,6 +36,9 @@ namespace CrusaderWars.client.Options
             {
                 control.ValueChanged += (s, e) => UpdateTotal(knightControls, lblKnightTotal);
             }
+
+            // Set default values
+            SetDefaults();
         }
 
         private void UpdateTotal(List<NumericUpDown> controls, Label totalLabel)

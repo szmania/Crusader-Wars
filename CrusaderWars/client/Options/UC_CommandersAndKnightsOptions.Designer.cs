@@ -183,6 +183,7 @@ namespace CrusaderWars.client.Options
             this.btnReset.Text = "Reset to Defaults";
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+            this.btnReset.Cursor = System.Windows.Forms.Cursors.Hand;
             //
             // Labels and NumericUpDowns for Commanders
             //
