@@ -154,7 +154,7 @@ namespace CrusaderWars.client.Options
                 }
                 else if (control.Name == "lblCommanderTotal" || control.Name == "lblKnightTotal") // Both total labels
                 {
-                    control.Anchor = AnchorStyles.Left;
+                    control.Anchor = AnchorStyles.Right; // CHANGE THIS LINE: from AnchorStyles.Left to AnchorStyles.Right
                 }
                 else if (control.Name == "lblCommanderHeader" || control.Name == "lblKnightHeader") // Both header labels
                 {
