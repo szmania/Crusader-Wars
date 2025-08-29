@@ -700,6 +700,7 @@ namespace CrusaderWars
         /*
          * To read after each update, so that the user
          * doesnt need to always set the game paths
+         *
          */
         public static void ReadGamePaths()
         {
@@ -804,20 +805,22 @@ namespace CrusaderWars
         private void toggleModManagerButton_Click(object sender, EventArgs e)
         {
             _isModManagerExpanded = !_isModManagerExpanded;
-            panel1.Visible = _isModManagerExpanded; // Toggle visibility of the panel containing the DataGridView
+            panel1.Visible = _isModManagerExpanded;
 
             if (_isModManagerExpanded)
             {
+                // Expanding
+                this.Height += panel1.Height;
                 toggleModManagerButton.Text = "Mod Manager [▲]";
                 ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
             }
             else
             {
+                // Collapsing
+                this.Height -= panel1.Height;
                 toggleModManagerButton.Text = "Mod Manager [▼]";
                 ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to expand the Mod Manager. This section shows optional mods.");
             }
-            // Force layout update
-            TableLayoutModManager.PerformLayout();
         }
 
 
