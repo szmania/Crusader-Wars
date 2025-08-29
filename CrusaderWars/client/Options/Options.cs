@@ -18,8 +18,9 @@ namespace CrusaderWars
 {
     public partial class Options : Form
     {
-        private Timer _highlightTimer;
-        private bool _isHighlighted = false;
+        private Timer _pulseTimer;
+        private bool _isPulsing = false;
+        private bool _pulseState = false;
         private string CK3_Path { get; set; }
         private string Attila_Path { get; set; }
 
@@ -28,15 +29,15 @@ namespace CrusaderWars
             InitializeComponent();
             this.Icon = Properties.Resources.logo;
 
-            _highlightTimer = new Timer();
-            _highlightTimer.Interval = 700;
-            _highlightTimer.Tick += HighlightTimer_Tick;
+            _pulseTimer = new Timer();
+            _pulseTimer.Interval = 500;
+            _pulseTimer.Tick += PulseTimer_Tick;
         }
 
-        private void HighlightTimer_Tick(object sender, EventArgs e)
+        private void PulseTimer_Tick(object sender, EventArgs e)
         {
-            // This method is currently not fully implemented.
-            // It is intended to handle a highlighting effect.
+            _pulseState = !_pulseState;
+            TableLayoutPlaythroughs.Invalidate();
         }
 
         private void CloseBtn_Click(object sender, EventArgs e)
@@ -702,11 +703,16 @@ namespace CrusaderWars
             TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301639735", GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState);
             RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState);
 
+            CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
+            TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
+            RealmsInExile_Tab.ToggleClicked += PlaythroughToggle_Clicked;
+
             CrusaderKings_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { TheFallenEagle_Tab, RealmsInExile_Tab });
             TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, RealmsInExile_Tab });
             RealmsInExile_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab });
 
             ChangeUnitMappersTab(CrusaderKings_Tab);
+            CheckPlaythroughSelection();
         }
 
         void WriteUnitMappersOptions()
@@ -724,5 +730,48 @@ namespace CrusaderWars
             xmlDoc.Save(file);
         }
 
+        private void TableLayoutPlaythroughs_Paint(object sender, PaintEventArgs e)
+        {
+            if (_isPulsing)
+            {
+                Control control = (Control)sender;
+                Color pulseColor = _pulseState ? Color.FromArgb(255, 80, 80) : Color.FromArgb(180, 30, 30);
+                using (Pen pen = new Pen(pulseColor, 3))
+                {
+                    e.Graphics.DrawRectangle(pen, 0, 0, control.ClientSize.Width - 1, control.ClientSize.Height - 1);
+                }
+            }
+        }
+
+        private void CheckPlaythroughSelection()
+        {
+            if (!IsAnyPlaythroughSelected())
+            {
+                if (!_isPulsing)
+                {
+                    _isPulsing = true;
+                    _pulseTimer.Start();
+                }
+            }
+            else
+            {
+                if (_isPulsing)
+                {
+                    _isPulsing = false;
+                    _pulseTimer.Stop();
+                    TableLayoutPlaythroughs.Invalidate();
+                }
+            }
+        }
+
+        private bool IsAnyPlaythroughSelected()
+        {
+            return CrusaderKings_Tab.GetState() || TheFallenEagle_Tab.GetState() || RealmsInExile_Tab.GetState();
+        }
+
+        private void PlaythroughToggle_Clicked(object sender, EventArgs e)
+        {
+            CheckPlaythroughSelection();
+        }
     }
 }

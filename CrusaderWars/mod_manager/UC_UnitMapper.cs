@@ -66,6 +66,7 @@ namespace CrusaderWars.mod_manager
                     controlReference.uC_Toggle1.SetState(false);
                 }
             }
+            ToggleClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void BtnVerifyMods_Click(object sender, EventArgs e)

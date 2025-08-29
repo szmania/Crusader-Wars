@@ -443,6 +443,7 @@
             this.Btn_CK3Tab.Text = "Crusader Kings";
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_CK3Tab, "Standard Crusader Kings time frame with the Age of Justinian 555, Anno Domini 919, and Medieval Kingdoms 1212 AD mods for Attila.");
             this.Btn_CK3Tab.UseVisualStyleBackColor = false;
+            this.Btn_CK3Tab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_CK3Tab.Click += new System.EventHandler(this.Btn_CK3Tab_Click);
             // 
             // Btn_TFETab
@@ -462,6 +463,7 @@
             this.Btn_TFETab.Text = "The Fallen Eagle";
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_TFETab, "Uses The Fallen Eagle Mod for CK3, with the FireForged Empire mod for Attila.");
             this.Btn_TFETab.UseVisualStyleBackColor = false;
+            this.Btn_TFETab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_TFETab.Click += new System.EventHandler(this.Btn_TFETab_Click);
             // 
             // Btn_LOTRTab
@@ -481,6 +483,7 @@
             this.Btn_LOTRTab.Text = "Realms in Exile";
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Uses the CK3 mod LOTR: Realms in Exile and the Attila mod \"Dawnless Days\".");
             this.Btn_LOTRTab.UseVisualStyleBackColor = false;
+            this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
             // 
             // TableLayoutGamePaths
@@ -540,6 +543,7 @@
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(378, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
+            this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             // 
             // TableLayoutModManager
             // 
