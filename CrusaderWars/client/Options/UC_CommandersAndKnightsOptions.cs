@@ -15,6 +15,9 @@ namespace CrusaderWars.client.Options
         {
             InitializeComponent();
 
+            // Adjust table layouts for better alignment and add tooltips
+            AdjustTableLayouts();
+
             commanderControls = new List<NumericUpDown>
             {
                 numCommanderWounded, numCommanderSeverelyInjured, numCommanderBrutallyMauled,
@@ -75,6 +78,33 @@ namespace CrusaderWars.client.Options
         private void btnReset_Click(object sender, EventArgs e)
         {
             SetDefaults();
+        }
+
+        private void AdjustTableLayouts()
+        {
+            // Add tooltips to group boxes
+            toolTip1.SetToolTip(groupCommanders, "Configure the wound chances for commanders when they fall in battle");
+            toolTip1.SetToolTip(groupKnights, "Configure the wound chances for knights when they fall in battle");
+            
+            // Adjust commanders table
+            tableCommanders.RowStyles.Clear();
+            for (int i = 0; i < 9; i++)
+            {
+                tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 11.11F));
+            }
+            tableCommanders.RowCount = 9; // Ensure row count is explicitly set
+            
+            // Adjust knights table
+            tableKnights.RowStyles.Clear();
+            for (int i = 0; i < 9; i++)
+            {
+                tableKnights.RowStyles.Add(new RowStyle(SizeType.Percent, 11.11F));
+            }
+            tableKnights.RowCount = 9; // Ensure row count is explicitly set
+            
+            // Set row positions for total labels
+            tableCommanders.SetRow(lblCommanderTotal, 8);
+            tableKnights.SetRow(lblKnightTotal, 8);
         }
     }
 }
