@@ -1051,7 +1051,7 @@ namespace CrusaderWars
 
                     else if (editStarted == true && line.Contains("\t\t\t\tcurrent="))
                     {
-                        string edited_line = "\t\t\t\tcurrent=" + (editArmyRegiment?.CurrentNum ?? "0");
+                        string edited_line = "\t\t\t\tcurrent=" + editArmyRegiment.CurrentNum;
                         streamWriter.WriteLine(edited_line);
                         continue;
                     }
