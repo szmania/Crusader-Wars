@@ -575,7 +575,7 @@
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(378, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
-            this.TableLayoutPlaythroughs.Paint += new System.EventHandler(this.TableLayoutPlaythroughs_Paint);
+            this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             // 
             // TableLayoutModManager
             // 
