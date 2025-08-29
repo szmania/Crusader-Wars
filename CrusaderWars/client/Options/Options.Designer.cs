@@ -51,6 +51,7 @@
             this.Btn_GeneralTab = new System.Windows.Forms.Button();
             this.Btn_UnitsTab = new System.Windows.Forms.Button();
             this.Btn_BattleScaleTab = new System.Windows.Forms.Button();
+            this.Btn_CandKTab = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.ModManager = new System.Windows.Forms.DataGridView();
             this.ActiveBoxes = new System.Windows.Forms.DataGridViewCheckBoxColumn();

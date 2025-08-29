@@ -1051,7 +1051,7 @@ namespace CrusaderWars
 
                     else if (editStarted == true && line.Contains("\t\t\t\tcurrent="))
                     {
-                        string edited_line = "\t\t\t\tcurrent=" + editArmyRegiment.CurrentNum;
+                        string edited_line = "\t\t\t\tcurrent=" + (editArmyRegiment?.CurrentNum ?? "0");
                         streamWriter.WriteLine(edited_line);
                         continue;
                     }
@@ -1067,10 +1067,10 @@ namespace CrusaderWars
             }
         }
 
-        static (bool editStarted, ArmyRegiment editArmyRegiment) SearchArmyRegimentsFile(List<Army> armies, string army_regiment_id)
+        static (bool editStarted, ArmyRegiment? editArmyRegiment) SearchArmyRegimentsFile(List<Army> armies, string army_regiment_id)
         {
             bool editStarted = false;
-            ArmyRegiment editRegiment = null;
+            ArmyRegiment? editRegiment = null;
 
             foreach (Army army in armies)
             {
@@ -1165,7 +1165,7 @@ namespace CrusaderWars
                     else if(editStarted && line.Contains("\t\t\tsize="))
                     {
                         isNewData = true;
-                        string newLine = GetChunksText(editRegiment.Max, editRegiment.Owner, editRegiment.CurrentNum);
+                        string newLine = GetChunksText(editRegiment?.Max ?? "0", editRegiment?.Owner ?? "", editRegiment?.CurrentNum ?? "0");
                         streamWriter.WriteLine(newLine);
                         continue;
                     }
@@ -1184,7 +1184,7 @@ namespace CrusaderWars
 
                     else if(!isNewData && (editStarted==true && editIndex==true) && line.Contains("\t\t\t\t\tcurrent="))
                     {
-                        string edited_line = "\t\t\t\t\tcurrent="+editRegiment.CurrentNum;
+                        string edited_line = "\t\t\t\t\tcurrent="+(editRegiment?.CurrentNum ?? "0");
                         streamWriter.WriteLine(edited_line);
                         continue;
                     }
@@ -1204,10 +1204,10 @@ namespace CrusaderWars
             }
         }
 
-        static (bool editStarted, Regiment editRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
+        static (bool editStarted, Regiment? editRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
         {
             bool editStarted = false;
-            Regiment editRegiment = null;
+            Regiment? editRegiment = null;
 
             foreach (Regiment regiment in armies?.SelectMany(army => army.ArmyRegiments)?.SelectMany(armyRegiment => armyRegiment.Regiments))
             {
