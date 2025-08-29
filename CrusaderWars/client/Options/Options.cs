@@ -236,6 +236,12 @@ namespace CrusaderWars
                 var BattleMapsSize_Value = GetOptionValue(xmlDoc, "BattleMapsSize", "Dynamic");
                 var DefensiveDeployables_Value = GetOptionValue(xmlDoc, "DefensiveDeployables", "Enabled");
                 var UnitCards_Value = GetOptionValue(xmlDoc, "UnitCards", "Enabled");
+                var LeviesMax_Value = GetOptionValue(xmlDoc, "LeviesMax", "10");
+                var RangedMax_Value = GetOptionValue(xmlDoc, "RangedMax", "4");
+                var InfantryMax_Value = GetOptionValue(xmlDoc, "InfantryMax", "8");
+                var CavalryMax_Value = GetOptionValue(xmlDoc, "CavalryMax", "4");
+                var BattleScale_Value = GetOptionValue(xmlDoc, "BattleScale", "100%");
+                var AutoScaleUnits_Value = GetOptionValue(xmlDoc, "AutoScaleUnits", "Enabled");
                 var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
 
                 // New Commander and Knight wound chances
