@@ -37,7 +37,15 @@ namespace CrusaderWars
         private void PulseTimer_Tick(object sender, EventArgs e)
         {
             _pulseState = !_pulseState;
-            TableLayoutPlaythroughs.Invalidate();
+            var activePlaythrough = GetActivePlaythrough();
+            if (activePlaythrough != null)
+            {
+                activePlaythrough.Pulse();
+            }
+            else
+            {
+                TableLayoutPlaythroughs.Invalidate();
+            }
         }
 
         private void CloseBtn_Click(object sender, EventArgs e)

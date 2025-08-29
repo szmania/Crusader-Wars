@@ -15,16 +15,44 @@ namespace CrusaderWars.mod_manager
 
         string SteamCollectionLink {  get; set; }
         List<string> RequiredModsList { get; set; }
-        
+        private bool _isPulsing = false;
+        private bool _pulseState = false;
+
         public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods,bool state)
         {
             InitializeComponent();
+            this.Paint += UC_UnitMapper_Paint;
 
             pictureBox1.BackgroundImage = image;
             pictureBox1.BackgroundImageLayout = ImageLayout.Stretch;
             SteamCollectionLink = steamCollectionLink;
             uC_Toggle1.SetState(state);
             RequiredModsList = requiredMods;
+        }
+
+        public void SetPulsing(bool isPulsing)
+        {
+            _isPulsing = isPulsing;
+            this.Invalidate();
+        }
+
+        public void Pulse()
+        {
+            if (!_isPulsing) return;
+            _pulseState = !_pulseState;
+            this.Invalidate();
+        }
+
+        private void UC_UnitMapper_Paint(object sender, PaintEventArgs e)
+        {
+            if (_isPulsing)
+            {
+                Color pulseColor = _pulseState ? Color.FromArgb(100, 255, 255, 0) : Color.FromArgb(200, 255, 215, 0); // Yellowish pulse
+                using (Pen pen = new Pen(pulseColor, 3))
+                {
+                    e.Graphics.DrawRectangle(pen, 0, 0, this.ClientSize.Width - 1, this.ClientSize.Height - 1);
+                }
+            }
         }
 
         internal void SetOtherControlsReferences(UC_UnitMapper[] references)
