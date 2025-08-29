@@ -56,7 +56,7 @@ namespace CrusaderWars.client.Options
                 changedControl.Value -= excess;
             }
             
-            UpdateTotal(commanderControls, lblCommanderTotal);
+            UpdateCommanderTotal();
         }
 
         private void Knight_ValueChanged(object sender, EventArgs e)
@@ -71,14 +71,21 @@ namespace CrusaderWars.client.Options
                 changedControl.Value -= excess;
             }
             
-            UpdateTotal(knightControls, lblKnightTotal);
+            UpdateKnightTotal();
         }
 
-        private void UpdateTotal(List<NumericUpDown> controls, Label totalLabel)
+        public void UpdateCommanderTotal()
         {
-            int total = controls.Sum(c => (int)c.Value);
-            totalLabel.Text = $"Total: {total}%";
-            totalLabel.ForeColor = total == 100 ? Color.White : Color.Red;
+            int total = commanderControls.Sum(c => (int)c.Value);
+            lblCommanderTotal.Text = $"Total: {total}%";
+            lblCommanderTotal.ForeColor = total == 100 ? Color.White : Color.Red;
+        }
+
+        public void UpdateKnightTotal()
+        {
+            int total = knightControls.Sum(c => (int)c.Value);
+            lblKnightTotal.Text = $"Total: {total}%";
+            lblKnightTotal.ForeColor = total == 100 ? Color.White : Color.Red;
         }
 
         public void SetDefaults()
@@ -101,8 +108,8 @@ namespace CrusaderWars.client.Options
             numKnightOneEyed.Value = 3;
             numKnightDisfigured.Value = 1;
 
-            UpdateTotal(commanderControls, lblCommanderTotal);
-            UpdateTotal(knightControls, lblKnightTotal);
+            UpdateCommanderTotal();
+            UpdateKnightTotal();
         }
 
         private void btnReset_Click(object sender, EventArgs e)

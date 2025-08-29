@@ -372,28 +372,86 @@ namespace CrusaderWars
                 BattleScale_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleScale").value;
                 AutoScaleUnits_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "AutoScaleUnits").value;
 
-                // Set Commander NumericUpDown values
-                if (numCommanderWounded != null) numCommanderWounded.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderWoundedChance").value);
-                if (numCommanderSeverelyInjured != null) numCommanderSeverelyInjured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderSeverelyInjuredChance").value);
-                if (numCommanderBrutallyMauled != null) numCommanderBrutallyMauled.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderBrutallyMauledChance").value);
-                if (numCommanderMaimed != null) numCommanderMaimed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderMaimedChance").value);
-                if (numCommanderOneLegged != null) numCommanderOneLegged.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneLeggedChance").value);
-                if (numCommanderOneEyed != null) numCommanderOneEyed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneEyedChance").value);
-                if (numCommanderDisfigured != null) numCommanderDisfigured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderDisfiguredChance").value);
+                // Set Commander NumericUpDown values with proper validation
+                if (numCommanderWounded != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderWoundedChance").value);
+                    numCommanderWounded.Value = Math.Max(numCommanderWounded.Minimum, Math.Min(numCommanderWounded.Maximum, val));
+                }
+                if (numCommanderSeverelyInjured != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderSeverelyInjuredChance").value);
+                    numCommanderSeverelyInjured.Value = Math.Max(numCommanderSeverelyInjured.Minimum, Math.Min(numCommanderSeverelyInjured.Maximum, val));
+                }
+                if (numCommanderBrutallyMauled != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderBrutallyMauledChance").value);
+                    numCommanderBrutallyMauled.Value = Math.Max(numCommanderBrutallyMauled.Minimum, Math.Min(numCommanderBrutallyMauled.Maximum, val));
+                }
+                if (numCommanderMaimed != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderMaimedChance").value);
+                    numCommanderMaimed.Value = Math.Max(numCommanderMaimed.Minimum, Math.Min(numCommanderMaimed.Maximum, val));
+                }
+                if (numCommanderOneLegged != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneLeggedChance").value);
+                    numCommanderOneLegged.Value = Math.Max(numCommanderOneLegged.Minimum, Math.Min(numCommanderOneLegged.Maximum, val));
+                }
+                if (numCommanderOneEyed != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneEyedChance").value);
+                    numCommanderOneEyed.Value = Math.Max(numCommanderOneEyed.Minimum, Math.Min(numCommanderOneEyed.Maximum, val));
+                }
+                if (numCommanderDisfigured != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderDisfiguredChance").value);
+                    numCommanderDisfigured.Value = Math.Max(numCommanderDisfigured.Minimum, Math.Min(numCommanderDisfigured.Maximum, val));
+                }
 
-                // Set Knight NumericUpDown values
-                if (numKnightWounded != null) numKnightWounded.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightWoundedChance").value);
-                if (numKnightSeverelyInjured != null) numKnightSeverelyInjured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightSeverelyInjuredChance").value);
-                if (numKnightBrutallyMauled != null) numKnightBrutallyMauled.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightBrutallyMauledChance").value);
-                if (numKnightMaimed != null) numKnightMaimed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightMaimedChance").value);
-                if (numKnightOneLegged != null) numKnightOneLegged.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneLeggedChance").value);
-                if (numKnightOneEyed != null) numKnightOneEyed.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneEyedChance").value);
-                if (numKnightDisfigured != null) numKnightDisfigured.Value = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightDisfiguredChance").value);
+                // Set Knight NumericUpDown values with proper validation
+                if (numKnightWounded != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightWoundedChance").value);
+                    numKnightWounded.Value = Math.Max(numKnightWounded.Minimum, Math.Min(numKnightWounded.Maximum, val));
+                }
+                if (numKnightSeverelyInjured != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightSeverelyInjuredChance").value);
+                    numKnightSeverelyInjured.Value = Math.Max(numKnightSeverelyInjured.Minimum, Math.Min(numKnightSeverelyInjured.Maximum, val));
+                }
+                if (numKnightBrutallyMauled != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightBrutallyMauledChance").value);
+                    numKnightBrutallyMauled.Value = Math.Max(numKnightBrutallyMauled.Minimum, Math.Min(numKnightBrutallyMauled.Maximum, val));
+                }
+                if (numKnightMaimed != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightMaimedChance").value);
+                    numKnightMaimed.Value = Math.Max(numKnightMaimed.Minimum, Math.Min(numKnightMaimed.Maximum, val));
+                }
+                if (numKnightOneLegged != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneLeggedChance").value);
+                    numKnightOneLegged.Value = Math.Max(numKnightOneLegged.Minimum, Math.Min(numKnightOneLegged.Maximum, val));
+                }
+                if (numKnightOneEyed != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneEyedChance").value);
+                    numKnightOneEyed.Value = Math.Max(numKnightOneEyed.Minimum, Math.Min(numKnightOneEyed.Maximum, val));
+                }
+                if (numKnightDisfigured != null) 
+                {
+                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightDisfiguredChance").value);
+                    numKnightDisfigured.Value = Math.Max(numKnightDisfigured.Minimum, Math.Min(numKnightDisfigured.Maximum, val));
+                }
 
                 // Manually trigger UpdateTotal for CandK_Tab after setting values
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
                 {
-                    candKOptions.SetDefaults(); // This will call UpdateTotal internally
+                    // Update totals after setting values
+                    candKOptions.UpdateCommanderTotal();
+                    candKOptions.UpdateKnightTotal();
                 }
 
                 Program.Logger.Debug("Options UI data set.");
