@@ -120,8 +120,7 @@ namespace CrusaderWars.client.Options
         private void AdjustTableLayouts()
         {
             // Add tooltips to group boxes
-            toolTip1.SetToolTip(groupCommanders, "Configure the wound chances for commanders when they fall in battle");
-            toolTip1.SetToolTip(groupKnights, "Configure the wound chances for knights when they fall in battle");
+            toolTip1.SetToolTip(groupCommanders, "Configure the wound chances for commanders and knights when they fall in battle"); // Updated tooltip
             
             // Add tooltips to labels
             toolTip1.SetToolTip(lblCommanderWounded, "Chance for commander to be wounded when fallen in battle");
@@ -150,45 +149,21 @@ namespace CrusaderWars.client.Options
                 tableCommanders.RowStyles.Add(new RowStyle(SizeType.Percent, 12.5F));
             }
             
-            // Adjust knights table
-            tableKnights.RowStyles.Clear();
-            for (int i = 0; i < 8; i++)
-            {
-                tableKnights.RowStyles.Add(new RowStyle(SizeType.Percent, 12.5F));
-            }
-            
             // Add padding for better vertical alignment
             tableCommanders.Padding = new Padding(0, 5, 0, 0);
-            tableKnights.Padding = new Padding(0, 5, 0, 0);
             
-            // Ensure labels are properly anchored
+            // Ensure controls are properly anchored in the combined tableCommanders
             foreach (Control control in tableCommanders.Controls)
             {
-                if (control is Label && control != lblCommanderTotal)
+                if (control is Label && control != lblCommanderTotal && control != lblKnightTotal) // Exclude both total labels
                 {
                     control.Anchor = AnchorStyles.Left;
                 }
-                else if (control == lblCommanderTotal)
-                {
-                    control.Anchor = AnchorStyles.Left; // Changed from Right
-                }
-                else if (control is NumericUpDown) // Add this block
+                else if (control == lblCommanderTotal || control == lblKnightTotal) // Both total labels
                 {
                     control.Anchor = AnchorStyles.Left;
                 }
-            }
-            
-            foreach (Control control in tableKnights.Controls)
-            {
-                if (control is Label && control != lblKnightTotal)
-                {
-                    control.Anchor = AnchorStyles.Left;
-                }
-                else if (control == lblKnightTotal)
-                {
-                    control.Anchor = AnchorStyles.Left; // Changed from Right
-                }
-                else if (control is NumericUpDown) // Add this block
+                else if (control is NumericUpDown)
                 {
                     control.Anchor = AnchorStyles.Left;
                 }

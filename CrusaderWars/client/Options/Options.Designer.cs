@@ -314,6 +314,7 @@
             this.toggleModManagerButton.BackColor = System.Drawing.Color.Transparent;
             this.toggleModManagerButton.Cursor = System.Windows.Forms.Cursors.Hand;
             this.toggleModManagerButton.FlatAppearance.BorderSize = 0;
+            this.toggleModManagerButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50))))); // Changed this line
             this.toggleModManagerButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.toggleModManagerButton.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toggleModManagerButton.ForeColor = System.Drawing.SystemColors.Control;
@@ -574,7 +575,7 @@
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(378, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
-            this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
+            this.TableLayoutPlaythroughs.Paint += new System.EventHandler(this.TableLayoutPlaythroughs_Paint);
             // 
             // TableLayoutModManager
             // 
