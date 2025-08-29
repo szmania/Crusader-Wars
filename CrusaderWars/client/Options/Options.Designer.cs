@@ -180,7 +180,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(110, 21);
             this.label2.TabIndex = 17;
-            this.label2.Text = "Games Paths";
+            this.label2.Text = "Game Paths";
             // 
             // ToolTip_UnitMappers
             // 
