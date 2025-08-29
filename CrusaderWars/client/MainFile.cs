@@ -286,9 +286,9 @@ namespace CrusaderWars
             btt_debug.Location = new Point(273, 16);
             infoLabel.Location = new Point(52, 493);
             pictureBox1.Location = new Point(4, 4);
-            patreonBtn.Location = new Point(46, 520);
+            patreonBtn.Location = new Point(46, 514); // Adjusted from 520
             WebsiteBTN.Location = new Point(46, 353);
-            SteamBTN.Location = new Point(46, 186);
+            SteamBTN.Location = new Point(46, 180); // Adjusted from 186
             SettingsBtn.Location = new Point(4, 4);
             EA_Label.Location = new Point(75, 0);
             discordLink.Location = new Point(378, 0);
