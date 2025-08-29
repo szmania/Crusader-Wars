@@ -24,6 +24,7 @@ namespace CrusaderWars
         private bool _pulseState = false;
         private string CK3_Path { get; set; }
         private string Attila_Path { get; set; }
+        private bool _isModManagerExpanded = true; // Default to expanded
 
         public Options()
         {
@@ -124,6 +125,12 @@ namespace CrusaderWars
                 AttilaModManager.ReadInstalledModsAndPopulateModManager();
             }
             Program.Logger.Debug("Options form loaded.");
+
+            // Set initial state for Mod Manager (expanded by default)
+            _isModManagerExpanded = true; // Explicitly set to true for default expanded state
+            panel1.Visible = _isModManagerExpanded;
+            toggleModManagerButton.Text = "Mod Manager [▲]";
+            ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
         }
 
         /*##############################################
@@ -804,6 +811,25 @@ namespace CrusaderWars
             {
                 ModManager.EndEdit();
             }
+        }
+
+        private void toggleModManagerButton_Click(object sender, EventArgs e)
+        {
+            _isModManagerExpanded = !_isModManagerExpanded;
+            panel1.Visible = _isModManagerExpanded; // Toggle visibility of the panel containing the DataGridView
+
+            if (_isModManagerExpanded)
+            {
+                toggleModManagerButton.Text = "Mod Manager [▲]";
+                ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
+            }
+            else
+            {
+                toggleModManagerButton.Text = "Mod Manager [▼]";
+                ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to expand the Mod Manager. This section shows optional mods.");
+            }
+            // Force layout update
+            TableLayoutModManager.PerformLayout();
         }
 
 

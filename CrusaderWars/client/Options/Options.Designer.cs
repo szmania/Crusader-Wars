@@ -52,7 +52,7 @@
             this.Btn_UnitsTab = new System.Windows.Forms.Button();
             this.Btn_BattleScaleTab = new System.Windows.Forms.Button();
             this.Btn_CandKTab = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
+            this.toggleModManagerButton = new System.Windows.Forms.Button();
             this.ModManager = new System.Windows.Forms.DataGridView();
             this.ActiveBoxes = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.ImageColumn = new System.Windows.Forms.DataGridViewImageColumn();
@@ -215,7 +215,7 @@
             this.OptionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.OptionsPanel.Location = new System.Drawing.Point(3, 64);
             this.OptionsPanel.Name = "OptionsPanel";
-            this.OptionsPanel.Size = new System.Drawing.Size(459, 437); // Adjusted width from 411 to 459
+            this.OptionsPanel.Size = new System.Drawing.Size(459, 437);
             this.OptionsPanel.TabIndex = 28;
             // 
             // flowLayoutPanel1
@@ -228,7 +228,7 @@
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(459, 34); // Adjusted width from 411 to 459
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(459, 34);
             this.flowLayoutPanel1.TabIndex = 28;
             // 
             // Btn_GeneralTab
@@ -307,17 +307,25 @@
             this.Btn_CandKTab.Click += new System.EventHandler(this.Btn_CandKTab_Click);
             this.Btn_CandKTab.Cursor = System.Windows.Forms.Cursors.Hand;
             // 
-            // label4
+            // toggleModManagerButton
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label4.AutoSize = true;
-            this.label4.BackColor = System.Drawing.SystemColors.Control;
-            this.label4.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(3, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(361, 21);
-            this.label4.TabIndex = 29;
-            this.label4.Text = "Mod Manager - This only shows optional mods.";
+            this.toggleModManagerButton.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.toggleModManagerButton.AutoSize = true;
+            this.toggleModManagerButton.BackColor = System.Drawing.Color.Transparent;
+            this.toggleModManagerButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.toggleModManagerButton.FlatAppearance.BorderSize = 0;
+            this.toggleModManagerButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.toggleModManagerButton.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.toggleModManagerButton.ForeColor = System.Drawing.SystemColors.Control;
+            this.toggleModManagerButton.Location = new System.Drawing.Point(3, 0); // This will be adjusted by the TableLayoutPanel
+            this.toggleModManagerButton.MinimumSize = new System.Drawing.Size(150, 21);
+            this.toggleModManagerButton.Name = "toggleModManagerButton";
+            this.toggleModManagerButton.Size = new System.Drawing.Size(361, 21); // Initial size, will autosize based on content
+            this.toggleModManagerButton.TabIndex = 29; // Reusing label4's old TabIndex
+            this.toggleModManagerButton.Text = "Mod Manager [▲]"; // Default text for expanded state
+            this.toggleModManagerButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.toggleModManagerButton.UseVisualStyleBackColor = false;
+            this.toggleModManagerButton.Click += new System.EventHandler(this.toggleModManagerButton_Click);
             // 
             // ModManager
             // 
@@ -539,13 +547,13 @@
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(400, 142); // Adjusted X from 448 to 400
+            this.TableLayoutSettings.Location = new System.Drawing.Point(400, 142);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutSettings.Size = new System.Drawing.Size(465, 504); // Adjusted width from 417 to 465
+            this.TableLayoutSettings.Size = new System.Drawing.Size(465, 504);
             this.TableLayoutSettings.TabIndex = 37;
             // 
             // TableLayoutPlaythroughs
@@ -573,14 +581,14 @@
             this.TableLayoutModManager.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutModManager.ColumnCount = 1;
             this.TableLayoutModManager.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutModManager.Controls.Add(this.label4, 0, 0);
             this.TableLayoutModManager.Controls.Add(this.panel1, 0, 1);
+            this.TableLayoutModManager.Controls.Add(this.toggleModManagerButton, 0, 0);
             this.TableLayoutModManager.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.TableLayoutModManager.Location = new System.Drawing.Point(0, 649);
             this.TableLayoutModManager.Name = "TableLayoutModManager";
             this.TableLayoutModManager.RowCount = 2;
-            this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutModManager.Size = new System.Drawing.Size(877, 279);
             this.TableLayoutModManager.TabIndex = 0;
             // 
@@ -648,7 +656,7 @@
         private System.Windows.Forms.Button Btn_UnitsTab;
         private System.Windows.Forms.Button Btn_BattleScaleTab;
         private System.Windows.Forms.Button Btn_CandKTab;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button toggleModManagerButton;
         private System.Windows.Forms.DataGridView ModManager;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel UMpanel;
