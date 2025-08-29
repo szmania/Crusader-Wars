@@ -360,9 +360,9 @@
             this.ModManager.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.ModManager.Size = new System.Drawing.Size(781, 256);
             this.ModManager.TabIndex = 30;
-            this.ModManager.CellMouseDoubleClick += new System.EventHandler(this.ModManager_CellMouseDoubleClick);
+            this.ModManager.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ModManager_CellMouseDoubleClick);
             this.ModManager.CellMouseUp += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ModManager_CellMouseUp);
-            this.ModManager.CellValueChanged += new System.EventHandler(this.ModManager_CellValueChanged);
+            this.ModManager.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ModManager_CellValueChanged);
             // 
             // ActiveBoxes
             // 
