@@ -110,6 +110,7 @@ namespace CrusaderWars
             General_Tab = new UC_GeneralOptions();
             Units_Tab = new UC_UnitsOptions();
             BattleScale_Tab = new UC_BattleScaleOptions();
+            CandK_Tab = new UC_CommandersAndKnightsOptions();
 
             ReadUnitMappersOptions();
             ReadOptionsFile();
