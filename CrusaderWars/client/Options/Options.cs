@@ -194,6 +194,7 @@ namespace CrusaderWars
             if (control == General_Tab) activeButton = Btn_GeneralTab;
             else if (control == Units_Tab) activeButton = Btn_UnitsTab;
             else if (control == BattleScale_Tab) activeButton = Btn_BattleScaleTab;
+            else if (control == CandK_Tab) activeButton = Btn_CandKTab;
 
             if (activeButton != null)
             {
