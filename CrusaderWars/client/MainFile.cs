@@ -1611,7 +1611,7 @@ namespace CrusaderWars
             if (System.IO.File.Exists(logPath))
             {
                 // Open explorer and highlight debug.log
-                Process.Start(new ProcessStartInfo("explorer.exe", $"/select, \"{logPath}\""));
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select, \"{logPath}\"") { UseShellExecute = true });
             }
             else
             {
