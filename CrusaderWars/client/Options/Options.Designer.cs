@@ -286,6 +286,24 @@
             this.Btn_BattleScaleTab.UseVisualStyleBackColor = false;
             this.Btn_BattleScaleTab.Click += new System.EventHandler(this.Btn_BattleScaleTab_Click);
             // 
+            // Btn_CandKTab
+            // 
+            this.Btn_CandKTab.AutoSize = true;
+            this.Btn_CandKTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_CandKTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_BattleScaleTab.BackgroundImage")));
+            this.Btn_CandKTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_CandKTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_CandKTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_CandKTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_CandKTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_CandKTab.Location = new System.Drawing.Point(267, 3);
+            this.Btn_CandKTab.Name = "Btn_CandKTab";
+            this.Btn_CandKTab.Size = new System.Drawing.Size(100, 28);
+            this.Btn_CandKTab.TabIndex = 3;
+            this.Btn_CandKTab.Text = "Cmdr/Knights";
+            this.Btn_CandKTab.UseVisualStyleBackColor = false;
+            this.Btn_CandKTab.Click += new System.EventHandler(this.Btn_CandKTab_Click);
+            // 
             // label4
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
