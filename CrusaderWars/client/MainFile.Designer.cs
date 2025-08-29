@@ -278,6 +278,7 @@
             this.patreonBtn.FlatAppearance.BorderSize = 0;
             this.patreonBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.patreonBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.patreonBtn.Location = new System.Drawing.Point(46, 514); // Moved up from 520
             this.patreonBtn.Name = "patreonBtn";
             this.patreonBtn.UseVisualStyleBackColor = false;
             this.patreonBtn.Click += new System.EventHandler(this.patreonBtn_Click);
@@ -311,6 +312,7 @@
             this.SteamBTN.FlatAppearance.BorderSize = 0;
             this.SteamBTN.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.SteamBTN.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.SteamBTN.Location = new System.Drawing.Point(46, 180); // Moved up from 186
             this.SteamBTN.Name = "SteamBTN";
             this.SteamBTN.TabStop = false;
             this.SteamBTN.UseVisualStyleBackColor = false;

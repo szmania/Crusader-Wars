@@ -32,16 +32,46 @@ namespace CrusaderWars.client.Options
 
             foreach (var control in commanderControls)
             {
-                control.ValueChanged += (s, e) => UpdateTotal(commanderControls, lblCommanderTotal);
+                control.ValueChanged += Commander_ValueChanged;
             }
 
             foreach (var control in knightControls)
             {
-                control.ValueChanged += (s, e) => UpdateTotal(knightControls, lblKnightTotal);
+                control.ValueChanged += Knight_ValueChanged;
             }
 
             // Set default values
             SetDefaults();
+        }
+
+        private void Commander_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown changedControl = (NumericUpDown)sender;
+            int total = commanderControls.Sum(c => (int)c.Value);
+            
+            if (total > 100)
+            {
+                // Prevent the change by reducing the value that was just increased
+                int excess = total - 100;
+                changedControl.Value -= excess;
+            }
+            
+            UpdateTotal(commanderControls, lblCommanderTotal);
+        }
+
+        private void Knight_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown changedControl = (NumericUpDown)sender;
+            int total = knightControls.Sum(c => (int)c.Value);
+            
+            if (total > 100)
+            {
+                // Prevent the change by reducing the value that was just increased
+                int excess = total - 100;
+                changedControl.Value -= excess;
+            }
+            
+            UpdateTotal(knightControls, lblKnightTotal);
         }
 
         private void UpdateTotal(List<NumericUpDown> controls, Label totalLabel)
@@ -85,6 +115,26 @@ namespace CrusaderWars.client.Options
             // Add tooltips to group boxes
             toolTip1.SetToolTip(groupCommanders, "Configure the wound chances for commanders when they fall in battle");
             toolTip1.SetToolTip(groupKnights, "Configure the wound chances for knights when they fall in battle");
+            
+            // Add tooltips to labels
+            toolTip1.SetToolTip(lblCommanderWounded, "Chance for commander to be wounded when fallen in battle");
+            toolTip1.SetToolTip(lblCommanderSeverelyInjured, "Chance for commander to be severely injured when fallen in battle");
+            toolTip1.SetToolTip(lblCommanderBrutallyMauled, "Chance for commander to be brutally mauled when fallen in battle");
+            toolTip1.SetToolTip(lblCommanderMaimed, "Chance for commander to be maimed when fallen in battle");
+            toolTip1.SetToolTip(lblCommanderOneLegged, "Chance for commander to lose a leg when fallen in battle");
+            toolTip1.SetToolTip(lblCommanderOneEyed, "Chance for commander to lose an eye when fallen in battle");
+            toolTip1.SetToolTip(lblCommanderDisfigured, "Chance for commander to be disfigured when fallen in battle");
+            
+            toolTip1.SetToolTip(lblKnightWounded, "Chance for knight to be wounded when fallen in battle");
+            toolTip1.SetToolTip(lblKnightSeverelyInjured, "Chance for knight to be severely injured when fallen in battle");
+            toolTip1.SetToolTip(lblKnightBrutallyMauled, "Chance for knight to be brutally mauled when fallen in battle");
+            toolTip1.SetToolTip(lblKnightMaimed, "Chance for knight to be maimed when fallen in battle");
+            toolTip1.SetToolTip(lblKnightOneLegged, "Chance for knight to lose a leg when fallen in battle");
+            toolTip1.SetToolTip(lblKnightOneEyed, "Chance for knight to lose an eye when fallen in battle");
+            toolTip1.SetToolTip(lblKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
+            
+            // Add tooltip to reset button
+            toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");
             
             // Adjust commanders table
             tableCommanders.RowStyles.Clear();

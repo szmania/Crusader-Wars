@@ -332,7 +332,6 @@ namespace CrusaderWars.client.Options
             // lblCommanderTotal
             // 
             this.lblCommanderTotal.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.lblCommanderTotal.AutoSize = true;
             this.tableCommanders.SetColumnSpan(this.lblCommanderTotal, 1);
             this.lblCommanderTotal.Location = new System.Drawing.Point(318, 146);
             this.lblCommanderTotal.Name = "lblCommanderTotal";
@@ -567,7 +566,6 @@ namespace CrusaderWars.client.Options
             // lblKnightTotal
             // 
             this.lblKnightTotal.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.lblKnightTotal.AutoSize = true;
             this.tableKnights.SetColumnSpan(this.lblKnightTotal, 1);
             this.lblKnightTotal.Location = new System.Drawing.Point(318, 146);
             this.lblKnightTotal.Name = "lblKnightTotal";
