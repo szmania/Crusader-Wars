@@ -1619,7 +1619,7 @@ namespace CrusaderWars
                 string folderPath = Path.GetFullPath(@".\data");
                 if (Directory.Exists(folderPath))
                 {
-                    Process.Start(new ProcessStartInfo("explorer.exe", folderPath));
+                    Process.Start(new ProcessStartInfo("explorer.exe", folderPath) { UseShellExecute = true });
                 }
                 else
                 {
