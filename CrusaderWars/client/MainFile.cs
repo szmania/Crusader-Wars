@@ -608,19 +608,47 @@ namespace CrusaderWars
                     break;
                 }
 
-                try
+                bool filesCleared = false;
+                int maxRetries = 3;
+                for (int i = 0; i < maxRetries; i++)
                 {
-                    DataSearch.ClearLogFile();
-                    DeclarationsFile.Erase();
-                    BattleScript.EraseScript();
-                    BattleResult.ClearAttilaLog();
-                    Program.Logger.Debug("Log files cleared.");
+                    try
+                    {
+                        DataSearch.ClearLogFile();
+                        DeclarationsFile.Erase();
+                        BattleScript.EraseScript();
+                        BattleResult.ClearAttilaLog();
+                        Program.Logger.Debug("Log files cleared.");
+                        filesCleared = true;
+                        break; // Exit retry loop on success
+                    }
+                    catch (IOException ex)
+                    {
+                        Program.Logger.Debug($"Attempt {i + 1} to clear log files failed due to file lock: {ex.Message}");
+                        if (i == maxRetries - 1)
+                        {
+                            Program.Logger.Debug("Final attempt to clear log files failed.");
+                            MessageBox.Show($"Could not clear temporary battle files. Another process may be locking them. Please restart the application.\n\nError: {ex.Message}", "Crusader Wars: File Lock Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Retrying file clear in 500ms...");
+                            await Task.Delay(500); // Wait before retrying
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error clearing log files: {ex.Message}");
+                        MessageBox.Show("An unexpected error occurred while clearing log files!", "Crusader Wars: Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        break; // Exit retry loop on unexpected error
+                    }
                 }
-                catch (Exception ex)
+
+                if (!filesCleared)
                 {
-                Program.Logger.Debug($"Error clearing log files: {ex.Message}");
-                    MessageBox.Show("No Log File Found!", "Crusader Wars: Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    // If files could not be cleared after retries, break from the main loop
                     infoLabel.Text = "Ready to start!";
                     ExecuteButton.Enabled = true;
                     this.Text = "Crusader Wars";
