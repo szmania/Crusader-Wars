@@ -1265,6 +1265,9 @@ namespace CrusaderWars
             ContinueBattleButton.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
 
+            // Ensure Attila shortcut exists
+            CreateAttilaShortcut();
+
             // Restore battle context from saved log snippet
             Program.Logger.Debug("Restoring battle context from log snippet...");
             string logSnippet = BattleState.LoadLogSnippet();
