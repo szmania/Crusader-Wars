@@ -1149,7 +1149,7 @@ namespace CrusaderWars
                     Program.Logger.Debug("Processing TW:Attila battle results.");
                     ModOptions.CloseAttila();
 
-                    infoLabel.Text = "Processing battle results...";
+                    infoLabel.Text = "Processing TW:Attila battle results...";
                     this.Text = "Crusader Wars (Processing results)";
 
                     string path_log_attila = Properties.Settings.Default.VAR_log_attila;
