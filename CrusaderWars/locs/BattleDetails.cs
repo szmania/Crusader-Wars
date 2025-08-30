@@ -32,8 +32,21 @@ namespace CrusaderWars.locs
         private static void EditButtonVersion()
         {
             string version_path = @".\app_version.txt";
-            string version = File.ReadAllText(version_path);
-            version = Regex.Match(version, @"""(.+)""").Groups[1].Value;
+            string version = "1.0.0"; // Default version
+
+            if (!File.Exists(version_path))
+            {
+                File.WriteAllText(version_path, $"version=\"{version}\"");
+            }
+
+            string fileContent = File.ReadAllText(version_path);
+            Match match = Regex.Match(fileContent, @"""(.+)""");
+
+            if (match.Success)
+            {
+                version = match.Groups[1].Value;
+            }
+            // If parsing fails, 'version' remains "1.0.0"
 
             
             string original_buttonVersion_path = @".\data\battle files\text\db\tutorial_historical_battles_uied_component_texts.loc.tsv";

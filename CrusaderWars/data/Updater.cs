@@ -59,16 +59,28 @@ namespace CrusaderWars
         {
             string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
             Program.Logger.Debug($"Reading app version from: {version_path}");
-            string app_version = "";
-            if (File.Exists(version_path))
+            string app_version = "1.0.0"; // Default version
+
+            if (!File.Exists(version_path))
             {
-                app_version = File.ReadAllText(version_path);
-                app_version = Regex.Match(app_version, "\"(.+)\"").Groups[1].Value;
-                AppVersion = app_version;
-                Program.Logger.Debug($"App version found: {app_version}");
-                return app_version;
+                Program.Logger.Debug($"app_version.txt not found. Creating with default version \"{app_version}\".");
+                File.WriteAllText(version_path, $"version=\"{app_version}\"");
             }
-            Program.Logger.Debug("app_version.txt not found.");
+
+            string fileContent = File.ReadAllText(version_path);
+            Match match = Regex.Match(fileContent, "\"(.+)\"");
+
+            if (match.Success)
+            {
+                app_version = match.Groups[1].Value;
+                Program.Logger.Debug($"App version parsed: {app_version}");
+            }
+            else
+            {
+                Program.Logger.Debug($"Failed to parse app version from '{fileContent}'. Using default version \"{app_version}\".");
+            }
+
+            AppVersion = app_version;
             return app_version;
         }
 
@@ -76,16 +88,28 @@ namespace CrusaderWars
         {
             string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
             Program.Logger.Debug($"Reading unit mappers version from: {version_path}");
-            string um_version = "";
-            if (File.Exists(version_path))
+            string um_version = "1.0.0"; // Default version
+
+            if (!File.Exists(version_path))
             {
-                um_version = File.ReadAllText(version_path);
-                um_version = Regex.Match(um_version, "\"(.+)\"").Groups[1].Value;
-                UMVersion = um_version;
-                Program.Logger.Debug($"Unit mappers version found: {um_version}");
-                return um_version;
+                Program.Logger.Debug($"um_version.txt not found. Creating with default version \"{um_version}\".");
+                File.WriteAllText(version_path, $"version=\"{um_version}\"");
             }
-            Program.Logger.Debug("um_version.txt not found.");
+
+            string fileContent = File.ReadAllText(version_path);
+            Match match = Regex.Match(fileContent, "\"(.+)\"");
+
+            if (match.Success)
+            {
+                um_version = match.Groups[1].Value;
+                Program.Logger.Debug($"Unit mappers version parsed: {um_version}");
+            }
+            else
+            {
+                Program.Logger.Debug($"Failed to parse unit mappers version from '{fileContent}'. Using default version \"{um_version}\".");
+            }
+
+            UMVersion = um_version;
             return um_version;
         }
 
@@ -344,7 +368,7 @@ namespace CrusaderWars
                         string releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/{version}";
                         if (!version.StartsWith("v"))
                         {
-                            releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/v{version}";
+                            releaseUrl = $"https://github.com/{user}/{repoName}/releases/tag/{version}";
                         }
                         Program.Logger.Debug($"Found release at: {releaseUrl}");
                         return releaseUrl;
