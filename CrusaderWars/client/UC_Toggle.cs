@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Media;
 using System.Windows.Forms;
+using System.IO; // Added for File.Exists
 
 namespace CrusaderWars.client
 {
@@ -41,8 +42,20 @@ namespace CrusaderWars.client
         private void UC_Toggle_Click(object sender, EventArgs e)
         {
             ChangeState();
-            SoundPlayer sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
-            sounds.Play();
+            string soundPath = @".\data\sounds\metal-dagger-hit-185444.wav";
+            if (File.Exists(soundPath))
+            {
+                try
+                {
+                    SoundPlayer sounds = new SoundPlayer(soundPath);
+                    sounds.Play();
+                }
+                catch (Exception ex)
+                {
+                    // Log the error silently, as it's a non-critical UI sound.
+                    // Program.Logger.Debug($"Error playing toggle sound: {ex.Message}"); // Optional logging
+                }
+            }
         }
     }
 }

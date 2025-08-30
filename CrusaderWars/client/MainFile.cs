@@ -558,8 +558,7 @@ namespace CrusaderWars
 
             if (!_programmaticClick)
             {
-                sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
-                sounds.Play();
+                PlaySound(@".\data\sounds\sword-slash-with-metal-shield-impact-185433.wav");
             }
             _programmaticClick = false; // Always reset after check
 
@@ -1260,8 +1259,7 @@ namespace CrusaderWars
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Continue Battle button clicked.");
-            sounds = new SoundPlayer(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
-            sounds.Play();
+            PlaySound(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
             _myVariable = 1;
             ExecuteButton.Enabled = false;
             ContinueBattleButton.Enabled = false;
@@ -1650,8 +1648,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Settings button clicked.");
             SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_click;
-            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
-            sounds.Play();
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             
             Options optionsChild = new Options();
             optionsChild.ShowDialog();
@@ -1664,12 +1661,28 @@ namespace CrusaderWars
             ProcessCommands.ResumeProcess();
         }
 
-        SoundPlayer sounds;
+        private void PlaySound(string soundFilePath)
+        {
+            try
+            {
+                if (File.Exists(soundFilePath))
+                {
+                    new SoundPlayer(soundFilePath).Play();
+                }
+                else
+                {
+                    Program.Logger.Debug($"Sound file not found: {soundFilePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error playing sound {soundFilePath}: {ex.Message}");
+            }
+        }
 
         private void viewLogsLink_Click(object sender, EventArgs e)
         {
-            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
-            sounds.Play();
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             
             string logPath = Path.GetFullPath(@".\data\debug.log");
             if (System.IO.File.Exists(logPath))
@@ -1697,8 +1710,7 @@ namespace CrusaderWars
 
         private void discordLink_Click(object sender, EventArgs e)
         {
-            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
-            sounds.Play();
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             Process.Start(new ProcessStartInfo("https://discord.gg/WEGXdrqrpa") { UseShellExecute = true });
         }
 
@@ -1706,8 +1718,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Patreon button clicked.");
             patreonBtn.BackgroundImage = Properties.Resources.patreon_btn_clickpng;
-            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
-            sounds.Play();
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             Process.Start(new ProcessStartInfo("https://www.patreon.com/user?u=83859552") { UseShellExecute = true });
 
         }
@@ -1716,8 +1727,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Website button clicked.");
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
-            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
-            sounds.Play();
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             Process.Start(new ProcessStartInfo("https://www.crusaderwars.com") { UseShellExecute = true });
 
         }
@@ -1726,8 +1736,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Steam button clicked.");
             SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_click;
-            sounds = new SoundPlayer(@".\data\sounds\metal-dagger-hit-185444.wav");
-            sounds.Play();
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             Process.Start(new ProcessStartInfo("https://steamcommunity.com/sharedfiles/filedetails/?id=2977969008") { UseShellExecute = true });
         }
 
