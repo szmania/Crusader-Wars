@@ -1349,6 +1349,8 @@ namespace CrusaderWars
                 }
             }
 
+            infoLabel.Text = "Preparing TW:Attila battle...";
+            this.Text = "Crusader Wars (Preparing TW:Attila battle...)";
             _programmaticClick = true;
             if (await ProcessBattle(regenerateAndRestart))
             {
