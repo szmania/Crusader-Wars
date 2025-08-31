@@ -1265,6 +1265,10 @@ namespace CrusaderWars
             ContinueBattleButton.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
 
+            // Update status label immediately
+            infoLabel.Text = "Preparing TW:Attila battle...";
+            this.Text = "Crusader Wars (Preparing TW:Attila battle...)";
+
             // Ensure Attila shortcut exists
             CreateAttilaShortcut();
 
@@ -1279,6 +1283,8 @@ namespace CrusaderWars
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
+                this.Text = "Crusader Wars"; // Reset status on early exit
                 return;
             }
             DataSearch.Search(logSnippet);
@@ -1311,6 +1317,8 @@ namespace CrusaderWars
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
+                this.Text = "Crusader Wars"; // Reset status on early exit
                 return;
             }
 
@@ -1345,12 +1353,12 @@ namespace CrusaderWars
                     {
                         ExecuteButton.BackgroundImage = Properties.Resources.start_new;
                     }
+                    infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
+                    this.Text = "Crusader Wars"; // Reset status on early exit
                     return;
                 }
             }
 
-            infoLabel.Text = "Preparing TW:Attila battle...";
-            this.Text = "Crusader Wars (Preparing TW:Attila battle...)";
             _programmaticClick = true;
             if (await ProcessBattle(regenerateAndRestart))
             {
