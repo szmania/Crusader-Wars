@@ -1258,7 +1258,7 @@ namespace CrusaderWars
                     else if(editStarted && line.Contains("\t\t\tsize="))
                     {
                         isNewData = true;
-                        string newLine = GetChunksText(editRegiment?.Max ?? "0", editRegiment?.Owner ?? "", editRegiment?.CurrentNum ?? "0");
+                        string newLine = GetChunksText((editRegiment?.Max)?.ToString() ?? "0", editRegiment?.Owner ?? "", (editRegiment?.CurrentNum)?.ToString() ?? "0");
                         streamWriter.WriteLine(newLine);
                         Program.Logger.Debug($"Regiment {editRegiment?.ID}: Writing new data format with current soldiers {editRegiment?.CurrentNum ?? "0"}.");
                         continue;
@@ -1278,7 +1278,7 @@ namespace CrusaderWars
 
                     else if(!isNewData && (editStarted==true && editIndex==true) && line.Contains("\t\t\t\t\tcurrent="))
                     {
-                        string currentNum = editRegiment?.CurrentNum ?? "0";
+                        string currentNum = (editRegiment?.CurrentNum)?.ToString() ?? "0";
                         string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
                         streamWriter.WriteLine(edited_line);
                         Program.Logger.Debug($"Regiment {editRegiment?.ID}: Updating old data format with current soldiers {currentNum}.");
