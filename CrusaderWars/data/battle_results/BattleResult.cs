@@ -346,7 +346,7 @@ namespace CrusaderWars
                 {
                     if(regiment.Culture is null ) continue; // skip siege maa
 
-                    var unitReport = army.CasualitiesReports.FirstOrDefault(x => x.GetUnitType() == armyRegiment.Type && x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == armyRegiment.MAA_Name);
+                    var unitReport = army.CasualitiesReports.FirstOrDefault(x => x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null && x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == armyRegiment.MAA_Name);
                     if (unitReport == null)
                         continue;
 
@@ -370,11 +370,11 @@ namespace CrusaderWars
                         
                     regiment.SetSoldiers(regSoldiers.ToString());
                     unitReport.SetKilled(killed);
-                    Program.Logger.Debug($"Setting Unit Report: Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
+                    Program.Logger.Debug($"Setting Unit Report: Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
 
                     int army_regiment_total = armyRegiment.Regiments.Where(reg => reg.CurrentNum != null).Sum(x => Int32.Parse(x.CurrentNum));
                     armyRegiment.SetCurrentNum(army_regiment_total.ToString());
-                    Program.Logger.Debug($"Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
+                    Program.Logger.Debug($"Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
                 }
             }
         }
