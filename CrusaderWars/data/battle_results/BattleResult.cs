@@ -394,6 +394,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
             foreach(var group in grouped)
             {
+                Program.Logger.Debug($"Processing casualty report for group: Type='{group.Key.Type}', CultureID='{group.Key.CultureID}'.");
                 // Set the regiment type to the correct one
                 RegimentType unitType;
                 if (group.Key.Type.Contains("Levy")) { unitType = RegimentType.Levy; }
@@ -422,9 +423,10 @@ namespace CrusaderWars
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
                 UnitCasualitiesReport unitReport;
-                if (pursuit_grouped != null)
+                var pursuitGroup = pursuit_grouped?.FirstOrDefault(x => x.Key.Type == group.Key.Type && x.Key.CultureID == group.Key.CultureID);
+
+                if (pursuitGroup != null)
                 {
-                    var pursuitGroup = pursuit_grouped.FirstOrDefault(x => x.Key.Type == group.Key.Type && x.Key.CultureID == group.Key.CultureID);
                     int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
                     unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining);
                 }
@@ -1190,7 +1192,7 @@ namespace CrusaderWars
                     }
                 }
             }
-            Program.Logger.Debug($"ArmyRegiment ID: {army_regiment_id} not found in ArmyRegiments file.");
+            // Program.Logger.Debug($"ArmyRegiment ID: {army_regiment_id} not found in ArmyRegiments file.");
             return (false, null);
         }
 
