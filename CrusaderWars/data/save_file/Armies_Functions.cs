@@ -219,7 +219,7 @@ namespace CrusaderWars.data.save_file
                                 break;
                         }
 
-                        Program.Logger.Debug("    Starting line-by-line culture parsing...");
+                        // Program.Logger.Debug("    Starting line-by-line culture parsing...");
                     }
 
                     // Add log for found culture name
