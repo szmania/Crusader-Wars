@@ -74,13 +74,13 @@ namespace CrusaderWars
     {
 
         //SOLDIERS ALIVE
-        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase { get; private  set; }
-        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_PursuitPhase { get; private set; }
+        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase { get; private  set; } = new List<(string, string, string, string)>();
+        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_PursuitPhase { get; private set; } = new List<(string, string, string, string)>();
 
 
         //SOLDIERS KILLS
-        public List<(string Script, string Type, string CultureID, string Kills)> Kills_MainPhase { get; private set; }
-        public List<(string Script, string Type, string CultureID, string Kills)> Kills_PursuitPhase { get; private set; }
+        public List<(string Script, string Type, string CultureID, string Kills)> Kills_MainPhase { get; private set; } = new List<(string, string, string, string)>();
+        public List<(string Script, string Type, string CultureID, string Kills)> Kills_PursuitPhase { get; private set; } = new List<(string, string, string, string)>();
 
         public void ScaleTo100Porcent()
         {

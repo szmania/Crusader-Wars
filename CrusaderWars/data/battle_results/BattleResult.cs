@@ -243,7 +243,11 @@ namespace CrusaderWars
                 List<(string Script, string Type, string CultureID, string Kills)> Kills_PursuitPhase = new List<(string Name, string Type, string CultureID, string Kills)>();
 
                 var (AliveList, KillsList) = GetRemainingAndKills(path_attila_log);
-                if (AliveList.Count == 1)
+                if (AliveList.Count == 0)
+                {
+                    Program.Logger.Debug($"Warning: No battle reports found in Attila log for army {army.ID}. Assuming no survivors or battle did not generate logs.");
+                }
+                else if (AliveList.Count == 1)
                 {
                     Program.Logger.Debug($"Single battle phase detected for army {army.ID}.");
                     Alive_MainPhase = ReturnList(army, AliveList[0], DataType.Alive);
