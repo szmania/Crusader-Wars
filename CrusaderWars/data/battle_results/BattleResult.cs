@@ -462,13 +462,18 @@ namespace CrusaderWars
             if(army.Knights != null && army.Knights.HasKnights())
             {
                 int remaining = 0;
-                if (army.UnitsResults.Alive_PursuitPhase != null)
+                var knightReport = army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
+
+                // If no report in pursuit phase, check main phase
+                if (knightReport.Remaining == null)
                 {
-                    remaining = Int32.Parse(army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights").Remaining);
+                    knightReport = army.UnitsResults.Alive_MainPhase.FirstOrDefault(x => x.Type == "knights");
                 }
-                else
+
+                // If we found a report in either phase, parse it
+                if (knightReport.Remaining != null)
                 {
-                    remaining = Int32.Parse(army.UnitsResults.Alive_MainPhase.FirstOrDefault(x => x.Type == "knights").Remaining);
+                    Int32.TryParse(knightReport.Remaining, out remaining);
                 }
                 army.Knights.GetKilled(remaining);
                 foreach (var knight in army.Knights.GetKnightsList().Where(k => k.HasFallen()))
@@ -483,7 +488,12 @@ namespace CrusaderWars
             Program.Logger.Debug($"Checking knight kills for army {army.ID}");
             if (army.Knights != null && army.Knights.HasKnights())
             {
-                int kills = Int32.Parse(army.UnitsResults.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights").Kills);
+                var knightKillsReport = army.UnitsResults.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
+                int kills = 0;
+                if (knightKillsReport.Kills != null)
+                {
+                    Int32.TryParse(knightKillsReport.Kills, out kills);
+                }
                 army.Knights.GetKills(kills);
                 Program.Logger.Debug($"Total knight kills for army {army.ID}: {kills}");
             }
