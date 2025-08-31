@@ -930,7 +930,7 @@ namespace CrusaderWars
                         }
                         else if (line.Contains("\t\t\t\t\t\tcurrent="))
                         {
-                            string currentNum = SearchArmyRegiment(attacker_armies, army_regiment_id)?.CurrentNum ?? "0";
+                            string currentNum = (SearchArmyRegiment(attacker_armies, army_regiment_id)?.CurrentNum)?.ToString() ?? "0";
                             string edited_line = "\t\t\t\t\t\tcurrent=" + currentNum;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: Regiment {army_regiment_id} current={currentNum}");
@@ -967,7 +967,7 @@ namespace CrusaderWars
                         }
                         else if (line.Contains("\t\t\t\t\t\tcurrent="))
                         {
-                            string currentNum = SearchArmyRegiment(defender_armies, army_regiment_id)?.CurrentNum ?? "0";
+                            string currentNum = (SearchArmyRegiment(defender_armies, army_regiment_id)?.CurrentNum)?.ToString() ?? "0";
                             string edited_line = "\t\t\t\t\t\tcurrent=" + currentNum;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: Regiment {army_regiment_id} current={currentNum}");
