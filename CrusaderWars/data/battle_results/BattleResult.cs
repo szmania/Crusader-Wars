@@ -370,12 +370,11 @@ namespace CrusaderWars
                         
                     regiment.SetSoldiers(regSoldiers.ToString());
                     unitReport.SetKilled(killed);
-                    Program.Logger.Debug($"Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
-
+                    Program.Logger.Debug($"Setting Unit Report: Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
 
                     int army_regiment_total = armyRegiment.Regiments.Where(reg => reg.CurrentNum != null).Sum(x => Int32.Parse(x.CurrentNum));
                     armyRegiment.SetCurrentNum(army_regiment_total.ToString());
-
+                    Program.Logger.Debug($"Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
                 }
             }
         }
@@ -1174,7 +1173,7 @@ namespace CrusaderWars
 
         static (bool editStarted, ArmyRegiment? editArmyRegiment) SearchArmyRegimentsFile(List<Army> armies, string army_regiment_id)
         {
-            Program.Logger.Debug($"Searching for ArmyRegiment ID: {army_regiment_id} in ArmyRegiments file.");
+            // Program.Logger.Debug($"Searching for ArmyRegiment ID: {army_regiment_id} in ArmyRegiments file.");
             bool editStarted = false;
             ArmyRegiment? editRegiment = null;
 
@@ -1319,7 +1318,7 @@ namespace CrusaderWars
 
         static (bool editStarted, Regiment? editRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
         {
-            Program.Logger.Debug($"Searching for Regiment ID: {regiment_id} in Regiments file.");
+            // Program.Logger.Debug($"Searching for Regiment ID: {regiment_id} in Regiments file.");
             bool editStarted = false;
             Regiment? editRegiment = null;
 
