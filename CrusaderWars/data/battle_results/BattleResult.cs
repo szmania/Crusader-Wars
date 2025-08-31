@@ -502,7 +502,7 @@ namespace CrusaderWars
 
         static (bool searchStarted, bool isCommander, CommanderSystem? commander, bool isKnight, Knight? knight) SearchCharacters(string char_id, List<Army> armies)
         {
-            Program.Logger.Debug($"Searching for character ID: {char_id}");
+            // Program.Logger.Debug($"Searching for character ID: {char_id}");
             foreach (Army army in armies)
             {
                 if (army.Commander != null && army.Commander.ID == char_id)
@@ -545,7 +545,7 @@ namespace CrusaderWars
                     }
                 }
             }
-            Program.Logger.Debug($"Character ID: {char_id} not found in any army.");
+            // Program.Logger.Debug($"Character ID: {char_id} not found in any army.");
             return (false, false, null, false, null);
         }
 
@@ -1331,7 +1331,7 @@ namespace CrusaderWars
                     return (editStarted, editRegiment);
                 }
             }
-            Program.Logger.Debug($"Regiment ID: {regiment_id} not found in Regiments file.");
+            // Program.Logger.Debug($"Regiment ID: {regiment_id} not found in Regiments file.");
             return (false, null);
         }
 
