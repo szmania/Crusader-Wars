@@ -351,6 +351,10 @@ namespace CrusaderWars
                         continue;
 
                     int killed = unitReport.GetKilled();
+                    
+                    // Check if CurrentNum is null or empty before parsing
+                    if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+
                     int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
                     int regSoldiers = originalSoldiers;
                     while (regSoldiers > 0 && killed > 0)
