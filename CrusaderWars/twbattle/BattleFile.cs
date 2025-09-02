@@ -152,22 +152,17 @@ namespace CrusaderWars
             }
             else
             {
-                try
+                userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
+                if (userAlliedArmy == null)
                 {
-                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
-                    isUserAlly = true;
-                    if (userAlliedArmy.CombatSide == "attacker")
-                        userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
-                    else if (userAlliedArmy.CombatSide == "defender")
-                        userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
+                    // This should not happen anymore due to the pre-check in MainFile.cs, but serves as a safeguard.
+                    throw new InvalidOperationException("Player army not found in battle, but the pre-check passed. This indicates a logic error.");
                 }
-                catch
-                {
-                    MessageBox.Show("None of your armies is present on this battle!", "Crusader Wars: Zero Friendly Armies Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    throw new Exception();
-                }
-
+                isUserAlly = true;
+                if (userAlliedArmy.CombatSide == "attacker")
+                    userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
+                else if (userAlliedArmy.CombatSide == "defender")
+                    userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
             }
 
             if (enemy_main_army.CombatSide == "attacker")
@@ -270,32 +265,28 @@ namespace CrusaderWars
             }
             else
             {
-                try
-                {
-                    isUserAlly = true;
-                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
+                isUserAlly = true;
+                userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
 
-                    if (userAlliedArmy.CombatSide == "attacker")
-                    {
-                        temp_attacker_armies.Remove(userAlliedArmy);
-                        temp_attacker_armies.Insert(0, userAlliedArmy);
-                    }
-                    else
-                    {
-                        temp_defender_armies.Remove(userAlliedArmy);
-                        temp_defender_armies.Insert(0, userAlliedArmy);
-                    }
-
-                    ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
-                    ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
-                }
-                catch
+                if (userAlliedArmy == null)
                 {
-                    MessageBox.Show("None of your armies is present on this battle!", "Crusader Wars: Zero Friendly Armies Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    throw new Exception();
+                    // This should not happen anymore due to the pre-check in MainFile.cs, but serves as a safeguard.
+                    throw new InvalidOperationException("Player army not found in battle, but the pre-check passed. This indicates a logic error.");
                 }
 
+                if (userAlliedArmy.CombatSide == "attacker")
+                {
+                    temp_attacker_armies.Remove(userAlliedArmy);
+                    temp_attacker_armies.Insert(0, userAlliedArmy);
+                }
+                else
+                {
+                    temp_defender_armies.Remove(userAlliedArmy);
+                    temp_defender_armies.Insert(0, userAlliedArmy);
+                }
+
+                ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
+                ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
             }
             
 

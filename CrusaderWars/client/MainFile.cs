@@ -810,15 +810,7 @@ namespace CrusaderWars
                 {
                     UpdateLoadingScreenMessage("Getting data from CK3 save file...");
                     await Task.Delay(2000); //Old was 3000ms
-                    if (ModOptions.CloseCK3DuringBattle())
-                    {
-                        Games.CloseCrusaderKingsProcess();
-                    }
-                    else
-                    {
-                        ProcessCommands.SuspendProcess();
-                    }
-
+                    
                     //path_editedSave = Properties.Settings.Default.VAR_dir_save + @"\CrusaderWars_Battle.ck3";
                     path_editedSave = @".\data\save_file_data\gamestate_file\gamestate";
                     Program.Logger.Debug("Uncompressing and reading CK3 save file.");
@@ -862,6 +854,34 @@ namespace CrusaderWars
                     defender_armies = armies.defender;
                     Program.Logger.Debug($"Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
             
+                    // NEW: Check if player's character is in any of the armies
+                    bool isPlayerPresent = attacker_armies.Any(a => a.Owner.GetID() == DataSearch.Player_Character.GetID()) ||
+                                           defender_armies.Any(a => a.Owner.GetID() == DataSearch.Player_Character.GetID());
+
+                    if (!isPlayerPresent)
+                    {
+                        Program.Logger.Debug("Player character not found in any battle army. Aborting battle and returning to CK3.");
+                        this.Show();
+                        if (loadingScreen != null) CloseLoadingScreen();
+                        MessageBox.Show("None of your armies is present on this battle!", "Crusader Wars: No Player Army",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        
+                        // We haven't suspended CK3, so just reset state and wait for the next battle.
+                        infoLabel.Text = "Waiting for CK3 battle...";
+                        this.Text = "Crusader Wars (Waiting for CK3 battle...)";
+                        Data.Reset();
+                        continue; // Go back to the start of the while(true) loop
+                    }
+
+                    if (ModOptions.CloseCK3DuringBattle())
+                    {
+                        Games.CloseCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.SuspendProcess();
+                    }
+
                     // Mark battle as started only if setup succeeded
                     BattleState.MarkBattleStarted();
                     UpdateUIForBattleState();
