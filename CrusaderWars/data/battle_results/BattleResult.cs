@@ -1234,6 +1234,7 @@ namespace CrusaderWars
             bool editStarted = false;
             bool editIndex = false;
             Regiment editRegiment = null;
+            ArmyRegiment parentArmyRegiment = null; // Declare new variable
 
             int index = -1;
             bool isNewData = false;
@@ -1259,6 +1260,7 @@ namespace CrusaderWars
                         {
                             editStarted = true;
                             editRegiment = searchingData.editRegiment;
+                            parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
                             Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Attacker).");
                         }
                         else
@@ -1268,6 +1270,7 @@ namespace CrusaderWars
                             {
                                 editStarted = true;
                                 editRegiment = searchingData.editRegiment;
+                                parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
                                 Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Defender).");
                             }
                         }
@@ -1276,11 +1279,24 @@ namespace CrusaderWars
 
                     else if(editStarted && line.Contains("\t\t\tsize="))
                     {
-                        isNewData = true;
-                        string newLine = GetChunksText((editRegiment?.Max)?.ToString() ?? "0", editRegiment?.Owner ?? "", (editRegiment?.CurrentNum)?.ToString() ?? "0");
-                        streamWriter.WriteLine(newLine);
-                        Program.Logger.Debug($"Regiment {editRegiment?.ID}: Writing new data format with current soldiers {editRegiment?.CurrentNum ?? "0"}.");
-                        continue;
+                        if (parentArmyRegiment != null && parentArmyRegiment.Type == RegimentType.MenAtArms)
+                        {
+                            // For Men-at-Arms, only update the 'size' line and keep other properties.
+                            string currentNum = (editRegiment?.CurrentNum)?.ToString() ?? "0";
+                            string edited_line = "\t\t\tsize=" + currentNum;
+                            streamWriter.WriteLine(edited_line);
+                            Program.Logger.Debug($"Regiment {editRegiment?.ID}: Updating Men-at-Arms size to {currentNum}.");
+                            continue; // Continue to next line without setting isNewData
+                        }
+                        else
+                        {
+                            // For other types (Levy), use the existing logic to rewrite the block.
+                            isNewData = true;
+                            string newLine = GetChunksText((editRegiment?.Max)?.ToString() ?? "0", editRegiment?.Owner ?? "", (editRegiment?.CurrentNum)?.ToString() ?? "0");
+                            streamWriter.WriteLine(newLine);
+                            Program.Logger.Debug($"Regiment {editRegiment?.ID}: Writing new data format with current soldiers {editRegiment?.CurrentNum ?? "0"}.");
+                            continue;
+                        }
                     }
 
                     //Index Counter
@@ -1308,6 +1324,7 @@ namespace CrusaderWars
                     else if(editStarted && line == "\t\t}")
                     {
                         editStarted = false; editRegiment = null; editIndex = false; index = -1; isNewData = false;
+                        parentArmyRegiment = null; // Reset parent ArmyRegiment
                     }
 
                     if(!isNewData)
@@ -1320,24 +1337,32 @@ namespace CrusaderWars
             Program.Logger.Debug("Finished editing Regiments file.");
         }
 
-        static (bool editStarted, Regiment? editRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
+        static (bool editStarted, Regiment? editRegiment, ArmyRegiment? parentArmyRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
         {
             // Program.Logger.Debug($"Searching for Regiment ID: {regiment_id} in Regiments file.");
             bool editStarted = false;
             Regiment? editRegiment = null;
+            ArmyRegiment? parentArmyRegiment = null;
 
-            foreach (Regiment regiment in armies?.SelectMany(army => army.ArmyRegiments)?.SelectMany(armyRegiment => armyRegiment.Regiments))
+            foreach (Army army in armies)
             {
-                if (regiment.ID == regiment_id)
+                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
-                    editStarted = true;
-                    editRegiment = regiment;
-                    Program.Logger.Debug($"Found Regiment {regiment_id}.");
-                    return (editStarted, editRegiment);
+                    foreach (Regiment regiment in armyRegiment.Regiments)
+                    {
+                        if (regiment.ID == regiment_id)
+                        {
+                            editStarted = true;
+                            editRegiment = regiment;
+                            parentArmyRegiment = armyRegiment;
+                            Program.Logger.Debug($"Found Regiment {regiment_id} with parent ArmyRegiment {armyRegiment.ID}.");
+                            return (editStarted, editRegiment, parentArmyRegiment);
+                        }
+                    }
                 }
             }
             // Program.Logger.Debug($"Regiment ID: {regiment_id} not found in Regiments file.");
-            return (false, null);
+            return (false, null, null);
         }
 
 
