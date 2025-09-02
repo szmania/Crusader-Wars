@@ -696,7 +696,7 @@ namespace CrusaderWars
                         {
                             isMAA = true;
                             regimentType = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
-                            Program.Logger.Debug($"Attacker: Detected regiment type: {regimentType}");
+                            Program.Logger.Debug($"Attacker: Detected Men-at-Arms regiment type: {regimentType}");
                         }
                         else if (line.Contains("\t\t\t\t\t\tknight="))
                         {
