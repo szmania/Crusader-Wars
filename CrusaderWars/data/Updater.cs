@@ -136,44 +136,126 @@ namespace CrusaderWars
             }
         }
 
-        private bool IsPreRelease(string versionStr)
+        private string GetPreReleaseTag(string versionStr)
         {
-            if (string.IsNullOrEmpty(versionStr)) return false;
+            // Remove leading 'v' if present for consistent regex matching
             string processedVersion = versionStr.StartsWith("v") ? versionStr.Substring(1) : versionStr;
-            return Regex.IsMatch(processedVersion, "[a-zA-Z]");
+            Match match = Regex.Match(processedVersion, @"-(.+)");
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            return null;
         }
 
         bool IsNewerVersion(string versionA, string versionB)
         {
-            Program.Logger.Debug($"Comparing versions - A: {versionA}, B: {versionB}");
+            Program.Logger.Debug($"Comparing versions - A: '{versionA}', B: '{versionB}'");
 
             Version verA = ParseVersion(versionA);
             Version verB = ParseVersion(versionB);
 
+            // 1. Compare main version numbers
             if (verB > verA)
             {
-                Program.Logger.Debug("Version B is newer based on version number.");
+                Program.Logger.Debug($"  Main version B ({verB}) is newer than A ({verA}). B is newer.");
                 return true;
             }
-
             if (verB < verA)
             {
-                Program.Logger.Debug("Version A is newer based on version number.");
+                Program.Logger.Debug($"  Main version A ({verA}) is newer than B ({verB}). B is not newer.");
                 return false;
             }
 
-            // If base versions are equal (e.g., 1.0.15), check for pre-release vs stable.
-            // A stable release (B) is considered an update to a pre-release (A).
-            bool isAPreRelease = IsPreRelease(versionA);
-            bool isBStable = !IsPreRelease(versionB);
+            // 2. If main versions are equal, compare pre-release tags
+            Program.Logger.Debug($"  Main versions are equal ({verA}). Comparing pre-release tags.");
+            string tagA = GetPreReleaseTag(versionA);
+            string tagB = GetPreReleaseTag(versionB);
 
-            if (isAPreRelease && isBStable)
+            // A stable version is always newer than a pre-release version
+            if (tagA == null && tagB != null)
             {
-                Program.Logger.Debug("Version B is a stable release of the pre-release Version A.");
+                Program.Logger.Debug($"  A is stable, B is pre-release ('{tagB}'). A is newer. B is not newer.");
+                return false; // A (stable) is newer than B (pre-release)
+            }
+            if (tagA != null && tagB == null)
+            {
+                Program.Logger.Debug($"  A is pre-release ('{tagA}'), B is stable. B is newer.");
+                return true; // B (stable) is newer than A (pre-release)
+            }
+
+            // If both are stable or both are pre-release
+            if (tagA == null && tagB == null)
+            {
+                Program.Logger.Debug($"  Both A and B are stable and equal. B is not newer.");
+                return false; // Both are stable and equal
+            }
+
+            // Both have pre-release tags, compare them
+            Program.Logger.Debug($"  Both A ('{tagA}') and B ('{tagB}') have pre-release tags. Comparing tags.");
+            string[] partsA = tagA.Split('.');
+            string[] partsB = tagB.Split('.');
+
+            int length = Math.Min(partsA.Length, partsB.Length);
+            for (int i = 0; i < length; i++)
+            {
+                string partA = partsA[i];
+                string partB = partsB[i];
+
+                bool isNumericA = int.TryParse(partA, out int numA);
+                bool isNumericB = int.TryParse(partB, out int numB);
+
+                if (isNumericA && isNumericB)
+                {
+                    // Both are numeric, compare numerically
+                    if (numB > numA)
+                    {
+                        Program.Logger.Debug($"    Numeric part B ({numB}) > A ({numA}). B is newer.");
+                        return true;
+                    }
+                    if (numB < numA)
+                    {
+                        Program.Logger.Debug($"    Numeric part A ({numA}) > B ({numB}). B is not newer.");
+                        return false;
+                    }
+                }
+                else if (isNumericA && !isNumericB)
+                {
+                    // Numeric has lower precedence than string
+                    Program.Logger.Debug($"    Part A ('{partA}') is numeric, B ('{partB}') is string. B is newer.");
+                    return true;
+                }
+                else if (!isNumericA && isNumericB)
+                {
+                    // String has higher precedence than numeric
+                    Program.Logger.Debug($"    Part A ('{partA}') is string, B ('{partB}') is numeric. B is not newer.");
+                    return false;
+                }
+                else
+                {
+                    // Both are strings, compare lexically
+                    int comparison = string.Compare(partA, partB, StringComparison.OrdinalIgnoreCase);
+                    if (comparison > 0)
+                    {
+                        Program.Logger.Debug($"    String part A ('{partA}') > B ('{partB}'). B is not newer.");
+                        return false;
+                    }
+                    if (comparison < 0)
+                    {
+                        Program.Logger.Debug($"    String part B ('{partB}') > A ('{partA}'). B is newer.");
+                        return true;
+                    }
+                }
+            }
+
+            // If all common parts are equal, the one with more parts is newer
+            if (partsB.Length > partsA.Length)
+            {
+                Program.Logger.Debug($"  All common pre-release parts are equal. B has more parts. B is newer.");
                 return true;
             }
 
-            Program.Logger.Debug("Versions are considered equivalent or B is not newer.");
+            Program.Logger.Debug($"  Versions are considered equivalent or B is not newer.");
             return false;
         }
         
@@ -266,7 +348,7 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug($"Update available for app: {latestRelease.version}. Starting updater...");
                 try
-                {
+                    {
                     string updaterPath = GetUpdaterPath();
                     if (updaterPath == null)
                     {
@@ -392,7 +474,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error checking release for user {user}: {ex.Message}");
+                        Program.Logger.Debug($"Error checking release for user {user}: {ex.Message}");
                 }
             }
 
