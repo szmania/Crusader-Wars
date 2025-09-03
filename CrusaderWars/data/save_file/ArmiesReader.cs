@@ -12,9 +12,9 @@ namespace CrusaderWars.data.save_file
     {
 
         // V1.0 Beta
-        static List<Army> attacker_armies;
-        static List<Army> defender_armies;
-        public static List<(string name, int index)> save_file_traits { get; set; }
+        static List<Army> attacker_armies = new List<Army>();
+        static List<Army> defender_armies = new List<Army>();
+        public static List<(string name, int index)> save_file_traits { get; set; } = new List<(string name, int index)>();
         public static (List<Army> attacker, List<Army> defender) ReadBattleArmies()
         {
             Program.Logger.Debug("Reading battle armies from CK3 save data...");

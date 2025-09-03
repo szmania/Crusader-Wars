@@ -14,9 +14,9 @@ namespace CrusaderWars
     public static class BattleResult
     {
 
-        public static string CombatID { get; set; }
-        public static string ResultID { get; set; }
-        public static string ProvinceID { get; set; }
+        public static string? CombatID { get; set; }
+        public static string? ResultID { get; set; }
+        public static string? ProvinceID { get; set; }
         //public static twbattle.Date FirstDay_Date { get; set; }
 
 
