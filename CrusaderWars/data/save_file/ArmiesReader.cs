@@ -1260,7 +1260,7 @@ namespace CrusaderWars.data.save_file
             List<Regiment> found_regiments = new List<Regiment>();
 
             bool isSearchStarted = false;
-            ArmyRegiment armyRegiment = null;
+            ArmyRegiment? armyRegiment = null;
 
             string regiment_id = "";
             string index = "";

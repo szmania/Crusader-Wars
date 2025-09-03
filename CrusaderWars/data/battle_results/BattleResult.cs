@@ -570,10 +570,10 @@ namespace CrusaderWars
                 Knight knight = null;
 
 
-                string line;
+                string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    if(!searchStarted && Regex.IsMatch(line, @"\d+={"))
+                    if(!searchStarted && line != null && Regex.IsMatch(line, @"\d+={"))
                     {
                         string char_id = Regex.Match(line, @"\d+").Value;
 

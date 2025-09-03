@@ -704,7 +704,7 @@ namespace CrusaderWars.data.save_file
             if (unitsBelowThreshold.Count == 0) return units;
 
             int total = 0;
-            Unit biggest = null;
+            Unit? biggest = null;
             int lastRegistered = 0;
             foreach (var u in unitsBelowThreshold)
             {
@@ -717,6 +717,8 @@ namespace CrusaderWars.data.save_file
                 }
 
             }
+
+            if (biggest == null) return units;
 
             var unit = new Unit("Levy", total, biggest.GetObjCulture(), RegimentType.Levy);
             var unit_data = UnitsFile.RetriveCalculatedUnits(unit.GetSoldiers(), ModOptions.GetLevyMax());
