@@ -566,8 +566,8 @@ namespace CrusaderWars
                 bool isCommander = false;
                 bool isKnight = false;
 
-                CommanderSystem commander = null;
-                Knight knight = null;
+                CommanderSystem? commander = null;
+                Knight? knight = null;
 
 
                 string? line;

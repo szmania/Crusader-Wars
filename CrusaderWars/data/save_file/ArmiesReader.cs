@@ -841,10 +841,9 @@ namespace CrusaderWars.data.save_file
                 string culture_id = "";
                 List<string> regiments_ids = new List<string>();
 
-                while(true)
+                string? line;
+                while((line = sr.ReadLine()) != null)
                 {
-                    string line = sr.ReadLine();
-                    if (line == null) break;
 
                     //Mercenary Company ID
                     if(Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
