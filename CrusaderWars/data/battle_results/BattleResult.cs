@@ -1118,19 +1118,19 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Editing Army Regiments file...");
             bool editStarted = false;
-            ArmyRegiment editArmyRegiment = null;
+            ArmyRegiment? editArmyRegiment = null;
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.ArmyRegiments_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.ArmyRegiments_Path()))
             {
                 streamWriter.NewLine = "\n";
 
-                string line;
-                while ((line = streamReader.ReadLine()) != null || !streamReader.EndOfStream)
+                string? line;
+                while ((line = streamReader.ReadLine()) != null)
                 {
 
                     //Regiment ID line
-                    if (!editStarted && Regex.IsMatch(line, @"\t\t\d+={"))
+                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
                     {
                         string army_regiment_id = Regex.Match(line, @"\d+").Value;
 

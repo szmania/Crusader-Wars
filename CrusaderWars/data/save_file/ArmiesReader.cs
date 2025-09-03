@@ -1589,12 +1589,12 @@ namespace CrusaderWars.data.save_file
         static void ReadCombatSoldiersNum(string combat_string)
         {
             bool isAttacker = false, isDefender = false;
-            string searchingArmyRegiment = null;
+            string? searchingArmyRegiment = null;
             using (StringReader SR = new StringReader(combat_string))//Player_Combat
             {
                 while (true)
                 {
-                    string line = SR.ReadLine();
+                    string? line = SR.ReadLine();
                     if (line == null) break;
 
                     if (line == "\t\t\tattacker={")
