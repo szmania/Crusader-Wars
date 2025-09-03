@@ -1155,7 +1155,7 @@ namespace CrusaderWars
 
                     }
 
-                    else if (editStarted == true && line.Contains("\t\t\t\tcurrent="))
+                    else if (editStarted == true && line.Contains("\t\t\t\tcurrent=") && editArmyRegiment != null)
                     {
                         string edited_line = "\t\t\t\tcurrent=" + editArmyRegiment.CurrentNum;
                         streamWriter.WriteLine(edited_line);
