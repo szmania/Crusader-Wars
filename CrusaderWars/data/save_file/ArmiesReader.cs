@@ -1510,7 +1510,7 @@ namespace CrusaderWars.data.save_file
             {
                 while (true)
                 {
-                    string line = SR.ReadLine();
+                    string? line = SR.ReadLine();
                     if (line == null) break;
 
                     if (line == "\t\t\tattacker={")

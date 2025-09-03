@@ -925,7 +925,7 @@ namespace CrusaderWars
                 bool isDefender = false;
                 string army_regiment_id = "";
 
-                string line;
+                string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     if(line == "\t\t\tattacker={")
