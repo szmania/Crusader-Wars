@@ -1245,12 +1245,12 @@ namespace CrusaderWars
             { 
                 streamWriter.NewLine = "\n";
 
-                string line;
-                while((line = streamReader.ReadLine()) != null || !streamReader.EndOfStream)
+                string? line;
+                while((line = streamReader.ReadLine()) != null)
                 {
 
                     //Regiment ID line
-                    if(!editStarted && Regex.IsMatch(line, @"\t\t\d+={"))
+                    if(!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
                     {
                         string regiment_id = Regex.Match(line, @"\d+").Value;
 

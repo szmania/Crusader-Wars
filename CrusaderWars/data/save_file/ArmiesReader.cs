@@ -1064,16 +1064,19 @@ namespace CrusaderWars.data.save_file
                     // Index Counter
                     else if (line == "\t\t\t\t{" && isSearchStarted)
                     {
-                        string str_index = regiment.Index;
-                        if (!string.IsNullOrEmpty(str_index))
+                        if(regiment != null)
                         {
-                            reg_chunk_index = Int32.Parse(str_index);
-                            index++;
-                        }
-                        else
-                        {
-                            reg_chunk_index = 0;
-                            index++;
+                            string str_index = regiment.Index;
+                            if (!string.IsNullOrEmpty(str_index))
+                            {
+                                reg_chunk_index = Int32.Parse(str_index);
+                                index++;
+                            }
+                            else
+                            {
+                                reg_chunk_index = 0;
+                                index++;
+                            }
                         }
                     }
 
