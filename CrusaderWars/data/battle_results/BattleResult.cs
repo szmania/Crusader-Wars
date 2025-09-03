@@ -1130,7 +1130,7 @@ namespace CrusaderWars
                 {
 
                     //Regiment ID line
-                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
+                    if (!editStarted && Regex.IsMatch(line, @"\t\t\d+={"))
                     {
                         string army_regiment_id = Regex.Match(line, @"\d+").Value;
 

@@ -1029,18 +1029,16 @@ namespace CrusaderWars.data.save_file
         private static void ReadRegiments()
         {
             bool isSearchStarted = false;
-            Regiment regiment = null;
+            Regiment? regiment = null;
 
             int index = -1;
             int reg_chunk_index = 0;
 
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
             {
-                while (true)
+                string? line;
+                while ((line = sr.ReadLine()) != null)
                 {
-                    string line = sr.ReadLine();
-                    if (line == null) break;
-
                     // Regiment ID Line
                     if (Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
                     {
