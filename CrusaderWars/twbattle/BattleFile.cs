@@ -152,17 +152,22 @@ namespace CrusaderWars
             }
             else
             {
-                userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
-                if (userAlliedArmy == null)
+                try
                 {
-                    // This should not happen anymore due to the pre-check in MainFile.cs, but serves as a safeguard.
-                    throw new InvalidOperationException("Player army not found in battle, but the pre-check passed. This indicates a logic error.");
+                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
+                    isUserAlly = true;
+                    if (userAlliedArmy.CombatSide == "attacker")
+                        userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
+                    else if (userAlliedArmy.CombatSide == "defender")
+                        userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
                 }
-                isUserAlly = true;
-                if (userAlliedArmy.CombatSide == "attacker")
-                    userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
-                else if (userAlliedArmy.CombatSide == "defender")
-                    userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
+                catch
+                {
+                    MessageBox.Show("None of your armies are present in this battle! (If this error is unexpected, confirm your \"Armies Control\" selection in the mod settings)", "Crusader Wars: No Player Army",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    throw new Exception();
+                }
+
             }
 
             if (enemy_main_army.CombatSide == "attacker")
