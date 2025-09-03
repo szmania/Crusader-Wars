@@ -1233,8 +1233,8 @@ namespace CrusaderWars
             Program.Logger.Debug("Editing Regiments file...");
             bool editStarted = false;
             bool editIndex = false;
-            Regiment editRegiment = null;
-            ArmyRegiment parentArmyRegiment = null; // Declare new variable
+            Regiment? editRegiment = null;
+            ArmyRegiment? parentArmyRegiment = null; // Declare new variable
 
             int index = -1;
             bool isNewData = false;

@@ -1211,14 +1211,13 @@ namespace CrusaderWars.data.save_file
         private static void ReadArmiesUnits()
         {
             bool isSearchStarted = false;
-            Army army = null;
+            Army? army = null;
 
             using (StreamReader SR = new StreamReader(Writter.DataFilesPaths.Units_Path()))
             {
-                while(!SR.EndOfStream)
+                string? line;
+                while((line = SR.ReadLine()) != null)
                 {
-                    string line  = SR.ReadLine();
-                    if (line == null) break;
 
                     if (Regex.IsMatch(line, @"\t\d+={") && !isSearchStarted)
                     {
