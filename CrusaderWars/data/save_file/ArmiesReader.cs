@@ -614,7 +614,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Removing commanders from knight regiments...");
             foreach(Army army in attacker_armies)
             {
-                ArmyRegiment commanderRegiment = army.ArmyRegiments.FirstOrDefault(x => x.MAA_Name == army.CommanderID) ?? null;
+                ArmyRegiment? commanderRegiment = army.ArmyRegiments.FirstOrDefault(x => x.MAA_Name == army.CommanderID);
                 if(commanderRegiment != null)
                 {
                     Program.Logger.Debug($"Removing commander '{army.CommanderID}' from knight regiments in attacker army '{army.ID}'.");
@@ -623,7 +623,7 @@ namespace CrusaderWars.data.save_file
             }
             foreach (Army army in defender_armies)
             {
-                ArmyRegiment commanderRegiment = army.ArmyRegiments.FirstOrDefault(x => x.MAA_Name == army.CommanderID) ?? null;
+                ArmyRegiment? commanderRegiment = army.ArmyRegiments.FirstOrDefault(x => x.MAA_Name == army.CommanderID);
                 if (commanderRegiment != null)
                 {
                     Program.Logger.Debug($"Removing commander '{army.CommanderID}' from knight regiments in defender army '{army.ID}'.");
@@ -634,10 +634,10 @@ namespace CrusaderWars.data.save_file
         }
 
         
-        public static List<Army> GetSideArmies(string side, List<Army> attacker_armies, List<Army> defender_armies)
+        public static List<Army>? GetSideArmies(string side, List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug($"Getting armies for side: {side}");
-            List<Army> left_side = null, right_side = null;
+            List<Army>? left_side = null, right_side = null;
             foreach (var army in attacker_armies)
             {
                 if (army.IsPlayer())
@@ -683,13 +683,19 @@ namespace CrusaderWars.data.save_file
             var left_side_armies = GetSideArmies("left", attacker_armies, defender_armies);
             var right_side_armies = GetSideArmies("right", attacker_armies, defender_armies);
 
-            var left_main_commander_data = CK3LogData.LeftSide.GetCommander();
-            Program.Logger.Debug($"Setting left side main commander: {left_main_commander_data.name} ({left_main_commander_data.id})");
-            left_side_armies.First(x => x.isMainArmy).SetCommander(new CommanderSystem(left_main_commander_data.name, left_main_commander_data.id, left_main_commander_data.prowess, left_main_commander_data.martial, left_main_commander_data.rank, true));
+            if(left_side_armies != null)
+            {
+                var left_main_commander_data = CK3LogData.LeftSide.GetCommander();
+                Program.Logger.Debug($"Setting left side main commander: {left_main_commander_data.name} ({left_main_commander_data.id})");
+                left_side_armies.First(x => x.isMainArmy).SetCommander(new CommanderSystem(left_main_commander_data.name, left_main_commander_data.id, left_main_commander_data.prowess, left_main_commander_data.martial, left_main_commander_data.rank, true));
+            }
 
-            var right_main_commander_data = CK3LogData.RightSide.GetCommander();
-            Program.Logger.Debug($"Setting right side main commander: {right_main_commander_data.name} ({right_main_commander_data.id})");
-            right_side_armies.First(x => x.isMainArmy).SetCommander(new CommanderSystem(right_main_commander_data.name, right_main_commander_data.id, right_main_commander_data.prowess, right_main_commander_data.martial, right_main_commander_data.rank, true));
+            if(right_side_armies != null)
+            {
+                var right_main_commander_data = CK3LogData.RightSide.GetCommander();
+                Program.Logger.Debug($"Setting right side main commander: {right_main_commander_data.name} ({right_main_commander_data.id})");
+                right_side_armies.First(x => x.isMainArmy).SetCommander(new CommanderSystem(right_main_commander_data.name, right_main_commander_data.id, right_main_commander_data.prowess, right_main_commander_data.martial, right_main_commander_data.rank, true));
+            }
             Program.Logger.Debug("Finished creating main commanders.");
         }
         static void CreateKnights()
@@ -705,99 +711,115 @@ namespace CrusaderWars.data.save_file
 
             var KnightsList = new List<Knight>();
             Program.Logger.Debug("Creating knights for left side armies...");
-            for (int x = 0; x < left_side_armies.Count; x++)
+            if(left_side_armies != null)
             {
-                var army = left_side_armies[x];
-                for (int y = 0; y< army.ArmyRegiments.Count;y++)
+                for (int x = 0; x < left_side_armies.Count; x++)
                 {
-                    var regiment = army.ArmyRegiments[y];
-                    if(regiment.Type == RegimentType.Knight)
+                    var army = left_side_armies[x];
+                    for (int y = 0; y < army.ArmyRegiments.Count; y++)
                     {
-                        for (int i = 0; i < CK3LogData.LeftSide.GetKnights().Count; i++)
+                        var regiment = army.ArmyRegiments[y];
+                        if (regiment.Type == RegimentType.Knight)
                         {
-                            string id = CK3LogData.LeftSide.GetKnights()[i].id;
-                            if (id == army.CommanderID) continue;
-                            if (id == regiment.MAA_Name)
+                            var leftKnights = CK3LogData.LeftSide.GetKnights();
+                            if (leftKnights != null)
                             {
-                                int prowess = Int32.Parse(CK3LogData.LeftSide.GetKnights()[i].prowess);
-                                string name = CK3LogData.LeftSide.GetKnights()[i].name;
+                                for (int i = 0; i < leftKnights.Count; i++)
+                                {
+                                    string id = leftKnights[i].id;
+                                    if (id == army.CommanderID) continue;
+                                    if (id == regiment.MAA_Name)
+                                    {
+                                        int prowess = Int32.Parse(leftKnights[i].prowess);
+                                        string name = leftKnights[i].name;
 
-                                KnightsList.Add(new Knight(name, regiment.MAA_Name, null, prowess, 4));
+                                        KnightsList.Add(new Knight(name, regiment.MAA_Name, null, prowess, 4));
+                                    }
+                                }
                             }
                         }
+
                     }
 
-                }
+                    int leftEffectivenss = 0;
+                    var leftSideKnights = CK3LogData.LeftSide.GetKnights();
+                    if (leftSideKnights is null || leftSideKnights.Count == 0)
+                        leftEffectivenss = 0;
+                    else
+                        leftEffectivenss = leftSideKnights[0].effectiveness;
+                    if (leftSideKnights != null && leftSideKnights.Count > 0)
+                    {
+                        leftEffectivenss = leftSideKnights[0].effectiveness;
+                    }
 
-                int leftEffectivenss = 0;
-                if (CK3LogData.LeftSide.GetKnights() is null || CK3LogData.LeftSide.GetKnights().Count == 0)
-                    leftEffectivenss = 0;
-                else
-                    leftEffectivenss = CK3LogData.LeftSide.GetKnights()[0].effectiveness;
-                if (CK3LogData.LeftSide.GetKnights().Count > 0)
-                {
-                    leftEffectivenss = CK3LogData.LeftSide.GetKnights()[0].effectiveness;
+                    Program.Logger.Debug($"Creating KnightSystem for left side army {left_side_armies[x].ID} with {KnightsList.Count} knights.");
+                    KnightSystem leftSide = new KnightSystem(KnightsList, leftEffectivenss);
+                    if (left_side_armies == attacker_armies)
+                    {
+                        attacker_armies[x].SetKnights(leftSide);
+                    }
+                    else if (left_side_armies == defender_armies)
+                    {
+                        defender_armies[x].SetKnights(leftSide);
+                    }
+                    KnightsList = new List<Knight>();
+
                 }
-                
-                Program.Logger.Debug($"Creating KnightSystem for left side army {left_side_armies[x].ID} with {KnightsList.Count} knights.");
-                KnightSystem leftSide = new KnightSystem(KnightsList, leftEffectivenss);
-                if(left_side_armies == attacker_armies)
-                {
-                    attacker_armies[x].SetKnights(leftSide);
-                }
-                else if(left_side_armies == defender_armies)
-                {
-                    defender_armies[x].SetKnights(leftSide);
-                }
-                KnightsList = new List<Knight>();
-                
             }
 
 
             KnightsList = new List<Knight>();
             Program.Logger.Debug("Creating knights for right side armies...");
-            for (int x = 0; x < right_side_armies.Count; x++)
+            if(right_side_armies != null)
             {
-                var army = right_side_armies[x];
-                for (int y = 0; y < army.ArmyRegiments.Count; y++)
+                for (int x = 0; x < right_side_armies.Count; x++)
                 {
-                    var regiment = army.ArmyRegiments[y];
-                    if(regiment.Type == RegimentType.Knight)
+                    var army = right_side_armies[x];
+                    for (int y = 0; y < army.ArmyRegiments.Count; y++)
                     {
-                        for (int i = 0; i < CK3LogData.RightSide.GetKnights().Count; i++)
+                        var regiment = army.ArmyRegiments[y];
+                        if (regiment.Type == RegimentType.Knight)
                         {
-                            string id = CK3LogData.RightSide.GetKnights()[i].id;
-                            if (id == army.CommanderID) continue;
-                            if (id == regiment.MAA_Name)
+                            var rightKnights = CK3LogData.RightSide.GetKnights();
+                            if (rightKnights != null)
                             {
-                                int prowess = Int32.Parse(CK3LogData.RightSide.GetKnights()[i].prowess);
-                                string name = CK3LogData.RightSide.GetKnights()[i].name;
+                                for (int i = 0; i < rightKnights.Count; i++)
+                                {
+                                    string id = rightKnights[i].id;
+                                    if (id == army.CommanderID) continue;
+                                    if (id == regiment.MAA_Name)
+                                    {
+                                        int prowess = Int32.Parse(rightKnights[i].prowess);
+                                        string name = rightKnights[i].name;
 
-                                KnightsList.Add(new Knight(name, regiment.MAA_Name, null, prowess, 4));
+                                        KnightsList.Add(new Knight(name, regiment.MAA_Name, null, prowess, 4));
+                                    }
+                                }
                             }
                         }
+
                     }
 
-                }
+                    int rightEffectivenss = 0;
+                    var rightSideKnights = CK3LogData.RightSide.GetKnights();
+                    if (rightSideKnights is null || rightSideKnights.Count == 0)
+                        rightEffectivenss = 0;
+                    else
+                        rightEffectivenss = rightSideKnights[0].effectiveness;
 
-                int rightEffectivenss = 0;
-                if (CK3LogData.RightSide.GetKnights() is null || CK3LogData.RightSide.GetKnights().Count == 0)
-                    rightEffectivenss = 0;
-                else
-                    rightEffectivenss = CK3LogData.RightSide.GetKnights()[0].effectiveness;
+                    Program.Logger.Debug($"Creating KnightSystem for right side army {right_side_armies[x].ID} with {KnightsList.Count} knights.");
+                    KnightSystem rightSide = new KnightSystem(KnightsList, rightEffectivenss);
 
-                Program.Logger.Debug($"Creating KnightSystem for right side army {right_side_armies[x].ID} with {KnightsList.Count} knights.");
-                KnightSystem rightSide = new KnightSystem(KnightsList, rightEffectivenss);
-
-                if (right_side_armies == attacker_armies)
-                {
-                    attacker_armies[x].SetKnights(rightSide);
+                    if (right_side_armies == attacker_armies)
+                    {
+                        attacker_armies[x].SetKnights(rightSide);
+                    }
+                    else if (right_side_armies == defender_armies)
+                    {
+                        defender_armies[x].SetKnights(rightSide);
+                    }
+                    KnightsList = new List<Knight>();
                 }
-                else if (right_side_armies == defender_armies)
-                {
-                    defender_armies[x].SetKnights(rightSide);
-                }
-                KnightsList = new List<Knight>();
             }
             Program.Logger.Debug("Finished creating knights.");
         }
