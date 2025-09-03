@@ -1301,7 +1301,7 @@ namespace CrusaderWars.data.save_file
                     {
                         if(isNameSet == false)
                         {
-                            armyRegiment.SetType(RegimentType.Levy);
+                            if(armyRegiment != null) armyRegiment.SetType(RegimentType.Levy);
                         }
 
                         regiment_id = Regex.Match(line, @"(\d+)").Groups[1].Value;                    
