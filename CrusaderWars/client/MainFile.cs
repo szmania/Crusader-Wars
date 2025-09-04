@@ -92,7 +92,6 @@ namespace CrusaderWars
             btt_debug.FlatStyle = FlatStyle.Flat;
             SettingsBtn.FlatStyle = FlatStyle.Flat;
             viewLogsLink.FlatStyle = FlatStyle.Flat;
-            patreonBtn.FlatStyle = FlatStyle.Flat;
             WebsiteBTN.FlatStyle = FlatStyle.Flat;
             SteamBTN.FlatStyle = FlatStyle.Flat;
             discordLink.FlatStyle = FlatStyle.Flat;
@@ -288,7 +287,6 @@ namespace CrusaderWars
             btt_debug.Location = new Point(273, 16);
             infoLabel.Location = new Point(52, 493);
             pictureBox1.Location = new Point(4, 4);
-            patreonBtn.Location = new Point(46, 514); // Adjusted from 520
             WebsiteBTN.Location = new Point(46, 353);
             SteamBTN.Location = new Point(46, 180); // Adjusted from 186
             SettingsBtn.Location = new Point(4, 4);
@@ -327,7 +325,6 @@ namespace CrusaderWars
 
             // Set DockStyle for buttons in tableLayoutPanel1 to make them fill the cell
             SettingsBtn.Dock = DockStyle.Fill;
-            patreonBtn.Dock = DockStyle.Fill;
             WebsiteBTN.Dock = DockStyle.Fill;
             SteamBTN.Dock = DockStyle.Fill;
             MainPanelLayout.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -341,7 +338,6 @@ namespace CrusaderWars
             ExecuteButton.BackgroundImageLayout = ImageLayout.Zoom;
             ContinueBattleButton.BackgroundImageLayout = ImageLayout.Zoom;
             SettingsBtn.BackgroundImageLayout = ImageLayout.Zoom;
-            patreonBtn.BackgroundImageLayout = ImageLayout.Zoom;
             WebsiteBTN.BackgroundImageLayout = ImageLayout.Zoom;
             SteamBTN.BackgroundImageLayout = ImageLayout.Zoom;
             pictureBox1.BackgroundImageLayout = ImageLayout.Center;
@@ -376,7 +372,6 @@ namespace CrusaderWars
             EA_Label.Padding = new Padding(3, 3, 3, 3);
             discordLink.Margin = new Padding(4, 3, 4, 0);
             BottomPanelLayout.Margin = new Padding(4, 4, 4, 4);
-            patreonBtn.Margin = new Padding(4, 4, 4, 4);
             WebsiteBTN.Margin = new Padding(4, 4, 4, 4);
             SteamBTN.Margin = new Padding(4, 4, 4, 4);
             tableLayoutPanel1.Margin = new Padding(4, 4, 4, 4);
@@ -422,7 +417,6 @@ namespace CrusaderWars
             InformationToolTip.SetToolTip(ExecuteButton, "Start or continue a Crusader Conflicts campaign by launching Crusader Kings 3.");
             InformationToolTip.SetToolTip(ContinueBattleButton, "Restart the current Total War: Attila battle without reloading Crusader Kings 3. Use this if the battle crashed or you want to try again.");
             InformationToolTip.SetToolTip(SettingsBtn, "Configure game paths, battle options, and unit mappers.");
-            InformationToolTip.SetToolTip(patreonBtn, "Support the development of Crusader Conflicts on Patreon.");
             InformationToolTip.SetToolTip(WebsiteBTN, "Visit the official Crusader Conflicts website for news and updates.");
             InformationToolTip.SetToolTip(SteamBTN, "View the Crusader Conflicts mod on the Steam Workshop.");
             InformationToolTip.SetToolTip(viewLogsLink, "Click to find the debug.log file. Please share this file on our Discord for troubleshooting help.");
@@ -1727,15 +1721,6 @@ namespace CrusaderWars
             Process.Start(new ProcessStartInfo("https://discord.gg/usyHPp39") { UseShellExecute = true });
         }
 
-        private void patreonBtn_Click(object sender, EventArgs e)
-        {
-            Program.Logger.Debug("Patreon button clicked.");
-            patreonBtn.BackgroundImage = Properties.Resources.patreon_btn_clickpng;
-            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://www.patreon.com/user?u=83859552") { UseShellExecute = true });
-
-        }
-
         private void WebsiteBTN_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Website button clicked.");
@@ -1751,21 +1736,6 @@ namespace CrusaderWars
             SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_click;
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             Process.Start(new ProcessStartInfo("https://github.com/szmania/Crusader-Wars/releases/") { UseShellExecute = true });
-        }
-
-        private void patreonBtn_MouseEnter(object sender, EventArgs e)
-        {
-            patreonBtn.BackgroundImage = Properties.Resources.patreon_btn_hover;
-        }
-
-        private void patreonBtn_MouseLeave(object sender, EventArgs e)
-        {
-            patreonBtn.BackgroundImage = Properties.Resources.patreon_btn_new;
-        }
-
-        private void patreonBtn_MouseHover_1(object sender, EventArgs e)
-        {
-            patreonBtn.BackgroundImage = Properties.Resources.patreon_btn_hover;
         }
 
         private void ExecuteButton_MouseEnter(object sender, EventArgs e)

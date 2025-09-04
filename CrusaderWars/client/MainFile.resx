@@ -353,21 +353,6 @@
   <data name="&gt;&gt;BottomPanelLayout.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="patreonBtn.TabIndex" type="System.Int32, mscorlib">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;patreonBtn.Name" xml:space="preserve">
-    <value>patreonBtn</value>
-  </data>
-  <data name="&gt;&gt;patreonBtn.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;patreonBtn.Parent" xml:space="preserve">
-    <value>tableLayoutPanel1</value>
-  </data>
-  <data name="&gt;&gt;patreonBtn.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
   <data name="WebsiteBTN.TabIndex" type="System.Int32, mscorlib">
     <value>10</value>
   </data>

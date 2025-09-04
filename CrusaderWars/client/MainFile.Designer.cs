@@ -49,7 +49,6 @@
             this.labelSeparatorRight = new System.Windows.Forms.Label();
             this.discordLink = new System.Windows.Forms.Button();
             this.EA_Label = new System.Windows.Forms.Label();
-            this.patreonBtn = new System.Windows.Forms.Button();
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -299,22 +298,6 @@
             this.EA_Label.Name = "EA_Label";
             this.EA_Label.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // patreonBtn
-            // 
-            resources.ApplyResources(this.patreonBtn, "patreonBtn");
-            this.patreonBtn.BackColor = System.Drawing.Color.Transparent;
-            this.patreonBtn.BackgroundImage = global::CrusaderWars.Properties.Resources.patreon_btn_new;
-            this.patreonBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.patreonBtn.FlatAppearance.BorderSize = 0;
-            this.patreonBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.patreonBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.patreonBtn.Name = "patreonBtn";
-            this.patreonBtn.UseVisualStyleBackColor = false;
-            this.patreonBtn.Click += new System.EventHandler(this.patreonBtn_Click);
-            this.patreonBtn.MouseEnter += new System.EventHandler(this.patreonBtn_MouseEnter);
-            this.patreonBtn.MouseLeave += new System.EventHandler(this.patreonBtn_MouseLeave);
-            this.patreonBtn.MouseHover += new System.EventHandler(this.patreonBtn_MouseHover_1);
-            // 
             // WebsiteBTN
             // 
             resources.ApplyResources(this.WebsiteBTN, "WebsiteBTN");
@@ -357,14 +340,12 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.WebsiteBTN, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.SteamBTN, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.patreonBtn, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.SettingsBtn, 0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             // 
             // HomePage
             // 
@@ -384,7 +365,7 @@
             this.Name = "HomePage";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HomePage_FormClosing);
+            this.FormClosing += new System.EventHandler(this.HomePage_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.HomePage_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -421,7 +402,6 @@
         private System.Windows.Forms.FlowLayoutPanel BottomLeftFlowPanel;
         private System.Windows.Forms.FlowLayoutPanel BottomRightFlowPanel;
         private System.Windows.Forms.Label EA_Label;
-        private System.Windows.Forms.Button patreonBtn;
         private System.Windows.Forms.Button WebsiteBTN;
         private System.Windows.Forms.Button SteamBTN;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
