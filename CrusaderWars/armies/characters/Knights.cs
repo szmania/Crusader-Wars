@@ -322,6 +322,7 @@ namespace CrusaderWars
 
 
                 //random knight
+                int soldiers_lost = totalSoldiers - remainingSoldiers;
                 int weakest_knight_num = Knights.Select(x => x.GetSoldiers()).Min();
                 List<Knight> tempKnightsList = new List<Knight>();
                 tempKnightsList.AddRange(Knights);
