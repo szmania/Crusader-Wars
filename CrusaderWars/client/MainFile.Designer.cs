@@ -176,7 +176,7 @@
             // 
             resources.ApplyResources(this.pictureBox1, "pictureBox1");
             this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.Image = global::CrusaderWars.Properties.Resources.sem_nome;
+            this.pictureBox1.Image = global::CrusaderWars.Properties.Resources.crusader_conflicts_logo;
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.TabStop = false;
             // 
