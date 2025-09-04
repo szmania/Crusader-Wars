@@ -38,7 +38,7 @@ namespace CrusaderWars.unit_mapper
         static string LoadedUnitMapper_FolderPath { get; set; }
 
         public static string GetLoadedUnitMapperName() { return Path.GetFileName(LoadedUnitMapper_FolderPath); }
-        public static string GetLoadedUnitMapperString() { 
+        public static string? GetLoadedUnitMapperString() { 
             switch(GetLoadedUnitMapperName())
             {
                 case "OfficialCW_EarlyMedieval_919Mod":

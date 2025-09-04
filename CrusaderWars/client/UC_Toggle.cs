@@ -50,7 +50,7 @@ namespace CrusaderWars.client
                     SoundPlayer sounds = new SoundPlayer(soundPath);
                     sounds.Play();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Log the error silently, as it's a non-critical UI sound.
                     // Program.Logger.Debug($"Error playing toggle sound: {ex.Message}"); // Optional logging

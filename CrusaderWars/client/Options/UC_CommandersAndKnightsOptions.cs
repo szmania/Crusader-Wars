@@ -61,7 +61,7 @@ namespace CrusaderWars.client.Options
             }
         }
 
-        private void Commander_ValueChanged(object sender, EventArgs e)
+        private void Commander_ValueChanged(object? sender, EventArgs e)
         {
             NumericUpDown changedControl = (NumericUpDown)sender;
             int total = commanderControls.Sum(c => (int)c.Value);
@@ -76,7 +76,7 @@ namespace CrusaderWars.client.Options
             UpdateCommanderTotal();
         }
 
-        private void Knight_ValueChanged(object sender, EventArgs e)
+        private void Knight_ValueChanged(object? sender, EventArgs e)
         {
             NumericUpDown changedControl = (NumericUpDown)sender;
             int total = knightControls.Sum(c => (int)c.Value);
