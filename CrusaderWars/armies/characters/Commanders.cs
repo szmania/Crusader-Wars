@@ -31,16 +31,16 @@ namespace CrusaderWars
         public int Rank { get; private set; }
         public int Martial { get; private set; }
         public int Prowess { get; private set; }
-        private Culture CultureObj { get; set; }
-        public List<(int Index, string Key)> Traits_List { get; private set; }
+        private Culture? CultureObj { get; set; }
+        public List<(int Index, string Key)> Traits_List { get; private set; } = new List<(int, string)>(); // INITIALIZED HERE
 
-        public BaseSkills BaseSkills { get; private set; }
-        public CommanderTraits CommanderTraits { get; private set; }
-        private List<CourtPosition> Employees { get; set; }
+        public BaseSkills? BaseSkills { get; private set; }
+        public CommanderTraits? CommanderTraits { get; private set; }
+        private List<CourtPosition>? Employees { get; set; }
 
         public bool hasFallen { get; private set; }
         private bool MainCommander {  get; set; }
-        private Accolade Accolade { get; set; }
+        private Accolade? Accolade { get; set; }
         private bool IsAccoladeCommander { get; set; }
 
         /// <summary>
@@ -74,11 +74,11 @@ namespace CrusaderWars
         public void SetBaseSkills(BaseSkills t) { BaseSkills = t; }
         public void SetAccolade(Accolade accolade) { Accolade = accolade; IsAccoladeCommander = true; }
 
-        public string GetCultureName() { return CultureObj.GetCultureName(); }
-        public string GetHeritageName() { return CultureObj.GetHeritageName(); }
-        public Culture GetCultureObj () { return CultureObj; }
+        public string GetCultureName() { return CultureObj?.GetCultureName() ?? "unknown_culture"; } // NULL-SAFE
+        public string GetHeritageName() { return CultureObj?.GetHeritageName() ?? "unknown_heritage"; } // NULL-SAFE
+        public Culture? GetCultureObj () { return CultureObj; } // NULLABLE RETURN TYPE
         public bool IsMainCommander() { return MainCommander; }
-        public Accolade GetAccolade() { return Accolade; }
+        public Accolade? GetAccolade() { return Accolade; }
         public bool IsAccolade() { return IsAccoladeCommander; }
 
 

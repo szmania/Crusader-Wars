@@ -186,8 +186,8 @@ namespace CrusaderWars
     public class KnightSystem
     {
         private List<Knight> Knights { get; set; }
-        private Culture MajorCulture { get; set; }
-        private List<Accolade> Accolades { get; set; }
+        private Culture? MajorCulture { get; set; }
+        private List<Accolade>? Accolades { get; set; }
         private int UnitSoldiers { get; set; }
 
         private int Effectiveness { get; set; }
@@ -207,19 +207,20 @@ namespace CrusaderWars
             }
             else
             {
+                Knights = new List<Knight>(); // ADDED THIS LINE
                 hasKnights = false;
             }
 
         }
 
         public bool HasKnights() { return hasKnights; }
-        public Culture GetMajorCulture() { return MajorCulture; }
+        public Culture? GetMajorCulture() { return MajorCulture; }
         public List<Knight> GetKnightsList()
         {
             return Knights;
         }
 
-        public List<Accolade> GetAccolades()
+        public List<Accolade>? GetAccolades()
         {
             return Accolades;
         }
@@ -232,7 +233,7 @@ namespace CrusaderWars
                                     .FirstOrDefault();
 
               if(MajorCulture == null)
-                MajorCulture = Knights.FirstOrDefault(x => x.GetCultureObj() != null).GetCultureObj();
+                MajorCulture = Knights.FirstOrDefault(x => x.GetCultureObj() != null)?.GetCultureObj(); // ADDED NULL-CONDITIONAL OPERATOR
         }
 
 
@@ -321,7 +322,6 @@ namespace CrusaderWars
 
 
                 //random knight
-                int soldiers_lost = totalSoldiers - remainingSoldiers;
                 int weakest_knight_num = Knights.Select(x => x.GetSoldiers()).Min();
                 List<Knight> tempKnightsList = new List<Knight>();
                 tempKnightsList.AddRange(Knights);

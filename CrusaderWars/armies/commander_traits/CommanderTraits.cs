@@ -38,8 +38,8 @@ namespace CrusaderWars.armies.commander_traits
         bool DeploymentRotation {  get; set; }
 
         //  CONDITIONS
-        string CombatSide { get; set; }
-        List<string> Terrains {  get; set; }
+        string? CombatSide { get; set; }
+        List<string>? Terrains {  get; set; }
         TraitsBoolCondition NeedsRiverCrossing { get; set; }
         TraitsBoolCondition NeedsHostileFaith {  get; set; }
         TraitsBoolCondition NeedsWinter { get;set; }
@@ -56,8 +56,8 @@ namespace CrusaderWars.armies.commander_traits
         public int GetDeployablesBoost() { return DeployablesBoost; }
         public TraitsAffectEnum GetWhoAffects() { return Affect; }
         public bool IsDeploymentRotation() {  return DeploymentRotation; }
-        public string IsRequiredCombatSide() {  return CombatSide; }
-        public List<string> IsRequiredTerrains() { return Terrains; }
+        public string? IsRequiredCombatSide() {  return CombatSide; }
+        public List<string>? IsRequiredTerrains() { return Terrains; }
         public TraitsBoolCondition IsRequiredRiverCrossing() {  return NeedsRiverCrossing; }
         public TraitsBoolCondition IsRequiredHostileFaith() { return NeedsHostileFaith; }
         public TraitsBoolCondition IsRequiredWinter() { return NeedsWinter; }
@@ -79,7 +79,7 @@ namespace CrusaderWars.armies.commander_traits
     }
     public class CommanderTraits
     {
-        public List<Trait> Traits { get; private set; }
+        public List<Trait>? Traits { get; private set; }
 
         static string traits_folder_path = @".\data\traits\";
 
@@ -214,7 +214,7 @@ namespace CrusaderWars.armies.commander_traits
                             bool rotatesDeployment = false;
 
                             string combatSide = "no";
-                            List<string> Terrains = null;
+                            List<string>? Terrains = null;
                             var riverCrossing = TraitsBoolCondition.None;
                             var hostileFaith = TraitsBoolCondition.None;
                             var winter = TraitsBoolCondition.None;
