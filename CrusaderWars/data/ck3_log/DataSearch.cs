@@ -43,16 +43,16 @@ namespace CrusaderWars
         static (string name, string id, int prowess, int martial, int rank, string culture_id) RightSide_Commander { get; set; }
 
         // MAIN REALM NAMES
-        static string LeftSide_RealmName { get; set; }
-        static string RightSide_RealmName { get; set; }
+        static string LeftSide_RealmName { get; set; } = string.Empty;
+        static string RightSide_RealmName { get; set; } = string.Empty;
 
         // MODIFIERS
-        static Modifiers LeftSide_Modifiers { get; set; }
-        static Modifiers RightSide_Modifiers { get; set; }
+        static Modifiers? LeftSide_Modifiers { get; set; }
+        static Modifiers? RightSide_Modifiers { get; set; }
 
         // KNIGHTS
-        static List<(string id, string prowess, string name, int effectiveness)> LeftSide_Knights { get; set; }
-        static List<(string id, string prowess, string name, int effectiveness)> RightSide_Knights { get; set; }
+        static List<(string id, string prowess, string name, int effectiveness)> LeftSide_Knights { get; set; } = new();
+        static List<(string id, string prowess, string name, int effectiveness)> RightSide_Knights { get; set; } = new();
 
 
 
@@ -68,7 +68,7 @@ namespace CrusaderWars
             public static (string id, string culture_id) GetMainParticipant() { return LeftSide_MainParticipant; }
             public static (string name, string id, int prowess, int martial, int rank, string culture_id) GetCommander() { return LeftSide_Commander; }
             public static string GetRealmName() { return LeftSide_RealmName; }
-            public static Modifiers GetModifiers() { return LeftSide_Modifiers; }
+            public static Modifiers? GetModifiers() { return LeftSide_Modifiers; }
             public static List<(string id, string prowess, string name, int effectiveness)> GetKnights() { return LeftSide_Knights; }
             public static bool CheckIfHasKnight(string character_id)
             {
@@ -95,7 +95,7 @@ namespace CrusaderWars
             public static (string id, string culture_id) GetMainParticipant() { return RightSide_MainParticipant; }
             public static (string name, string id, int prowess, int martial, int rank, string culture_id) GetCommander() { return RightSide_Commander; }
             public static string GetRealmName() { return RightSide_RealmName; }
-            public static Modifiers GetModifiers() { return RightSide_Modifiers; }
+            public static Modifiers? GetModifiers() { return RightSide_Modifiers; }
             public static List<(string id, string prowess, string name, int effectiveness)> GetKnights() { return RightSide_Knights; }
             public static bool CheckIfHasKnight(string character_id)
             {
@@ -116,7 +116,7 @@ namespace CrusaderWars
     {
 
 
-        public static PlayerChar Player_Character { get; set; }
+        public static PlayerChar? Player_Character { get; set; }
 
         static string LogPath = Properties.Settings.Default.VAR_log_ck3;
 
@@ -260,7 +260,7 @@ namespace CrusaderWars
             }
             catch
             {
-                month = "January";
+                month = "1"; // Default to January
                 year = "1300";
                 Date.Month = Int32.Parse(month);
                 Date.Year = Int32.Parse(year);
@@ -281,7 +281,7 @@ namespace CrusaderWars
                 bool leftReadStart = false;
                 bool rightReadStart = false;
 
-                string line;
+                string? line;
                 while ((line = stringReader.ReadLine()) != null)
                 {
                     if (!searchStarted && line == "---------Modifiers---------")
@@ -474,7 +474,7 @@ namespace CrusaderWars
         public static void ClearLogFile()
         {
             Program.Logger.Debug($"Clearing CK3 log file at: {LogPath}");
-            if (!File.Exists(LogPath)) File.Create(LogPath);
+            if (!File.Exists(LogPath)) File.Create(LogPath)?.Close(); // Close the created file stream immediately
 
             using (var fileStream = new FileStream(LogPath, FileMode.Truncate))
             {

@@ -31,13 +31,13 @@ namespace CrusaderWars
         Culture CultureObj { get; set; }
         int Prowess { get; set; }
         int Soldiers { get; set; }
-        List<(int Index, string Key)> Traits { get; set; }
-        BaseSkills BaseSkills { get; set; }
+        List<(int Index, string Key)>? Traits { get; set; }
+        BaseSkills? BaseSkills { get; set; }
         bool hasFallen { get; set; }
         int Kills { get; set; }
 
         bool isAccoladeKnight { get; set; }
-        Accolade Accolade { get; set; }
+        Accolade? Accolade { get; set; }
 
         public string GetName() {  return Name; }
         public string GetID() { return ID; }
@@ -47,7 +47,7 @@ namespace CrusaderWars
         public int GetSoldiers() { return Soldiers; }
         public int GetProwess() { return Prowess; }
         public bool IsAccolade() { return isAccoladeKnight; }
-        public Accolade GetAccolade() { return Accolade; } 
+        public Accolade? GetAccolade() { return Accolade; } 
         public bool HasFallen() { return hasFallen; }
         public int GetKills() { return Kills; }
 
@@ -73,15 +73,18 @@ namespace CrusaderWars
             int debuff = 0;
 
             //Health soldiers debuff
-            foreach(var trait in Traits)
+            if (Traits != null)
             {
-                if (trait.Index == WoundedTraits.Wounded()) debuff += -1;
-                if (trait.Index == WoundedTraits.Severely_Injured()) debuff += -2;
-                if (trait.Index == WoundedTraits.Brutally_Mauled()) debuff += -3;
-                if (trait.Index == WoundedTraits.Maimed()) debuff += -2;
-                if (trait.Index == WoundedTraits.One_Eyed()) debuff += -1;
-                if (trait.Index == WoundedTraits.One_Legged()) debuff += -2;
-                if (trait.Index == WoundedTraits.Disfigured()) debuff += -1;
+                foreach(var trait in Traits)
+                {
+                    if (trait.Index == WoundedTraits.Wounded()) debuff += -1;
+                    if (trait.Index == WoundedTraits.Severely_Injured()) debuff += -2;
+                    if (trait.Index == WoundedTraits.Brutally_Mauled()) debuff += -3;
+                    if (trait.Index == WoundedTraits.Maimed()) debuff += -2;
+                    if (trait.Index == WoundedTraits.One_Eyed()) debuff += -1;
+                    if (trait.Index == WoundedTraits.One_Legged()) debuff += -2;
+                    if (trait.Index == WoundedTraits.Disfigured()) debuff += -1;
+                }
             }
 
 
@@ -246,7 +249,10 @@ namespace CrusaderWars
                 {
                     if(knight.IsAccolade())
                     {
-                        Accolades.Add(knight.GetAccolade());
+                        if (knight.GetAccolade() != null)
+                        {
+                            Accolades.Add(knight.GetAccolade()!);
+                        }
                     }
                 }
             }

@@ -22,8 +22,8 @@ namespace CrusaderWars
         private Timer _pulseTimer;
         private bool _isPulsing = false;
         private bool _pulseState = false;
-        private string CK3_Path { get; set; }
-        private string Attila_Path { get; set; }
+        private string CK3_Path { get; set; } = string.Empty;
+        private string Attila_Path { get; set; } = string.Empty;
         private bool _isModManagerExpanded = true; // Default to expanded
 
         public Options()
@@ -36,7 +36,7 @@ namespace CrusaderWars
             _pulseTimer.Tick += PulseTimer_Tick;
         }
 
-        private void PulseTimer_Tick(object sender, EventArgs e)
+        private void PulseTimer_Tick(object? sender, EventArgs e)
         {
             _pulseState = !_pulseState;
             var activePlaythrough = GetActivePlaythrough();
@@ -69,7 +69,7 @@ namespace CrusaderWars
             }
         }
 
-        private UC_UnitMapper GetActivePlaythrough()
+        private UC_UnitMapper? GetActivePlaythrough()
         {
             if (CrusaderKings_Tab != null && CrusaderKings_Tab.GetState())
             {
@@ -127,10 +127,10 @@ namespace CrusaderWars
          *####          Mod options section         ####
          *##############################################
          */
-        UserControl General_Tab;
-        UserControl Units_Tab;
-        UserControl BattleScale_Tab;
-        UC_CommandersAndKnightsOptions CandK_Tab; // Changed type to UC_CommandersAndKnightsOptions
+        UserControl General_Tab = null!;
+        UserControl Units_Tab = null!;
+        UserControl BattleScale_Tab = null!;
+        UC_CommandersAndKnightsOptions CandK_Tab = null!; // Changed type to UC_CommandersAndKnightsOptions
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != General_Tab)
@@ -203,7 +203,7 @@ namespace CrusaderWars
 
         private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
         {
-            XmlNode node = doc.SelectSingleNode($"//Option [@name='{optionName}']");
+            XmlNode? node = doc.SelectSingleNode($"//Option [@name='{optionName}']");
             if (node != null)
             {
                 return node.InnerText;
@@ -214,7 +214,7 @@ namespace CrusaderWars
                 XmlElement newOption = doc.CreateElement("Option");
                 newOption.SetAttribute("name", optionName);
                 newOption.InnerText = defaultValue;
-                doc.DocumentElement.AppendChild(newOption);
+                doc.DocumentElement?.AppendChild(newOption);
                 return defaultValue;
             }
         }
@@ -683,8 +683,11 @@ namespace CrusaderWars
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
-                XmlNode node = xmlDoc.SelectSingleNode($"Paths/{game}");
-                node.Attributes["path"].Value = new_path;
+                XmlNode? node = xmlDoc.SelectSingleNode($"Paths/{game}");
+                if (node != null && node.Attributes != null)
+                {
+                    node.Attributes["path"].Value = new_path;
+                }
                 xmlDoc.Save(file);
             }
             catch 
@@ -711,14 +714,21 @@ namespace CrusaderWars
                 xmlDoc.Load(file);
 
                 //Read Attila Path
-                XmlNode attila_node = xmlDoc.SelectSingleNode("Paths/TotalWarAttila");
-                Properties.Settings.Default.VAR_attila_path = attila_node.Attributes["path"].Value;
-                Properties.Settings.Default.Save();
+                XmlNode? attila_node = xmlDoc.SelectSingleNode("Paths/TotalWarAttila");
+                if (attila_node != null && attila_node.Attributes != null)
+                {
+                    Properties.Settings.Default.VAR_attila_path = attila_node.Attributes["path"].Value;
+                    Properties.Settings.Default.Save();
+                }
+
 
                 //Read CK3 Path
-                XmlNode ck3_node = xmlDoc.SelectSingleNode("Paths/CrusaderKings");
-                Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes["path"].Value;
-                Properties.Settings.Default.Save();
+                XmlNode? ck3_node = xmlDoc.SelectSingleNode("Paths/CrusaderKings");
+                if (ck3_node != null && ck3_node.Attributes != null)
+                {
+                    Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes["path"].Value;
+                    Properties.Settings.Default.Save();
+                }
             }
             catch 
             {
@@ -841,9 +851,9 @@ namespace CrusaderWars
          *##############################################
          */
 
-        UC_UnitMapper CrusaderKings_Tab;
-        UC_UnitMapper TheFallenEagle_Tab;
-        UC_UnitMapper RealmsInExile_Tab;
+        UC_UnitMapper CrusaderKings_Tab = null!;
+        UC_UnitMapper TheFallenEagle_Tab = null!;
+        UC_UnitMapper RealmsInExile_Tab = null!;
         private void Btn_CK3Tab_Click(object sender, EventArgs e)
         {
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != CrusaderKings_Tab)
@@ -890,7 +900,7 @@ namespace CrusaderWars
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
-            Button activeButton = null;
+            Button? activeButton = null;
             if (control == CrusaderKings_Tab) activeButton = Btn_CK3Tab;
             else if (control == TheFallenEagle_Tab) activeButton = Btn_TFETab;
             else if (control == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
@@ -923,12 +933,15 @@ namespace CrusaderWars
                             {
                                 XmlDocument xmlDocument = new XmlDocument();
                                 xmlDocument.Load(modsPath);
-                                foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
+                                if (xmlDocument.DocumentElement != null)
                                 {
-                                    if (node is XmlComment) continue;
-                                    if (node.Name == "Mod")
+                                    foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
                                     {
-                                        requiredMods.Add(node.InnerText);
+                                        if (node is XmlComment) continue;
+                                        if (node.Name == "Mod")
+                                        {
+                                            requiredMods.Add(node.InnerText);
+                                        }
                                     }
                                 }
                             }
@@ -952,9 +965,9 @@ namespace CrusaderWars
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
-            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']").InnerText;
-            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']").InnerText;
-            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']").InnerText;
+            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']")?.InnerText;
+            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")?.InnerText;
+            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")?.InnerText;
 
             bool ck3ToggleState = false; bool tfeToggleState = false; bool lotrToggleState = false;
             if (ck3ToggleStateStr == "True") ck3ToggleState = true; else ck3ToggleState = false;
@@ -984,11 +997,11 @@ namespace CrusaderWars
             xmlDoc.Load(file);
 
             var CrusaderKings_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']");
-            CrusaderKings_Node.InnerText = CrusaderKings_Tab.GetState().ToString();
+            if (CrusaderKings_Node != null) CrusaderKings_Node.InnerText = CrusaderKings_Tab.GetState().ToString();
             var TheFallenEagle_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']");
-            TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
+            if (TheFallenEagle_Node != null) TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
             var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
-            RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
+            if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
             xmlDoc.Save(file);
         }
 
