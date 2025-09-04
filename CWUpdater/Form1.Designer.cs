@@ -48,7 +48,7 @@
             this.btnUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnUpdate.Font = new System.Drawing.Font("Paradox King Script", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnUpdate.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnUpdate.Location = new System.Drawing.Point(179, 108);
+            this.btnUpdate.Location = new System.Drawing.Point(251, 108);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(248, 59);
             this.btnUpdate.TabIndex = 0;
@@ -64,7 +64,7 @@
             this.TitleLabel.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.TitleLabel.Location = new System.Drawing.Point(0, 0);
             this.TitleLabel.Name = "TitleLabel";
-            this.TitleLabel.Size = new System.Drawing.Size(604, 42);
+            this.TitleLabel.Size = new System.Drawing.Size(750, 42);
             this.TitleLabel.TabIndex = 5;
             this.TitleLabel.Text = "New Crusader Conflicts Update Available!";
             this.TitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -77,7 +77,7 @@
             this.WarningLabel.ForeColor = System.Drawing.Color.DarkRed;
             this.WarningLabel.Location = new System.Drawing.Point(12, 45);
             this.WarningLabel.Name = "WarningLabel";
-            this.WarningLabel.Size = new System.Drawing.Size(625, 36);
+            this.WarningLabel.Size = new System.Drawing.Size(726, 36);
             this.WarningLabel.TabIndex = 6;
             this.WarningLabel.Text = "(If you are a non-steam user, you need to overwrite the ck3 mod files manually)";
             this.WarningLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -90,7 +90,7 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Paradox King Script", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.label1.Location = new System.Drawing.Point(295, 80);
+            this.label1.Location = new System.Drawing.Point(364, 80);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(21, 25);
             this.label1.TabIndex = 7;
@@ -103,7 +103,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::CWUpdater.Properties.Resources.tooltip_bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(650, 190);
+            this.ClientSize = new System.Drawing.Size(750, 190);
             this.Controls.Add(this.TitleLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.WarningLabel);
