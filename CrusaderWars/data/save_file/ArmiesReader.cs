@@ -57,9 +57,6 @@ namespace CrusaderWars.data.save_file
                 ReadCharacters();
                 ReadCourtPositions();
                 CheckForNullCultures();
-                ReadCultureManager();
-
-                // Organize Units
                 CreateUnits();
 
                 // Print Armies
@@ -1625,19 +1622,23 @@ namespace CrusaderWars.data.save_file
                     else if(isAttacker && line.Contains("\t\t\t\t\t\tstarting="))
                     {
                         string startingNum = Regex.Match(line, @"\d+").Value;
-
-                        foreach(var army in attacker_armies)
+                        if (searchingArmyRegiment != null)
                         {
-                            army.ArmyRegiments.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                            foreach(var army in attacker_armies)
+                            {
+                                army.ArmyRegiments.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                            }
                         }
-
                     }
                     else if(isDefender && line.Contains("\t\t\t\t\t\tstarting="))
                     {
                         string startingNum = Regex.Match(line, @"\d+").Value;
-                        foreach (var army in defender_armies)
+                        if (searchingArmyRegiment != null)
                         {
-                            army.ArmyRegiments.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                            foreach (var army in defender_armies)
+                            {
+                                army.ArmyRegiments.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                            }
                         }
                     }
 
