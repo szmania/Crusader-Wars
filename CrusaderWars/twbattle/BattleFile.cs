@@ -163,7 +163,7 @@ namespace CrusaderWars
                 }
                 catch
                 {
-                    MessageBox.Show("None of your armies are present in this battle! (If this error is unexpected, confirm your \"Armies Control\" selection in the mod settings)", "Crusader Wars: No Player Army",
+                    MessageBox.Show("None of your armies are present in this battle! (If this error is unexpected, confirm your \"Armies Control\" selection in the mod settings)", "Conflicts Conflicts: No Player Army",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     throw new Exception();
                 }

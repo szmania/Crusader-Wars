@@ -9,7 +9,7 @@
     <AssemblyName>CrusaderWars</AssemblyName>
     <RootNamespace>CrusaderWars</RootNamespace>
     <ApplicationIcon>logo.ico</ApplicationIcon>
-    <ProductName>Crusader Wars</ProductName>
+    <ProductName>Crusader Conflicts</ProductName>
     <PublisherName>Faray and Community</PublisherName>
     <StartupObject>CrusaderWars.Program</StartupObject>
   </PropertyGroup>
@@ -236,7 +236,7 @@
     <None Include="Resources\discord_icon2.jpg" />
     <None Include="Resources\info_smaller.png" />
     <None Include="Resources\ui.png" />
-    <None Include="Resources\sem_nome.png" />
+    <None Include="Resources\crusader_conflicts_logo.png" />
     <None Include="Resources\moving.png" />
     <None Include="Resources\features.png" />
     <None Include="Resources\EarlyRenainance.png" />

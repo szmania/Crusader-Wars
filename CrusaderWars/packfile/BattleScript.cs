@@ -187,7 +187,7 @@ scripting.AddEventCallBack(""ComponentLClickUp"", EndBattle);
 
 
 
---Crusader Wars Get Winner
+--Crusader Conflicts Get Winner
 function file_debug()
 
 	bm:callback(function() bm:end_battle() end, 1000);

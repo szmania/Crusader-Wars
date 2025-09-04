@@ -20,11 +20,11 @@ namespace CrusaderWars.data.attila_settings
                 if (!string.IsNullOrWhiteSpace(content))
                 {
                     string errorMessage = "Potential Mod Conflict Detected!\n\n" +
-                                          "The file 'user.script.txt' contains custom scripts that may conflict with Crusader Wars.\n\n" +
+                                          "The file 'user.script.txt' contains custom scripts that may conflict with Crusader Conflicts.\n\n" +
                                           "This can cause issues when launching a battle. It is recommended to clear this file before starting a battle.\n\n" +
-                                          "Note: Crusader Wars has its own built-in mod manager for handling Attila mods.\n\n" +
+                                          "Note: Crusader Conflicts has its own built-in mod manager for handling Attila mods.\n\n" +
                                           $"Path: {user_script_path}";
-                    MessageBox.Show(errorMessage, "Crusader Wars: User Script Mod Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(errorMessage, "Conflicts Conflicts: User Script Mod Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Program.Logger.Debug($"User script file mod conflict detected at {user_script_path} on startup.");
                 }
             }
@@ -39,13 +39,13 @@ namespace CrusaderWars.data.attila_settings
                     if (!string.IsNullOrWhiteSpace(content))
                     {
                         string errorMessage = "Potential Mod Conflict Detected!\n\n" +
-                                              "The file 'user.script.txt' must be empty to launch Attila with Crusader Wars.\n\n" +
+                                              "The file 'user.script.txt' must be empty to launch Attila with Crusader Conflicts.\n\n" +
                                               "Please clear the contents of this file, then click 'Retry' to continue.\n\n" +
                                               "Click 'Cancel' to abort the launch.\n\n" +
-                                              "Note: Crusader Wars has its own built-in mod manager. If you use an external one, save your profile first.\n\n" +
+                                              "Note: Crusader Conflicts has its own built-in mod manager. If you use an external one, save your profile first.\n\n" +
                                               $"Path: {user_script_path}";
 
-                        DialogResult result = MessageBox.Show(errorMessage, "Crusader Wars: Action Required", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
+                        DialogResult result = MessageBox.Show(errorMessage, "Conflicts Conflicts: Action Required", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
 
                         if (result == DialogResult.Cancel)
                         {

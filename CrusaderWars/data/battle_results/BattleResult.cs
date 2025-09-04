@@ -281,7 +281,7 @@ namespace CrusaderWars
             catch(Exception e)
             {
                 Program.Logger.Debug($"Error reading Attila results for army {army.ID}: {e.ToString()}");
-                MessageBox.Show($"Error reading Attila results: {e.ToString()}", "Crusader Wars: Battle Results Error",
+                MessageBox.Show($"Error reading Attila results: {e.ToString()}", "Conflicts Conflicts: Battle Results Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 throw new Exception();
                 

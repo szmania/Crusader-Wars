@@ -303,7 +303,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Log(ex);
-                MessageBox.Show("Error reading game options. Restart the mod and try again", "Crusader Wars: Data Error",
+                MessageBox.Show("Error reading game options. Restart the mod and try again", "Conflicts Conflicts: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
@@ -455,7 +455,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Log(ex);
-                MessageBox.Show("Error setting options UI. Some options may not display correctly.", "Crusader Wars: UI Error",
+                MessageBox.Show("Error setting options UI. Some options may not display correctly.", "Conflicts Conflicts: UI Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
         }
@@ -576,7 +576,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Log(ex);
-                MessageBox.Show("Error saving game options. Changes may not be saved.", "Crusader Wars: Save Error",
+                MessageBox.Show("Error saving game options. Changes may not be saved.", "Conflicts Conflicts: Save Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
         }
@@ -689,7 +689,7 @@ namespace CrusaderWars
             }
             catch 
             {
-                MessageBox.Show("Error setting game paths. Restart the mod and try again", "Crusader Wars: Data Error",
+                MessageBox.Show("Error setting game paths. Restart the mod and try again", "Conflicts Conflicts: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
@@ -722,7 +722,7 @@ namespace CrusaderWars
             }
             catch 
             {
-                MessageBox.Show("Error reading game paths. Restart the mod and try again", "Crusader Wars: Data Error",
+                MessageBox.Show("Error reading game paths. Restart the mod and try again", "Conflicts Conflicts: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
@@ -934,7 +934,7 @@ namespace CrusaderWars
                             }
                             else
                             {
-                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Wars: Crusader Wars: Unit Mappers Error",
+                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Conflicts Conflicts: Conflicts Conflicts: Unit Mappers Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             }
                             break;
@@ -1064,7 +1064,7 @@ namespace CrusaderWars
                     }
                     errorMessage += "\nPlease adjust the values in the 'Cmdr/Knights' tab.";
 
-                    MessageBox.Show(errorMessage, "Crusader Wars: Configuration Error",
+                    MessageBox.Show(errorMessage, "Conflicts Conflicts: Configuration Error",
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     // Switch to the Cmdr/Knights tab to show the user where the error is

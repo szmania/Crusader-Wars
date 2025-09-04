@@ -115,7 +115,7 @@ namespace CrusaderWars.unit_mapper
             }
             catch
             {
-                MessageBox.Show($"Error reading {GetLoadedUnitMapperName()} terrains file!", "Crusader Wars: Unit Mapper Error",
+                MessageBox.Show($"Error reading {GetLoadedUnitMapperName()} terrains file!", "Conflicts Conflicts: Unit Mapper Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
 
@@ -196,7 +196,7 @@ namespace CrusaderWars.unit_mapper
                                         }
                                         else
                                         {
-                                            MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Wars: Unit Mappers Error",
+                                            MessageBox.Show($"Mods.xml was not found in {mapper}", "Conflicts Conflicts: Unit Mappers Error",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                                         }
                                     }
@@ -208,7 +208,7 @@ namespace CrusaderWars.unit_mapper
                             }
                             else
                             {
-                                MessageBox.Show($"Time Period.xml was not found in {mapper}", "Crusader Wars: Unit Mappers Error",
+                                MessageBox.Show($"Time Period.xml was not found in {mapper}", "Conflicts Conflicts: Unit Mappers Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             }
                             break;

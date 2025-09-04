@@ -34,7 +34,7 @@ namespace CrusaderWars
         {
             // Handle the exception
             Logger.Debug($"Global thread exception caught: {e.Exception.Message}");
-            MessageBox.Show("An unexpected error occurred. Please try again.", "Crusader Wars: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("An unexpected error occurred. Please try again.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             // Log the exception for troubleshooting
             Logger.Log(e.Exception);
         }
@@ -43,7 +43,7 @@ namespace CrusaderWars
         {
             // Handle the exception
             Logger.Debug($"Unhandled domain exception caught: {((Exception)e.ExceptionObject).Message}");
-            MessageBox.Show("An unexpected error occurred. Please try again.", "Crusader Wars: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("An unexpected error occurred. Please try again.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             // Log the exception for troubleshooting
             Logger.Log((Exception)e.ExceptionObject);
         }

@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>CWUpdater</AssemblyName>
     <RootNamespace>CWUpdater</RootNamespace>
-    <ProductName>Crusader Wars - Updater</ProductName>
+    <ProductName>Crusader Conflicts - Updater</ProductName>
     <PublisherName>Faray and Community</PublisherName>
   </PropertyGroup>
 

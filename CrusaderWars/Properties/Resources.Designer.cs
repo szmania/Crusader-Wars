@@ -152,6 +152,16 @@ namespace CrusaderWars.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap crusader_conflicts_logo {
+            get {
+                object obj = ResourceManager.GetObject("crusader_conflicts_logo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap discord {
             get {
                 object obj = ResourceManager.GetObject("discord", resourceCulture);
@@ -415,16 +425,6 @@ namespace CrusaderWars.Properties {
         internal static System.Drawing.Bitmap searchModsIcon {
             get {
                 object obj = ResourceManager.GetObject("searchModsIcon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap sem_nome {
-            get {
-                object obj = ResourceManager.GetObject("sem_nome", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -182,7 +182,7 @@
             this.Name = "LoadingScreen";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Crusader Wars";
+            this.Text = "Crusader Conflicts";
             this.TopMost = true;
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Shown += new System.EventHandler(this.LoadingScreen_Shown);

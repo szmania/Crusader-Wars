@@ -81,7 +81,7 @@ namespace CrusaderWars.mod_manager
                 foreach (var mod in notFoundMods)
                     missingMods += $"{mod}\n";
 
-                MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Wars: Missing Mods!",
+                MessageBox.Show($"You are missing these mods:\n{missingMods}", "Conflicts Conflicts: Missing Mods!",
                 MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 uC_Toggle1.SetState(false);
             }
@@ -110,13 +110,13 @@ namespace CrusaderWars.mod_manager
                     foreach (var mod in notFoundMods)
                         missingMods += $"{mod}\n";
 
-                    MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Wars: Missing Mods!",
+                    MessageBox.Show($"You are missing these mods:\n{missingMods}", "Conflicts Conflicts: Missing Mods!",
                     MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     uC_Toggle1.SetState(false);
                 }
                 else if (notFoundMods.Count == 0) // all installed
                 {
-                    MessageBox.Show("All mods are installed, you are good to go!", "Crusader Wars: All mods installed!",
+                    MessageBox.Show("All mods are installed, you are good to go!", "Conflicts Conflicts: All mods installed!",
                     MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 }
             }
@@ -151,7 +151,7 @@ namespace CrusaderWars.mod_manager
             }
             else
             {
-                MessageBox.Show("Error reading Attila data folder. This is caused by wrong Attila path.", "Crusader Wars: Game Paths Error",
+                MessageBox.Show("Error reading Attila data folder. This is caused by wrong Attila path.", "Conflicts Conflicts: Game Paths Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
 
