@@ -66,7 +66,7 @@
             this.TitleLabel.Name = "TitleLabel";
             this.TitleLabel.Size = new System.Drawing.Size(604, 42);
             this.TitleLabel.TabIndex = 5;
-            this.TitleLabel.Text = "New Update Available!";
+            this.TitleLabel.Text = "New Crusader Conflicts Update Available!";
             this.TitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // WarningLabel
