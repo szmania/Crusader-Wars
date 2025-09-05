@@ -60,10 +60,7 @@ namespace CrusaderWars.data.save_file
                 ReadCharacters();
                 ReadCourtPositions();
                 CheckForNullCultures();
-                ReadCultureManager();
-
-                // Organize Units
-                CreateUnits();
+                CreateUnits(); // Organize Units
 
                 // Print Armies
                 Print.PrintArmiesData(attacker_armies);
@@ -489,7 +486,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (searchStarted && line.StartsWith("\tkey=")) //# KEY
                     {
-                        titleKey = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
+                        string title_key = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
                         Program.Logger.Debug($"Found title key '{titleKey}' for title ID '{title_id}'.");
                         return titleKey;
                     }
@@ -754,7 +751,7 @@ namespace CrusaderWars.data.save_file
 
                     int leftEffectivenss = 0;
                     var leftSideKnights = CK3LogData.LeftSide.GetKnights();
-                    if (leftSideKnights != null && leftSideKnights.Count > 0)
+                    if (leftSideKnights != null && leftSideKnights.Count > 0 && leftSideKnights[0] != null)
                     {
                         leftEffectivenss = leftSideKnights[0].effectiveness;
                     }
@@ -809,7 +806,7 @@ namespace CrusaderWars.data.save_file
 
                     int rightEffectivenss = 0;
                     var rightSideKnights = CK3LogData.RightSide.GetKnights();
-                    if (rightSideKnights != null && rightSideKnights.Count > 0)
+                    if (rightSideKnights != null && rightSideKnights.Count > 0 && rightSideKnights[0] != null)
                     {
                         rightEffectivenss = rightSideKnights[0].effectiveness;
                     }

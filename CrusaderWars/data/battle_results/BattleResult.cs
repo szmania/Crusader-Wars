@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.Text;
 using CrusaderWars.data.save_file;
 using static CrusaderWars.data.save_file.Writter;
@@ -240,7 +239,7 @@ namespace CrusaderWars
                 List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase = new List<(string Script, string Type, string CultureID, string Remaining)>();
                 List<(string Script, string Type, string CultureID, string Remaining)> Alive_PursuitPhase = new List<(string Script, string Type, string CultureID, string Remaining)>();
                 List<(string Script, string Type, string CultureID, string Kills)> Kills_MainPhase = new List<(string Name, string Type, string CultureID, string Kills)>();
-                List<(string Script, string Type, string CultureID, string Kills)> Kills_PursuitPhase = new List<(string Name, string Type, string CultureID, string Kills)>();
+                List<(string Script, string Type, string CultureID, string Kills)> Kills_PursuitPhase = new List<(string Script, string Type, string CultureID, string Kills)>();
 
                 var (AliveList, KillsList) = GetRemainingAndKills(path_attila_log);
                 if (AliveList.Count == 0)
@@ -466,13 +465,18 @@ namespace CrusaderWars
             Program.Logger.Debug($"Checking for knight deaths in army {army.ID}");
             if(army.Knights != null && army.Knights.HasKnights())
             {
-                if (army.UnitsResults == null) return; // Added null check for UnitsResults
+                if (army.UnitsResults == null) return;
 
                 int remaining = 0;
-                var knightReport = army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
+                var knightReport = default((string Script, string Type, string CultureID, string Remaining));
+
+                if (army.UnitsResults.Alive_PursuitPhase != null)
+                {
+                    knightReport = army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
+                }
 
                 // If no report in pursuit phase, check main phase
-                if (knightReport.Remaining == null)
+                if (knightReport.Remaining == null && army.UnitsResults.Alive_MainPhase != null)
                 {
                     knightReport = army.UnitsResults.Alive_MainPhase.FirstOrDefault(x => x.Type == "knights");
                 }
