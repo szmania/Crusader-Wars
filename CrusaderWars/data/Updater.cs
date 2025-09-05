@@ -136,7 +136,7 @@ namespace CrusaderWars
             }
         }
 
-        private string GetPreReleaseTag(string versionStr)
+        private string? GetPreReleaseTag(string versionStr)
         {
             // Remove leading 'v' if present for consistent regex matching
             string processedVersion = versionStr.StartsWith("v") ? versionStr.Substring(1) : versionStr;
@@ -169,8 +169,8 @@ namespace CrusaderWars
 
             // 2. If main versions are equal, compare pre-release tags
             Program.Logger.Debug($"  Main versions are equal ({verA}). Comparing pre-release tags.");
-            string tagA = GetPreReleaseTag(versionA);
-            string tagB = GetPreReleaseTag(versionB);
+            string? tagA = GetPreReleaseTag(versionA);
+            string? tagB = GetPreReleaseTag(versionB);
 
             // A stable version is always newer than a pre-release version
             if (tagA == null && tagB != null)
@@ -193,8 +193,8 @@ namespace CrusaderWars
 
             // Both have pre-release tags, compare them
             Program.Logger.Debug($"  Both A ('{tagA}') and B ('{tagB}') have pre-release tags. Comparing tags.");
-            string[] partsA = tagA.Split('.');
-            string[] partsB = tagB.Split('.');
+            string[] partsA = tagA!.Split('.');
+            string[] partsB = tagB!.Split('.');
 
             int length = Math.Min(partsA.Length, partsB.Length);
             for (int i = 0; i < length; i++)
@@ -300,7 +300,7 @@ namespace CrusaderWars
             return latestRelease;
         }
 
-        private string GetUpdaterPath()
+        private string? GetUpdaterPath()
         {
             string primaryPath = @".\data\updater\CWUpdater.exe";
             string fallbackPath = @".\data\updater\CW-Updater.exe";
@@ -349,7 +349,7 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Update available for app: {latestRelease.version}. Starting updater...");
                 try
                     {
-                    string updaterPath = GetUpdaterPath();
+                    string? updaterPath = GetUpdaterPath();
                     if (updaterPath == null)
                     {
                         throw new FileNotFoundException("Updater executable not found.");
@@ -401,7 +401,7 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Update available for unit mappers: {latestRelease.version}. Starting updater...");
                 try
                 {
-                    string updaterPath = GetUpdaterPath();
+                    string? updaterPath = GetUpdaterPath();
                     if (updaterPath == null)
                     {
                         throw new FileNotFoundException("Updater executable not found.");

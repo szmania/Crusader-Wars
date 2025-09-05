@@ -743,7 +743,7 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in attacker_armies)
                             {
-                                var knight = army.Knights?.GetKnightsList()?.FirstOrDefault(k => k.GetID() == knightID);
+                                var knight = army.Knights?.GetKnightsList()?.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
                                 if (knight != null)
                                 {
                                     main_kills = knight.GetKills();
@@ -848,7 +848,7 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in defender_armies)
                             {
-                                var knight = army.Knights?.GetKnightsList()?.FirstOrDefault(k => k.GetID() == knightID);
+                                var knight = army.Knights?.GetKnightsList()?.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
                                 if (knight != null)
                                 {
                                     main_kills = knight.GetKills();
