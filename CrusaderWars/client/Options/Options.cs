@@ -976,6 +976,7 @@ namespace CrusaderWars
 
             CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", GetUnitMappersModsCollectionFromTag("DefaultCK3"),ck3ToggleState);
             TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301639735", GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState);
+            TheFallenEagle_Tab.SetVerifyModsTooltip("Verifies required mods, including the new 'TW:Attila mod Age of Justinian 555 2.0'.");
             RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState);
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;

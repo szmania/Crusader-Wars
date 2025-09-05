@@ -17,10 +17,17 @@ namespace CrusaderWars.mod_manager
 
         string SteamCollectionLink {  get; set; }
         List<string> RequiredModsList { get; set; }
+        private ToolTip toolTip1; // Added ToolTip field
 
         public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods,bool state)
         {
             InitializeComponent();
+
+            toolTip1 = new ToolTip(); // Initialize ToolTip
+            toolTip1.AutoPopDelay = 5000;
+            toolTip1.InitialDelay = 1000;
+            toolTip1.ReshowDelay = 500;
+            toolTip1.ShowAlways = true;
 
             pictureBox1.BackgroundImage = image;
             pictureBox1.BackgroundImageLayout = ImageLayout.Stretch;
@@ -119,6 +126,19 @@ namespace CrusaderWars.mod_manager
                     MessageBox.Show("All mods are installed, you are good to go!", "Crusader Conflicts: All mods installed!",
                     MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 }
+            }
+        }
+
+        public void SetVerifyModsTooltip(string text)
+        {
+            Button? btn = this.Controls.Find("BtnVerifyMods", true).FirstOrDefault() as Button;
+            if (btn != null)
+            {
+                toolTip1.SetToolTip(btn, text);
+            }
+            else
+            {
+                Program.Logger.Debug("BtnVerifyMods not found in UC_UnitMapper for tooltip setting.");
             }
         }
 

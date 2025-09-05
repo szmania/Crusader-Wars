@@ -428,6 +428,26 @@ namespace CrusaderWars
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
 
             Program.Logger.Debug("Form1_Load complete.");
+
+            ShowOneTimeNotifications();
+        }
+
+        private void ShowOneTimeNotifications()
+        {
+            if (!Properties.Settings.Default.JustinianUpdateNotified)
+            {
+                MessageBox.Show(
+                    "Important Update for 'The Fallen Eagle' Playthrough!\n\n" +
+                    "This playthrough now requires the 'Age of Justinian 555 2.0' mod for Total War: Attila to ensure the best experience.\n\n" +
+                    "Please subscribe to it on the Steam Workshop before starting your next campaign.",
+                    "Crusader Conflicts: The Fallen Eagle Update",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+
+                Properties.Settings.Default.JustinianUpdateNotified = true;
+                Properties.Settings.Default.Save();
+            }
         }
 
         private void UpdateUIForBattleState()
@@ -1774,6 +1794,7 @@ namespace CrusaderWars
 
         private void WebsiteBTN_MouseEnter(object sender, EventArgs e)
         {
+Button WebsiteBTN_MouseEnter(object sender, EventArgs e)
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_hover1;
         }
 
