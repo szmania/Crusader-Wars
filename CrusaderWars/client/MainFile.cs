@@ -434,8 +434,41 @@ namespace CrusaderWars
 
         private void ShowOneTimeNotifications()
         {
-            if (!Properties.Settings.Default.JustinianUpdateNotified)
+            // Get current application version
+            if (string.IsNullOrEmpty(_appVersion))
             {
+                Program.Logger.Debug("Current application version is null or empty, skipping update notification.");
+                return;
+            }
+
+            Version currentAppVersion;
+            try
+            {
+                currentAppVersion = new Version(_appVersion.TrimStart('v'));
+            }
+            catch (FormatException ex)
+            {
+                Program.Logger.Debug($"Invalid application version format: {_appVersion}. Error: {ex.Message}. Skipping update notification.");
+                return;
+            }
+
+            // Get last notified version from settings
+            string lastNotifiedVersionString = Properties.Settings.Default.LastNotifiedVersion;
+            Version lastNotifiedVersion;
+            try
+            {
+                lastNotifiedVersion = new Version(lastNotifiedVersionString);
+            }
+            catch (FormatException ex)
+            {
+                Program.Logger.Debug($"Invalid LastNotifiedVersion format in settings: {lastNotifiedVersionString}. Error: {ex.Message}. Defaulting to 0.0.0.");
+                lastNotifiedVersion = new Version("0.0.0"); // Default to a very old version if setting is malformed
+            }
+
+            // Compare versions
+            if (currentAppVersion > lastNotifiedVersion)
+            {
+                Program.Logger.Debug($"New application version detected ({currentAppVersion} > {lastNotifiedVersion}). Displaying update notification.");
                 MessageBox.Show(
                     "Important Update for 'The Fallen Eagle' Playthrough!\n\n" +
                     "This playthrough now requires the 'Age of Justinian 555 2.0' mod for Total War: Attila to ensure the best experience.\n\n" +
@@ -445,8 +478,14 @@ namespace CrusaderWars
                     MessageBoxIcon.Information
                 );
 
-                Properties.Settings.Default.JustinianUpdateNotified = true;
+                // Update the setting to the current version
+                Properties.Settings.Default.LastNotifiedVersion = _appVersion.TrimStart('v');
                 Properties.Settings.Default.Save();
+                Program.Logger.Debug($"LastNotifiedVersion updated to: {Properties.Settings.Default.LastNotifiedVersion}");
+            }
+            else
+            {
+                Program.Logger.Debug($"Application version ({currentAppVersion}) is not newer than last notified version ({lastNotifiedVersion}). Skipping update notification.");
             }
         }
 
@@ -1055,7 +1094,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error starting Attila: {ex.Message}");
+Logger.Debug($"Error starting Attila: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
                     MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
