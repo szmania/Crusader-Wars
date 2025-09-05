@@ -149,7 +149,7 @@ namespace CrusaderWars.data.save_file
             string employeeID="";
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.CourtPositions_Path()))
             {
-                string line;
+                string? line;
                 while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if (line == "\t\t\tcourt_position=\"bodyguard_court_position\"")
@@ -746,10 +746,6 @@ namespace CrusaderWars.data.save_file
 
                     int leftEffectivenss = 0;
                     var leftSideKnights = CK3LogData.LeftSide.GetKnights();
-                    if (leftSideKnights is null || leftSideKnights.Count == 0)
-                        leftEffectivenss = 0;
-                    else
-                        leftEffectivenss = leftSideKnights[0].effectiveness;
                     if (leftSideKnights != null && leftSideKnights.Count > 0)
                     {
                         leftEffectivenss = leftSideKnights[0].effectiveness;
@@ -805,10 +801,10 @@ namespace CrusaderWars.data.save_file
 
                     int rightEffectivenss = 0;
                     var rightSideKnights = CK3LogData.RightSide.GetKnights();
-                    if (rightSideKnights is null || rightSideKnights.Count == 0)
-                        rightEffectivenss = 0;
-                    else
+                    if (rightSideKnights != null && rightSideKnights.Count > 0)
+                    {
                         rightEffectivenss = rightSideKnights[0].effectiveness;
+                    }
 
                     Program.Logger.Debug($"Creating KnightSystem for right side army {right_side_armies[x].ID} with {KnightsList.Count} knights.");
                     KnightSystem rightSide = new KnightSystem(KnightsList, rightEffectivenss);
@@ -1469,7 +1465,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else if(isSearchStarted && line.Contains("\t\t\tcommander="))
                     {
-                        string id = Regex.Match(line, @"commander=(\d+)").Groups[1].Value;
+                        string id = Regex.Match(line, @"commander=(\d+)").Value;
                         if (isAttacker)
                         {
                             attacker_armies[index].CommanderID = id;

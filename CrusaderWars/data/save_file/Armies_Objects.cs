@@ -76,8 +76,8 @@ namespace CrusaderWars.data.save_file
 
         string Name { get; set; }
         RegimentType Type { get; set; }
-        Culture UnitCulture { get; set; }
-        Owner Owner {  get; set; }
+        Culture? UnitCulture { get; set; }
+        Owner? Owner {  get; set; }
         bool IsMercenaryBool { get; set; }
         int Soldiers { get; set; }
         string AttilaKey { get; set; }
@@ -87,7 +87,7 @@ namespace CrusaderWars.data.save_file
 
 
 
-        public Unit(string regiment_name, int soldiers, Culture culture_obj, RegimentType type)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -95,7 +95,7 @@ namespace CrusaderWars.data.save_file
             Type = type;
         }
 
-        public Unit(string regiment_name, int soldiers, Culture culture_obj, RegimentType type, bool is_merc)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -103,7 +103,7 @@ namespace CrusaderWars.data.save_file
             Type = type;
             IsMercenaryBool = is_merc;
         }
-        public Unit(string regiment_name, int soldiers, Culture culture_obj, RegimentType type, bool is_merc, Owner owner)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -128,9 +128,9 @@ namespace CrusaderWars.data.save_file
         public int GetMax() { return Max; }
         public string GetAttilaFaction() { return AttilaFaction; }
         public string GetAttilaUnitKey() { return AttilaKey; }
-        public Owner GetOwner() { return Owner; }
+        public Owner? GetOwner() { return Owner; }
         public string GetName() { return Name; }
-        public Culture GetObjCulture() { 
+        public Culture? GetObjCulture() { 
 
             return UnitCulture; 
         }

@@ -1564,7 +1564,7 @@ namespace CrusaderWars
                 if (node is XmlComment) continue;
                 if (node.InnerText == "True")
                 {
-                    tagName = node.Attributes!["name"]!.Value;
+                    tagName = node.Attributes?["name"]?.Value ?? "";
                     Program.Logger.Debug($"Playthrough tag found: {tagName}");
                     break;
                 }
@@ -1700,7 +1700,7 @@ namespace CrusaderWars
         {
             if (loadingScreen != null && loadingScreen.IsHandleCreated)
             {
-                loadingScreen.BeginInvoke(new Action(() => loadingScreen.ChangeMessage(message)));
+                loadingScreen.BeginInvoke(new Action(() => loadingScreen.ChangeMessage(message ?? string.Empty)));
             }
         }
 
@@ -1708,7 +1708,7 @@ namespace CrusaderWars
         {
             if (loadingScreen != null && loadingScreen.IsHandleCreated)
             {
-                loadingScreen.BeginInvoke(new Action(() => loadingScreen.ChangeUnitMapperMessage(message)));
+                loadingScreen.BeginInvoke(new Action(() => loadingScreen.ChangeUnitMapperMessage(message ?? string.Empty)));
             }
         }
 

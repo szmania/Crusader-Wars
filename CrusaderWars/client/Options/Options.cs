@@ -596,8 +596,11 @@ namespace CrusaderWars
 
         private void ck3Btn_MouseHover(object sender, EventArgs e)
         {
-            ToolTip_Attila.ToolTipTitle = "Crusader Kings 3 Path";
-            ToolTip_Attila.SetToolTip(ck3Btn, Properties.Settings.Default.VAR_ck3_path);
+            if (ToolTip_Attila != null)
+            {
+                ToolTip_Attila.ToolTipTitle = "Crusader Kings 3 Path";
+                ToolTip_Attila.SetToolTip(ck3Btn, Properties.Settings.Default.VAR_ck3_path);
+            }
         }
 
         private void Status_Refresh()

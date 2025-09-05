@@ -1130,7 +1130,7 @@ namespace CrusaderWars
                 {
 
                     //Regiment ID line
-                    if (!editStarted && Regex.IsMatch(line, @"\t\t\d+={"))
+                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
                     {
                         string army_regiment_id = Regex.Match(line, @"\d+").Value;
 
@@ -1183,6 +1183,7 @@ namespace CrusaderWars
 
             foreach (Army army in armies)
             {
+                if (army.ArmyRegiments == null) continue; // Add null check here
                 foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
                 {
                     if (army_regiment.Type == RegimentType.Knight) continue;
@@ -1346,8 +1347,10 @@ namespace CrusaderWars
 
             foreach (Army army in armies)
             {
+                if (army.ArmyRegiments == null) continue; // Add null check here
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
+                    if (armyRegiment.Regiments == null) continue; // Add null check here
                     foreach (Regiment regiment in armyRegiment.Regiments)
                     {
                         if (regiment.ID == regiment_id)
