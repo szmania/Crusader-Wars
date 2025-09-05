@@ -730,7 +730,7 @@ namespace CrusaderWars.data.save_file
                         if (regiment.Type == RegimentType.Knight)
                         {
                             var leftKnights = CK3LogData.LeftSide.GetKnights();
-                            if (leftKnights != null)
+                            if (leftKnights != null && leftKnights.Count > 0)
                             {
                                 for (int i = 0; i < leftKnights.Count; i++)
                                 {
@@ -751,7 +751,7 @@ namespace CrusaderWars.data.save_file
 
                     int leftEffectivenss = 0;
                     var leftSideKnights = CK3LogData.LeftSide.GetKnights();
-                    if (leftSideKnights != null && leftSideKnights.Count > 0 && leftSideKnights[0] != null)
+                    if (leftSideKnights != null && leftSideKnights.Count > 0)
                     {
                         leftEffectivenss = leftSideKnights[0].effectiveness;
                     }
@@ -785,7 +785,7 @@ namespace CrusaderWars.data.save_file
                         if (regiment.Type == RegimentType.Knight)
                         {
                             var rightKnights = CK3LogData.RightSide.GetKnights();
-                            if (rightKnights != null)
+                            if (rightKnights != null && rightKnights.Count > 0)
                             {
                                 for (int i = 0; i < rightKnights.Count; i++)
                                 {
@@ -806,7 +806,7 @@ namespace CrusaderWars.data.save_file
 
                     int rightEffectivenss = 0;
                     var rightSideKnights = CK3LogData.RightSide.GetKnights();
-                    if (rightSideKnights != null && rightSideKnights.Count > 0 && rightSideKnights[0] != null)
+                    if (rightSideKnights != null && rightSideKnights.Count > 0)
                     {
                         rightEffectivenss = rightSideKnights[0].effectiveness;
                     }
