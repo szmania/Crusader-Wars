@@ -94,16 +94,15 @@ namespace CrusaderWars.data.save_file
             using (FileStream saveFile = File.Open(savePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(saveFile))
             {
-                string line = reader.ReadLine();
+                string? line;
                 int lineCount = 0;
-                while (line != null && !reader.EndOfStream)
+                while ((line = reader.ReadLine()) != null)
                 {
                     lineCount++;
                     if (lineCount % 500000 == 0)
                     {
                         Program.Logger.Debug($"... Read {lineCount} lines from save file ...");
                     }
-                    line = reader.ReadLine();
                     //GetterKeys.ReadProvinceBuildings(line, "5984");
 
 
