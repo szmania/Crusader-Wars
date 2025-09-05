@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using System.Text; // Added for StringBuilder
 
 namespace CrusaderWars.mod_manager
 {
@@ -18,8 +19,9 @@ namespace CrusaderWars.mod_manager
         string SteamCollectionLink {  get; set; }
         List<string> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
+        private string _playthroughTag; // NEW FIELD
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods,bool state)
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods, bool state, string playthroughTag) // UPDATED CONSTRUCTOR SIGNATURE
         {
             InitializeComponent();
 
@@ -34,6 +36,7 @@ namespace CrusaderWars.mod_manager
             SteamCollectionLink = steamCollectionLink;
             uC_Toggle1.SetState(state);
             RequiredModsList = requiredMods;
+            _playthroughTag = playthroughTag; // INITIALIZE NEW FIELD
         }
 
         public void SetPulsing(bool isPulsing)
@@ -69,7 +72,30 @@ namespace CrusaderWars.mod_manager
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Process.Start(new ProcessStartInfo(SteamCollectionLink) { UseShellExecute = true });
+            if (_playthroughTag == "TheFallenEagle")
+            {
+                // Build a string containing the list of mods
+                StringBuilder modsMessage = new StringBuilder();
+                if (RequiredModsList != null && RequiredModsList.Count > 0)
+                {
+                    modsMessage.AppendLine("The Fallen Eagle playthrough requires the following mods for Total War: Attila:");
+                    foreach (var mod in RequiredModsList)
+                    {
+                        modsMessage.AppendLine($"- {mod}");
+                    }
+                    modsMessage.AppendLine("\nPlease ensure these are enabled in the Attila Mod Manager.");
+                }
+                else
+                {
+                    modsMessage.AppendLine("No specific required mods are listed for 'The Fallen Eagle' playthrough at this time.");
+                }
+
+                MessageBox.Show(modsMessage.ToString(), "The Fallen Eagle - Required Mods", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if (!string.IsNullOrEmpty(SteamCollectionLink)) // Original logic for other playthroughs
+            {
+                Process.Start(new ProcessStartInfo(SteamCollectionLink) { UseShellExecute = true });
+            }
         }
 
         public bool GetState()
