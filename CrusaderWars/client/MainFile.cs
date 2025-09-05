@@ -441,10 +441,17 @@ namespace CrusaderWars
                 return;
             }
 
+            string sanitizedAppVersionString = _appVersion.TrimStart('v');
+            int hyphenIndexApp = sanitizedAppVersionString.IndexOf('-');
+            if (hyphenIndexApp >= 0)
+            {
+                sanitizedAppVersionString = sanitizedAppVersionString.Substring(0, hyphenIndexApp);
+            }
+
             Version currentAppVersion;
             try
             {
-                currentAppVersion = new Version(_appVersion.TrimStart('v'));
+                currentAppVersion = new Version(sanitizedAppVersionString);
             }
             catch (FormatException ex)
             {
@@ -454,10 +461,18 @@ namespace CrusaderWars
 
             // Get last notified version from settings
             string lastNotifiedVersionString = Properties.Settings.Default.LastNotifiedVersion;
+            
+            string sanitizedLastNotifiedVersionString = lastNotifiedVersionString;
+            int hyphenIndexLast = sanitizedLastNotifiedVersionString.IndexOf('-');
+            if (hyphenIndexLast >= 0)
+            {
+                sanitizedLastNotifiedVersionString = sanitizedLastNotifiedVersionString.Substring(0, hyphenIndexLast);
+            }
+
             Version lastNotifiedVersion;
             try
             {
-                lastNotifiedVersion = new Version(lastNotifiedVersionString);
+                lastNotifiedVersion = new Version(sanitizedLastNotifiedVersionString);
             }
             catch (FormatException ex)
             {

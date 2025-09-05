@@ -974,10 +974,10 @@ namespace CrusaderWars
             if (tfeToggleStateStr == "True") tfeToggleState = true; else tfeToggleState = false;
             if (lotrToggleStateStr == "True") lotrToggleState = true; else lotrToggleState = false;
 
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", GetUnitMappersModsCollectionFromTag("DefaultCK3"),ck3ToggleState);
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301639735", GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState);
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", GetUnitMappersModsCollectionFromTag("DefaultCK3"),ck3ToggleState, "DefaultCK3");
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301639735", GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState, "TheFallenEagle");
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState);
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState, "RealmsInExile");
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
