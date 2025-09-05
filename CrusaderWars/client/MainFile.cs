@@ -491,7 +491,7 @@ namespace CrusaderWars
             }
 
             // Compare versions
-            if (currentAppVersion > lastNotifiedVersion) // Corrected comparison operator
+            if (currentAppVersion <= lastNotifiedVersion) // Corrected comparison operator
             {
                 Program.Logger.Debug($"New application version detected ({currentAppVersion} > {lastNotifiedVersion}). Displaying update notification.");
                 

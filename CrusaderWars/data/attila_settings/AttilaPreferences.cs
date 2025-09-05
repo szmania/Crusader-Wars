@@ -24,7 +24,7 @@ namespace CrusaderWars.data.attila_settings
                                           "This can cause issues when launching a battle. It is recommended to clear this file before starting a battle.\n\n" +
                                           "Note: Crusader Conflicts has its own built-in mod manager for handling Attila mods.\n\n" +
                                           $"Path: {user_script_path}";
-                    MessageBox.Show(errorMessage, "Conflicts Conflicts: User Script Mod Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(errorMessage, "Crusader Conflicts: User Script Mod Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Program.Logger.Debug($"User script file mod conflict detected at {user_script_path} on startup.");
                 }
             }
@@ -45,7 +45,7 @@ namespace CrusaderWars.data.attila_settings
                                               "Note: Crusader Conflicts has its own built-in mod manager. If you use an external one, save your profile first.\n\n" +
                                               $"Path: {user_script_path}";
 
-                        DialogResult result = MessageBox.Show(errorMessage, "Conflicts Conflicts: Action Required", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
+                        DialogResult result = MessageBox.Show(errorMessage, "Crusader Conflicts: Action Required", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
 
                         if (result == DialogResult.Cancel)
                         {
