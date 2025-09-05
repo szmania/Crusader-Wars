@@ -18,9 +18,8 @@ namespace CrusaderWars.mod_manager
         string SteamCollectionLink {  get; set; }
         List<string> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
-        private readonly string _playthroughTag;
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods, bool state, string playthroughTag)
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods,bool state)
         {
             InitializeComponent();
 
@@ -35,7 +34,6 @@ namespace CrusaderWars.mod_manager
             SteamCollectionLink = steamCollectionLink;
             uC_Toggle1.SetState(state);
             RequiredModsList = requiredMods;
-            _playthroughTag = playthroughTag;
         }
 
         public void SetPulsing(bool isPulsing)
@@ -107,38 +105,26 @@ namespace CrusaderWars.mod_manager
 
         private void BtnVerifyMods_Click(object sender, EventArgs e)
         {
-            if (RequiredModsList != null)
+            if(RequiredModsList != null)
             {
-                if (_playthroughTag == "TheFallenEagle")
+
+                var notFoundMods = VerifyIfAllModsAreInstalled();
+
+                //Print Message
+                if (notFoundMods.Count > 0) // not all installed
                 {
-                    string allMods = "The Fallen Eagle playthrough requires the following mods:\n\n";
-                    foreach (var mod in RequiredModsList)
-                    {
-                        allMods += $"- {mod}\n";
-                    }
-                    MessageBox.Show(allMods, "Crusader Conflicts: Required Mods for The Fallen Eagle",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string missingMods = "";
+                    foreach (var mod in notFoundMods)
+                        missingMods += $"{mod}\n";
+
+                    MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    uC_Toggle1.SetState(false);
                 }
-                else
+                else if (notFoundMods.Count == 0) // all installed
                 {
-                    var notFoundMods = VerifyIfAllModsAreInstalled();
-
-                    //Print Message
-                    if (notFoundMods.Count > 0) // not all installed
-                    {
-                        string missingMods = "";
-                        foreach (var mod in notFoundMods)
-                            missingMods += $"{mod}\n";
-
-                        MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                        uC_Toggle1.SetState(false);
-                    }
-                    else if (notFoundMods.Count == 0) // all installed
-                    {
-                        MessageBox.Show("All mods are installed, you are good to go!", "Crusader Conflicts: All mods installed!",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    }
+                    MessageBox.Show("All mods are installed, you are good to go!", "Crusader Conflicts: All mods installed!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 }
             }
         }
