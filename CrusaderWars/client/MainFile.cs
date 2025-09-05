@@ -1794,7 +1794,6 @@ namespace CrusaderWars
 
         private void WebsiteBTN_MouseEnter(object sender, EventArgs e)
         {
-Button WebsiteBTN_MouseEnter(object sender, EventArgs e)
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_hover1;
         }
 
