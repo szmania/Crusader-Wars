@@ -1094,7 +1094,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-Logger.Debug($"Error starting Attila: {ex.Message}");
+                    Program.Logger.Debug($"Error starting Attila: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
                     MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
