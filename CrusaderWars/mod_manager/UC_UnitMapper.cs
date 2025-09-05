@@ -17,17 +17,17 @@ namespace CrusaderWars.mod_manager
 
         string SteamCollectionLink {  get; set; }
         List<string> RequiredModsList { get; set; }
-        private ToolTip toolTip1; // Added ToolTip field
+        private ToolTip toolTip2; // Added ToolTip field
 
         public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods,bool state)
         {
             InitializeComponent();
 
-            toolTip1 = new ToolTip(); // Initialize ToolTip
-            toolTip1.AutoPopDelay = 5000;
-            toolTip1.InitialDelay = 1000;
-            toolTip1.ReshowDelay = 500;
-            toolTip1.ShowAlways = true;
+            toolTip2 = new ToolTip(); // Initialize ToolTip
+            toolTip2.AutoPopDelay = 5000;
+            toolTip2.InitialDelay = 1000;
+            toolTip2.ReshowDelay = 500;
+            toolTip2.ShowAlways = true;
 
             pictureBox1.BackgroundImage = image;
             pictureBox1.BackgroundImageLayout = ImageLayout.Stretch;
@@ -134,7 +134,7 @@ namespace CrusaderWars.mod_manager
             Button? btn = this.Controls.Find("BtnVerifyMods", true).FirstOrDefault() as Button;
             if (btn != null)
             {
-                toolTip1.SetToolTip(btn, text);
+                toolTip2.SetToolTip(btn, text);
             }
             else
             {
