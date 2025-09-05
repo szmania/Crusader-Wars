@@ -164,7 +164,7 @@ namespace CrusaderWars.data.save_file
                         foreach (Army army in armies)
                         {
                             //Owner
-                            if (army.Owner.GetCulture() != null && army.Owner.GetCulture() != null && army.Owner.GetCulture().ID == culture_id)
+                            if (army.Owner?.GetCulture() != null && army.Owner.GetCulture().ID == culture_id)
                             {
                                 isSearchStared = true;
                                 break;
@@ -265,7 +265,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else
                     {
-                        army.Commander.ChangeCulture(army.Owner.GetCulture());
+                        army.Commander.ChangeCulture(army.Owner?.GetCulture());
                     }
                 }
 
@@ -340,7 +340,7 @@ namespace CrusaderWars.data.save_file
                 Program.Logger.Debug($"Applying to ARMY: {army.ID}");
                 
                 // Owner culture log
-                if (army.Owner.GetCulture() != null && foundCultures.Exists(c => c.culture_id == army.Owner.GetCulture().ID))
+                if (army.Owner?.GetCulture() != null && foundCultures.Exists(c => c.culture_id == army.Owner.GetCulture().ID))
                 {
                     var found = foundCultures.First(c => c.culture_id == army.Owner.GetCulture().ID);
                     Program.Logger.Debug($"  APPLYING OWNER CULTURE | Old: {(army.Owner.GetCulture().GetCultureName() ?? "null")}/{(army.Owner.GetCulture().GetHeritageName() ?? "null")}");
@@ -363,7 +363,7 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // Knights culture log
-                if (army.Knights.GetKnightsList() != null)
+                if (army.Knights?.GetKnightsList() != null)
                 {
                     foreach (var knight in army.Knights.GetKnightsList())
                     {
@@ -415,7 +415,7 @@ namespace CrusaderWars.data.save_file
          *##############################################
          */
 
-        public static (bool searchHasStarted, Army army) SearchUnit(string unitID, List<Army> armies)
+        public static (bool searchHasStarted, Army? army) SearchUnit(string unitID, List<Army> armies)
         {
             foreach (Army army in armies)
             {
@@ -435,7 +435,7 @@ namespace CrusaderWars.data.save_file
          *##############################################
          */
 
-        public static (bool searchHasStarted, ArmyRegiment regiment) SearchArmyRegiments(string armyRegimentId, List<Army> armies)
+        public static (bool searchHasStarted, ArmyRegiment? regiment) SearchArmyRegiments(string armyRegimentId, List<Army> armies)
         {
             foreach (Army army in armies)
             {
@@ -458,7 +458,7 @@ namespace CrusaderWars.data.save_file
          *##############################################
          */
 
-        public static (bool searchHasStarted, Regiment regiment) SearchRegiments(string regiment_id, List<Army> armies)
+        public static (bool searchHasStarted, Regiment? regiment) SearchRegiments(string regiment_id, List<Army> armies)
         {
             foreach(Army army in armies)
             {
@@ -487,12 +487,12 @@ namespace CrusaderWars.data.save_file
          *##############################################
          */
 
-        public static (bool searchStarted, Army searchingArmy, bool isCommander, bool isMainCommander, bool isKnight, Knight knight, bool isOwner) SearchCharacters(string id, List<Army> armies)
+        public static (bool searchStarted, Army? searchingArmy, bool isCommander, bool isMainCommander, bool isKnight, Knight? knight, bool isOwner) SearchCharacters(string id, List<Army> armies)
         {
             foreach (Army army in armies)
             {
                 //Main Commanders
-                if(army.Commander != null && id == army.Commander.ID && id == army.Owner.GetID())
+                if(army.Commander != null && id == army.Commander.ID && id == army.Owner?.GetID())
                 {
                     Program.Logger.Debug($"Found character '{id}': Main Commander and Owner of army '{army.ID}'.");
                     return (true, army, false, true, false, null, true);
@@ -504,7 +504,7 @@ namespace CrusaderWars.data.save_file
                 }
 
                 //Commanders
-                if(id == army.CommanderID && id == army.Owner.GetID())
+                if(id == army.CommanderID && id == army.Owner?.GetID())
                 {
                     Program.Logger.Debug($"Found character '{id}': Commander and Owner of army '{army.ID}'.");
                     return (true, army, true, false, false, null, true);
@@ -516,11 +516,11 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // KNIGHTS
-                else if (army.Knights.GetKnightsList() != null)
+                else if (army.Knights?.GetKnightsList() != null)
                 {
                     foreach (var knight in army.Knights.GetKnightsList())
                     {
-                        if (id == knight.GetID() && id == army.Owner.GetID())
+                        if (id == knight.GetID() && id == army.Owner?.GetID())
                         {
                             Program.Logger.Debug($"Found character '{id}': Knight and Owner of army '{army.ID}'.");
                             return (true, army, false, false,true, knight, true);
@@ -533,7 +533,7 @@ namespace CrusaderWars.data.save_file
                     }
                 }
                 //ARMY OWNER
-                else if (id == army.Owner.GetID())
+                else if (id == army.Owner?.GetID())
                 {
                     Program.Logger.Debug($"Found character '{id}': Owner of army '{army.ID}'.");
                     return (true, army, false, false,false, null, true);
@@ -636,7 +636,7 @@ namespace CrusaderWars.data.save_file
                     Unit unit;
                     if (regiment.type == RegimentType.Levy)
                     {
-                        Culture? levyCulture = regiment.regiment.Culture ?? army.Owner.GetCulture();
+                        Culture? levyCulture = regiment.regiment.Culture ?? army.Owner?.GetCulture();
                         if (regiment.regiment.isMercenary())
                             unit = new Unit("Levy", Int32.Parse(ModOptions.FullArmies(regiment.regiment)), levyCulture, regiment.type, true);
                         else

@@ -690,14 +690,22 @@ namespace CrusaderWars.data.save_file
             {
                 var left_main_commander_data = CK3LogData.LeftSide.GetCommander();
                 Program.Logger.Debug($"Setting left side main commander: {left_main_commander_data.name} ({left_main_commander_data.id})");
-                left_side_armies.First(x => x.isMainArmy).SetCommander(new CommanderSystem(left_main_commander_data.name, left_main_commander_data.id, left_main_commander_data.prowess, left_main_commander_data.martial, left_main_commander_data.rank, true));
+                var mainArmy = left_side_armies.FirstOrDefault(x => x.isMainArmy);
+                if (mainArmy != null)
+                {
+                    mainArmy.SetCommander(new CommanderSystem(left_main_commander_data.name, left_main_commander_data.id, left_main_commander_data.prowess, left_main_commander_data.martial, left_main_commander_data.rank, true));
+                }
             }
 
             if(right_side_armies != null)
             {
                 var right_main_commander_data = CK3LogData.RightSide.GetCommander();
                 Program.Logger.Debug($"Setting right side main commander: {right_main_commander_data.name} ({right_main_commander_data.id})");
-                right_side_armies.First(x => x.isMainArmy).SetCommander(new CommanderSystem(right_main_commander_data.name, right_main_commander_data.id, right_main_commander_data.prowess, right_main_commander_data.martial, right_main_commander_data.rank, true));
+                var mainArmy = right_side_armies.FirstOrDefault(x => x.isMainArmy);
+                if (mainArmy != null)
+                {
+                    mainArmy.SetCommander(new CommanderSystem(right_main_commander_data.name, right_main_commander_data.id, right_main_commander_data.prowess, right_main_commander_data.martial, right_main_commander_data.rank, true));
+                }
             }
             Program.Logger.Debug("Finished creating main commanders.");
         }
@@ -1227,8 +1235,8 @@ namespace CrusaderWars.data.save_file
                         var searchingData = Armies_Functions.SearchUnit(id, attacker_armies);
                         if(searchingData.searchHasStarted)
                         {
-                            isSearchStarted = true;
-                            army = searchingData.army;
+                        isSearchStarted = true;
+                        army = searchingData.army;
                         }
                         else
                         {

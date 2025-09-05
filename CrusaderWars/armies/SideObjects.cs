@@ -42,6 +42,8 @@ namespace CrusaderWars
             ID = id;
             CombatSide = combat_side;
             isMainArmy = is_main;
+            Owner = new Owner(string.Empty); // Initialize Owner to a default non-null value
+            Knights = new KnightSystem(new List<Knight>(), 0); // Initialize Knights to a default non-null value
         }
 
         //Getters
@@ -153,7 +155,7 @@ namespace CrusaderWars
                 sb.AppendLine($"## GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()}");
                 Program.Logger.Debug($"GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()}");
             }
-            if (Knights.GetKnightsList() != null)
+            if (Knights?.GetKnightsList() != null)
             {
                 foreach (var knight in Knights.GetKnightsList())
                 {

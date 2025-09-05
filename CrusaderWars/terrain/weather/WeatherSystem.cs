@@ -9,7 +9,7 @@ namespace CrusaderWars.terrain
 {
     public static class Weather
     {
-        public static string Season { get;private set; }
+        public static string? Season { get;private set; }
         public static bool HasWinter { get;private set; }
         public static WinterSeverity Winter_Severity { get; private set; }
 

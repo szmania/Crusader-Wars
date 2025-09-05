@@ -609,10 +609,11 @@ namespace CrusaderWars
 
         private static void SetDeploymentArea(string combat_side)
         {
-            string PR_Deployment = Deployments.beta_GetDeployment(combat_side); 
-
-            File.AppendAllText(battlePath, PR_Deployment);
-
+            string? PR_Deployment = Deployments.beta_GetDeployment(combat_side); 
+            if (PR_Deployment != null)
+            {
+                File.AppendAllText(battlePath, PR_Deployment);
+            }
         }
 
         private static void AddDeployablesDefenses(Army army)

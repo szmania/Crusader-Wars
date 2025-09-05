@@ -25,8 +25,8 @@ namespace CrusaderWars
     public static class TerrainGenerator
     {
    
-        public static string TerrainType { get; set; }
-        public static string Region { get; private set; }
+        public static string TerrainType { get; set; } = string.Empty;
+        public static string Region { get; private set; } = string.Empty;
 
         public static bool isRiver { get; private set; }
         public static bool isStrait { get; private set; }

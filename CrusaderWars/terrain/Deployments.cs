@@ -63,7 +63,7 @@ namespace CrusaderWars.terrain
                 return PR_Deployment;
             }
 
-            public static string SetOppositeDirection(string direction, int total_soldiers)
+            public static string? SetOppositeDirection(string direction, int total_soldiers)
             {
                 DeploymentArea DEPLOYMENT_AREA;
                 switch (direction)
@@ -85,7 +85,7 @@ namespace CrusaderWars.terrain
                 return null;
             }
 
-            public static string SetDirection(string direction, int total_soldiers)
+            public static string? SetDirection(string direction, int total_soldiers)
             {
                 DeploymentArea DEPLOYMENT_AREA = new DeploymentArea(direction, ModOptions.DeploymentsZones(), total_soldiers);
                 switch (direction)
@@ -122,7 +122,7 @@ namespace CrusaderWars.terrain
         }
  
         static string attacker_direction = "", defender_direction = "";
-        static string attacker_deployment="", defender_deployment = "";
+        static string? attacker_deployment, defender_deployment = "";
         public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, bool shouldRotateDeployment)
         {
             Random random = new Random();
@@ -161,7 +161,7 @@ namespace CrusaderWars.terrain
 
         }
 
-        public static string beta_GetDeployment(string combat_side)
+        public static string? beta_GetDeployment(string combat_side)
         {
 
             switch(combat_side)
@@ -307,6 +307,10 @@ namespace CrusaderWars.terrain
                         break;
                 }
             }
+            else
+            {
+                throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
+            }
         }
 
 
@@ -388,6 +392,8 @@ namespace CrusaderWars.terrain
         {
             X = x;
             Y = y;
+            Direction = string.Empty; // Initialize Direction
+            MapSize = string.Empty;   // Initialize MapSize
         }
 
         public void AddUnitXSpacing(string direction)
@@ -549,6 +555,10 @@ namespace CrusaderWars.terrain
                         Y = 0;
                         break;
                 }
+            }
+            else
+            {
+                throw new InvalidOperationException($"Invalid direction '{Direction}' encountered during unit positioning.");
             }
         }
     }

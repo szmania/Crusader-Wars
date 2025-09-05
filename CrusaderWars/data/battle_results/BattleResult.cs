@@ -389,7 +389,7 @@ namespace CrusaderWars
             List<UnitCasualitiesReport> reportsList = new List<UnitCasualitiesReport>();
 
             // Group by Type and CultureID
-            var grouped = army.UnitsResults.Alive_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
+            var grouped = army.UnitsResults!.Alive_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
             Program.Logger.Debug($"Found {grouped.Count()} unit groups for army {army.ID}.");
             var pursuit_grouped = army.UnitsResults.Alive_PursuitPhase?.GroupBy(item => new { item.Type, item.CultureID });
 
@@ -467,7 +467,7 @@ namespace CrusaderWars
             if(army.Knights != null && army.Knights.HasKnights())
             {
                 int remaining = 0;
-                var knightReport = army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
+                var knightReport = army.UnitsResults!.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
 
                 // If no report in pursuit phase, check main phase
                 if (knightReport.Remaining == null)
@@ -493,7 +493,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Checking knight kills for army {army.ID}");
             if (army.Knights != null && army.Knights.HasKnights())
             {
-                var knightKillsReport = army.UnitsResults.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
+                var knightKillsReport = army.UnitsResults!.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
                 int kills = 0;
                 if (knightKillsReport.Kills != null)
                 {
@@ -515,7 +515,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Commander {char_id} found in army {army.ID}.");
                     return (true, true, army.Commander, false, null);
                 }
-                else if (army.Knights.GetKnightsList() != null)
+                else if (army.Knights?.GetKnightsList() != null)
                 {
                     foreach(Knight knight_u in army.Knights.GetKnightsList())
                     {
@@ -536,7 +536,7 @@ namespace CrusaderWars
                             Program.Logger.Debug($"Commander {char_id} found in merged army {mergedArmy.ID} (part of main army {army.ID}).");
                             return (true, true, army.Commander, false, null);
                         }
-                        else if (mergedArmy.Knights.GetKnightsList() != null)
+                        else if (mergedArmy.Knights?.GetKnightsList() != null)
                         {
                             foreach (Knight knight_u in mergedArmy.Knights.GetKnightsList())
                             {
@@ -737,12 +737,10 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in attacker_armies)
                             {
-                                if(army.Knights != null && army.Knights.HasKnights())
+                                var knight = army.Knights?.GetKnightsList()?.FirstOrDefault(k => k.GetID() == knightID);
+                                if (knight != null)
                                 {
-                                    if(army.Knights.GetKnightsList().Exists(knight => knight.GetID() == knightID))
-                                    {
-                                        main_kills = army.Knights.GetKnightsList().FirstOrDefault(knight => knight.GetID() == knightID)!.GetKills();
-                                    }
+                                    main_kills = knight.GetKills();
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -844,12 +842,10 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in defender_armies)
                             {
-                                if (army.Knights != null && army.Knights.HasKnights())
+                                var knight = army.Knights?.GetKnightsList()?.FirstOrDefault(k => k.GetID() == knightID);
+                                if (knight != null)
                                 {
-                                    if (army.Knights.GetKnightsList().Exists(knight => knight.GetID() == knightID))
-                                    {
-                                        main_kills = army.Knights.GetKnightsList().FirstOrDefault(knight => knight.GetID() == knightID)!.GetKills();
-                                    }
+                                    main_kills = knight.GetKills();
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1025,7 +1021,7 @@ namespace CrusaderWars
             int total = 0;
             foreach(Army army in armies)
             {
-                total += army.ArmyRegiments.Sum(x => x.CurrentNum);
+                total += army.ArmyRegiments?.Sum(x => x.CurrentNum) ?? 0;
 
             }
             Program.Logger.Debug($"Calculated total fighting men for armies: {total}");

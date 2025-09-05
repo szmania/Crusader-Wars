@@ -93,6 +93,9 @@ namespace CrusaderWars.data.save_file
             UnitCulture = culture_obj;
             Soldiers = soldiers;
             Type = type;
+            AttilaKey = string.Empty; // Initialize
+            AttilaFaction = string.Empty; // Initialize
+            LocName = string.Empty; // Initialize
         }
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
@@ -102,6 +105,9 @@ namespace CrusaderWars.data.save_file
             Soldiers = soldiers;
             Type = type;
             IsMercenaryBool = is_merc;
+            AttilaKey = string.Empty; // Initialize
+            AttilaFaction = string.Empty; // Initialize
+            LocName = string.Empty; // Initialize
         }
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
         {
@@ -111,6 +117,9 @@ namespace CrusaderWars.data.save_file
             Type = type;
             IsMercenaryBool = is_merc;
             Owner = owner;
+            AttilaKey = string.Empty; // Initialize
+            AttilaFaction = string.Empty; // Initialize
+            LocName = string.Empty; // Initialize
         }
 
 
@@ -176,6 +185,8 @@ namespace CrusaderWars.data.save_file
         public ArmyRegiment(string id)
         {
             ID = id;
+            MAA_Name = string.Empty; // Initialize
+            Regiments = new List<Regiment>(); // Initialize
         }
 
         public void SetType(RegimentType type)
@@ -227,6 +238,14 @@ namespace CrusaderWars.data.save_file
         {
             ID = id;
             Index = index;
+            Origin = string.Empty; // Initialize
+            OriginKey = string.Empty; // Initialize
+            OwningTitle = string.Empty; // Initialize
+            Owner = string.Empty; // Initialize
+            Max = string.Empty; // Initialize
+            CurrentNum = string.Empty; // Initialize
+            Culture = new Culture(string.Empty); // Initialize with a default Culture
+            county_key = string.Empty; // Initialize
         }
 
         //Getters
@@ -259,6 +278,8 @@ namespace CrusaderWars.data.save_file
         public Culture(string id)
         {
             ID = id;
+            CultureName = string.Empty; // Initialize
+            HeritageName = string.Empty; // Initialize
         }
         public Culture(string id, string name, string heritage)
         {
@@ -290,12 +311,15 @@ namespace CrusaderWars.data.save_file
         public Owner(string iD)
         {
             ID = iD;
+            Culture = new Culture(string.Empty); // Initialize with a default Culture
+            PrimaryTitleKey = string.Empty; // Initialize
         }
 
         public Owner(string iD, Culture culture)
         {
             ID = iD;
             Culture = culture;
+            PrimaryTitleKey = string.Empty; // Initialize
         }
 
         public void SetCulture(Culture culture) { Culture = culture; }
