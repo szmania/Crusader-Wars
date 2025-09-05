@@ -438,7 +438,7 @@ namespace CrusaderWars
             //
             if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Controled)
             {
-                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!);
+                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
             }
             //  FRIENDLIES ONLY ARMIES
             //
