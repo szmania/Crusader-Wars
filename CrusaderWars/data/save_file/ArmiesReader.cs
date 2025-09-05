@@ -60,6 +60,9 @@ namespace CrusaderWars.data.save_file
                 ReadCharacters();
                 ReadCourtPositions();
                 CheckForNullCultures();
+                ReadCultureManager();
+
+                // Organize Units
                 CreateUnits();
 
                 // Print Armies
