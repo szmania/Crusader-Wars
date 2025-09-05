@@ -743,10 +743,15 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in attacker_armies)
                             {
-                                var knight = army.Knights?.GetKnightsList()?.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
-                                if (knight != null)
+                                var knightsList = army.Knights?.GetKnightsList();
+                                if (knightsList != null)
                                 {
-                                    main_kills = knight.GetKills();
+                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
+                                    if (knight != null)
+                                    {
+                                        main_kills = knight.GetKills();
+                                        break; // Found the knight, no need to check other armies
+                                    }
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -848,10 +853,15 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in defender_armies)
                             {
-                                var knight = army.Knights?.GetKnightsList()?.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
-                                if (knight != null)
+                                var knightsList = army.Knights?.GetKnightsList();
+                                if (knightsList != null)
                                 {
-                                    main_kills = knight.GetKills();
+                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
+                                    if (knight != null)
+                                    {
+                                        main_kills = knight.GetKills();
+                                        break; // Found the knight, no need to check other armies
+                                    }
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1027,7 +1037,7 @@ namespace CrusaderWars
             int total = 0;
             foreach(Army army in armies)
             {
-                total += army.ArmyRegiments?.Sum(x => x.CurrentNum) ?? 0;
+                total += army.ArmyRegiments?.Where(r => r != null).Sum(r => r.CurrentNum) ?? 0;
 
             }
             Program.Logger.Debug($"Calculated total fighting men for armies: {total}");
@@ -1051,14 +1061,18 @@ namespace CrusaderWars
             Program.Logger.Debug($"Searching for ArmyRegiment ID: {army_regiment_id}");
             foreach (Army army in armies)
             {
-                if (army.ArmyRegiments == null) continue; // Added null check for army.ArmyRegiments
-                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
+                if (army.ArmyRegiments != null)
                 {
-                    if (armyRegiment.Type == RegimentType.Knight) continue;
-                    if (armyRegiment.ID == army_regiment_id)
+                    foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                     {
-                        Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id} in army {army.ID}.");
-                        return armyRegiment;
+                        if (armyRegiment == null) continue;
+
+                        if (armyRegiment.Type == RegimentType.Knight) continue;
+                        if (armyRegiment.ID == army_regiment_id)
+                        {
+                            Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id} in army {army.ID}.");
+                            return armyRegiment;
+                        }
                     }
                 }
             }
