@@ -1053,8 +1053,8 @@ namespace CrusaderWars.data.save_file
                         var searchingData = Armies_Functions.SearchRegiments(regiment_id, attacker_armies);
                         if(searchingData.searchHasStarted)
                         {
-                            isSearchStarted = true;
-                            regiment = searchingData.regiment;
+                        isSearchStarted = true;
+                        regiment = searchingData.regiment;
                         }
                         else
                         {

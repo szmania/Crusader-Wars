@@ -11,7 +11,6 @@ using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.terrain;
-using CrusaderWars.twbattle;
 using CrusaderWars.unit_mapper;
 using static CrusaderWars.terrain.Lands;
 
@@ -679,6 +678,12 @@ namespace CrusaderWars
 
         public static void AddUnit(string troopKey, int numSoldiers, int numUnits, int numRest, string unitScript, string unit_experience, string direction)
         {
+            if (Position == null)
+            {
+                Program.Logger.Debug("CRITICAL: BattleFile.Position was null when trying to add a unit. Aborting unit addition.");
+                return;
+            }
+
             if(numSoldiers <= 1 || numUnits == 0) return;
 
 
@@ -693,7 +698,7 @@ namespace CrusaderWars
                 Unit_Script_Name = unitScript + i.ToString();
                 string PR_Unit = $"<unit num_soldiers= \"{numSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
                  $"<unit_type type=\"{troopKey}\"/>\n" +
-                 $"<position x=\"{Position!.X}\" y=\"{Position!.Y}\"/>\n" +
+                 $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                  $"<orientation radians=\"{Rotation}\"/>\n" +
                  "<width metres=\"21.70\"/>\n" +
                  $"<unit_experience level=\"{unit_experience}\"/>\n" +
@@ -701,10 +706,10 @@ namespace CrusaderWars
 
                 //Add horizontal spacing between units
                 if(direction is "N" || direction is "S")
-                    Position!.AddUnitXSpacing(direction);
+                    Position.AddUnitXSpacing(direction);
                 else
                 {
-                    Position!.AddUnitYSpacing(direction);
+                    Position.AddUnitYSpacing(direction);
                 }
 
                 //Reset soldiers num to normal
@@ -721,14 +726,20 @@ namespace CrusaderWars
 
             //Add vertical spacing between units
             if (direction is "N" || direction is "S")
-            Position!.AddUnitYSpacing(direction);
+            Position.AddUnitYSpacing(direction);
             else
-            Position!.AddUnitXSpacing(direction);
+            Position.AddUnitXSpacing(direction);
 
         }
 
         public static void AddGeneralUnit(CommanderSystem Commander, string troopType, string unitScript, int experience, string direction)
         {
+            if (Position == null)
+            {
+                Program.Logger.Debug("CRITICAL: BattleFile.Position was null when trying to add a unit. Aborting unit addition.");
+                return;
+            }
+
             if(Commander != null)
             {
                 string name = Commander.Name;
@@ -746,7 +757,7 @@ namespace CrusaderWars
 
                     string PR_General = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
                      $"<unit_type type=\"{troopType}\"/>\n" +
-                     $"<position x=\"{Position!.X}\" y=\"{Position!.Y}\"/>\n" +
+                     $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                      $"<orientation radians=\"{Rotation}\"/>\n" +
                      "<width metres=\"21.70\"/>\n" +
                      $"<unit_experience level=\"{experience}\"/>\n" +
@@ -778,10 +789,10 @@ namespace CrusaderWars
 
                     //Add horizontal spacing between units
                     if (direction is "N" || direction is "S")
-                        Position!.AddUnitXSpacing(direction);
+                        Position.AddUnitXSpacing(direction);
                     else
                     {
-                        Position!.AddUnitYSpacing(direction);
+                        Position.AddUnitYSpacing(direction);
                     }
 
                     DeclarationsFile.AddUnitDeclaration("UNIT" + Unit_Script_Name, Unit_Script_Name);
@@ -792,15 +803,21 @@ namespace CrusaderWars
 
                 //Add vertical spacing between units
                 if (direction is "N" || direction is "S")
-                    Position!.AddUnitYSpacing(direction);
+                    Position.AddUnitYSpacing(direction);
                 else
-                    Position!.AddUnitXSpacing(direction);
+                    Position.AddUnitXSpacing(direction);
             }
 
         }
 
         public static void AddKnightUnit(KnightSystem Knights, string troopType, string unitScript, int experience, string direction)
         {
+            if (Position == null)
+            {
+                Program.Logger.Debug("CRITICAL: BattleFile.Position was null when trying to add a unit. Aborting unit addition.");
+                return;
+            }
+
             int numberOfSoldiers = Knights.GetKnightsSoldiers();
 
             Knights.SetAccolades();
@@ -819,7 +836,7 @@ namespace CrusaderWars
 
                 string PR_Unit = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
                  $"<unit_type type=\"{troopType}\"/>\n" +
-                 $"<position x=\"{Position!.X}\" y=\"{Position!.Y}\"/>\n" +
+                 $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                  $"<orientation radians=\"{Rotation}\"/>\n" +
                  "<width metres=\"21.70\"/>\n" +
                  $"<unit_experience level=\"{experience}\"/>\n";
@@ -851,9 +868,9 @@ namespace CrusaderWars
 
                 //Add vertical spacing between units
                 if (direction is "N" || direction is "S")
-                    Position!.AddUnitYSpacing(direction);
+                    Position.AddUnitYSpacing(direction);
                 else
-                    Position!.AddUnitXSpacing(direction);
+                    Position.AddUnitXSpacing(direction);
 
 
                 DeclarationsFile.AddUnitDeclaration("UNIT" + Unit_Script_Name, Unit_Script_Name);
@@ -864,9 +881,9 @@ namespace CrusaderWars
 
             //Add vertical spacing between units
             if (direction is "N" || direction is "S")
-                Position!.AddUnitYSpacing(direction);
+                Position.AddUnitYSpacing(direction);
             else
-                Position!.AddUnitXSpacing(direction);
+                Position.AddUnitXSpacing(direction);
 
         }
 

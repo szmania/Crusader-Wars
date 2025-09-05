@@ -14,8 +14,8 @@ namespace CrusaderWars
 {
     public  class Updater
     {
-        public  string AppVersion { get; set; }
-        public string UMVersion { get; set; }
+        public  string AppVersion { get; set; } = string.Empty;
+        public string UMVersion { get; set; } = string.Empty;
 
 
         private static readonly HttpClient client = new HttpClient();

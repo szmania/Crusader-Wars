@@ -466,8 +466,10 @@ namespace CrusaderWars
             Program.Logger.Debug($"Checking for knight deaths in army {army.ID}");
             if(army.Knights != null && army.Knights.HasKnights())
             {
+                if (army.UnitsResults == null) return; // Added null check for UnitsResults
+
                 int remaining = 0;
-                var knightReport = army.UnitsResults!.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
+                var knightReport = army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
 
                 // If no report in pursuit phase, check main phase
                 if (knightReport.Remaining == null)
@@ -1045,6 +1047,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Searching for ArmyRegiment ID: {army_regiment_id}");
             foreach (Army army in armies)
             {
+                if (army.ArmyRegiments == null) continue; // Added null check for army.ArmyRegiments
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
                     if (armyRegiment.Type == RegimentType.Knight) continue;
@@ -1343,10 +1346,10 @@ namespace CrusaderWars
 
             foreach (Army army in armies)
             {
-                if (army.ArmyRegiments == null) continue; // Add null check here
+                if (army.ArmyRegiments == null) continue; // Added null check here
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
-                    if (armyRegiment.Regiments == null) continue; // Add null check here
+                    if (armyRegiment.Regiments == null) continue; // Added null check here
                     foreach (Regiment regiment in armyRegiment.Regiments)
                     {
                         if (regiment.ID == regiment_id)
