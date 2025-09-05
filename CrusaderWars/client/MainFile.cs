@@ -633,7 +633,7 @@ namespace CrusaderWars
                     catch (Exception ex)
                     {
                         Program.Logger.Debug($"Error clearing log files: {ex.Message}");
-                        MessageBox.Show("An unexpected error occurred while clearing log files!", "Conflicts Conflicts: Error",
+                        MessageBox.Show("An unexpected error occurred while clearing log files!", "Crusader Conflicts: Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         break; // Exit retry loop on unexpected error
                     }
@@ -657,7 +657,7 @@ namespace CrusaderWars
                 catch (Exception ex)
                 {
                     Program.Logger.Debug($"Error starting CK3: {ex.Message}");
-                    MessageBox.Show("Couldn't find 'ck3.exe'. Change the Crusader Kings 3 path. ", "Conflicts Conflicts: Path Error",
+                    MessageBox.Show("Couldn't find 'ck3.exe'. Change the Crusader Kings 3 path. ", "Crusader Conflicts: Path Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
                     ExecuteButton.Enabled = true;
@@ -734,7 +734,7 @@ namespace CrusaderWars
                         catch (Exception ex)
                         {
                             Program.Logger.Debug($"Error searching for battle in log: {ex.Message}");
-                            MessageBox.Show("Error searching for battle. ", "Conflicts Conflicts: Critical Error",
+                            MessageBox.Show("Error searching for battle. ", "Crusader Conflicts: Critical Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Ready to start!";
                             ExecuteButton.Enabled = true;
@@ -778,7 +778,7 @@ namespace CrusaderWars
                             Program.Logger.Debug($"Error reading battle data from log: {ex.Message}");
                             this.Show();
                             if (loadingScreen != null) CloseLoadingScreen();
-                            MessageBox.Show($"Error reading TW:Attila battle data: {ex.Message}", "Conflicts Conflicts: Data Error",
+                            MessageBox.Show($"Error reading TW:Attila battle data: {ex.Message}", "Crusader Conflicts: Data Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Waiting for CK3 battle...";
                             this.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
@@ -827,7 +827,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Error reading save file: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
-                    MessageBox.Show($"Error reading the save file: {ex.Message}", "Conflicts Conflicts: Save File Error",
+                    MessageBox.Show($"Error reading the save file: {ex.Message}", "Crusader Conflicts: Save File Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Waiting for CK3 battle...";
                     if (ModOptions.CloseCK3DuringBattle())
@@ -890,7 +890,7 @@ namespace CrusaderWars
                             "4. Verify game files in Steam\n" +
                             "5. Try a different save file";
 
-                    MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Conflicts Conflicts: Army Data Error",
+                    MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Crusader Conflicts: Army Data Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -995,7 +995,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Error creating Attila battle: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
-                    MessageBox.Show($"Error creating the battle:{ex.Message}", "Conflicts Conflicts: Data Error",
+                    MessageBox.Show($"Error creating the battle:{ex.Message}", "Crusader Conflicts: Data Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -1038,7 +1038,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Error starting Attila: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
-                    MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Conflicts Conflicts: Path Error",
+                    MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
                     if (ModOptions.CloseCK3DuringBattle())
@@ -1074,7 +1074,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
-                MessageBox.Show($"Error: {ex.Message}", "Conflicts Conflicts: Application Error",
+                MessageBox.Show($"Error: {ex.Message}", "Crusader Conflicts: Application Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
@@ -1219,7 +1219,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
-                MessageBox.Show($"Error retrieving TW:Attila battle results: {ex.Message}", "Conflicts Conflicts: TW:Attila Battle Results Error",
+                MessageBox.Show($"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
@@ -1273,7 +1273,7 @@ namespace CrusaderWars
             if (string.IsNullOrEmpty(logSnippet))
             {
                 Program.Logger.Debug("Failed to load battle context. Log snippet is missing or empty.");
-                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Conflicts Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
@@ -1306,7 +1306,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
-                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Conflicts Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
@@ -1709,7 +1709,7 @@ namespace CrusaderWars
                 else
                 {
                     MessageBox.Show("Log folder not found! Please report this to developers.",
-                                    "Conflicts Conflicts: Log Location Error",
+                                    "Crusader Conflicts: Log Location Error",
                                     MessageBoxButtons.OK,
                                     MessageBoxIcon.Information);
                 }
