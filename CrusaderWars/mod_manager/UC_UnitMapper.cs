@@ -129,16 +129,16 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        public void SetVerifyModsTooltip(string text)
+        public void SetSteamLinkButtonTooltip(string text)
         {
-            Button? btn = this.Controls.Find("BtnVerifyMods", true).FirstOrDefault() as Button;
+            Button? btn = this.Controls.Find("button1", true).FirstOrDefault() as Button;
             if (btn != null)
             {
                 toolTip2.SetToolTip(btn, text);
             }
             else
             {
-                Program.Logger.Debug("BtnVerifyMods not found in UC_UnitMapper for tooltip setting.");
+                Program.Logger.Debug("Steam link button (button1) not found in UC_UnitMapper for tooltip setting.");
             }
         }
 
