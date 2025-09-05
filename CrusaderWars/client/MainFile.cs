@@ -484,14 +484,54 @@ namespace CrusaderWars
             if (currentAppVersion > lastNotifiedVersion)
             {
                 Program.Logger.Debug($"New application version detected ({currentAppVersion} > {lastNotifiedVersion}). Displaying update notification.");
-                MessageBox.Show(
-                    "Important Update for 'The Fallen Eagle' Playthrough!\n\n" +
-                    "This playthrough now requires the 'Age of Justinian 555 2.0' mod for Total War: Attila to ensure the best experience.\n\n" +
-                    "Please subscribe to it on the Steam Workshop before starting your next campaign.",
-                    "Crusader Conflicts: The Fallen Eagle Update",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
+                
+                // Create a custom form for the notification
+                Form notificationForm = new Form();
+                notificationForm.Text = "Crusader Conflicts: The Fallen Eagle Update";
+                notificationForm.ClientSize = new Size(450, 200);
+                notificationForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                notificationForm.StartPosition = FormStartPosition.CenterParent;
+                notificationForm.MaximizeBox = false;
+                notificationForm.MinimizeBox = false;
+                notificationForm.ShowInTaskbar = false;
+                notificationForm.Icon = this.Icon; // Use the main form's icon
+
+                Label messageLabel = new Label();
+                messageLabel.Text = "Important Update for 'The Fallen Eagle' Playthrough!\n\n" +
+                                    "This playthrough now requires the 'Age of Justinian 555 2.0' mod for Total War: Attila to ensure the best experience.\n\n" +
+                                    "Please subscribe to it on the Steam Workshop before starting your next campaign.";
+                messageLabel.Location = new Point(10, 10);
+                messageLabel.AutoSize = true;
+                messageLabel.MaximumSize = new Size(notificationForm.ClientSize.Width - 20, 0);
+                messageLabel.Font = new Font("Microsoft Sans Serif", 10f);
+                notificationForm.Controls.Add(messageLabel);
+
+                LinkLabel steamLink = new LinkLabel();
+                steamLink.Text = "Age of Justinian 555 2.0 on Steam Workshop";
+                steamLink.LinkArea = new LinkArea(0, steamLink.Text.Length);
+                steamLink.Location = new Point(10, messageLabel.Bottom + 10);
+                steamLink.AutoSize = true;
+                steamLink.Font = new Font("Microsoft Sans Serif", 10f, FontStyle.Underline);
+                steamLink.LinkColor = Color.LightBlue;
+                steamLink.ActiveLinkColor = Color.White;
+                steamLink.VisitedLinkColor = Color.LightBlue;
+                steamLink.LinkClicked += (s, args) =>
+                {
+                    Process.Start(new ProcessStartInfo("https://steamcommunity.com/sharedfiles/filedetails/?id=3293483560") { UseShellExecute = true });
+                    steamLink.LinkVisited = true;
+                };
+                notificationForm.Controls.Add(steamLink);
+
+                Button okButton = new Button();
+                okButton.Text = "OK";
+                okButton.DialogResult = DialogResult.OK;
+                okButton.Size = new Size(100, 30);
+                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2, notificationForm.ClientSize.Height - okButton.Height - 10);
+                okButton.Anchor = AnchorStyles.Bottom;
+                notificationForm.Controls.Add(okButton);
+                notificationForm.AcceptButton = okButton;
+
+                notificationForm.ShowDialog(this);
 
                 // Update the setting to the current version
                 Properties.Settings.Default.LastNotifiedVersion = _appVersion.TrimStart('v');

@@ -441,7 +441,7 @@ namespace CrusaderWars.unit_mapper
                     foreach (XmlNode element in FactionsFile.DocumentElement.ChildNodes)
                     {
                         if (element is XmlComment) continue;
-                        if(element is XmlElement)
+                        if (element is XmlElement)
                         {
                             string faction = element.Attributes["name"].Value;
 
