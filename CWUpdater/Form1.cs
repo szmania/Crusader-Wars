@@ -9,13 +9,16 @@ using System.Threading.Tasks;
 using System.Net;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Linq;
+using System.Net.Http; // Added this line
 
 namespace CWUpdater
 {
     public partial class AutoUpdater : Form
     {
-        private string DownloadUrl { get; set; }
-        private string UpdateVersion { get; set; }
+        private static readonly HttpClient httpClient = new HttpClient(); // Added this line
+
+        private string? DownloadUrl { get; set; } // Made nullable
+        private string? UpdateVersion { get; set; } // Made nullable
         private bool IsUnitMappers { get; set; }
 
         public AutoUpdater()
@@ -67,9 +70,15 @@ namespace CWUpdater
             return false;
         }
 
-        private string GetCrusaderWarsExecutable()
+        private string? GetCrusaderWarsExecutable() // Changed return type to nullable
         {
-            string currentDir = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+            string? currentDir = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory)?.Parent?.FullName; // Modified for null-safety
+            if (currentDir == null)
+            {
+                Logger.Log("Could not determine the application's root directory.");
+                return null;
+            }
+
             string exe1 = Path.Combine(currentDir, "CrusaderWars.exe");
             string exe2 = Path.Combine(currentDir, "Crusader Wars.exe");
 
@@ -87,12 +96,21 @@ namespace CWUpdater
                 Logger.Log("Update button clicked.");
                 btnUpdate.Enabled = false;
                 btnUpdate.Text = "Updating..";
-                await DownloadUpdateAsync(DownloadUrl);
+                if (DownloadUrl != null) // Added null check for DownloadUrl
+                {
+                    await DownloadUpdateAsync(DownloadUrl);
+                }
+                else
+                {
+                    Logger.Log("Download URL is null. Cannot proceed with update.");
+                    MessageBox.Show("Error: Download URL is missing.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(1);
+                }
             }
             catch (Exception ex)
             {
                 Logger.Log($"An error occurred in btnUpdate_Click: {ex.ToString()}");
-                string executable = GetCrusaderWarsExecutable();
+                string? executable = GetCrusaderWarsExecutable(); // Changed to nullable
                 if (executable != null)
                 {
                     Process.Start(new ProcessStartInfo(executable) { UseShellExecute = true });
@@ -110,30 +128,47 @@ namespace CWUpdater
             {
                 string downloadPath = Path.Combine(Path.GetTempPath(), "update.zip");
 
-                using (WebClient webClient = new WebClient())
+                // Replaced WebClient with HttpClient
+                using (HttpResponseMessage response = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead))
                 {
-                    webClient.DownloadProgressChanged += (sender, e) =>
-                    {
-                        double progress = e.ProgressPercentage;
-                        label1.Text = progress.ToString() + "%";
-                    };
-                    // Asynchronously download the file
-                    await webClient.DownloadFileTaskAsync(new Uri(downloadUrl), downloadPath);
-                    Console.WriteLine("Update downloaded successfully.");
-                    Logger.Log("Update downloaded successfully.");
+                    response.EnsureSuccessStatusCode();
 
-                    if(!IsUnitMappers) {
-                        Logger.Log("Applying application update.");
-                        ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
-                    }
-                    else
+                    long? totalBytes = response.Content.Headers.ContentLength;
+                    using (Stream contentStream = await response.Content.ReadAsStreamAsync())
+                    using (FileStream fileStream = new FileStream(downloadPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                     {
-                        Logger.Log("Applying Unit Mappers update.");
-                        ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
-                    }
-                    
-                };
+                        var buffer = new byte[8192];
+                        long totalBytesRead = 0;
+                        int bytesRead;
+                        
+                        while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                        {
+                            await fileStream.WriteAsync(buffer, 0, bytesRead);
+                            totalBytesRead += bytesRead;
 
+                            if (totalBytes.HasValue)
+                            {
+                                int progressPercentage = (int)((double)totalBytesRead / totalBytes.Value * 100);
+                                this.Invoke((MethodInvoker)delegate {
+                                    label1.Text = progressPercentage.ToString() + "%";
+                                });
+                            }
+                        }
+                    }
+                }
+
+                Console.WriteLine("Update downloaded successfully.");
+                Logger.Log("Update downloaded successfully.");
+
+                if(!IsUnitMappers) {
+                    Logger.Log("Applying application update.");
+                    ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
+                }
+                else
+                {
+                    Logger.Log("Applying Unit Mappers update.");
+                    ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
+                }
             }
             catch (Exception ex)
             {
@@ -179,8 +214,8 @@ namespace CWUpdater
                         //relativePath = relativePath.Replace($"{parentFolder}\\", "");
                         string destinationPath = Path.Combine(applicationPath, relativePath);
 
-                        string destinationDir = Path.GetDirectoryName(destinationPath);
-                        if (!Directory.Exists(destinationDir))
+                        string? destinationDir = Path.GetDirectoryName(destinationPath); // Made nullable
+                        if (destinationDir != null && !Directory.Exists(destinationDir)) // Added null check
                         {
                             Directory.CreateDirectory(destinationDir);
                         }
@@ -204,8 +239,8 @@ namespace CWUpdater
                         relativePath = relativePath.Replace($"{parentFolder}\\", "");
                         string destinationPath = Path.Combine(applicationPath, relativePath);
 
-                        string destinationDir = Path.GetDirectoryName(destinationPath);
-                        if (!Directory.Exists(destinationDir))
+                        string? destinationDir = Path.GetDirectoryName(destinationPath); // Made nullable
+                        if (destinationDir != null && !Directory.Exists(destinationDir)) // Added null check
                         {
                             Directory.CreateDirectory(destinationDir);
                         }
@@ -388,19 +423,33 @@ namespace CWUpdater
                 //Update application .txt file version
                 string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
                 Logger.Log($"Updating app version file: {version_path} to version {UpdateVersion}");
-                File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
+                if (UpdateVersion != null) // Added null check for UpdateVersion
+                {
+                    File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
+                }
+                else
+                {
+                    Logger.Log("UpdateVersion is null. Cannot write app version file.");
+                }
             }
             else if(IsUnitMappers)
             {
                 //Update unit mappers .txt file version
                 string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
                 Logger.Log($"Updating unit mappers version file: {version_path} to version {UpdateVersion}");
-                File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
+                if (UpdateVersion != null) // Added null check for UpdateVersion
+                {
+                    File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
+                }
+                else
+                {
+                    Logger.Log("UpdateVersion is null. Cannot write unit mappers version file.");
+                }
             }
 
             //Reopen CW
             Logger.Log("Starting main application.");
-            string executable = GetCrusaderWarsExecutable();
+            string? executable = GetCrusaderWarsExecutable(); // Changed to nullable
             if (executable != null)
             {
                 Process.Start(new ProcessStartInfo(executable) { UseShellExecute = true });
