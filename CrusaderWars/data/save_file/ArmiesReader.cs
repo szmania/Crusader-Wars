@@ -28,7 +28,10 @@ namespace CrusaderWars.data.save_file
                 throw new Exception("Couldn't read traits data", ex);
             }
 
-            ReadCombatArmies(BattleResult.Player_Combat);
+            if (BattleResult.Player_Combat is not null)
+            {
+                ReadCombatArmies(BattleResult.Player_Combat);
+            }
             ReadArmiesData();
             ReadArmiesUnits();
             ReadArmyRegiments();
@@ -187,23 +190,23 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Reading characters data...");
             bool searchStarted = false;
             bool isKnight = false, isCommander = false, isMainCommander = false, isOwner = false;
-            Army searchingArmy = null;
-            Knight searchingKnight = null;
+            Army? searchingArmy = null;
+            Knight? searchingKnight = null;
 
             //non-main army commander variables
             int nonMainCommander_Rank = 1;
             string nonMainCommander_Name="";
-            BaseSkills nonMainCommander_BaseSkills = null;
-            Culture nonMainCommander_Culture = null;
-            Accolade nonMainCommander_Accolade = null;
+            BaseSkills? nonMainCommander_BaseSkills = null;
+            Culture? nonMainCommander_Culture = null;
+            Accolade? nonMainCommander_Accolade = null;
             int nonMainCommander_Prowess = 0;
-            List<(int index, string key)> nonMainCommander_Traits = null;
+            List<(int index, string key)>? nonMainCommander_Traits = null;
 
 
 
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             {
-                string line;
+                string? line;
                 while((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if (Regex.IsMatch(line, @"\d+={") && !searchStarted)
@@ -252,7 +255,7 @@ namespace CrusaderWars.data.save_file
                         var baseSkills_list = new List<string>();
                         baseSkills_list = found_skills.Cast<Match>().Select(m => m.Value).ToList();
 
-                        if (isMainCommander)
+                        if (isMainCommander && searchingArmy?.Commander != null)
                         {
                             searchingArmy.Commander.SetBaseSkills(new BaseSkills(baseSkills_list));
                         }
@@ -260,7 +263,7 @@ namespace CrusaderWars.data.save_file
                         {
                             nonMainCommander_BaseSkills = new BaseSkills(baseSkills_list);
                         }
-                        else if(isKnight)
+                        else if(isKnight && searchingKnight != null)
                         {
                             searchingKnight.SetBaseSkills(new BaseSkills(baseSkills_list));
                         }
@@ -268,11 +271,11 @@ namespace CrusaderWars.data.save_file
                     else if(searchStarted && line.StartsWith("\t\taccolade=")) // # ACCOLADE
                     {
                         string accoladeID = Regex.Match(line, @"\d+").Value;
-                        if(isKnight)
+                        if(isKnight && searchingKnight != null)
                         {
                             searchingKnight.IsAccolade(true, GetAccolade(accoladeID));
                         }
-                        else if(isMainCommander)
+                        else if(isMainCommander && searchingArmy?.Commander != null)
                         {
                             searchingArmy.Commander.SetAccolade(GetAccolade(accoladeID));
                         }
@@ -292,7 +295,7 @@ namespace CrusaderWars.data.save_file
                             traits_list.Add((index, key));
                         }
 
-                        if (isMainCommander)
+                        if (isMainCommander && searchingArmy?.Commander != null)
                         {
                             searchingArmy.Commander.SetTraits(traits_list);
                         }
@@ -300,24 +303,24 @@ namespace CrusaderWars.data.save_file
                         {
                             nonMainCommander_Traits = traits_list;
                         }
-                        else if (isKnight)
+                        else if (isKnight && searchingArmy?.Knights?.GetKnightsList() != null && searchingKnight != null)
                         {
-                            searchingArmy.Knights.GetKnightsList().FirstOrDefault(x => x == searchingKnight).SetTraits(traits_list);
-                            searchingArmy.Knights.GetKnightsList().FirstOrDefault(x => x == searchingKnight).SetWoundedDebuffs();
+                            searchingArmy.Knights.GetKnightsList().FirstOrDefault(x => x == searchingKnight)?.SetTraits(traits_list);
+                            searchingArmy.Knights.GetKnightsList().FirstOrDefault(x => x == searchingKnight)?.SetWoundedDebuffs();
                         }
                     }
                     else if (searchStarted && line.Contains("\tculture=")) //# CULTURE
                     {
                         string culture_id = Regex.Match(line, @"\d+").Value;
-                        if (isKnight)
+                        if (isKnight && searchingKnight != null && searchingArmy?.Knights?.GetKnightsList() != null)
                         {
-                            searchingArmy.Knights.GetKnightsList().Find(x => x == searchingKnight).ChangeCulture(new Culture(culture_id));
+                            searchingArmy.Knights.GetKnightsList().Find(x => x == searchingKnight)?.ChangeCulture(new Culture(culture_id));
                             searchingArmy.Knights.SetMajorCulture();
-                            if(isOwner) 
+                            if(isOwner && searchingArmy?.Owner != null) 
                                 searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
 
-                        else if (isMainCommander)
+                        else if (isMainCommander && searchingArmy?.Commander != null && searchingArmy?.Owner != null)
                         {
                             if(searchingArmy.IsPlayer())
                                 searchingArmy.Commander.ChangeCulture(new Culture(CK3LogData.LeftSide.GetCommander().culture_id));
@@ -334,10 +337,10 @@ namespace CrusaderWars.data.save_file
                         else if(isCommander)
                         {
                             nonMainCommander_Culture = new Culture(culture_id);
-                            if (isOwner) 
+                            if (isOwner && searchingArmy?.Owner != null) 
                                 searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
-                        else
+                        else if (searchingArmy?.Owner != null)
                         {
                             searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
@@ -347,9 +350,9 @@ namespace CrusaderWars.data.save_file
                     else if (searchStarted && line.Contains("\t\tdomain={")) //# TITLES
                     {
                         string firstTitleID = Regex.Match(line, @"\d+").Value;
-                        if (isCommander)
+                        if (isCommander && searchingArmy?.Commander != null && nonMainCommander_BaseSkills != null)
                         {
-                            if (isOwner) searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
+                            if (isOwner && searchingArmy?.Owner != null) searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
 
                             var landedTitlesData = GetCommanderNobleRankAndTitleName(firstTitleID);
                             nonMainCommander_Rank = landedTitlesData.rank;
@@ -392,14 +395,14 @@ namespace CrusaderWars.data.save_file
 
                             }
                         }
-                        else if(isOwner) // <-- Owner
+                        else if(isOwner && searchingArmy?.Owner != null) // <-- Owner
                         {
                             searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
                         }
                     }
                     else if (searchStarted && line == "}")
                     {
-                        if (isCommander)
+                        if (isCommander && searchingArmy != null)
                         {
                             Program.Logger.Debug($"Creating non-main commander '{nonMainCommander_Name}' ({searchingArmy.CommanderID}) for army '{searchingArmy.ID}'.");
                             searchingArmy.SetCommander(new CommanderSystem(nonMainCommander_Name, searchingArmy.CommanderID, nonMainCommander_Prowess, nonMainCommander_Rank, nonMainCommander_BaseSkills, nonMainCommander_Culture));
@@ -427,7 +430,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Finished reading characters data.");
         }
 
-        static Accolade GetAccolade(string accoladeID)
+        static Accolade? GetAccolade(string accoladeID)
         {
             Program.Logger.Debug($"Searching for accolade with ID: {accoladeID}");
             bool searchStarted = false;
@@ -436,7 +439,7 @@ namespace CrusaderWars.data.save_file
             string glory = "";
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Accolades()))
             {
-                string line;
+                string? line;
                 while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if (!searchStarted && line == $"\t\t{accoladeID}={{")
@@ -474,7 +477,7 @@ namespace CrusaderWars.data.save_file
             string titleKey = "";
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.LandedTitles()))
             {
-                string line;
+                string? line;
                 while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if (line == $"{title_id}={{")
@@ -502,7 +505,7 @@ namespace CrusaderWars.data.save_file
             string id = "";
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.LandedTitles()))
             {
-                string line;
+                string? line;
                 while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if (!line.StartsWith("\t") && line != "}")
@@ -560,7 +563,7 @@ namespace CrusaderWars.data.save_file
             int rankInt = 1; string titleName = "";
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.LandedTitles()))
             {
-                string line;
+                string? line;
                 while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if(line == $"{commanderTitleID}={{")
@@ -730,7 +733,7 @@ namespace CrusaderWars.data.save_file
                                         int prowess = Int32.Parse(leftKnights[i].prowess);
                                         string name = leftKnights[i].name;
 
-                                        KnightsList.Add(new Knight(name, regiment.MAA_Name, null, prowess, 4));
+                                        KnightsList.Add(new Knight(name, regiment.MAA_Name, null!, prowess, 4));
                                     }
                                 }
                             }
@@ -789,7 +792,7 @@ namespace CrusaderWars.data.save_file
                                         int prowess = Int32.Parse(rightKnights[i].prowess);
                                         string name = rightKnights[i].name;
 
-                                        KnightsList.Add(new Knight(name, regiment.MAA_Name, null, prowess, 4));
+                                        KnightsList.Add(new Knight(name, regiment.MAA_Name, null!, prowess, 4));
                                     }
                                 }
                             }
@@ -979,7 +982,7 @@ namespace CrusaderWars.data.save_file
             {
                 while (true)
                 {
-                    string line = sr.ReadLine();
+                    string? line = sr.ReadLine();
                     if (line == null) break;
 
                     //County Line
@@ -1079,40 +1082,40 @@ namespace CrusaderWars.data.save_file
                     // isMercenary 
                     else if (isSearchStarted && line.Contains("\t\t\tsource=hired"))
                     {
-                        regiment.isMercenary(true);
+                        regiment?.isMercenary(true);
 
                     }
 
                     // isGarrison 
                     else if (isSearchStarted && line.Contains("\t\t\tsource=garrison"))
                     {
-                        regiment.IsGarrison(true);
+                        regiment?.IsGarrison(true);
 
                     }
                     // Origin 
                     else if (isSearchStarted && line.Contains("\t\t\torigin="))
                     {
                         string origin = Regex.Match(line, @"\d+").Value;
-                        regiment.SetOrigin(origin);
+                        regiment?.SetOrigin(origin);
 
                     }
                     // Owner 
                     else if (isSearchStarted && line.Contains("\t\t\towner="))
                     {
                         string owner = Regex.Match(line, @"\d+").Value;
-                        regiment.SetOwner(owner);
+                        regiment?.SetOwner(owner);
 
                     }
                     else if(isSearchStarted && line.Contains("\t\t\towning_title="))
                     {
                         string owiningTitle = Regex.Match(line, @"\d+").Value;
-                        regiment.SetOwningTitle(owiningTitle);
+                        regiment?.SetOwningTitle(owiningTitle);
                     }
                     // Max
                     else if (isSearchStarted && line.Contains("\t\t\t\t\tmax="))
                     {
                         string max = Regex.Match(line, @"\d+").Value;
-                        regiment.SetMax(max);
+                        regiment?.SetMax(max);
                     }
 
                     // Soldiers
@@ -1121,12 +1124,12 @@ namespace CrusaderWars.data.save_file
                         string current = Regex.Match(line, @"\d+").Value;
                         if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
                         {
-                            regiment.SetSoldiers(current);
+                            regiment?.SetSoldiers(current);
                         }
 
                         if(line.Contains("\t\t\tsize="))
                         {
-                            regiment.SetMax(current);
+                            regiment?.SetMax(current);
                         }
                     }
 
@@ -1137,7 +1140,10 @@ namespace CrusaderWars.data.save_file
                         index = -1;
                         reg_chunk_index = 0;
 
-                        EditOgRegiment(regiment, attacker_armies, defender_armies);
+                        if (regiment != null)
+                        {
+                            EditOgRegiment(regiment, attacker_armies, defender_armies);
+                        }
 
                         regiment = null;
                        
@@ -1238,7 +1244,7 @@ namespace CrusaderWars.data.save_file
                     else if(isSearchStarted && line.Contains("\t\towner="))
                     {
                         string id = Regex.Match(line, @"\d+").Value;
-                        army.SetOwner(id);
+                        army?.SetOwner(id);
 
                     }
                     else if (isSearchStarted && line == "\t}")
@@ -1268,7 +1274,7 @@ namespace CrusaderWars.data.save_file
             {
                 while (true)
                 {
-                    string line = SR.ReadLine();
+                    string? line = SR.ReadLine();
 
                     if (line == null) break;
 
@@ -1331,21 +1337,21 @@ namespace CrusaderWars.data.save_file
                     else if(isSearchStarted && line.Contains("\t\t\t\tcurrent="))
                     {
                         string currentNum = Regex.Match(line, @"\d+").Value;
-                        armyRegiment.SetCurrentNum(currentNum);
+                        armyRegiment?.SetCurrentNum(currentNum);
                     }
 
                     //Max
                     else if (isSearchStarted && line.Contains("\t\t\t\tmax="))
                     {
                         string max = Regex.Match(line, @"\d+").Value;
-                        armyRegiment.SetMax(max);
+                        armyRegiment?.SetMax(max);
                     }
 
                     //Men At Arms
                     else if (isSearchStarted && line.Contains("\t\t\ttype="))
                     {
                         string type = Regex.Match(line, "type=(.+)").Groups[1].Value;
-                        armyRegiment.SetType(RegimentType.MenAtArms, type);
+                        armyRegiment?.SetType(RegimentType.MenAtArms, type);
                         isNameSet = true;
                     }
 
@@ -1353,7 +1359,7 @@ namespace CrusaderWars.data.save_file
                     else if (isSearchStarted && line.Contains("\t\t\tknight="))
                     {
                         string character_id = Regex.Match(line, @"knight=(\d+)").Groups[1].Value;
-                        armyRegiment.SetType(RegimentType.Knight, character_id);
+                        armyRegiment?.SetType(RegimentType.Knight, character_id);
                         isNameSet = true;
                     }
 
@@ -1361,7 +1367,7 @@ namespace CrusaderWars.data.save_file
                     //Levies
                     else if (isSearchStarted && line == "\t\t\t\tlevies={")
                     {
-                        armyRegiment.SetType(RegimentType.Levy);
+                        armyRegiment?.SetType(RegimentType.Levy);
                         isNameSet = true;
                     }
 
@@ -1371,7 +1377,7 @@ namespace CrusaderWars.data.save_file
                         //Debug purposes, remove later...
                         if(found_regiments != null)
                         {
-                            armyRegiment.SetRegiments(found_regiments);
+                            armyRegiment?.SetRegiments(found_regiments);
                         }
 
                         found_regiments = new List<Regiment>();
@@ -1398,7 +1404,7 @@ namespace CrusaderWars.data.save_file
             {
                 while(true)
                 {
-                    string line = SR.ReadLine();
+                    string? line = SR.ReadLine();
                     if (line == null) break;
 
                     // Army ID Line
@@ -1583,8 +1589,10 @@ namespace CrusaderWars.data.save_file
             }
         }
 
-        static void ReadCombatSoldiersNum(string combat_string)
+        static void ReadCombatSoldiersNum(string? combat_string)
         {
+            if (combat_string == null) return;
+
             bool isAttacker = false, isDefender = false;
             string? searchingArmyRegiment = null;
             using (StringReader SR = new StringReader(combat_string))//Player_Combat

@@ -26,15 +26,15 @@ namespace CrusaderWars
 {
     public partial class HomePage : Form
     {
-        private LoadingScreen loadingScreen;
-        private Thread loadingThread;
-        private string log;  // For CK3 log content
+        private LoadingScreen loadingScreen = null!;
+        private Thread loadingThread = null!;
+        private string log = null!;  // For CK3 log content
         private bool _programmaticClick = false;
         private bool battleJustCompleted = false;
-        private string _appVersion;
-        private string _umVersion;
-        private Updater _updater;
-        private System.Windows.Forms.Timer _pulseTimer;
+        private string _appVersion = null!;
+        private string _umVersion = null!;
+        private Updater _updater = null!;
+        private System.Windows.Forms.Timer _pulseTimer = null!;
         private bool _isPulsing = false;
         private int _pulseStep = 0;
         private Color _originalInfoLabelBackColor;
@@ -166,7 +166,7 @@ namespace CrusaderWars
             _pulseTimer.Tick += PulseTimer_Tick;
         }
 
-        private void PulseTimer_Tick(object sender, EventArgs e)
+        private void PulseTimer_Tick(object? sender, EventArgs e)
         {
             _pulseStep = (_pulseStep + 1) % 20; // 20 steps for a full cycle (10 up, 10 down)
             int redComponent = 120 + (_pulseStep < 10 ? _pulseStep * 10 : (20 - _pulseStep) * 10);
@@ -175,7 +175,7 @@ namespace CrusaderWars
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
-        private Font customFont;
+        private Font customFont = null!;
 
         void LoadFont()
         {
@@ -215,7 +215,7 @@ namespace CrusaderWars
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\settings\UnitMappers.xml");
-            foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
+            foreach (XmlNode node in xmlDoc.DocumentElement!.ChildNodes)
             {
                 if (node is XmlComment) continue;
                 if (node.InnerText == "True")
@@ -227,7 +227,7 @@ namespace CrusaderWars
             return false;
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object? sender, EventArgs e)
         {
             if (_myVariable == 0)
             {
@@ -272,7 +272,7 @@ namespace CrusaderWars
 
         }
 
-        string path_editedSave;
+        string path_editedSave = null!;
 
         static string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         static string debugLog_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\console_history.txt";
@@ -464,8 +464,8 @@ namespace CrusaderWars
 
         private void btt_debug_Click(object sender, EventArgs e)
         {
-            Culture culture = null;
-            culture.GetCultureName();
+            Culture? culture = null;
+            culture!.GetCultureName();
         }
 
         // This method creates a shortcut for Attila
@@ -498,8 +498,8 @@ namespace CrusaderWars
             // Use Windows Script Host to create shortcut
             try
             {
-                Type t = Type.GetTypeFromProgID("WScript.Shell");
-                dynamic shell = Activator.CreateInstance(t);
+                Type? t = Type.GetTypeFromProgID("WScript.Shell");
+                dynamic shell = Activator.CreateInstance(t!)!;
                 var shortcut = shell.CreateShortcut(shortcutPath);
                 shortcut.TargetPath = targetPath;
                 shortcut.WorkingDirectory = workingDirectory;
@@ -532,8 +532,8 @@ namespace CrusaderWars
             // Empty event handler to satisfy designer
         }
 
-        List<Army> attacker_armies;
-        List<Army> defender_armies;
+        List<Army> attacker_armies = null!;
+        List<Army> defender_armies = null!;
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Execute button clicked.");
@@ -696,7 +696,8 @@ namespace CrusaderWars
                                 //Read each line
                                 while (!reader.EndOfStream)
                                 {
-                                    string line = reader.ReadLine();
+                                    string? line = reader.ReadLine();
+                                    if (line == null) continue; // Ensure line is not null
 
                                     //If Battle Started
                                     if (line.Contains(SEARCH_KEY))
@@ -936,8 +937,8 @@ namespace CrusaderWars
         {
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
-            int left_side_total = left_side.Sum(army => army.GetTotalSoldiers());
-            int right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
+            int left_side_total = left_side!.Sum(army => army.GetTotalSoldiers());
+            int right_side_total = right_side!.Sum(army => army.GetTotalSoldiers());
             string left_side_combat_side = left_side[0].CombatSide;
             string right_side_combat_side = right_side[0].CombatSide;
             Program.Logger.Debug($"Left side ({left_side_combat_side}) total soldiers: {left_side_total}");
@@ -1434,12 +1435,12 @@ namespace CrusaderWars
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\settings\UnitMappers.xml");
             string tagName = "";
-            foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
+            foreach (XmlNode node in xmlDoc.DocumentElement!.ChildNodes)
             {
                 if (node is XmlComment) continue;
                 if (node.InnerText == "True")
                 {
-                    tagName = node.Attributes["name"].Value;
+                    tagName = node.Attributes!["name"]!.Value;
                     Program.Logger.Debug($"Playthrough tag found: {tagName}");
                     break;
                 }
@@ -1524,9 +1525,9 @@ namespace CrusaderWars
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
-            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']").InnerText;
-            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']").InnerText;
-            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']").InnerText;
+            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']")!.InnerText;
+            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")!.InnerText;
+            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")!.InnerText;
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";

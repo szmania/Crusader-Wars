@@ -52,7 +52,7 @@ namespace CrusaderWars
 
             if (activePlaythrough != null)
             {
-                Button activeButton = null;
+                Button? activeButton = null;
                 if (activePlaythrough == CrusaderKings_Tab) activeButton = Btn_CK3Tab;
                 else if (activePlaythrough == TheFallenEagle_Tab) activeButton = Btn_TFETab;
                 else if (activePlaythrough == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
@@ -185,7 +185,7 @@ namespace CrusaderWars
             Btn_CandKTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
-            Button activeButton = null;
+            Button? activeButton = null;
             if (control == General_Tab) activeButton = Btn_GeneralTab;
             else if (control == Units_Tab) activeButton = Btn_UnitsTab;
             else if (control == BattleScale_Tab) activeButton = Btn_BattleScaleTab;

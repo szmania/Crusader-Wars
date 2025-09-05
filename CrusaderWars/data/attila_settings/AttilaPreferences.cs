@@ -75,11 +75,9 @@ namespace CrusaderWars.data.attila_settings
                 using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 using (StreamReader reader = new StreamReader(attila_settings_file))
                 {
-                    string line = "";
-                    while (line != null && !reader.EndOfStream)
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        line = reader.ReadLine();
-
                         if (line.Contains("gfx_unit_size"))
                         {
                             line = Regex.Replace(line, @"gfx_unit_size (\d)", @"gfx_unit_size 3");
@@ -111,10 +109,9 @@ namespace CrusaderWars.data.attila_settings
             using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(attila_settings_file))
             {
-                string line = "";
-                while (line != null && !reader.EndOfStream)
+                string? line;
+                while ((line = reader.ReadLine()) != null)
                 {
-                    line = reader.ReadLine();
                     if (line.Contains("gfx_unit_size"))
                     {
                         unit_size_setting = line;

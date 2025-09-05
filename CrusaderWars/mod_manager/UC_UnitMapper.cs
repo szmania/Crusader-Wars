@@ -10,10 +10,10 @@ namespace CrusaderWars.mod_manager
 {
     public partial class UC_UnitMapper : UserControl
     {
-        public event EventHandler ToggleClicked;
+        public event EventHandler? ToggleClicked;
         private bool _isPulsing;
         private bool _pulseState;
-        List<UC_UnitMapper> AllControlsReferences { get; set; }
+        List<UC_UnitMapper> AllControlsReferences { get; set; } = null!;
 
         string SteamCollectionLink {  get; set; }
         List<string> RequiredModsList { get; set; }

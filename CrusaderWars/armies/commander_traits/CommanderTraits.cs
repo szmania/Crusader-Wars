@@ -63,7 +63,7 @@ namespace CrusaderWars.armies.commander_traits
         public TraitsBoolCondition IsRequiredWinter() { return NeedsWinter; }
 
         public void SetupTrait(int XPboost, int deployablesBoost,TraitsAffectEnum affectsWho, bool rotatesDeployment, 
-                               string requiredCombatSide, List<string> requiredTerrains, TraitsBoolCondition requiresRiverCrossing, TraitsBoolCondition requiresHostileFaith, TraitsBoolCondition requiresWinter)
+                               string requiredCombatSide, List<string>? requiredTerrains, TraitsBoolCondition requiresRiverCrossing, TraitsBoolCondition requiresHostileFaith, TraitsBoolCondition requiresWinter)
         {
             XPBoost = XPboost;
             DeployablesBoost = deployablesBoost;
@@ -98,7 +98,7 @@ namespace CrusaderWars.armies.commander_traits
                 {
                     if (trait.IsRequiredTerrains() != null)
                     {
-                        if (trait.IsRequiredTerrains().Exists(x => x == terrain))
+                        if (trait.IsRequiredTerrains()!.Exists(x => x == terrain))
                         {
                             return true;
                         }
@@ -142,7 +142,7 @@ namespace CrusaderWars.armies.commander_traits
                 //  TERRAINS
                 if(trait.IsRequiredTerrains() != null)
                 {
-                    if(!trait.IsRequiredTerrains().Exists(x => x == terrainType))
+                    if(!trait.IsRequiredTerrains()!.Exists(x => x == terrainType))
                     {
                         continue;
                     }
@@ -199,10 +199,12 @@ namespace CrusaderWars.armies.commander_traits
                     XmlDocument xmlDocument = new XmlDocument();
                     xmlDocument.Load(file_path);
 
-                    foreach (XmlNode traitElement in xmlDocument.DocumentElement.ChildNodes)
+                    foreach (XmlNode traitElement in xmlDocument.DocumentElement!.ChildNodes)
                     {
                         if (traitElement is XmlComment) continue;
-                        string trait_key = traitElement.Attributes["name"].Value;
+                        var nameAttr = traitElement.Attributes!["name"];
+                        if (nameAttr is null) continue;
+                        string trait_key = nameAttr.Value;
 
                         if (main_commander_traits.Exists(x => x.Key == trait_key))
                         {
@@ -288,16 +290,16 @@ namespace CrusaderWars.armies.commander_traits
 
                                     case "HostileFaith":
                                         if (traitNode.InnerText == "yes")
-                                            riverCrossing = TraitsBoolCondition.Yes;
+                                            hostileFaith = TraitsBoolCondition.Yes;
                                         else
-                                            riverCrossing = TraitsBoolCondition.No;
+                                            hostileFaith = TraitsBoolCondition.No;
                                         break;
 
                                     case "Winter":
                                         if (traitNode.InnerText == "yes")
-                                            riverCrossing = TraitsBoolCondition.Yes;
+                                            winter = TraitsBoolCondition.Yes;
                                         else
-                                            riverCrossing = TraitsBoolCondition.No;
+                                            winter = TraitsBoolCondition.No;
                                         break;
                                 }
                             }
