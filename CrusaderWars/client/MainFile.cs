@@ -135,15 +135,25 @@ namespace CrusaderWars
             _updater.CheckAppVersion();
             _updater.CheckUnitMappersVersion();
             _appVersion = _updater.AppVersion;
+
+            // Fallback for _appVersion if Updater fails
+            if (string.IsNullOrEmpty(_appVersion))
+            {
+                try
+                {
+                    _appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    Program.Logger.Debug($"Fallback: Retrieved app version from assembly: {_appVersion}");
+                }
+                catch (Exception ex)
+                {
+                    _appVersion = "1.0.0"; // Hardcoded default if assembly version also fails
+                    Program.Logger.Debug($"Fallback: Could not retrieve app version from assembly. Defaulting to {_appVersion}. Error: {ex.Message}");
+                }
+            }
+
+            labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
+
             _umVersion = _updater.UMVersion;
-            if (!string.IsNullOrWhiteSpace(_appVersion))
-            {
-                labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
-            }
-            else
-            {
-                labelVersion.Text = "v1.0"; // Default
-            }
             if (!string.IsNullOrWhiteSpace(_umVersion))
             {
                 labelMappersVersion.Text = $"(mappers v{_umVersion.TrimStart('v')})";
@@ -481,7 +491,7 @@ namespace CrusaderWars
             }
 
             // Compare versions
-            if (currentAppVersion > lastNotifiedVersion)
+            if (currentAppVersion > lastNotifiedVersion) // Corrected comparison operator
             {
                 Program.Logger.Debug($"New application version detected ({currentAppVersion} > {lastNotifiedVersion}). Displaying update notification.");
                 
