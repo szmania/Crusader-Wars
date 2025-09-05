@@ -989,7 +989,7 @@ namespace CrusaderWars
                 catch(Exception ex)
                 {
                     string errorDetails = $"Error reading battle armies: {ex.Message}";
-                    string stackTrace = ex.StackTrace;
+                    string? stackTrace = ex.StackTrace;
                     Program.Logger.Debug(errorDetails);
                     if (!string.IsNullOrEmpty(stackTrace))
                     {
@@ -1697,7 +1697,7 @@ namespace CrusaderWars
             }
         }
 
-        public void UpdateLoadingScreenMessage(string message)
+        public void UpdateLoadingScreenMessage(string? message)
         {
             if (loadingScreen != null && loadingScreen.IsHandleCreated)
             {
@@ -1705,7 +1705,7 @@ namespace CrusaderWars
             }
         }
 
-        public void UpdateLoadingScreenUnitMapperMessage(string message)
+        public void UpdateLoadingScreenUnitMapperMessage(string? message)
         {
             if (loadingScreen != null && loadingScreen.IsHandleCreated)
             {

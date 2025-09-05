@@ -350,94 +350,94 @@ namespace CrusaderWars
                 var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
 
 
-                CloseCK3_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseCK3").value;
-                CloseAttila_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseAttila").value;
-                FullArmies_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "FullArmies").value;
-                TimeLimit_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "TimeLimit").value;
-                BattleMapsSize_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleMapsSize").value;
-                DefensiveDeployables_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "DefensiveDeployables").value;
-                UnitCards_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "UnitCards").value;
-                SeparateArmies_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "SeparateArmies").value;
+                CloseCK3_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "CloseCK3").value;
+                CloseAttila_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "CloseAttila").value;
+                FullArmies_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "FullArmies").value;
+                TimeLimit_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "TimeLimit").value;
+                BattleMapsSize_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "BattleMapsSize").value;
+                DefensiveDeployables_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "DefensiveDeployables").value;
+                UnitCards_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "UnitCards").value;
+                SeparateArmies_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "SeparateArmies").value;
 
-                LeviesMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "LeviesMax").value;
-                RangedMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "RangedMax").value;
-                InfantryMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "InfantryMax").value;
-                CavalryMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CavalryMax").value;
+                LeviesMax_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "LeviesMax").value;
+                RangedMax_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "RangedMax").value;
+                InfantryMax_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "InfantryMax").value;
+                CavalryMax_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "CavalryMax").value;
 
-                BattleScale_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleScale").value;
-                AutoScaleUnits_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "AutoScaleUnits").value;
+                BattleScale_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "BattleScale").value;
+                AutoScaleUnits_ComboBox!.SelectedItem = optionsValuesCollection!.FirstOrDefault(x => x.option == "AutoScaleUnits").value;
 
                 // Set Commander NumericUpDown values with proper validation
                 if (numCommanderWounded != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderWoundedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "CommanderWoundedChance").value);
                     numCommanderWounded.Value = Math.Max(numCommanderWounded.Minimum, Math.Min(numCommanderWounded.Maximum, val));
                 }
                 if (numCommanderSeverelyInjured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderSeverelyInjuredChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "CommanderSeverelyInjuredChance").value);
                     numCommanderSeverelyInjured.Value = Math.Max(numCommanderSeverelyInjured.Minimum, Math.Min(numCommanderSeverelyInjured.Maximum, val));
                 }
                 if (numCommanderBrutallyMauled != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderBrutallyMauledChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "CommanderBrutallyMauledChance").value);
                     numCommanderBrutallyMauled.Value = Math.Max(numCommanderBrutallyMauled.Minimum, Math.Min(numCommanderBrutallyMauled.Maximum, val));
                 }
                 if (numCommanderMaimed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderMaimedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "CommanderMaimedChance").value);
                     numCommanderMaimed.Value = Math.Max(numCommanderMaimed.Minimum, Math.Min(numCommanderMaimed.Maximum, val));
                 }
                 if (numCommanderOneLegged != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneLeggedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "CommanderOneLeggedChance").value);
                     numCommanderOneLegged.Value = Math.Max(numCommanderOneLegged.Minimum, Math.Min(numCommanderOneLegged.Maximum, val));
                 }
                 if (numCommanderOneEyed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneEyedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "CommanderOneEyedChance").value);
                     numCommanderOneEyed.Value = Math.Max(numCommanderOneEyed.Minimum, Math.Min(numCommanderOneEyed.Maximum, val));
                 }
                 if (numCommanderDisfigured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderDisfiguredChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "CommanderDisfiguredChance").value);
                     numCommanderDisfigured.Value = Math.Max(numCommanderDisfigured.Minimum, Math.Min(numCommanderDisfigured.Maximum, val));
                 }
 
                 // Set Knight NumericUpDown values with proper validation
                 if (numKnightWounded != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightWoundedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "KnightWoundedChance").value);
                     numKnightWounded.Value = Math.Max(numKnightWounded.Minimum, Math.Min(numKnightWounded.Maximum, val));
                 }
                 if (numKnightSeverelyInjured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightSeverelyInjuredChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "KnightSeverelyInjuredChance").value);
                     numKnightSeverelyInjured.Value = Math.Max(numKnightSeverelyInjured.Minimum, Math.Min(numKnightSeverelyInjured.Maximum, val));
                 }
                 if (numKnightBrutallyMauled != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightBrutallyMauledChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "KnightBrutallyMauledChance").value);
                     numKnightBrutallyMauled.Value = Math.Max(numKnightBrutallyMauled.Minimum, Math.Min(numKnightBrutallyMauled.Maximum, val));
                 }
                 if (numKnightMaimed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightMaimedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "KnightMaimedChance").value);
                     numKnightMaimed.Value = Math.Max(numKnightMaimed.Minimum, Math.Min(numKnightMaimed.Maximum, val));
                 }
                 if (numKnightOneLegged != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneLeggedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "KnightOneLeggedChance").value);
                     numKnightOneLegged.Value = Math.Max(numKnightOneLegged.Minimum, Math.Min(numKnightOneLegged.Maximum, val));
                 }
                 if (numKnightOneEyed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneEyedChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "KnightOneEyedChance").value);
                     numKnightOneEyed.Value = Math.Max(numKnightOneEyed.Minimum, Math.Min(numKnightOneEyed.Maximum, val));
                 }
                 if (numKnightDisfigured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightDisfiguredChance").value);
+                    int val = Int32.Parse(optionsValuesCollection!.FirstOrDefault(x => x.option == "KnightDisfiguredChance").value);
                     numKnightDisfigured.Value = Math.Max(numKnightDisfigured.Minimum, Math.Min(numKnightDisfigured.Maximum, val));
                 }
 
@@ -684,7 +684,7 @@ namespace CrusaderWars
                 xmlDoc.Load(file);
 
                 XmlNode? node = xmlDoc.SelectSingleNode($"Paths/{game}");
-                if (node != null && node.Attributes != null)
+                if (node?.Attributes?["path"] != null)
                 {
                     node.Attributes["path"].Value = new_path;
                 }
@@ -715,18 +715,18 @@ namespace CrusaderWars
 
                 //Read Attila Path
                 XmlNode? attila_node = xmlDoc.SelectSingleNode("Paths/TotalWarAttila");
-                if (attila_node != null && attila_node.Attributes != null)
+                if (attila_node != null)
                 {
-                    Properties.Settings.Default.VAR_attila_path = attila_node.Attributes["path"].Value;
+                    Properties.Settings.Default.VAR_attila_path = attila_node.Attributes?["path"]?.Value ?? string.Empty;
                     Properties.Settings.Default.Save();
                 }
 
 
                 //Read CK3 Path
                 XmlNode? ck3_node = xmlDoc.SelectSingleNode("Paths/CrusaderKings");
-                if (ck3_node != null && ck3_node.Attributes != null)
+                if (ck3_node != null)
                 {
-                    Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes["path"].Value;
+                    Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?? string.Empty;
                     Properties.Settings.Default.Save();
                 }
             }
@@ -918,7 +918,7 @@ namespace CrusaderWars
 
             foreach(var mapper in unit_mappers_folder)
             {
-                string mapperName = Path.GetDirectoryName(mapper);
+                string? mapperName = Path.GetDirectoryName(mapper);
                 var files = Directory.GetFiles(mapper);
                 foreach(var file in files)
                 {
@@ -1050,7 +1050,7 @@ namespace CrusaderWars
             }
         }
 
-        private void PlaythroughToggle_Clicked(object sender, EventArgs e)
+        private void PlaythroughToggle_Clicked(object? sender, EventArgs e)
         {
             CheckPlaythroughSelection();
         }
@@ -1091,7 +1091,10 @@ namespace CrusaderWars
             // If validation passes, proceed with saving and cleanup
             SaveValuesToOptionsFile();
             ReadOptionsFile();
-            ModOptions.StoreOptionsValues(optionsValuesCollection);
+            if (optionsValuesCollection != null)
+            {
+                ModOptions.StoreOptionsValues(optionsValuesCollection);
+            }
             WriteUnitMappersOptions();
 
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))

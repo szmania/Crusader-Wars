@@ -21,7 +21,7 @@ namespace CrusaderWars
     public static class BattleFile
     {
 
-        public static string Unit_Script_Name { get; set; }
+        public static string? Unit_Script_Name { get; set; }
 
         //Get User Path
         static string battlePath = Directory.GetFiles("data\\battle files\\script", "tut_battle.xml", SearchOption.AllDirectories)[0];
@@ -141,7 +141,7 @@ namespace CrusaderWars
             //----------------------------------------------
             //  Merge friendly armies to main army     
             //----------------------------------------------
-            bool isUserAlly = false; Army userAlliedArmy = null;
+            bool isUserAlly = false; Army? userAlliedArmy = null;
             if (player_main_army.Owner.GetID() == DataSearch.Player_Character.GetID())
             {
                 isUserAlly = false;
@@ -156,9 +156,9 @@ namespace CrusaderWars
                 {
                     userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
                     isUserAlly = true;
-                    if (userAlliedArmy.CombatSide == "attacker")
+                    if (userAlliedArmy?.CombatSide == "attacker")
                         userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
-                    else if (userAlliedArmy.CombatSide == "defender")
+                    else if (userAlliedArmy?.CombatSide == "defender")
                         userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
                 }
                 catch
@@ -185,7 +185,7 @@ namespace CrusaderWars
             if(!isUserAlly)
                 DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army);
             else
-                DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies, userAlliedArmy, enemy_main_army);
+                DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies, userAlliedArmy!, enemy_main_army);
 
             //Write essential data
             OpenBattle();
@@ -196,7 +196,7 @@ namespace CrusaderWars
             if(!isUserAlly)
                 WriteArmy(player_main_army, total_soldiers, false, "stark");
             else
-                WriteArmy(userAlliedArmy, total_soldiers, false, "stark");
+                WriteArmy(userAlliedArmy!, total_soldiers, false, "stark");
 
             //#### WRITE AI ALLIED ARMIES
             if (player_main_army.CombatSide == "attacker")
@@ -257,7 +257,7 @@ namespace CrusaderWars
 
         static void AllSeparateArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_main_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
         {
-            bool isUserAlly = false; Army userAlliedArmy = null;
+            bool isUserAlly = false; Army? userAlliedArmy = null;
             //----------------------------------------------
             //  Merge armies until there are only four      
             //----------------------------------------------
@@ -388,19 +388,19 @@ namespace CrusaderWars
             temp_defender_armies.AddRange(defender_armies);
 
             // SIDES MAIN ARMIES
-            Army player_main_army = null;
-            Army enemy_main_army = null;
+            Army? player_main_army = null;
+            Army? enemy_main_army = null;
             player_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy) ?? temp_defender_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy);
             enemy_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy) ?? temp_defender_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy);
 
             //
-            if(player_main_army.Commander!=null)  {
+            if(player_main_army?.Commander!=null)  {
                 UnitsFile.PlayerCommanderTraits = player_main_army.Commander.CommanderTraits;
             }
             else { 
                 UnitsFile.PlayerCommanderTraits = null;
             }
-            if (enemy_main_army.Commander != null) {
+            if (enemy_main_army?.Commander != null) {
                 UnitsFile.EnemyCommanderTraits = enemy_main_army.Commander.CommanderTraits;
             }
             else {
@@ -421,8 +421,8 @@ namespace CrusaderWars
             var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
             var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
 
-            bool shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
-            bool shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
+            bool shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army!.CombatSide, TerrainGenerator.TerrainType) ?? false;
+            bool shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army!.CombatSide, TerrainGenerator.TerrainType) ?? false;
 
             if (shouldPlayerRotateDeployment || shouldEnemyRotateDeployment)
             {
@@ -438,19 +438,19 @@ namespace CrusaderWars
             //
             if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Controled)
             {
-                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
+                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!);
             }
             //  FRIENDLIES ONLY ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.Friendly_Only)
             {
-                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
+                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
             }
             //  ALL SEPARATE ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Separate)
             {
-                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
+                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
             }
 
             if (ModOptions.UnitCards())
@@ -509,7 +509,7 @@ namespace CrusaderWars
             string default_attila_map = "Terrain/battles/main_attila_map/";
             if (UnitMappers_BETA.Terrains == null)
                 return default_attila_map;
-            else if (UnitMappers_BETA.Terrains.GetAttilaMap() != null)
+            else if (UnitMappers_BETA.Terrains?.GetAttilaMap() != null)
                 return UnitMappers_BETA.Terrains.GetAttilaMap();
             else
                 return default_attila_map;
@@ -629,7 +629,7 @@ namespace CrusaderWars
 
 
 
-        static UnitsDeploymentsPosition Position;
+        static UnitsDeploymentsPosition? Position;
 
 
         static string west_rotation = "1.57";
@@ -638,7 +638,7 @@ namespace CrusaderWars
         static string north_rotation = "3.14";
 
 
-        static string Rotation;
+        static string? Rotation;
 
         static bool isFirstDirection = false;
         public static void SetPositions(int total_soldiers, string direction)
@@ -692,7 +692,7 @@ namespace CrusaderWars
                 Unit_Script_Name = unitScript + i.ToString();
                 string PR_Unit = $"<unit num_soldiers= \"{numSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
                  $"<unit_type type=\"{troopKey}\"/>\n" +
-                 $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
+                 $"<position x=\"{Position!.X}\" y=\"{Position.Y}\"/>\n" +
                  $"<orientation radians=\"{Rotation}\"/>\n" +
                  "<width metres=\"21.70\"/>\n" +
                  $"<unit_experience level=\"{unit_experience}\"/>\n" +
@@ -745,7 +745,7 @@ namespace CrusaderWars
 
                     string PR_General = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
                      $"<unit_type type=\"{troopType}\"/>\n" +
-                     $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
+                     $"<position x=\"{Position!.X}\" y=\"{Position.Y}\"/>\n" +
                      $"<orientation radians=\"{Rotation}\"/>\n" +
                      "<width metres=\"21.70\"/>\n" +
                      $"<unit_experience level=\"{experience}\"/>\n" +
@@ -818,7 +818,7 @@ namespace CrusaderWars
 
                 string PR_Unit = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
                  $"<unit_type type=\"{troopType}\"/>\n" +
-                 $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
+                 $"<position x=\"{Position!.X}\" y=\"{Position.Y}\"/>\n" +
                  $"<orientation radians=\"{Rotation}\"/>\n" +
                  "<width metres=\"21.70\"/>\n" +
                  $"<unit_experience level=\"{experience}\"/>\n";
