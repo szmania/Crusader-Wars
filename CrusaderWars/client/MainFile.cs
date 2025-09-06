@@ -1065,12 +1065,18 @@ namespace CrusaderWars
         {
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
-            int left_side_total = left_side!.Sum(army => army.GetTotalSoldiers());
-            int right_side_total = right_side!.Sum(army => army.GetTotalSoldiers());
+
+            if (left_side is null || !left_side.Any() || right_side is null || !right_side.Any())
+            {
+                Program.Logger.Debug("Could not determine battle sides or one side is empty. Aborting battle processing.");
+                MessageBox.Show("Could not determine player and enemy sides for the battle, or one side has no armies. The battle cannot proceed.", "Crusader Conflicts: Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false; // break
+            }
+
+            int left_side_total = left_side.Sum(army => army.GetTotalSoldiers());
+            int right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
             string left_side_combat_side = left_side[0].CombatSide;
-            string right_side_combat_side = right_side[0].CombatSide;
-            Program.Logger.Debug($"Left side ({left_side_combat_side}) total soldiers: {left_side_total}");
-            Program.Logger.Debug($"Right side ({right_side_combat_side}) total soldiers: {right_side_total}");
+            Program.Logger.Debug($"Right side ({right_side[0].CombatSide}) total soldiers: {right_side_total}");
 
 
             if (regenerateAndRestart)
@@ -1078,7 +1084,7 @@ namespace CrusaderWars
                 try
                 {
                     Program.Logger.Debug("Creating TW:Attila battle files.");
-                    BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side_combat_side);
+                    BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side[0].CombatSide);
 
                     await Games.CloseTotalWarAttilaProcess();
                     UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");

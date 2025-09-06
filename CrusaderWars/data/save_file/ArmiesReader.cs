@@ -668,6 +668,16 @@ namespace CrusaderWars.data.save_file
                 }
             }
 
+            // Infer missing side if one is known
+            if (left_side != null && right_side == null)
+            {
+                right_side = (left_side == attacker_armies) ? defender_armies : attacker_armies;
+            }
+            else if (right_side != null && left_side == null)
+            {
+                left_side = (right_side == attacker_armies) ? defender_armies : attacker_armies;
+            }
+
             if (side == "left")
             {
                 Program.Logger.Debug($"Returning {left_side?.Count ?? 0} armies for left side.");
