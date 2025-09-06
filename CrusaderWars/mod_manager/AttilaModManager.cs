@@ -56,8 +56,8 @@ namespace CrusaderWars.mod_manager
 
     public static class AttilaModManager
     {
-        static DataGridView ModManagerControl { get; set; }
-        static List<Mod> ModsPaths { get; set; }
+        static DataGridView? ModManagerControl { get; set; }
+        static List<Mod> ModsPaths { get; set; } = new List<Mod>();
         
         public static void SetControlReference(DataGridView dataGrid)
         {
@@ -108,7 +108,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        public static string GetWorkshopFolderPath()
+        public static string? GetWorkshopFolderPath()
         {
             string attilaPath = Properties.Settings.Default.VAR_attila_path;
             if (string.IsNullOrEmpty(attilaPath) || !System.IO.File.Exists(attilaPath))
@@ -116,7 +116,7 @@ namespace CrusaderWars.mod_manager
                 return null; 
             }
 
-            DirectoryInfo dirInfo = new DirectoryInfo(Path.GetDirectoryName(attilaPath));
+            DirectoryInfo? dirInfo = new DirectoryInfo(Path.GetDirectoryName(attilaPath)!);
 
             // Search upwards for the "steamapps" folder
             while (dirInfo != null && dirInfo.Name.ToLower() != "steamapps")
@@ -150,9 +150,9 @@ namespace CrusaderWars.mod_manager
              */
 
             string userMods_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "used_mods_cw.txt");
-            string[] workingDirectories = null;
-            string[] steamModNames = null;
-            string[] dataModNames = null;
+            string[]? workingDirectories = null;
+            string[]? steamModNames = null;
+            string[]? dataModNames = null;
 
             //Working Directories
             var steamMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Steam && x.IsEnabled()).ToList();
@@ -174,9 +174,9 @@ namespace CrusaderWars.mod_manager
              *      REQUIRED MODS  
              *  ....................
              */
-            string[] workingDirectoriesRequiredMods = null;
-            string[] steamModNamesRequiredMods = null;
-            string[] dataModNamesRequiredMods = null;
+            string[]? workingDirectoriesRequiredMods = null;
+            string[]? steamModNamesRequiredMods = null;
+            string[]? dataModNamesRequiredMods = null;
             //Working Directories
             
             var steamModsRequiredMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Steam && x.IsRequiredMod() && x.IsLoadingModRequiredMod())
@@ -210,43 +210,61 @@ namespace CrusaderWars.mod_manager
             {
                 sw.NewLine = "\n";
                 Program.Logger.Debug("Writing mods to used_mods_cw.txt...");
-                foreach (string wD  in workingDirectories)
+                if (workingDirectories != null)
                 {
-                    string t = wD.Replace(@"\", @"/");
-                    sw.WriteLine($"add_working_directory \"{t}\";");
-                    Program.Logger.Debug($"  - WD: {t}");
+                    foreach (string wD in workingDirectories)
+                    {
+                        string t = wD.Replace(@"\", @"/");
+                        sw.WriteLine($"add_working_directory \"{t}\";");
+                        Program.Logger.Debug($"  - WD: {t}");
+                    }
                 }
 
-                foreach (string wD in workingDirectoriesRequiredMods)
+                if (workingDirectoriesRequiredMods != null)
                 {
-                    string t = wD.Replace(@"\", @"/");
-                    sw.WriteLine($"add_working_directory \"{t}\";");
-                    Program.Logger.Debug($"  - Required WD: {t}");
+                    foreach (string wD in workingDirectoriesRequiredMods)
+                    {
+                        string t = wD.Replace(@"\", @"/");
+                        sw.WriteLine($"add_working_directory \"{t}\";");
+                        Program.Logger.Debug($"  - Required WD: {t}");
+                    }
                 }
 
                 sw.WriteLine($"mod \"CrusaderWars.pack\";");
                 Program.Logger.Debug("  - Mod: CrusaderWars.pack");
 
-                foreach (string mod in dataModNames)
+                if (dataModNames != null)
                 {
-                    sw.WriteLine($"mod \"{mod}\";");
-                    Program.Logger.Debug($"  - Data Mod: {mod}");
+                    foreach (string mod in dataModNames)
+                    {
+                        sw.WriteLine($"mod \"{mod}\";");
+                        Program.Logger.Debug($"  - Data Mod: {mod}");
+                    }
                 }
-                foreach (string mod in steamModNames)
+                if (steamModNames != null)
                 {
-                    sw.WriteLine($"mod \"{mod}\";");
-                    Program.Logger.Debug($"  - Steam Mod: {mod}");
+                    foreach (string mod in steamModNames)
+                    {
+                        sw.WriteLine($"mod \"{mod}\";");
+                        Program.Logger.Debug($"  - Steam Mod: {mod}");
+                    }
                 }
 
-                foreach (string mod in dataModNamesRequiredMods)
+                if (dataModNamesRequiredMods != null)
                 {
-                    sw.WriteLine($"mod \"{mod}\";");
-                    Program.Logger.Debug($"  - Required Data Mod: {mod}");
+                    foreach (string mod in dataModNamesRequiredMods)
+                    {
+                        sw.WriteLine($"mod \"{mod}\";");
+                        Program.Logger.Debug($"  - Required Data Mod: {mod}");
+                    }
                 }
-                foreach (string mod in steamModNamesRequiredMods)
+                if (steamModNamesRequiredMods != null)
                 {
-                    sw.WriteLine($"mod \"{mod}\";");
-                    Program.Logger.Debug($"  - Required Steam Mod: {mod}");
+                    foreach (string mod in steamModNamesRequiredMods)
+                    {
+                        sw.WriteLine($"mod \"{mod}\";");
+                        Program.Logger.Debug($"  - Required Steam Mod: {mod}");
+                    }
                 }
 
                 sw.Dispose();
@@ -257,7 +275,7 @@ namespace CrusaderWars.mod_manager
         {
             Program.Logger.Debug("Reading installed Attila mods...");
             string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
-            string workshop_folder_path = GetWorkshopFolderPath();
+            string? workshop_folder_path = GetWorkshopFolderPath();
 
             ModsPaths = new List<Mod>();
             //Read data folder
@@ -348,14 +366,17 @@ namespace CrusaderWars.mod_manager
             //  SET AT MOD MANAGER
             Bitmap steamImg = LoadBitmapWithReducedSize(@".\data\mod manager\steamlogo.png");
             Bitmap dataImg = LoadBitmapWithReducedSize(@".\data\mod manager\folder.png");
-            foreach (var mod in ModsPaths)
+            if (ModManagerControl != null)
             {
-                if (mod.IsRequiredMod()) continue;
+                foreach (var mod in ModsPaths)
+                {
+                    if (mod.IsRequiredMod()) continue;
 
-                if (mod.GetLocalization() == ModLocalization.Steam)
-                    ModManagerControl.Rows.Add(mod.IsEnabled(), mod.GetThumbnail(), mod.GetName(), steamImg);
-                else
-                    ModManagerControl.Rows.Add(mod.IsEnabled(), mod.GetThumbnail(), mod.GetName(), dataImg);
+                    if (mod.GetLocalization() == ModLocalization.Steam)
+                        ModManagerControl.Rows.Add(mod.IsEnabled(), mod.GetThumbnail(), mod.GetName(), steamImg);
+                    else
+                        ModManagerControl.Rows.Add(mod.IsEnabled(), mod.GetThumbnail(), mod.GetName(), dataImg);
+                }
             }
         }
 
@@ -381,7 +402,7 @@ namespace CrusaderWars.mod_manager
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error loading image: {ex.Message}");
-                return null;
+                return null!; // Return null! to indicate it might be null, but the caller should handle it.
             }
         }
 
@@ -402,16 +423,13 @@ namespace CrusaderWars.mod_manager
 
         public static void ChangeEnabledState(DataGridViewRow row)
         {
-            string checkboxValue = (String)row.Cells[0].Value;
-            bool value;
-            if (checkboxValue == "Active")
-                value = true;
-            else
-                value = false;
-                
-            string name = (String)row.Cells[2].Value;
+            bool value = Convert.ToBoolean(row.Cells[0].Value);
+            string? name = row.Cells[2].Value as string;
 
-            ModsPaths.FirstOrDefault(x => x.GetName() == name)?.ChangeEnabledState(value);
+            if (name != null)
+            {
+                ModsPaths.FirstOrDefault(x => x.GetName() == name)?.ChangeEnabledState(value);
+            }
         }
 
         static void SetActiveMods()

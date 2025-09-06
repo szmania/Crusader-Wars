@@ -594,6 +594,7 @@ namespace CrusaderWars
             string faction = default_faction;
             foreach (Unit unit in army.Units)
             {
+                if (unit == null) continue; // Add this line
                 string culture = unit.GetCulture();
                 string heritage = unit.GetHeritage();
                 string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);

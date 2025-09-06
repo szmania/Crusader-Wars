@@ -19,8 +19,8 @@ namespace CrusaderWars
         public static int MAX_INFANTRY_UNIT_NUMBER = ModOptions.GetInfantryMax();
         public static int MAX_RANGED_UNIT_NUMBER = ModOptions.GetRangedMax();
 
-        public static CommanderTraits PlayerCommanderTraits;
-        public static CommanderTraits EnemyCommanderTraits;
+        public static CommanderTraits? PlayerCommanderTraits;
+        public static CommanderTraits? EnemyCommanderTraits;
 
         public static (int UnitSoldiers, int UnitNum, int SoldiersRest) RetriveCalculatedUnits(int soldiers, int unit_limit)
         {
@@ -63,7 +63,7 @@ namespace CrusaderWars
             }
         }
 
-        public static CommanderTraits GetCommanderTraitsObj(bool isPlayer)
+        public static CommanderTraits? GetCommanderTraitsObj(bool isPlayer)
         {
             if (isPlayer && PlayerCommanderTraits != null)
             {
@@ -115,7 +115,7 @@ namespace CrusaderWars
                 army.Units.Insert(0, commander_unit);
 
                 
-                string general_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEcommander{army.Commander.ID}_CULTURE{army.Commander.GetCultureObj().ID}_";
+                string general_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEcommander{army.Commander.ID}_CULTURE{army.Commander.GetCultureObj()?.ID ?? "unknown"}_";
                 BattleFile.AddGeneralUnit(army.Commander, commander_unit.GetAttilaUnitKey(), general_script_name, commander_xp, Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
@@ -143,9 +143,9 @@ namespace CrusaderWars
 
                 string knights_script_name;
                 if (army.Knights.GetMajorCulture() != null)
-                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture().ID}_";
+                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture()?.ID ?? "unknown"}_";
                 else
-                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture().ID}_";
+                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture()?.ID ?? "unknown"}_";
 
 
                 BattleFile.AddKnightUnit(army.Knights, knights_unit.GetAttilaUnitKey(), knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide));
@@ -212,7 +212,7 @@ namespace CrusaderWars
                 //If is retinue maa, increase 2xp.
                 if (unitName.Contains("accolade"))
                 {
-                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
+                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                     int accolade_xp = army_xp + 2;
                     if (accolade_xp < 0) accolade_xp = 0;
                     if (accolade_xp > 9) accolade_xp = 9;
@@ -221,7 +221,7 @@ namespace CrusaderWars
                 //If is normal maa
                 else
                 {
-                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
+                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                     BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 }
                 i++;
@@ -251,7 +251,7 @@ namespace CrusaderWars
             {
                 Random r = new Random();
                 var random = faction_levy_porcentages[r.Next(faction_levy_porcentages.Count - 1)];
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
                 return;
@@ -274,7 +274,7 @@ namespace CrusaderWars
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
                 compareNum += (levy_type_data.UnitSoldiers * levy_type_data.UnitNum);
                 //if (Levies_Data.UnitNum * t >= 0.5 && Levies_Data.UnitNum * t < 1) result = 1;
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
