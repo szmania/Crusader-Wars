@@ -88,6 +88,7 @@ namespace CrusaderWars
 
         static void BETA_AddArmyUnits(Army army)
         {
+            Program.Logger.Debug($"BETA_AddArmyUnits: Processing army {army.ID} ({army.CombatSide}) with {army.Units.Count} units.");
             army.RemoveNullUnits();
 
             i = 0;
@@ -182,6 +183,7 @@ namespace CrusaderWars
             {
                 foreach (var levy_culture in levies_units)
                 {
+                    Program.Logger.Debug($"  Processing levy unit: Culture={levy_culture.GetCulture()}, Soldiers={levy_culture.GetSoldiers()}");
                     if(string.IsNullOrEmpty(levy_culture.GetAttilaFaction()))
                     {
                         Program.Logger.Debug($"WARNING - LEVY UNIT WITHOUT A FACTION FOUND. Amount = {levy_culture.GetSoldiers()} soldiers");
@@ -203,6 +205,7 @@ namespace CrusaderWars
                 string unitName = unit.GetName();
                 //Skip if its not a Men at Arms Unit
                 if (unitName == "General" || unit.GetRegimentType() == RegimentType.Knight || unit.GetRegimentType() == RegimentType.Levy) continue;
+                Program.Logger.Debug($"  Processing MAA unit: Name={unit.GetName()}, Soldiers={unit.GetSoldiers()}, Culture={unit.GetCulture()}");
 
                 var MAA_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
 

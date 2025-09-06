@@ -393,14 +393,31 @@ namespace CrusaderWars
             player_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy) ?? temp_defender_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy);
             enemy_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy) ?? temp_defender_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy);
 
+            // Fallback logic for main armies
+            if (player_main_army == null)
+            {
+                Program.Logger.Debug("Main player army not found, attempting to find any player army as fallback.");
+                player_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsPlayer()) ?? temp_defender_armies.FirstOrDefault(x => x.IsPlayer());
+            }
+            if (enemy_main_army == null)
+            {
+                Program.Logger.Debug("Main enemy army not found, attempting to find any enemy army as fallback.");
+                enemy_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsEnemy()) ?? temp_defender_armies.FirstOrDefault(x => x.IsEnemy());
+            }
+
+            if (player_main_army == null || enemy_main_army == null)
+            {
+                throw new InvalidOperationException("Could not determine main player and enemy armies for the battle.");
+            }
+
             //
-            if(player_main_army?.Commander!=null)  {
+            if(player_main_army.Commander!=null)  {
                 UnitsFile.PlayerCommanderTraits = player_main_army.Commander.CommanderTraits;
             }
             else { 
                 UnitsFile.PlayerCommanderTraits = null;
             }
-            if (enemy_main_army?.Commander != null) {
+            if (enemy_main_army.Commander != null) {
                 UnitsFile.EnemyCommanderTraits = enemy_main_army.Commander.CommanderTraits;
             }
             else {
@@ -421,8 +438,8 @@ namespace CrusaderWars
             var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
             var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
 
-            bool shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army!.CombatSide, TerrainGenerator.TerrainType) ?? false;
-            bool shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army!.CombatSide, TerrainGenerator.TerrainType) ?? false;
+            bool shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
+            bool shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
 
             if (shouldPlayerRotateDeployment || shouldEnemyRotateDeployment)
             {
@@ -438,19 +455,19 @@ namespace CrusaderWars
             //
             if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Controled)
             {
-                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
             }
             //  FRIENDLIES ONLY ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.Friendly_Only)
             {
-                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
             }
             //  ALL SEPARATE ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Separate)
             {
-                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
             }
 
             if (ModOptions.UnitCards())
