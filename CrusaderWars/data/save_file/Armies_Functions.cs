@@ -629,24 +629,25 @@ namespace CrusaderWars.data.save_file
                 foreach (var regiment in list)
                 {
                     // if no soldiers, skip
-                    if (ModOptions.FullArmies(regiment.regiment) is null) continue;
-
-                    if (Int32.Parse(ModOptions.FullArmies(regiment.regiment)) == 0) continue;
+                    if (!Int32.TryParse(ModOptions.FullArmies(regiment.regiment), out int soldiersNum) || soldiersNum == 0)
+                    {
+                        continue;
+                    }
 
                     Unit unit;
                     if (regiment.type == RegimentType.Levy)
                     {
                         Culture? levyCulture = regiment.regiment.Culture ?? army.Owner?.GetCulture();
                         if (regiment.regiment.isMercenary())
-                            unit = new Unit("Levy", Int32.Parse(ModOptions.FullArmies(regiment.regiment)), levyCulture, regiment.type, true);
+                            unit = new Unit("Levy", soldiersNum, levyCulture, regiment.type, true);
                         else
-                            unit = new Unit("Levy", Int32.Parse(ModOptions.FullArmies(regiment.regiment)), levyCulture, regiment.type);
+                            unit = new Unit("Levy", soldiersNum, levyCulture, regiment.type);
                     }
                     else if (regiment.type == RegimentType.MenAtArms)
                         if (regiment.regiment.isMercenary())
-                            unit = new Unit(regiment.maa_name, Int32.Parse(ModOptions.FullArmies(regiment.regiment)), regiment.regiment.Culture, regiment.type, true);
+                            unit = new Unit(regiment.maa_name, soldiersNum, regiment.regiment.Culture, regiment.type, true);
                         else
-                            unit = new Unit(regiment.maa_name, Int32.Parse(ModOptions.FullArmies(regiment.regiment)), regiment.regiment.Culture, regiment.type);
+                            unit = new Unit(regiment.maa_name, soldiersNum, regiment.regiment.Culture, regiment.type);
                     else
                         continue;
 
