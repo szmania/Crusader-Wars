@@ -226,9 +226,10 @@ namespace CrusaderWars
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\settings\UnitMappers.xml");
-            if (xmlDoc.DocumentElement != null)
+            var root = xmlDoc.DocumentElement; // Introduce local variable
+            if (root != null)
             {
-                foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
+                foreach (XmlNode node in root.ChildNodes)
                 {
                     if (node is XmlComment) continue;
                     if (node.InnerText == "True")
@@ -1563,9 +1564,10 @@ namespace CrusaderWars
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\settings\UnitMappers.xml");
             string tagName = "";
-            if (xmlDoc.DocumentElement != null)
+            var root = xmlDoc.DocumentElement;
+            if (root != null)
             {
-                foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
+                foreach (XmlNode node in root.ChildNodes)
                 {
                     if (node is XmlComment) continue;
                     if (node.InnerText == "True")

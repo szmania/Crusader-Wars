@@ -746,7 +746,7 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
+                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
@@ -856,7 +856,7 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
+                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
