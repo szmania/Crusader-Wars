@@ -423,7 +423,9 @@ namespace CrusaderWars.mod_manager
 
         public static void ChangeEnabledState(DataGridViewRow row)
         {
-            bool value = Convert.ToBoolean(row.Cells[0].Value);
+            string? stringValue = row.Cells[0].Value?.ToString();
+            bool value = string.Equals(stringValue, "True", StringComparison.OrdinalIgnoreCase) || string.Equals(stringValue, "Active", StringComparison.OrdinalIgnoreCase);
+
             string? name = row.Cells[2].Value as string;
 
             if (name != null)
