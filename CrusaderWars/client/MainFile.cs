@@ -1626,8 +1626,17 @@ namespace CrusaderWars
             public static void LoadBattleResults()
             {
                 Program.Logger.Debug("Loading CK3 with battle results...");
-                string ck3_path = Properties.Settings.Default.VAR_ck3_path;
-                Process.Start(new ProcessStartInfo(ck3_path, "--continuelastsave") { UseShellExecute = true });
+                Process[] process_ck3 = Process.GetProcessesByName("ck3");
+                if (process_ck3.Length == 0)
+                {
+                    Program.Logger.Debug("CK3 process not found. Starting CK3 with --continuelastsave.");
+                    string ck3_path = Properties.Settings.Default.VAR_ck3_path;
+                    Process.Start(new ProcessStartInfo(ck3_path, "--continuelastsave") { UseShellExecute = true });
+                }
+                else
+                {
+                    Program.Logger.Debug("CK3 process is already running. Cannot automatically load last save. Please continue manually in CK3.");
+                }
             }
 
             public static void StartTotalWArAttilaProcess()
