@@ -1163,7 +1163,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-Logger.Debug($"Error starting Attila: {ex.Message}");
+                    Program.Logger.Debug($"Error starting Attila: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
                     MessageBox.Show("Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
@@ -1377,6 +1377,129 @@ Logger.Debug($"Error starting Attila: {ex.Message}");
             BattleState.ClearBattleState();
 
             return true; // Success
+        }
+
+        private async void ContinueBattleButton_Click(object sender, EventArgs e)
+        {
+            Program.Logger.Debug("Continue Battle button clicked.");
+            PlaySound(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
+            _myVariable = 1;
+            ExecuteButton.Enabled = false;
+            ContinueBattleButton.Enabled = false;
+            ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
+
+            // Update status label immediately
+            infoLabel.Text = "Preparing TW:Attila battle...";
+            this.Text = "Crusader Conflicts (Preparing TW:Attila battle...)";
+
+            // Ensure Attila shortcut exists
+            CreateAttilaShortcut();
+
+            // Restore battle context from saved log snippet
+            Program.Logger.Debug("Restoring battle context from log snippet...");
+            string logSnippet = BattleState.LoadLogSnippet();
+            if (string.IsNullOrEmpty(logSnippet))
+            {
+                Program.Logger.Debug("Failed to load battle context. Log snippet is missing or empty.");
+                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _myVariable = 0;
+                ExecuteButton.Enabled = true;
+                ContinueBattleButton.Enabled = true;
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
+                this.Text = "Crusader Conflicts"; // Reset status on early exit
+                return;
+            }
+            DataSearch.Search(logSnippet);
+            Program.Logger.Debug("Battle context restored.");
+
+            path_editedSave = @".\data\save_file_data\gamestate_file\gamestate";
+
+            try
+            {
+                Program.Logger.Debug("Re-loading army data for continued battle.");
+
+                // Re-initialize mod and unit mapper context
+                AttilaModManager.ReadInstalledMods();
+                SetPlaythrough();
+                AttilaModManager.CreateUserModsFile();
+
+                BattleResult.GetPlayerCombatResult();
+                BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                var armies = ArmiesReader.ReadBattleArmies();
+                attacker_armies = armies.attacker;
+                defender_armies = armies.defender;
+                Program.Logger.Debug($"Successfully re-loaded {attacker_armies.Count} attacker and {defender_armies.Count} defender armies.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Reset UI state
+                _myVariable = 0;
+                ExecuteButton.Enabled = true;
+                ContinueBattleButton.Enabled = true;
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
+                this.Text = "Crusader Conflicts"; // Reset status on early exit
+                return;
+            }
+
+            bool regenerateAndRestart = true; // Default behavior
+
+            Process[] attilaProcesses = Process.GetProcessesByName("Attila");
+            if (attilaProcesses.Length > 0)
+            {
+                string message = "Total War: Attila is already running.\n\n" +
+                                 "Do you want to restart it to ensure the latest battle data is loaded?\n\n" +
+                                 "• Yes: Restart Attila. (Recommended to retry the battle)\n" +
+                                 "• No: Continue with the current session. (If the CW launcher closed unexpectedly)\n" +
+                                 "• Cancel: Do nothing.";
+                string title = "Attila is Running";
+                DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    regenerateAndRestart = true;
+                }
+                else if (result == DialogResult.No)
+                {
+                    regenerateAndRestart = false;
+                }
+                else // Cancel
+                {
+                    // Re-enable buttons and return
+                    _myVariable = 0;
+                    ExecuteButton.Enabled = true;
+                    ContinueBattleButton.Enabled = true;
+                    if (ExecuteButton.Enabled)
+                    {
+                        ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                    }
+                    infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
+                    this.Text = "Crusader Conflicts"; // Reset status on early exit
+                    return;
+                }
+            }
+
+            _programmaticClick = true;
+            if (await ProcessBattle(regenerateAndRestart))
+            {
+                // The battle finished successfully, start the main loop to wait for the next one.
+                ExecuteButton.PerformClick();
+            }
+            else
+            {
+                // A critical error occurred (e.g., couldn't start Attila). Reset UI.
+                UpdateUIForBattleState();
+                ExecuteButton.Enabled = true;
+                ContinueBattleButton.Enabled = true;
+                if (ExecuteButton.Enabled)
+                    {
+                        ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                    }
+                _myVariable = 0;
+            }
         }
 
         private void ContinueBattleButton_MouseEnter(object sender, EventArgs e)
