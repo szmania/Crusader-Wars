@@ -58,7 +58,7 @@
             this.Label_Message.Name = "Label_Message";
             this.Label_Message.Size = new System.Drawing.Size(491, 42);
             this.Label_Message.TabIndex = 0;
-            this.Label_Message.Text = "Getting Data from CL3 Save File...";
+            this.Label_Message.Text = "Getting Data from CK3 Save File...";
             this.Label_Message.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // GIF

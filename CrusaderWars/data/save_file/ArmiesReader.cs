@@ -1483,7 +1483,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else if(isSearchStarted && line.Contains("\t\t\tcommander="))
                     {
-                        string id = Regex.Match(line, @"commander=(\d+)").Value;
+                        string id = Regex.Match(line, @"commander=(\d+)").Groups[1].Value;                                                                                                                                                              
                         if (isAttacker)
                         {
                             attacker_armies[index].CommanderID = id;

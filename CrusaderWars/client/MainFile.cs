@@ -1129,7 +1129,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Error creating Attila battle: {ex.Message}");
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
-                    MessageBox.Show($"Error creating the battle:{ex.Message}", "Crusader Conflicts: Data Error",
+                    MessageBox.Show($"Error creating the battle: {ex.Message}", "Crusader Conflicts: Data Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
