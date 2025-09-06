@@ -60,7 +60,10 @@ namespace CrusaderWars.data.save_file
                 ReadCharacters();
                 ReadCourtPositions();
                 CheckForNullCultures();
-                CreateUnits(); // Organize Units
+                ReadCultureManager();
+
+                // Organize Units
+                CreateUnits();
 
                 // Print Armies
                 Print.PrintArmiesData(attacker_armies);
@@ -486,7 +489,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (searchStarted && line.StartsWith("\tkey=")) //# KEY
                     {
-                        string title_key = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
+                        titleKey = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
                         Program.Logger.Debug($"Found title key '{titleKey}' for title ID '{title_id}'.");
                         return titleKey;
                     }
@@ -1050,8 +1053,8 @@ namespace CrusaderWars.data.save_file
                         var searchingData = Armies_Functions.SearchRegiments(regiment_id, attacker_armies);
                         if(searchingData.searchHasStarted)
                         {
-                        isSearchStarted = true;
-                        regiment = searchingData.regiment;
+                            isSearchStarted = true;
+                            regiment = searchingData.regiment;
                         }
                         else
                         {
@@ -1232,8 +1235,8 @@ namespace CrusaderWars.data.save_file
                         var searchingData = Armies_Functions.SearchUnit(id, attacker_armies);
                         if(searchingData.searchHasStarted)
                         {
-                        isSearchStarted = true;
-                        army = searchingData.army;
+                            isSearchStarted = true;
+                            army = searchingData.army;
                         }
                         else
                         {
