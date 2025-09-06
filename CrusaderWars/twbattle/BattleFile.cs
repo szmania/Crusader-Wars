@@ -11,6 +11,7 @@ using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.terrain;
+using CrusaderWars.twbattle;
 using CrusaderWars.unit_mapper;
 using static CrusaderWars.terrain.Lands;
 
