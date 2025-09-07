@@ -72,8 +72,9 @@ namespace CWUpdater
 
         private string? GetCrusaderWarsExecutable() // Changed return type to nullable
         {
-            string? currentDir = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory)?.Parent?.FullName; // Modified for null-safety
-            if (currentDir == null)
+            // Use the same robust pathing logic as the ApplyUpdate method
+            string? currentDir = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", "");
+            if (string.IsNullOrEmpty(currentDir))
             {
                 Logger.Log("Could not determine the application's root directory.");
                 return null;
@@ -253,6 +254,12 @@ namespace CWUpdater
                 // Step 5: Clean up backup if update was successful
                 Logger.Log("Update successful, deleting backup.");
                 Directory.Delete(backupPath, true);
+
+                // Add this confirmation message
+                MessageBox.Show("Update completed successfully! The application will now restart.",
+                                "Update Successful",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
 
                 Console.WriteLine("Update applied successfully.");
                 Logger.Log("Update applied successfully.");
