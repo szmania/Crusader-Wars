@@ -1156,7 +1156,7 @@ namespace CrusaderWars
                                 }
                                 else
                                 {
-                                    Program.Logger.Debug($"  - Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}");
+                                    Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}");
                                 }
                             }
                         }
@@ -1179,7 +1179,7 @@ namespace CrusaderWars
                                 }
                                 else
                                 {
-                                    Program.Logger.Debug($"  - Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}");
+                                    Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}");
                                 }
                             }
                         }
