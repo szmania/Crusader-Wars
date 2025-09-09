@@ -36,6 +36,7 @@ namespace CrusaderWars.unit_mapper
 
         public static TerrainsUM Terrains { get;private set; }  
         static string LoadedUnitMapper_FolderPath { get; set; }
+        public const string NOT_FOUND_KEY = "not_found";
 
         public static string GetLoadedUnitMapperName() { return Path.GetFileName(LoadedUnitMapper_FolderPath); }
         public static string? GetLoadedUnitMapperString() { 
@@ -382,14 +383,14 @@ namespace CrusaderWars.unit_mapper
         static string SearchInTitlesFile(Unit unit)
         {
             string titles_folder_path = LoadedUnitMapper_FolderPath + @"\Titles";
-            if (!Directory.Exists(titles_folder_path)) return "";
+            if (!Directory.Exists(titles_folder_path)) return NOT_FOUND_KEY;
             var files_paths = Directory.GetFiles(titles_folder_path);
 
             if(unit.GetOwner() == null || unit.GetOwner().GetPrimaryTitleKey() == string.Empty)
-                return string.Empty;
+                return NOT_FOUND_KEY;
             
             //LEVIES skip
-            if (unit.GetRegimentType() == RegimentType.Levy) return "";
+            if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY;
 
             string unit_key = "";
             foreach (var xml_file in files_paths)
@@ -418,7 +419,7 @@ namespace CrusaderWars.unit_mapper
                 }
             }
 
-            return unit_key;
+            return NOT_FOUND_KEY;
         }
 
         static string SearchInFactionFiles(Unit unit)
@@ -427,7 +428,7 @@ namespace CrusaderWars.unit_mapper
             var files_paths = Directory.GetFiles(factions_folder_path);
 
             //LEVIES skip
-            if (unit.GetRegimentType() == RegimentType.Levy) return "" ;
+            if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY ;
 
             string unit_key = "";
             foreach (var xml_file in files_paths)
@@ -454,20 +455,20 @@ namespace CrusaderWars.unit_mapper
                             else if (faction == unit.GetAttilaFaction())
                             {
                                 string foundKey = FindUnitKeyInFaction(element, unit);
-                                if (!string.IsNullOrEmpty(foundKey))
+                                if (!string.IsNullOrEmpty(foundKey) && foundKey != NOT_FOUND_KEY)
                                     return foundKey;
                             }
                         }
                     }
 
-                    if (unit_key == string.Empty)
+                    if (unit_key == string.Empty || unit_key == NOT_FOUND_KEY)
                         continue;
                     else
                         return unit_key;
                 }
             }
 
-            return unit_key;
+            return NOT_FOUND_KEY;
         }
 
         static string FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
@@ -501,24 +502,20 @@ namespace CrusaderWars.unit_mapper
                 }
             }
 
-            return unit_key;
+            return NOT_FOUND_KEY;
         }
 
 
         public static string GetUnitKey(Unit unit)
         {
             string unit_key = SearchInTitlesFile(unit);
-            if (!string.IsNullOrEmpty(unit_key))
+            if (unit_key != NOT_FOUND_KEY)
             {
                 return unit_key;
             }
-            else
-            {
-                unit_key = SearchInFactionFiles(unit);
-                return unit_key;
-            }
-                
-
+            
+            unit_key = SearchInFactionFiles(unit);
+            return unit_key; // This will be the found key or NOT_FOUND_KEY
         }
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)
