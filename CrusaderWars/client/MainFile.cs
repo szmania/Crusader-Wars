@@ -1133,9 +1133,11 @@ namespace CrusaderWars
                         {
                             foreach (var unit in army.Units)
                             {
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
-                                    Program.Logger.Debug($"  - Unit: (Levies), CK3 Type: {unit.GetRegimentType()}, Total Soldiers: {unit.GetSoldiers()}");
+                                    Program.Logger.Debug($"  - Unit: (Levies), CK3 Type: {unit.GetRegimentType()}, Total Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     var levyDetails = BattleLog.GetLevyBreakdown(army.ID);
                                     foreach (var detail in levyDetails)
                                     {
@@ -1145,13 +1147,13 @@ namespace CrusaderWars
                                 else
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
-                                    if (string.IsNullOrEmpty(attilaKey) && unit.GetRegimentType() != RegimentType.Levy)
+                                    if (string.IsNullOrEmpty(attilaKey))
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}");
+                                        Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     }
                                 }
                             }
@@ -1168,9 +1170,11 @@ namespace CrusaderWars
                         {
                             foreach (var unit in army.Units)
                             {
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
-                                    Program.Logger.Debug($"  - Unit: (Levies), CK3 Type: {unit.GetRegimentType()}, Total Soldiers: {unit.GetSoldiers()}");
+                                    Program.Logger.Debug($"  - Unit: (Levies), CK3 Type: {unit.GetRegimentType()}, Total Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     var levyDetails = BattleLog.GetLevyBreakdown(army.ID);
                                     foreach (var detail in levyDetails)
                                     {
@@ -1180,13 +1184,13 @@ namespace CrusaderWars
                                 else
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
-                                    if (string.IsNullOrEmpty(attilaKey) && unit.GetRegimentType() != RegimentType.Levy)
+                                    if (string.IsNullOrEmpty(attilaKey))
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}");
+                                        Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     }
                                 }
                             }
