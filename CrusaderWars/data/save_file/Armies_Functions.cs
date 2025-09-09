@@ -695,15 +695,23 @@ namespace CrusaderWars.data.save_file
             var organizedUnits = new List<Unit>();
 
             // Group units by Name and Culture
-            var groupedUnits = units.GroupBy(u => new { Name = u.GetName(), Culture = u.GetCulture(), Type = u.GetRegimentType(), IsMerc = u.IsMerc() });
+            var groupedUnits = units.GroupBy(u => new {
+                Name = u.GetName(),
+                Culture = u.GetCulture(),
+                Type = u.GetRegimentType(),
+                IsMerc = (u.GetRegimentType() == RegimentType.Levy) ? false : u.IsMerc()
+            });
 
             // Merge units with the same Name and Culture
             foreach (var group in groupedUnits)
             {
                 int totalSoldiers = group.Sum(u => u.GetSoldiers());
 
+                // Determine the correct mercenary status for the merged unit
+                bool isMerc = group.Key.Type == RegimentType.Levy ? group.Any(u => u.IsMerc()) : group.Key.IsMerc;
+
                 // Create a new Unit with the merged NumberOfSoldiers
-                Unit mergedUnit = new Unit(group.Key.Name, totalSoldiers, group.ElementAt(0).GetObjCulture(), group.ElementAt(0).GetRegimentType(), group.ElementAt(0).IsMerc(), owner);
+                Unit mergedUnit = new Unit(group.Key.Name, totalSoldiers, group.First().GetObjCulture(), group.Key.Type, isMerc, owner);
                 
                 organizedUnits.Add(mergedUnit);
             }
