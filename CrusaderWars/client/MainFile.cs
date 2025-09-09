@@ -1141,6 +1141,35 @@ namespace CrusaderWars
                     //Close Script
                     BattleScript.CloseScript();
 
+                    Program.Logger.Debug("--- FINAL ATTACKER ARMY COMPOSITION FOR ATTILA ---");
+                    foreach (var army in attacker_armies)
+                    {
+                        Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
+                        if (army.Units != null)
+                        {
+                            foreach (var unit in army.Units)
+                            {
+                                Program.Logger.Debug($"  - Unit: {unit.AttilaUnitKey}, Soldiers: {unit.GetSoldiers()}");
+                            }
+                        }
+                    }
+                    Program.Logger.Debug($"TOTAL ATTACKER SOLDIERS: {attacker_armies.Sum(a => a.GetTotalSoldiers())}");
+                    Program.Logger.Debug("--------------------------------------------------");
+
+                    Program.Logger.Debug("--- FINAL DEFENDER ARMY COMPOSITION FOR ATTILA ---");
+                    foreach (var army in defender_armies)
+                    {
+                        Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
+                        if (army.Units != null)
+                        {
+                            foreach (var unit in army.Units)
+                            {
+                                Program.Logger.Debug($"  - Unit: {unit.AttilaUnitKey}, Soldiers: {unit.GetSoldiers()}");
+                            }
+                        }
+                    }
+                    Program.Logger.Debug($"TOTAL DEFENDER SOLDIERS: {defender_armies.Sum(a => a.GetTotalSoldiers())}");
+                    Program.Logger.Debug("--------------------------------------------------");
                     //Creates .pack mod file
                     Program.Logger.Debug("Creating .pack file...");
                     PackFile.PackFileCreator();
