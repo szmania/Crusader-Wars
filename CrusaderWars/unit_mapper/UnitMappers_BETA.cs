@@ -518,6 +518,55 @@ namespace CrusaderWars.unit_mapper
             return unit_key; // This will be the found key or NOT_FOUND_KEY
         }
 
+        public static string GetDefaultUnitKey(RegimentType type)
+        {
+            if (type == RegimentType.Levy) return NOT_FOUND_KEY; // Levies are handled separately
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            if (!Directory.Exists(factions_folder_path)) return NOT_FOUND_KEY;
+
+            var files_paths = Directory.GetFiles(factions_folder_path);
+
+            foreach (var xml_file in files_paths)
+            {
+                if (Path.GetExtension(xml_file) == ".xml")
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+
+                    foreach (XmlNode element in FactionsFile.DocumentElement.ChildNodes)
+                    {
+                        if (element is XmlComment || element.Attributes?["name"] == null) continue;
+                        
+                        string faction = element.Attributes["name"].Value;
+                        if (faction == "Default" || faction == "DEFAULT")
+                        {
+                            // Found the default faction, now find a suitable unit
+                            foreach (XmlNode node in element.ChildNodes)
+                            {
+                                if (node is XmlComment) continue;
+                                
+                                if (type == RegimentType.Commander && node.Name == "General")
+                                {
+                                    return node.Attributes["key"].Value;
+                                }
+                                else if (type == RegimentType.Knight && node.Name == "Knights")
+                                {
+                                    return node.Attributes["key"].Value;
+                                }
+                                else if (type == RegimentType.MenAtArms && node.Name == "MenAtArm")
+                                {
+                                    // Return the first MAA unit as a generic fallback
+                                    return node.Attributes["key"].Value;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return NOT_FOUND_KEY; // No default found
+        }
+
         public static string GetAttilaFaction(string CultureName, string HeritageName)
         {
             Program.Logger.Debug($"Searching faction for Culture:{CultureName}, Heritage:{HeritageName}");

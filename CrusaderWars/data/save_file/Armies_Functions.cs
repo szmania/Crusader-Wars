@@ -560,13 +560,25 @@ namespace CrusaderWars.data.save_file
 
                 Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', IsMercenary='{unit.IsMerc()}'");
                 string key = UnitMappers_BETA.GetUnitKey(unit);
-                if (key == "not_found")
+                if (key == UnitMappers_BETA.NOT_FOUND_KEY)
                 {
-                    Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' ({unit.GetCulture()}). Using default 'cha_spa_royal_cav'.");
-                    unit.SetUnitKey("cha_spa_royal_cav");
+                    Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' ({unit.GetCulture()}). Attempting to find a default fallback.");
+                    string fallbackKey = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
+                    if (fallbackKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                    {
+                        Program.Logger.Debug($"Using default fallback unit key '{fallbackKey}' for unit '{unit.GetName()}'.");
+                        unit.SetUnitKey(fallbackKey);
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"WARNING: No default fallback unit key found for type '{unit.GetRegimentType()}'. Unit '{unit.GetName()}' will be dropped.");
+                        unit.SetUnitKey(string.Empty); 
+                    }
                 }
                 else
+                {
                     unit.SetUnitKey(key);
+                }
             }
             Program.Logger.Debug("Finished getting unit keys.");
             return units;
