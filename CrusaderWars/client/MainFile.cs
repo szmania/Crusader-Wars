@@ -1076,10 +1076,10 @@ namespace CrusaderWars
             int left_side_total = left_side.Sum(army => army.GetTotalSoldiers());
             int right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
             string left_side_combat_side = left_side[0].CombatSide;
-            Program.Logger.Debug($"******************** BATTLE SIDES ********************");
+            Program.Logger.Debug($"******************** BATTLE SIDES (Original CK3 Sizes) ********************");
             Program.Logger.Debug($"LEFT SIDE ({left_side_combat_side}) TOTAL SOLDIERS: {left_side_total}");
             Program.Logger.Debug($"RIGHT SIDE ({right_side[0].CombatSide}) TOTAL SOLDIERS: {right_side_total}");
-            Program.Logger.Debug($"******************************************************");
+            Program.Logger.Debug($"*************************************************************************");
 
 
             if (regenerateAndRestart)
@@ -1105,23 +1105,23 @@ namespace CrusaderWars
                     foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
                     foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
 
-                    Program.Logger.Debug("--- Attacker Armies Composition ---");
+                    Program.Logger.Debug("--- Attacker Armies Composition (Post-Scaling for Attila) ---");
                     Program.Logger.Debug($"Total attacker armies: {attacker_armies.Count}");
                     foreach (var army in attacker_armies)
                     {
-                        Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
+                        Program.Logger.Debug($"Army ID: {army.ID}, Scaled Soldiers: {army.GetTotalSoldiers()}");
                     }
-                    Program.Logger.Debug($"TOTAL ATTACKER SOLDIERS: {attacker_armies.Sum(a => a.GetTotalSoldiers())}");
-                    Program.Logger.Debug("------------------------------------");
+                    Program.Logger.Debug($"TOTAL ATTACKER SOLDIERS (SCALED): {attacker_armies.Sum(a => a.GetTotalSoldiers())}");
+                    Program.Logger.Debug("-----------------------------------------------------------");
 
-                    Program.Logger.Debug("--- Defender Armies Composition ---");
+                    Program.Logger.Debug("--- Defender Armies Composition (Post-Scaling for Attila) ---");
                     Program.Logger.Debug($"Total defender armies: {defender_armies.Count}");
                     foreach (var army in defender_armies)
                     {
-                        Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
+                        Program.Logger.Debug($"Army ID: {army.ID}, Scaled Soldiers: {army.GetTotalSoldiers()}");
                     }
-                    Program.Logger.Debug($"TOTAL DEFENDER SOLDIERS: {defender_armies.Sum(a => a.GetTotalSoldiers())}");
-                    Program.Logger.Debug("------------------------------------");
+                    Program.Logger.Debug($"TOTAL DEFENDER SOLDIERS (SCALED): {defender_armies.Sum(a => a.GetTotalSoldiers())}");
+                    Program.Logger.Debug("-----------------------------------------------------------");
 
                     //Create Battle
                     Program.Logger.Debug("Creating battle file...");
