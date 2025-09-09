@@ -4,6 +4,7 @@ using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CrusaderWars.client; // Added for Program.Logger
 
 namespace CrusaderWars.client.BETAUPDATE_Message
 {

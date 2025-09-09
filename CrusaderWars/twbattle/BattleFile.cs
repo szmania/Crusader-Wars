@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Web;
 using System.Windows.Forms;
 using CrusaderWars.armies;
-using CrusaderWars.client;
+using CrusaderWars.client; // Added for Program.Logger
 using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.terrain;
@@ -28,7 +28,7 @@ namespace CrusaderWars
 
         public static void ClearFile()
         {
-            
+            Program.Logger.Debug("Clearing battle XML file.");
             bool isCreated = false;
             if (isCreated == false)
             {

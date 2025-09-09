@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CrusaderWars.unit_mapper;
 using System.Xml;
-using CrusaderWars.client;
+using CrusaderWars.client; // Added for Program.Logger
 
 namespace CrusaderWars.data.save_file
 {
