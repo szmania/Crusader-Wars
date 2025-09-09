@@ -558,6 +558,7 @@ namespace CrusaderWars.data.save_file
             {
                 if (unit.GetRegimentType() == RegimentType.Levy) continue;
 
+                Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', IsMercenary='{unit.IsMerc()}'");
                 string key = UnitMappers_BETA.GetUnitKey(unit);
                 if (key == "not_found")
                 {
