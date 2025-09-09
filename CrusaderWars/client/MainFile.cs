@@ -1149,7 +1149,15 @@ namespace CrusaderWars
                         {
                             foreach (var unit in army.Units)
                             {
-                                Program.Logger.Debug($"  - Unit: {unit.GetAttilaUnitKey()}, Soldiers: {unit.GetSoldiers()}");
+                                string attilaKey = unit.GetAttilaUnitKey();
+                                if (string.IsNullOrEmpty(attilaKey))
+                                {
+                                    Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()} - This unit may be dropped or replaced by Attila.");
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"  - Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}");
+                                }
                             }
                         }
                     }
@@ -1164,7 +1172,15 @@ namespace CrusaderWars
                         {
                             foreach (var unit in army.Units)
                             {
-                                Program.Logger.Debug($"  - Unit: {unit.GetAttilaUnitKey()}, Soldiers: {unit.GetSoldiers()}");
+                                string attilaKey = unit.GetAttilaUnitKey();
+                                if (string.IsNullOrEmpty(attilaKey))
+                                {
+                                    Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()} - This unit may be dropped or replaced by Attila.");
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"  - Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}");
+                                }
                             }
                         }
                     }
@@ -1489,7 +1505,7 @@ namespace CrusaderWars
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
+Logger.Debug($"Failed to re-load army data: {ex.Message}");
                 MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 // Reset UI state
                 _myVariable = 0;
