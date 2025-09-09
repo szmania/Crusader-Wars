@@ -194,27 +194,45 @@ namespace CrusaderWars
             if (army_xp < 0) { army_xp = 0; }
             if (army_xp > 9) { army_xp = 9; }
 
-            //##################
-            //                 #
-            //      LEVIES     #
-            //                 #
-            //##################
-
-            var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy);
-            if (levies_units.Count() > 0)
-            {
-                foreach (var levy_culture in levies_units)
+                //##################
+                //                 #
+                //      LEVIES     #
+                //                 #
+                //##################
+    
+                var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy).ToList();
+                if (levies_units.Any())
                 {
-                    if(string.IsNullOrEmpty(levy_culture.GetAttilaFaction()))
+                    // Group levies by their target Attila faction to prevent duplicate generation
+                    // if multiple cultures map to the same faction.
+                    var levies_by_faction = levies_units.GroupBy(u => u.GetAttilaFaction());
+    
+                    foreach (var faction_group in levies_by_faction)
                     {
-                        Program.Logger.Debug($"WARNING - LEVY UNIT WITHOUT A FACTION FOUND. Amount = {levy_culture.GetSoldiers()} soldiers");
-                        continue;
+                        string factionName = faction_group.Key;
+                        if (string.IsNullOrEmpty(factionName) || factionName == UnitMappers_BETA.NOT_FOUND_KEY)
+                        {
+                            int soldiers = faction_group.Sum(u => u.GetSoldiers());
+                            Program.Logger.Debug($"WARNING - {soldiers} LEVY SOLDIERS WITHOUT A FACTION FOUND. SKIPPING.");
+                            continue;
+                        }
+    
+                        // Sum up all soldiers for this faction
+                        int total_faction_levy_soldiers = faction_group.Sum(u => u.GetSoldiers());
+    
+                        // Create a representative levy unit for this faction group.
+                        // We use the culture of the largest contributing unit for logging/script naming.
+                        var representative_unit = faction_group.OrderByDescending(u => u.GetSoldiers()).First();
+                        Unit merged_levy_unit = new Unit("Levy", total_faction_levy_soldiers, representative_unit.GetObjCulture(), RegimentType.Levy, faction_group.Any(u => u.IsMerc()));
+                        merged_levy_unit.SetAttilaFaction(factionName);
+                        merged_levy_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
+    
+                        Program.Logger.Debug($"Processing levies for faction '{factionName}' with a total of {total_faction_levy_soldiers} soldiers.");
+    
+                        var levy_porcentages = UnitMappers_BETA.GetFactionLevies(factionName);
+                        BETA_LevyComposition(merged_levy_unit, army, levy_porcentages, army_xp);
                     }
-
-                    var levy_porcentages = UnitMappers_BETA.GetFactionLevies(levy_culture.GetAttilaFaction());
-                    BETA_LevyComposition(levy_culture, army, levy_porcentages, army_xp);
                 }
-            }
 
             //##################
             //                 #
