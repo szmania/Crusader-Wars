@@ -1105,6 +1105,22 @@ namespace CrusaderWars
                     foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
                     foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
 
+                    Program.Logger.Debug("--- Attacker Armies Composition ---");
+                    Program.Logger.Debug($"Total attacker armies: {attacker_armies.Count}");
+                    foreach (var army in attacker_armies)
+                    {
+                        Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
+                    }
+                    Program.Logger.Debug("------------------------------------");
+
+                    Program.Logger.Debug("--- Defender Armies Composition ---");
+                    Program.Logger.Debug($"Total defender armies: {defender_armies.Count}");
+                    foreach (var army in defender_armies)
+                    {
+                        Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
+                    }
+                    Program.Logger.Debug("------------------------------------");
+
                     //Create Battle
                     Program.Logger.Debug("Creating battle file...");
                     BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);
