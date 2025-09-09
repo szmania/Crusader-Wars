@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
-using CrusaderWars.client; // Added for Program.Logger
+using CrusaderWars.client;
 using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars.data.save_file
