@@ -1076,7 +1076,10 @@ namespace CrusaderWars
             int left_side_total = left_side.Sum(army => army.GetTotalSoldiers());
             int right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
             string left_side_combat_side = left_side[0].CombatSide;
-            Program.Logger.Debug($"Right side ({right_side[0].CombatSide}) total soldiers: {right_side_total}");
+            Program.Logger.Debug($"******************** BATTLE SIDES ********************");
+            Program.Logger.Debug($"LEFT SIDE ({left_side_combat_side}) TOTAL SOLDIERS: {left_side_total}");
+            Program.Logger.Debug($"RIGHT SIDE ({right_side[0].CombatSide}) TOTAL SOLDIERS: {right_side_total}");
+            Program.Logger.Debug($"******************************************************");
 
 
             if (regenerateAndRestart)
@@ -1357,13 +1360,13 @@ namespace CrusaderWars
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
-                {
-                    Games.StartCrusaderKingsProcess();
-                }
-                else
-                {
-                    ProcessCommands.ResumeProcess();
-                }
+                    {
+                        Games.StartCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.ResumeProcess();
+                    }
                 infoLabel.Text = "Waiting for CK3 battle...";
                 this.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
