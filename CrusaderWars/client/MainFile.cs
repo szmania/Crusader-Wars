@@ -1123,6 +1123,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"TOTAL DEFENDER SOLDIERS (SCALED): {defender_armies.Sum(a => a.GetTotalSoldiers())}");
                     Program.Logger.Debug("-----------------------------------------------------------");
 
+                    UnitsFile.ResetProcessedArmies(); // Reset tracker before processing armies
                     //Create Battle
                     Program.Logger.Debug("Creating battle file...");
                     BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);

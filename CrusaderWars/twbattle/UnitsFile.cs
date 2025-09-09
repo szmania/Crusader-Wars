@@ -22,6 +22,13 @@ namespace CrusaderWars
         public static CommanderTraits? PlayerCommanderTraits;
         public static CommanderTraits? EnemyCommanderTraits;
 
+        private static HashSet<string> processedArmyIDs = new HashSet<string>();
+
+        public static void ResetProcessedArmies()
+        {
+            processedArmyIDs.Clear();
+        }
+
         public static (int UnitSoldiers, int UnitNum, int SoldiersRest) RetriveCalculatedUnits(int soldiers, int unit_limit)
         {
             //if it's a special unit like siege equipement, monsters, etc...
@@ -52,13 +59,28 @@ namespace CrusaderWars
         static int i;
         public static void BETA_ConvertandAddArmyUnits(Army army)
         {
-
-            BETA_AddArmyUnits(army);
-            if(army.MergedArmies != null)
+            if (processedArmyIDs.Contains(army.ID))
             {
-                foreach(Army merged_army in army.MergedArmies)
+                Program.Logger.Debug($"BETA_ConvertandAddArmyUnits: Army {army.ID} has already been processed (likely as a merged army). Skipping.");
+                return;
+            }
+
+            // Process the parent army
+            BETA_AddArmyUnits(army);
+            processedArmyIDs.Add(army.ID);
+
+            // Process merged armies
+            if (army.MergedArmies != null)
+            {
+                foreach (Army merged_army in army.MergedArmies)
                 {
+                    if (processedArmyIDs.Contains(merged_army.ID))
+                    {
+                        Program.Logger.Debug($"BETA_ConvertandAddArmyUnits: Merged army {merged_army.ID} was already processed. This is unexpected but handled. Skipping.");
+                        continue;
+                    }
                     BETA_AddArmyUnits(merged_army);
+                    processedArmyIDs.Add(merged_army.ID);
                 }
             }
         }
