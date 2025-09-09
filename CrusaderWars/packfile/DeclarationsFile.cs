@@ -197,8 +197,5 @@ namespace CrusaderWars
             File.Create(filePath);
         }
 
-
-
-
     }
 }
