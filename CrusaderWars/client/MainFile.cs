@@ -1111,6 +1111,7 @@ namespace CrusaderWars
                     {
                         Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
                     }
+                    Program.Logger.Debug($"TOTAL ATTACKER SOLDIERS: {attacker_armies.Sum(a => a.GetTotalSoldiers())}");
                     Program.Logger.Debug("------------------------------------");
 
                     Program.Logger.Debug("--- Defender Armies Composition ---");
@@ -1119,6 +1120,7 @@ namespace CrusaderWars
                     {
                         Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
                     }
+                    Program.Logger.Debug($"TOTAL DEFENDER SOLDIERS: {defender_armies.Sum(a => a.GetTotalSoldiers())}");
                     Program.Logger.Debug("------------------------------------");
 
                     //Create Battle
