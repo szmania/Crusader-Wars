@@ -1149,7 +1149,7 @@ namespace CrusaderWars
                         {
                             foreach (var unit in army.Units)
                             {
-                                Program.Logger.Debug($"  - Unit: {unit.AttilaUnitKey}, Soldiers: {unit.GetSoldiers()}");
+                                Program.Logger.Debug($"  - Unit: {unit.GetAttilaUnitKey()}, Soldiers: {unit.GetSoldiers()}");
                             }
                         }
                     }
@@ -1164,7 +1164,7 @@ namespace CrusaderWars
                         {
                             foreach (var unit in army.Units)
                             {
-                                Program.Logger.Debug($"  - Unit: {unit.AttilaUnitKey}, Soldiers: {unit.GetSoldiers()}");
+                                Program.Logger.Debug($"  - Unit: {unit.GetAttilaUnitKey()}, Soldiers: {unit.GetSoldiers()}");
                             }
                         }
                     }
