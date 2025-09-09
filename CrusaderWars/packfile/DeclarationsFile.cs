@@ -15,7 +15,7 @@ namespace CrusaderWars
 
         private static string GetFilePath()
         {
-            string scriptDirectory = ".\\data\\battle files\\script";
+            string scriptDirectory = ".\\data\\battle files\\script\\tut_tutorial_battle";
             string fileName = "tut_declarations.lua";
             string fullPath = Path.Combine(scriptDirectory, fileName);
 
