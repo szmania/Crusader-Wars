@@ -570,7 +570,7 @@ namespace CrusaderWars
                 ContinueBattleButton.Text = "Continue Battle";
                 infoLabel.Text = "A battle is in progress!";
 
-                // Resize buttons to fit side-by-side
+                // Resize buttons to fit side-by-by
                 ExecuteButton.Size = new Size(197, 115);
                 ContinueBattleButton.Size = new Size(197, 115);
             }
@@ -706,28 +706,12 @@ namespace CrusaderWars
             if (System.IO.File.Exists(savefileZip))
                 System.IO.File.Delete(savefileZip);
 
-            UnitsCardsNames.RemoveFiles();
+            // UnitsCardsNames.RemoveFiles(); // Moved to ProcessBattle
 
             while (true)
             {
                 Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
                 this.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
-
-                try
-                {
-                    CreateAttilaShortcut();
-                    Program.Logger.Debug("Attila shortcut created/verified.");
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
-                    MessageBox.Show("Error creating Attila shortcut!", "Crusader Conflicts: File Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    infoLabel.Text = "Ready to start!";
-                    ExecuteButton.Enabled = true;
-                    this.Text = "Crusader Conflicts";
-                    break;
-                }
 
                 bool filesCleared = false;
                 int maxRetries = 3;
@@ -736,10 +720,10 @@ namespace CrusaderWars
                     try
                     {
                         DataSearch.ClearLogFile();
-                        DeclarationsFile.Erase();
-                        BattleScript.EraseScript();
-                        BattleResult.ClearAttilaLog();
-                        Program.Logger.Debug("Log files cleared.");
+                        // DeclarationsFile.Erase(); // Moved to ProcessBattle
+                        // BattleScript.EraseScript(); // Moved to ProcessBattle
+                        // BattleResult.ClearAttilaLog(); // Moved to ProcessBattle
+                        Program.Logger.Debug("CK3 log snippet file cleared.");
                         filesCleared = true;
                         break; // Exit retry loop on success
                     }
@@ -778,6 +762,22 @@ namespace CrusaderWars
 
                 try
                 {
+                    CreateAttilaShortcut();
+                    Program.Logger.Debug("Attila shortcut created/verified.");
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
+                    MessageBox.Show("Error creating Attila shortcut!", "Crusader Conflicts: File Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    infoLabel.Text = "Ready to start!";
+                    ExecuteButton.Enabled = true;
+                    this.Text = "Crusader Conflicts";
+                    break;
+                }
+
+                try
+                {
                     //Open Crusader Kings 3
                     Games.StartCrusaderKingsProcess();
                     Program.Logger.Debug("CK3 process started/verified.");
@@ -793,7 +793,7 @@ namespace CrusaderWars
                     break;
                 }
 
-                BattleFile.ClearFile();
+                // BattleFile.ClearFile(); // Moved to ProcessBattle
 
                 bool battleHasStarted = false;
 
@@ -1086,6 +1086,14 @@ namespace CrusaderWars
             {
                 try
                 {
+                    Program.Logger.Debug("Clearing previous battle files before regeneration...");
+                    BattleFile.ClearFile();
+                    DeclarationsFile.Erase();
+                    BattleScript.EraseScript();
+                    BattleResult.ClearAttilaLog();
+                    UnitsCardsNames.RemoveFiles();
+                    Program.Logger.Debug("Previous battle files cleared.");
+
                     Program.Logger.Debug("Creating TW:Attila battle files.");
                     BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side[0].CombatSide);
 
