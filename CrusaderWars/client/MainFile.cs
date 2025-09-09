@@ -739,18 +739,16 @@ namespace CrusaderWars
                         DeclarationsFile.Erase();
                         BattleScript.EraseScript();
                         BattleResult.ClearAttilaLog();
-                        BattleFile.ClearFile(); // Added this line as it was missing from the block but mentioned in user's explanation.
-
-                        Program.Logger.Debug("Temporary battle files cleared.");
+                        Program.Logger.Debug("Log files cleared.");
                         filesCleared = true;
                         break; // Exit retry loop on success
                     }
                     catch (IOException ex)
                     {
-                        Program.Logger.Debug($"Attempt {i + 1} to clear temporary battle files failed due to file lock: {ex.Message}");
+                        Program.Logger.Debug($"Attempt {i + 1} to clear log files failed due to file lock: {ex.Message}");
                         if (i == maxRetries - 1)
                         {
-                            Program.Logger.Debug("Final attempt to clear temporary battle files failed.");
+                            Program.Logger.Debug("Final attempt to clear log files failed.");
                             MessageBox.Show($"Could not clear temporary battle files. Another process may be locking them. Please restart the application.\n\nError: {ex.Message}", "Crusader Conflicts: File Lock Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         }
@@ -762,8 +760,8 @@ namespace CrusaderWars
                     }
                     catch (Exception ex)
                     {
-                        Program.Logger.Debug($"Error clearing temporary battle files: {ex.Message}");
-                        MessageBox.Show("An unexpected error occurred while clearing temporary battle files!", "Crusader Conflicts: Error",
+                        Program.Logger.Debug($"Error clearing log files: {ex.Message}");
+                        MessageBox.Show("An unexpected error occurred while clearing log files!", "Crusader Conflicts: Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         break; // Exit retry loop on unexpected error
                     }
@@ -795,7 +793,7 @@ namespace CrusaderWars
                     break;
                 }
 
-                // BattleFile.ClearFile(); // This was here, moved into the retry block above.
+                BattleFile.ClearFile();
 
                 bool battleHasStarted = false;
 
