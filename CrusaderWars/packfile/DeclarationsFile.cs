@@ -11,7 +11,34 @@ namespace CrusaderWars
     public static class DeclarationsFile
     {
      
-        static string filePath = Directory.GetFiles(".\\data\\battle files\\script", "tut_declarations.lua", SearchOption.AllDirectories)[0];
+        static string filePath = GetFilePath();
+
+        private static string GetFilePath()
+        {
+            string scriptDirectory = ".\\data\\battle files\\script";
+            string fileName = "tut_declarations.lua";
+            string fullPath = Path.Combine(scriptDirectory, fileName);
+
+            // Ensure the directory exists
+            if (!Directory.Exists(scriptDirectory))
+            {
+                Directory.CreateDirectory(scriptDirectory);
+            }
+
+            // Search for the file
+            string[] files = Directory.GetFiles(scriptDirectory, fileName, SearchOption.AllDirectories);
+
+            if (files.Length > 0)
+            {
+                return files[0];
+            }
+            else
+            {
+                // If not found, create an empty file
+                File.WriteAllText(fullPath, string.Empty);
+                return fullPath;
+            }
+        }
 
         static List<Army> stark_armies { get; set; } = new List<Army>();
         static List<Army> bolton_armies { get; set; } = new List<Army>();
@@ -164,15 +191,12 @@ namespace CrusaderWars
                 
                 if(bolton_armies.Count > 1)
                 {
-                    if (bolton_armies[1].MergedArmies != null)
+                    foreach (var merged_army in bolton_armies[1].MergedArmies)
                     {
-                        foreach (var merged_army in bolton_armies[1].MergedArmies)
+                        if (army_id == merged_army.ID)
                         {
-                            if (army_id == merged_army.ID)
-                            {
-                                army_id = bolton_armies[1].ID;
-                                break;
-                            }
+                            army_id = bolton_armies[1].ID;
+                            break;
                         }
                     }
                 }
@@ -194,7 +218,7 @@ namespace CrusaderWars
         
         public static void Erase()
         {
-            File.Create(filePath);
+            File.WriteAllText(filePath, string.Empty);
         }
 
     }

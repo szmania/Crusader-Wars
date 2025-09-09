@@ -7,9 +7,34 @@ namespace CrusaderWars
 {
     public static class BattleScript
     {
-        static string filePath = Directory.GetFiles("data\\battle files\\script", "tut_start.lua", SearchOption.AllDirectories)[0];
+        static string filePath = GetFilePath();
 
+        private static string GetFilePath()
+        {
+            string scriptDirectory = "data\\battle files\\script";
+            string fileName = "tut_start.lua";
+            string fullPath = Path.Combine(scriptDirectory, fileName);
 
+            // Ensure the directory exists
+            if (!Directory.Exists(scriptDirectory))
+            {
+                Directory.CreateDirectory(scriptDirectory);
+            }
+
+            // Search for the file
+            string[] files = Directory.GetFiles(scriptDirectory, fileName, SearchOption.AllDirectories);
+
+            if (files.Length > 0)
+            {
+                return files[0];
+            }
+            else
+            {
+                // If not found, create an empty file
+                File.WriteAllText(fullPath, string.Empty);
+                return fullPath;
+            }
+        }
 
         public static void CreateScript()
         {
