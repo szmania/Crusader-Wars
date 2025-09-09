@@ -286,6 +286,7 @@ namespace CrusaderWars
             //  MULTIPLE UNITS
             //  fulfill every levy type
             int levySoldiers = unit.GetSoldiers();
+            Program.Logger.Debug($"  BETA_LevyComposition: Processing {levySoldiers} total levy soldiers for Faction '{unit.GetAttilaFaction()}'.");
 
             int compareNum = 0;
 
@@ -297,12 +298,14 @@ namespace CrusaderWars
                 //int result = (int)Math.Round(Levies_Data.UnitNum * t);
                 int result = (int)Math.Round(levySoldiers * t);
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
+                Program.Logger.Debug($"    - Levy Type: Key='{porcentageData.unit_key}', Percentage={porcentageData.porcentage}%. Calculated Soldiers={result}. Attila Units: {levy_type_data.UnitNum}x{levy_type_data.UnitSoldiers} soldiers.");
                 compareNum += (levy_type_data.UnitSoldiers * levy_type_data.UnitNum);
                 //if (Levies_Data.UnitNum * t >= 0.5 && Levies_Data.UnitNum * t < 1) result = 1;
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
+            Program.Logger.Debug($"  BETA_LevyComposition: Original levy soldiers={levySoldiers}, Total created Attila levy soldiers={compareNum}.");
 
         }
 
