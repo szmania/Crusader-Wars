@@ -33,7 +33,7 @@ With a press of a button, the mod opens up Attila with the correct mods and afte
 Enable and disable secondary mods in the Options menu!
 # Roadmap
 Here you can see all our concepts, ideas, and plans for the mod.
-[<img src="https://i.imgur.com/BKru2vr.png">](https://trello.com/b/abR09huC/crusader-wars)
+[<img src="https://i.imgur.com/BKru2vr.png">](https://discord.gg/X64pMysa)
 # -------------------How does it work?---------------------
 If you want to code a mod like this, these are the major steps to achieve it:
 ## Crusader Kings 3 Data Output:

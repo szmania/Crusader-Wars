@@ -245,6 +245,9 @@ namespace CWUpdater
                             Path.GetFileName(file) == "Paths.xml" ||
                             Path.GetFileName(file) == "active_mods.txt")
                             continue;
+                        //Skip essential directories
+                        if (Path.GetDirectoryName(file) == "updater")
+                            continue;
 
                         string? destinationDir = Path.GetDirectoryName(destinationPath);
                         if (destinationDir != null && !Directory.Exists(destinationDir))
