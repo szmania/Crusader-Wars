@@ -512,7 +512,7 @@
             this.Btn_LOTRTab.Name = "Btn_LOTRTab";
             this.Btn_LOTRTab.Size = new System.Drawing.Size(114, 28);
             this.Btn_LOTRTab.TabIndex = 2;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Uses the CK3 mod LOTR: Realms in Exile and the Attila mod \"Dawnless Days\".");
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Lord of the Rings playthrough. Uses the CK3 mod LOTR: Realms in Exile and the Attila mod \"Dawnless Days\".");
             this.Btn_LOTRTab.Text = "Realms in Exile";
             this.Btn_LOTRTab.UseVisualStyleBackColor = false;
             this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
