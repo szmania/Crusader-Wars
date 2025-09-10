@@ -187,6 +187,9 @@ namespace CWUpdater
             label1.Text = "Applying update...";
             string backupPath = Path.Combine(Path.GetTempPath(), "app_backup");
             string tempDirectory = Path.Combine(Path.GetTempPath(), "update");
+            string mainAppRoot = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", "");
+            string updaterDirInMainApp = Path.Combine(mainAppRoot, "data", "updater"); // This is the directory of the running updater
+
             try
             {
                 // Step 1: Backup existing files
@@ -211,12 +214,11 @@ namespace CWUpdater
                     if(IsUnitMappers)//<-- UNIT MAPPERS UPDATER
                     {
                         string relativePath = file.Substring(tempDirectory.Length + 1);
-                        //string parentFolder = relativePath.Split('\\')[0];
-                        //relativePath = relativePath.Replace($"{parentFolder}\\", "");
+                        // No parentFolder logic for unit mappers, as the zip should contain the mapper's root directly
                         string destinationPath = Path.Combine(applicationPath, relativePath);
 
-                        string? destinationDir = Path.GetDirectoryName(destinationPath); // Made nullable
-                        if (destinationDir != null && !Directory.Exists(destinationDir)) // Added null check
+                        string? destinationDir = Path.GetDirectoryName(destinationPath);
+                        if (destinationDir != null && !Directory.Exists(destinationDir))
                         {
                             Directory.CreateDirectory(destinationDir);
                         }
@@ -225,23 +227,27 @@ namespace CWUpdater
                     }
                     else if(!IsUnitMappers) //<-- APP UPDATER
                     {
-                        //Skip essential files
+                        string relativePath = file.Substring(tempDirectory.Length + 1);
+                        string parentFolder = relativePath.Split('\\')[0];
+                        string finalRelativePath = relativePath.Replace($"{parentFolder}\\", "");
+                        string destinationPath = Path.Combine(applicationPath, finalRelativePath);
+
+                        // Skip files that are part of the running updater
+                        if (destinationPath.StartsWith(updaterDirInMainApp, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Logger.Log($"Skipping copy of updater file: {file} to {destinationPath}");
+                            continue;
+                        }
+
+                        //Skip other essential files
                         if (Path.GetFileName(file) == "CWUpdater.exe" ||
                             Path.GetFileName(file) == "CWUpdater.exe.config" ||
                             Path.GetFileName(file) == "Paths.xml" ||
                             Path.GetFileName(file) == "active_mods.txt")
                             continue;
-                        //Skip essential directories
-                        if (Path.GetDirectoryName(file) == "updater")
-                            continue;
 
-                        string relativePath = file.Substring(tempDirectory.Length + 1);
-                        string parentFolder = relativePath.Split('\\')[0];
-                        relativePath = relativePath.Replace($"{parentFolder}\\", "");
-                        string destinationPath = Path.Combine(applicationPath, relativePath);
-
-                        string? destinationDir = Path.GetDirectoryName(destinationPath); // Made nullable
-                        if (destinationDir != null && !Directory.Exists(destinationDir)) // Added null check
+                        string? destinationDir = Path.GetDirectoryName(destinationPath);
+                        if (destinationDir != null && !Directory.Exists(destinationDir))
                         {
                             Directory.CreateDirectory(destinationDir);
                         }
@@ -288,6 +294,9 @@ namespace CWUpdater
         private void DeleteObsoleteFilesAndDirectories(string applicationPath, string tempDirectory)
         {
             Logger.Log("Starting deletion of obsolete files and directories.");
+            string mainAppRoot = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", "");
+            string updaterDir = Path.Combine(mainAppRoot, "data", "updater"); // This is the directory of the running updater
+
             // Delete obsolete files
             if(IsUnitMappers)
             {
@@ -297,8 +306,6 @@ namespace CWUpdater
                 foreach (var file in existingFiles)
                 {
                     string relativePath = file.Substring(applicationPath.Length + 1);
-                    string parentFolder = relativePath.Split('\\')[0];
-                    relativePath = relativePath.Replace($"{parentFolder}\\", "");
                     string correspondingNewFile = Path.Combine(tempDirectory, relativePath);
 
                     if (!File.Exists(correspondingNewFile))
@@ -314,22 +321,23 @@ namespace CWUpdater
                 foreach (var dir in existingDirs.OrderByDescending(d => d.Length))
                 {
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
-                    string parentFolder = relativeDirPath.Split('\\')[0];
-                    relativeDirPath = relativeDirPath.Replace($"{parentFolder}\\", "");
-
                     if (!newDirs.Contains(relativeDirPath) && !Directory.GetFiles(dir).Any() && !Directory.GetDirectories(dir).Any())
                     {
                         Directory.Delete(dir, true);
                     }
                 }
             }
-            else if (!IsUnitMappers)
+            else if (!IsUnitMappers) // Application updater
             {
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
 
                 foreach (var file in existingFiles)
                 {
+                    // Skip files within the updater directory
+                    if (file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     //Skip essential files
                     if (Path.GetFileName(file) == "CWUpdater.exe" ||
                         Path.GetFileName(file) == "CWUpdater.exe.config" ||
@@ -354,8 +362,8 @@ namespace CWUpdater
 
                 foreach (var dir in existingDirs.OrderByDescending(d => d.Length))
                 {
-                    //Skip essential directories
-                    if (Path.GetDirectoryName(dir) == "updater")
+                    // Skip the updater directory itself or any directory within it
+                    if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
@@ -402,11 +410,33 @@ namespace CWUpdater
         private void RestoreBackup(string backupPath, string applicationPath)
         {
             Logger.Log($"Restoring backup from '{backupPath}' to '{applicationPath}'.");
+            string mainAppRoot = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", "");
+            string updaterDir = Path.Combine(mainAppRoot, "data", "updater"); // This is the directory of the running updater
+
             if (Directory.Exists(applicationPath))
             {
-                Directory.Delete(applicationPath, true);  // Clean the application directory
-            }
+                // Delete all files in applicationPath, except those within the updater directory
+                foreach (var file in Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories))
+                {
+                    if (!file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
+                    {
+                        try { File.Delete(file); }
+                        catch (Exception ex) { Logger.Log($"Warning: Could not delete file '{file}' during rollback: {ex.Message}"); }
+                    }
+                }
 
+                // Delete all directories in applicationPath, except the updater directory itself or its parents
+                // Iterate in reverse order of length to delete deepest directories first
+                foreach (var dir in Directory.GetDirectories(applicationPath, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
+                {
+                    if (!dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
+                    {
+                        try { Directory.Delete(dir, true); }
+                        catch (Exception ex) { Logger.Log($"Warning: Could not delete directory '{dir}' during rollback: {ex.Message}"); }
+                    }
+                }
+            }
+            // Ensure the applicationPath exists (it might have been partially deleted)
             Directory.CreateDirectory(applicationPath);
 
             foreach (var dirPath in Directory.GetDirectories(backupPath, "*", SearchOption.AllDirectories))
