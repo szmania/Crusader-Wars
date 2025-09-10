@@ -19,10 +19,8 @@ namespace CrusaderWars
 
 
         private static readonly HttpClient client = new HttpClient();
-        private const string LatestReleaseUrl = "https://api.github.com/repos/farayC/Crusader-Wars/releases/latest";
         private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
-        private const string UnitMappersLatestReleaseUrl = "https://api.github.com/repos/farayC/CW-Mappers/releases/latest";
-        private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CW-Mappers/releases/latest";
+        private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases/latest";
         private async Task<(string version, string downloadUrl)> GetLatestReleaseInfoAsync(string releaseUrl)
         {
             Program.Logger.Debug($"Getting latest release info from: {releaseUrl}");
@@ -338,7 +336,7 @@ namespace CrusaderWars
                 return;
             }
 
-            string[] appReleaseUrls = { LatestReleaseUrl, SzmaniaLatestReleaseUrl };
+            string[] appReleaseUrls = { SzmaniaLatestReleaseUrl };
             var latestRelease = await GetLatestReleaseFromReposAsync(appReleaseUrls);
 
             if (latestRelease.version == null) return;
@@ -390,7 +388,7 @@ namespace CrusaderWars
                 return;
             }
 
-            string[] umReleaseUrls = { UnitMappersLatestReleaseUrl, SzmaniaUnitMappersLatestReleaseUrl };
+            string[] umReleaseUrls = { SzmaniaUnitMappersLatestReleaseUrl };
             var latestRelease = await GetLatestReleaseFromReposAsync(umReleaseUrls);
 
             if (latestRelease.version == null) return;
@@ -428,7 +426,7 @@ namespace CrusaderWars
         public async Task<string> GetReleaseUrlForVersion(string version, bool isUnitMapper)
         {
             Program.Logger.Debug($"Searching release URL for version {version} (isUnitMapper: {isUnitMapper})");
-            string repoName = isUnitMapper ? "CW-Mappers" : "Crusader-Wars";
+            string repoName = isUnitMapper ? "CC-Mappers" : "Crusader-Wars";
             string[] users = { "farayC", "szmania" };
 
             client.DefaultRequestHeaders.Clear();

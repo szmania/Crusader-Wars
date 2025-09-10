@@ -346,7 +346,7 @@ namespace CrusaderWars.unit_mapper
             Program.Logger.Debug($"Exiting GetMax for unit: {unit.GetName()}. Final max value: {max}");
             if (max == 0)
             {
-                Program.Logger.Warning($"WARNING: GetMax returned 0 for unit '{unit.GetName()}'. This might indicate a missing mapping.");
+                Program.Logger.Debug($"WARNING: GetMax returned 0 for unit '{unit.GetName()}'. This might indicate a missing mapping.");
             }
             return max;
         }
