@@ -427,7 +427,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug($"Searching release URL for version {version} (isUnitMapper: {isUnitMapper})");
             string repoName = isUnitMapper ? "CC-Mappers" : "Crusader-Wars";
-            string[] users = { "farayC", "szmania" };
+            string[] users = { "szmania" };
 
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("User-Agent", "CW App Version Checker");
@@ -477,7 +477,7 @@ namespace CrusaderWars
             }
 
             // Fallback if not found in any repo
-            string fallbackUrl = $"https://github.com/farayC/{repoName}/releases";
+            string fallbackUrl = $"https://github.com/szmania/{repoName}/releases";
             Program.Logger.Debug($"Version tag not found in any user repo. Falling back to main releases page: {fallbackUrl}");
             return fallbackUrl;
         }
