@@ -362,8 +362,8 @@ namespace CWUpdater
 
                 foreach (var dir in existingDirs.OrderByDescending(d => d.Length))
                 {
-                    // Skip the updater directory itself or any directory within it
-                    if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
+                    // Skip the updater directory itself or any directory within its hierarchy (parent, self, or child)
+                    if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) || updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
@@ -429,7 +429,8 @@ namespace CWUpdater
                 // Iterate in reverse order of length to delete deepest directories first
                 foreach (var dir in Directory.GetDirectories(applicationPath, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
                 {
-                    if (!dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
+                    // Skip the updater directory itself or any directory within its hierarchy (parent, self, or child)
+                    if (!dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) && !updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
                     {
                         try { Directory.Delete(dir, true); }
                         catch (Exception ex) { Logger.Log($"Warning: Could not delete directory '{dir}' during rollback: {ex.Message}"); }
