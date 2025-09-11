@@ -1761,11 +1761,13 @@ namespace CrusaderWars
             var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']")!.InnerText;
             var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")!.InnerText;
             var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")!.InnerText;
+            var agotToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']")!.InnerText; // Added AGOT tab
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";
             if (tfeToggleStateStr == "True") playthrough = "LateAntiquity";
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
+            if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
 
             Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
             switch (playthrough)
@@ -1778,6 +1780,9 @@ namespace CrusaderWars
                     break;
                 case "Lotr":
                     loadingScreen.BackgroundImage = Properties.Resources.LS_lotr;
+                    break;
+                case "AGOT": // Added AGOT tab
+                    loadingScreen.BackgroundImage = Properties.Resources.LS_medieval; // Placeholder, falls through to Medieval
                     break;
                 default:
                     loadingScreen.BackgroundImage = Properties.Resources.LS_medieval;

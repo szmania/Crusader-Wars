@@ -64,6 +64,7 @@
             this.Btn_CK3Tab = new System.Windows.Forms.Button();
             this.Btn_TFETab = new System.Windows.Forms.Button();
             this.Btn_LOTRTab = new System.Windows.Forms.Button();
+            this.Btn_AGOTTab = new System.Windows.Forms.Button();
             this.TableLayoutGamePaths = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
@@ -443,7 +444,7 @@
             this.UMpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.UMpanel.Location = new System.Drawing.Point(3, 64);
             this.UMpanel.Name = "UMpanel";
-            this.UMpanel.Size = new System.Drawing.Size(372, 185);
+            this.UMpanel.Size = new System.Drawing.Size(462, 185);
             this.UMpanel.TabIndex = 32;
             // 
             // flowLayoutPanel2
@@ -452,9 +453,10 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(387, 34);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(477, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             this.flowLayoutPanel2.WrapContents = false;
             // 
@@ -518,6 +520,26 @@
             this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
             // 
+            // Btn_AGOTTab
+            // 
+            this.Btn_AGOTTab.AutoSize = true;
+            this.Btn_AGOTTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_AGOTTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
+            this.Btn_AGOTTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_AGOTTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_AGOTTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_AGOTTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_AGOTTab.Location = new System.Drawing.Point(371, 3);
+            this.Btn_AGOTTab.Name = "Btn_AGOTTab";
+            this.Btn_AGOTTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_AGOTTab.TabIndex = 3;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_AGOTTab, "A Game of Thrones playthrough with AGOT ck3 mod and Seven Kingdoms TW:Attila mod");
+            this.Btn_AGOTTab.Text = "AGOT";
+            this.Btn_AGOTTab.UseVisualStyleBackColor = false;
+            this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
+            // 
             // TableLayoutGamePaths
             // 
             this.TableLayoutGamePaths.BackColor = System.Drawing.Color.Transparent;
@@ -548,7 +570,7 @@
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(400, 142);
+            this.TableLayoutSettings.Location = new System.Drawing.Point(490, 142);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -573,7 +595,7 @@
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(378, 252);
+            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(468, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             // 
@@ -591,7 +613,7 @@
             this.TableLayoutModManager.RowCount = 2;
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutModManager.Size = new System.Drawing.Size(977, 279);
+            this.TableLayoutModManager.Size = new System.Drawing.Size(1077, 279);
             this.TableLayoutModManager.TabIndex = 0;
             // 
             // Options
@@ -601,7 +623,7 @@
             this.AutoSize = false;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.options_bk;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(977, 928);
+            this.ClientSize = new System.Drawing.Size(1077, 928);
             this.Controls.Add(this.TableLayoutModManager);
             this.Controls.Add(this.TableLayoutPlaythroughs);
             this.Controls.Add(this.TableLayoutSettings);
@@ -667,6 +689,7 @@
         private System.Windows.Forms.Button Btn_CK3Tab;
         private System.Windows.Forms.Button Btn_TFETab;
         private System.Windows.Forms.Button Btn_LOTRTab;
+        private System.Windows.Forms.Button Btn_AGOTTab;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
         private System.Windows.Forms.DataGridViewImageColumn ImageColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn ModName;

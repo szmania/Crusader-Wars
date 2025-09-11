@@ -72,13 +72,14 @@ namespace CrusaderWars.mod_manager
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (_playthroughTag == "TheFallenEagle")
+            if (_playthroughTag == "TheFallenEagle" || _playthroughTag == "AGOT") // Modified condition
             {
                 // Build a string containing the list of mods
                 StringBuilder modsMessage = new StringBuilder();
+                string messageBoxTitle = $"{_playthroughTag} - Required Mods"; // Dynamic title
                 if (RequiredModsList != null && RequiredModsList.Count > 0)
                 {
-                    modsMessage.AppendLine("The Fallen Eagle playthrough requires the following mods for Total War: Attila:");
+                    modsMessage.AppendLine($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:");
                     foreach (var mod in RequiredModsList)
                     {
                         modsMessage.AppendLine($"- {mod}");
@@ -87,10 +88,10 @@ namespace CrusaderWars.mod_manager
                 }
                 else
                 {
-                    modsMessage.AppendLine("No specific required mods are listed for 'The Fallen Eagle' playthrough at this time.");
+                    modsMessage.AppendLine($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.");
                 }
 
-                MessageBox.Show(modsMessage.ToString(), "The Fallen Eagle - Required Mods", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(modsMessage.ToString(), messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else if (!string.IsNullOrEmpty(SteamCollectionLink)) // Original logic for other playthroughs
             {
