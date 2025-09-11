@@ -382,28 +382,44 @@ namespace CrusaderWars.unit_mapper
         {
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             var files_paths = Directory.GetFiles(factions_folder_path);
-            var levies = new List<(int porcentage, string unit_key, string name, string max)>();
+            List<(int porcentage, string unit_key, string name, string max)> levies = new List<(int porcentage, string unit_key, string name, string max)>();
+
+            // 1. Search for levies associated with the specific attila_faction
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
                 {
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
-                    if (levies.Count == 0)
-                        levies = Levies(FactionsFile, attila_faction);
-                    else
+                    levies = Levies(FactionsFile, attila_faction);
+                    if (levies.Any())
+                    {
+                        Program.Logger.Debug($"Found specific levy definitions for faction '{attila_faction}'.");
                         return levies;
-
+                    }
                 }
             }
 
+            // 2. If not found, fallback to "Default" faction
+            Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Falling back to 'Default' faction.");
+            foreach (var xml_file in files_paths)
+            {
+                if (Path.GetExtension(xml_file) == ".xml")
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    levies = Levies(FactionsFile, "Default"); // Search for "Default"
+                    if (levies.Any())
+                    {
+                        Program.Logger.Debug($"Found default levy definitions for faction 'Default'.");
+                        return levies;
+                    }
+                }
+            }
 
-            return levies;
-
-
+            // 3. If neither loop finds any levies, throw an exception
+            throw new Exception($"Unit Mapper Error: Could not find any levy definitions for faction '{attila_faction}' or for the 'Default' faction. Please check your unit mapper configuration.");
         }
-
-
 
         static string SearchInTitlesFile(Unit unit)
         {
