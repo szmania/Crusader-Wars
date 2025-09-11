@@ -319,6 +319,22 @@ namespace CrusaderWars
                 return;
             }
 
+            // NEW: Filter out Men-At-Arms units from the levy pool
+            var filtered_levy_porcentages = faction_levy_porcentages
+                                                .Where(data => !data.unit_key.Contains("_MAA_"))
+                                                .ToList();
+
+            if (filtered_levy_porcentages.Any())
+            {
+                Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): Filtered out MAA units from levy pool for faction '{unit.GetAttilaFaction()}'. Using filtered list.");
+                faction_levy_porcentages = filtered_levy_porcentages;
+            }
+            else
+            {
+                Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): WARNING: No non-MAA levy units found for faction '{unit.GetAttilaFaction()}'. Using original (unfiltered) list as fallback.");
+                // Keep original faction_levy_porcentages as is (no change needed here as it's already the current value)
+            }
+
             var Levies_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
 
             int total_soldiers = unit.GetSoldiers();
@@ -328,11 +344,11 @@ namespace CrusaderWars
             if (unit.GetSoldiers() <= unit.GetMax())
             {
                 Random r = new Random();
-                var random = faction_levy_porcentages[r.Next(faction_levy_porcentages.Count - 1)];
+                var random = faction_levy_porcentages[r.Next(faction_levy_porcentages.Count)]; // Fixed: r.Next(count - 1) to r.Next(count)
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 
-                string logLine = $"    - Levy Attila Unit: {random.unit_key}, Soldiers: {Levies_Data.UnitSoldiers} (1x unit of {Levies_Data.UnitSoldiers})";
+                string logLine = $"    - Levy Attila Unit: {random.unit_key}, Soldiers: {Levies_Data.UnitSoldiers} (1x unit of {Levies_Data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
                 BattleLog.AddLevyLog(army.ID, logLine);
 
                 i++;
@@ -360,7 +376,7 @@ namespace CrusaderWars
                 //int result = (int)Math.Round(Levies_Data.UnitNum * t);
                 int result = (int)Math.Round(levySoldiers * t);
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
-                string logLine = $"    - Levy Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers})";
+                string logLine = $"    - Levy Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
                 BattleLog.AddLevyLog(army.ID, logLine);
                 compareNum += (levy_type_data.UnitSoldiers * levy_type_data.UnitNum);
                 //if (Levies_Data.UnitNum * t >= 0.5 && Levies_Data.UnitNum * t < 1) result = 1;
