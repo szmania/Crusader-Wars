@@ -1155,9 +1155,9 @@ namespace CrusaderWars
                                 else
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
-                                    if (string.IsNullOrEmpty(attilaKey))
+                                    if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - WARNING: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Specific and default mappings failed. This unit may be dropped or replaced by Attila.{unitDetails}");
                                     }
                                     else
                                     {
@@ -1192,9 +1192,9 @@ namespace CrusaderWars
                                 else
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
-                                    if (string.IsNullOrEmpty(attilaKey))
+                                    if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - WARNING: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Specific and default mappings failed. This unit may be dropped or replaced by Attila.{unitDetails}");
                                     }
                                     else
                                     {

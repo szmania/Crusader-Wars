@@ -536,9 +536,22 @@ namespace CrusaderWars.unit_mapper
             {
                 return unit_key;
             }
-            
+
             unit_key = SearchInFactionFiles(unit);
-            return unit_key; // This will be the found key or NOT_FOUND_KEY
+            if (unit_key != NOT_FOUND_KEY)
+            {
+                return unit_key;
+            }
+
+            // Fallback to default unit if no specific mapping is found
+            string default_key = GetDefaultUnitKey(unit.GetRegimentType());
+            if (default_key != NOT_FOUND_KEY)
+            {
+                Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
+                return default_key;
+            }
+
+            return NOT_FOUND_KEY; // This will be the found key or NOT_FOUND_KEY
         }
 
         public static string GetDefaultUnitKey(RegimentType type)
