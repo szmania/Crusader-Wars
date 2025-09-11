@@ -255,8 +255,8 @@ namespace CrusaderWars
                 {
                     infoLabel.AutoSize = false;
                     infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
-                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Settings screen.";
-                    else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Settings screen.";
+                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
+                    else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Mod Settings screen.";
                     ExecuteButton.Enabled = false;
                     infoLabel.ForeColor = Color.White;
                     infoLabel.BackColor = Color.FromArgb(180, 74, 0, 0);
