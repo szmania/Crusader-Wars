@@ -57,6 +57,8 @@ namespace CrusaderWars.unit_mapper
                     return "LATE ANTIQUITY";
                 case "OfficialCW_RealmsInExile_TheDawnlessDays":
                     return "SECOND AGE";
+                case "OfficialCW_AGOT_SevenKingdoms":
+                    return "AGE OF THE TARGARYENS";
                 default:
                     return null;
             }

@@ -246,6 +246,7 @@
     <None Include="Resources\Vassal_stance_minority.png" />
     <None Include="Resources\paper.jpg" />
     <None Include="Resources\info.png" />
+    <None Include="Resources\playthrough_agot.png" />
   </ItemGroup>
 
   <ItemGroup>

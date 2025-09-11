@@ -75,6 +75,10 @@ namespace CrusaderWars.locs
                     string[] lotr_loc_files = Directory.GetFiles(@".\data\units_cards_names\dawnless days\");
                     EditUnitCardsFiles(lotr_loc_files, unitsCollection);
                     break;
+                case "OfficialCW_AGOT_SevenKingdoms":
+                    string[] agot_loc_files = Directory.GetFiles(@".\data\units_cards_names\seven_kingdoms\");
+                    EditUnitCardsFiles(agot_loc_files, unitsCollection);
+                    break;
             }
 
         }
