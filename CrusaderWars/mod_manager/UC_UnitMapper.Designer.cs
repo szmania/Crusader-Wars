@@ -39,7 +39,7 @@ namespace CrusaderWars.mod_manager
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(456, 139);
@@ -80,10 +80,10 @@ namespace CrusaderWars.mod_manager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.BtnVerifyMods);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.uC_Toggle1);
             this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.uC_Toggle1);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.BtnVerifyMods);
             this.Name = "UC_UnitMapper";
             this.Size = new System.Drawing.Size(462, 185);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.UC_UnitMapper_Paint);
