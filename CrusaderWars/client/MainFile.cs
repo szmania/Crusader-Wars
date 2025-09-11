@@ -1157,11 +1157,11 @@ namespace CrusaderWars
                                     string attilaKey = unit.GetAttilaUnitKey();
                                     if (string.IsNullOrEmpty(attilaKey))
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Unit: {unit.GetName()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     }
                                 }
                             }
@@ -1194,11 +1194,11 @@ namespace CrusaderWars
                                     string attilaKey = unit.GetAttilaUnitKey();
                                     if (string.IsNullOrEmpty(attilaKey))
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Unit: {unit.GetName()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     }
                                 }
                             }
