@@ -25,6 +25,7 @@ namespace CrusaderWars
         private string CK3_Path { get; set; } = string.Empty;
         private string Attila_Path { get; set; } = string.Empty;
         private bool _isModManagerExpanded = true; // Default to expanded
+        private bool _unitMappersXmlChanged = false; // Added: To track if UnitMappers.xml was modified
 
         public Options()
         {
@@ -982,16 +983,44 @@ namespace CrusaderWars
             return requiredMods;
         }
 
+        // NEW HELPER METHOD: GetOrCreateUnitMapperOption
+        private string GetOrCreateUnitMapperOption(XmlDocument doc, string mapperName)
+        {
+            XmlNode? node = doc.SelectSingleNode($"//UnitMappers[@name='{mapperName}']");
+            if (node != null)
+            {
+                return node.InnerText;
+            }
+            else
+            {
+                Program.Logger.Debug($"Unit mapper '{mapperName}' not found in UnitMappers.xml. Creating with default value 'False'.");
+                XmlElement newMapper = doc.CreateElement("UnitMappers");
+                newMapper.SetAttribute("name", mapperName);
+                newMapper.InnerText = "False";
+                doc.DocumentElement?.AppendChild(newMapper);
+                _unitMappersXmlChanged = true; // Mark the document as changed
+                return "False";
+            }
+        }
+
         void ReadUnitMappersOptions()
         {
             string file = @".\Settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
-            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']")?.InnerText;
-            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")?.InnerText;
-            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")?.InnerText;
-            var agotToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']")?.InnerText; // Added AGOT tab
+            _unitMappersXmlChanged = false; // Reset the flag at the beginning of the method
+
+            var ck3ToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "DefaultCK3");
+            var tfeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "TheFallenEagle");
+            var lotrToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "RealmsInExile");
+            var agotToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "AGOT");
+
+            if (_unitMappersXmlChanged)
+            {
+                xmlDoc.Save(file);
+                Program.Logger.Debug("UnitMappers.xml updated with new entries.");
+            }
 
             bool ck3ToggleState = false; bool tfeToggleState = false; bool lotrToggleState = false; bool agotToggleState = false; // Added agotToggleState
             if (ck3ToggleStateStr == "True") ck3ToggleState = true; else ck3ToggleState = false;
