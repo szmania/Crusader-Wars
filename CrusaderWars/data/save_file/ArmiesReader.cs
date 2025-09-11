@@ -1502,7 +1502,7 @@ namespace CrusaderWars.data.save_file
                         }
                         else if(isDefender)
                         {
-                            defender_armies[index].ArmyUnitId = armyUnitId;
+                            defender_armies[index].ArmyUnitID = armyUnitId;
                         }
                     }
 
