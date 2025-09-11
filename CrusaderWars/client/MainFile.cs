@@ -830,7 +830,7 @@ namespace CrusaderWars
                                     //If Battle Started
                                     if (line.Contains(SEARCH_KEY))
                                     {
-                                        Program.Logger.Debug("Battle keyword found in CK3 log.");
+                                        Program.Logger.Debug("Battle keyword found in CK3 log. ");
                                         battleJustCompleted = false;
                                         battleHasStarted = true;
                                         break;
@@ -1132,6 +1132,8 @@ namespace CrusaderWars
                         {
                             sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
                         }
+                        sb.AppendLine();
+                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team at https://discord.gg/X64pMysa");
                         sb.AppendLine();
                         sb.AppendLine("The battle will proceed without these units.");
 
