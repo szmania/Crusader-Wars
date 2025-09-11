@@ -803,7 +803,7 @@ namespace CrusaderWars
                 if (attila_node.Attributes?["path"] == null)
                 {
                     Program.Logger.Debug("'path' attribute not found for TotalWarAttila. Creating.");
-                    attila_node.SetAttribute("path", "");
+                    ((XmlElement)attila_node).SetAttribute("path", "");
                     fileModified = true;
                 }
 
@@ -819,7 +819,7 @@ namespace CrusaderWars
                 if (ck3_node.Attributes?["path"] == null)
                 {
                     Program.Logger.Debug("'path' attribute not found for CrusaderKings. Creating.");
-                    ck3_node.SetAttribute("path", "");
+                    ((XmlElement)ck3_node).SetAttribute("path", "");
                     fileModified = true;
                 }
 
