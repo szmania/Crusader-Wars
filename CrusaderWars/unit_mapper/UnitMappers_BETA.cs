@@ -551,6 +551,7 @@ namespace CrusaderWars.unit_mapper
                 return default_key;
             }
 
+            Program.Logger.Debug($"  - CRITICAL: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
             return NOT_FOUND_KEY; // This will be the found key or NOT_FOUND_KEY
         }
 

@@ -135,12 +135,20 @@ namespace CrusaderWars
                 Unit commander_unit = new Unit("General", commander_soldiers, army.Commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(army.Commander.GetCultureName(), army.Commander.GetHeritageName()));
                 commander_unit.SetUnitKey(UnitMappers_BETA.GetUnitKey(commander_unit));
-                army.Units.Insert(0, commander_unit);
 
-                
-                string general_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEcommander{army.Commander.ID}_CULTURE{army.Commander.GetCultureObj()?.ID ?? "unknown"}_";
-                BattleFile.AddGeneralUnit(army.Commander, commander_unit.GetAttilaUnitKey(), general_script_name, commander_xp, Deployments.beta_GeDirection(army.CombatSide));
-                i++;
+                string commanderAttilaKey = commander_unit.GetAttilaUnitKey();
+                if (string.IsNullOrEmpty(commanderAttilaKey) || commanderAttilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
+                {
+                    Program.Logger.Debug($"  - WARNING: Could not map Commander unit for army {army.ID}. It will be dropped from the battle.");
+                    BattleLog.AddUnmappedUnit(commander_unit, army.ID);
+                }
+                else
+                {
+                    army.Units.Insert(0, commander_unit);
+                    string general_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEcommander{army.Commander.ID}_CULTURE{army.Commander.GetCultureObj()?.ID ?? "unknown"}_";
+                    BattleFile.AddGeneralUnit(army.Commander, commanderAttilaKey, general_script_name, commander_xp, Deployments.beta_GeDirection(army.CombatSide));
+                    i++;
+                }
             }
 
 
@@ -162,17 +170,27 @@ namespace CrusaderWars
 
                 knights_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(knights_unit.GetCulture(), knights_unit.GetHeritage()));
                 knights_unit.SetUnitKey(UnitMappers_BETA.GetUnitKey(knights_unit));
-                army.Units.Insert(1, knights_unit);
-
-                string knights_script_name;
-                if (army.Knights.GetMajorCulture() != null)
-                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture()?.ID ?? "unknown"}_";
+                
+                string knightAttilaKey = knights_unit.GetAttilaUnitKey();
+                if (string.IsNullOrEmpty(knightAttilaKey) || knightAttilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
+                {
+                    Program.Logger.Debug($"  - WARNING: Could not map Knights unit for army {army.ID}. It will be dropped from the battle.");
+                    BattleLog.AddUnmappedUnit(knights_unit, army.ID);
+                }
                 else
-                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture()?.ID ?? "unknown"}_";
+                {
+                    army.Units.Insert(1, knights_unit);
+
+                    string knights_script_name;
+                    if (army.Knights.GetMajorCulture() != null)
+                        knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture()?.ID ?? "unknown"}_";
+                    else
+                        knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture()?.ID ?? "unknown"}_";
 
 
-                BattleFile.AddKnightUnit(army.Knights, knights_unit.GetAttilaUnitKey(), knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide));
-                i++;
+                    BattleFile.AddKnightUnit(army.Knights, knightAttilaKey, knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide));
+                    i++;
+                }
             }
 
 
@@ -244,6 +262,15 @@ namespace CrusaderWars
                 string unitName = unit.GetName();
                 //Skip if its not a Men at Arms Unit
                 if (unitName == "General" || unit.GetRegimentType() == RegimentType.Knight || unit.GetRegimentType() == RegimentType.Levy) continue;
+
+                string attilaUnitKey = unit.GetAttilaUnitKey();
+                if (string.IsNullOrEmpty(attilaUnitKey) || attilaUnitKey == UnitMappers_BETA.NOT_FOUND_KEY)
+                {
+                    Program.Logger.Debug($"  - WARNING: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}) for army {army.ID}. It will be dropped from the battle.");
+                    BattleLog.AddUnmappedUnit(unit, army.ID);
+                    continue; // Skip this unit
+                }
+
                 Program.Logger.Debug($"  Processing MAA unit: Name={unit.GetName()}, Soldiers={unit.GetSoldiers()}, Culture={unit.GetCulture()}");
 
                 var MAA_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
@@ -258,13 +285,13 @@ namespace CrusaderWars
                     int accolade_xp = army_xp + 2;
                     if (accolade_xp < 0) accolade_xp = 0;
                     if (accolade_xp > 9) accolade_xp = 9;
-                    BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                    BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 }
                 //If is normal maa
                 else
                 {
                     string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                    BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                    BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 }
                 i++;
 

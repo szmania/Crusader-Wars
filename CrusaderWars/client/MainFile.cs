@@ -1119,6 +1119,27 @@ namespace CrusaderWars
                     Program.Logger.Debug("Creating battle file...");
                     BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);
 
+                    // NEW: Check for unmapped units and show alert
+                    if (BattleLog.HasUnmappedUnits())
+                    {
+                        var unmappedUnits = BattleLog.GetUnmappedUnits();
+                        var sb = new System.Text.StringBuilder();
+                        sb.AppendLine("Warning: Some CK3 units could not be mapped to Total War: Attila units and were dropped from the battle.");
+                        sb.AppendLine("This usually means a unit from a CK3 mod is not supported by the active Unit Mapper playthrough.");
+                        sb.AppendLine();
+                        sb.AppendLine("Unmapped Units:");
+                        foreach (var u in unmappedUnits.Distinct().ToList())
+                        {
+                            sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
+                        }
+                        sb.AppendLine();
+                        sb.AppendLine("The battle will proceed without these units.");
+
+                        this.Invoke((MethodInvoker)delegate {
+                            MessageBox.Show(this, sb.ToString(), "Crusader Conflicts: Unit Mapping Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        });
+                    }
+
                     //Close Script
                     BattleScript.CloseScript();
 
@@ -1157,7 +1178,7 @@ namespace CrusaderWars
                                     string attilaKey = unit.GetAttilaUnitKey();
                                     if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Specific and default mappings failed. This unit may be dropped or replaced by Attila.{unitDetails}");
+                                        Program.Logger.Debug($"  - DROPPED: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts failed.{unitDetails}");
                                     }
                                     else
                                     {
@@ -1194,7 +1215,7 @@ namespace CrusaderWars
                                     string attilaKey = unit.GetAttilaUnitKey();
                                     if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Specific and default mappings failed. This unit may be dropped or replaced by Attila.{unitDetails}");
+                                        Program.Logger.Debug($"  - DROPPED: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts failed.{unitDetails}");
                                     }
                                     else
                                     {
