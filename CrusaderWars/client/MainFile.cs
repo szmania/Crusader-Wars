@@ -133,17 +133,10 @@ namespace CrusaderWars
             Program.Logger.Debug("Starting updater checks...");
             _updater = new Updater();
 
-            if (_updater.ShouldPerformUpdateChecks())
-            {
-                Program.Logger.Debug("Update checks are due. Initiating app and unit mappers version checks.");
-                _updater.CheckAppVersion();
-                _updater.CheckUnitMappersVersion();
-                _updater.UpdateLastCheckedTimestamp(); // Record that checks were performed
-            }
-            else
-            {
-                Program.Logger.Debug("Update checks are not yet due. Skipping app and unit mappers version checks.");
-            }
+            Program.Logger.Debug("Initiating app and unit mappers version checks.");
+            _updater.CheckAppVersion();
+            _updater.CheckUnitMappersVersion();
+            _updater.UpdateLastCheckedTimestamp(); // Record that checks were performed
 
             _appVersion = _updater.AppVersion;
 
