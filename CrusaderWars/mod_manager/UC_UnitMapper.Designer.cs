@@ -48,7 +48,7 @@ namespace CrusaderWars.mod_manager
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(299, 70);
+            this.button1.Location = new System.Drawing.Point(317, 70);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(160, 30);
             this.button1.TabIndex = 2;
@@ -57,12 +57,13 @@ namespace CrusaderWars.mod_manager
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
             this.button1.FlatAppearance.BorderSize = 0;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ForeColor = System.Drawing.Color.White;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // BtnVerifyMods
             // 
-            this.BtnVerifyMods.Location = new System.Drawing.Point(429, 3);
+            this.BtnVerifyMods.Location = new System.Drawing.Point(447, 3);
             this.BtnVerifyMods.Name = "BtnVerifyMods";
             this.BtnVerifyMods.Size = new System.Drawing.Size(30, 30);
             this.BtnVerifyMods.TabIndex = 3;
@@ -96,7 +97,7 @@ namespace CrusaderWars.mod_manager
             this.Controls.Add(this.button1);
             this.Controls.Add(this.BtnVerifyMods);
             this.Name = "UC_UnitMapper";
-            this.Size = new System.Drawing.Size(462, 185);
+            this.Size = new System.Drawing.Size(480, 185);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.UC_UnitMapper_Paint);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
