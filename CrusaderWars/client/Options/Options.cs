@@ -1003,7 +1003,7 @@ namespace CrusaderWars
             TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState, "TheFallenEagle"); // MODIFIED LINE
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
             RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState, "RealmsInExile");
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources._default, string.Empty, GetUnitMappersModsCollectionFromTag("AGOT"), agotToggleState, "AGOT"); // Added AGOT tab
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, GetUnitMappersModsCollectionFromTag("AGOT"), agotToggleState, "AGOT"); // Changed to use playthrough_agot
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
