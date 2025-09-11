@@ -17,7 +17,7 @@ namespace CrusaderWars
         public  string AppVersion { get; set; } = string.Empty;
         public string UMVersion { get; set; } = string.Empty;
 
-
+        private const string LastCheckedFilePath = @".\Settings\lastchecked.txt";
         private static readonly HttpClient client = new HttpClient();
         private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
         private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases/latest";
@@ -480,6 +480,66 @@ namespace CrusaderWars
             string fallbackUrl = $"https://github.com/szmania/{repoName}/releases";
             Program.Logger.Debug($"Version tag not found in any user repo. Falling back to main releases page: {fallbackUrl}");
             return fallbackUrl;
+        }
+
+        public bool ShouldPerformUpdateChecks()
+        {
+            Program.Logger.Debug("Checking if update checks should be performed.");
+            if (!File.Exists(LastCheckedFilePath))
+            {
+                Program.Logger.Debug($"'{LastCheckedFilePath}' not found. Performing update checks.");
+                return true; // File doesn't exist, perform check
+            }
+
+            try
+            {
+                string lastCheckedString = File.ReadAllText(LastCheckedFilePath);
+                if (DateTime.TryParse(lastCheckedString, out DateTime lastCheckedTimeUtc))
+                {
+                    TimeSpan timeSinceLastCheck = DateTime.UtcNow - lastCheckedTimeUtc;
+                    // Check if more than 24 hours have passed
+                    if (timeSinceLastCheck.TotalHours >= 24)
+                    {
+                        Program.Logger.Debug($"More than 24 hours ({timeSinceLastCheck.TotalHours} hours) since last check. Performing update checks.");
+                        return true;
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Less than 24 hours ({timeSinceLastCheck.TotalHours} hours) since last check. Skipping update checks.");
+                        return false;
+                    }
+                }
+                else
+                {
+                    Program.Logger.Debug($"Invalid timestamp in '{LastCheckedFilePath}'. Performing update checks.");
+                    return true; // Invalid format, perform check
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading '{LastCheckedFilePath}': {ex.Message}. Performing update checks.");
+                return true; // Error reading file, perform check
+            }
+        }
+
+        public void UpdateLastCheckedTimestamp()
+        {
+            Program.Logger.Debug("Updating last checked timestamp.");
+            try
+            {
+                string settingsDir = Path.GetDirectoryName(LastCheckedFilePath);
+                if (!Directory.Exists(settingsDir))
+                {
+                    Directory.CreateDirectory(settingsDir);
+                    Program.Logger.Debug($"Created directory: {settingsDir}");
+                }
+                File.WriteAllText(LastCheckedFilePath, DateTime.UtcNow.ToString("o")); // "o" for round-trip format
+                Program.Logger.Debug($"Last checked timestamp updated to: {DateTime.UtcNow:o}");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error writing to '{LastCheckedFilePath}': {ex.Message}");
+            }
         }
     }
 
