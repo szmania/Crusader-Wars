@@ -10,6 +10,7 @@ using System.Net;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Linq;
 using System.Net.Http; // Added this line
+using System.Collections.Generic; // Added for HashSet
 
 namespace CWUpdater
 {
@@ -239,15 +240,22 @@ namespace CWUpdater
                             continue;
                         }
 
-                        //Skip other essential files
-                        if (Path.GetFileName(file) == "CWUpdater.exe" ||
-                            Path.GetFileName(file) == "CWUpdater.exe.config" ||
-                            Path.GetFileName(file) == "Paths.xml" ||
-                            Path.GetFileName(file) == "active_mods.txt")
+                        // Define a set of user-specific files to preserve during updates.
+                        var settingsFilesToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                        {
+                            @"Settings\Options.xml",
+                            @"Settings\Paths.xml",
+                            @"Settings\lastchecked.txt",
+                            @"Settings\UnitMappers.xml",
+                            "active_mods.txt"
+                        };
+
+                        // Skip overwriting essential user settings files.
+                        if (settingsFilesToSkip.Contains(finalRelativePath))
+                        {
+                            Logger.Log($"Skipping overwrite of user settings file: {finalRelativePath}");
                             continue;
-                        //Skip essential directories
-                        if (Path.GetDirectoryName(file) == "updater")
-                            continue;
+                        }
 
                         string? destinationDir = Path.GetDirectoryName(destinationPath);
                         if (destinationDir != null && !Directory.Exists(destinationDir))
@@ -341,12 +349,21 @@ namespace CWUpdater
                     if (file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    //Skip essential files
-                    if (Path.GetFileName(file) == "CWUpdater.exe" ||
-                        Path.GetFileName(file) == "CWUpdater.exe.config" ||
-                        Path.GetFileName(file) == "Paths.xml" ||
-                        Path.GetFileName(file) == "active_mods.txt")
+                    // Define a set of user-specific files to preserve during updates.
+                    var settingsFilesToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        @"Settings\Options.xml",
+                        @"Settings\Paths.xml",
+                        @"Settings\lastchecked.txt",
+                        @"Settings\UnitMappers.xml",
+                        "active_mods.txt"
+                    };
+
+                    string relativePathForDeletionCheck = file.Substring(applicationPath.Length + 1);
+                    if (settingsFilesToSkip.Contains(relativePathForDeletionCheck))
+                    {
                         continue;
+                    }
 
                     string relativePath = file.Substring(applicationPath.Length + 1);
                     string parentFolder = relativePath.Split('\\')[0];
