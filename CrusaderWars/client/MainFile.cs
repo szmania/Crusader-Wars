@@ -255,8 +255,8 @@ namespace CrusaderWars
                 {
                     infoLabel.AutoSize = false;
                     infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
-                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Settings screen.";
-                    else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Settings screen.";
+                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
+                    else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Mod Settings screen.";
                     ExecuteButton.Enabled = false;
                     infoLabel.ForeColor = Color.White;
                     infoLabel.BackColor = Color.FromArgb(180, 74, 0, 0);
@@ -830,7 +830,7 @@ namespace CrusaderWars
                                     //If Battle Started
                                     if (line.Contains(SEARCH_KEY))
                                     {
-                                        Program.Logger.Debug("Battle keyword found in CK3 log.");
+                                        Program.Logger.Debug("Battle keyword found in CK3 log. ");
                                         battleJustCompleted = false;
                                         battleHasStarted = true;
                                         break;
@@ -1119,6 +1119,29 @@ namespace CrusaderWars
                     Program.Logger.Debug("Creating battle file...");
                     BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);
 
+                    // NEW: Check for unmapped units and show alert
+                    if (BattleLog.HasUnmappedUnits())
+                    {
+                        var unmappedUnits = BattleLog.GetUnmappedUnits();
+                        var sb = new System.Text.StringBuilder();
+                        sb.AppendLine("Warning: Some CK3 units could not be mapped to Total War: Attila units and were dropped from the battle.");
+                        sb.AppendLine("This usually means a unit from a CK3 mod is not supported by the active Unit Mapper playthrough.");
+                        sb.AppendLine();
+                        sb.AppendLine("Unmapped Units:");
+                        foreach (var u in unmappedUnits.Distinct().ToList())
+                        {
+                            sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
+                        }
+                        sb.AppendLine();
+                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team at https://discord.gg/X64pMysa");
+                        sb.AppendLine();
+                        sb.AppendLine("The battle will proceed without these units.");
+
+                        this.Invoke((System.Windows.Forms.MethodInvoker)delegate {
+                            MessageBox.Show(this, sb.ToString(), "Crusader Conflicts: Unit Mapping Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        });
+                    }
+
                     //Close Script
                     BattleScript.CloseScript();
 
@@ -1155,13 +1178,13 @@ namespace CrusaderWars
                                 else
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
-                                    if (string.IsNullOrEmpty(attilaKey))
+                                    if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - DROPPED: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts failed.{unitDetails}");
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     }
                                 }
                             }
@@ -1192,13 +1215,13 @@ namespace CrusaderWars
                                 else
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
-                                    if (string.IsNullOrEmpty(attilaKey))
+                                    if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        Program.Logger.Debug($"  - WARNING: Unit with empty AttilaKey (CK3 Type: {unit.GetRegimentType()}), Soldiers: {unit.GetSoldiers()}{unitDetails} - This unit may be dropped or replaced by Attila.");
+                                        Program.Logger.Debug($"  - DROPPED: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts failed.{unitDetails}");
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - Unit: {attilaKey}, CK3 Type: {unit.GetRegimentType()}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
                                     }
                                 }
                             }
