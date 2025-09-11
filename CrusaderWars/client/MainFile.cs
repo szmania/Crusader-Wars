@@ -1782,7 +1782,7 @@ namespace CrusaderWars
                     loadingScreen.BackgroundImage = Properties.Resources.LS_lotr;
                     break;
                 case "AGOT": // Added AGOT tab
-                    loadingScreen.BackgroundImage = Properties.Resources.LS_agot; // Placeholder, falls through to Medieval
+                    loadingScreen.BackgroundImage = Properties.Resources.LS_agot;
                     break;
                 default:
                     loadingScreen.BackgroundImage = Properties.Resources.LS_medieval;

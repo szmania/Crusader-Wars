@@ -252,6 +252,16 @@ namespace CrusaderWars.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap LS_agot {
+            get {
+                object obj = ResourceManager.GetObject("LS_agot", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap LS_late_antiquity {
             get {
                 object obj = ResourceManager.GetObject("LS_late_antiquity", resourceCulture);
