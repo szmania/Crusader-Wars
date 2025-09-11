@@ -84,9 +84,9 @@ namespace CrusaderWars.mod_manager
             // 
             this.uC_Toggle1.BackgroundImage = global::CrusaderWars.Properties.Resources.toggle_no;
             this.uC_Toggle1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.uC_Toggle1.Location = new System.Drawing.Point(183, 58);
+            this.uC_Toggle1.Location = new System.Drawing.Point(183, 53);
             this.uC_Toggle1.Name = "uC_Toggle1";
-            this.uC_Toggle1.Size = new System.Drawing.Size(80, 50);
+            this.uC_Toggle1.Size = new System.Drawing.Size(80, 60);
             this.uC_Toggle1.TabIndex = 1;
             this.uC_Toggle1.Click += new System.EventHandler(this.uC_Toggle1_Click);
             // 
