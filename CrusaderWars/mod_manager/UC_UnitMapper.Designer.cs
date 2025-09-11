@@ -42,7 +42,7 @@ namespace CrusaderWars.mod_manager
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(456, 139);
+            this.pictureBox1.Size = new System.Drawing.Size(139, 139);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
@@ -70,7 +70,7 @@ namespace CrusaderWars.mod_manager
             // 
             this.uC_Toggle1.BackgroundImage = global::CrusaderWars.Properties.Resources.toggle_no;
             this.uC_Toggle1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.uC_Toggle1.Location = new System.Drawing.Point(169, 148);
+            this.uC_Toggle1.Location = new System.Drawing.Point(148, 58);
             this.uC_Toggle1.Name = "uC_Toggle1";
             this.uC_Toggle1.Size = new System.Drawing.Size(124, 30);
             this.uC_Toggle1.TabIndex = 1;
