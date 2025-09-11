@@ -90,7 +90,7 @@
             this.ck3Btn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.ck3Btn.Font = new System.Drawing.Font("Yu Gothic UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ck3Btn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.ck3Btn.Location = new System.Drawing.Point(24, 50);
+            this.ck3Btn.Location = new System.Drawing.Point(79, 50);
             this.ck3Btn.Name = "ck3Btn";
             this.ck3Btn.Size = new System.Drawing.Size(129, 122);
             this.ck3Btn.TabIndex = 0;
@@ -104,7 +104,7 @@
             this.Status_Ck3_Icon.BackColor = System.Drawing.Color.Transparent;
             this.Status_Ck3_Icon.BackgroundImage = global::CrusaderWars.Properties.Resources.correct;
             this.Status_Ck3_Icon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.Status_Ck3_Icon.Location = new System.Drawing.Point(57, 203);
+            this.Status_Ck3_Icon.Location = new System.Drawing.Point(112, 203);
             this.Status_Ck3_Icon.Name = "Status_Ck3_Icon";
             this.Status_Ck3_Icon.Size = new System.Drawing.Size(64, 31);
             this.Status_Ck3_Icon.TabIndex = 4;
@@ -132,7 +132,7 @@
             this.Status_Attila_Icon.BackColor = System.Drawing.Color.Transparent;
             this.Status_Attila_Icon.BackgroundImage = global::CrusaderWars.Properties.Resources.correct;
             this.Status_Attila_Icon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.Status_Attila_Icon.Location = new System.Drawing.Point(235, 203);
+            this.Status_Attila_Icon.Location = new System.Drawing.Point(341, 203);
             this.Status_Attila_Icon.Name = "Status_Attila_Icon";
             this.Status_Attila_Icon.Size = new System.Drawing.Size(64, 31);
             this.Status_Attila_Icon.TabIndex = 10;
@@ -148,7 +148,7 @@
             this.AttilaBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.AttilaBtn.Font = new System.Drawing.Font("Yu Gothic UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.AttilaBtn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.AttilaBtn.Location = new System.Drawing.Point(202, 50);
+            this.AttilaBtn.Location = new System.Drawing.Point(308, 50);
             this.AttilaBtn.Name = "AttilaBtn";
             this.AttilaBtn.Size = new System.Drawing.Size(130, 122);
             this.AttilaBtn.TabIndex = 14;
@@ -557,7 +557,7 @@
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 75F));
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 15F));
-            this.TableLayoutGamePaths.Size = new System.Drawing.Size(357, 237);
+            this.TableLayoutGamePaths.Size = new System.Drawing.Size(486, 237);
             this.TableLayoutGamePaths.TabIndex = 36;
             // 
             // TableLayoutSettings
@@ -570,7 +570,7 @@
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(490, 142);
+            this.TableLayoutSettings.Location = new System.Drawing.Point(512, 142);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
