@@ -1137,7 +1137,7 @@ namespace CrusaderWars
                         sb.AppendLine();
                         sb.AppendLine("The battle will proceed without these units.");
 
-                        this.Invoke((MethodInvoker)delegate {
+                        this.Invoke((System.Windows.Forms.MethodInvoker)delegate {
                             MessageBox.Show(this, sb.ToString(), "Crusader Conflicts: Unit Mapping Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         });
                     }
