@@ -681,27 +681,69 @@ namespace CrusaderWars
 
         private void ChangePathSettings(string game, string new_path)
         {
+            Program.Logger.Debug($"Attempting to change path setting for {game} to {new_path}");
             try
             {
                 string file = @".\Settings\Paths.xml";
                 XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(file);
 
-                XmlNode? node = xmlDoc.SelectSingleNode($"Paths/{game}");
-                if (node?.Attributes?["path"] != null)
+                // Ensure the file exists, if not, create a basic structure
+                if (!File.Exists(file))
                 {
-                    node.Attributes["path"].Value = new_path;
+                    Program.Logger.Debug("Paths.xml not found, creating default structure.");
+                    XmlElement rootElement = xmlDoc.CreateElement("Paths");
+                    xmlDoc.AppendChild(rootElement);
+
+                    XmlElement attilaElement = xmlDoc.CreateElement("TotalWarAttila");
+                    attilaElement.SetAttribute("path", "");
+                    rootElement.AppendChild(attilaElement);
+
+                    XmlElement ck3Element = xmlDoc.CreateElement("CrusaderKings");
+                    ck3Element.SetAttribute("path", "");
+                    rootElement.AppendChild(ck3Element);
+
+                    xmlDoc.Save(file);
                 }
+                else
+                {
+                    xmlDoc.Load(file);
+                }
+
+                XmlNode? root = xmlDoc.DocumentElement;
+                if (root == null)
+                {
+                    Program.Logger.Debug("Paths.xml has no root element, recreating.");
+                    root = xmlDoc.CreateElement("Paths");
+                    xmlDoc.AppendChild(root);
+                }
+
+                XmlNode? node = root.SelectSingleNode(game);
+                if (node == null)
+                {
+                    Program.Logger.Debug($"Node '{game}' not found in Paths.xml, creating.");
+                    node = xmlDoc.CreateElement(game);
+                    root.AppendChild(node);
+                }
+
+                XmlAttribute? pathAttribute = node.Attributes?["path"];
+                if (pathAttribute == null)
+                {
+                    Program.Logger.Debug($"'path' attribute not found for node '{game}', creating.");
+                    pathAttribute = xmlDoc.CreateAttribute("path");
+                    node.Attributes?.Append(pathAttribute);
+                }
+
+                pathAttribute.Value = new_path;
                 xmlDoc.Save(file);
+                Program.Logger.Debug($"Path setting for {game} updated successfully.");
             }
-            catch 
+            catch (Exception ex)
             {
-                MessageBox.Show("Error setting game paths. Restart the mod and try again", "Crusader Conflicts: Data Error",
+                Program.Logger.Log(ex);
+                MessageBox.Show($"Error setting game path for {game}: {ex.Message}", "Crusader Conflicts: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
-
-
         }
 
         /*
@@ -711,37 +753,96 @@ namespace CrusaderWars
          */
         public static void ReadGamePaths()
         {
+            Program.Logger.Debug("Reading game paths from Paths.xml...");
             try
             {
                 string file = @".\Settings\Paths.xml";
                 XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(file);
+                bool fileModified = false;
 
-                //Read Attila Path
-                XmlNode? attila_node = xmlDoc.SelectSingleNode("Paths/TotalWarAttila");
-                if (attila_node != null)
+                // 1. Handle missing file: Create default structure if file doesn't exist
+                if (!File.Exists(file))
                 {
-                    Properties.Settings.Default.VAR_attila_path = attila_node.Attributes?["path"]?.Value ?? string.Empty;
-                    Properties.Settings.Default.Save();
+                    Program.Logger.Debug("Paths.xml not found. Creating default structure.");
+                    XmlElement rootElement = xmlDoc.CreateElement("Paths");
+                    xmlDoc.AppendChild(rootElement);
+
+                    XmlElement attilaElement = xmlDoc.CreateElement("TotalWarAttila");
+                    attilaElement.SetAttribute("path", "");
+                    rootElement.AppendChild(attilaElement);
+
+                    XmlElement ck3Element = xmlDoc.CreateElement("CrusaderKings");
+                    ck3Element.SetAttribute("path", "");
+                    rootElement.AppendChild(ck3Element);
+
+                    fileModified = true;
+                }
+                else
+                {
+                    xmlDoc.Load(file);
                 }
 
-
-                //Read CK3 Path
-                XmlNode? ck3_node = xmlDoc.SelectSingleNode("Paths/CrusaderKings");
-                if (ck3_node != null)
+                XmlNode? root = xmlDoc.DocumentElement;
+                if (root == null)
                 {
-                    Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?? string.Empty;
-                    Properties.Settings.Default.Save();
+                    Program.Logger.Debug("Paths.xml has no root element. Recreating root.");
+                    root = xmlDoc.CreateElement("Paths");
+                    xmlDoc.AppendChild(root);
+                    fileModified = true;
                 }
+
+                // 2. Handle missing TotalWarAttila node or path attribute
+                XmlNode? attila_node = root.SelectSingleNode("TotalWarAttila");
+                if (attila_node == null)
+                {
+                    Program.Logger.Debug("TotalWarAttila node not found. Creating.");
+                    attila_node = xmlDoc.CreateElement("TotalWarAttila");
+                    root.AppendChild(attila_node);
+                    fileModified = true;
+                }
+                if (attila_node.Attributes?["path"] == null)
+                {
+                    Program.Logger.Debug("'path' attribute not found for TotalWarAttila. Creating.");
+                    attila_node.SetAttribute("path", "");
+                    fileModified = true;
+                }
+
+                // 3. Handle missing CrusaderKings node or path attribute
+                XmlNode? ck3_node = root.SelectSingleNode("CrusaderKings");
+                if (ck3_node == null)
+                {
+                    Program.Logger.Debug("CrusaderKings node not found. Creating.");
+                    ck3_node = xmlDoc.CreateElement("CrusaderKings");
+                    root.AppendChild(ck3_node);
+                    fileModified = true;
+                }
+                if (ck3_node.Attributes?["path"] == null)
+                {
+                    Program.Logger.Debug("'path' attribute not found for CrusaderKings. Creating.");
+                    ck3_node.SetAttribute("path", "");
+                    fileModified = true;
+                }
+
+                // Save if any modifications were made to the XML structure
+                if (fileModified)
+                {
+                    xmlDoc.Save(file);
+                    Program.Logger.Debug("Paths.xml created or repaired with default structure.");
+                }
+
+                // 4. Load values into application settings
+                Properties.Settings.Default.VAR_attila_path = attila_node.Attributes?["path"]?.Value ?? string.Empty;
+                Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?? string.Empty;
+                Properties.Settings.Default.Save();
+                Program.Logger.Debug("Game paths loaded successfully.");
             }
-            catch 
+            catch (Exception ex)
             {
-                MessageBox.Show("Error reading game paths. Restart the mod and try again", "Crusader Conflicts: Data Error",
+                Program.Logger.Log(ex);
+                MessageBox.Show($"Error reading or creating game paths file (Paths.xml): {ex.Message}", "Crusader Conflicts: Data Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
-
-
         }
 
         /*##############################################
