@@ -894,9 +894,9 @@ namespace CrusaderWars
 
         void ChangeUnitMappersTab(Control control)
         {
-            control.Dock = DockStyle.Fill;
             UMpanel.Controls.Clear();
             UMpanel.Controls.Add(control);
+            control.Location = new System.Drawing.Point((UMpanel.Width - control.Width) / 2, 0); // Centered horizontally
             control.BringToFront();
 
             // Define colors

@@ -32,7 +32,7 @@ namespace CrusaderWars.mod_manager
             toolTip2.ShowAlways = true;
 
             pictureBox1.BackgroundImage = image;
-            pictureBox1.BackgroundImageLayout = ImageLayout.Stretch;
+            pictureBox1.BackgroundImageLayout = ImageLayout.Zoom; // Changed from Stretch to Zoom
             SteamCollectionLink = steamCollectionLink;
             uC_Toggle1.SetState(state);
             RequiredModsList = requiredMods;
