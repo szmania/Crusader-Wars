@@ -48,31 +48,42 @@ namespace CrusaderWars.mod_manager
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(299, 36);
+            this.button1.Location = new System.Drawing.Point(299, 70);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(160, 30);
             this.button1.TabIndex = 2;
             this.button1.Text = "Required Mods";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.ForeColor = System.Drawing.Color.White;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // BtnVerifyMods
             // 
-            this.BtnVerifyMods.Location = new System.Drawing.Point(299, 3);
+            this.BtnVerifyMods.Location = new System.Drawing.Point(429, 3);
             this.BtnVerifyMods.Name = "BtnVerifyMods";
-            this.BtnVerifyMods.Size = new System.Drawing.Size(160, 30);
+            this.BtnVerifyMods.Size = new System.Drawing.Size(30, 30);
             this.BtnVerifyMods.TabIndex = 3;
-            this.BtnVerifyMods.Text = "Verify Mods";
+            this.BtnVerifyMods.Text = "";
             this.BtnVerifyMods.UseVisualStyleBackColor = true;
+            this.BtnVerifyMods.BackgroundImage = global::CrusaderWars.Properties.Resources.searchModsIcon;
+            this.BtnVerifyMods.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.BtnVerifyMods.Click += new System.EventHandler(this.BtnVerifyMods_Click);
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.ToolTipTitle = "Mod Verification";
+            this.toolTip1.SetToolTip(this.BtnVerifyMods, "Verify required mods are installed");
             // 
             // uC_Toggle1
             // 
             this.uC_Toggle1.BackgroundImage = global::CrusaderWars.Properties.Resources.toggle_no;
             this.uC_Toggle1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.uC_Toggle1.Location = new System.Drawing.Point(148, 58);
+            this.uC_Toggle1.Location = new System.Drawing.Point(183, 58);
             this.uC_Toggle1.Name = "uC_Toggle1";
-            this.uC_Toggle1.Size = new System.Drawing.Size(90, 30);
+            this.uC_Toggle1.Size = new System.Drawing.Size(75, 30);
             this.uC_Toggle1.TabIndex = 1;
             this.uC_Toggle1.Click += new System.EventHandler(this.uC_Toggle1_Click);
             // 
