@@ -48,7 +48,7 @@ namespace CrusaderWars.mod_manager
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(3, 148);
+            this.button1.Location = new System.Drawing.Point(299, 36);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(160, 30);
             this.button1.TabIndex = 2;
@@ -58,7 +58,7 @@ namespace CrusaderWars.mod_manager
             // 
             // BtnVerifyMods
             // 
-            this.BtnVerifyMods.Location = new System.Drawing.Point(299, 148);
+            this.BtnVerifyMods.Location = new System.Drawing.Point(299, 3);
             this.BtnVerifyMods.Name = "BtnVerifyMods";
             this.BtnVerifyMods.Size = new System.Drawing.Size(160, 30);
             this.BtnVerifyMods.TabIndex = 3;
@@ -72,7 +72,7 @@ namespace CrusaderWars.mod_manager
             this.uC_Toggle1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.uC_Toggle1.Location = new System.Drawing.Point(148, 58);
             this.uC_Toggle1.Name = "uC_Toggle1";
-            this.uC_Toggle1.Size = new System.Drawing.Size(124, 30);
+            this.uC_Toggle1.Size = new System.Drawing.Size(90, 30);
             this.uC_Toggle1.TabIndex = 1;
             this.uC_Toggle1.Click += new System.EventHandler(this.uC_Toggle1_Click);
             // 
