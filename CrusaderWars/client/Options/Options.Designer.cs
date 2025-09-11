@@ -118,7 +118,7 @@
             this.CloseBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.CloseBtn.FlatAppearance.BorderSize = 0;
             this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CloseBtn.Location = new System.Drawing.Point(903, 35);
+            this.CloseBtn.Location = new System.Drawing.Point(1012, 35);
             this.CloseBtn.Name = "CloseBtn";
             this.CloseBtn.Size = new System.Drawing.Size(53, 54);
             this.CloseBtn.TabIndex = 9;
@@ -494,8 +494,8 @@
             this.Btn_TFETab.Name = "Btn_TFETab";
             this.Btn_TFETab.Size = new System.Drawing.Size(123, 28);
             this.Btn_TFETab.TabIndex = 1;
-            this.Btn_TFETab.Text = "The Fallen Eagle";
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_TFETab, "Uses The Fallen Eagle Mod for CK3, with the FireForged Empire mod for Attila.");
+            this.Btn_TFETab.Text = "The Fallen Eagle";
             this.Btn_TFETab.UseVisualStyleBackColor = false;
             this.Btn_TFETab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_TFETab.Click += new System.EventHandler(this.Btn_TFETab_Click);
@@ -570,7 +570,7 @@
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(512, 142);
+            this.TableLayoutSettings.Location = new System.Drawing.Point(512, 145);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
