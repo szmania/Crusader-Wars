@@ -241,7 +241,16 @@ namespace CrusaderWars
                         // Create a representative levy unit for this faction group.
                         // We use the culture of the largest contributing unit for logging/script naming.
                         var representative_unit = faction_group.OrderByDescending(u => u.GetSoldiers()).First();
-                        Unit merged_levy_unit = new Unit("Levy", total_faction_levy_soldiers, representative_unit.GetObjCulture(), RegimentType.Levy, faction_group.Any(u => u.IsMerc()));
+                        
+                        // Determine the culture for the merged levy unit, falling back to the army owner's culture if needed.
+                        var levyCulture = representative_unit.GetObjCulture();
+                        if (levyCulture == null)
+                        {
+                            Program.Logger.Debug($"  - Levy representative unit for faction '{factionName}' has no culture. Falling back to owner's culture.");
+                            levyCulture = army.Owner.GetCulture();
+                        }
+
+                        Unit merged_levy_unit = new Unit("Levy", total_faction_levy_soldiers, levyCulture, RegimentType.Levy, faction_group.Any(u => u.IsMerc()));
                         merged_levy_unit.SetAttilaFaction(factionName);
                         merged_levy_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
     
