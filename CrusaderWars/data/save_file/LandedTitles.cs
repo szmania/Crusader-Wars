@@ -97,23 +97,40 @@ namespace CrusaderWars.data.save_file
         {
             foreach(var mod_folder_path in EnabledMods_Folders_Paths)
             {
-                string landed_titles_path = mod_folder_path.Trim('"') + @"\common\landed_titles\00_landed_titles.txt";
-                if (File.Exists(landed_titles_path))
+                string landed_titles_dir = mod_folder_path.Trim('"') + @"\common\landed_titles";
+                if (Directory.Exists(landed_titles_dir))
                 {
-                    ReadLandedTitles(landed_titles_path, attacker_armies, defender_armies);
+                    Program.Logger.Debug($"Scanning for landed titles files in mod directory: {landed_titles_dir}");
+                    string[] titleFiles = Directory.GetFiles(landed_titles_dir, "*.txt");
+                    foreach (string file in titleFiles)
+                    {
+                        ReadLandedTitles(file, attacker_armies, defender_armies);
+                    }
                 }
-                else continue;
+                else
+                {
+                    Program.Logger.Debug($"Landed titles directory not found for mod: {landed_titles_dir}");
+                }
             }
         }
 
         static void ReadDefaultCK3LandedTitles(List<Army> attacker_armies, List<Army> defender_armies)
         {
             string ck3_exe_path = Properties.Settings.Default.VAR_ck3_path;
-            string default_landed_titles_path = Regex.Replace(ck3_exe_path, @"binaries\\ck3.exe", @"game\\common\\landed_titles\\00_landed_titles.txt");
+            string default_landed_titles_dir = Regex.Replace(ck3_exe_path, @"binaries\\ck3.exe", @"game\\common\\landed_titles");
 
-            if (File.Exists(default_landed_titles_path))
+            if (Directory.Exists(default_landed_titles_dir))
             {
-                ReadLandedTitles(default_landed_titles_path, attacker_armies, defender_armies);
+                Program.Logger.Debug($"Scanning for landed titles files in default CK3 directory: {default_landed_titles_dir}");
+                string[] titleFiles = Directory.GetFiles(default_landed_titles_dir, "*.txt");
+                foreach (string file in titleFiles)
+                {
+                    ReadLandedTitles(file, attacker_armies, defender_armies);
+                }
+            }
+            else
+            {
+                Program.Logger.Debug($"Default CK3 landed titles directory not found: {default_landed_titles_dir}");
             }
         }
 
