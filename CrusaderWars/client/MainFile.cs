@@ -542,9 +542,9 @@ namespace CrusaderWars
                 okButton.Text = "OK";
                 okButton.DialogResult = DialogResult.OK;
                 okButton.Size = new Size(100, 30);
-                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2, notificationForm.ClientSize.Height - okButton.Height - 10);
-                okButton.Anchor = AnchorStyles.Bottom;
+                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2, steamLink.Bottom + 20);
                 notificationForm.Controls.Add(okButton);
+                notificationForm.ClientSize = new Size(notificationForm.ClientSize.Width, okButton.Bottom + 15);
                 notificationForm.AcceptButton = okButton;
 
                 notificationForm.ShowDialog(this);
@@ -1555,7 +1555,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
-                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
