@@ -409,7 +409,13 @@ namespace CrusaderWars
                 // Safely get the unit, then its culture. If unit is null, culture will be null.
                 // The warning CS8600 is because GetObjCulture() is called on a potentially null result of FirstOrDefault().
                 var matchingUnit = army.Units.FirstOrDefault(x => x.GetRegimentType() == unitType && x.GetObjCulture()?.ID == group.Key.CultureID && x.GetName() == type);
-                Culture? culture = matchingUnit?.GetObjCulture(); // CHANGE THIS LINE: Add '?' to make Culture nullable
+                
+                if (matchingUnit == null)
+                {
+                    Program.Logger.Debug($"Warning: Could not find matching unit for type '{type}' and culture ID '{group.Key.CultureID}' in army {army.ID}. Skipping report for this unit group.");
+                    continue;
+                }
+                Culture? culture = matchingUnit.GetObjCulture(); // CHANGE THIS LINE: Add '?' to make Culture nullable
                 
                 // If culture is null at this point, it means either no matching unit was found,
                 // or the matching unit itself had a null culture object.
@@ -746,7 +752,8 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
+                                    var nonNullKnights = knightsList.Where(k => k != null);
+                                    var knight = nonNullKnights.FirstOrDefault(k => k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
@@ -856,7 +863,8 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
+                                    var nonNullKnights = knightsList.Where(k => k != null);
+                                    var knight = nonNullKnights.FirstOrDefault(k => k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
@@ -1037,8 +1045,10 @@ namespace CrusaderWars
             int total = 0;
             foreach(Army army in armies)
             {
-                total += army.ArmyRegiments?.Where(r => r != null).Select(r => r.CurrentNum).Sum() ?? 0;
-
+                if (army.ArmyRegiments != null)
+                {
+                    total += army.ArmyRegiments.Where(r => r is not null).Sum(r => r.CurrentNum);
+                }
             }
             Program.Logger.Debug($"Calculated total fighting men for armies: {total}");
             return total;
@@ -1115,12 +1125,10 @@ namespace CrusaderWars
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(logFile))
             {
-                string? line;
-                //winning_side=attacker/defender
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (line.Contains("Victory")) { winner = player_armies_combat_side; break; }
-                    else if (line.Contains("Defeat")) { winner = enemy_armies_combat_side; break; }
+                string str = reader.ReadToEnd();
+
+                if (str.Contains("Victory")) { winner = player_armies_combat_side; break; }
+                    else if (str.Contains("Defeat")) { winner = enemy_armies_combat_side; break; }
                     else winner = enemy_armies_combat_side;
                 }
 

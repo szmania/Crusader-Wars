@@ -575,7 +575,7 @@ namespace CrusaderWars
                 var KnightOneEyedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightOneEyedChance']");
                 if (KnightOneEyedChance_Node != null && numKnightOneEyed != null) KnightOneEyedChance_Node.InnerText = numKnightOneEyed.Value.ToString();
                 var KnightDisfiguredChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderDisfiguredChance']");
-                if (CommanderDisfiguredChance_Node != null && numKnightDisfigured != null) KnightDisfiguredChance_Node.InnerText = numKnightDisfigured.Value.ToString();
+                if (KnightDisfiguredChance_Node != null && numKnightDisfigured != null) KnightDisfiguredChance_Node.InnerText = numKnightDisfigured.Value.ToString();
 
 
                 xmlDoc.Save(file);
@@ -1162,7 +1162,7 @@ namespace CrusaderWars
             var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
             if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
             var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']"); // Added AGOT tab
-            if (AGOT_Node != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString(); // Added AGOT tab
+            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString(); // Added AGOT tab
             xmlDoc.Save(file);
         }
 
