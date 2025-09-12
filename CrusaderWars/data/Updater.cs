@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Xml.Linq;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms; // Added for MessageBox
 
 namespace CrusaderWars
 {
@@ -341,13 +342,14 @@ namespace CrusaderWars
 
             if (latestRelease.version == null) return;
 
+            string? updaterPath = null; // Declare updaterPath here
 
             if (IsNewerVersion(currentVersion, latestRelease.version))
             {
                 Program.Logger.Debug($"Update available for app: {latestRelease.version}. Starting updater...");
                 try
-                    {
-                    string? updaterPath = GetUpdaterPath();
+                {
+                    updaterPath = GetUpdaterPath(); // Assign inside try block
                     if (updaterPath == null)
                     {
                         throw new FileNotFoundException("Updater executable not found.");
@@ -363,6 +365,18 @@ namespace CrusaderWars
                 catch (Exception ex)
                 {
                     Program.Logger.Debug($"Failed to start updater: {ex.Message}");
+                    string fullUpdaterPath = updaterPath != null ? Path.GetFullPath(updaterPath) : "N/A";
+                    MessageBox.Show(
+                        $"The Crusader Conflicts updater failed to launch.\n\n" +
+                        $"This is often caused by antivirus software blocking the executable.\n\n" +
+                        $"Please try to manually run the updater from:\n" +
+                        $"{fullUpdaterPath}\n\n" +
+                        $"Error details: {ex.Message}",
+                        "Crusader Conflicts: Updater Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    Environment.Exit(0); // Exit the application after notifying the user
                 }
             }
             else
@@ -393,13 +407,14 @@ namespace CrusaderWars
 
             if (latestRelease.version == null) return;
 
+            string? updaterPath = null; // Declare updaterPath here
 
             if (IsNewerVersion(currentVersion, latestRelease.version))
             {
                 Program.Logger.Debug($"Update available for unit mappers: {latestRelease.version}. Starting updater...");
                 try
                 {
-                    string? updaterPath = GetUpdaterPath();
+                    updaterPath = GetUpdaterPath(); // Assign inside try block
                     if (updaterPath == null)
                     {
                         throw new FileNotFoundException("Updater executable not found.");
@@ -415,6 +430,18 @@ namespace CrusaderWars
                 catch (Exception ex)
                 {
                     Program.Logger.Debug($"Failed to start updater: {ex.Message}");
+                    string fullUpdaterPath = updaterPath != null ? Path.GetFullPath(updaterPath) : "N/A";
+                    MessageBox.Show(
+                        $"The Crusader Conflicts unit mappers updater failed to launch.\n\n" +
+                        $"This is often caused by antivirus software blocking the executable.\n\n" +
+                        $"Please try to manually run the updater from:\n" +
+                        $"{fullUpdaterPath}\n\n" +
+                        $"Error details: {ex.Message}",
+                        "Crusader Conflicts: Unit Mappers Updater Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    Environment.Exit(0); // Exit the application after notifying the user
                 }
             }
             else
