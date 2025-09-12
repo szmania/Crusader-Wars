@@ -142,7 +142,7 @@ namespace CrusaderWars
             //  Merge friendly armies to main army     
             //----------------------------------------------
             bool isUserAlly = false; Army? userAlliedArmy = null;
-            if (player_main_army.Owner.GetID() == DataSearch.Player_Character.GetID())
+            if (player_main_army.Owner.GetID() == DataSearch.Player_Character?.GetID())
             {
                 isUserAlly = false;
                 if (player_main_army.CombatSide == "attacker")
@@ -154,7 +154,7 @@ namespace CrusaderWars
             {
                 try
                 {
-                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
+                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID());
                     isUserAlly = true;
                     if (userAlliedArmy?.CombatSide == "attacker")
                         userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
@@ -203,14 +203,14 @@ namespace CrusaderWars
             {
                 foreach (var army in temp_attacker_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
                 }
             }
             else if (player_main_army.CombatSide == "defender")
             {
                 foreach (var army in temp_defender_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
                 }
             }
 
@@ -231,14 +231,14 @@ namespace CrusaderWars
             {
                 foreach (var army in temp_attacker_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
                 }
             }
             else if (enemy_main_army.CombatSide == "defender")
             {
                 foreach (var army in temp_defender_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
                 }
             }
 
@@ -262,7 +262,7 @@ namespace CrusaderWars
             //  Merge armies until there are only four      
             //----------------------------------------------
 
-            if(player_main_army.Owner.GetID() == DataSearch.Player_Character.GetID())
+            if(player_main_army.Owner.GetID() == DataSearch.Player_Character?.GetID())
             {
                 isUserAlly = false;
                 ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
@@ -271,7 +271,7 @@ namespace CrusaderWars
             else
             {
                 isUserAlly = true;
-                userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character.GetID());
+                userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID());
 
                 if (userAlliedArmy == null)
                 {
@@ -313,24 +313,32 @@ namespace CrusaderWars
             if (player_main_army.CombatSide == "attacker")
             {
                 if (!isUserAlly)
-                    temp_attacker_armies.Remove(player_main_army);
+                {
+                    if (player_main_army != null) temp_attacker_armies.Remove(player_main_army);
+                }
                 else
-                    temp_attacker_armies.Remove(userAlliedArmy);
+                {
+                    if (userAlliedArmy != null) temp_attacker_armies.Remove(userAlliedArmy);
+                }
                 foreach (var army in temp_attacker_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
 
                 }
             }
             else if (player_main_army.CombatSide == "defender")
             {
                 if (!isUserAlly)
-                    temp_defender_armies.Remove(player_main_army);
+                {
+                    if (player_main_army != null) temp_defender_armies.Remove(player_main_army);
+                }
                 else
-                    temp_defender_armies.Remove(userAlliedArmy);
+                {
+                    if (userAlliedArmy != null) temp_defender_armies.Remove(userAlliedArmy);
+                }
                 foreach (var army in temp_defender_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
                 }
             }
 
@@ -349,18 +357,18 @@ namespace CrusaderWars
             //#### WRITE ENEMY ALLIED ARMIES
             if (enemy_main_army.CombatSide == "attacker")
             {
-                temp_attacker_armies.Remove(enemy_main_army);
+                if (enemy_main_army != null) temp_attacker_armies.Remove(enemy_main_army);
                 foreach (var army in temp_attacker_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
                 }
             }
             else if (enemy_main_army.CombatSide == "defender")
             {
-                temp_defender_armies.Remove(enemy_main_army);
+                if (enemy_main_army != null) temp_defender_armies.Remove(enemy_main_army);
                 foreach (var army in temp_defender_armies)
                 {
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
                 }
             }
 
@@ -617,7 +625,7 @@ namespace CrusaderWars
                 string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
 
                 var foundFaction = aoj_list.FirstOrDefault(x => x.AttilaFaction == attila_faction);
-                if (foundFaction.Faction != null)
+                if (!string.IsNullOrEmpty(foundFaction.Faction))
                 {
                     faction = foundFaction.Faction;
                 }

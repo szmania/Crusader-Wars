@@ -746,7 +746,7 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
+                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
@@ -856,7 +856,7 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
+                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
@@ -961,7 +961,7 @@ namespace CrusaderWars
                         }
                         else if (line.Contains("\t\t\t\t\t\tcurrent="))
                         {
-                            string currentNum = (SearchArmyRegiment(attacker_armies, army_regiment_id)?.CurrentNum)?.ToString() ?? "0";
+                            string currentNum = SearchArmyRegiment(attacker_armies, army_regiment_id)?.CurrentNum.ToString() ?? "0";
                             string edited_line = "\t\t\t\t\t\tcurrent=" + currentNum;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: Regiment {army_regiment_id} current={currentNum}");
@@ -998,7 +998,7 @@ namespace CrusaderWars
                         }
                         else if (line.Contains("\t\t\t\t\t\tcurrent="))
                         {
-                            string currentNum = (SearchArmyRegiment(defender_armies, army_regiment_id)?.CurrentNum)?.ToString() ?? "0";
+                            string currentNum = SearchArmyRegiment(defender_armies, army_regiment_id)?.CurrentNum.ToString() ?? "0";
                             string edited_line = "\t\t\t\t\t\tcurrent=" + currentNum;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: Regiment {army_regiment_id} current={currentNum}");
@@ -1037,7 +1037,7 @@ namespace CrusaderWars
             int total = 0;
             foreach(Army army in armies)
             {
-                total += army.ArmyRegiments?.Where(r => r != null).Sum(r => r.CurrentNum) ?? 0;
+                total += army.ArmyRegiments?.Where(r => r != null).Select(r => r.CurrentNum).Sum() ?? 0;
 
             }
             Program.Logger.Debug($"Calculated total fighting men for armies: {total}");

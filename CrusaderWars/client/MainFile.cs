@@ -26,8 +26,8 @@ namespace CrusaderWars
 {
     public partial class HomePage : Form
     {
-        private LoadingScreen loadingScreen = null!;
-        private Thread loadingThread = null!;
+        private LoadingScreen? loadingScreen;
+        private Thread? loadingThread;
         private string log = null!;  // For CK3 log content
         private bool _programmaticClick = false;
         private bool battleJustCompleted = false;
@@ -1800,19 +1800,19 @@ namespace CrusaderWars
             switch (playthrough)
             {
                 case "Medieval":
-                    loadingScreen.BackgroundImage = Properties.Resources.LS_medieval;
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
                     break;
                 case "LateAntiquity":
-                    loadingScreen.BackgroundImage = Properties.Resources.LS_late_antiquity;
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
                     break;
                 case "Lotr":
-                    loadingScreen.BackgroundImage = Properties.Resources.LS_lotr;
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_lotr;
                     break;
                 case "AGOT": // Added AGOT tab
-                    loadingScreen.BackgroundImage = Properties.Resources.LS_agot;
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_agot;
                     break;
                 default:
-                    loadingScreen.BackgroundImage = Properties.Resources.LS_medieval;
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
                     break;
             }
         }
