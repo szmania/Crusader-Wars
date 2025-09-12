@@ -152,8 +152,10 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug($"Error reading all combat results: {ex.Message}");
             }
-        }
+       
 
+
+        }
 
         public static void SendToSaveFile(string filePath)
         {
@@ -1063,7 +1065,7 @@ namespace CrusaderWars
             int total = 0;
             foreach (Army army in armies)
             {
-                total += army.ArmyRegiments.Where(y => y.Type == RegimentType.Levy).Sum(x => x.CurrentNum);
+                total += army.ArmyRegiments.Where(y => y != null && y.Type == RegimentType.Levy).Sum(x => x.CurrentNum);
 
             }
             Program.Logger.Debug($"Calculated total levy men for armies: {total}");

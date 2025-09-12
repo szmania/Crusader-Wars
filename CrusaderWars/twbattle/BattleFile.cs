@@ -322,7 +322,7 @@ namespace CrusaderWars
                 }
                 foreach (var army in temp_attacker_armies)
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
+                    if (army != null) WriteArmy(army!, total_soldiers, false, "stark");
 
                 }
             }
@@ -338,7 +338,7 @@ namespace CrusaderWars
                 }
                 foreach (var army in temp_defender_armies)
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
+                    if (army != null) WriteArmy(army!, total_soldiers, false, "stark");
                 }
             }
 
@@ -360,7 +360,7 @@ namespace CrusaderWars
                 if (enemy_main_army != null) temp_attacker_armies.Remove(enemy_main_army);
                 foreach (var army in temp_attacker_armies)
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
+                    if (army != null) WriteArmy(army!, total_soldiers, false, "bolton");
                 }
             }
             else if (enemy_main_army.CombatSide == "defender")
@@ -368,7 +368,7 @@ namespace CrusaderWars
                 if (enemy_main_army != null) temp_defender_armies.Remove(enemy_main_army);
                 foreach (var army in temp_defender_armies)
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
+                    if (army != null) WriteArmy(army!, total_soldiers, false, "bolton");
                 }
             }
 
@@ -377,7 +377,7 @@ namespace CrusaderWars
             //Write essential data
             CloseAlliance();
             //Write battle description
-            SetBattleDescription(player_main_army, total_soldiers);
+            SetBattleDescription(player_main_army!, total_soldiers);
             //Write battle map
             SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
             //Write essential data
@@ -624,7 +624,7 @@ namespace CrusaderWars
                 string heritage = unit.GetHeritage();
                 string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
 
-                string? foundAttilaFaction = aoj_list.FirstOrDefault(x => x.AttilaFaction == attila_faction).Faction;
+                string? foundAttilaFaction = aoj_list.Where(x => x.AttilaFaction == attila_faction).Select(x => x.Faction).FirstOrDefault();
                 if (!string.IsNullOrEmpty(foundAttilaFaction))
                 {
                     faction = foundAttilaFaction;

@@ -275,11 +275,19 @@ namespace CrusaderWars.data.save_file
                         string accoladeID = Regex.Match(line, @"\d+").Value;
                         if(isKnight && searchingKnight != null)
                         {
-                            searchingKnight.IsAccolade(true, GetAccolade(accoladeID));
+                            var accolade = GetAccolade(accoladeID);
+                            if (accolade != null)
+                            {
+                                searchingKnight.IsAccolade(true, accolade);
+                            }
                         }
                         else if(isMainCommander && searchingArmy?.Commander != null)
                         {
-                            searchingArmy.Commander.SetAccolade(GetAccolade(accoladeID));
+                            var accolade = GetAccolade(accoladeID);
+                            if (accolade != null)
+                            {
+                                searchingArmy.Commander.SetAccolade(accolade);
+                            }
                         }
                         else if(isCommander)
                         {
@@ -406,10 +414,19 @@ namespace CrusaderWars.data.save_file
                     {
                         if (isCommander && searchingArmy != null)
                         {
-                            Program.Logger.Debug($"Creating non-main commander '{nonMainCommander_Name}' ({searchingArmy.CommanderID}) for army '{searchingArmy.ID}'.");
-                            searchingArmy.SetCommander(new CommanderSystem(nonMainCommander_Name, searchingArmy.CommanderID, nonMainCommander_Prowess, nonMainCommander_Rank, nonMainCommander_BaseSkills, nonMainCommander_Culture));
-                            searchingArmy.Commander.SetTraits(nonMainCommander_Traits);
-                            if (nonMainCommander_Accolade != null) searchingArmy.Commander.SetAccolade(nonMainCommander_Accolade);
+                            if (nonMainCommander_BaseSkills != null && nonMainCommander_Culture != null)
+                            {
+                                Program.Logger.Debug($"Creating non-main commander '{nonMainCommander_Name}' ({searchingArmy.CommanderID}) for army '{searchingArmy.ID}'.");
+                                searchingArmy.SetCommander(new CommanderSystem(nonMainCommander_Name, searchingArmy.CommanderID, nonMainCommander_Prowess, nonMainCommander_Rank, nonMainCommander_BaseSkills, nonMainCommander_Culture));
+                                if (nonMainCommander_Traits != null)
+                                {
+                                    searchingArmy.Commander?.SetTraits(nonMainCommander_Traits);
+                                }
+                                if (nonMainCommander_Accolade != null)
+                                {
+                                    searchingArmy.Commander?.SetAccolade(nonMainCommander_Accolade);
+                                }
+                            }
                         }
 
                         searchStarted = false;

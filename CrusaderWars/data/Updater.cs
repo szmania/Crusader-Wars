@@ -21,7 +21,7 @@ namespace CrusaderWars
         private static readonly HttpClient client = new HttpClient();
         private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
         private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases/latest";
-        private async Task<(string version, string downloadUrl)> GetLatestReleaseInfoAsync(string releaseUrl)
+        private async Task<(string? version, string? downloadUrl)> GetLatestReleaseInfoAsync(string releaseUrl)
         {
             Program.Logger.Debug($"Getting latest release info from: {releaseUrl}");
             try
@@ -281,7 +281,7 @@ namespace CrusaderWars
             return false;
         }
 
-        private async Task<(string version, string downloadUrl)> GetLatestReleaseFromReposAsync(string[] releaseUrls)
+        private async Task<(string? version, string? downloadUrl)> GetLatestReleaseFromReposAsync(string[] releaseUrls)
         {
             var releaseTasks = releaseUrls.Select(url => GetLatestReleaseInfoAsync(url)).ToArray();
             var releases = await Task.WhenAll(releaseTasks);
@@ -294,7 +294,7 @@ namespace CrusaderWars
                 return (null, null);
             }
 
-            var latestRelease = validReleases.Aggregate((r1, r2) => IsNewerVersion(r1.version, r2.version) ? r2 : r1);
+            var latestRelease = validReleases.Aggregate((r1, r2) => IsNewerVersion(r1.version!, r2.version!) ? r2 : r1);
             return latestRelease;
         }
 
