@@ -451,59 +451,52 @@ namespace CrusaderWars
             ShowOneTimeNotifications();
         }
 
+        private Version ParseVersionString(string versionString, string versionType)
+        {
+            if (string.IsNullOrEmpty(versionString))
+            {
+                Program.Logger.Debug($"Version string for '{versionType}' is null or empty. Defaulting to 0.0.0.");
+                return new Version("0.0.0");
+            }
+
+            string sanitizedVersionString = versionString.TrimStart('v');
+            int hyphenIndex = sanitizedVersionString.IndexOf('-');
+            if (hyphenIndex >= 0)
+            {
+                sanitizedVersionString = sanitizedVersionString.Substring(0, hyphenIndex);
+            }
+
+            try
+            {
+                return new Version(sanitizedVersionString);
+            }
+            catch (FormatException ex)
+            {
+                Program.Logger.Debug($"Invalid {versionType} version format: {versionString}. Error: {ex.Message}. Defaulting to 0.0.0.");
+                return new Version("0.0.0"); // Default if malformed
+            }
+        }
+
         private void ShowOneTimeNotifications()
         {
-            // Get current application version
-            if (string.IsNullOrEmpty(_appVersion))
-            {
-                Program.Logger.Debug("Current application version is null or empty, skipping update notification.");
-                return;
-            }
+            // Get current versions
+            Version currentAppVersion = ParseVersionString(_appVersion, "Current App");
+            Version currentUMVersion = ParseVersionString(_umVersion, "Current Unit Mapper");
 
-            string sanitizedAppVersionString = _appVersion.TrimStart('v');
-            int hyphenIndexApp = sanitizedAppVersionString.IndexOf('-');
-            if (hyphenIndexApp >= 0)
-            {
-                sanitizedAppVersionString = sanitizedAppVersionString.Substring(0, hyphenIndexApp);
-            }
+            // Get last notified versions from settings
+            Version lastNotifiedAppVersion = ParseVersionString(Properties.Settings.Default.LastNotifiedVersion, "Last Notified App");
+            Version lastNotifiedUMVersion = ParseVersionString(Properties.Settings.Default.LastNotifiedUMVersion, "Last Notified Unit Mapper");
 
-            Version currentAppVersion;
-            try
-            {
-                currentAppVersion = new Version(sanitizedAppVersionString);
-            }
-            catch (FormatException ex)
-            {
-                Program.Logger.Debug($"Invalid application version format: {_appVersion}. Error: {ex.Message}. Skipping update notification.");
-                return;
-            }
-
-            // Get last notified version from settings
-            string lastNotifiedVersionString = Properties.Settings.Default.LastNotifiedVersion;
-            
-            string sanitizedLastNotifiedVersionString = lastNotifiedVersionString;
-            int hyphenIndexLast = sanitizedLastNotifiedVersionString.IndexOf('-');
-            if (hyphenIndexLast >= 0)
-            {
-                sanitizedLastNotifiedVersionString = sanitizedLastNotifiedVersionString.Substring(0, hyphenIndexLast);
-            }
-
-            Version lastNotifiedVersion;
-            try
-            {
-                lastNotifiedVersion = new Version(sanitizedLastNotifiedVersionString);
-            }
-            catch (FormatException ex)
-            {
-                Program.Logger.Debug($"Invalid LastNotifiedVersion format in settings: {lastNotifiedVersionString}. Error: {ex.Message}. Defaulting to 0.0.0.");
-                lastNotifiedVersion = new Version("0.0.0"); // Default to a very old version if setting is malformed
-            }
+            bool newAppVersionDetected = currentAppVersion > lastNotifiedAppVersion;
+            bool newUMVersionDetected = currentUMVersion > lastNotifiedUMVersion;
 
             // Compare versions
-            if (currentAppVersion > lastNotifiedVersion) // Corrected comparison operator
+            if (newAppVersionDetected || newUMVersionDetected)
             {
-                Program.Logger.Debug($"New application version detected ({currentAppVersion} > {lastNotifiedVersion}). Displaying update notification.");
-                
+                if (newAppVersionDetected) Program.Logger.Debug($"New application version detected ({currentAppVersion} > {lastNotifiedAppVersion}).");
+                if (newUMVersionDetected) Program.Logger.Debug($"New unit mapper version detected ({currentUMVersion} > {lastNotifiedUMVersion}).");
+                Program.Logger.Debug("Displaying update notification.");
+
                 // Create a custom form for the notification
                 Form notificationForm = new Form();
                 notificationForm.Text = "Crusader Conflicts: Latest Updates";
@@ -556,14 +549,18 @@ namespace CrusaderWars
 
                 notificationForm.ShowDialog(this);
 
-                // Update the setting to the current version
+                // Update both settings to the current versions
                 Properties.Settings.Default.LastNotifiedVersion = _appVersion.TrimStart('v');
+                Properties.Settings.Default.LastNotifiedUMVersion = _umVersion.TrimStart('v');
                 Properties.Settings.Default.Save();
                 Program.Logger.Debug($"LastNotifiedVersion updated to: {Properties.Settings.Default.LastNotifiedVersion}");
+                Program.Logger.Debug($"LastNotifiedUMVersion updated to: {Properties.Settings.Default.LastNotifiedUMVersion}");
             }
             else
             {
-                Program.Logger.Debug($"Application version ({currentAppVersion}) is not newer than last notified version ({lastNotifiedVersion}). Skipping update notification.");
+                Program.Logger.Debug($"Application version ({currentAppVersion}) is not newer than last notified version ({lastNotifiedAppVersion}).");
+                Program.Logger.Debug($"Unit mapper version ({currentUMVersion}) is not newer than last notified version ({lastNotifiedUMVersion}).");
+                Program.Logger.Debug("Skipping update notification.");
             }
         }
 
