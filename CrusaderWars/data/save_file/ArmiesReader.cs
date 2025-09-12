@@ -1650,7 +1650,7 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach(var army in attacker_armies)
                             {
-                                army.ArmyRegiments?.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                army.ArmyRegiments?.FirstOrDefault(x => x != null && x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
                             }
                         }
                     }
@@ -1661,7 +1661,7 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach (var army in defender_armies)
                             {
-                                army.ArmyRegiments?.FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                army.ArmyRegiments?.FirstOrDefault(x => x != null && x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
                             }
                         }
                     }

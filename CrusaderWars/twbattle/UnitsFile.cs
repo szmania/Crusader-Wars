@@ -111,6 +111,13 @@ namespace CrusaderWars
         static void BETA_AddArmyUnits(Army army)
         {
             Program.Logger.Debug($"BETA_AddArmyUnits: Processing army {army.ID} ({army.CombatSide}) with {army.Units.Count} units.");
+            
+            if (army.Owner is null)
+            {
+                Program.Logger.Debug($"  - WARNING: Army {army.ID} has no owner. Skipping unit processing.");
+                return;
+            }
+
             army.RemoveNullUnits();
 
             i = 0;
@@ -128,12 +135,13 @@ namespace CrusaderWars
             int commander_army_xp = 0;
             if (army.Commander != null)
             {
-                commander_army_xp = army.Commander.GetUnitsExperience();
-                int commander_xp = army.Commander.GetCommanderExperience();
-                int commander_soldiers = army.Commander.GetUnitSoldiers();
+                var commander = army.Commander;
+                commander_army_xp = commander.GetUnitsExperience();
+                int commander_xp = commander.GetCommanderExperience();
+                int commander_soldiers = commander.GetUnitSoldiers();
                 
-                Unit commander_unit = new Unit("General", commander_soldiers, army.Commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
-                commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(army.Commander.GetCultureName(), army.Commander.GetHeritageName()));
+                Unit commander_unit = new Unit("General", commander_soldiers, commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
+                commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName()));
                 commander_unit.SetUnitKey(UnitMappers_BETA.GetUnitKey(commander_unit));
 
                 string commanderAttilaKey = commander_unit.GetAttilaUnitKey();
@@ -145,8 +153,8 @@ namespace CrusaderWars
                 else
                 {
                     army.Units.Insert(0, commander_unit);
-                    string general_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEcommander{army.Commander.ID}_CULTURE{army.Commander.GetCultureObj()?.ID ?? "unknown"}_";
-                    BattleFile.AddGeneralUnit(army.Commander, commanderAttilaKey, general_script_name, commander_xp, Deployments.beta_GeDirection(army.CombatSide));
+                    string general_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEcommander{commander.ID}_CULTURE{commander.GetCultureObj()?.ID ?? "unknown"}_";
+                    BattleFile.AddGeneralUnit(commander, commanderAttilaKey, general_script_name, commander_xp, Deployments.beta_GeDirection(army.CombatSide));
                     i++;
                 }
             }
@@ -199,11 +207,11 @@ namespace CrusaderWars
             //##################
             if (army.IsPlayer()) { 
                 traits_xp = GetTraitsXP(true, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
-                modifiers_xp = CK3LogData.LeftSide.GetModifiers().GetXP();
+                modifiers_xp = CK3LogData.LeftSide.GetModifiers()?.GetXP() ?? 0;
             }
             else { 
                 traits_xp = GetTraitsXP(false, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
-                modifiers_xp = CK3LogData.RightSide.GetModifiers().GetXP();
+                modifiers_xp = CK3LogData.RightSide.GetModifiers()?.GetXP() ?? 0;
             }
 
             army_xp += commander_army_xp;
@@ -285,7 +293,17 @@ namespace CrusaderWars
                 var MAA_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
 
                 if (unit.GetObjCulture() == null)
-                    unit.ChangeCulture(unit.GetOwner().GetCulture());
+                {
+                    var unitOwner = unit.GetOwner();
+                    if (unitOwner != null)
+                    {
+                        unit.ChangeCulture(unitOwner.GetCulture());
+                    }
+                    else
+                    {
+                        unit.ChangeCulture(army.Owner.GetCulture());
+                    }
+                }
 
                 //If is retinue maa, increase 2xp.
                 if (unitName.Contains("accolade"))

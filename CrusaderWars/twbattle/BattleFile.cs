@@ -624,13 +624,20 @@ namespace CrusaderWars
                 string heritage = unit.GetHeritage();
                 string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
 
-                var foundFaction = aoj_list.FirstOrDefault(x => x.AttilaFaction == attila_faction);
-                if (!string.IsNullOrEmpty(foundFaction.Faction))
+                string? foundAttilaFaction = aoj_list.FirstOrDefault(x => x.AttilaFaction == attila_faction).Faction;
+                if (!string.IsNullOrEmpty(foundAttilaFaction))
                 {
-                    faction = foundFaction.Faction;
+                    faction = foundAttilaFaction;
                 }
             }
             return faction;
+        }
+
+        private static void SetEnemyFaction(Army army)
+        {
+            string PR_EnemyFaction = $"<faction>{GetAOJFaction(army, false)}</faction>\n\n";
+
+            File.AppendAllText(battlePath, PR_EnemyFaction);
         }
 
         private static void SetDeploymentArea(string combat_side)
@@ -957,13 +964,6 @@ namespace CrusaderWars
             string PR_OpenAlliance = "<alliance id=\"1\">\n";
 
             File.AppendAllText(battlePath, PR_OpenAlliance);
-        }
-
-        private static void SetEnemyFaction(Army army)
-        {
-            string PR_EnemyFaction = $"<faction>{GetAOJFaction(army, false)}</faction>\n\n";
-
-            File.AppendAllText(battlePath, PR_EnemyFaction);
         }
 
         private static void SetBattleDescription(Army army, int total_soldiers)

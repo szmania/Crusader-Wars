@@ -2072,10 +2072,10 @@ namespace CrusaderWars
         {
             if (!string.IsNullOrEmpty(_appVersion))
             {
-                string url = await _updater.GetReleaseUrlForVersion(_appVersion, false);
+                string? url = await _updater.GetReleaseUrlForVersion(_appVersion, false);
                 if(!string.IsNullOrEmpty(url))
                 {
-                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                    Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });
                 }
             }
         }
@@ -2084,10 +2084,10 @@ namespace CrusaderWars
         {
             if (!string.IsNullOrEmpty(_umVersion))
             {
-                string url = await _updater.GetReleaseUrlForVersion(_umVersion, true);
+                string? url = await _updater.GetReleaseUrlForVersion(_umVersion, true);
                 if (!string.IsNullOrEmpty(url))
                 {
-                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                    Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });
                 }
             }
         }

@@ -527,8 +527,8 @@ namespace CrusaderWars
             Program.Logger.Debug("Updating last checked timestamp.");
             try
             {
-                string settingsDir = Path.GetDirectoryName(LastCheckedFilePath);
-                if (!Directory.Exists(settingsDir))
+                string? settingsDir = Path.GetDirectoryName(LastCheckedFilePath);
+                if (settingsDir != null && !Directory.Exists(settingsDir))
                 {
                     Directory.CreateDirectory(settingsDir);
                     Program.Logger.Debug($"Created directory: {settingsDir}");

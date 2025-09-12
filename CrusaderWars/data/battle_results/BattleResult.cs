@@ -408,7 +408,7 @@ namespace CrusaderWars
                 string type = Regex.Match(group.Key.Type, @"\D+").Value;
                 // Safely get the unit, then its culture. If unit is null, culture will be null.
                 // The warning CS8600 is because GetObjCulture() is called on a potentially null result of FirstOrDefault().
-                var matchingUnit = army.Units.FirstOrDefault(x => x.GetRegimentType() == unitType && x.GetObjCulture()?.ID == group.Key.CultureID && x.GetName() == type);
+                var matchingUnit = army.Units.FirstOrDefault(x => x != null && x.GetRegimentType() == unitType && x.GetObjCulture()?.ID == group.Key.CultureID && x.GetName() == type);
                 
                 if (matchingUnit == null)
                 {
@@ -752,8 +752,7 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var nonNullKnights = knightsList.Where(k => k != null);
-                                    var knight = nonNullKnights.FirstOrDefault(k => k.GetID() == knightID);
+                                    var knight = knightsList.OfType<Knight>().FirstOrDefault(k => k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
@@ -863,8 +862,7 @@ namespace CrusaderWars
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
-                                    var nonNullKnights = knightsList.Where(k => k != null);
-                                    var knight = nonNullKnights.FirstOrDefault(k => k.GetID() == knightID);
+                                    var knight = knightsList.OfType<Knight>().FirstOrDefault(k => k.GetID() == knightID);
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
@@ -1047,7 +1045,13 @@ namespace CrusaderWars
             {
                 if (army.ArmyRegiments != null)
                 {
-                    total += army.ArmyRegiments.Where(r => r is not null).Sum(r => r.CurrentNum);
+                    foreach (var r in army.ArmyRegiments)
+                    {
+                        if (r is not null)
+                        {
+                            total += r.CurrentNum;
+                        }
+                    }
                 }
             }
             Program.Logger.Debug($"Calculated total fighting men for armies: {total}");
@@ -1274,7 +1278,7 @@ namespace CrusaderWars
                 streamWriter.NewLine = "\n";
 
                 string? line;
-                while((line = streamReader.ReadLine()) != null)
+                while ((line = streamReader.ReadLine()) != null)
                 {
 
                     //Regiment ID line
@@ -1377,7 +1381,7 @@ namespace CrusaderWars
                 if (army.ArmyRegiments == null) continue; // Added null check here
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
-                    if (armyRegiment.Regiments == null) continue; // Added null check here
+                    if (armyRegiment == null || armyRegiment.Regiments == null) continue; // Added null check here
                     foreach (Regiment regiment in armyRegiment.Regiments)
                     {
                         if (regiment.ID == regiment_id)
