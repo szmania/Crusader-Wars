@@ -32,10 +32,14 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug($"Reading enabled mods from: {ck3_mods_enabled_file_path}");
             string enabled_mods_json_text = File.ReadAllText(ck3_mods_enabled_file_path);
             var json = JsonSerializer.Deserialize<Dictionary<string, string[]>>(enabled_mods_json_text);
-            EnabledMods = json.ElementAt(0).Value.ToList();
-            for(int i = 0; i < EnabledMods.Count; i++)
+            
+            if (json != null && json.Any())
             {
-                EnabledMods[i] = EnabledMods[i].Replace("mod/", "");
+                EnabledMods = json.First().Value.Select(mod => mod.Replace("mod/", "")).ToList();
+            }
+            else
+            {
+                EnabledMods = new List<string>();
             }
             Program.Logger.Debug($"Found {EnabledMods.Count} enabled mods.");
         }
