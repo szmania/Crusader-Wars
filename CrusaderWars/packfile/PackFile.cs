@@ -18,7 +18,7 @@ namespace CrusaderWars
 
             string create_path =Directory.GetCurrentDirectory() + @"\CrusaderWars.pack";
             string add_path = Directory.GetCurrentDirectory() + @"\data\battle files";
-            string thumbnail_path = Directory.GetCurrentDirectory() + @"\Settings\CrusaderWars.png";
+            string thumbnail_path = Directory.GetCurrentDirectory() + @"\settings\CrusaderWars.png";
             string tsv_path = Directory.GetCurrentDirectory() + @"\data\schema_att.ron";
 
             string create_command = $@"--game attila pack create -p ""{create_path}""";

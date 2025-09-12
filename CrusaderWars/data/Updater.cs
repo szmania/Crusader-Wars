@@ -17,7 +17,7 @@ namespace CrusaderWars
         public  string AppVersion { get; set; } = string.Empty;
         public string UMVersion { get; set; } = string.Empty;
 
-        private const string LastCheckedFilePath = @".\Settings\lastchecked.txt";
+        private const string LastCheckedFilePath = @".\settings\lastchecked.txt";
         private static readonly HttpClient client = new HttpClient();
         private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
         private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases/latest";

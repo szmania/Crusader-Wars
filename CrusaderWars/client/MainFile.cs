@@ -55,7 +55,7 @@ namespace CrusaderWars
                 Directory.CreateDirectory(@".\data\runtime");
                 Directory.CreateDirectory(@".\data\sounds");
                 Directory.CreateDirectory(@".\font");
-                Directory.CreateDirectory(@".\Settings");
+                Directory.CreateDirectory(@".\settings");
                 Directory.CreateDirectory(@".\unit mappers");
                 Program.Logger.Debug("Required directories created/verified.");
             }
@@ -1781,7 +1781,7 @@ namespace CrusaderWars
         void ChangeLoadingScreenImage()
         {
             Program.Logger.Debug("Changing loading screen image based on playthrough.");
-            string file = @".\Settings\UnitMappers.xml";
+            string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 

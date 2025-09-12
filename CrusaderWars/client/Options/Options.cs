@@ -231,7 +231,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Reading options file...");
             try
             {
-                string file = @".\Settings\Options.xml";
+                string file = @".\settings\Options.xml";
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
                 Program.Logger.Debug("XML options file loaded.");
@@ -474,7 +474,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Saving options to file...");
             try
             {
-                string file = @".\Settings\Options.xml";
+                string file = @".\settings\Options.xml";
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
@@ -692,7 +692,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Attempting to change path setting for {game} to {new_path}");
             try
             {
-                string file = @".\Settings\Paths.xml";
+                string file = @".\settings\Paths.xml";
                 XmlDocument xmlDoc = new XmlDocument();
 
                 // Ensure the file exists, if not, create a basic structure
@@ -764,7 +764,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Reading game paths from Paths.xml...");
             try
             {
-                string file = @".\Settings\Paths.xml";
+                string file = @".\settings\Paths.xml";
                 XmlDocument xmlDoc = new XmlDocument();
                 bool fileModified = false;
 
@@ -1106,7 +1106,7 @@ namespace CrusaderWars
 
         void ReadUnitMappersOptions()
         {
-            string file = @".\Settings\UnitMappers.xml";
+            string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
@@ -1151,7 +1151,7 @@ namespace CrusaderWars
 
         void WriteUnitMappersOptions()
         {
-            string file = @".\Settings\UnitMappers.xml";
+            string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 

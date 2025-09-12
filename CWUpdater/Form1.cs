@@ -340,7 +340,7 @@ namespace CWUpdater
             }
             else if (!IsUnitMappers) // Application updater
             {
-                string settingsDir = Path.Combine(applicationPath, "Settings"); // Added: Path to the Settings directory
+                string settingsDir = Path.Combine(applicationPath, "settings"); // Added: Path to the settings directory
 
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
