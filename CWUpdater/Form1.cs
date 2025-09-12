@@ -340,6 +340,8 @@ namespace CWUpdater
             }
             else if (!IsUnitMappers) // Application updater
             {
+                string settingsDir = Path.Combine(applicationPath, "Settings"); // Added: Path to the Settings directory
+
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
 
@@ -347,6 +349,10 @@ namespace CWUpdater
                 {
                     // Skip files within the updater directory
                     if (file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    // Added: Skip files within the Settings directory
+                    if (file.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     // Define a set of user-specific files to preserve during updates.
@@ -384,6 +390,10 @@ namespace CWUpdater
                 {
                     // Skip the updater directory itself or any directory within its hierarchy (parent, self, or child)
                     if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) || updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    // Added: Skip the Settings directory itself or any directory within its hierarchy
+                    if (dir.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
