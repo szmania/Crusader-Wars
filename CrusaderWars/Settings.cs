@@ -17,6 +17,18 @@
             //
         }
         
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastNotifiedUMVersion {
+            get {
+                return ((string)(this["LastNotifiedUMVersion"]));
+            }
+            set {
+                this["LastNotifiedUMVersion"] = value;
+            }
+        }
+        
         private void SettingChangingEventHandler(object sender, System.Configuration.SettingChangingEventArgs e) {
             // Adicione código para manipular o evento SettingChangingEvent aqui.
         }
