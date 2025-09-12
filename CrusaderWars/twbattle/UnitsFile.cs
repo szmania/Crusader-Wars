@@ -359,27 +359,39 @@ namespace CrusaderWars
             //  MULTIPLE UNITS
             //  fulfill every levy type
             int levySoldiers = unit.GetSoldiers();
-            
-            int compareNum = 0;
-            int totalPercentage = 0;
 
-            foreach (var porcentageData in faction_levy_porcentages)
+            int totalPercentageSum = faction_levy_porcentages.Sum(p => p.porcentage);
+            if (totalPercentageSum <= 0)
             {
-                if (totalPercentage >= 100)
-                {
-                    Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): Total percentage reached 100%. Stopping levy processing for army {army.ID} to prevent inflation.");
-                    break;
-                }
-                totalPercentage += porcentageData.porcentage;
+                Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): WARNING: Total percentage sum for levies is 0 or less for faction '{unit.GetAttilaFaction()}'. No levy units will be generated.");
+                return;
+            }
 
-                double t = (double)porcentageData.porcentage / 100;
-                //int result = (int)Math.Round(Levies_Data.UnitNum * t);
-                int result = (int)Math.Round(levySoldiers * t);
+            int assignedSoldiers = 0;
+            for (int k = 0; k < faction_levy_porcentages.Count; k++)
+            {
+                var porcentageData = faction_levy_porcentages[k];
+                int result;
+
+                if (k < faction_levy_porcentages.Count - 1)
+                {
+                    double t = (double)porcentageData.porcentage / totalPercentageSum;
+                    result = (int)Math.Round(levySoldiers * t);
+                }
+                else
+                {
+                    // Last unit gets the remainder to ensure total is correct
+                    result = levySoldiers - assignedSoldiers;
+                }
+
+                if (result <= 0) continue;
+
+                assignedSoldiers += result;
+
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
                 string logLine = $"    - Levy Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
                 BattleLog.AddLevyLog(army.ID, logLine);
-                compareNum += (levy_type_data.UnitSoldiers * levy_type_data.UnitNum);
-                //if (Levies_Data.UnitNum * t >= 0.5 && Levies_Data.UnitNum * t < 1) result = 1;
+
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
