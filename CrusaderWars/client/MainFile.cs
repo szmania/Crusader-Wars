@@ -1741,4 +1741,355 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug("Loading CK3 with battle results...");
                 Process[] process_ck3 = Process.GetProcessesByName("ck3");
-                if (process_ck3.Length == 0)Model API Response Error. Please retry the previous request
+                if (process_ck3.Length == 0)
+                {
+                    Program.Logger.Debug("CK3 process not found. Starting CK3 with --continuelastsave.");
+                    string ck3_path = Properties.Settings.Default.VAR_ck3_path;
+                    Process.Start(new ProcessStartInfo(ck3_path, "--continuelastsave") { UseShellExecute = true });
+                }
+                else
+                {
+                    Program.Logger.Debug("CK3 process is already running. Cannot automatically load last save. Please continue manually in CK3.");
+                }
+            }
+
+            public static void StartTotalWArAttilaProcess()
+            {
+                Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
+                Process.Start(new ProcessStartInfo(@".\CW.lnk") { UseShellExecute = true });
+            }
+
+            public async static Task CloseTotalWarAttilaProcess()
+            {
+                Program.Logger.Debug("Closing Total War: Attila process...");
+                Process[] process_attila = Process.GetProcessesByName("Attila");
+                foreach (Process worker in process_attila)
+                {
+                    worker.Kill();
+                    worker.WaitForExit();
+                    worker.Dispose();
+                }
+
+                await Task.Delay(1000);
+                Program.Logger.Debug("Total War: Attila process closed.");
+            }
+        };
+
+        /*---------------------------------------------
+         * :::::::::::LOADING SCREEN FUNCS:::::::::::::
+         ---------------------------------------------*/
+
+        void ChangeLoadingScreenImage()
+        {
+            Program.Logger.Debug("Changing loading screen image based on playthrough.");
+            string file = @".\settings\UnitMappers.xml";
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(file);
+
+            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']")!.InnerText;
+            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")!.InnerText;
+            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")!.InnerText;
+            var agotToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']")!.InnerText; // Added AGOT tab
+
+            string playthrough = "";
+            if (ck3ToggleStateStr == "True") playthrough = "Medieval";
+            if (tfeToggleStateStr == "True") playthrough = "LateAntiquity";
+            if (lotrToggleStateStr == "True") playthrough = "Lotr";
+            if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
+
+            Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
+            switch (playthrough)
+            {
+                case "Medieval":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
+                    break;
+                case "LateAntiquity":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
+                    break;
+                case "Lotr":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_lotr;
+                    break;
+                case "AGOT": // Added AGOT tab
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_agot;
+                    break;
+                default:
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
+                    break;
+            }
+        }
+        public void StartLoadingScreen()
+        {
+            Program.Logger.Debug("Starting loading screen thread.");
+            loadingThread = new Thread(new ThreadStart(() =>
+            {
+                loadingScreen = new LoadingScreen();
+                ChangeLoadingScreenImage();
+                Application.Run(loadingScreen);
+            }));
+
+            loadingThread.IsBackground = true;
+            loadingThread.SetApartmentState(ApartmentState.STA);
+            loadingThread.Start();
+
+            // Ensure the loading screen is created before continuing
+            while (loadingScreen == null || !loadingScreen.IsHandleCreated)
+            {
+                Thread.Sleep(50);
+            }
+        }
+
+        public void UpdateLoadingScreenMessage(string? message)
+        {
+            if (loadingScreen != null && loadingScreen.IsHandleCreated)
+            {
+                loadingScreen.BeginInvoke(new Action(() => loadingScreen.ChangeMessage(message ?? string.Empty)));
+            }
+        }
+
+        public void UpdateLoadingScreenUnitMapperMessage(string? message)
+        {
+            if (loadingScreen != null && loadingScreen.IsHandleCreated)
+            {
+                loadingScreen.BeginInvoke(new Action(() => loadingScreen.ChangeUnitMapperMessage(message ?? string.Empty)));
+            }
+        }
+
+        public void CloseLoadingScreen()
+        {
+            Program.Logger.Debug("Closing loading screen.");
+            if (loadingScreen == null) return;
+
+            if (loadingScreen.InvokeRequired)
+            {
+                loadingScreen.Invoke(new Action(() => loadingScreen.Close()));
+            }
+            else
+            {
+                loadingScreen.Close();
+            }
+
+            // Ensure the thread is properly cleaned up
+            if (loadingThread != null)
+            {
+                loadingThread.Join();
+                loadingThread = null;
+            }
+            loadingScreen = null;
+        }
+
+
+
+        /*---------------------------------------------
+         * :::::::::::LOW-LEVEL FUNCTIONS  :::::::::::::
+         ---------------------------------------------*/
+        public static string RemoveASCII(string inputString)
+        {
+            StringBuilder sb = new StringBuilder();
+            string apostrophe = "'";
+            foreach (char c in inputString)
+            {
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_' || c == '\n' || c == '-' || c == ':' || c == ' '|| char.IsLetter(c) || c == '?' || c == apostrophe[0] || c== '%')
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+
+        private void LoadDLLs()
+        {
+            Program.Logger.Debug("Loading DLLs from data\\dlls folder.");
+            try
+            {
+                string dll_folder = @".\data\dlls";
+                foreach (string dllFile in Directory.GetFiles(dll_folder, "*.dll"))
+                {
+                    Program.Logger.Debug($"Loading DLL: {dllFile}");
+                    Assembly assembly = Assembly.LoadFrom(dllFile);
+                    AppDomain.CurrentDomain.Load(assembly.GetName());
+                }
+                Program.Logger.Debug("Finished loading DLLs.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error loading DLLs: {ex.Message}");
+                return;
+            }
+
+        }
+
+        private void SettingsBtn_Click(object sender, EventArgs e)
+        {
+            Program.Logger.Debug("Settings button clicked.");
+            SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_click;
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
+            
+            Options optionsChild = new Options();
+            optionsChild.ShowDialog();
+        }
+
+
+        private void HomePage_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Program.Logger.Debug("HomePage form closing.");
+            ProcessCommands.ResumeProcess();
+        }
+
+        private void PlaySound(string soundFilePath)
+        {
+            try
+            {
+                if (File.Exists(soundFilePath))
+                {
+                    new SoundPlayer(soundFilePath).Play();
+                }
+                else
+                {
+                    Program.Logger.Debug($"Sound file not found: {soundFilePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error playing sound {soundFilePath}: {ex.Message}");
+            }
+        }
+
+        private void viewLogsLink_Click(object sender, EventArgs e)
+        {
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
+            
+            string logPath = Path.GetFullPath(@".\data\debug.log");
+            if (System.IO.File.Exists(logPath))
+            {
+                // Open explorer and highlight debug.log
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select, \"{logPath}\"") { UseShellExecute = true });
+            }
+            else
+            {
+                // Fallback if file not found
+                string folderPath = Path.GetFullPath(@".\data");
+                if (Directory.Exists(folderPath))
+                {
+                    Process.Start(new ProcessStartInfo("explorer.exe", folderPath) { UseShellExecute = true });
+                }
+                else
+                {
+                    MessageBox.Show("Log folder not found! Please report this to developers.",
+                                    "Crusader Conflicts: Log Location Error",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void discordLink_Click(object sender, EventArgs e)
+        {
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
+            Process.Start(new ProcessStartInfo("https://discord.gg/usyHPp39") { UseShellExecute = true });
+        }
+
+        private void WebsiteBTN_Click(object sender, EventArgs e)
+        {
+            Program.Logger.Debug("Website button clicked.");
+            WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
+            Process.Start(new ProcessStartInfo("https://github.com/szmania/Crusader-Wars/releases/") { UseShellExecute = true });
+
+        }
+
+        private void SteamBTN_Click(object sender, EventArgs e)
+        {
+            Program.Logger.Debug("Steam button clicked.");
+            SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_click;
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
+            Process.Start(new ProcessStartInfo("https://github.com/szmania/Crusader-Wars/releases/") { UseShellExecute = true });
+        }
+
+        private void ExecuteButton_MouseEnter(object sender, EventArgs e)
+        {
+            if (ExecuteButton.Enabled)
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new_hover;
+        }
+
+        private void ExecuteButton_MouseHover(object sender, EventArgs e)
+        {
+            if(ExecuteButton.Enabled)
+            ExecuteButton.BackgroundImage = Properties.Resources.start_new_hover;
+        }
+
+        private void ExecuteButton_MouseLeave(object sender, EventArgs e)
+        {
+            if (ExecuteButton.Enabled)
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+        }
+
+        private void SettingsBtn_MouseHover(object sender, EventArgs e)
+        {
+            SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_hover;
+        }
+
+        private void SettingsBtn_MouseLeave(object sender, EventArgs e)
+        {
+            SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new;
+        }
+
+        private void SettingsBtn_MouseEnter(object sender, EventArgs e)
+        {
+            SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_hover;
+        }
+
+        private void WebsiteBTN_MouseEnter(object sender, EventArgs e)
+        {
+            WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_hover1;
+        }
+
+        private void WebsiteBTN_MouseHover(object sender, EventArgs e)
+        {
+            WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_hover1;
+        }
+
+        private void WebsiteBTN_MouseLeave(object sender, EventArgs e)
+        {
+            WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new;
+        }
+
+        private void SteamBTN_MouseEnter(object sender, EventArgs e)
+        {
+            SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_hover1;
+        }
+
+        private void SteamBTN_MouseHover(object sender, EventArgs e)
+        {
+            SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_hover1;
+        }
+
+        private void SteamBTN_MouseLeave(object sender, EventArgs e)
+        {
+            SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new;
+        }
+
+        private async void labelVersion_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_appVersion))
+            {
+                string? url = await _updater.GetReleaseUrlForVersion(_appVersion, false);
+                if(!string.IsNullOrEmpty(url))
+                {
+                    Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });
+                }
+            }
+        }
+
+        private async void labelMappersVersion_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_umVersion))
+            {
+                string? url = await _updater.GetReleaseUrlForVersion(_umVersion, true);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });
+                }
+            }
+        }
+    }
+}
