@@ -142,7 +142,7 @@ namespace CrusaderWars
             //  Merge friendly armies to main army     
             //----------------------------------------------
             bool isUserAlly = false; Army? userAlliedArmy = null;
-            if (player_main_army.Owner.GetID() == DataSearch.Player_Character?.GetID())
+            if (player_main_army.Owner?.GetID() == DataSearch.Player_Character?.GetID())
             {
                 isUserAlly = false;
                 if (player_main_army.CombatSide == "attacker")
@@ -154,7 +154,7 @@ namespace CrusaderWars
             {
                 try
                 {
-                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID());
+                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID());
                     isUserAlly = true;
                     if (userAlliedArmy?.CombatSide == "attacker")
                         userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
@@ -262,7 +262,7 @@ namespace CrusaderWars
             //  Merge armies until there are only four      
             //----------------------------------------------
 
-            if(player_main_army.Owner.GetID() == DataSearch.Player_Character?.GetID())
+            if(player_main_army.Owner?.GetID() == DataSearch.Player_Character?.GetID())
             {
                 isUserAlly = false;
                 ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
@@ -271,7 +271,7 @@ namespace CrusaderWars
             else
             {
                 isUserAlly = true;
-                userAlliedArmy = temp_attacker_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner.GetID() == DataSearch.Player_Character?.GetID());
+                userAlliedArmy = temp_attacker_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID());
 
                 if (userAlliedArmy == null)
                 {
@@ -583,7 +583,7 @@ namespace CrusaderWars
         }
 
         // TEMPORARY CODE FOR AGE OF JUSTINIAN REPEATED UNIT KEYS
-        static List<(string AttilaFaction, string Faction)> aoj_list = new List<(string AttilaFaction, string Faction)>()
+        static List<(string? AttilaFaction, string? Faction)> aoj_list = new List<(string? AttilaFaction, string? Faction)>()
         {
                 ("Copt", "att_fact_ghassanids"),
                 ("Bedouin", "att_fact_lakhmids"),

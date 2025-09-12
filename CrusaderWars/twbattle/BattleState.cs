@@ -61,7 +61,7 @@ namespace CrusaderWars.twbattle
             Program.Logger.Debug($"Saved battle log snippet.");
         }
 
-        public static string LoadLogSnippet()
+        public static string? LoadLogSnippet()
         {
             if (System.IO.File.Exists(LogSnippetFile))
             {

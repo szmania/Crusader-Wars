@@ -80,9 +80,9 @@ namespace CrusaderWars.terrain
                     case "W":
                         DEPLOYMENT_AREA = new DeploymentArea("E", ModOptions.DeploymentsZones(), total_soldiers);
                         return Directions.SetEast(DEPLOYMENT_AREA);
+                    default:
+                        throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
                 }
-
-                return null;
             }
 
             public static string? SetDirection(string direction, int total_soldiers)
@@ -98,9 +98,9 @@ namespace CrusaderWars.terrain
                         return Directions.SetEast(DEPLOYMENT_AREA);
                     case "W":
                         return Directions.SetWest(DEPLOYMENT_AREA);
+                    default:
+                        throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
                 }
-
-                return null;
             }
 
             public static string GetOppositeDirection(string direction)
@@ -115,9 +115,9 @@ namespace CrusaderWars.terrain
                         return "W";
                     case "W":
                         return "E";
+                    default:
+                        throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
                 }
-
-                return "";
             }
         }
  
@@ -218,11 +218,20 @@ namespace CrusaderWars.terrain
                 {
                     MapSize = "Huge";
                 }
+                else
+                {
+                    MapSize = "Medium"; // Default to medium if total_soldiers is outside expected range
+                }
             }
             else
             {
                 MapSize = option_map_size;
             }
+
+            X = "0.00"; // Initialize X and Y to avoid CS8618
+            Y = "0.00";
+            Width = "0";
+            Height = "0";
 
             if (direction == "N")
             {
@@ -243,6 +252,8 @@ namespace CrusaderWars.terrain
                         Y = "700.00";
                         HorizontalSize();
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
                 }
             }
             else if (direction == "S")
@@ -264,6 +275,8 @@ namespace CrusaderWars.terrain
                         Y = "-700.00";
                         HorizontalSize();
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
                 }
             }
             else if (direction == "W")
@@ -285,6 +298,8 @@ namespace CrusaderWars.terrain
                         Y = "0.00";
                         VerticalSize();
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
                 }
             }
             else if (direction == "E")
@@ -304,7 +319,10 @@ namespace CrusaderWars.terrain
                     case "Huge":
                         X = "700.00";
                         Y = "0.00";
+                        VerticalSize(); // Added this line
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
                 }
             }
             else
@@ -331,6 +349,8 @@ namespace CrusaderWars.terrain
                     Width = "1800";
                     Height = "600";
                     break;
+                default:
+                    throw new ArgumentException($"Invalid MapSize '{MapSize}'.");
             }
         }
 
@@ -350,6 +370,8 @@ namespace CrusaderWars.terrain
                     Width = "600";
                     Height = "1800";
                     break;
+                default:
+                    throw new ArgumentException($"Invalid MapSize '{MapSize}'.");
             }
 
         }
@@ -455,6 +477,10 @@ namespace CrusaderWars.terrain
                 {
                     MapSize = "Huge";
                 }
+                else
+                {
+                    MapSize = "Medium"; // Default to medium if total_soldiers is outside expected range
+                }
             }
             else
             {
@@ -500,6 +526,8 @@ namespace CrusaderWars.terrain
                         X = 0;
                         Y = 600;
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
                 }
             }
             else if (Direction == "S")
@@ -518,6 +546,8 @@ namespace CrusaderWars.terrain
                         X = 0;
                         Y = -600;
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
                 }
             }
             else if (Direction == "E")
@@ -536,6 +566,8 @@ namespace CrusaderWars.terrain
                         X = 600;
                         Y = 0;
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
                 }
             }
             else if (Direction == "W")
@@ -554,6 +586,8 @@ namespace CrusaderWars.terrain
                         X = -600;
                         Y = 0;
                         break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
                 }
             }
             else

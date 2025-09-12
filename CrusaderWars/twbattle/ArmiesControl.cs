@@ -61,12 +61,17 @@ namespace CrusaderWars.twbattle
 
         internal static Army MergeFriendlies(List<Army> armies, Army main_army)
         {
-            string main_owner = main_army.Owner.GetID();
+            string? main_owner = main_army.Owner?.GetID();
+            if (main_owner == null)
+            {
+                Program.Logger.Debug($"Warning: Main army {main_army.ID} has no owner. Cannot merge friendlies.");
+                return main_army;
+            }
             armies.Remove(main_army);
 
             for (int i = 0; i < armies.Count; i++)
             {
-                if (armies[i].Owner.GetID() == main_owner)
+                if (armies[i].Owner?.GetID() == main_owner)
                 {
                     main_army.AddMergedArmy(armies[i]);
                     //main_army.Units.AddRange(armies[i].Units);
