@@ -1,22 +1,22 @@
-! - DO THIS FOR EVERY CRUSADER WARS UPDATE IF YOU ARE A NON-STEAM USER OF CRUSADER KINGS III. 
+! - DO THIS FOR EVERY CRUSADER CONFLICTS UPDATE. 
 
 ###	INSTALLATION	###
 1. Drag and drop these files in to "Documents\Paradox Interactive\Crusader Kings III\mod" folder.
 2. Open Crusader Kings III and add them to your playset.
-  2.1 For Lord of the Rings playthrough (Realms in Exile) mod, be sure to use the "Crusader Conflicts + Realms In Exile - Compatibility Patch". And put that after Realms in Exile and Crusader Wars mods. 
-    Move these files/folders to your <Documents>/Paradox Interactive/Crusader Kings III/mods folder:
+  2.1 For Lord of the Rings playthrough (Realms in Exile) mod, be sure to use the "Crusader Conflicts + Realms In Exile - Compatibility Patch". And put that after Realms in Exile and Crusader Conflicts mods. 
+    2.2.0 Move these files/folders to your <Documents>/Paradox Interactive/Crusader Kings III/mods folder:
       a. crusader_conflicts_realms_in_exile_compat_patch
       b. crusader_conflicts_realms_in_exile_compat_patch.mod
-    Load them in your CK3 playset in this Order: 
+    2.2.1 Load them in your CK3 playset in this Order: 
       1. Realms in Exile
-      2. Crusader Wars
+      2. Crusader Conflicts
       3. Crusader Conflicts + Realms In Exile - Compatibility Patch
-  2.2 For A Game of Thrones (AGOT) playthrough (Realms in Exile) mod, be sure to use the "Crusader Conflicts + AGOT - Compatibility Patch". And put that after Realms in Exile and Crusader Wars mods. 
-    Move these files/folders to your <Documents>/Paradox Interactive/Crusader Kings III/mods folder:
+  2.2 For A Game of Thrones (AGOT) playthrough (AGOT) mod, be sure to use the "Crusader Conflicts + AGOT - Compatibility Patch". And put that after AGOT and Crusader Conflicts mods. 
+    2.2.0 Move these files/folders to your <Documents>/Paradox Interactive/Crusader Kings III/mods folder:
       a. crusader_conflicts_agot_compat_patch
       b. crusader_conflicts_agot_compat_patch.mod
-    Load them in your CK3 playset in this Order: 
-      1. Realms in Exile
-      2. Crusader Wars
+    2.2.1 Load them in your CK3 playset in this Order: 
+      1. AGOT
+      2. Crusader Conflicts
       3. Crusader Conflicts + AGOT - Compatibility Patch
 3. Done!
