@@ -21,7 +21,7 @@ namespace CrusaderWars.mod_manager
     class Mod
     {
         bool Enabled { get; set; }
-        Bitmap Image { get; set; }
+        Bitmap? Image { get; set; } // Changed to nullable Bitmap
         string Name { get; set; }
         ModLocalization Localization { get; set; }
         string FullPath {  get; set; }
@@ -29,7 +29,7 @@ namespace CrusaderWars.mod_manager
         bool LoadingMod {  get; set; }
         int LoadOrder { get; set; }
 
-        public Mod(bool isEnabled, Bitmap pngImg, string name, ModLocalization local, string fullPath)
+        public Mod(bool isEnabled, Bitmap? pngImg, string name, ModLocalization local, string fullPath) // Changed to nullable Bitmap
         {
             Enabled = isEnabled;
             Image = pngImg;
@@ -46,12 +46,12 @@ namespace CrusaderWars.mod_manager
         public bool IsEnabled() { return Enabled; }
         public bool IsRequiredMod() { return RequiredMod; }
         public bool IsLoadingModRequiredMod() { return LoadingMod; }
-        public Bitmap GetThumbnail() { return Image; }
+        public Bitmap? GetThumbnail() { return Image; } // Changed return type to nullable Bitmap
         public string GetName() { return Name; }
         public ModLocalization GetLocalization() { return Localization; }
         public string GetFullPath() { return FullPath; }
 
-        public void DisposeThumbnail() {  Image.Dispose();Image = null; }
+        public void DisposeThumbnail() { Image?.Dispose(); Image = null; } // Used null-conditional operator
     }
 
     public static class AttilaModManager

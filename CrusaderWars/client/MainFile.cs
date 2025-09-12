@@ -158,7 +158,7 @@ namespace CrusaderWars
 
             labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
 
-            _umVersion = _updater.UMVersion;
+            _umVersion = _updater!.UMVersion; // Null-forgiving operator added here
             if (!string.IsNullOrWhiteSpace(_umVersion))
             {
                 labelMappersVersion.Text = $"(mappers v{_umVersion.TrimStart('v')})";
@@ -1404,7 +1404,7 @@ namespace CrusaderWars
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
                         BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForDeathCommanders(army, path_log_attila);
+                        BattleResult.CheckForDeathCommanders(army, path_attila_log);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForDeathKnights(army);
                     }
@@ -1412,8 +1412,8 @@ namespace CrusaderWars
                     foreach (var army in defender_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
-                        BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForDeathCommanders(army, path_log_attila);
+                        BattleResult.ReadAttilaResults(army, path_attila_log);
+                        BattleResult.CheckForDeathCommanders(army, path_attila_log);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForDeathKnights(army);
 
@@ -1425,7 +1425,7 @@ namespace CrusaderWars
 
                     //  EDIT COMBATS FILE
                     Program.Logger.Debug("Editing Combats.txt file...");
-                    BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
+                    BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_attila_log);
 
                     //  EDIT COMBATS RESULTS FILE
                     Program.Logger.Debug("Editing BattleResults.txt file...");
@@ -1992,7 +1992,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Website button clicked.");
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
-            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
+            PlaySound(@"..\data\sounds\metal-dagger-hit-185444.wav");
             Process.Start(new ProcessStartInfo("https://github.com/szmania/Crusader-Wars/releases/") { UseShellExecute = true });
 
         }

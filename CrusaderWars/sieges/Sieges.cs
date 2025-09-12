@@ -19,14 +19,14 @@ namespace CrusaderWars.twbattle
          */
         // level 3/4 - mk1212 custom cities
         static int HoldingLevel { get; set; }
-        static string HoldingCulture { get; set; }
-        static string GarrisonHeritage { get; set; }
-        static string GarrisonCulture { get; set; }
+        static string HoldingCulture { get; set; } = string.Empty;
+        static string GarrisonHeritage { get; set; } = string.Empty;
+        static string GarrisonCulture { get; set; } = string.Empty;
         static int GarrisonSize { get; set; }
-        static string SuppliesLevel { get; set; }
-        static string SicknessLevel { get;set; }
-        static string EscalationLevel { get; set; }
-        static int NumberSiegeEquipement { get;set; }
+        static string SuppliesLevel { get; set; } = string.Empty;
+        static string SicknessLevel { get; set; } = string.Empty;
+        static string EscalationLevel { get; set; } = string.Empty;
+        static int NumberSiegeEquipement { get; set; }
         static int FortLevel { get; set; }
 
         public static void SetFortLevel(int a)
