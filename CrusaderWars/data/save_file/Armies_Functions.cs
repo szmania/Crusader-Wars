@@ -164,7 +164,7 @@ namespace CrusaderWars.data.save_file
                         foreach (Army army in armies)
                         {
                             //Owner
-                            if (army.Owner?.GetCulture() != null && army.Owner.GetCulture().ID == culture_id)
+                            if (army.Owner?.GetCulture()?.ID == culture_id)
                             {
                                 isSearchStared = true;
                                 break;
@@ -265,7 +265,11 @@ namespace CrusaderWars.data.save_file
                     }
                     else
                     {
-                        army.Commander.ChangeCulture(army.Owner?.GetCulture());
+                        var ownerCulture = army.Owner?.GetCulture();
+                        if (ownerCulture != null)
+                        {
+                            army.Commander.ChangeCulture(ownerCulture);
+                        }
                     }
                 }
 
@@ -298,7 +302,10 @@ namespace CrusaderWars.data.save_file
                             Program.Logger.Debug($"Knight {knight.GetID()} in army {army.ID} has null culture. Assigning fallback culture. " +
                                 $"Assigning fallback culture ID: {newCultureID}");
                             
-                            knight.ChangeCulture(new_culture);
+                            if (new_culture != null)
+                            {
+                                knight.ChangeCulture(new_culture);
+                            }
                             army.Knights.SetMajorCulture();
                         }
                     }
@@ -352,13 +359,14 @@ namespace CrusaderWars.data.save_file
                 // Commander culture log
                 if (army.Commander != null)
                 {
-                    if (foundCultures.Exists(c => c.culture_id == army.Commander.GetCultureObj().ID))
+                    var commanderCulture = army.Commander.GetCultureObj();
+                    if (commanderCulture != null && foundCultures.Exists(c => c.culture_id == commanderCulture.ID))
                     {
-                        var found = foundCultures.First(c => c.culture_id == army.Commander.GetCultureObj().ID);
+                        var found = foundCultures.First(c => c.culture_id == commanderCulture.ID);
                         Program.Logger.Debug($"  APPLYING COMMANDER CULTURE | Old: {(army.Commander.GetCultureName() ?? "null")}/{(army.Commander.GetHeritageName() ?? "null")}");
                         Program.Logger.Debug($"    New: {found.culture_name}/{found.heritage_name}");
-                        army.Commander.GetCultureObj().SetName(found.culture_name);
-                        army.Commander.GetCultureObj().SetHeritage(found.heritage_name);
+                        commanderCulture.SetName(found.culture_name);
+                        commanderCulture.SetHeritage(found.heritage_name);
                     }
                 }
 

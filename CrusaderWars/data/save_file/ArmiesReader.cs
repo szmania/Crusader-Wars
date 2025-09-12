@@ -360,7 +360,7 @@ namespace CrusaderWars.data.save_file
                     else if (searchStarted && line.Contains("\t\tdomain={")) //# TITLES
                     {
                         string firstTitleID = Regex.Match(line, @"\d+").Value;
-                        if (isCommander && searchingArmy?.Commander != null && nonMainCommander_BaseSkills != null)
+                        if (isCommander && searchingArmy != null && searchingArmy.Commander != null && nonMainCommander_BaseSkills != null)
                         {
                             if (isOwner && searchingArmy?.Owner != null) searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
 
@@ -412,20 +412,17 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (searchStarted && line == "}")
                     {
-                        if (isCommander && searchingArmy != null)
+                        if (isCommander && searchingArmy != null && nonMainCommander_BaseSkills != null && nonMainCommander_Culture != null && searchingArmy.CommanderID != null)
                         {
-                            if (nonMainCommander_BaseSkills != null && nonMainCommander_Culture != null)
+                            Program.Logger.Debug($"Creating non-main commander '{nonMainCommander_Name}' ({searchingArmy.CommanderID}) for army '{searchingArmy.ID}'.");
+                            searchingArmy.SetCommander(new CommanderSystem(nonMainCommander_Name, searchingArmy.CommanderID, nonMainCommander_Prowess, nonMainCommander_Rank, nonMainCommander_BaseSkills, nonMainCommander_Culture));
+                            if (nonMainCommander_Traits != null)
                             {
-                                Program.Logger.Debug($"Creating non-main commander '{nonMainCommander_Name}' ({searchingArmy.CommanderID}) for army '{searchingArmy.ID}'.");
-                                searchingArmy.SetCommander(new CommanderSystem(nonMainCommander_Name, searchingArmy.CommanderID, nonMainCommander_Prowess, nonMainCommander_Rank, nonMainCommander_BaseSkills, nonMainCommander_Culture));
-                                if (nonMainCommander_Traits != null)
-                                {
-                                    searchingArmy.Commander?.SetTraits(nonMainCommander_Traits);
-                                }
-                                if (nonMainCommander_Accolade != null)
-                                {
-                                    searchingArmy.Commander?.SetAccolade(nonMainCommander_Accolade);
-                                }
+                                searchingArmy.Commander?.SetTraits(nonMainCommander_Traits);
+                            }
+                            if (nonMainCommander_Accolade != null)
+                            {
+                                searchingArmy.Commander?.SetAccolade(nonMainCommander_Accolade);
                             }
                         }
 
@@ -1667,7 +1664,7 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach(var army in attacker_armies)
                             {
-                                army.ArmyRegiments?.FirstOrDefault(x => x != null && x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                army.ArmyRegiments?.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
                             }
                         }
                     }
@@ -1678,7 +1675,7 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach (var army in defender_armies)
                             {
-                                army.ArmyRegiments?.FirstOrDefault(x => x != null && x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                army.ArmyRegiments?.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
                             }
                         }
                     }
