@@ -58,8 +58,8 @@ namespace CrusaderWars
                 try
                 {
                     // Ensure the directory exists.
-                    string logDirectory = Path.GetDirectoryName(debugLogFilePath);
-                    if (!Directory.Exists(logDirectory))
+                    string? logDirectory = Path.GetDirectoryName(debugLogFilePath);
+                    if (logDirectory != null && !Directory.Exists(logDirectory))
                     {
                         Directory.CreateDirectory(logDirectory);
                     }

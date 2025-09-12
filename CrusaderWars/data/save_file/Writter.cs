@@ -28,7 +28,7 @@ namespace CrusaderWars.data.save_file
             using (StreamWriter streamWriter = new StreamWriter(outputFileStream))
             {
                 streamWriter.NewLine = "\n";
-                string line;
+                string? line;
                 int lineCount = 0;
                 while ((line = streamReader.ReadLine()) != null || !streamReader.EndOfStream)
                 {
@@ -167,7 +167,7 @@ namespace CrusaderWars.data.save_file
             {
                 while (true)
                 {
-                    string l = sr.ReadLine();
+                    string? l = sr.ReadLine();
                     if (l is null) break;
                     switch(fileType)
                     {
