@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 namespace CrusaderWars.data.save_file
 {
 
-
     public static class ArmiesReader
     {
 
