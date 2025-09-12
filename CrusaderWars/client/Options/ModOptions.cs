@@ -14,10 +14,9 @@ namespace CrusaderWars.client
 {
     internal static class ModOptions
     {
-        static List<(string option, string value)> optionsValuesCollection;
+        static List<(string option, string value)> optionsValuesCollection = new List<(string option, string value)>();
         public static void StoreOptionsValues(List<(string, string)> OptionsForm_ValuesCollection)
         {
-            optionsValuesCollection = new List<(string option, string value)>();
             optionsValuesCollection = OptionsForm_ValuesCollection;
         }
 
