@@ -99,13 +99,19 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("ATTACKER  WITH NULL CULTURE REGIMENTS:\n");
             foreach(Regiment regiment in attacker_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
             {
-                Program.Logger.Debug($"WARNING - REGIMENT {regiment.ID} HAS A NULL CULTURE");
+                if (regiment?.Culture == null)
+                {
+                    Program.Logger.Debug($"WARNING - REGIMENT {regiment?.ID ?? "unknown"} HAS A NULL CULTURE");
+                }
             }
 
             Program.Logger.Debug("DEFENDER  WITH NULL CULTURE REGIMENTS:\n");
             foreach (Regiment regiment in defender_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
             {
-                Program.Logger.Debug($"WARNING - REGIMENT {regiment.ID} HAS A NULL CULTURE");
+                if (regiment?.Culture == null)
+                {
+                    Program.Logger.Debug($"WARNING - REGIMENT {regiment?.ID ?? "unknown"} HAS A NULL CULTURE");
+                }
             }
         }
 

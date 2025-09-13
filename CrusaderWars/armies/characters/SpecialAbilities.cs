@@ -649,8 +649,10 @@ namespace CrusaderWars.armies
             return 0;
         }
 
-        private static string GetAttribute(string attribute)
+        private static string? GetAttribute(string attribute)
         {
+            if (attribute == null) return null;
+            
             switch(attribute)
             {
                 case "contender_attribute":

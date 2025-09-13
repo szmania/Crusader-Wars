@@ -301,12 +301,20 @@ namespace CrusaderWars.mod_manager
             {
                 foreach (var mod in ModsPaths)
                 {
-                    if (mod.IsRequiredMod()) continue;
+                    if (mod == null || mod.IsRequiredMod()) continue;
 
-                    if (mod.GetLocalization() == ModLocalization.Steam)
-                        ModManagerControl.Rows.Add(mod.IsEnabled(), mod.GetThumbnail(), mod.GetName(), steamImg);
-                    else
-                        ModManagerControl.Rows.Add(mod.IsEnabled(), mod.GetThumbnail(), mod.GetName(), dataImg);
+                    object[] rowData = new object[] { 
+                        mod.IsEnabled(), 
+                        mod.GetThumbnail(), 
+                        mod.GetName(), 
+                        mod.GetLocalization() == ModLocalization.Steam ? steamImg : dataImg 
+                    };
+
+                    // Check if all items in rowData are not null before adding
+                    if (rowData.All(item => item != null))
+                    {
+                        ModManagerControl.Rows.Add(rowData);
+                    }
                 }
             }
         }
