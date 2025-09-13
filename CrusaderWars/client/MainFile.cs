@@ -1463,6 +1463,55 @@ namespace CrusaderWars
 
                     string path_log_attila = Properties.Settings.Default.VAR_log_attila;
 
+                    // --- START: Capture pre-battle state ---
+                    Dictionary<string, int> originalAttackerSizes = new Dictionary<string, int>();
+                    foreach (var army in attacker_armies)
+                    {
+                        if (army.ArmyRegiments != null)
+                        {
+                            foreach (var armyRegiment in army.ArmyRegiments)
+                            {
+                                if (armyRegiment == null || armyRegiment.Type == RegimentType.Commander || armyRegiment.Type == RegimentType.Knight) continue;
+                                if (armyRegiment.Regiments != null)
+                                {
+                                    foreach (var regiment in armyRegiment.Regiments)
+                                    {
+                                        if (regiment == null || string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+                                        string key = $"{army.ID}_{regiment.ID}";
+                                        if (!originalAttackerSizes.ContainsKey(key))
+                                        {
+                                            originalAttackerSizes.Add(key, Int32.Parse(regiment.CurrentNum));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Dictionary<string, int> originalDefenderSizes = new Dictionary<string, int>();
+                    foreach (var army in defender_armies)
+                    {
+                        if (army.ArmyRegiments != null)
+                        {
+                            foreach (var armyRegiment in army.ArmyRegiments)
+                            {
+                                if (armyRegiment == null || armyRegiment.Type == RegimentType.Commander || armyRegiment.Type == RegimentType.Knight) continue;
+                                if (armyRegiment.Regiments != null)
+                                {
+                                    foreach (var regiment in armyRegiment.Regiments)
+                                    {
+                                        if (regiment == null || string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+                                        string key = $"{army.ID}_{regiment.ID}";
+                                        if (!originalDefenderSizes.ContainsKey(key))
+                                        {
+                                            originalDefenderSizes.Add(key, Int32.Parse(regiment.CurrentNum));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // --- END: Capture pre-battle state ---
 
                     //  SET CASUALITIES
                     Program.Logger.Debug("Setting casualties for attacker armies...");
@@ -1484,6 +1533,11 @@ namespace CrusaderWars
                         BattleResult.CheckForDeathKnights(army);
 
                     }
+
+                    // --- START: Call new logging method ---
+                    BattleResult.LogPostBattleReport(attacker_armies, originalAttackerSizes, "ATTACKER");
+                    BattleResult.LogPostBattleReport(defender_armies, originalDefenderSizes, "DEFENDER");
+                    // --- END: Call new logging method ---
 
                     //  EDIT LIVING FILE
                     Program.Logger.Debug("Editing Living.txt file...");

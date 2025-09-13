@@ -1449,5 +1449,75 @@ namespace CrusaderWars
             Program.Logger.Debug("Attila log file cleared successfully.");
         }
 
+        public static void LogPostBattleReport(List<Army> armies, Dictionary<string, int> originalSizes, string side)
+        {
+            Program.Logger.Debug($"******************** POST-BATTLE CASUALTY REPORT: {side}S ********************");
+
+            foreach (var army in armies)
+            {
+                Program.Logger.Debug($"--- Army ID: {army.ID} ({army.CombatSide.ToUpper()}) ---");
+
+                // Regular Regiments (Levy, MenAtArms)
+                Program.Logger.Debug("  REGIMENTS:");
+                if (army.ArmyRegiments != null)
+                {
+                    foreach (var armyRegiment in army.ArmyRegiments)
+                    {
+                        if (armyRegiment == null || armyRegiment.Type == RegimentType.Commander || armyRegiment.Type == RegimentType.Knight) continue;
+
+                        string regimentTypeName = armyRegiment.Type == RegimentType.Levy ? "Levy" : armyRegiment.MAA_Name;
+                        Program.Logger.Debug($"    Type: {regimentTypeName}");
+
+                        if (armyRegiment.Regiments != null)
+                        {
+                            foreach (var regiment in armyRegiment.Regiments)
+                            {
+                                if (regiment == null || string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+
+                                string key = $"{army.ID}_{regiment.ID}";
+                                int originalSize = originalSizes.ContainsKey(key) ? originalSizes[key] : 0;
+                                int finalSize = Int32.Parse(regiment.CurrentNum);
+                                int casualties = originalSize - finalSize;
+
+                                Program.Logger.Debug($"      - ID: {regiment.ID}, Culture: {regiment.Culture?.ID ?? "N/A"}, Original: {originalSize}, Casualties: {casualties}, Remaining: {finalSize}");
+                            }
+                        }
+                    }
+                }
+
+                // Knights
+                if (army.Knights != null && army.Knights.HasKnights())
+                {
+                    Program.Logger.Debug("  KNIGHTS:");
+                    int originalKnightCount = army.Knights.GetKnightsList().Count;
+                    int fallenKnightCount = army.Knights.GetKnightsList().Count(k => k.HasFallen());
+                    int remainingKnightCount = originalKnightCount - fallenKnightCount;
+                    Program.Logger.Debug($"    Total Knights: {originalKnightCount}, Fallen: {fallenKnightCount}, Remaining: {remainingKnightCount}");
+
+                    foreach (var knight in army.Knights.GetKnightsList())
+                    {
+                        if (knight.HasFallen())
+                        {
+                            Program.Logger.Debug($"      - Fallen Knight: {knight.GetName()} (ID: {knight.GetID()})");
+                        }
+                    }
+                }
+
+                // Commander
+                if (army.Commander != null)
+                {
+                    Program.Logger.Debug("  COMMANDER:");
+                    if (army.Commander.hasFallen)
+                    {
+                        Program.Logger.Debug($"    Commander {army.Commander.Name} (ID: {army.Commander.ID}) has fallen.");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"    Commander {army.Commander.Name} (ID: {army.Commander.ID}) survived.");
+                    }
+                }
+            }
+            Program.Logger.Debug("************************************************************************************");
+        }
     }
 }
