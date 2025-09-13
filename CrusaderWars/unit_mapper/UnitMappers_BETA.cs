@@ -38,7 +38,8 @@ namespace CrusaderWars.unit_mapper
         static string? LoadedUnitMapper_FolderPath { get; set; }
         public const string NOT_FOUND_KEY = "not_found";
 
-        public static string? GetLoadedUnitMapperName() { return Path.GetFileName(LoadedUnitMapper_FolderPath); }
+        // Fix for CS8602 and CS8600
+        public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
         public static string? GetLoadedUnitMapperString() { 
             switch(GetLoadedUnitMapperName())
             {
@@ -331,9 +332,10 @@ namespace CrusaderWars.unit_mapper
                                         continue;
                                 }
 
-                                if (node.Attributes?["type"]?.Value == unit.GetName())
+                                // Line 187 - Add null check
+                                if (node?.Attributes?["type"]?.Value == unit.GetName())
                                 {
-                                    if(node.Attributes?["max"] != null)
+                                    if(node?.Attributes?["max"] != null)
                                     {
                                         string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);

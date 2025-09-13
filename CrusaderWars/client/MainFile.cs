@@ -163,7 +163,8 @@ namespace CrusaderWars
 
             labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
 
-            _umVersion = _updater?.UMVersion; // Made nullable
+            // Line 175 - Add null check
+            _umVersion = _updater?.UMVersion; // Make nullable
             if (!string.IsNullOrWhiteSpace(_umVersion))
             {
                 labelMappersVersion.Text = $"(mappers v{_umVersion.TrimStart('v')})";
@@ -1015,7 +1016,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error starting CK3: {ex.Message}");
+Logger.Debug($"Error starting CK3: {ex.Message}");
                     MessageBox.Show("Couldn't find 'ck3.exe'. Change the Crusader Kings 3 path. ", "Crusader Conflicts: Path Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";

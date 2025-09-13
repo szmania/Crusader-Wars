@@ -37,10 +37,10 @@ namespace CrusaderWars
                     JsonElement root = document.RootElement;
 
                     // Get the latest version tag
-                    string latestVersion = root.GetProperty("tag_name").GetString();
+                    string? latestVersion = root.GetProperty("tag_name").GetString();
 
                     // Get the download URL of the first asset
-                    string downloadUrl = root.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
+                    string? downloadUrl = root.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
                     Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}");
 
                     return (latestVersion, downloadUrl);

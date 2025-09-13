@@ -13,14 +13,21 @@ namespace CrusaderWars.armies
         {
             int Rank = GetRank(Accolade.GetGlory());
 
-            string PrimaryAttribute_Name = GetAttribute(Accolade.GetPrimaryAttribute());
-            string SecundaryAttribute_Name = GetAttribute(Accolade.GetSecundaryAttribute());
+            // Lines 16-17 - Add null checks
+            string PrimaryAttribute_Name = GetAttribute(Accolade.GetPrimaryAttribute()) ?? string.Empty;
+            string SecundaryAttribute_Name = GetAttribute(Accolade.GetSecundaryAttribute()) ?? string.Empty;
 
             int PrimaryAttribute_Level = DetermineAbilityLevel(Rank, true);
             int SecondaryAttribute_Level = DetermineAbilityLevel(Rank, false);
 
-            string PrimaryAbilityKey = GetPrimaryAttributeSpecialAbilityKey(PrimaryAttribute_Name, PrimaryAttribute_Level);
-            string SecundaryAbilityKey = GetSecundaryAttributeSpecialAbilityKey(SecundaryAttribute_Name, SecondaryAttribute_Level);
+            // Lines 22-23 - Add null checks before passing parameters
+            string PrimaryAbilityKey = !string.IsNullOrEmpty(PrimaryAttribute_Name)
+                ? GetPrimaryAttributeSpecialAbilityKey(PrimaryAttribute_Name, PrimaryAttribute_Level)
+                : "null";
+
+            string SecundaryAbilityKey = !string.IsNullOrEmpty(SecundaryAttribute_Name)
+                ? GetSecundaryAttributeSpecialAbilityKey(SecundaryAttribute_Name, SecondaryAttribute_Level)
+                : "null";
             
             var specialAbilitiesKeys = (PrimaryAbilityKey, SecundaryAbilityKey);
 
