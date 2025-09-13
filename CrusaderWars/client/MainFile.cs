@@ -963,7 +963,6 @@ namespace CrusaderWars
                     if (loadingScreen != null) CloseLoadingScreen();
                     MessageBox.Show($"Error reading the save file: {ex.Message}", "Crusader Conflicts: Save File Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    infoLabel.Text = "Waiting for CK3 battle...";
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.StartCrusaderKingsProcess();
@@ -1555,7 +1554,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
-                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
