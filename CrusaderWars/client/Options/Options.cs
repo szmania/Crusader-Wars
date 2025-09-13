@@ -1050,7 +1050,7 @@ namespace CrusaderWars
                     string fileName = Path.GetFileName(file);
                     if(fileName == "tag.txt")
                     {
-                        string fileTag = File.ReadAllText(file);
+                        string fileTag = File.ReadAllText(file).Trim(); // Trim whitespace from the file content
                         if(tag == fileTag)
                         {
                             string modsPath = mapper + @"\Mods.xml";
