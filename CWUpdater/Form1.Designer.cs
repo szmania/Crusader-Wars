@@ -36,6 +36,7 @@
             this.WarningLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.VersionLabel = new System.Windows.Forms.Label();
+            this.btnSkip = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // VersionLabel
@@ -60,11 +61,11 @@
             this.btnUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnUpdate.Font = new System.Drawing.Font("Paradox King Script", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnUpdate.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnUpdate.Location = new System.Drawing.Point(251, 120);
+            this.btnUpdate.Location = new System.Drawing.Point(185, 120);
             this.btnUpdate.Name = "btnUpdate";
-            this.btnUpdate.Size = new System.Drawing.Size(248, 59);
+            this.btnUpdate.Size = new System.Drawing.Size(180, 59);
             this.btnUpdate.TabIndex = 0;
-            this.btnUpdate.Text = "Press to Update!";
+            this.btnUpdate.Text = "Update";
             this.btnUpdate.UseVisualStyleBackColor = false;
             this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
             // 
@@ -120,6 +121,25 @@
             this.VersionLabel.TabIndex = 8;
             this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // btnSkip
+            // 
+            this.btnSkip.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnSkip.BackColor = System.Drawing.Color.Transparent;
+            this.btnSkip.BackgroundImage = global::CWUpdater.Properties.Resources.progress_orange;
+            this.btnSkip.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btnSkip.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSkip.FlatAppearance.BorderSize = 0;
+            this.btnSkip.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSkip.Font = new System.Drawing.Font("Paradox King Script", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSkip.ForeColor = System.Drawing.SystemColors.Control;
+            this.btnSkip.Location = new System.Drawing.Point(385, 120);
+            this.btnSkip.Name = "btnSkip";
+            this.btnSkip.Size = new System.Drawing.Size(180, 59);
+            this.btnSkip.TabIndex = 9;
+            this.btnSkip.Text = "Skip";
+            this.btnSkip.UseVisualStyleBackColor = false;
+            this.btnSkip.Click += new System.EventHandler(this.btnSkip_Click);
+            // 
             // AutoUpdater
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -132,13 +152,14 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.WarningLabel);
             this.Controls.Add(this.btnUpdate);
+            this.Controls.Add(this.btnSkip);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Yu Gothic UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ForeColor = System.Drawing.Color.Transparent;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AutoUpdater";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.StartPosition.CenterScreen;
             this.Text = "AutoUpdater";
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.AutoUpdater_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.AutoUpdater_MouseMove);
@@ -155,5 +176,6 @@
         private System.Windows.Forms.Label WarningLabel;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label VersionLabel;
+        private System.Windows.Forms.Button btnSkip;
     }
 }

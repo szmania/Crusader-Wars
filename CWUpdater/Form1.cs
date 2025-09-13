@@ -32,9 +32,16 @@ namespace CWUpdater
                 InitializeComponent();
                 this.TopMost = true;
                 
-                if (!string.IsNullOrEmpty(CurrentVersion) && !string.IsNullOrEmpty(UpdateVersion))
+                if (!string.IsNullOrEmpty(UpdateVersion))
                 {
-                    VersionLabel.Text = $"v{CurrentVersion.Trim().TrimStart('v')} -> v{UpdateVersion.Trim().TrimStart('v')}";
+                    if (!string.IsNullOrEmpty(CurrentVersion))
+                    {
+                        VersionLabel.Text = $"v{CurrentVersion.Trim().TrimStart('v')} -> v{UpdateVersion.Trim().TrimStart('v')}";
+                    }
+                    else
+                    {
+                        VersionLabel.Text = $"Updating to v{UpdateVersion.Trim().TrimStart('v')}";
+                    }
                 }
                 else
                 {
@@ -60,7 +67,7 @@ namespace CWUpdater
             string[] args = Environment.GetCommandLineArgs();
             Logger.Log($"Arguments received: {string.Join(" ", args)}");
 
-            if (args.Length == 3) // App update (older format): CWUpdater.exe <DownloadUrl> <NewVersion>
+            if (args.Length == 3) // App update (older format: CWUpdater.exe <DownloadUrl> <NewVersion>)
             {
                 DownloadUrl = args[1];
                 UpdateVersion = args[2];
@@ -354,7 +361,7 @@ namespace CWUpdater
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
                     if (!newDirs.Contains(relativeDirPath) && !Directory.GetFiles(dir).Any() && !Directory.GetDirectories(dir).Any())
                     {
-                        Directory.Delete(dir, true);
+                        File.Delete(dir);
                     }
                 }
             }
@@ -502,36 +509,42 @@ namespace CWUpdater
             Logger.Log("Restore complete.");
         }
 
-        public void RestartApplication()
+        public void RestartApplication(bool updateVersionFile = true)
         {
             Logger.Log("Restarting application.");
 
             if(!IsUnitMappers)
             {
                 //Update application .txt file version
-                string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
-                Logger.Log($"Updating app version file: {version_path} to version {UpdateVersion}");
-                if (UpdateVersion != null) // Added null check for UpdateVersion
+                if (updateVersionFile)
                 {
-                    File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
-                }
-                else
-                {
-                    Logger.Log("UpdateVersion is null. Cannot write app version file.");
+                    string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
+                    Logger.Log($"Updating app version file: {version_path} to version {UpdateVersion}");
+                    if (UpdateVersion != null) // Added null check for UpdateVersion
+                    {
+                        File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
+                    }
+                    else
+                    {
+                        Logger.Log("UpdateVersion is null. Cannot write app version file.");
+                    }
                 }
             }
             else if(IsUnitMappers)
             {
                 //Update unit mappers .txt file version
-                string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
-                Logger.Log($"Updating unit mappers version file: {version_path} to version {UpdateVersion}");
-                if (UpdateVersion != null) // Added null check for UpdateVersion
+                if (updateVersionFile)
                 {
-                    File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
-                }
-                else
-                {
-                    Logger.Log("UpdateVersion is null. Cannot write unit mappers version file.");
+                    string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
+                    Logger.Log($"Updating unit mappers version file: {version_path} to version {UpdateVersion}");
+                    if (UpdateVersion != null) // Added null check for UpdateVersion
+                    {
+                        File.WriteAllText(version_path, $"version=\"{UpdateVersion}\"");
+                    }
+                    else
+                    {
+                        Logger.Log("UpdateVersion is null. Cannot write unit mappers version file.");
+                    }
                 }
             }
 
@@ -550,6 +563,12 @@ namespace CWUpdater
             //Close Updater
             Logger.Log("Closing updater.");
             Environment.Exit(0);
+        }
+
+        private void btnSkip_Click(object sender, EventArgs e)
+        {
+            Logger.Log("Update skipped by user.");
+            RestartApplication(false);
         }
 
         //
