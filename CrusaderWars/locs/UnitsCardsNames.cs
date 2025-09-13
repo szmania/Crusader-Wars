@@ -113,7 +113,8 @@ namespace CrusaderWars.locs
                         
                         foreach(Unit unit in allUnits)
                         {
-                            if (line.Contains($"land_units_onscreen_name_{unit?.GetAttilaUnitKey() ?? string.Empty}\t"))
+                            // Line 219 - Add null check before accessing GetAttilaUnitKey()
+                            if (unit?.GetAttilaUnitKey() != null && line.Contains($"land_units_onscreen_name_{unit.GetAttilaUnitKey()}\t"))
                             {
                                 //Commander
                                 if (unit?.GetRegimentType() == RegimentType.Commander)

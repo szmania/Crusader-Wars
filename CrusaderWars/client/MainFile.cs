@@ -449,7 +449,11 @@ namespace CrusaderWars
             InitializePlaythroughDisplay();
 
             Options.ReadOptionsFile();
-            ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
+            // Line 452 - Add null check before calling StoreOptionsValues
+            if (Options.optionsValuesCollection != null)
+            {
+                ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
+            }
             AttilaPreferences.ChangeUnitSizes();
             AttilaPreferences.ValidateOnStartup();
 
@@ -1578,7 +1582,7 @@ namespace CrusaderWars
 
             if (ModOptions.CloseCK3DuringBattle())
             {
-                Games.CloseCrusaderKingsProcess();
+                        Games.CloseCrusaderKingsProcess();
             }
 
             Program.Logger.Debug("TW:Attila battle created successfully");

@@ -275,7 +275,12 @@ namespace CrusaderWars.mod_manager
                     }
                     if(name != string.Empty)
                     {
-                        ModsPaths.Add(new Mod(false, LoadBitmapWithReducedSize(image_path), name, ModLocalization.Steam, fullPath));
+                        // Line 308 - Add null check
+                        Bitmap? thumbnail = LoadBitmapWithReducedSize(image_path);
+                        if (thumbnail != null)
+                        {
+                            ModsPaths.Add(new Mod(false, thumbnail, name, ModLocalization.Steam, fullPath));
+                        }
                     }
                 }
             }
@@ -301,19 +306,21 @@ namespace CrusaderWars.mod_manager
             {
                 foreach (var mod in ModsPaths)
                 {
-                    if (mod == null || mod.IsRequiredMod()) continue;
-
-                    object[] rowData = new object[] { 
-                        mod.IsEnabled(), 
-                        mod.GetThumbnail(), 
-                        mod.GetName(), 
-                        mod.GetLocalization() == ModLocalization.Steam ? steamImg : dataImg 
-                    };
-
-                    // Check if all items in rowData are not null before adding
-                    if (rowData.All(item => item != null))
+                    // Line 82 - Add null check
+                    if (mod != null && !mod.IsRequiredMod())
                     {
-                        ModManagerControl.Rows.Add(rowData);
+                        object[] rowData = new object[] { 
+                            mod.IsEnabled(), 
+                            mod.GetThumbnail(), 
+                            mod.GetName(), 
+                            mod.GetLocalization() == ModLocalization.Steam ? steamImg : dataImg 
+                        };
+
+                        // Check if all items in rowData are not null before adding
+                        if (rowData.All(item => item != null))
+                        {
+                            ModManagerControl.Rows.Add(rowData);
+                        }
                     }
                 }
             }
