@@ -1108,6 +1108,35 @@ namespace CrusaderWars
         {
             string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
+
+            // Check if the file exists. If not, create it with default values.
+            if (!File.Exists(file))
+            {
+                Program.Logger.Debug("UnitMappers.xml not found. Creating with default values.");
+                XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                xmlDoc.AppendChild(xmlDeclaration);
+
+                XmlElement rootElement = xmlDoc.CreateElement("UMOptions");
+                xmlDoc.AppendChild(rootElement);
+
+                // Helper to create elements
+                void createMapper(string name)
+                {
+                    XmlElement mapperElement = xmlDoc.CreateElement("UnitMappers");
+                    mapperElement.SetAttribute("name", name);
+                    mapperElement.InnerText = "False";
+                    rootElement.AppendChild(mapperElement);
+                };
+
+                createMapper("DefaultCK3");
+                createMapper("TheFallenEagle");
+                createMapper("RealmsInExile");
+                createMapper("AGOT");
+
+                xmlDoc.Save(file);
+                Program.Logger.Debug("UnitMappers.xml created successfully.");
+            }
+
             xmlDoc.Load(file);
 
             _unitMappersXmlChanged = false; // Reset the flag at the beginning of the method
