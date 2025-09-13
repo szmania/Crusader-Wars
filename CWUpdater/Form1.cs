@@ -28,7 +28,23 @@ namespace CWUpdater
             Logger.Log("Initializing AutoUpdater form.");
             if(GetArguments())
             {
-                
+                // If CurrentVersion was not provided as an argument, try to read it from a local file
+                if (string.IsNullOrEmpty(CurrentVersion))
+                {
+                    string currentDir = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", "");
+                    string versionFileName = IsUnitMappers ? "um_version.txt" : "app_version.txt";
+                    string versionFilePath = Path.Combine(currentDir, versionFileName);
+                    CurrentVersion = ReadVersionFromFile(versionFilePath);
+                    if (!string.IsNullOrEmpty(CurrentVersion))
+                    {
+                        Logger.Log($"Current version read from file: {CurrentVersion}");
+                    }
+                    else
+                    {
+                        Logger.Log($"Could not read current version from {versionFilePath}.");
+                    }
+                }
+
                 InitializeComponent();
                 this.TopMost = true;
                 
@@ -76,14 +92,26 @@ namespace CWUpdater
                 Logger.Log($"App update (older format) detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: null");
                 return true;
             }
-            else if (args.Length == 4) // App update: CWUpdater.exe <DownloadUrl> <CurrentVersion> <NewVersion>
+            else if (args.Length == 4) // Could be App update: CWUpdater.exe <DownloadUrl> <CurrentVersion> <NewVersion> OR Unit Mappers update (older format): CWUpdater.exe <DownloadUrl> <NewVersion> <"unit_mapper">
             {
-                DownloadUrl = args[1];
-                CurrentVersion = args[2]; // Swapped
-                UpdateVersion = args[3]; // Swapped
-                IsUnitMappers = false;
-                Logger.Log($"App update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}");
-                return true;
+                if (args[3].Equals("unit_mapper", StringComparison.OrdinalIgnoreCase))
+                {
+                    DownloadUrl = args[1];
+                    UpdateVersion = args[2];
+                    CurrentVersion = null; // Current version not supplied in this older format
+                    IsUnitMappers = true;
+                    Logger.Log($"Unit Mappers update (older format) detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: null");
+                    return true;
+                }
+                else
+                {
+                    DownloadUrl = args[1];
+                    CurrentVersion = args[2]; // Swapped
+                    UpdateVersion = args[3]; // Swapped
+                    IsUnitMappers = false;
+                    Logger.Log($"App update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}");
+                    return true;
+                }
             }
             else if (args.Length == 5) // Unit Mappers update: CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion> <"unit_mappers_flag">
             {
@@ -96,6 +124,39 @@ namespace CWUpdater
             }
             Logger.Log("Invalid number of arguments.");
             return false;
+        }
+
+        private string? ReadVersionFromFile(string filePath)
+        {
+            Logger.Log($"Attempting to read version from file: {filePath}");
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    string content = File.ReadAllText(filePath);
+                    Match match = Regex.Match(content, @"version\s*=\s*""([^""]*)""");
+                    if (match.Success)
+                    {
+                        Logger.Log($"Version '{match.Groups[1].Value}' found in file.");
+                        return match.Groups[1].Value;
+                    }
+                    else
+                    {
+                        Logger.Log($"Version pattern not found in file: {filePath}");
+                        return null;
+                    }
+                }
+                else
+                {
+                    Logger.Log($"Version file not found: {filePath}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error reading version from file '{filePath}': {ex.Message}");
+                return null;
+            }
         }
 
         private string? GetCrusaderWarsExecutable() // Changed return type to nullable
