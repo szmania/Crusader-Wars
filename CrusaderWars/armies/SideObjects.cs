@@ -19,7 +19,7 @@ namespace CrusaderWars
         public Owner? Owner { get; private set; }
         public string? ArmyUnitID { get; set; }
 
-        public List<Army> MergedArmies { get; private set; = new List<Army>();
+        public List<Army> MergedArmies { get; private set; } = new List<Army>();
         public List<ArmyRegiment> ArmyRegiments { get; private set; } = new List<ArmyRegiment>();
         public List<Unit> Units { get; private set; } = new List<Unit>();
         public KnightSystem? Knights { get; private set; }

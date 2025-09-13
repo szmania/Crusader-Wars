@@ -1016,7 +1016,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-Logger.Debug($"Error starting CK3: {ex.Message}");
+                    Program.Logger.Debug($"Error starting CK3: {ex.Message}");
                     MessageBox.Show("Couldn't find 'ck3.exe'. Change the Crusader Kings 3 path. ", "Crusader Conflicts: Path Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
