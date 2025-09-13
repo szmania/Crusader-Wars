@@ -201,9 +201,9 @@ namespace CrusaderWars.locs
             string image_to_copy_path = "";
 
             
-            string terrain = TerrainGenerator.TerrainType;
-            string weather = Weather.Season;
-            Weather.WinterSeverity snow = Weather.Winter_Severity;
+            string terrain = TerrainGenerator.TerrainType ?? string.Empty;
+            string weather = Weather.Season ?? string.Empty;
+            Weather.WinterSeverity? snow = Weather.Winter_Severity; // Changed to nullable enum
             bool hasSnow = Weather.HasWinter;
             
 
@@ -236,7 +236,8 @@ namespace CrusaderWars.locs
                             break;
                         }
                         //Terrain Image + Weather + Snow
-                        if (weather != "random" && hasSnow && image_name == $"{terrain}_{weather}_{GetSnow(snow)}")
+                        // Added null guard for 'snow' parameter
+                        if (weather != "random" && hasSnow && snow.HasValue && image_name == $"{terrain}_{weather}_{GetSnow(snow.Value)}")
                         {
                             image_to_copy_path = image_path;
                             break;

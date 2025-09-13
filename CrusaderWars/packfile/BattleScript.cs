@@ -64,11 +64,12 @@ function remaining_soldiers()
 
 
             for (int i = 1; i <= left_side.Count; i++) {
-                if (left_side[i-1].Commander != null)
+                var army = left_side[i-1]; // Get army once
+                if (army?.Commander != null) // Null-conditional check for army and Commander
                 {
-                    Program.Logger.Debug($"Adding commander death check for left side army {left_side[i - 1].ID}, commander {left_side[i - 1].Commander.ID}");
+                    Program.Logger.Debug($"Adding commander death check for left side army {army.ID?.ToString() ?? "unknown"}, commander {army.Commander.ID?.ToString() ?? "unknown"}");
                     scriptBuilder.AppendLine($"	if(not Stark_Army{i}:is_commander_alive()) then");
-                    scriptBuilder.AppendLine($"		dev.log(\"Commander{left_side[i - 1].Commander.ID} from Army{left_side[i - 1].ID} has fallen\")");
+                    scriptBuilder.AppendLine($"		dev.log(\"Commander{army.Commander.ID?.ToString() ?? "unknown"} from Army{army.ID?.ToString() ?? "unknown"} has fallen\")");
                     scriptBuilder.AppendLine("	end;");
                     scriptBuilder.AppendLine();
                 }
@@ -76,11 +77,12 @@ function remaining_soldiers()
             }
             for (int i = 1; i <= right_side.Count; i++)
             {
-                if (right_side[i-1].Commander != null)
+                var army = right_side[i-1]; // Get army once
+                if (army?.Commander != null) // Null-conditional check for army and Commander
                 {
-                    Program.Logger.Debug($"Adding commander death check for right side army {right_side[i - 1].ID}, commander {right_side[i - 1].Commander.ID}");
+                    Program.Logger.Debug($"Adding commander death check for right side army {army.ID?.ToString() ?? "unknown"}, commander {army.Commander.ID?.ToString() ?? "unknown"}");
                     scriptBuilder.AppendLine($"	if(not Bolton_Army{i}:is_commander_alive()) then");
-                    scriptBuilder.AppendLine($"		dev.log(\"Commander{right_side[i - 1].Commander.ID} from Army{right_side[i - 1].ID} has fallen\")");
+                    scriptBuilder.AppendLine($"		dev.log(\"Commander{army.Commander.ID?.ToString() ?? "unknown"} from Army{army.ID?.ToString() ?? "unknown"} has fallen\")");
                     scriptBuilder.AppendLine("	end;");
                     scriptBuilder.AppendLine();
                 }
