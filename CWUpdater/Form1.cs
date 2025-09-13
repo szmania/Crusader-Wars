@@ -76,11 +76,11 @@ namespace CWUpdater
                 Logger.Log($"App update (older format) detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: null");
                 return true;
             }
-            else if (args.Length == 4) // App update: CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion>
+            else if (args.Length == 4) // App update: CWUpdater.exe <DownloadUrl> <CurrentVersion> <NewVersion>
             {
                 DownloadUrl = args[1];
-                UpdateVersion = args[2];
-                CurrentVersion = args[3];
+                CurrentVersion = args[2]; // Swapped
+                UpdateVersion = args[3]; // Swapped
                 IsUnitMappers = false;
                 Logger.Log($"App update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}");
                 return true;
