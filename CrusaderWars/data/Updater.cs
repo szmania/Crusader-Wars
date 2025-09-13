@@ -330,7 +330,7 @@ namespace CrusaderWars
             }
 
             Program.Logger.Debug("Internet connection detected.");
-            string currentVersion = GetAppVersion();
+            string currentVersion = GetAppVersion() ?? "1.0.0";
             if (string.IsNullOrEmpty(currentVersion))
             {
                 Program.Logger.Debug("Current version is empty, skipping update check.");
@@ -407,7 +407,7 @@ namespace CrusaderWars
             }
 
             Program.Logger.Debug("Internet connection detected.");
-            string currentVersion = GetUnitMappersVersion();
+            string currentVersion = GetUnitMappersVersion() ?? "1.0.0";
             if (string.IsNullOrEmpty(currentVersion))
             {
                 Program.Logger.Debug("Current unit mappers version is empty, skipping update check.");

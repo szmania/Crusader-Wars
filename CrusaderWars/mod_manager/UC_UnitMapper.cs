@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Text; // Added for StringBuilder
+using System.Linq;
 
 namespace CrusaderWars.mod_manager
 {
@@ -203,7 +204,7 @@ namespace CrusaderWars.mod_manager
             }
 
             //Verify workshop folder
-            string workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
+            string? workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
             Program.Logger.Debug($"Checking Attila workshop folder: {workshop_folder_path}");
             if (Directory.Exists(workshop_folder_path))
             {

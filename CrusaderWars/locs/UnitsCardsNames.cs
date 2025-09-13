@@ -104,25 +104,26 @@ namespace CrusaderWars.locs
                 string edited_names = "";
                 using (StreamReader reader = new StreamReader(loc_file_path))
                 {
-                    string line = "";
+                    string? line = "";
                     while (line != null && !reader.EndOfStream)
                     {
                         line = reader.ReadLine();
+                        if (line == null) continue; // Ensure line is not null before processing
 
                         
                         foreach(Unit unit in allUnits)
                         {
-                            if (line.Contains($"land_units_onscreen_name_{unit.GetAttilaUnitKey()}\t"))
+                            if (line.Contains($"land_units_onscreen_name_{unit?.GetAttilaUnitKey() ?? string.Empty}\t"))
                             {
                                 //Commander
-                                if (unit.GetRegimentType() == RegimentType.Commander)
+                                if (unit?.GetRegimentType() == RegimentType.Commander)
                                 {
                                     string commander_name = "Commander";
                                     line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{commander_name}\t");
                                 }
 
                                 //Knights
-                                else if (unit.GetRegimentType() == RegimentType.Knight && unit.GetSoldiers() > 0)
+                                else if (unit?.GetRegimentType() == RegimentType.Knight && unit.GetSoldiers() > 0)
                                 {
                                     string knights_name = "Knights";
                                     line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{knights_name}\t");
@@ -130,7 +131,7 @@ namespace CrusaderWars.locs
 
 
                                 //Levies
-                                else if (unit.GetRegimentType() == RegimentType.Levy)
+                                else if (unit?.GetRegimentType() == RegimentType.Levy)
                                 {
                                     /*
                                     string levies_name = ReturnLeviesName(regiment.Type);
@@ -140,7 +141,7 @@ namespace CrusaderWars.locs
                                 }
 
                                 //Men-At-Arms
-                                else if (unit.GetRegimentType() == RegimentType.MenAtArms)
+                                else if (unit?.GetRegimentType() == RegimentType.MenAtArms)
                                 {
                                     string maaName = unit.GetLocName();
                                     if (string.IsNullOrEmpty(maaName)) maaName = "MenAtArms";
@@ -192,8 +193,11 @@ namespace CrusaderWars.locs
                     var files = Directory.GetFiles($@"{modFolder}\localization\english\").ToList();
                     bool doesRegimentLocFileExists = files.Exists(x => x.Contains("regiment_l_"));
                     if (doesRegimentLocFileExists) { 
-                        string regimentLocFilePath = files.FirstOrDefault(x => x.Contains("regiment_l_"));
-                        allRegimentLocFilesPaths.Add(regimentLocFilePath);
+                        string? regimentLocFilePath = files.FirstOrDefault(x => x.Contains("regiment_l_"));
+                        if (regimentLocFilePath != null)
+                        {
+                            allRegimentLocFilesPaths.Add(regimentLocFilePath);
+                        }
                     }
                 }
             }
@@ -203,7 +207,7 @@ namespace CrusaderWars.locs
                 if (!File.Exists(path)) continue;
                 using (StreamReader SR = new StreamReader(path))
                 {
-                    string line;
+                    string? line;
                     while ((line = SR.ReadLine()) != null && !SR.EndOfStream)
                     {
                         if (line == " " || line == string.Empty || char.IsUpper(line[1]))
@@ -211,8 +215,8 @@ namespace CrusaderWars.locs
 
                         foreach (Unit maa in maaList)
                         {
-                            string maaScriptName = maa.GetName();
-                            if (line.StartsWith($" {maaScriptName}:") && string.IsNullOrEmpty(maa.GetLocName()))
+                            string? maaScriptName = maa?.GetName();
+                            if (!string.IsNullOrEmpty(maaScriptName) && line.StartsWith($" {maaScriptName}:") && string.IsNullOrEmpty(maa.GetLocName()))
                             {
                                 string maaName = Regex.Match(line, @"""(.+)""").Groups[1].Value;
                                 var sameMaaGroup = maaList.Where(x => x.GetName() == maaScriptName);
