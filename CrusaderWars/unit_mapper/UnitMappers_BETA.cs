@@ -567,22 +567,31 @@ namespace CrusaderWars.unit_mapper
                 //General
                 if (node.Name == "General" && unit.GetRegimentType() == RegimentType.Commander)
                 {
-                    string? unit_key = node.Attributes?["key"]?.Value;
-                    if (unit_key != null) return unit_key;
+                    if (node?.Attributes?["key"] != null)
+                    {
+                        string? unit_key = node.Attributes["key"]?.Value;
+                        if (unit_key != null) return unit_key;
+                    }
                 }
                 //Knights
                 else if (node.Name == "Knights" && unit.GetRegimentType() == RegimentType.Knight)
                 {
-                    string? unit_key = node.Attributes?["key"]?.Value;
-                    if (unit_key != null) return unit_key;
+                    if (node?.Attributes?["key"] != null)
+                    {
+                        string? unit_key = node.Attributes["key"]?.Value;
+                        if (unit_key != null) return unit_key;
+                    }
                 }
                 //MenAtArms
                 else if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
                 {
                     if (node.Attributes?["type"]?.Value == unit.GetName())
                     {
-                        string? unit_key = node.Attributes?["key"]?.Value;
-                        if (unit_key != null) return unit_key;
+                        if (node?.Attributes?["key"] != null)
+                        {
+                            string? unit_key = node.Attributes["key"]?.Value;
+                            if (unit_key != null) return unit_key;
+                        }
                     }
                 }
             }

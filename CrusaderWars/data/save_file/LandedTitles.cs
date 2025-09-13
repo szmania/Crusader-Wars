@@ -11,7 +11,7 @@ namespace CrusaderWars.data.save_file
     //Change to internal later
     public static class LandedTitles
     {
-        static List<string> EnabledMods;
+        static List<string> EnabledMods = new List<string>();
 
         public static List<string> GetEnabledModsPaths() { return EnabledMods_Folders_Paths; }
 
@@ -62,7 +62,7 @@ namespace CrusaderWars.data.save_file
                         {
                             while(!sr.EndOfStream)
                             {
-                                string line = sr.ReadLine();
+                                string? line = sr.ReadLine();
                                 if (line == null) break;
 
                                 if(line.StartsWith("path="))
@@ -143,7 +143,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug($"Reading landed titles from file: {file_path}");
             using (StreamReader reader = new StreamReader(file_path))
             {
-                string line = reader.ReadLine();
+                string? line = reader.ReadLine();
                 string empire = "";
                 string empire_capital = "";
                 string kingdom = "";
@@ -216,7 +216,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (county_started && barony_started && line.Contains("province ="))
                     {
-                        string province_id = Regex.Match(line, @"\d+").Value;
+                        string province_id = Regex.Match(line ?? string.Empty, @"\d+").Value;
                         SetRegimentsCountiesKeys(attacker_armies, county, province_id);
                         SetRegimentsCountiesKeys(defender_armies, county, province_id);
 
