@@ -346,6 +346,18 @@ namespace CrusaderWars
 
             if (IsNewerVersion(currentVersion, latestRelease.version))
             {
+                // Check if this version has been skipped by the user
+                string skippedVersionPath = @".\app_skipped_version.txt";
+                if (File.Exists(skippedVersionPath))
+                {
+                    string skippedVersion = File.ReadAllText(skippedVersionPath).Trim();
+                    if (skippedVersion.Equals(latestRelease.version, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Program.Logger.Debug($"Update to version {latestRelease.version} was previously skipped. Bypassing update check.");
+                        return; // Skip the update
+                    }
+                }
+
                 Program.Logger.Debug($"Update available for app: {latestRelease.version}. Starting updater...");
                 try
                 {
@@ -357,7 +369,7 @@ namespace CrusaderWars
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = updaterPath,
-                        Arguments = $"\"{latestRelease.downloadUrl}\" \"{latestRelease.version}\"",
+                        Arguments = $"\"{latestRelease.downloadUrl}\" \"{currentVersion}\" \"{latestRelease.version}\"",
                         UseShellExecute = true
                     });
                     Environment.Exit(0);
@@ -411,6 +423,18 @@ namespace CrusaderWars
 
             if (IsNewerVersion(currentVersion, latestRelease.version))
             {
+                // Check if this version has been skipped by the user
+                string skippedVersionPath = @".\um_skipped_version.txt";
+                if (File.Exists(skippedVersionPath))
+                {
+                    string skippedVersion = File.ReadAllText(skippedVersionPath).Trim();
+                    if (skippedVersion.Equals(latestRelease.version, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Program.Logger.Debug($"Update to unit mappers version {latestRelease.version} was previously skipped. Bypassing update check.");
+                        return; // Skip the update
+                    }
+                }
+
                 Program.Logger.Debug($"Update available for unit mappers: {latestRelease.version}. Starting updater...");
                 try
                 {
@@ -422,7 +446,7 @@ namespace CrusaderWars
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = updaterPath,
-                        Arguments = $"\"{latestRelease.downloadUrl}\" \"{latestRelease.version}\" unit_mapper",
+                        Arguments = $"\"{latestRelease.downloadUrl}\" \"{latestRelease.version}\" \"{currentVersion}\" unit_mapper",
                         UseShellExecute = true
                     });
                     Environment.Exit(0);

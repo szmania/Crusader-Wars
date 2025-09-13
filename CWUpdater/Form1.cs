@@ -184,6 +184,24 @@ namespace CWUpdater
             try
             {
                 Logger.Log("Update button clicked.");
+
+                // Delete the skipped version file if it exists
+                string currentDir = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", "");
+                string skipFileName = IsUnitMappers ? "um_skipped_version.txt" : "app_skipped_version.txt";
+                string skipFilePath = Path.Combine(currentDir, skipFileName);
+                if (File.Exists(skipFilePath))
+                {
+                    try
+                    {
+                        File.Delete(skipFilePath);
+                        Logger.Log($"Deleted skipped version file: {skipFilePath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log($"Could not delete skipped version file: {ex.Message}");
+                    }
+                }
+
                 btnUpdate.Enabled = false;
                 btnUpdate.Text = "Updating..";
                 if (DownloadUrl != null) // Added null check for DownloadUrl
@@ -629,6 +647,21 @@ namespace CWUpdater
         private void btnSkip_Click(object sender, EventArgs e)
         {
             Logger.Log("Update skipped by user.");
+            if (!string.IsNullOrEmpty(UpdateVersion))
+            {
+                try
+                {
+                    string currentDir = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", "");
+                    string skipFileName = IsUnitMappers ? "um_skipped_version.txt" : "app_skipped_version.txt";
+                    string skipFilePath = Path.Combine(currentDir, skipFileName);
+                    File.WriteAllText(skipFilePath, UpdateVersion);
+                    Logger.Log($"Wrote skipped version {UpdateVersion} to {skipFilePath}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error writing skipped version file: {ex.Message}");
+                }
+            }
             RestartApplication(false);
         }
 
