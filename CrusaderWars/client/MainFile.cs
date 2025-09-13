@@ -1221,17 +1221,23 @@ namespace CrusaderWars
                         Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
                         if (army.Units != null)
                         {
+                            bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
                                 string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
-                                    Program.Logger.Debug($"  - Unit: (Levies), CK3 Type: {unit.GetRegimentType()}, Total Soldiers: {unit.GetSoldiers()}{unitDetails}");
-                                    var levyDetails = BattleLog.GetLevyBreakdown(army.ID);
-                                    foreach (var detail in levyDetails)
+                                    if (!leviesLogged)
                                     {
-                                        Program.Logger.Debug(detail);
+                                        int totalLevySoldiers = army.Units.Where(u => u.GetRegimentType() == RegimentType.Levy).Sum(u => u.GetSoldiers());
+                                        Program.Logger.Debug($"  - Unit: (All Levies), CK3 Type: Levy, Total Soldiers: {totalLevySoldiers}");
+                                        var levyDetails = BattleLog.GetLevyBreakdown(army.ID);
+                                        foreach (var detail in levyDetails)
+                                        {
+                                            Program.Logger.Debug(detail);
+                                        }
+                                        leviesLogged = true;
                                     }
                                 }
                                 else
@@ -1258,17 +1264,23 @@ namespace CrusaderWars
                         Program.Logger.Debug($"Army ID: {army.ID}, Total Soldiers: {army.GetTotalSoldiers()}");
                         if (army.Units != null)
                         {
+                            bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
                                 string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
-                                    Program.Logger.Debug($"  - Unit: (Levies), CK3 Type: {unit.GetRegimentType()}, Total Soldiers: {unit.GetSoldiers()}{unitDetails}");
-                                    var levyDetails = BattleLog.GetLevyBreakdown(army.ID);
-                                    foreach (var detail in levyDetails)
+                                    if (!leviesLogged)
                                     {
-                                        Program.Logger.Debug(detail);
+                                        int totalLevySoldiers = army.Units.Where(u => u.GetRegimentType() == RegimentType.Levy).Sum(u => u.GetSoldiers());
+                                        Program.Logger.Debug($"  - Unit: (All Levies), CK3 Type: Levy, Total Soldiers: {totalLevySoldiers}");
+                                        var levyDetails = BattleLog.GetLevyBreakdown(army.ID);
+                                        foreach (var detail in levyDetails)
+                                        {
+                                            Program.Logger.Debug(detail);
+                                        }
+                                        leviesLogged = true;
                                     }
                                 }
                                 else
