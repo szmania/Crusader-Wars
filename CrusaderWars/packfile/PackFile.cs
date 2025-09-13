@@ -16,7 +16,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Starting .pack file creation process...");
             // Create and import .pack file
 
-            string create_path =Directory.GetCurrentDirectory() + @"\CrusaderWars.pack";
+            string create_path =Directory.GetCurrentDirectory() + @"\CrusaderConflicts.pack";
             string add_path = Directory.GetCurrentDirectory() + @"\data\battle files";
             string thumbnail_path = Directory.GetCurrentDirectory() + @"\settings\CrusaderWars.png";
             string tsv_path = Directory.GetCurrentDirectory() + @"\data\schema_att.ron";
@@ -30,7 +30,7 @@ namespace CrusaderWars
 
             string pack_dir_path = Path.GetDirectoryName(Properties.Settings.Default.VAR_attila_path) + @"\data";
             string pack_to_move_path = create_path;
-            string pack_file_path = pack_dir_path + @"\CrusaderWars.pack";
+            string pack_file_path = pack_dir_path + @"\CrusaderConflicts.pack";
             string thumb_file_path = pack_dir_path + @"\CrusaderWars.png";
 
             if (File.Exists(pack_file_path))

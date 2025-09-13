@@ -274,7 +274,7 @@ namespace CrusaderWars.unit_mapper
                     {
                         if (element is XmlComment) continue;
                         string faction = element.Attributes?["name"]?.Value ?? string.Empty;
-                        Program.Logger.Debug($"Checking faction node: {faction}");
+                        // Program.Logger.Debug($"Checking faction node: {faction}");
 
                         //Store Default unit max first
                         if (faction == "Default" || faction == "DEFAULT")

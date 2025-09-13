@@ -67,7 +67,7 @@ namespace CrusaderWars.mod_manager
         static void RemoveRequiredMods()
         {
             string[] unitMappers_folders = Directory.GetDirectories(@".\unit mappers\");
-            ModsPaths.RemoveAll(x => x.GetName() == "CrusaderWars.pack");
+            ModsPaths.RemoveAll(x => x.GetName() == "CrusaderConflicts.pack");
 
             foreach (var mapper in unitMappers_folders)
             {
@@ -182,9 +182,9 @@ namespace CrusaderWars.mod_manager
                     Program.Logger.Debug($"  - {type} Mod: {mod.GetName()}");
                 };
 
-                // 1. CrusaderWars.pack (Highest priority, written first in file, loaded last by game)
-                sw.WriteLine($"mod \"CrusaderWars.pack\";");
-                Program.Logger.Debug("  - Mod: CrusaderWars.pack (Highest Priority)");
+                // 1. CrusaderConflicts.pack (Highest priority, written first in file, loaded last by game)
+                sw.WriteLine($"mod \"CrusaderConflicts.pack\";");
+                Program.Logger.Debug("  - Mod: CrusaderConflicts.pack (Highest Priority)");
 
                 // 2. Optional (user-selected) mods
                 foreach (var mod in optionalMods)
