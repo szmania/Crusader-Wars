@@ -91,6 +91,12 @@ namespace CrusaderWars.mod_manager
 
         public static void SetLoadingRequiredMods(List<string> requiredMods)
         {
+            // Reset all mods' loading required status before setting new ones
+            foreach (var mod in ModsPaths)
+            {
+                mod.IsLoadingRequiredMod(false);
+            }
+
             foreach(var mod in ModsPaths)
             {
                 if(mod.IsRequiredMod())
@@ -143,133 +149,58 @@ namespace CrusaderWars.mod_manager
                 File.WriteAllText(steam_app_id_path, "325610");
             }
 
-            /*
-             *  ....................  
-             *      OPTIONAL MODS  
-             *  ....................
-             */
+            string userMods_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "used_mods_cc.txt");
 
-            string userMods_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "used_mods_cc.txt"); // Changed from used_mods_cw.txt
-            string[]? workingDirectories = null;
-            string[]? steamModNames = null;
-            string[]? dataModNames = null;
+            // Clear existing content
+            File.WriteAllText(userMods_path, "");
 
-            //Working Directories
-            var steamMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Steam && x.IsEnabled()).ToList();
-            if(steamMods.Count > 0)
-            {
-                workingDirectories = steamMods.Select(x => x.GetFullPath()).ToArray();
-                steamModNames = steamMods.Select(x => x.GetName()).ToArray();
-            }
+            // Get ordered lists of mods
+            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod())
+                                       .OrderBy(x => x.GetLoadOrderValue())
+                                       .ToList();
 
-            //Data Mods
-            var dataMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Data && x.IsEnabled()).ToList();
-            if(dataMods.Count > 0)
-            {
-                dataModNames = dataMods.Select(x => x.GetName()).ToArray();
-            }
-
-            /*
-             *  ....................  
-             *      REQUIRED MODS  
-             *  ....................
-             */
-            string[]? workingDirectoriesRequiredMods = null;
-            string[]? steamModNamesRequiredMods = null;
-            string[]? dataModNamesRequiredMods = null;
-            //Working Directories
-            
-            var steamModsRequiredMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Steam && x.IsRequiredMod() && x.IsLoadingModRequiredMod())
-                                       .ToList()
-                                       .OrderBy(x => x.GetLoadOrderValue());
-            if (steamModsRequiredMods != null)
-            {
-                workingDirectoriesRequiredMods = steamModsRequiredMods.Select(x => x.GetFullPath()).ToArray();
-                steamModNamesRequiredMods = steamModsRequiredMods.Select(x => x.GetName()).ToArray();
-            }
-
-            //Data Mods
-            var dataModsRequiredMods = ModsPaths.Where(x => x.GetLocalization() == ModLocalization.Data && x.IsRequiredMod() && x.IsLoadingModRequiredMod())
-                                      .ToList()
-                                      .OrderBy(x => x.GetLoadOrderValue());
-            if (dataModsRequiredMods != null)
-            {
-                dataModNamesRequiredMods = dataModsRequiredMods.Select(x => x.GetName()).ToArray();
-            }
-
-            if (!File.Exists(userMods_path)) { 
-                File.Create(userMods_path).Close(); 
-            }
-            else
-            {
-                File.WriteAllText(userMods_path, "");
-            }
+            // Optional mods are those enabled by the user AND NOT required by the current playthrough
+            var optionalMods = ModsPaths.Where(x => x.IsEnabled() && !x.IsLoadingModRequiredMod())
+                                       .ToList();
 
             using (FileStream modsFile = File.Open(userMods_path, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
             using (StreamWriter sw = new StreamWriter(modsFile))
             {
                 sw.NewLine = "\n";
-                Program.Logger.Debug("Writing mods to used_mods_cc.txt..."); // Changed from used_mods_cw.txt
-                if (workingDirectories != null)
-                {
-                    foreach (string wD in workingDirectories)
-                    {
-                        string t = wD.Replace(@"\", @"/");
-                        sw.WriteLine($"add_working_directory \"{t}\";");
-                        Program.Logger.Debug($"  - WD: {t}");
-                    }
-                }
+                Program.Logger.Debug("Writing mods to used_mods_cc.txt with new priority order...");
 
-                if (workingDirectoriesRequiredMods != null)
+                // Local function to write a single mod entry
+                Action<Mod, string> writeModEntry = (mod, type) =>
                 {
-                    foreach (string wD in workingDirectoriesRequiredMods)
+                    if (mod.GetLocalization() == ModLocalization.Steam)
                     {
-                        string t = wD.Replace(@"\", @"/");
-                        sw.WriteLine($"add_working_directory \"{t}\";");
-                        Program.Logger.Debug($"  - Required WD: {t}");
+                        string workingDirectory = mod.GetFullPath().Replace(@"\", @"/");
+                        sw.WriteLine($"add_working_directory \"{workingDirectory}\";");
+                        Program.Logger.Debug($"  - {type} WD: {workingDirectory}");
                     }
-                }
+                    sw.WriteLine($"mod \"{mod.GetName()}\";");
+                    Program.Logger.Debug($"  - {type} Mod: {mod.GetName()}");
+                };
 
+                // 1. CrusaderWars.pack (Highest priority, written first in file, loaded last by game)
                 sw.WriteLine($"mod \"CrusaderWars.pack\";");
-                Program.Logger.Debug("  - Mod: CrusaderWars.pack");
+                Program.Logger.Debug("  - Mod: CrusaderWars.pack (Highest Priority)");
 
-                if (dataModNames != null)
+                // 2. Optional (user-selected) mods
+                foreach (var mod in optionalMods)
                 {
-                    foreach (string mod in dataModNames)
-                    {
-                        sw.WriteLine($"mod \"{mod}\";");
-                        Program.Logger.Debug($"  - Data Mod: {mod}");
-                    }
-                }
-                if (steamModNames != null)
-                {
-                    foreach (string mod in steamModNames)
-                    {
-                        sw.WriteLine($"mod \"{mod}\";");
-                        Program.Logger.Debug($"  - Steam Mod: {mod}");
-                    }
+                    writeModEntry(mod, "Optional");
                 }
 
-                if (dataModNamesRequiredMods != null)
+                // 3. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
+                foreach (var mod in requiredMods)
                 {
-                    foreach (string mod in dataModNamesRequiredMods)
-                    {
-                        sw.WriteLine($"mod \"{mod}\";");
-                        Program.Logger.Debug($"  - Required Data Mod: {mod}");
-                    }
-                }
-                if (steamModNamesRequiredMods != null)
-                {
-                    foreach (string mod in steamModNamesRequiredMods)
-                    {
-                        sw.WriteLine($"mod \"{mod}\";");
-                        Program.Logger.Debug($"  - Required Steam Mod: {mod}");
-                    }
+                    writeModEntry(mod, "Required");
                 }
 
                 sw.Dispose();
                 sw.Close();
-            };
+            }
         }
         public static void ReadInstalledMods()
         {
