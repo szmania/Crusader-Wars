@@ -34,7 +34,7 @@ namespace CWUpdater
                 
                 if (!string.IsNullOrEmpty(CurrentVersion) && !string.IsNullOrEmpty(UpdateVersion))
                 {
-                    VersionLabel.Text = $"v{CurrentVersion.TrimStart('v')} -> v{UpdateVersion.TrimStart('v')}";
+                    VersionLabel.Text = $"v{CurrentVersion.Trim().TrimStart('v')} -> v{UpdateVersion.Trim().TrimStart('v')}";
                 }
                 else
                 {
