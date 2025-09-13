@@ -20,6 +20,7 @@ namespace CWUpdater
 
         private string? DownloadUrl { get; set; } // Made nullable
         private string? UpdateVersion { get; set; } // Made nullable
+        private string? CurrentVersion { get; set; } // Made nullable
         private bool IsUnitMappers { get; set; }
 
         public AutoUpdater()
@@ -31,6 +32,14 @@ namespace CWUpdater
                 InitializeComponent();
                 this.TopMost = true;
                 
+                if (!string.IsNullOrEmpty(CurrentVersion) && !string.IsNullOrEmpty(UpdateVersion))
+                {
+                    VersionLabel.Text = $"v{CurrentVersion.TrimStart('v')} -> v{UpdateVersion.TrimStart('v')}";
+                }
+                else
+                {
+                    VersionLabel.Visible = false;
+                }
 
                 if(IsUnitMappers)
                 {
@@ -51,20 +60,22 @@ namespace CWUpdater
             string[] args = Environment.GetCommandLineArgs();
             Logger.Log($"Arguments received: {string.Join(" ", args)}");
 
-            if (args.Length == 3) // Check if at least 2 arguments are present
+            if (args.Length == 4) // App update: CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion>
             {
                 DownloadUrl = args[1];
                 UpdateVersion = args[2];
+                CurrentVersion = args[3];
                 IsUnitMappers = false;
-                Logger.Log($"App update detected. URL: {DownloadUrl}, Version: {UpdateVersion}");
+                Logger.Log($"App update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}");
                 return true;
             }
-            else if (args.Length == 4) // Check if at least 3 arguments are present
+            else if (args.Length == 5) // Unit Mappers update: CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion> <"unit_mappers_flag">
             {
                 DownloadUrl = args[1];
                 UpdateVersion = args[2];
+                CurrentVersion = args[3];
                 IsUnitMappers = true;
-                Logger.Log($"Unit Mappers update detected. URL: {DownloadUrl}, Version: {UpdateVersion}");
+                Logger.Log($"Unit Mappers update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}");
                 return true;
             }
             Logger.Log("Invalid number of arguments.");

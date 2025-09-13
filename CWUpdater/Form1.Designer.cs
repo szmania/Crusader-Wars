@@ -35,7 +35,19 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.WarningLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.VersionLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
+            // 
+            // VersionLabel
+            // 
+            this.VersionLabel.BackColor = System.Drawing.Color.Transparent;
+            this.VersionLabel.Font = new System.Drawing.Font("Paradox King Script", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.VersionLabel.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.VersionLabel.Location = new System.Drawing.Point(0, 45);
+            this.VersionLabel.Name = "VersionLabel";
+            this.VersionLabel.Size = new System.Drawing.Size(750, 25);
+            this.VersionLabel.TabIndex = 8;
+            this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnUpdate
             // 
@@ -48,7 +60,7 @@
             this.btnUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnUpdate.Font = new System.Drawing.Font("Paradox King Script", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnUpdate.ForeColor = System.Drawing.SystemColors.Control;
-            this.btnUpdate.Location = new System.Drawing.Point(251, 108);
+            this.btnUpdate.Location = new System.Drawing.Point(251, 120);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(248, 59);
             this.btnUpdate.TabIndex = 0;
@@ -75,7 +87,7 @@
             this.WarningLabel.BackColor = System.Drawing.Color.Transparent;
             this.WarningLabel.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.WarningLabel.ForeColor = System.Drawing.Color.DarkRed;
-            this.WarningLabel.Location = new System.Drawing.Point(12, 45);
+            this.WarningLabel.Location = new System.Drawing.Point(12, 70);
             this.WarningLabel.Name = "WarningLabel";
             this.WarningLabel.Size = new System.Drawing.Size(726, 36);
             this.WarningLabel.TabIndex = 6;
@@ -90,7 +102,7 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Paradox King Script", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.label1.Location = new System.Drawing.Point(364, 80);
+            this.label1.Location = new System.Drawing.Point(364, 95);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(21, 25);
             this.label1.TabIndex = 7;
@@ -104,6 +116,7 @@
             this.BackgroundImage = global::CWUpdater.Properties.Resources.tooltip_bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(750, 190);
+            this.Controls.Add(this.VersionLabel);
             this.Controls.Add(this.TitleLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.WarningLabel);
@@ -130,6 +143,7 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Label WarningLabel;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label VersionLabel;
     }
 }
 
