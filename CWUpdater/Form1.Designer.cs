@@ -159,7 +159,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AutoUpdater";
-            this.StartPosition = System.Windows.Forms.StartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "AutoUpdater";
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.AutoUpdater_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.AutoUpdater_MouseMove);
