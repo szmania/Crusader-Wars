@@ -63,7 +63,8 @@ namespace CrusaderWars.client.Options
 
         private void Commander_ValueChanged(object? sender, EventArgs e)
         {
-            NumericUpDown changedControl = (NumericUpDown)sender;
+            if (sender is not NumericUpDown changedControl) return;
+            
             int total = commanderControls.Sum(c => (int)c.Value);
             
             if (total > 100)
@@ -78,7 +79,8 @@ namespace CrusaderWars.client.Options
 
         private void Knight_ValueChanged(object? sender, EventArgs e)
         {
-            NumericUpDown changedControl = (NumericUpDown)sender;
+            if (sender is not NumericUpDown changedControl) return;
+            
             int total = knightControls.Sum(c => (int)c.Value);
             
             if (total > 100)
