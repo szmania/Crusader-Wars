@@ -40,6 +40,12 @@ namespace CrusaderWars
         private int _pulseStep = 0;
         private Color _originalInfoLabelBackColor;
 
+        // Playthrough Display UI Elements
+        private Panel playthroughPanel = null!;
+        private PictureBox playthroughPictureBox = null!;
+        private Label playthroughTitleLabel = null!;
+        private Label playthroughNameLabel = null!;
+
 
         const string SEARCH_KEY = "CRUSADERWARS3";
 
@@ -440,12 +446,16 @@ namespace CrusaderWars
             labelMappersVersion.BackColor = myColor;
             EA_Label.BackColor = myColor;
 
+            // Initialize and configure Playthrough Display
+            InitializePlaythroughDisplay();
+
             Options.ReadOptionsFile();
             ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
             AttilaPreferences.ChangeUnitSizes();
             AttilaPreferences.ValidateOnStartup();
 
             UpdateUIForBattleState();
+            UpdatePlaythroughDisplay(); // Initial update
 
             // Set ToolTips
             InformationToolTip.SetToolTip(ExecuteButton, "Start or continue a Crusader Conflicts campaign by launching Crusader Kings 3.");
@@ -464,6 +474,163 @@ namespace CrusaderWars
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
+
+        private void InitializePlaythroughDisplay()
+        {
+            playthroughPanel = new Panel();
+            playthroughPictureBox = new PictureBox();
+            playthroughTitleLabel = new Label();
+            playthroughNameLabel = new Label();
+
+            // Panel
+            playthroughPanel.SuspendLayout();
+            playthroughPanel.Size = new Size(280, 80);
+            playthroughPanel.Location = new Point(this.ClientSize.Width - playthroughPanel.Width - 10, 10);
+            playthroughPanel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            playthroughPanel.BackColor = Color.FromArgb(50, 0, 0, 0); // Semi-transparent black
+            playthroughPanel.BorderStyle = BorderStyle.FixedSingle;
+
+            // PictureBox
+            playthroughPictureBox.Size = new Size(60, 60);
+            playthroughPictureBox.Location = new Point(10, 10);
+            playthroughPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            playthroughPictureBox.BackColor = Color.Transparent;
+
+            // Title Label
+            playthroughTitleLabel.Text = "Active Playthrough:";
+            playthroughTitleLabel.Font = new Font("Microsoft Sans Serif", 10f, FontStyle.Bold);
+            playthroughTitleLabel.ForeColor = Color.WhiteSmoke;
+            playthroughTitleLabel.Location = new Point(playthroughPictureBox.Right + 10, 10);
+            playthroughTitleLabel.AutoSize = true;
+
+            // Name Label
+            playthroughNameLabel.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Italic);
+            playthroughNameLabel.ForeColor = Color.WhiteSmoke;
+            playthroughNameLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughTitleLabel.Bottom + 5);
+            playthroughNameLabel.AutoSize = true;
+
+            // Add controls
+            playthroughPanel.Controls.Add(playthroughPictureBox);
+            playthroughPanel.Controls.Add(playthroughTitleLabel);
+            playthroughPanel.Controls.Add(playthroughNameLabel);
+            this.Controls.Add(playthroughPanel);
+            playthroughPanel.ResumeLayout(false);
+            playthroughPanel.PerformLayout();
+        }
+
+        private void UpdatePlaythroughDisplay()
+        {
+            Program.Logger.Debug("Updating playthrough display on main screen.");
+            string activePlaythroughTag = "";
+            string userFriendlyName = "";
+
+            // 1. Find active playthrough tag from UnitMappers.xml
+            string um_file = @".\settings\UnitMappers.xml";
+            if (File.Exists(um_file))
+            {
+                try
+                {
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.Load(um_file);
+                    var root = xmlDoc.DocumentElement;
+                    if (root != null)
+                    {
+                        foreach (XmlNode node in root.ChildNodes)
+                        {
+                            if (node is XmlComment) continue;
+                            if (node.InnerText == "True")
+                            {
+                                activePlaythroughTag = node.Attributes?["name"]?.Value ?? "";
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading UnitMappers.xml for display: {ex.Message}");
+                    activePlaythroughTag = ""; // Reset on error
+                }
+            }
+
+            // 2. If a playthrough is active, find its folder and image
+            if (!string.IsNullOrEmpty(activePlaythroughTag))
+            {
+                string playthroughFolderPath = "";
+                string unitMappersDir = @".\unit mappers";
+                if (Directory.Exists(unitMappersDir))
+                {
+                    // Find the directory whose tag.txt matches the active playthrough tag
+                    foreach (var dir in Directory.GetDirectories(unitMappersDir))
+                    {
+                        string tagFile = Path.Combine(dir, "tag.txt");
+                        if (File.Exists(tagFile))
+                        {
+                            if (File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
+                            {
+                                playthroughFolderPath = dir;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Update UI if folder was found
+                if (!string.IsNullOrEmpty(playthroughFolderPath))
+                {
+                    Program.Logger.Debug($"Active playthrough found: {activePlaythroughTag}");
+                    // Find and load image, avoiding file lock
+                    var imagePath = Directory.GetFiles(playthroughFolderPath, "*.png").FirstOrDefault();
+                    if (imagePath != null)
+                    {
+                        try
+                        {
+                            using (var bmpTemp = new Bitmap(imagePath))
+                            {
+                                // Dispose previous image if it exists
+                                playthroughPictureBox.Image?.Dispose();
+                                playthroughPictureBox.Image = new Bitmap(bmpTemp);
+                            }
+                            playthroughPictureBox.Visible = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error loading playthrough image from {imagePath}: {ex.Message}");
+                            playthroughPictureBox.Visible = false;
+                        }
+                    }
+                    else
+                    {
+                        playthroughPictureBox.Image?.Dispose();
+                        playthroughPictureBox.Image = null;
+                        playthroughPictureBox.Visible = false;
+                    }
+
+                    // Format name and update label
+                    userFriendlyName = System.Text.RegularExpressions.Regex.Replace(activePlaythroughTag, "(\\B[A-Z])", " $1");
+                    playthroughNameLabel.Text = userFriendlyName;
+                    playthroughNameLabel.ForeColor = Color.WhiteSmoke;
+                    playthroughPanel.Visible = true;
+                }
+                else
+                {
+                    Program.Logger.Debug($"Active playthrough '{activePlaythroughTag}' is set, but its folder was not found in 'unit mappers'.");
+                    activePlaythroughTag = ""; // Folder not found, treat as no playthrough selected
+                }
+            }
+
+            // 4. Handle case where no playthrough is selected
+            if (string.IsNullOrEmpty(activePlaythroughTag))
+            {
+                Program.Logger.Debug("No active playthrough selected.");
+                playthroughPictureBox.Image?.Dispose();
+                playthroughPictureBox.Image = null;
+                playthroughPictureBox.Visible = false;
+                playthroughNameLabel.Text = "None Selected - Go to Mod Settings";
+                playthroughNameLabel.ForeColor = Color.FromArgb(255, 128, 128); // Soft red
+                playthroughPanel.Visible = true;
+            }
         }
 
         private Version ParseVersionString(string versionString, string versionType)
@@ -2046,6 +2213,7 @@ namespace CrusaderWars
             
             Options optionsChild = new Options();
             optionsChild.ShowDialog();
+            UpdatePlaythroughDisplay(); // Update display after settings are closed
         }
 
 
