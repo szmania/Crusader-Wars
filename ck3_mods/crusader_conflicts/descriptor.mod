@@ -4,6 +4,4 @@ tags={
 	"Warfare"
 }
 name="Crusader Conflicts"
-supported_version="1.*.*"
-path="mod/crusader_conflicts"
-remote_file_id="2977969008110"
+supported_version="1.17.0"
