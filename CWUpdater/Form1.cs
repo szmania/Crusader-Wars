@@ -60,7 +60,16 @@ namespace CWUpdater
             string[] args = Environment.GetCommandLineArgs();
             Logger.Log($"Arguments received: {string.Join(" ", args)}");
 
-            if (args.Length == 4) // App update: CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion>
+            if (args.Length == 3) // App update (older format): CWUpdater.exe <DownloadUrl> <NewVersion>
+            {
+                DownloadUrl = args[1];
+                UpdateVersion = args[2];
+                CurrentVersion = null; // Current version not supplied in this format
+                IsUnitMappers = false;
+                Logger.Log($"App update (older format) detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: null");
+                return true;
+            }
+            else if (args.Length == 4) // App update: CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion>
             {
                 DownloadUrl = args[1];
                 UpdateVersion = args[2];
