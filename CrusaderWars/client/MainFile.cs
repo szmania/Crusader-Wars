@@ -228,20 +228,35 @@ namespace CrusaderWars
 
         bool VerifyEnabledUnitMappers()
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(@".\settings\UnitMappers.xml");
-            var root = xmlDoc.DocumentElement; // Introduce local variable
-            if (root != null)
+            string filePath = @".\settings\UnitMappers.xml";
+            if (!File.Exists(filePath))
             {
-                foreach (XmlNode node in root.ChildNodes)
+                return false; // If file doesn't exist, no mappers are enabled.
+            }
+
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(filePath);
+                var root = xmlDoc.DocumentElement;
+                if (root != null)
                 {
-                    if (node is XmlComment) continue;
-                    if (node.InnerText == "True")
+                    foreach (XmlNode node in root.ChildNodes)
                     {
-                        return true;
+                        if (node is XmlComment) continue;
+                        if (node.InnerText == "True")
+                        {
+                            return true;
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading UnitMappers.xml in VerifyEnabledUnitMappers: {ex.Message}");
+                return false; // Treat errors as no mappers enabled
+            }
+
 
             return false;
         }
