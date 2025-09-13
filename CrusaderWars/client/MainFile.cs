@@ -515,6 +515,7 @@ namespace CrusaderWars
             playthroughPanel.Controls.Add(playthroughTitleLabel);
             playthroughPanel.Controls.Add(playthroughNameLabel);
             this.Controls.Add(playthroughPanel);
+            playthroughPanel.BringToFront();
             playthroughPanel.ResumeLayout(false);
             playthroughPanel.PerformLayout();
         }
