@@ -138,7 +138,7 @@ namespace CrusaderWars.unit_mapper
                     string fileName = Path.GetFileName(file);
                     if (fileName == "tag.txt")
                     {
-                        string fileTag = File.ReadAllText(file);
+                        string fileTag = File.ReadAllText(file).Trim();
                         if (tag == fileTag)
                         {
                             // TIME PERIOD
