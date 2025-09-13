@@ -1466,7 +1466,25 @@ namespace CrusaderWars
                         if (armyRegiment == null || armyRegiment.Type == RegimentType.Commander || armyRegiment.Type == RegimentType.Knight) continue;
 
                         string regimentTypeName = armyRegiment.Type == RegimentType.Levy ? "Levy" : armyRegiment.MAA_Name;
-                        Program.Logger.Debug($"    Type: {regimentTypeName}");
+
+                        // Calculate aggregate casualties for this regiment group
+                        int totalOriginalSize = 0;
+                        int totalFinalSize = 0;
+                        if (armyRegiment.Regiments != null)
+                        {
+                            foreach (var regiment in armyRegiment.Regiments)
+                            {
+                                if (regiment == null || string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+
+                                string key = $"{army.ID}_{regiment.ID}";
+                                totalOriginalSize += originalSizes.ContainsKey(key) ? originalSizes[key] : 0;
+                                totalFinalSize += Int32.Parse(regiment.CurrentNum);
+                            }
+                        }
+                        int totalCasualties = totalOriginalSize - totalFinalSize;
+
+                        // Log the high-level summary for the regiment group
+                        Program.Logger.Debug($"    Type: {regimentTypeName}, Original: {totalOriginalSize}, Casualties: {totalCasualties}, Remaining: {totalFinalSize}");
 
                         if (armyRegiment.Regiments != null)
                         {
