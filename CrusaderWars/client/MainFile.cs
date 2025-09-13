@@ -629,7 +629,7 @@ namespace CrusaderWars
                     
                     string targetPath = Properties.Settings.Default.VAR_attila_path;
                     string workingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
-                    string arguments = "used_mods_cw.txt";
+                    string arguments = "used_mods_cc.txt"; // Changed from used_mods_cw.txt
                     string description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
 
                     CreateShortcut(shortcutPath, targetPath, workingDirectory, arguments, description);

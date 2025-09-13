@@ -149,7 +149,7 @@ namespace CrusaderWars.mod_manager
              *  ....................
              */
 
-            string userMods_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "used_mods_cw.txt");
+            string userMods_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "used_mods_cc.txt"); // Changed from used_mods_cw.txt
             string[]? workingDirectories = null;
             string[]? steamModNames = null;
             string[]? dataModNames = null;
@@ -209,7 +209,7 @@ namespace CrusaderWars.mod_manager
             using (StreamWriter sw = new StreamWriter(modsFile))
             {
                 sw.NewLine = "\n";
-                Program.Logger.Debug("Writing mods to used_mods_cw.txt...");
+                Program.Logger.Debug("Writing mods to used_mods_cc.txt..."); // Changed from used_mods_cw.txt
                 if (workingDirectories != null)
                 {
                     foreach (string wD in workingDirectories)
