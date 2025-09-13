@@ -620,25 +620,63 @@ namespace CrusaderWars
         // This method creates a shortcut for Attila
         private void CreateAttilaShortcut()
         {
-            try
-            {
-                string shortcutPath = @".\CW.lnk";
-                if (!System.IO.File.Exists(shortcutPath))
-                {
-                    Program.Logger.Debug("Attila shortcut not found, creating...");
-                    
-                    string targetPath = Properties.Settings.Default.VAR_attila_path;
-                    string workingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
-                    string arguments = "used_mods_cc.txt"; // Changed from used_mods_cw.txt
-                    string description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
+            string shortcutPath = @".\CW.lnk";
+            string targetPath = Properties.Settings.Default.VAR_attila_path;
+            string workingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
+            string arguments = "used_mods_cc.txt";
+            string description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
 
-                    CreateShortcut(shortcutPath, targetPath, workingDirectory, arguments, description);
-                    Program.Logger.Debug("Attila shortcut created successfully.");
+            bool needsUpdate = true;
+
+            if (System.IO.File.Exists(shortcutPath))
+            {
+                Program.Logger.Debug("Attila shortcut found. Validating its properties...");
+                try
+                {
+                    Type? t = Type.GetTypeFromProgID("WScript.Shell");
+                    dynamic shell = Activator.CreateInstance(t!)!;
+                    var shortcut = shell.CreateShortcut(shortcutPath);
+
+                    // Compare properties
+                    if (shortcut.TargetPath == targetPath &&
+                        shortcut.WorkingDirectory == workingDirectory &&
+                        shortcut.Arguments == arguments)
+                    {
+                        needsUpdate = false;
+                        Program.Logger.Debug("Attila shortcut is up-to-date.");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug("Attila shortcut is outdated or incorrect. Recreating...");
+                        Program.Logger.Debug($"  - Current TargetPath: {shortcut.TargetPath}, Expected: {targetPath}");
+                        Program.Logger.Debug($"  - Current WorkingDirectory: {shortcut.WorkingDirectory}, Expected: {workingDirectory}");
+                        Program.Logger.Debug($"  - Current Arguments: {shortcut.Arguments}, Expected: {arguments}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading existing Attila shortcut properties: {ex.Message}. Shortcut will be recreated.");
+                    needsUpdate = true; // Ensure it's recreated on error
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
+                Program.Logger.Debug("Attila shortcut not found. Creating...");
+                needsUpdate = true;
+            }
+
+            if (needsUpdate)
+            {
+                try
+                {
+                    CreateShortcut(shortcutPath, targetPath, workingDirectory, arguments, description);
+                    Program.Logger.Debug("Attila shortcut created/updated successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error creating/updating Attila shortcut: {ex.Message}");
+                    // Optionally re-throw or handle more gracefully if shortcut creation is critical
+                }
             }
         }
 
