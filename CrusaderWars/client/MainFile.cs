@@ -1145,6 +1145,7 @@ namespace CrusaderWars
                 try
                 {
                     Program.Logger.Debug("Clearing previous battle files before regeneration...");
+                    Data.Reset();
                     BattleFile.ClearFile();
                     DeclarationsFile.Erase();
                     BattleScript.EraseScript();
