@@ -177,14 +177,21 @@ namespace CrusaderWars
         public static (List<string> AliveList, List<string> KillsList) GetRemainingAndKills(string path_attila_log)
         {
             Program.Logger.Debug($"Entering GetRemainingAndKills for log file: {path_attila_log}");
+            // Initialize with empty collections
+            List<string> aliveList = new();
+            List<string> killsList = new();
+            
+            if (!File.Exists(path_attila_log)) 
+            {
+                Program.Logger.Debug($"Attila log file not found at: {path_attila_log}. Returning empty lists.");
+                return (aliveList, killsList);
+            }
+
             string aliveText = "";
             string killsText = "";
 
             bool aliveSearchStarted = false;
             bool killsSearchStarted = false;
-
-            List<string> alive_list = new List<string>();
-            List<string> kills_list = new List<string>();
 
             using (StreamReader reader = new StreamReader(path_attila_log))
             {
@@ -208,8 +215,8 @@ namespace CrusaderWars
                     else if (line == "-----PRINT ENDED-----!!")
                     {
                         Program.Logger.Debug("Found '-----PRINT ENDED-----!!' marker. Adding current report.");
-                        alive_list.Add(aliveText);
-                        kills_list.Add(killsText);
+                        aliveList.Add(aliveText);
+                        killsList.Add(killsText);
                         aliveText = "";
                         killsText = "";
                         aliveSearchStarted = false;
@@ -227,8 +234,8 @@ namespace CrusaderWars
                     }
                 }
             }
-            Program.Logger.Debug($"Found {alive_list.Count} alive reports and {kills_list.Count} kill reports.");
-            return (alive_list, kills_list);
+            Program.Logger.Debug($"Found {aliveList.Count} alive reports and {killsList.Count} kill reports.");
+            return (aliveList, killsList);
         }
 
         // Get attila remaining soldiers
@@ -677,7 +684,7 @@ namespace CrusaderWars
                 bool isMAA = false;
                 bool isKnight = false;
 
-                string regimentType = "";
+                string? regimentType = ""; // Changed to nullable
                 string knightID = "";
 
                 string? line;
@@ -752,14 +759,10 @@ namespace CrusaderWars
                             foreach (Army army in attacker_armies)
                             {
                                 var knightsList = army.Knights?.GetKnightsList();
-                                if (knightsList != null)
+                                if (knightsList?.FirstOrDefault(k => k != null && k.GetID() == knightID) is Knight knight)
                                 {
-                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
-                                    if (knight != null)
-                                    {
-                                        main_kills = knight.GetKills();
-                                        break; // Found the knight, no need to check other armies
-                                    }
+                                    main_kills = knight.GetKills();
+                                    break; // Found the knight, no need to check other armies
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -862,14 +865,10 @@ namespace CrusaderWars
                             foreach (Army army in defender_armies)
                             {
                                 var knightsList = army.Knights?.GetKnightsList();
-                                if (knightsList != null)
+                                if (knightsList?.FirstOrDefault(k => k != null && k.GetID() == knightID) is Knight knight)
                                 {
-                                    var knight = knightsList.Where(k => k != null).FirstOrDefault(k => k.GetID() == knightID);
-                                    if (knight != null)
-                                    {
-                                        main_kills = knight.GetKills();
-                                        break; // Found the knight, no need to check other armies
-                                    }
+                                    main_kills = knight.GetKills();
+                                    break; // Found the knight, no need to check other armies
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1043,9 +1042,9 @@ namespace CrusaderWars
         static int GetArmiesTotalFightingMen(List<Army> armies)
         {
             int total = 0;
-            foreach(Army army in armies)
+            foreach (Army army in armies ?? Enumerable.Empty<Army>())
             {
-                if (army.ArmyRegiments != null)
+                if (army?.ArmyRegiments == null) continue;
                 {
                     foreach (var r in army.ArmyRegiments)
                     {

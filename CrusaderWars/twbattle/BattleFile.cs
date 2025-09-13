@@ -480,7 +480,8 @@ namespace CrusaderWars
 
             if (ModOptions.UnitCards())
             {
-                UnitsCardsNames.ChangeUnitsCardsNames(UnitMappers_BETA.GetLoadedUnitMapperName(), attacker_armies, defender_armies);
+                string mapperName = UnitMappers_BETA.GetLoadedUnitMapperName() ?? "default_mapper";
+                UnitsCardsNames.ChangeUnitsCardsNames(mapperName, attacker_armies, defender_armies);
             }
 
             UnitMappers_BETA.SetMapperImage();
@@ -608,18 +609,17 @@ namespace CrusaderWars
                 ("Wendish", "att_fact_ostrogothi"),
                 ("South Arabian" ,"att_fact_lakhmids")
         };
-        static string GetAOJFaction(Army army, bool isPlayer)
+        private static string GetAOJFaction(Army army, bool isPlayer)
         {
-            string default_faction;
-            if (isPlayer)
-                default_faction = "historical_house_stark";
-            else
-                default_faction = "historical_house_bolton";
-
-            string faction = default_faction;
+            string faction = isPlayer ? "historical_house_stark" : "historical_house_bolton";
+            
+            // Add null check for army.Units
+            if (army?.Units == null) return faction;
+            
             foreach (Unit unit in army.Units)
             {
-                if (unit == null) continue; // Add this line
+                // Add null check for unit
+                if (unit == null) continue;
                 string culture = unit.GetCulture();
                 string heritage = unit.GetHeritage();
                 string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);

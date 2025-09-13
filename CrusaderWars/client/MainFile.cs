@@ -32,7 +32,7 @@ namespace CrusaderWars
         private bool _programmaticClick = false;
         private bool battleJustCompleted = false;
         private string _appVersion = null!;
-        private string _umVersion = null!;
+        private string? _umVersion = null; // Made nullable
         private Updater _updater = null!;
         private System.Windows.Forms.Timer _pulseTimer = null!;
         private bool _isPulsing = false;
@@ -151,7 +151,7 @@ namespace CrusaderWars
             {
                 try
                 {
-                    _appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    _appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0"; // Added null-coalescing
                     Program.Logger.Debug($"Fallback: Retrieved app version from assembly: {_appVersion}");
                 }
                 catch (Exception ex)
@@ -163,14 +163,14 @@ namespace CrusaderWars
 
             labelVersion.Text = $"v{_appVersion.TrimStart('v')}";
 
-            _umVersion = _updater!.UMVersion; // Null-forgiving operator added here
+            _umVersion = _updater?.UMVersion; // Made nullable
             if (!string.IsNullOrWhiteSpace(_umVersion))
             {
                 labelMappersVersion.Text = $"(mappers v{_umVersion.TrimStart('v')})";
             }
             else
             {
-                labelMappersVersion.Text = "(mappers v0.0)"; // Default
+                labelMappersVersion.Text = "(mappers version unknown)"; // Default
             }
             Program.Logger.Debug($"Current App Version: {_updater.AppVersion}");
 
@@ -634,7 +634,7 @@ namespace CrusaderWars
             }
         }
 
-        private Version ParseVersionString(string versionString, string versionType)
+        private Version ParseVersionString(string? versionString, string versionType) // Made versionString nullable
         {
             if (string.IsNullOrEmpty(versionString))
             {
@@ -734,7 +734,7 @@ namespace CrusaderWars
 
                 // Update both settings to the current versions
                 Properties.Settings.Default.LastNotifiedVersion = _appVersion.TrimStart('v');
-                Properties.Settings.Default.LastNotifiedUMVersion = _umVersion.TrimStart('v');
+                Properties.Settings.Default.LastNotifiedUMVersion = _umVersion?.TrimStart('v') ?? "0.0.0"; // Added null-coalescing
                 Properties.Settings.Default.Save();
                 Program.Logger.Debug($"LastNotifiedVersion updated to: {Properties.Settings.Default.LastNotifiedVersion}");
                 Program.Logger.Debug($"LastNotifiedUMVersion updated to: {Properties.Settings.Default.LastNotifiedUMVersion}");

@@ -548,26 +548,31 @@ namespace CrusaderWars.data.save_file
 
         static void SetRegimentsOriginsKeys(string title_id, string originKey)
         {
-            foreach (Regiment regiment in attacker_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiments => armyRegiments.Regiments))
+            foreach (Regiment? regiment in attacker_armies?
+                .SelectMany(army => army?.ArmyRegiments ?? Enumerable.Empty<ArmyRegiment>())
+                .SelectMany(ar => ar?.Regiments ?? Enumerable.Empty<Regiment>())
+                .Where(r => r != null) ?? Enumerable.Empty<Regiment>())
             {
-                if(!string.IsNullOrEmpty(regiment.OwningTitle) && string.IsNullOrEmpty(regiment.OriginKey))
+                // Existing logic with added null checks
+                if (string.IsNullOrEmpty(regiment?.OwningTitle) || 
+                    !string.IsNullOrEmpty(regiment?.OriginKey)) continue;
+                if (regiment.OwningTitle == title_id)
                 {
-                    if (regiment.OwningTitle == title_id)
-                    {
-                        regiment.SetOriginKey(originKey);
-                    }
+                    regiment.SetOriginKey(originKey);
                 }
             }
 
-            foreach (Regiment regiment in defender_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
+            foreach (Regiment? regiment in defender_armies?
+                .SelectMany(army => army?.ArmyRegiments ?? Enumerable.Empty<ArmyRegiment>())
+                .SelectMany(ar => ar?.Regiments ?? Enumerable.Empty<Regiment>())
+                .Where(r => r != null) ?? Enumerable.Empty<Regiment>())
             {
-                if (!string.IsNullOrEmpty(regiment.OwningTitle) && string.IsNullOrEmpty(regiment.OriginKey))
+                // Existing logic with added null checks
+                if (string.IsNullOrEmpty(regiment?.OwningTitle) ||
+                    !string.IsNullOrEmpty(regiment?.OriginKey)) continue;
+                if (regiment.OwningTitle == title_id)
                 {
-                    if(regiment.OwningTitle == title_id)
-                    {
-                        regiment.SetOriginKey(originKey);
-                    }
-
+                    regiment.SetOriginKey(originKey);
                 }
             }
         }
