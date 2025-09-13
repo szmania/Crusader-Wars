@@ -14,7 +14,6 @@ using CrusaderWars.locs;
 using CrusaderWars.data.attila_settings;
 using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
-using CrusaderWars.terrain;
 using CrusaderWars.twbattle;
 using System.Threading;
 using CrusaderWars.mod_manager;
@@ -508,7 +507,8 @@ namespace CrusaderWars
             playthroughNameLabel.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Italic);
             playthroughNameLabel.ForeColor = Color.WhiteSmoke;
             playthroughNameLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughTitleLabel.Bottom + 5);
-            playthroughNameLabel.AutoSize = true;
+            playthroughNameLabel.AutoSize = false; // Changed to false for fixed size and wrapping
+            playthroughNameLabel.Size = new Size(190, 40); // Fixed size to allow two lines of text
 
             // Add controls
             playthroughPanel.Controls.Add(playthroughPictureBox);
