@@ -368,14 +368,14 @@ namespace CrusaderWars.data.save_file
                         string firstTitleID = Regex.Match(line, @"\d+").Value;
                         if (isCommander && searchingArmy != null && nonMainCommander_BaseSkills != null && nonMainCommander_Culture != null && searchingArmy.CommanderID != null)
                         {
-                            if (isOwner && searchingArmy?.Owner != null) searchingArmy!.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
+                            if (isOwner && searchingArmy?.Owner != null) searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
 
                             var landedTitlesData = GetCommanderNobleRankAndTitleName(firstTitleID);
                             nonMainCommander_Rank = landedTitlesData.rank;
                             if (searchingArmy != null && searchingArmy.IsPlayer())
                             {
                                 var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight != null) // Added null check
+                                if (commanderKnight.id != null) // Changed from commanderKnight != null
                                 {
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
@@ -394,7 +394,7 @@ namespace CrusaderWars.data.save_file
                             else if (searchingArmy != null && CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
                             {
                                 var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight != null) // Added null check
+                                if (commanderKnight.id != null) // Changed from commanderKnight != null
                                 {
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
