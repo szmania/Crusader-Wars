@@ -292,7 +292,7 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"CC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
 
             int max = 0;
@@ -450,7 +450,7 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"CC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
             List<(int porcentage, string unit_key, string name, string max)> specificLevies = new List<(int porcentage, string unit_key, string name, string max)>();
             List<(int porcentage, string unit_key, string name, string max)> defaultLevies = new List<(int porcentage, string unit_key, string name, string max)>();
@@ -558,7 +558,7 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"CC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
 
             //LEVIES skip
@@ -695,7 +695,7 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             if (!Directory.Exists(factions_folder_path)) return NOT_FOUND_KEY;
 
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"CC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
             string found_key = NOT_FOUND_KEY;
 
@@ -769,7 +769,7 @@ namespace CrusaderWars.unit_mapper
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
             Program.Logger.Debug($"Searching for Attila faction for Culture '{CultureName}', Heritage '{HeritageName}' in: {cultures_folder_path}");
 
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Cultures.xml" : string.Empty;
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"CC_{ActivePlaythroughTag}_Cultures.xml" : string.Empty;
             var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFile);
             foreach (var xml_file in files_paths)
             {
