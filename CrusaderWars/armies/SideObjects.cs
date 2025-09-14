@@ -19,9 +19,9 @@ namespace CrusaderWars
         public Owner? Owner { get; private set; }
         public string? ArmyUnitID { get; set; }
 
-        public List<Army> MergedArmies { get; private set; = new List<Army>();
-        public List<ArmyRegiment> ArmyRegiments { get; private set; = new List<ArmyRegiment>();
-        public List<Unit> Units { get; private set; = new List<Unit>();
+        public List<Army> MergedArmies { get; private set; } = new List<Army>();
+        public List<ArmyRegiment> ArmyRegiments { get; private set; } = new List<ArmyRegiment>();
+        public List<Unit> Units { get; private set; } = new List<Unit>();
         public KnightSystem? Knights { get; private set; }
         public CommanderSystem? Commander { get; private set; }
         public DefensiveSystem? Defences { get; private set; }
@@ -34,7 +34,7 @@ namespace CrusaderWars
         public string? RealmName { get; set; }
         public string CombatSide { get; set; }
         public UnitsResults? UnitsResults { get; set; }
-        public List<UnitCasualitiesReport> CasualitiesReports { get; private set; = new List<UnitCasualitiesReport>();
+        public List<UnitCasualitiesReport> CasualitiesReports { get; private set; } = new List<UnitCasualitiesReport>();
 
 
         public Army(string id, string combat_side, bool is_main)
