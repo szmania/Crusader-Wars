@@ -49,33 +49,33 @@ namespace CrusaderWars.locs
 
             switch (Mapper_Name)
             {
-                case "OfficialCW_EarlyMedieval_919Mod":
+                case "OfficialCC_EarlyMedieval_919Mod":
                     string[] loc_files = Directory.GetFiles(@".\data\units_cards_names\anno domini\");
                     EditUnitCardsFiles(loc_files, unitsCollection);
                     break;
-                case "OfficialCW_HighMedieval_MK1212Mod":
-                case "OfficialCW_LateMedieval_MK1212Mod":
-                case "OfficialCW_Renaissance_MK1212Mod":
+                case "OfficialCC_HighMedieval_MK1212Mod":
+                case "OfficialCC_LateMedieval_MK1212Mod":
+                case "OfficialCC_Renaissance_MK1212Mod":
                     string[] mk1212_loc_files = Directory.GetFiles(@".\data\units_cards_names\mk1212\");
                     EditUnitCardsFiles(mk1212_loc_files, unitsCollection);
                     break;
-                case "OfficialCW_FallenEagle_AgeOfJustinian":
+                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
                     string[] aoj_loc_files = Directory.GetFiles(@".\data\units_cards_names\age of justinian\");
                     EditUnitCardsFiles(aoj_loc_files, unitsCollection);
                     break;
-                case "OfficialCW_FallenEagle_FallofTheEagle":
+                case "OfficialCC_TheFallenEagle_FallofTheEagle":
                     string[] fte_loc_files = Directory.GetFiles(@".\data\units_cards_names\fall of the eagles\");
                     EditUnitCardsFiles(fte_loc_files, unitsCollection);
                     break;
-                case "OfficialCW_FallenEagle_Fireforged-Empire":
+                case "OfficialCC_TheFallenEagle_Fireforged-Empire":
                     string[] fe_loc_files = Directory.GetFiles(@".\data\units_cards_names\fireforged empires\");
                     EditUnitCardsFiles(fe_loc_files, unitsCollection);
                     break;
-                case "OfficialCW_RealmsInExile_TheDawnlessDays":
+                case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     string[] lotr_loc_files = Directory.GetFiles(@".\data\units_cards_names\dawnless days\");
                     EditUnitCardsFiles(lotr_loc_files, unitsCollection);
                     break;
-                case "OfficialCW_AGOT_SevenKingdoms":
+                case "OfficialCC_AGOT_SevenKingdoms":
                     string[] agot_loc_files = Directory.GetFiles(@".\data\units_cards_names\seven_kingdoms\");
                     EditUnitCardsFiles(agot_loc_files, unitsCollection);
                     break;
