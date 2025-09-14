@@ -332,11 +332,11 @@ namespace CrusaderWars.data.save_file
                         {
                             searchingArmy.Knights.GetKnightsList().Find(x => x == searchingKnight)?.ChangeCulture(new Culture(culture_id));
                             searchingArmy.Knights.SetMajorCulture();
-                            if(isOwner && searchingArmy?.Owner != null) 
+                            if(isOwner && searchingArmy != null && searchingArmy.Owner != null) 
                                 searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
 
-                        else if (isMainCommander && searchingArmy?.Commander != null && searchingArmy?.Owner != null)
+                        else if (isMainCommander && searchingArmy?.Commander != null && searchingArmy != null && searchingArmy.Owner != null)
                         {
                             if(searchingArmy != null && searchingArmy.IsPlayer())
                                 searchingArmy.Commander.ChangeCulture(new Culture(CK3LogData.LeftSide.GetCommander().culture_id));
@@ -353,10 +353,10 @@ namespace CrusaderWars.data.save_file
                         else if(isCommander)
                         {
                             nonMainCommander_Culture = new Culture(culture_id);
-                            if (isOwner && searchingArmy?.Owner != null) 
+                            if (isOwner && searchingArmy != null && searchingArmy.Owner != null) 
                                 searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
-                        else if (searchingArmy?.Owner != null)
+                        else if (searchingArmy != null && searchingArmy.Owner != null)
                         {
                             searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
@@ -1005,7 +1005,7 @@ namespace CrusaderWars.data.save_file
             {
                 var attacker_holyorder_regiments = army.ArmyRegiments.SelectMany(armyRegiment => armyRegiment.Regiments)
                                               .Where(regiment => regiment.isMercenary() && regiment.Culture == null);
-                foreach(var holy_regiment in attacker_holyorder_regiments)
+                foreach (var holy_regiment in attacker_holyorder_regiments)
                 {
                     if (army.Owner?.GetCulture() != null) // Added null check for army.Owner.GetCulture()
                     {

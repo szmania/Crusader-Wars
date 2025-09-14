@@ -61,13 +61,6 @@ namespace CrusaderWars
                 }
             }
 
-            foreach(var army in attacker_armies)
-            {
-                if (isAttackerPlayer) 
-                    army.IsPlayer(true);
-                else 
-                    army.IsEnemy(true);
-            }
             foreach(var army in defender_armies)
             {
                 if(isDefenderPlayer) 
@@ -78,7 +71,7 @@ namespace CrusaderWars
 
         }
 
-        static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[][] defPositions) battleMap)
+        static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
         {
             //----------------------------------------------
             //  Merge armies until there are only one      
@@ -622,16 +615,17 @@ namespace CrusaderWars
             
             foreach (Unit unit in army.Units)
             {
-                // Add null check for unit
-                if (unit == null) continue;
-                string culture = unit.GetCulture();
-                string heritage = unit.GetHeritage();
-                string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
-
-                string? foundAttilaFaction = aoj_list.Where(x => x.AttilaFaction != null && x.AttilaFaction == attila_faction).Select(x => x.Faction).FirstOrDefault();
-                if (!string.IsNullOrEmpty(foundAttilaFaction))
+                if (unit != null)
                 {
-                    faction = foundAttilaFaction;
+                    string culture = unit.GetCulture();
+                    string heritage = unit.GetHeritage();
+                    string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
+
+                    string? foundAttilaFaction = aoj_list.Where(x => x.AttilaFaction != null && x.AttilaFaction == attila_faction).Select(x => x.Faction).FirstOrDefault();
+                    if (!string.IsNullOrEmpty(foundAttilaFaction))
+                    {
+                        faction = foundAttilaFaction;
+                    }
                 }
             }
             return faction;
