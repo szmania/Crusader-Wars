@@ -733,7 +733,7 @@ namespace CrusaderWars
                             else if(id == "4294967295" && isMAA)
                             {
                                 isMAA = true; // Already set, but good for clarity
-                                string logMessage = $"Attacker: Detected Men-at-Arms regiment (ID: {id}).";
+                                string logMessage = string.Format("Attacker: Detected Men-at-Arms regiment (ID: {0}).", id);
                                 Program.Logger.Debug(logMessage);
                             }
                             else
@@ -1111,7 +1111,7 @@ namespace CrusaderWars
                     }
                 }
             }
-            string logMessage = $"Calculated total fighting men for armies: {total}";
+            string logMessage = string.Format("Calculated total fighting men for armies: {0}", total);
             Program.Logger.Debug(logMessage);
             return total;
         }
@@ -1381,7 +1381,8 @@ namespace CrusaderWars
                                 string edited_line = "\t\t\tsize=" + currentNum;
                                 streamWriter.WriteLine(edited_line);
                                 string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                                Program.Logger.Debug($"Regiment {regId}: Updating Men-at-Arms size to {currentNum}.");
+                                string logMessage = string.Format("Regiment {0}: Updating Men-at-Arms size to {1}.", regId, currentNum);
+                                Program.Logger.Debug(logMessage);
                             }
                             continue; // Continue to next line without setting isNewData
                         }
@@ -1421,7 +1422,7 @@ namespace CrusaderWars
                             string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
                             streamWriter.WriteLine(edited_line);
                             string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                            string logMessage = $"Regiment {regId}: Updating old data format with current soldiers {currentNum}.";
+                            string logMessage = string.Format("Regiment {0}: Updating old data format with current soldiers {1}.", regId, currentNum);
                             Program.Logger.Debug(logMessage);
                             continue;
                         }

@@ -184,16 +184,33 @@ namespace CrusaderWars
             //#### WRITE AI ALLIED ARMIES
             if (player_main_army.CombatSide == "attacker")
             {
-                foreach (var army in temp_attacker_armies)
+                if (!isUserAlly)
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
+                    if (player_main_army != null) temp_attacker_armies.Remove(player_main_army);
+                }
+                else
+                {
+                    if (userAlliedArmy != null) temp_attacker_armies.Remove(userAlliedArmy);
+                }
+                foreach (var army in temp_attacker_armies.Where(a => a != null))
+                {
+                    WriteArmy(army, total_soldiers, false, "stark");
+
                 }
             }
             else if (player_main_army.CombatSide == "defender")
             {
-                foreach (var army in temp_defender_armies)
+                if (!isUserAlly)
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "stark");
+                    if (player_main_army != null) temp_defender_armies.Remove(player_main_army);
+                }
+                else
+                {
+                    if (userAlliedArmy != null) temp_defender_armies.Remove(userAlliedArmy);
+                }
+                foreach (var army in temp_defender_armies.Where(a => a != null))
+                {
+                    WriteArmy(army, total_soldiers, false, "stark");
                 }
             }
 
@@ -605,18 +622,22 @@ namespace CrusaderWars
             
             foreach (Unit unit in army.Units)
             {
-                if (unit != null && unit.GetObjCulture() != null)
+                if (unit != null)
                 {
-                    string culture = unit.GetCulture();
-                    string heritage = unit.GetHeritage();
-                    string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
-
-                    foreach (var item in aoj_list)
+                    var cultureObj = unit.GetObjCulture();
+                    if (cultureObj != null)
                     {
-                        if (item.AttilaFaction == attila_faction)
+                        string culture = cultureObj.GetCultureName();
+                        string heritage = cultureObj.GetHeritageName();
+                        string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
+
+                        foreach (var item in aoj_list)
                         {
-                            faction = item.Faction ?? faction;
-                            break;
+                            if (item.AttilaFaction == attila_faction)
+                            {
+                                faction = item.Faction ?? faction;
+                                break;
+                            }
                         }
                     }
                 }

@@ -59,9 +59,6 @@ namespace CrusaderWars.data.save_file
                 ReadCharacters();
                 ReadCourtPositions();
                 CheckForNullCultures();
-                ReadCultureManager();
-
-                // Organize Units
                 CreateUnits();
 
                 // Print Armies
@@ -370,7 +367,8 @@ namespace CrusaderWars.data.save_file
                         {
                             if (isOwner)
                             {
-                                if (searchingArmy.Owner is Owner owner)
+                                var owner = searchingArmy.Owner;
+                                if (owner != null)
                                 {
                                     owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
                                 }
