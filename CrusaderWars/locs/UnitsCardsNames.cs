@@ -49,13 +49,13 @@ namespace CrusaderWars.locs
 
             switch (Mapper_Name)
             {
-                case "OfficialCC_EarlyMedieval_919Mod":
+                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     string[] loc_files = Directory.GetFiles(@".\data\units_cards_names\anno domini\");
                     EditUnitCardsFiles(loc_files, unitsCollection);
                     break;
-                case "OfficialCC_HighMedieval_MK1212Mod":
-                case "OfficialCC_LateMedieval_MK1212Mod":
-                case "OfficialCC_Renaissance_MK1212Mod":
+                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
                     string[] mk1212_loc_files = Directory.GetFiles(@".\data\units_cards_names\mk1212\");
                     EditUnitCardsFiles(mk1212_loc_files, unitsCollection);
                     break;

@@ -44,13 +44,13 @@ namespace CrusaderWars.unit_mapper
         public static string? GetLoadedUnitMapperString() { 
             switch(GetLoadedUnitMapperName())
             {
-                case "OfficialCC_EarlyMedieval_919Mod":
+                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     return "EARLY MEDIEVAL";
-                case "OfficialCC_HighMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
                     return "HIGH MEDIEVAL";
-                case "OfficialCC_LateMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
                     return "LATE MEDIEVAL";
-                case "OfficialCC_Renaissance_MK1212Mod":
+                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
                     return "RENAISSANCE";
                 case "OfficialCC_TheFallenEagle_AgeOfJustinian":
                     return "DARK AGES";
