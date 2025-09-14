@@ -411,7 +411,7 @@ namespace CrusaderWars.data.save_file
 
                             }
                         }
-                        else if(isOwner && searchingArmy.Owner != null) // <-- Owner
+                        else if(isOwner && searchingArmy != null && searchingArmy.Owner != null) // <-- Owner
                         {
                             searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
                         }

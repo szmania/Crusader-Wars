@@ -152,6 +152,7 @@ namespace CrusaderWars.unit_mapper
                             {
                                 XmlDocument xmlDocument = new XmlDocument();
                                 xmlDocument.Load(timePeriodPath);
+                                if (xmlDocument.DocumentElement == null) continue; // Added null check
                                 string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
                                 string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
                                 
@@ -275,6 +276,7 @@ namespace CrusaderWars.unit_mapper
                     Program.Logger.Debug($"Processing XML file: {Path.GetFileName(xml_file)}");
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue; // Added null check
 
                     foreach (XmlNode element in FactionsFile.DocumentElement.ChildNodes)
                     {
@@ -431,6 +433,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue; // Added null check
                     levies = Levies(FactionsFile, attila_faction);
                     if (levies.Any())
                     {
@@ -448,6 +451,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue; // Added null check
                     levies = Levies(FactionsFile, "Default"); // Search for "Default"
                     if (levies.Any())
                     {
@@ -486,6 +490,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument TitlesFile = new XmlDocument();
                     TitlesFile.Load(xml_file);
+                    if (TitlesFile.DocumentElement == null) continue; // Added null check
 
                     //MAA|COMMANDER|KNIGHT
                     foreach (XmlNode element in TitlesFile.DocumentElement.ChildNodes)
@@ -530,6 +535,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue; // Added null check
 
                     //MAA|COMMANDER|KNIGHT
                     foreach (XmlNode element in FactionsFile.DocumentElement.ChildNodes)
@@ -654,6 +660,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue; // Added null check
 
                     foreach (XmlNode element in FactionsFile.DocumentElement.ChildNodes)
                     {

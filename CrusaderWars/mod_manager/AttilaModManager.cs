@@ -303,8 +303,8 @@ namespace CrusaderWars.mod_manager
             ReadInstalledMods();
 
             //  SET AT MOD MANAGER
-            Bitmap steamImg = LoadBitmapWithReducedSize(@".\data\mod manager\steamlogo.png");
-            Bitmap dataImg = LoadBitmapWithReducedSize(@".\data\mod manager\folder.png");
+            Bitmap? steamImg = LoadBitmapWithReducedSize(@".\data\mod manager\steamlogo.png");
+            Bitmap? dataImg = LoadBitmapWithReducedSize(@".\data\mod manager\folder.png");
             if (ModManagerControl != null)
             {
                 foreach (var mod in ModsPaths)
@@ -312,7 +312,7 @@ namespace CrusaderWars.mod_manager
                     // Line 82 - Add null check
                     if (mod != null && !mod.IsRequiredMod())
                     {
-                        object[] rowData = new object[] { 
+                        object?[] rowData = new object?[] { 
                             mod.IsEnabled(), 
                             mod.GetThumbnail(), 
                             mod.GetName(), 
@@ -329,7 +329,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        static Bitmap LoadBitmapWithReducedSize(string path)
+        static Bitmap? LoadBitmapWithReducedSize(string path)
         {
             try
             {
@@ -351,7 +351,7 @@ namespace CrusaderWars.mod_manager
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error loading image: {ex.Message}");
-                return null!; // Return null! to indicate it might be null, but the caller should handle it.
+                return null; // Return null to indicate it might be null, but the caller should handle it.
             }
         }
 

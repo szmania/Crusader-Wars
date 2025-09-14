@@ -1810,7 +1810,7 @@ namespace CrusaderWars
 
             // Restore battle context from saved log snippet
             Program.Logger.Debug("Restoring battle context from log snippet...");
-            string logSnippet = BattleState.LoadLogSnippet();
+            string? logSnippet = BattleState.LoadLogSnippet(); // Changed to nullable string
             if (string.IsNullOrEmpty(logSnippet))
             {
                 Program.Logger.Debug("Failed to load battle context. Log snippet is missing or empty.");
