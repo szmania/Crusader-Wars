@@ -107,7 +107,7 @@ namespace CrusaderWars.data.save_file
             var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(root.GetRawText());
 
             // Check if the key exists
-            if (jsonDictionary.ContainsKey(keyToUpdate))
+            if (jsonDictionary != null && jsonDictionary.ContainsKey(keyToUpdate)) // Added null check for jsonDictionary
             {
                 // Update the key's value
                 jsonDictionary[keyToUpdate] = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(newValue));
@@ -210,7 +210,7 @@ namespace CrusaderWars.data.save_file
             using (StreamWriter streamWriter = new StreamWriter(@".\data\save_file_data\metadata.txt", false, Encoding.UTF8))
             {
                 streamWriter.NewLine = "\n";
-                string line;
+                string? line; // Changed to nullable string
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     if (line == "}")

@@ -366,7 +366,7 @@ namespace CrusaderWars.data.save_file
                     else if (searchStarted && line.Contains("\t\tdomain={")) //# TITLES
                     {
                         string firstTitleID = Regex.Match(line, @"\d+").Value;
-                        if (isCommander && searchingArmy != null && searchingArmy.Commander != null && nonMainCommander_BaseSkills != null)
+                        if (isCommander && searchingArmy != null && nonMainCommander_BaseSkills != null && nonMainCommander_Culture != null && searchingArmy.CommanderID != null)
                         {
                             if (isOwner && searchingArmy?.Owner != null) searchingArmy!.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
 
@@ -374,9 +374,9 @@ namespace CrusaderWars.data.save_file
                             nonMainCommander_Rank = landedTitlesData.rank;
                             if (searchingArmy != null && searchingArmy.IsPlayer())
                             {
-                                if (CK3LogData.LeftSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
+                                var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
+                                if (commanderKnight != null) // Added null check
                                 {
-                                    var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
                                         nonMainCommander_Name = commanderKnight.name;
@@ -393,9 +393,9 @@ namespace CrusaderWars.data.save_file
                             }
                             else if (searchingArmy != null && CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
                             {
-                                if (CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
+                                var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
+                                if (commanderKnight != null) // Added null check
                                 {
-                                    var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
                                         nonMainCommander_Name = commanderKnight.name;
@@ -508,7 +508,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (searchStarted && line.StartsWith("\tkey=")) //# KEY
                     {
-                        titleKey = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
+                        titleKey = Regex.Match(line, "=(.+)").Groups[1].Value;
                         Program.Logger.Debug($"Found title key '{titleKey}' for title ID '{title_id}'.");
                         return titleKey;
                     }
@@ -554,31 +554,40 @@ namespace CrusaderWars.data.save_file
 
         static void SetRegimentsOriginsKeys(string title_id, string originKey)
         {
-            foreach (Regiment? regiment in attacker_armies?
-                .SelectMany(army => army?.ArmyRegiments ?? Enumerable.Empty<ArmyRegiment>())
-                .SelectMany(ar => ar?.Regiments ?? Enumerable.Empty<Regiment>())
-                .Where(r => r != null) ?? Enumerable.Empty<Regiment>())
+            // Refactored to use explicit null checks and nested loops for clarity and compiler verification
+            foreach (Army? army in attacker_armies)
             {
-                // Existing logic with added null checks
-                if (string.IsNullOrEmpty(regiment?.OwningTitle) || 
-                    !string.IsNullOrEmpty(regiment?.OriginKey)) continue;
-                if (regiment.OwningTitle == title_id)
+                if (army == null) continue;
+                foreach (ArmyRegiment? armyRegiment in army.ArmyRegiments)
                 {
-                    regiment.SetOriginKey(originKey);
+                    if (armyRegiment == null) continue;
+                    foreach (Regiment? regiment in armyRegiment.Regiments)
+                    {
+                        if (regiment == null) continue;
+                        if (string.IsNullOrEmpty(regiment.OwningTitle) || !string.IsNullOrEmpty(regiment.OriginKey)) continue;
+                        if (regiment.OwningTitle == title_id)
+                        {
+                            regiment.SetOriginKey(originKey);
+                        }
+                    }
                 }
             }
 
-            foreach (Regiment? regiment in defender_armies?
-                .SelectMany(army => army?.ArmyRegiments ?? Enumerable.Empty<ArmyRegiment>())
-                .SelectMany(ar => ar?.Regiments ?? Enumerable.Empty<Regiment>())
-                .Where(r => r != null) ?? Enumerable.Empty<Regiment>())
+            foreach (Army? army in defender_armies)
             {
-                // Existing logic with added null checks
-                if (string.IsNullOrEmpty(regiment?.OwningTitle) ||
-                    !string.IsNullOrEmpty(regiment?.OriginKey)) continue;
-                if (regiment.OwningTitle == title_id)
+                if (army == null) continue;
+                foreach (ArmyRegiment? armyRegiment in army.ArmyRegiments)
                 {
-                    regiment.SetOriginKey(originKey);
+                    if (armyRegiment == null) continue;
+                    foreach (Regiment? regiment in armyRegiment.Regiments)
+                    {
+                        if (regiment == null) continue;
+                        if (string.IsNullOrEmpty(regiment.OwningTitle) || !string.IsNullOrEmpty(regiment.OriginKey)) continue;
+                        if (regiment.OwningTitle == title_id)
+                        {
+                            regiment.SetOriginKey(originKey);
+                        }
+                    }
                 }
             }
         }
@@ -651,7 +660,7 @@ namespace CrusaderWars.data.save_file
             foreach (Army army in defender_armies)
             {
                 ArmyRegiment? commanderRegiment = army.ArmyRegiments.FirstOrDefault(x => x.MAA_Name == army.CommanderID);
-                if (commanderRegiment != null)
+                if(commanderRegiment != null)
                 {
                     Program.Logger.Debug($"Removing commander '{army.CommanderID}' from knight regiments in defender army '{army.ID}'.");
                     army.ArmyRegiments.Remove(commanderRegiment);
@@ -699,7 +708,7 @@ namespace CrusaderWars.data.save_file
             }
             else if (right_side != null && left_side == null)
             {
-                left_side = (right_side == attacker_armies) ? defender_armies : attacker_armies;
+                right_side = (right_side == attacker_armies) ? defender_armies : attacker_armies;
             }
 
             if (side == "left")
@@ -988,7 +997,10 @@ namespace CrusaderWars.data.save_file
                                               .Where(regiment => regiment.isMercenary() && regiment.Culture == null);
                 foreach(var holy_regiment in attacker_holyorder_regiments)
                 {
-                    holy_regiment.SetCulture(army.Owner.GetCulture().ID);
+                    if (army.Owner?.GetCulture() != null) // Added null check for army.Owner.GetCulture()
+                    {
+                        holy_regiment.SetCulture(army.Owner.GetCulture().ID);
+                    }
                 }
             }
 
@@ -998,7 +1010,10 @@ namespace CrusaderWars.data.save_file
                                               .Where(regiment => regiment.isMercenary() && regiment.Culture == null);
                 foreach (var holy_regiment in defender_holyorder_regiments)
                 {
-                    holy_regiment.SetCulture(army.Owner.GetCulture().ID);
+                    if (army.Owner?.GetCulture() != null) // Added null check for army.Owner.GetCulture()
+                    {
+                        holy_regiment.SetCulture(army.Owner.GetCulture().ID);
+                    }
                 }
             }
         }

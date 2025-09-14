@@ -79,11 +79,14 @@ namespace CrusaderWars.mod_manager
                     {
                         XmlDocument ModsFile = new XmlDocument();
                         ModsFile.Load(file);
-                        foreach(XmlNode modNode in ModsFile.DocumentElement.ChildNodes)
+                        if (ModsFile.DocumentElement != null) // Added null check
                         {
-                            ModsPaths.FirstOrDefault(x => x.GetName() == modNode.InnerText)?.IsRequiredMod(true);
-                            //ModsPaths.RemoveAll(x => x.GetName() == modNode.InnerText);
-                        }                        
+                            foreach(XmlNode modNode in ModsFile.DocumentElement.ChildNodes)
+                            {
+                                ModsPaths.FirstOrDefault(x => x.GetName() == modNode.InnerText)?.IsRequiredMod(true);
+                                //ModsPaths.RemoveAll(x => x.GetName() == modNode.InnerText);
+                            }                        
+                        }
                     }
                 }
             }

@@ -82,6 +82,8 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument TerrainsFile = new XmlDocument();
                     TerrainsFile.Load(file);
+                    if (TerrainsFile.DocumentElement == null) continue; // Added null check
+
                     foreach (XmlElement Element in TerrainsFile.DocumentElement.ChildNodes)
                     {
                         if (Element.Name == "Attila_Map")
@@ -132,7 +134,7 @@ namespace CrusaderWars.unit_mapper
 
             foreach (var mapper in unit_mappers_folder)
             {
-                string mapperName = Path.GetDirectoryName(mapper);
+                string mapperName = Path.GetFileName(mapper); // Changed GetDirectoryName to GetFileName
                 var files = Directory.GetFiles(mapper);
                 foreach (var file in files)
                 {
@@ -185,12 +187,15 @@ namespace CrusaderWars.unit_mapper
                                         {
                                             XmlDocument xmlMods = new XmlDocument();
                                             xmlMods.Load(modsPath);
-                                            foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
+                                            if (xmlMods.DocumentElement != null) // Added null check
                                             {
-                                                if (node is XmlComment) continue;
-                                                if (node.Name == "Mod")
+                                                foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
                                                 {
-                                                    requiredMods.Add(node.InnerText);
+                                                    if (node is XmlComment) continue;
+                                                    if (node.Name == "Mod")
+                                                    {
+                                                        requiredMods.Add(node.InnerText);
+                                                    }
                                                 }
                                             }
 
