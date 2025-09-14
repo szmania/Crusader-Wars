@@ -78,7 +78,7 @@ namespace CrusaderWars
 
         }
 
-        static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
+        static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[][] defPositions) battleMap)
         {
             //----------------------------------------------
             //  Merge armies until there are only one      
@@ -398,8 +398,12 @@ namespace CrusaderWars
             // SIDES MAIN ARMIES
             Army? player_main_army = null;
             Army? enemy_main_army = null;
-            player_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy) ?? temp_defender_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy);
-            enemy_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy) ?? temp_defender_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy);
+            player_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy);
+            if (player_main_army == null) player_main_army = temp_defender_armies.FirstOrDefault(x => x.IsPlayer() && x.isMainArmy);
+
+            enemy_main_army = temp_attacker_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy);
+            if (enemy_main_army == null) enemy_main_army = temp_defender_armies.FirstOrDefault(x => x.IsEnemy() && x.isMainArmy);
+
 
             // Fallback logic for main armies
             if (player_main_army == null)
@@ -614,7 +618,7 @@ namespace CrusaderWars
             string faction = isPlayer ? "historical_house_stark" : "historical_house_bolton";
             
             // Add null check for army.Units
-            if (army == null || army.Units == null) return faction;
+            if (army.Units == null) return faction;
             
             foreach (Unit unit in army.Units)
             {

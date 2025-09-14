@@ -748,6 +748,7 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in attacker_armies)
                             {
+                                if (army == null) continue;
                                 main_kills += army.UnitsResults?.GetKillsAmountOfMainPhase(regimentType) ?? 0;
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -760,6 +761,7 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in attacker_armies)
                             {
+                                if (army == null) continue;
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
@@ -781,6 +783,7 @@ namespace CrusaderWars
                             int pursuit_kills = 0;
                             foreach (Army army in attacker_armies)
                             {
+                                if (army == null) continue;
                                 pursuit_kills += army.UnitsResults?.GetKillsAmountOfPursuitPhase(regimentType) ?? 0;
                             }
                             string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -793,6 +796,7 @@ namespace CrusaderWars
                             int main_losses = 0;
                             foreach (Army army in attacker_armies)
                             {
+                                if (army == null) continue;
                                 main_losses += army.UnitsResults?.GetDeathAmountOfMainPhase(army.CasualitiesReports,regimentType) ?? 0;
                             }
                             string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -805,6 +809,7 @@ namespace CrusaderWars
                             int pursuit_losses = 0;
                             foreach (Army army in attacker_armies)
                             {
+                                if (army == null) continue;
                                 pursuit_losses += army.UnitsResults?.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType) ?? 0;
                               }
                             string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -858,6 +863,7 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in defender_armies)
                             {
+                                if (army == null) continue;
                                 main_kills += army.UnitsResults?.GetKillsAmountOfMainPhase(regimentType) ?? 0;
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -870,6 +876,7 @@ namespace CrusaderWars
                             int main_kills = 0;
                             foreach (Army army in defender_armies)
                             {
+                                if (army == null) continue;
                                 var knightsList = army.Knights?.GetKnightsList();
                                 if (knightsList != null)
                                 {
@@ -891,6 +898,7 @@ namespace CrusaderWars
                             int pursuit_kills = 0;
                             foreach (Army army in defender_armies)
                             {
+                                if (army == null) continue;
                                 pursuit_kills += army.UnitsResults?.GetKillsAmountOfPursuitPhase(regimentType) ?? 0;
                                }
                             string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -903,6 +911,7 @@ namespace CrusaderWars
                             int main_losses = 0;
                             foreach (Army army in defender_armies)
                             {
+                                if (army == null) continue;
                                 main_losses += army.UnitsResults?.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType) ?? 0;
                              }
                             string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -915,6 +924,7 @@ namespace CrusaderWars
                             int pursuit_losses = 0;
                             foreach (Army army in defender_armies)
                             {
+                                if (army == null) continue;
                                 pursuit_losses += army.UnitsResults?.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType) ?? 0;
                             }
                             string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -1052,8 +1062,9 @@ namespace CrusaderWars
         static int GetArmiesTotalFightingMen(List<Army> armies)
         {
             int total = 0;
-            foreach (Army army in armies ?? Enumerable.Empty<Army>())
+            foreach (Army army in armies)
             {
+                if (army == null) continue;
                 if (army.ArmyRegiments != null)
                 {
                     foreach (var r in army.ArmyRegiments)
@@ -1225,6 +1236,7 @@ namespace CrusaderWars
 
             foreach (Army army in armies)
             {
+                if (army == null) continue;
                 if (army.ArmyRegiments != null)
                 {
                     foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
@@ -1333,16 +1345,16 @@ namespace CrusaderWars
                             Program.Logger.Debug($"Regiment {editRegiment?.ID}: Updating Men-at-Arms size to {currentNum}.");
                             continue; // Continue to next line without setting isNewData
                         }
-                        else
+                        else if (editRegiment != null)
                         {
                             // For other types (Levy), use the existing logic to rewrite the block.
                             isNewData = true;
-                            string max = editRegiment?.Max?.ToString() ?? "0";
-                            string owner = editRegiment?.Owner ?? "";
-                            string current = editRegiment?.CurrentNum?.ToString() ?? "0";
+                            string max = editRegiment.Max ?? "0";
+                            string owner = editRegiment.Owner ?? "";
+                            string current = editRegiment.CurrentNum ?? "0";
                             string newLine = GetChunksText(max, owner, current);
                             streamWriter.WriteLine(newLine);
-                            Program.Logger.Debug($"Regiment {editRegiment?.ID}: Writing new data format with current soldiers {editRegiment?.CurrentNum ?? "0"}.");
+                            Program.Logger.Debug($"Regiment {editRegiment.ID}: Writing new data format with current soldiers {editRegiment.CurrentNum ?? "0"}.");
                             continue;
                         }
                     }
@@ -1394,6 +1406,7 @@ namespace CrusaderWars
 
             foreach (Army army in armies)
             {
+                if (army == null) continue;
                 if (army.ArmyRegiments == null) continue;
                 foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {

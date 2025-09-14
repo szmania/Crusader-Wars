@@ -170,10 +170,14 @@ namespace CrusaderWars.data.save_file
                                 break;
                             }
                             //Commanders
-                            else if (army.Commander != null && army.Commander.GetCultureObj() != null && army.Commander.GetCultureObj().ID == culture_id)
+                            else if (army.Commander != null)
                             {
-                                isSearchStared = true;
-                                break;
+                                var commanderCulture = army.Commander?.GetCultureObj();
+                                if (commanderCulture != null && commanderCulture.ID == culture_id)
+                                {
+                                    isSearchStared = true;
+                                    break;
+                                }
                             }
                             //Knights
                             else if (army.Knights != null && army.Knights.GetKnightsList() != null)
