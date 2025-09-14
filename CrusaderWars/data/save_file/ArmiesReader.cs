@@ -368,7 +368,7 @@ namespace CrusaderWars.data.save_file
                         string firstTitleID = Regex.Match(line, @"\d+").Value;
                         if (isCommander && searchingArmy != null && nonMainCommander_BaseSkills != null && nonMainCommander_Culture != null && searchingArmy.CommanderID != null)
                         {
-                            if (isOwner && searchingArmy?.Owner != null) searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
+                            if (isOwner && searchingArmy.Owner != null) searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
 
                             var landedTitlesData = GetCommanderNobleRankAndTitleName(firstTitleID);
                             nonMainCommander_Rank = landedTitlesData.rank;
@@ -411,7 +411,7 @@ namespace CrusaderWars.data.save_file
 
                             }
                         }
-                        else if(isOwner && searchingArmy?.Owner != null) // <-- Owner
+                        else if(isOwner && searchingArmy.Owner != null) // <-- Owner
                         {
                             searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
                         }

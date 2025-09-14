@@ -59,8 +59,8 @@ namespace CrusaderWars.locs
             using (FileStream btnVersion = File.Open(original_buttonVersion_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(btnVersion))
             {
-                string? line; // Changed from string line = "";
-                while ((line = reader.ReadLine()) != null) // Changed loop condition
+                string? line;
+                while ((line = reader.ReadLine()) != null)
                 {
                     if (line.Contains("uied_component_texts_localised_string_string_NewState_Text_3a000c"))
                     {
@@ -95,8 +95,8 @@ namespace CrusaderWars.locs
             using (FileStream battle_details_file = File.Open(original_battle_details_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(battle_details_file))
             {
-                string? line; // Changed from string line = "";
-                while ((line = reader.ReadLine()) != null) // Changed loop condition
+                string? line;
+                while ((line = reader.ReadLine()) != null)
                 {
                     //BATTLE NAME
                     if (line.Contains("battles_localised_name_tut_tutorial_battle"))
@@ -144,8 +144,8 @@ namespace CrusaderWars.locs
             using (FileStream battle_side_file = File.Open(original_attila_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(battle_side_file))
             {
-                string? line; // Changed from string line = "";
-                while ((line = reader.ReadLine()) != null) // Changed loop condition
+                string? line;
+                while ((line = reader.ReadLine()) != null)
                 {
                     //Enemy Side
                     if (line.Contains("factions_screen_name_historical_house_bolton"))
