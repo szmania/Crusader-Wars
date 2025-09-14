@@ -841,7 +841,7 @@ namespace CrusaderWars
             if (needsUpdate)
             {
                 try
-                {
+                    {
                     CreateShortcut(shortcutPath, targetPath, workingDirectory, arguments, description);
                     Program.Logger.Debug("Attila shortcut created/updated successfully.");
                 }

@@ -137,7 +137,7 @@ namespace CrusaderWars.unit_mapper
                 string mapperName = Path.GetFileName(mapper); // Changed GetDirectoryName to GetFileName
                 var files = Directory.GetFiles(mapper);
                 foreach (var file in files)
-                {
+                    {
                     string fileName = Path.GetFileName(file);
                     if (fileName == "tag.txt")
                     {

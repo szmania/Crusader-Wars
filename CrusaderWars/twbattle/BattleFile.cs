@@ -43,32 +43,22 @@ namespace CrusaderWars
 
         public static void SetArmiesSides(List<Army> attacker_armies, List<Army> defender_armies)
         {
-            bool isAttackerPlayer = false;
+            string player_commander_id = CK3LogData.LeftSide.GetCommander().id;
 
-            bool isDefenderPlayer = false;
+            bool isPlayerTheAttacker = attacker_armies.Any(army => army.CommanderID == player_commander_id);
 
-            string left_side_commander_id = CK3LogData.LeftSide.GetCommander().id;
-            string right_side_commander_id = CK3LogData.RightSide.GetCommander().id;
-            foreach (var army in attacker_armies)
+            if (isPlayerTheAttacker)
             {
-                if (army.CommanderID == left_side_commander_id)
-                {
-                    isAttackerPlayer = true;
-                }
-                else if (army.CommanderID == right_side_commander_id)
-                {
-                    isDefenderPlayer = true;
-                }
+                // Player is attacker, enemy is defender
+                foreach (var army in attacker_armies) { army.IsPlayer(true); }
+                foreach (var army in defender_armies) { army.IsEnemy(true); }
             }
-
-            foreach(var army in defender_armies)
+            else
             {
-                if(isDefenderPlayer) 
-                    army.IsPlayer(true);
-                else 
-                    army.IsEnemy(true);
+                // Player is defender, enemy is attacker
+                foreach (var army in attacker_armies) { army.IsEnemy(true); }
+                foreach (var army in defender_armies) { army.IsPlayer(true); }
             }
-
         }
 
         static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
@@ -621,10 +611,13 @@ namespace CrusaderWars
                     string heritage = unit.GetHeritage();
                     string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
 
-                    string? foundAttilaFaction = aoj_list.Where(x => x.AttilaFaction != null && x.AttilaFaction == attila_faction).Select(x => x.Faction).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(foundAttilaFaction))
+                    foreach (var item in aoj_list)
                     {
-                        faction = foundAttilaFaction;
+                        if (item.AttilaFaction == attila_faction)
+                        {
+                            faction = item.Faction ?? faction;
+                            break;
+                        }
                     }
                 }
             }
