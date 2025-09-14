@@ -1814,7 +1814,7 @@ namespace CrusaderWars
             if (string.IsNullOrEmpty(logSnippet))
             {
                 Program.Logger.Debug("Failed to load battle context. Log snippet is missing or empty.");
-                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
@@ -1847,7 +1847,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
-                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
@@ -2271,7 +2271,7 @@ namespace CrusaderWars
                     MessageBox.Show("Log folder not found! Please report this to developers.",
                                     "Crusader Conflicts: Log Location Error",
                                     MessageBoxButtons.OK,
-                                    Icon.Information);
+                                    MessageBoxIcon.Information);
                 }
             }
         }
