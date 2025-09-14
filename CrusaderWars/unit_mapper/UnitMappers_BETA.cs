@@ -67,28 +67,41 @@ namespace CrusaderWars.unit_mapper
             
         }
 
-        private static List<string> GetSortedFilePaths(string directoryPath, string priorityFileName)
+        private static List<string> GetSortedFilePaths(string directoryPath, string priorityFilePattern)
         {
-            // Get all xml files and sort them alphabetically to ensure a consistent order.
-            var allFiles = Directory.GetFiles(directoryPath, "*.xml")
-                                    .OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)
-                                    .ToList();
+            var allFiles = Directory.GetFiles(directoryPath, "*.xml").ToList();
 
-            if (!string.IsNullOrEmpty(priorityFileName))
+            if (string.IsNullOrEmpty(priorityFilePattern))
             {
-                // Find the priority file, ignoring case.
-                string? actualPriorityFilePath = allFiles.FirstOrDefault(f => Path.GetFileName(f).Equals(priorityFileName, StringComparison.OrdinalIgnoreCase));
+                // If no pattern, just sort alphabetically
+                return allFiles.OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase).ToList();
+            }
 
-                if (actualPriorityFilePath != null)
+            var priorityFiles = new List<string>();
+            var otherFiles = new List<string>();
+
+            // Simple wildcard matching for '*' at the end
+            string patternStart = priorityFilePattern.TrimEnd('*');
+
+            foreach (var file in allFiles)
+            {
+                if (Path.GetFileName(file).StartsWith(patternStart, StringComparison.OrdinalIgnoreCase))
                 {
-                    // If the priority file is found, move it to the beginning of the list.
-                    allFiles.Remove(actualPriorityFilePath);
-                    allFiles.Insert(0, actualPriorityFilePath);
+                    priorityFiles.Add(file);
+                }
+                else
+                {
+                    otherFiles.Add(file);
                 }
             }
-            // If the priority file is not found or not specified, the list remains alphabetically sorted.
 
-            return allFiles;
+            // Sort both lists alphabetically
+            priorityFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
+            otherFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
+
+            // Combine the lists
+            priorityFiles.AddRange(otherFiles);
+            return priorityFiles;
         }
 
         private static void ReadTerrainsFile()
@@ -292,8 +305,8 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
 
             int max = 0;
             foreach (var xml_file in files_paths)
@@ -450,8 +463,8 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
             List<(int porcentage, string unit_key, string name, string max)> specificLevies = new List<(int porcentage, string unit_key, string name, string max)>();
             List<(int porcentage, string unit_key, string name, string max)> defaultLevies = new List<(int porcentage, string unit_key, string name, string max)>();
 
@@ -558,8 +571,8 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
 
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY ;
@@ -695,8 +708,8 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             if (!Directory.Exists(factions_folder_path)) return NOT_FOUND_KEY;
 
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_Factions.xml" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
             string found_key = NOT_FOUND_KEY;
 
             foreach (var xml_file in files_paths)
@@ -769,8 +782,8 @@ namespace CrusaderWars.unit_mapper
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
             Program.Logger.Debug($"Searching for Attila faction for Culture '{CultureName}', Heritage '{HeritageName}' in: {cultures_folder_path}");
 
-            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_Cultures.xml" : string.Empty;
-            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFile);
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
