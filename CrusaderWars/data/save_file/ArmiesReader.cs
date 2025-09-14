@@ -37,6 +37,7 @@ namespace CrusaderWars.data.save_file
             ReadCombatSoldiersNum(BattleResult.Player_Combat);
             ReadRegiments();
             ReadOriginsKeys();
+            ReadCultureManager(); // <-- ADDED THIS LINE
 
             // Log army counts before proceeding
             Program.Logger.Debug($"Armies after initialization: attacker={attacker_armies.Count}, defender={defender_armies.Count}");
