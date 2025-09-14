@@ -217,7 +217,7 @@ namespace CrusaderWars.locs
                         foreach (Unit maa in maaList)
                         {
                             if (maa == null) continue; // Added null check for maa
-                            string? maaScriptName = maa?.GetName();
+                            string? maaScriptName = maa.GetName();
                             if (!string.IsNullOrEmpty(maaScriptName) && line.StartsWith($" {maaScriptName}:") && string.IsNullOrEmpty(maa.GetLocName()))
                             {
                                 string maaName = Regex.Match(line, @"""(.+)""").Groups[1].Value;

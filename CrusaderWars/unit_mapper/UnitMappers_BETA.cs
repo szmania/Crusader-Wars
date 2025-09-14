@@ -477,7 +477,8 @@ namespace CrusaderWars.unit_mapper
             if (!Directory.Exists(titles_folder_path)) return NOT_FOUND_KEY;
             var files_paths = Directory.GetFiles(titles_folder_path);
 
-            if(unit.GetOwner() == null || unit.GetOwner().GetPrimaryTitleKey() == string.Empty)
+            var owner = unit.GetOwner();
+            if(owner == null || owner.GetPrimaryTitleKey() == string.Empty)
                 return NOT_FOUND_KEY;
             
             //LEVIES skip
@@ -499,7 +500,7 @@ namespace CrusaderWars.unit_mapper
                         string? titleKey = element.Attributes?["title_key"]?.Value;
 
                         //Then stores culture specific unit key
-                        if (titleKey != null && titleKey == unit.GetOwner()!.GetPrimaryTitleKey())
+                        if (titleKey != null && titleKey == owner.GetPrimaryTitleKey())
                         {
                             foreach (XmlNode node in element.ChildNodes)
                             {

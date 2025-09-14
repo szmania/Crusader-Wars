@@ -173,7 +173,7 @@ namespace CrusaderWars
             {
                 labelMappersVersion.Text = "(mappers version unknown)"; // Default
             }
-            Program.Logger.Debug($"Current App Version: {_updater.AppVersion}");
+            Program.Logger.Debug($"Current App Version: {_updater?.AppVersion ?? "unknown"}");
 
             var _timer = new System.Windows.Forms.Timer();
             _timer.Interval = 1000; // check variable every second

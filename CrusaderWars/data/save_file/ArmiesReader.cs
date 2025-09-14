@@ -411,9 +411,12 @@ namespace CrusaderWars.data.save_file
 
                             }
                         }
-                        else if(isOwner && searchingArmy != null && searchingArmy.Owner != null) // <-- Owner
+                        else if (isOwner && searchingArmy != null)
                         {
-                            searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
+                            if (searchingArmy.Owner != null)
+                            {
+                                searchingArmy.Owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
+                            }
                         }
                     }
                     else if (searchStarted && line == "}")

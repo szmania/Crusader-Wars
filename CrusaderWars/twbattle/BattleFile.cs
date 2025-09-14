@@ -614,7 +614,7 @@ namespace CrusaderWars
             string faction = isPlayer ? "historical_house_stark" : "historical_house_bolton";
             
             // Add null check for army.Units
-            if (army?.Units == null) return faction;
+            if (army == null || army.Units == null) return faction;
             
             foreach (Unit unit in army.Units)
             {

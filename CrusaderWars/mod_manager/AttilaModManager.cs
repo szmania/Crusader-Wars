@@ -322,7 +322,7 @@ namespace CrusaderWars.mod_manager
                         // Check if all items in rowData are not null before adding
                         if (rowData.All(item => item != null))
                         {
-                            ModManagerControl.Rows.Add(rowData);
+                            ModManagerControl.Rows.Add(rowData.Select(item => item!).ToArray());
                         }
                     }
                 }
