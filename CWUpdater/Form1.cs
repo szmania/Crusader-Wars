@@ -427,7 +427,9 @@ namespace CWUpdater
 
                     if (!File.Exists(correspondingNewFile))
                     {
-                        if (File.Exists(file)) // Check if it's a file before deleting
+                        // Explicitly check if the path is not a directory before attempting to delete as a file.
+                        // This handles cases where Directory.GetFiles might unexpectedly return a directory-like path.
+                        if (!Directory.Exists(file))
                         {
                             File.Delete(file);
                         }
