@@ -152,7 +152,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Comparing versions - A: '{versionA}', B: '{versionB}'");
 
             Version verA = ParseVersion(versionA);
-            Version verB = ParseVersion(VersionB);
+            Version verB = ParseVersion(versionB);
 
             // 1. Compare main version numbers
             if (verB > verA)

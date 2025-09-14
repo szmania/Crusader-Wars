@@ -57,7 +57,7 @@ namespace CrusaderWars.mod_manager
     public static class AttilaModManager
     {
         static DataGridView? ModManagerControl { get; set; }
-        static List<Mod> ModsPaths { get; set; = new List<Mod>();
+        static List<Mod> ModsPaths { get; set; } = new List<Mod>();
         
         public static void SetControlReference(DataGridView dataGrid)
         {
