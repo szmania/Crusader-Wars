@@ -383,11 +383,11 @@ namespace CrusaderWars
                     regiment.SetSoldiers(regSoldiers.ToString());
                     unitReport.SetKilled(killed);
                     Program.Logger.Debug($"Setting Unit Report: Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
-
-                    int army_regiment_total = armyRegiment.Regiments.Where(reg => reg.CurrentNum != null).Sum(x => Int32.Parse(x.CurrentNum!));
-                    armyRegiment.SetCurrentNum(army_regiment_total.ToString());
-                    Program.Logger.Debug($"Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
                 }
+                // Moved these lines outside the inner loop
+                int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum)).Sum(x => Int32.Parse(x.CurrentNum!));
+                armyRegiment.SetCurrentNum(army_regiment_total.ToString());
+                Program.Logger.Debug($"Updated ArmyRegiment {armyRegiment.ID} total soldiers to: {army_regiment_total}");
             }
         }
 
