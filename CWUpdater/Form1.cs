@@ -427,7 +427,10 @@ namespace CWUpdater
 
                     if (!File.Exists(correspondingNewFile))
                     {
-                        File.Delete(file);
+                        if (File.Exists(file)) // Check if it's a file before deleting
+                        {
+                            File.Delete(file);
+                        }
                     }
                 }
 
