@@ -338,7 +338,7 @@ namespace CrusaderWars.data.save_file
 
                         else if (isMainCommander && searchingArmy?.Commander != null && searchingArmy?.Owner != null)
                         {
-                            if(searchingArmy.IsPlayer())
+                            if(searchingArmy != null && searchingArmy.IsPlayer())
                                 searchingArmy.Commander.ChangeCulture(new Culture(CK3LogData.LeftSide.GetCommander().culture_id));
                             else
                                 searchingArmy.Commander.ChangeCulture(new Culture(CK3LogData.RightSide.GetCommander().culture_id));
@@ -372,7 +372,7 @@ namespace CrusaderWars.data.save_file
 
                             var landedTitlesData = GetCommanderNobleRankAndTitleName(firstTitleID);
                             nonMainCommander_Rank = landedTitlesData.rank;
-                            if (searchingArmy.IsPlayer())
+                            if (searchingArmy != null && searchingArmy.IsPlayer())
                             {
                                 if (CK3LogData.LeftSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
                                 {
@@ -391,7 +391,7 @@ namespace CrusaderWars.data.save_file
                                 }
 
                             }
-                            else
+                            else if (searchingArmy != null && CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
                             {
                                 if (CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
                                 {
@@ -1675,7 +1675,7 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach(var army in attacker_armies)
                             {
-                                army.ArmyRegiments?.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
                             }
                         }
                     }
@@ -1686,7 +1686,7 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach (var army in defender_armies)
                             {
-                                army.ArmyRegiments?.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
                             }
                         }
                     }

@@ -759,10 +759,14 @@ namespace CrusaderWars
                             foreach (Army army in attacker_armies)
                             {
                                 var knightsList = army.Knights?.GetKnightsList();
-                                if (knightsList?.FirstOrDefault(k => k != null && k.GetID() == knightID) is Knight knight)
+                                if (knightsList != null)
                                 {
-                                    main_kills = knight.GetKills();
-                                    break; // Found the knight, no need to check other armies
+                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
+                                    if (knight != null)
+                                    {
+                                        main_kills = knight.GetKills();
+                                        break; // Found the knight, no need to check other armies
+                                    }
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -865,10 +869,14 @@ namespace CrusaderWars
                             foreach (Army army in defender_armies)
                             {
                                 var knightsList = army.Knights?.GetKnightsList();
-                                if (knightsList?.FirstOrDefault(k => k != null && k.GetID() == knightID) is Knight knight)
+                                if (knightsList != null)
                                 {
-                                    main_kills = knight.GetKills();
-                                    break; // Found the knight, no need to check other armies
+                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
+                                    if (knight != null)
+                                    {
+                                        main_kills = knight.GetKills();
+                                        break; // Found the knight, no need to check other armies
+                                    }
                                 }
                             }
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1044,7 +1052,7 @@ namespace CrusaderWars
             int total = 0;
             foreach (Army army in armies ?? Enumerable.Empty<Army>())
             {
-                if (army?.ArmyRegiments == null) continue;
+                if (army?.ArmyRegiments != null)
                 {
                     foreach (var r in army.ArmyRegiments)
                     {
@@ -1215,16 +1223,18 @@ namespace CrusaderWars
 
             foreach (Army army in armies)
             {
-                if (army.ArmyRegiments == null) continue; // Add null check here
-                foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
+                if (army.ArmyRegiments != null)
                 {
-                    if (army_regiment.Type == RegimentType.Knight) continue;
-                    if (army_regiment.ID == army_regiment_id)
+                    foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
                     {
-                        editStarted = true;
-                        editRegiment = army_regiment;
-                        Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id}.");
-                        return (editStarted, editRegiment);
+                        if (army_regiment.Type == RegimentType.Knight) continue;
+                        if (army_regiment.ID == army_regiment_id)
+                        {
+                            editStarted = true;
+                            editRegiment = army_regiment;
+                            Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id}.");
+                            return (editStarted, editRegiment);
+                        }
                     }
                 }
             }
@@ -1315,7 +1325,7 @@ namespace CrusaderWars
                         if (parentArmyRegiment != null && parentArmyRegiment.Type == RegimentType.MenAtArms)
                         {
                             // For Men-at-Arms, only update the 'size' line and keep other properties.
-                            string currentNum = (editRegiment?.CurrentNum)?.ToString() ?? "0";
+                            string currentNum = editRegiment?.CurrentNum ?? "0";
                             string edited_line = "\t\t\tsize=" + currentNum;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Regiment {editRegiment?.ID}: Updating Men-at-Arms size to {currentNum}.");
@@ -1346,7 +1356,7 @@ namespace CrusaderWars
 
                     else if(!isNewData && (editStarted==true && editIndex==true) && line.Contains("\t\t\t\t\tcurrent="))
                     {
-                        string currentNum = (editRegiment?.CurrentNum)?.ToString() ?? "0";
+                        string currentNum = editRegiment?.CurrentNum ?? "0";
                         string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
                         streamWriter.WriteLine(edited_line);
                         Program.Logger.Debug($"Regiment {editRegiment?.ID}: Updating old data format with current soldiers {currentNum}.");

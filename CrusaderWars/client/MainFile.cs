@@ -2364,9 +2364,10 @@ namespace CrusaderWars
 
         private async void labelVersion_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(_appVersion))
+            var version = _appVersion;
+            if (!string.IsNullOrEmpty(version))
             {
-                string? url = await _updater.GetReleaseUrlForVersion(_appVersion, false);
+                string? url = await _updater.GetReleaseUrlForVersion(version, false);
                 if(!string.IsNullOrEmpty(url))
                 {
                     Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });

@@ -717,6 +717,7 @@ namespace CrusaderWars.unit_mapper
                     XmlDocument CulturesFile = new XmlDocument();
                     CulturesFile.Load(xml_file);
 
+                    if (CulturesFile.DocumentElement == null) continue; // Add null check for DocumentElement
                     foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
                     {
                         if (heritage is XmlComment) continue;
@@ -758,6 +759,7 @@ namespace CrusaderWars.unit_mapper
                         XmlDocument CulturesFile = new XmlDocument();
                         CulturesFile.Load(xml_file);
 
+                        if (CulturesFile.DocumentElement == null) continue; // Add null check for DocumentElement
                         foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
                         {
                             if (heritage is XmlComment) continue;
@@ -808,7 +810,8 @@ namespace CrusaderWars.unit_mapper
                     throw new InvalidOperationException("LoadedUnitMapper_FolderPath is not set.");
                 }
 
-                var image_path = Directory.GetFiles(LoadedUnitMapper_FolderPath).Where(x => x.EndsWith(".png")).FirstOrDefault();
+                string mapperFolderPath = LoadedUnitMapper_FolderPath; // Local variable for compiler analysis
+                var image_path = Directory.GetFiles(mapperFolderPath).Where(x => x.EndsWith(".png")).FirstOrDefault();
                 
                 if (image_path != null)
                 {
@@ -817,8 +820,8 @@ namespace CrusaderWars.unit_mapper
                 }
                 else
                 {
-                    Program.Logger.Debug($"No image found in {LoadedUnitMapper_FolderPath}. Falling back to default image.");
-                    throw new FileNotFoundException($"No .png image found in {LoadedUnitMapper_FolderPath}");
+                    Program.Logger.Debug($"No image found in {mapperFolderPath}. Falling back to default image.");
+                    throw new FileNotFoundException($"No .png image found in {mapperFolderPath}");
                 }
             }
             catch (Exception ex)
