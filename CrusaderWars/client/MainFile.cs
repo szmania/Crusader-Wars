@@ -592,17 +592,22 @@ namespace CrusaderWars
                     {
                         try
                         {
-                            using (var bmpTemp = new Bitmap(imagePath))
+                            // Load image via a memory stream to prevent file locking.
+                            byte[] imageBytes = File.ReadAllBytes(imagePath);
+                            using (var ms = new MemoryStream(imageBytes))
                             {
                                 // Dispose previous image if it exists
                                 playthroughPictureBox.Image?.Dispose();
-                                playthroughPictureBox.Image = new Bitmap(bmpTemp);
+                                // Create a new Bitmap from the stream. This loads the data into memory.
+                                playthroughPictureBox.Image = new Bitmap(ms);
                             }
                             playthroughPictureBox.Visible = true;
                         }
                         catch (Exception ex)
                         {
                             Program.Logger.Debug($"Error loading playthrough image from {imagePath}: {ex.Message}");
+                            playthroughPictureBox.Image?.Dispose(); // Ensure clean state on error
+                            playthroughPictureBox.Image = null;
                             playthroughPictureBox.Visible = false;
                         }
                     }

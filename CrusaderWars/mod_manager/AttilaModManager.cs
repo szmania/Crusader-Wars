@@ -57,7 +57,7 @@ namespace CrusaderWars.mod_manager
     public static class AttilaModManager
     {
         static DataGridView? ModManagerControl { get; set; }
-        static List<Mod> ModsPaths { get; set; } = new List<Mod>();
+        static List<Mod> ModsPaths { get; set; = new List<Mod>();
         
         public static void SetControlReference(DataGridView dataGrid)
         {
@@ -278,12 +278,8 @@ namespace CrusaderWars.mod_manager
                     }
                     if(name != string.Empty)
                     {
-                        // Line 308 - Add null check
                         Bitmap? thumbnail = LoadBitmapWithReducedSize(image_path);
-                        if (thumbnail != null)
-                        {
-                            ModsPaths.Add(new Mod(false, thumbnail, name, ModLocalization.Steam, fullPath));
-                        }
+                        ModsPaths.Add(new Mod(false, thumbnail, name, ModLocalization.Steam, fullPath));
                     }
                 }
             }
@@ -312,18 +308,13 @@ namespace CrusaderWars.mod_manager
                     // Line 82 - Add null check
                     if (mod != null && !mod.IsRequiredMod())
                     {
-                        object?[] rowData = new object?[] { 
-                            mod.IsEnabled(), 
-                            mod.GetThumbnail(), 
-                            mod.GetName(), 
-                            mod.GetLocalization() == ModLocalization.Steam ? steamImg : dataImg 
+                        object?[] rowData = new object?[] {
+                            mod.IsEnabled(),
+                            mod.GetThumbnail(),
+                            mod.GetName(),
+                            mod.GetLocalization() == ModLocalization.Steam ? steamImg : dataImg
                         };
-
-                        // Check if all items in rowData are not null before adding
-                        if (rowData.All(item => item != null))
-                        {
-                            ModManagerControl.Rows.Add(rowData.Select(item => item!).ToArray());
-                        }
+                        ModManagerControl.Rows.Add(rowData);
                     }
                 }
             }
@@ -331,13 +322,22 @@ namespace CrusaderWars.mod_manager
 
         static Bitmap? LoadBitmapWithReducedSize(string path)
         {
+            string imageToLoad = path;
+            if (string.IsNullOrEmpty(imageToLoad) || !File.Exists(imageToLoad))
+            {
+                imageToLoad = @".\data\mod manager\noimage.png";
+            }
+
             try
             {
-                using (var originalImage = new Bitmap(path))
+                // Load into memory stream to avoid file lock
+                byte[] imageBytes = File.ReadAllBytes(imageToLoad);
+                using (var ms = new MemoryStream(imageBytes))
+                using (var originalImage = new Bitmap(ms))
                 {
                     // Create a smaller version of the image (thumbnail)
-                    int thumbnailWidth = originalImage.Width / 2; // Adjust as needed
-                    int thumbnailHeight = originalImage.Height / 2; // Adjust as needed
+                    int thumbnailWidth = originalImage.Width / 2;
+                    int thumbnailHeight = originalImage.Height / 2;
                     var thumbnail = new Bitmap(thumbnailWidth, thumbnailHeight);
 
                     using (var graphics = Graphics.FromImage(thumbnail))
@@ -350,8 +350,8 @@ namespace CrusaderWars.mod_manager
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error loading image: {ex.Message}");
-                return null; // Return null to indicate it might be null, but the caller should handle it.
+                Program.Logger.Debug($"Failed to load image '{imageToLoad}': {ex.Message}");
+                return null;
             }
         }
 
