@@ -36,6 +36,7 @@ namespace CrusaderWars.unit_mapper
 
         public static TerrainsUM? Terrains { get;private set; }  
         static string? LoadedUnitMapper_FolderPath { get; set; }
+        public static string? ActivePlaythroughTag { get; private set; }
         public const string NOT_FOUND_KEY = "not_found";
 
         // Fix for CS8602 and CS8600
@@ -64,6 +65,30 @@ namespace CrusaderWars.unit_mapper
                     return null;
             }
             
+        }
+
+        private static List<string> GetSortedFilePaths(string directoryPath, string priorityFileName)
+        {
+            // Get all xml files and sort them alphabetically to ensure a consistent order.
+            var allFiles = Directory.GetFiles(directoryPath, "*.xml")
+                                    .OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase)
+                                    .ToList();
+
+            if (!string.IsNullOrEmpty(priorityFileName))
+            {
+                // Find the priority file, ignoring case.
+                string? actualPriorityFilePath = allFiles.FirstOrDefault(f => Path.GetFileName(f).Equals(priorityFileName, StringComparison.OrdinalIgnoreCase));
+
+                if (actualPriorityFilePath != null)
+                {
+                    // If the priority file is found, move it to the beginning of the list.
+                    allFiles.Remove(actualPriorityFilePath);
+                    allFiles.Insert(0, actualPriorityFilePath);
+                }
+            }
+            // If the priority file is not found or not specified, the list remains alphabetically sorted.
+
+            return allFiles;
         }
 
         private static void ReadTerrainsFile()
@@ -129,6 +154,7 @@ namespace CrusaderWars.unit_mapper
 
         public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag)
         {
+            ActivePlaythroughTag = tag;
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             List<string> requiredMods = new List<string>();
 
@@ -266,7 +292,8 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            var files_paths = Directory.GetFiles(factions_folder_path);
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
 
             int max = 0;
             foreach (var xml_file in files_paths)
@@ -423,45 +450,52 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            var files_paths = Directory.GetFiles(factions_folder_path);
-            List<(int porcentage, string unit_key, string name, string max)> levies = new List<(int porcentage, string unit_key, string name, string max)>();
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
+            List<(int porcentage, string unit_key, string name, string max)> specificLevies = new List<(int porcentage, string unit_key, string name, string max)>();
+            List<(int porcentage, string unit_key, string name, string max)> defaultLevies = new List<(int porcentage, string unit_key, string name, string max)>();
 
-            // 1. Search for levies associated with the specific attila_faction
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
                 {
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue; // Added null check
-                    levies = Levies(FactionsFile, attila_faction);
-                    if (levies.Any())
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    // Check for specific faction levies and overwrite if found
+                    var foundSpecific = Levies(FactionsFile, attila_faction);
+                    if (foundSpecific.Any())
                     {
-                        Program.Logger.Debug($"Found specific levy definitions for faction '{attila_faction}'.");
-                        return levies;
+                        specificLevies = foundSpecific;
+                        Program.Logger.Debug($"Found/overwrote specific levy definitions for faction '{attila_faction}' from file '{Path.GetFileName(xml_file)}'.");
+                    }
+
+                    // Check for default faction levies and overwrite if found
+                    var foundDefault = Levies(FactionsFile, "Default");
+                    if (foundDefault.Any())
+                    {
+                        defaultLevies = foundDefault;
+                        Program.Logger.Debug($"Found/overwrote default levy definitions from file '{Path.GetFileName(xml_file)}'.");
                     }
                 }
             }
 
-            // 2. If not found, fallback to "Default" faction
-            Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Falling back to 'Default' faction.");
-            foreach (var xml_file in files_paths)
+            // Prioritize specific levies over default ones
+            if (specificLevies.Any())
             {
-                if (Path.GetExtension(xml_file) == ".xml")
-                {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue; // Added null check
-                    levies = Levies(FactionsFile, "Default"); // Search for "Default"
-                    if (levies.Any())
-                    {
-                        Program.Logger.Debug($"Found default levy definitions for faction 'Default'.");
-                        return levies;
-                    }
-                }
+                Program.Logger.Debug($"Using specific levy definitions for faction '{attila_faction}'.");
+                return specificLevies;
             }
 
-            // 3. If neither loop finds any levies, throw an exception
+            if (defaultLevies.Any())
+            {
+                Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Using 'Default' faction definitions.");
+                return defaultLevies;
+            }
+
+
+            // If neither loop finds any levies, throw an exception
             throw new Exception($"Unit Mapper Error: Could not find any levy definitions for faction '{attila_faction}' or for the 'Default' faction. Please check your unit mapper configuration.");
         }
 
@@ -524,12 +558,14 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            var files_paths = Directory.GetFiles(factions_folder_path);
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
 
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY ;
 
-            string unit_key = "";
+            string specific_unit_key = NOT_FOUND_KEY;
+            string default_unit_key = NOT_FOUND_KEY;
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
@@ -549,26 +585,32 @@ namespace CrusaderWars.unit_mapper
                             //Store Default unit key first
                             if (faction == "Default" || faction == "DEFAULT")
                             {
-                                unit_key = FindUnitKeyInFaction(element, unit);
+                                string foundKey = FindUnitKeyInFaction(element, unit);
+                                if (foundKey != NOT_FOUND_KEY)
+                                {
+                                    default_unit_key = foundKey; // Overwrite default key
+                                }
                             }
                             //Then stores culture specific unit key
                             else if (faction == unit.GetAttilaFaction())
                             {
                                 string foundKey = FindUnitKeyInFaction(element, unit);
-                                if (!string.IsNullOrEmpty(foundKey) && foundKey != NOT_FOUND_KEY)
-                                    return foundKey;
+                                if (foundKey != NOT_FOUND_KEY)
+                                {
+                                    specific_unit_key = foundKey; // Overwrite specific key
+                                }
                             }
                         }
                     }
-
-                    if (unit_key == string.Empty || unit_key == NOT_FOUND_KEY)
-                        continue;
-                    else
-                        return unit_key;
                 }
             }
 
-            return NOT_FOUND_KEY;
+            if (specific_unit_key != NOT_FOUND_KEY)
+            {
+                return specific_unit_key;
+            }
+
+            return default_unit_key;
         }
 
         static string FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
@@ -653,7 +695,9 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             if (!Directory.Exists(factions_folder_path)) return NOT_FOUND_KEY;
 
-            var files_paths = Directory.GetFiles(factions_folder_path);
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Factions.xml" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFile);
+            string found_key = NOT_FOUND_KEY;
 
             foreach (var xml_file in files_paths)
             {
@@ -673,30 +717,33 @@ namespace CrusaderWars.unit_mapper
 
                         if (faction == "Default" || faction == "DEFAULT")
                         {
-                            // Found the default faction, now find a suitable unit
+                            // Found the default faction, now find a suitable unit and overwrite if found
                             foreach (XmlNode node in element.ChildNodes)
                             {
                                 if (node is XmlComment) continue;
+
+                                string? current_key = node.Attributes?["key"]?.Value;
+                                if (current_key == null) continue;
                                 
                                 if (type == RegimentType.Commander && node.Name == "General")
                                 {
-                                    return node.Attributes?["key"]?.Value ?? NOT_FOUND_KEY;
+                                    found_key = current_key;
                                 }
                                 else if (type == RegimentType.Knight && node.Name == "Knights")
                                 {
-                                    return node.Attributes?["key"]?.Value ?? NOT_FOUND_KEY;
+                                    found_key = current_key;
                                 }
                                 else if (type == RegimentType.MenAtArms && node.Name == "MenAtArm")
                                 {
-                                    // Return the first MAA unit as a generic fallback
-                                    return node.Attributes?["key"]?.Value ?? NOT_FOUND_KEY;
+                                    // Overwrite with the last MAA unit found as a generic fallback
+                                    found_key = current_key;
                                 }
                             }
                         }
                     }
                 }
             }
-            return NOT_FOUND_KEY; // No default found
+            return found_key; // Return last found key
         }
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)
@@ -722,7 +769,8 @@ namespace CrusaderWars.unit_mapper
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
             Program.Logger.Debug($"Searching for Attila faction for Culture '{CultureName}', Heritage '{HeritageName}' in: {cultures_folder_path}");
 
-            var files_paths = Directory.GetFiles(cultures_folder_path);
+            string priorityFile = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"{ActivePlaythroughTag}_Cultures.xml" : string.Empty;
+            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFile);
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
