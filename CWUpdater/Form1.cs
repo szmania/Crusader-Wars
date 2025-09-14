@@ -440,7 +440,7 @@ namespace CWUpdater
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
                     if (!newDirs.Contains(relativeDirPath) && !Directory.GetFiles(dir).Any() && !Directory.GetDirectories(dir).Any())
                     {
-                        File.Delete(dir);
+                        Directory.Delete(dir);
                     }
                 }
             }
