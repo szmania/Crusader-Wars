@@ -431,16 +431,18 @@ namespace CWUpdater
                     }
                 }
 
-                // Delete empty and obsolete directories
+                // Delete obsolete directories recursively
                 var existingDirs = Directory.GetDirectories(applicationPath, "*", SearchOption.AllDirectories);
                 var newDirs = Directory.GetDirectories(tempDirectory, "*", SearchOption.AllDirectories).Select(d => d.Substring(tempDirectory.Length + 1)).ToHashSet();
 
                 foreach (var dir in existingDirs.OrderByDescending(d => d.Length))
                 {
+                    if (!Directory.Exists(dir)) continue; // In case a parent was already deleted
+
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
-                    if (!newDirs.Contains(relativeDirPath) && !Directory.GetFiles(dir).Any() && !Directory.GetDirectories(dir).Any())
+                    if (!newDirs.Contains(relativeDirPath))
                     {
-                        Directory.Delete(dir);
+                        Directory.Delete(dir, true);
                     }
                 }
             }
