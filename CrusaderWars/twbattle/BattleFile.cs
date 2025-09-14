@@ -605,7 +605,7 @@ namespace CrusaderWars
             
             foreach (Unit unit in army.Units)
             {
-                if (unit != null)
+                if (unit != null && unit.GetObjCulture() != null)
                 {
                     string culture = unit.GetCulture();
                     string heritage = unit.GetHeritage();

@@ -368,10 +368,9 @@ namespace CrusaderWars.data.save_file
                         string firstTitleID = Regex.Match(line, @"\d+").Value;
                         if (isCommander && searchingArmy != null && nonMainCommander_BaseSkills != null && nonMainCommander_Culture != null && searchingArmy.CommanderID != null)
                         {
-                            if (isOwner && searchingArmy != null) // Added null check for searchingArmy
+                            if (isOwner)
                             {
-                                var owner = searchingArmy.Owner;
-                                if (owner != null)
+                                if (searchingArmy.Owner is Owner owner)
                                 {
                                     owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
                                 }

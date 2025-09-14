@@ -733,7 +733,8 @@ namespace CrusaderWars
                             else if(id == "4294967295" && isMAA)
                             {
                                 isMAA = true; // Already set, but good for clarity
-                                Program.Logger.Debug($"Attacker: Detected Men-at-Arms regiment (ID: {id}).");
+                                string logMessage = $"Attacker: Detected Men-at-Arms regiment (ID: {id}).";
+                                Program.Logger.Debug(logMessage);
                             }
                             else
                             {
@@ -1110,7 +1111,8 @@ namespace CrusaderWars
                     }
                 }
             }
-            Program.Logger.Debug($"Calculated total fighting men for armies: {total}");
+            string logMessage = $"Calculated total fighting men for armies: {total}";
+            Program.Logger.Debug(logMessage);
             return total;
         }
 
@@ -1372,12 +1374,15 @@ namespace CrusaderWars
                     {
                         if (parentArmyRegiment != null && parentArmyRegiment.Type == RegimentType.MenAtArms)
                         {
-                            // For Men-at-Arms, only update the 'size' line and keep other properties.
-                            string currentNum = editRegiment?.CurrentNum ?? "0";
-                            string edited_line = "\t\t\tsize=" + currentNum;
-                            streamWriter.WriteLine(edited_line);
-                            string regId = editRegiment?.ID ?? "N/A"; // Extract ID for logging
-                            Program.Logger.Debug($"Regiment {regId}: Updating Men-at-Arms size to {currentNum}.");
+                            if (editRegiment != null)
+                            {
+                                // For Men-at-Arms, only update the 'size' line and keep other properties.
+                                string currentNum = editRegiment.CurrentNum ?? "0";
+                                string edited_line = "\t\t\tsize=" + currentNum;
+                                streamWriter.WriteLine(edited_line);
+                                string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
+                                Program.Logger.Debug($"Regiment {regId}: Updating Men-at-Arms size to {currentNum}.");
+                            }
                             continue; // Continue to next line without setting isNewData
                         }
                         else if (editRegiment != null)
@@ -1416,7 +1421,8 @@ namespace CrusaderWars
                             string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
                             streamWriter.WriteLine(edited_line);
                             string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                            Program.Logger.Debug($"Regiment {regId}: Updating old data format with current soldiers {currentNum}.");
+                            string logMessage = $"Regiment {regId}: Updating old data format with current soldiers {currentNum}.";
+                            Program.Logger.Debug(logMessage);
                             continue;
                         }
                     }
