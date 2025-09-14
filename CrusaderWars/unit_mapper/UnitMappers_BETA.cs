@@ -44,22 +44,22 @@ namespace CrusaderWars.unit_mapper
         public static string? GetLoadedUnitMapperString() { 
             switch(GetLoadedUnitMapperName())
             {
-                case "OfficialCW_EarlyMedieval_919Mod":
+                case "OfficialCC_EarlyMedieval_919Mod":
                     return "EARLY MEDIEVAL";
-                case "OfficialCW_HighMedieval_MK1212Mod":
+                case "OfficialCC_HighMedieval_MK1212Mod":
                     return "HIGH MEDIEVAL";
-                case "OfficialCW_LateMedieval_MK1212Mod":
+                case "OfficialCC_LateMedieval_MK1212Mod":
                     return "LATE MEDIEVAL";
-                case "OfficialCW_Renaissance_MK1212Mod":
+                case "OfficialCC_Renaissance_MK1212Mod":
                     return "RENAISSANCE";
-                case "OfficialCW_FallenEagle_AgeOfJustinian":
+                case "OfficialCC_FallenEagle_AgeOfJustinian":
                     return "DARK AGES";
-                case "OfficialCW_FallenEagle_FallofTheEagle":
-                case "OfficialCW_FallenEagle_Fireforged-Empire":
+                case "OfficialCC_FallenEagle_FallofTheEagle":
+                case "OfficialCC_FallenEagle_Fireforged-Empire":
                     return "LATE ANTIQUITY";
-                case "OfficialCW_RealmsInExile_TheDawnlessDays":
+                case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     return "SECOND AGE";
-                case "OfficialCW_AGOT_SevenKingdoms":
+                case "OfficialCC_AGOT_SevenKingdoms":
                     return "AGE OF THE TARGARYENS";
                 default:
                     return null;
