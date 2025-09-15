@@ -22,7 +22,7 @@ window = {
             blockoverride "header_text"
             {
                 text = cw_op_window_title
-                #raw_text = "Crusader Wars Mod Options"
+                #raw_text = "Crusader Conflicts Mod Options"
             }
 
             blockoverride "button_close"
@@ -879,7 +879,7 @@ window = {
                         blockoverride "vce_desc"
                         {
                             text = cw_op_about_desc
-                            #raw_text = "Crusader Wars reads in details about the battle you Crusader Kings character is involved in and converts that into a Total War: Attila battle that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the 'Troop Types By Culture' tabs."
+                            #raw_text = "Crusader Conflicts reads in details about the battle you Crusader Kings character is involved in and converts that into a Total War: Attila battle that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the 'Troop Types By Culture' tabs."
                         }
                     }
 
@@ -1065,7 +1065,7 @@ window = {
                         blockoverride "vce_desc"
                         {
                             text = cw_op_about_desc
-                            #raw_text = "Crusader Wars reads in details about the battle you Crusader Kings character is involved in and converts that into a Total War: Attila battle that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the 'Troop Types By Culture' tabs."
+                            #raw_text = "Crusader Conflicts reads in details about the battle you Crusader Kings character is involved in and converts that into a Total War: Attila battle that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the 'Troop Types By Culture' tabs."
                         }
                     }
 

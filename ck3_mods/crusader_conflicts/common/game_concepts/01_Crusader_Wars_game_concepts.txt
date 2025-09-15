@@ -1,5 +1,5 @@
 ﻿######################################################################
-#  Crusader Wars Game Concepts by flogi
+#  Crusader Conflicts Game Concepts by flogi
 ######################################################################
 
 crusader_wars = {
@@ -260,7 +260,7 @@ cw_valiant_3 = {
 }
 
 ######################################################################
-#  Crusader Wars Game Concepts by Faray
+#  Crusader Conflicts Game Concepts by Faray
 ######################################################################
 
 cw_advantage_leading = {

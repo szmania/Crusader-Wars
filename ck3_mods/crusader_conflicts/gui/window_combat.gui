@@ -986,12 +986,12 @@ window = {
 
 		############################################################
 		############################################################
-		###   START ALL CRUSADER WARS EDITS TO window_combat.gui ###
+		###   START ALL CRUSADER CONFLICTS EDITS TO window_combat.gui ###
 		############################################################
 		############################################################
 
 		############################################################
-		###   ---Added Crusader Wars Play Battle DEBUG BUTTON--- ###
+		###   ---Added Crusader Conflicts Play Battle DEBUG BUTTON--- ###
 		###      Added Farah enable Debug Button                 ###
 		###      Not touching this - Beans                       ### 
 		############################################################
@@ -1022,7 +1022,7 @@ window = {
 
 
 		############################################################
-		###   ---Added Crusader Wars Play Battle DISABLED---     ###
+		###   ---Added Crusader Conflicts Play Battle DISABLED---     ###
 		###      Faded version of Play Battle that shows when a  ###
 		###      on valid commander type is leading army         ### 
 		############################################################
@@ -1039,7 +1039,7 @@ window = {
 
 		
 		############################################################
-		###   ---Added Crusader Wars Play Battle Control1---     ###
+		###   ---Added Crusader Conflicts Play Battle Control1---     ###
 		###      Enabled for player character only lead army     ### 
 		############################################################
 		button = { name = Play_Battle_control1
@@ -1149,7 +1149,7 @@ window = {
 			}			
 														
 
-			#--------Crusader Wars Player Army---------
+			#--------Crusader Conflicts Player Army---------
 
 			#Console Command Divider
 			state = {
@@ -1207,7 +1207,7 @@ window = {
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Wars Enemy Army---------
+			#--------Crusader Conflicts Enemy Army---------
 			state = {
 				name = "log_enemy_divider"
 				duration = 0.01
@@ -1364,7 +1364,7 @@ window = {
 		}
 
 		############################################################
-		###   ---Added Crusader Wars Play Battle Control2---     ###
+		###   ---Added Crusader Conflicts Play Battle Control2---     ###
 		###      Enabled for player + marshal lead army          ### 
 		############################################################
 		button = { name = Play_Battle_control2
@@ -1471,7 +1471,7 @@ window = {
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 			}	
 
-			#--------Crusader Wars Player Army---------
+			#--------Crusader Conflicts Player Army---------
 
 			#Console Command Divider
 			state = {
@@ -1530,7 +1530,7 @@ window = {
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Wars Enemy Army---------
+			#--------Crusader Conflicts Enemy Army---------
 			state = {
 				name = "log_enemy_divider"
 				duration = 0.01
@@ -1686,7 +1686,7 @@ window = {
 		}
 
 		############################################################
-		###   ---Added Crusader Wars Play Battle Control3---     ###
+		###   ---Added Crusader Conflicts Play Battle Control3---     ###
 		###      Enabled for any player dynasty lead army        ### 
 		############################################################
 		button = { name = Play_Battle_control3
@@ -1793,7 +1793,7 @@ window = {
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 			}		
 
-			#--------Crusader Wars Player Army---------
+			#--------Crusader Conflicts Player Army---------
 
 			#Console Command Divider
 			state = {
@@ -1852,7 +1852,7 @@ window = {
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Wars Enemy Army---------
+			#--------Crusader Conflicts Enemy Army---------
 			state = {
 				name = "log_enemy_divider"
 				duration = 0.01
@@ -2008,7 +2008,7 @@ window = {
 		}
 
 		############################################################
-		###   ---Added Crusader Wars Play Battle Control4---     ###
+		###   ---Added Crusader Conflicts Play Battle Control4---     ###
 		###      Enabled for ANY character lead army             ### 
 		############################################################
 		button = { name = Play_Battle_control4
@@ -2115,7 +2115,7 @@ window = {
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 			}			
 
-			#--------Crusader Wars Player Army---------
+			#--------Crusader Conflicts Player Army---------
 
 			#Console Command Divider
 			state = {
@@ -2174,7 +2174,7 @@ window = {
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Wars Enemy Army---------
+			#--------Crusader Conflicts Enemy Army---------
 			state = {
 				name = "log_enemy_divider"
 				duration = 0.01
@@ -2337,7 +2337,7 @@ window = {
 
 
 		############################################################
-		### Added Crusader Wars Options Button & Background icon ###
+		### Added Crusader Conflicts Options Button & Background icon ###
 		###   New mod options window that controls many features ###
 		############################################################
 		# The following two entries give us the options scroll/settings button and the background grey nice looking circle around it
@@ -2371,7 +2371,7 @@ window = {
 			parentanchor = center
 			position = { 30 20 }
 			size = { 30 30 }	
-			#raw_tooltip = "Crusader Wars Mod Options"
+			#raw_tooltip = "Crusader Conflicts Mod Options"
 			tooltip = cw_bw_options_button
 
 			onclick = "[ExecuteConsoleCommand('gui.createwidget gui/custom_gui/cw_options.gui cw_options')]"
@@ -2393,7 +2393,7 @@ window = {
 
 		############################################################
 		############################################################
-		###   END ALL CRUSADER WARS EDITS TO window_combat.gui   ###
+		###   END ALL CRUSADER CONFLICTS EDITS TO window_combat.gui   ###
 		############################################################
 		############################################################		
 

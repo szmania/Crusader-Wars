@@ -1,5 +1,5 @@
 ################################################################################################
-# Crusader Wars Accolade Adjustments (added bonuses for Attila Total War Battles) by flogi
+# Crusader Conflicts Accolade Adjustments (added bonuses for Attila Total War Battles) by flogi
 ################################################################################################
 
 # only changes the parts that absolutely need to be changed for compatibility reasons

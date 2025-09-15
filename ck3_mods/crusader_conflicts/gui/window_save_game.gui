@@ -14,7 +14,7 @@ window = {
 	}
 
 		############################################################
-		### START ALL CRUSADER WARS EDITS TO window_save_game.gui ###
+		### START ALL CRUSADER CONFLICTS EDITS TO window_save_game.gui ###
 		############################################################
 		############################################################
 		
@@ -28,7 +28,7 @@ window = {
     }
 
 		############################################################
-		### END ALL CRUSADER WARS EDITS TO window_save_game.gui ###
+		### END ALL CRUSADER CONFLICTS EDITS TO window_save_game.gui ###
 		############################################################
 		############################################################	
 
