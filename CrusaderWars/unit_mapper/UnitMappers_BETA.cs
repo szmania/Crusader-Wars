@@ -38,6 +38,7 @@ namespace CrusaderWars.unit_mapper
         static string? LoadedUnitMapper_FolderPath { get; set; }
         public static string? ActivePlaythroughTag { get; private set; }
         public const string NOT_FOUND_KEY = "not_found";
+        private static readonly Random _random = new Random();
 
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
@@ -628,38 +629,83 @@ namespace CrusaderWars.unit_mapper
 
         static string FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
         {
-            foreach (XmlNode node in factionElement.ChildNodes)
+            if (unit.GetRegimentType() == RegimentType.Commander)
             {
-                if (node is XmlComment) continue;
-                if (node.Name == "Levies") continue;
+                var generalRanks = new List<(int rank, string key)>();
+                foreach (XmlNode generalNode in factionElement.SelectNodes("General"))
+                {
+                    string? key = generalNode.Attributes?["key"]?.Value;
+                    if (string.IsNullOrEmpty(key)) continue;
 
-                //General
-                if (node.Name == "General" && unit.GetRegimentType() == RegimentType.Commander)
-                {
-                    if (node?.Attributes?["key"] != null)
+                    int rank = 1; // Default rank is 1 if attribute is missing or invalid
+                    string? rankAttr = generalNode.Attributes?["rank"]?.Value;
+                    if (!string.IsNullOrEmpty(rankAttr) && int.TryParse(rankAttr, out int parsedRank))
                     {
-                        string? unit_key = node.Attributes["key"]?.Value;
-                        if (unit_key != null) return unit_key;
+                        rank = parsedRank;
+                    }
+                    generalRanks.Add((rank, key));
+                }
+
+                if (generalRanks.Any())
+                {
+                    // Map CK3 title Rank to a required rank level for the general unit
+                    int requiredRank = 1;
+                    if (unit.CommanderRank >= 4) requiredRank = 3; // King or Emperor gets rank 3 general
+                    else if (unit.CommanderRank == 3) requiredRank = 2; // Duke gets rank 2 general
+
+                    // Find all candidates at or below the required rank
+                    var suitableCandidates = generalRanks.Where(t => t.rank <= requiredRank).ToList();
+
+                    List<(int rank, string key)> finalSelectionPool;
+
+                    if (suitableCandidates.Any())
+                    {
+                        // Find the best rank among the suitable candidates
+                        int bestRank = suitableCandidates.Max(t => t.rank);
+                        finalSelectionPool = suitableCandidates.Where(t => t.rank == bestRank).ToList();
+                    }
+                    else
+                    {
+                        // Fallback: No suitable rank found, so use the lowest available rank overall
+                        int lowestRank = generalRanks.Min(t => t.rank);
+                        finalSelectionPool = generalRanks.Where(t => t.rank == lowestRank).ToList();
+                    }
+
+                    // Randomly select one candidate from the final pool
+                    if (finalSelectionPool.Any())
+                    {
+                        int index = _random.Next(finalSelectionPool.Count);
+                        return finalSelectionPool[index].key;
                     }
                 }
-                //Knights
-                else if (node.Name == "Knights" && unit.GetRegimentType() == RegimentType.Knight)
+            }
+            else
+            {
+                // Existing logic for Knights and MenAtArms
+                foreach (XmlNode node in factionElement.ChildNodes)
                 {
-                    if (node?.Attributes?["key"] != null)
-                    {
-                        string? unit_key = node.Attributes["key"]?.Value;
-                        if (unit_key != null) return unit_key;
-                    }
-                }
-                //MenAtArms
-                else if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
-                {
-                    if (node.Attributes?["type"]?.Value == unit.GetName())
+                    if (node is XmlComment) continue;
+                    if (node.Name == "Levies") continue;
+
+                    //Knights
+                    if (node.Name == "Knights" && unit.GetRegimentType() == RegimentType.Knight)
                     {
                         if (node?.Attributes?["key"] != null)
                         {
                             string? unit_key = node.Attributes["key"]?.Value;
                             if (unit_key != null) return unit_key;
+                        }
+                    }
+                    //MenAtArms
+                    else if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
+                    {
+                        if (node.Attributes?["type"]?.Value == unit.GetName())
+                        {
+                            if (node?.Attributes?["key"] != null)
+                            {
+                                string? unit_key = node.Attributes["key"]?.Value;
+                                if (unit_key != null) return unit_key;
+                            }
                         }
                     }
                 }

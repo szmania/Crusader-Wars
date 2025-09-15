@@ -688,6 +688,15 @@ namespace CrusaderWars.data.save_file
 
                 }
 
+                // ADD COMMANDER UNIT
+                if (army.Commander != null)
+                {
+                    var cmdr = army.Commander;
+                    Unit commanderUnit = new Unit(cmdr.Name, cmdr.GetUnitSoldiers(), cmdr.GetCultureObj(), RegimentType.Commander);
+                    commanderUnit.SetCommanderRank(cmdr.Rank);
+                    units.Add(commanderUnit);
+                }
+
                 units = OrganizeUnitsIntoCultures(units, army.Owner);
                 units = OrganizeLeviesUnits(units);
                 units = GetAllUnits_AttilaFaction(units);
