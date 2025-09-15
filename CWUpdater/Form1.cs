@@ -346,20 +346,14 @@ namespace CWUpdater
                             continue;
                         }
 
-                        // Define a set of user-specific files to preserve during updates.
-                        var settingsFilesToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                        {
-                            @"Settings\Options.xml",
-                            @"Settings\Paths.xml",
-                            @"Settings\lastchecked.txt",
-                            @"Settings\UnitMappers.xml",
-                            "active_mods.txt"
-                        };
+                        // Define directories to completely skip during an app update to preserve user data
+                        string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
+                        string settingsDir = Path.Combine(applicationPath, "settings");
 
-                        // Skip overwriting essential user settings files.
-                        if (settingsFilesToSkip.Contains(finalRelativePath))
+                        if (destinationPath.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
+                            destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
                         {
-                            Logger.Log($"Skipping overwrite of user settings file: {finalRelativePath}");
+                            Logger.Log($"Skipping overwrite of file in protected directory: {finalRelativePath}");
                             continue;
                         }
 
@@ -453,36 +447,19 @@ namespace CWUpdater
             }
             else if (!IsUnitMappers) // Application updater
             {
-                string settingsDir = Path.Combine(applicationPath, "settings"); // Added: Path to the settings directory
+                string settingsDir = Path.Combine(applicationPath, "settings");
+                string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
 
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
 
                 foreach (var file in existingFiles)
                 {
-                    // Skip files within the updater directory
-                    if (file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase))
+                    // Skip files within the updater, settings, and unit mappers directories to prevent accidental deletion
+                    if (file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase))
                         continue;
-
-                    // Added: Skip files within the Settings directory
-                    if (file.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    // Define a set of user-specific files to preserve during updates.
-                    var settingsFilesToSkip = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        @"Settings\Options.xml",
-                        @"Settings\Paths.xml",
-                        @"Settings\lastchecked.txt",
-                        @"Settings\UnitMappers.xml",
-                        "active_mods.txt"
-                    };
-
-                    string relativePathForDeletionCheck = file.Substring(applicationPath.Length + 1);
-                    if (settingsFilesToSkip.Contains(relativePathForDeletionCheck))
-                    {
-                        continue;
-                    }
 
                     string relativePath = file.Substring(applicationPath.Length + 1);
                     string parentFolder = relativePath.Split('\\')[0];
@@ -501,12 +478,10 @@ namespace CWUpdater
 
                 foreach (var dir in existingDirs.OrderByDescending(d => d.Length))
                 {
-                    // Skip the updater directory itself or any directory within its hierarchy (parent, self, or child)
-                    if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) || updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    // Added: Skip the Settings directory itself or any directory within its hierarchy
-                    if (dir.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
+                    // Skip the updater, settings, and unit mappers directories
+                    if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) || updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
