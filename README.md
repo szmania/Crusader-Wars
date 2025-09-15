@@ -1,47 +1,34 @@
-![MAIN BANNER](https://i.imgur.com/6Z9IfPm.png)
-# What is Crusader Wars?
-Crusader Wars is a complete overhaul of Crusader Kings 3 warfare system making it possible to fight your battles in a 1:1 scale in Total War: Attila.
+![Crusader Conflicts Banner](images/Crusader_Conflicts_Banner.png)
+# What is Crusader Conflicts?
+Crusader Conflicts revolutionizes the Crusader Kings 3 warfare experience by seamlessly integrating the epic, real-time battles of Total War: Attila. Lead your armies on the grand strategy map of CK3, then command them directly on the battlefields of Attila in massive, 1:1 scale conflicts.
+This project builds upon the foundational concepts of the original Crusader Wars mod, expanding and refining its vision for a new generation of players.
+
 # Current features:
 ## v1.0 "Warfare"
-### Land Battles 
-Fight your Crusader Kings 3 battles in Total War: Attila, covering every aspect of each battle!
-### Accurate Battle Results
-Every casuality of the battle is 100% accurate to their regiment and army their in!
-### Time Period
-We have mapped each CK3 culture, heritage, and Men-At-Arms with a collection of Attila mods to be the most historically accurate possible, covering a range from 8th-Century to 15th-Century.
-### Levies Compositions
-Each culture and heritage also have their unique levies compositions, some can be infantry focused, other's can be cavalry focused.You will feel each one uniqueness!
-### Regiments Cultures
-Every Crusader Kings 3 regiment has their hometown culture, and you will see every cultural difference in battle!
-### Commanders
-The army commander will be the Total War general unit with his strength and XP level being based on his noble rank, bodyguards, and prowess. His martial skills represent a major role on the battlefield, increasing the whole army's XP level and the amount and quality of defensive deployable when defending.
-### Knights
-Each knight is also present in a unit and each one of their prowess and martial increases the strength of it individually. Their lord's knight effectiveness also increases their unit xp. Their cultural unit will be the major culture amongst them or their realm.
-### Acclaimed Knights
-An acclaimed knight is an important factor on the knight's unit, they get more soldiers than a regular knight and based on their accolade attributes and glory rank they give a special ability to the knight's unit.
-### Characters Health
-What happens on the battlefield, doesn't stayt on the battlefield! If your generals or knights fall, they will get injured, captured or even die! And, if your characters are fighting with injures, they will get a soldiers penalty in their unit.
-### Terrain
-The Total War battle map will be based on the CK3 battle terrain and defending armies in mountains, hills, etc... will always get the high ground.
-### Unique Maps
-You will fight in some unique maps depending on the special building on the province you are fighting in.
-### Weather
-The month the battle takes place is also accounted to make the battle atmosphere resemble the season they are in! Winter severity also increases the amount of winter effects there is on the Total War battle.
-### Seamless as Possible
-With a press of a button, the mod opens up Attila with the correct mods and after the battle, it compresses the edited save file to have totaly fast loading speeds!
-### Integrated Attila Mod Manager
-Enable and disable secondary mods in the Options menu!
+### Epic Land Battles Engage in massive, 1:1 scale land battles from Crusader Kings 3 directly within Total War: Attila, experiencing every strategic and tactical detail.
+### Persistent Consequences Battle outcomes are meticulously calculated, with every casualty accurately reflected in your Crusader Kings 3 save file, ensuring your decisions on the battlefield have lasting impact.
+### Dynamic Unit Rosters Experience historically authentic warfare with unit rosters dynamically mapped from CK3 cultures, heritages, and Men-at-Arms to a curated collection of Total War: Attila mods, spanning the 8th to 15th centuries.
+### Unique Levy Compositions Discover the distinct fighting styles of each culture and heritage through their unique levy compositions, ranging from infantry-heavy formations to cavalry-focused forces, making every battle feel unique.
+### Cultural Diversity on the Battlefield Witness the rich cultural tapestry of Crusader Kings 3 reflected in Total War: Attila, as each regiment's origin culture influences its appearance and fighting style.
+### Commanders Matter Your army's commander takes the field as a Total War general, with their noble rank, personal prowess, and martial skill directly influencing their unit's strength, experience, and the quality of defensive deployables.
+### Valiant Knights Individual knights from your court are represented as powerful units, their prowess and martial skills directly enhancing their combat effectiveness. The overall knight effectiveness of their lord further boosts their unit's experience, with their cultural identity shaping their appearance.
+### Legendary Acclaimed Knights Acclaimed Knights stand out with increased soldier counts and unique special abilities for their units, derived from their accolades and glory rank, turning the tide of battle.
+### Real Stakes, Real Danger The consequences of battle extend beyond the field: generals and knights can be injured, captured, or even killed. Characters fighting with injuries will suffer penalties to their unit's strength, adding a layer of personal risk to every engagement.
+### Dynamic Terrain Generation Battle maps in Total War: Attila are dynamically generated based on the Crusader Kings 3 terrain, ensuring defending armies always gain the strategic advantage of high ground in mountainous or hilly regions.
+### Historically Inspired Battlefields Engage in battles on unique maps that reflect the special buildings present in the province where the conflict takes place, adding historical flavor to each encounter.
+### Atmospheric Weather Effects The in-game month influences the battle's weather, creating an immersive seasonal atmosphere. Increased winter severity in CK3 translates to harsher winter conditions and effects on the Total War battlefield.
+### Seamless Integration Launch Total War: Attila with the correct mods and battle setup at the press of a button. After the battle, the edited save file is automatically compressed and re-integrated into Crusader Kings 3 for lightning-fast loading.
+### Built-in Attila Mod Manager Easily manage and enable/disable required and optional Total War: Attila mods directly from the Crusader Conflicts options menu.
 # Roadmap
 Here you can see all our concepts, ideas, and plans for the mod.
 [<img src="https://i.imgur.com/BKru2vr.png">](https://discord.gg/X64pMysa)
 # -------------------How does it work?---------------------
 If you want to code a mod like this, these are the major steps to achieve it:
 ## Crusader Kings 3 Data Output:
-There are two ways Crusader Wars outputs data for it to interpret. One is by Console Commands, the other is by a Save File.
-I created a mod for CK3 that consists of a button on the ```window_combat.gui```, that when pressed, will create a save file and then execute some console commands that output some important data, which the Crusader Wars app, will read from the ```console_history.txt``` located in ```Documents\Paradox Interactive\Crusader Kings III\``` folder.
+Crusader Conflicts retrieves data from Crusader Kings 3 through two primary methods: Console Commands and direct Save File parsing. A custom CK3 mod provides a button on the window_combat.gui. When activated, this button generates a save file and executes console commands that output crucial battle data, which the Crusader Conflicts application then reads from the console_history.txt file located in your Documents\Paradox Interactive\Crusader Kings III\ folder.
 
 ## Crusader Kings 3 Data Reading:
-80% of data Crusader Wars reads from is from the save file directly, the rest on the console_history.txt file.
+Crusader Conflicts primarily reads 80% of its data directly from the CK3 save file, with the remaining information extracted from the console_history.txt file.
 On the Save File, it reads data from these sections (in order):
 - combats
 - traits_lookup
@@ -139,8 +126,7 @@ Keyword:CRUSADERWARS3
 ```
 
 ## Total War: Attila Data Input
-With all this data, Crusader Wars creates a historical battle .modpack with the help of the RPFM app.
-By following this tutorial as I did in the early development of this mod, you will know which data to insert on the .modpack https://www.twcenter.net/forums/showthread.php?815366-Scripted-Historical-Battles
+Leveraging all collected data, Crusader Conflicts generates a historical battle .pack file for Total War: Attila, utilizing the Rusted PackFile Manager (RPFM). For those interested in the technical details, the process of inserting data into the .pack file is similar to the methods outlined in this tutorial, which guided the early development of this mod: https://www.twcenter.net/forums/showthread.php?815366-Scripted-Historical-Battles
 ...
 ...
 (to be continued...)
