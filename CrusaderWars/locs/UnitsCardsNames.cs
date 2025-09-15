@@ -67,7 +67,7 @@ namespace CrusaderWars.locs
                     string[] fte_loc_files = Directory.GetFiles(@".\data\units_cards_names\fall of the eagles\");
                     EditUnitCardsFiles(fte_loc_files, unitsCollection);
                     break;
-                case "OfficialCC_TheFallenEagle_Fireforged-Empire":
+                case "OfficialCC_TheFallenEagle_FireforgedEmpires":
                     string[] fe_loc_files = Directory.GetFiles(@".\data\units_cards_names\fireforged empires\");
                     EditUnitCardsFiles(fe_loc_files, unitsCollection);
                     break;
