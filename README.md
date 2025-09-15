@@ -127,6 +127,15 @@ Keyword:CRUSADERWARS3
 
 ## Total War: Attila Data Input
 Leveraging all collected data, Crusader Conflicts generates a historical battle .pack file for Total War: Attila, utilizing the Rusted PackFile Manager (RPFM). For those interested in the technical details, the process of inserting data into the .pack file is similar to the methods outlined in this tutorial, which guided the early development of this mod: https://www.twcenter.net/forums/showthread.php?815366-Scripted-Historical-Battles
-...
-...
-(to be continued...)
+This `.pack` file contains all the necessary information to recreate the CK3 battle in Attila, including unit rosters, army compositions, deployment positions, and custom scripts.
+
+### Battle Execution and Result Processing
+Once the battle pack is generated, the application launches Total War: Attila with a specific set of command-line arguments. This ensures that all required mods are enabled and that the game loads directly into the custom historical battle. While the player commands their forces on the battlefield, Crusader Conflicts monitors Attila's log files in the background, waiting for the battle to conclude.
+
+### Applying Battle Outcomes to Crusader Kings 3
+After the battle ends, the application parses the Attila log file to determine the outcome. It meticulously calculates casualties for every regiment, tracks kills for knights and commanders, and notes if any characters were killed or wounded. This data is then used to modify the original CK3 save file:
+- **Regiment Strength:** The number of soldiers in each CK3 regiment is updated to reflect the exact casualties sustained in the Attila battle.
+- **Character Fates:** If a commander or knight is killed, their character is marked as deceased in the save file. Wounds are also applied based on events and user-defined probabilities.
+- **Combat Resolution:** The in-game combat in CK3 is resolved based on the Attila battle's outcome, determining the winner and loser.
+
+Finally, the modified save file data is re-compressed into a new `.ck3` file and placed in your save games folder. The application then seamlessly returns you to Crusader Kings 3 to continue your campaign, with all the consequences of your tactical decisions on the battlefield now permanently reflected in the grand strategy layer.
