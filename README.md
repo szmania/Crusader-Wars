@@ -1,7 +1,7 @@
 ![Crusader Conflicts Banner](images/crusader_conflicts_logo.png)
 # What is Crusader Conflicts?
 Crusader Conflicts revolutionizes the Crusader Kings 3 warfare experience by seamlessly integrating the epic, real-time battles of Total War: Attila. Lead your armies on the grand strategy map of CK3, then command them directly on the battlefields of Attila in massive, 1:1 scale conflicts.
-This project builds upon the foundational concepts of the original Crusader Wars mod, expanding and refining its vision for a new generation of players.
+This project builds upon the foundational concepts of the original open-source GPL3 licensed Crusader Wars mod, expanding and refining its vision for a new generation of players.
 
 # Current features:
 - **Epic Land Battles** Engage in massive, 1:1 scale land battles from Crusader Kings 3 directly within Total War: Attila, experiencing every strategic and tactical detail.
