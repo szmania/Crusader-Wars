@@ -21,7 +21,7 @@ This project builds upon the foundational concepts of the original Crusader Wars
 ### Built-in Attila Mod Manager Easily manage and enable/disable required and optional Total War: Attila mods directly from the Crusader Conflicts options menu.
 # Roadmap
 Here you can see all our concepts, ideas, and plans for the mod.
-[<img src="https://i.imgur.com/BKru2vr.png">](https://discord.gg/X64pMysa)
+[Join our Discord to see the roadmap and discuss the mod!](https://discord.gg/X64pMysa)
 # -------------------How does it work?---------------------
 If you want to code a mod like this, these are the major steps to achieve it:
 ## Crusader Kings 3 Data Output:
