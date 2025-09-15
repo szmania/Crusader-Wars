@@ -650,8 +650,8 @@ namespace CrusaderWars.unit_mapper
                 {
                     // Map CK3 title Rank to a required rank level for the general unit
                     int requiredRank = 1;
-                    if (unit.CommanderRank >= 4) requiredRank = 3; // King or Emperor gets rank 3 general
-                    else if (unit.CommanderRank == 3) requiredRank = 2; // Duke gets rank 2 general
+                    if (unit.CharacterRank >= 4) requiredRank = 3; // King or Emperor gets rank 3 general
+                    else if (unit.CharacterRank == 3) requiredRank = 2; // Duke gets rank 2 general
 
                     // Find all candidates at or below the required rank
                     var suitableCandidates = generalRanks.Where(t => t.rank <= requiredRank).ToList();
@@ -679,25 +679,58 @@ namespace CrusaderWars.unit_mapper
                     }
                 }
             }
+            else if (unit.GetRegimentType() == RegimentType.Knight)
+            {
+                var knightRanks = new List<(int rank, string key)>();
+                foreach (XmlNode knightNode in factionElement.SelectNodes("Knights"))
+                {
+                    string? key = knightNode.Attributes?["key"]?.Value;
+                    if (string.IsNullOrEmpty(key)) continue;
+
+                    int rank = 1; // Default rank is 1 if attribute is missing or invalid
+                    string? rankAttr = knightNode.Attributes?["rank"]?.Value;
+                    if (!string.IsNullOrEmpty(rankAttr) && int.TryParse(rankAttr, out int parsedRank))
+                    {
+                        rank = parsedRank;
+                    }
+                    knightRanks.Add((rank, key));
+                }
+
+                if (knightRanks.Any())
+                {
+                    int requiredRank = unit.CharacterRank; // Directly use the 1-3 rank from Prowess
+
+                    var suitableCandidates = knightRanks.Where(t => t.rank <= requiredRank).ToList();
+                    List<(int rank, string key)> finalSelectionPool;
+
+                    if (suitableCandidates.Any())
+                    {
+                        int bestRank = suitableCandidates.Max(t => t.rank);
+                        finalSelectionPool = suitableCandidates.Where(t => t.rank == bestRank).ToList();
+                    }
+                    else
+                    {
+                        int lowestRank = knightRanks.Min(t => t.rank);
+                        finalSelectionPool = knightRanks.Where(t => t.rank == lowestRank).ToList();
+                    }
+
+                    if (finalSelectionPool.Any())
+                    {
+                        int index = _random.Next(finalSelectionPool.Count);
+                        return finalSelectionPool[index].key;
+                    }
+                }
+            }
             else
             {
-                // Existing logic for Knights and MenAtArms
+                // Existing logic for MenAtArms
                 foreach (XmlNode node in factionElement.ChildNodes)
                 {
                     if (node is XmlComment) continue;
                     if (node.Name == "Levies") continue;
 
-                    //Knights
-                    if (node.Name == "Knights" && unit.GetRegimentType() == RegimentType.Knight)
-                    {
-                        if (node?.Attributes?["key"] != null)
-                        {
-                            string? unit_key = node.Attributes["key"]?.Value;
-                            if (unit_key != null) return unit_key;
-                        }
-                    }
                     //MenAtArms
-                    else if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
+                    if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
                     {
                         if (node.Attributes?["type"]?.Value == unit.GetName())
                         {

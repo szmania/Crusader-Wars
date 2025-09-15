@@ -693,16 +693,39 @@ namespace CrusaderWars.data.save_file
                 {
                     var cmdr = army.Commander;
                     Unit commanderUnit = new Unit(cmdr.Name, cmdr.GetUnitSoldiers(), cmdr.GetCultureObj(), RegimentType.Commander);
-                    commanderUnit.SetCommanderRank(cmdr.Rank);
+                    commanderUnit.SetCharacterRank(cmdr.Rank);
                     units.Add(commanderUnit);
                 }
 
-                units = OrganizeUnitsIntoCultures(units, army.Owner);
-                units = OrganizeLeviesUnits(units);
-                units = GetAllUnits_AttilaFaction(units);
-                units = GetAllUnits_Max(units);
-                units = GetAllUnits_UnitKeys(units);
-                army.SetUnits(units);
+                // ADD KNIGHT UNITS
+                if (army.Knights != null && army.Knights.GetKnightsList() != null)
+                {
+                    foreach (var knight in army.Knights.GetKnightsList())
+                    {
+                        Unit knightUnit = new Unit(knight.GetName(), knight.GetSoldiers(), knight.GetCultureObj(), RegimentType.Knight);
+                        knightUnit.SetCharacterRank(knight.Rank);
+                        units.Add(knightUnit);
+                    }
+                }
+
+
+                // Separate character units from regular units to prevent merging
+                var characterUnits = units.Where(u => u.GetRegimentType() == RegimentType.Commander || u.GetRegimentType() == RegimentType.Knight).ToList();
+                var regularUnits = units.Where(u => u.GetRegimentType() != RegimentType.Commander && u.GetRegimentType() != RegimentType.Knight).ToList();
+
+                // Organize only regular units
+                regularUnits = OrganizeUnitsIntoCultures(regularUnits, army.Owner);
+                regularUnits = OrganizeLeviesUnits(regularUnits);
+
+                // Combine them back
+                var allUnits = new List<Unit>();
+                allUnits.AddRange(characterUnits);
+                allUnits.AddRange(regularUnits);
+
+                allUnits = GetAllUnits_AttilaFaction(allUnits);
+                allUnits = GetAllUnits_Max(allUnits);
+                allUnits = GetAllUnits_UnitKeys(allUnits);
+                army.SetUnits(allUnits);
                 Program.Logger.Debug($"Finished creating {units.Count} units for army {army.ID}.");
                 //army.PrintUnits();
             }

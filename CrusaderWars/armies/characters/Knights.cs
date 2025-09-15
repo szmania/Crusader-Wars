@@ -31,6 +31,7 @@ namespace CrusaderWars
         Culture CultureObj { get; set; }
         int Prowess { get; set; }
         int Soldiers { get; set; }
+        public int Rank { get; private set; }
         List<(int Index, string Key)>? Traits { get; set; }
         BaseSkills? BaseSkills { get; set; }
         bool hasFallen { get; set; }
@@ -65,9 +66,25 @@ namespace CrusaderWars
             CultureObj = culture;
             Prowess = prowess;
             Soldiers = SetStrengh(soldiers);
+            SetRank();
         }
         
 
+        private void SetRank()
+        {
+            if (Prowess >= 20)
+            {
+                Rank = 3; // Elite
+            }
+            else if (Prowess >= 10)
+            {
+                Rank = 2; // Skilled
+            }
+            else
+            {
+                Rank = 1; // Average
+            }
+        }
         public void SetWoundedDebuffs()
         {
             int debuff = 0;

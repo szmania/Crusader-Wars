@@ -84,7 +84,7 @@ namespace CrusaderWars.data.save_file
         string AttilaFaction { get; set; }
         int Max { get; set; }
         string LocName { get; set; }
-        public int CommanderRank { get; private set; }
+        public int CharacterRank { get; private set; }
 
 
 
@@ -97,7 +97,7 @@ namespace CrusaderWars.data.save_file
             AttilaKey = string.Empty; // Initialize
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
-            CommanderRank = 0;
+            CharacterRank = 0;
         }
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
@@ -110,7 +110,7 @@ namespace CrusaderWars.data.save_file
             AttilaKey = string.Empty; // Initialize
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
-            CommanderRank = 0;
+            CharacterRank = 0;
         }
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
         {
@@ -123,7 +123,7 @@ namespace CrusaderWars.data.save_file
             AttilaKey = string.Empty; // Initialize
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
-            CommanderRank = 0;
+            CharacterRank = 0;
         }
 
 
@@ -136,7 +136,7 @@ namespace CrusaderWars.data.save_file
         public void SetMax(int i) { Max = i; }
         public void SetLocName(string t) { LocName = t; }
         public void ChangeCulture(Culture culture) { UnitCulture = culture; }
-        public void SetCommanderRank(int rank) { CommanderRank = rank; }
+        public void SetCharacterRank(int rank) { CharacterRank = rank; }
 
 
         public int GetMax() { return Max; }
