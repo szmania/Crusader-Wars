@@ -1427,7 +1427,12 @@ namespace CrusaderWars
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
+                                        string rankInfo = "";
+                                        if (unit.GetRegimentType() == RegimentType.Commander || unit.GetRegimentType() == RegimentType.Knight)
+                                        {
+                                            rankInfo = $", Rank: {unit.CharacterRank}";
+                                        }
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
                                     }
                                 }
                             }
@@ -1470,7 +1475,12 @@ namespace CrusaderWars
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}");
+                                        string rankInfo = "";
+                                        if (unit.GetRegimentType() == RegimentType.Commander || unit.GetRegimentType() == RegimentType.Knight)
+                                        {
+                                            rankInfo = $", Rank: {unit.CharacterRank}";
+                                        }
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
                                     }
                                 }
                             }
