@@ -425,13 +425,13 @@ namespace CrusaderWars.unit_mapper
                 string name = string.Empty;
                 string max = MaxType.GetMax("LEVY").ToString();
 
-                if (levies_node.Attributes?["porcentage"]?.Value is string porcentageStr && Int32.TryParse(porcentageStr, out int parsedPorcentage))
+                if (levies_node.Attributes?["percentage"]?.Value is string porcentageStr && Int32.TryParse(porcentageStr, out int parsedPorcentage))
                 {
                     porcentage = parsedPorcentage;
                 }
                 else
                 {
-                    Program.Logger.Debug($"WARNING: Missing or invalid 'porcentage' attribute for levy in faction '{attila_faction}'. Defaulting to 0.");
+                    Program.Logger.Debug($"WARNING: Missing or invalid 'percentage' attribute for levy in faction '{attila_faction}'. Defaulting to 0.");
                 }
 
                 if (levies_node.Attributes?["key"]?.Value is string keyStr)
