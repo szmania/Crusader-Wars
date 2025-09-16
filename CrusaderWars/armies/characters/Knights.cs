@@ -42,8 +42,8 @@ namespace CrusaderWars
 
         public string GetName() {  return Name; }
         public string GetID() { return ID; }
-        public string GetCultureName() { return CultureObj.GetCultureName(); }
-        public string GetHeritageName() { return CultureObj.GetHeritageName(); }
+        public string GetCultureName() { return CultureObj?.GetCultureName() ?? "unknown_culture"; }
+        public string GetHeritageName() { return CultureObj?.GetHeritageName() ?? "unknown_heritage"; }
         public Culture GetCultureObj() { return CultureObj; }
         public int GetSoldiers() { return Soldiers; }
         public int GetProwess() { return Prowess; }
