@@ -147,18 +147,20 @@ namespace CrusaderWars.data.save_file
             string heritage_name = "";
             var found_cultures = new List<(string culture_id, string culture_name, string heritage_name)>();
 
+            int lineNum = 0; // Initialize line counter
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Cultures_Path()))
             {
                 while (true)
                 {
                     string? line = sr.ReadLine();
+                    lineNum++; // Increment line counter
                     if (line == null) break;
 
                     //Culture Line
                     if (Regex.IsMatch(line, @"^\t\t\d+={$") && !isSearchStared)
                     {
                         culture_id = Regex.Match(line, @"(\d+)").Groups[1].Value;
-                        Program.Logger.Debug($"  Found CultureID: {culture_id}");
+                        Program.Logger.Debug($"  [L:{lineNum}] Found CultureID: {culture_id}");
 
                         //Armies
                         foreach (Army army in armies)
@@ -233,7 +235,7 @@ namespace CrusaderWars.data.save_file
                         culture_name = culture_name.Replace("-", "");
                         culture_name = RemoveDiacritics(culture_name);
                         culture_name = culture_name.Replace(" ", "");
-                        Program.Logger.Debug($"  Found CultureName: {culture_name}");
+                        Program.Logger.Debug($"  [L:{lineNum}] Found CultureName: {culture_name}");
                     }
 
                     // Add log for found heritage
@@ -243,7 +245,7 @@ namespace CrusaderWars.data.save_file
                         if (heritageMatch.Success)
                         {
                             heritage_name = heritageMatch.Groups[1].Value.Trim('"');
-                            Program.Logger.Debug($"  Found Heritage: {heritage_name}");
+                            Program.Logger.Debug($"  [L:{lineNum}] Found Heritage: {heritage_name}");
                         }
                     }
                     else if (isSearchStared && line.Contains("\t\t}"))
@@ -251,7 +253,7 @@ namespace CrusaderWars.data.save_file
                         if (!string.IsNullOrEmpty(culture_id) && !string.IsNullOrEmpty(culture_name) && !string.IsNullOrEmpty(heritage_name))
                         {
                             found_cultures.Add((culture_id, culture_name, heritage_name));
-                            Program.Logger.Debug($"Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
+                            Program.Logger.Debug($"[L:{lineNum}] Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
                         }
                         isSearchStared = false;
                         culture_id = ""; culture_name = ""; heritage_name = "";
