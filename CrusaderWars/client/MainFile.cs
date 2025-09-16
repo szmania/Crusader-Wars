@@ -23,6 +23,7 @@ using System.Drawing.Text;
 
 namespace CrusaderWars
 {
+    
     public partial class HomePage : Form
     {
         private LoadingScreen? loadingScreen;
