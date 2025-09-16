@@ -256,7 +256,7 @@ namespace CrusaderWars.data.save_file
                         }
 
                         // Check for the end of the culture block.
-                        if (line.Contains("\t\t}"))
+                        if (Regex.IsMatch(line, @"^\t\t}"))
                         {
                             if (!string.IsNullOrEmpty(culture_id) && !string.IsNullOrEmpty(culture_name) && !string.IsNullOrEmpty(heritage_name))
                             {
