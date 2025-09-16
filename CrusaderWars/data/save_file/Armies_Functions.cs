@@ -239,18 +239,22 @@ namespace CrusaderWars.data.save_file
                     // Add log for found heritage
                     else if (isSearchStared && line.Contains("\t\t\theritage="))
                     {
-                        Match heritageMatch = Regex.Match(line, @"heritage=(.+)\t\t\tlanguage="); // Stored match in a variable
-                        if (heritageMatch.Success) // Added null check
+                        Match heritageMatch = Regex.Match(line, @"heritage=([^\s\t}]+)");
+                        if (heritageMatch.Success)
                         {
-                            heritage_name = heritageMatch.Groups[1].Value;
-                            heritage_name = heritage_name.Trim('-');
+                            heritage_name = heritageMatch.Groups[1].Value.Trim('"');
                             Program.Logger.Debug($"  Found Heritage: {heritage_name}");
-
+                        }
+                    }
+                    else if (isSearchStared && line.Contains("\t\t}"))
+                    {
+                        if (!string.IsNullOrEmpty(culture_id) && !string.IsNullOrEmpty(culture_name) && !string.IsNullOrEmpty(heritage_name))
+                        {
                             found_cultures.Add((culture_id, culture_name, heritage_name));
-                            isSearchStared = false;
-                            culture_id = ""; culture_name = ""; heritage_name = "";
                             Program.Logger.Debug($"Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
                         }
+                        isSearchStared = false;
+                        culture_id = ""; culture_name = ""; heritage_name = "";
                     }
                 }
             }
