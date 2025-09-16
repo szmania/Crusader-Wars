@@ -593,7 +593,7 @@ Directory.CreateDirectory(destinationDir);
 
             foreach (var dirPath in Directory.GetDirectories(backupPath, "*", SearchOption.AllDirectories))
             {
-CreateDirectory(dirPath.Replace(backupPath, applicationPath));
+                Directory.CreateDirectory(dirPath.Replace(backupPath, applicationPath));
             }
 
             foreach (var filePath in Directory.GetFiles(backupPath, "*.*", SearchOption.AllDirectories))

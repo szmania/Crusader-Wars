@@ -173,9 +173,8 @@ namespace CrusaderWars
             }
             foreach (var unit in Units)
             {
-                if (unit == null) continue; // Added null check
-                string culture = unit.GetObjCulture()?.GetCultureName() ?? "NULL_CULTURE";
-                string heritage = unit.GetObjCulture()?.GetHeritageName() ?? "NULL_HERITAGE";
+                string culture = unit?.GetObjCulture()?.GetCultureName() ?? "NULL_CULTURE";
+                string heritage = unit?.GetObjCulture()?.GetHeritageName() ?? "NULL_HERITAGE";
                 
                 sb.AppendLine($"## {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | " +
                     $"Culture: {culture} | Heritage: {heritage} | " +
