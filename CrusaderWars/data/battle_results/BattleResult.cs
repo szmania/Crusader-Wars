@@ -393,6 +393,12 @@ namespace CrusaderWars
 
         static void CreateUnitsReports(Army army)
         {
+            if (army.UnitsResults == null)
+            {
+                Program.Logger.Debug($"Warning: army.UnitsResults is null for army {army.ID}. Skipping unit reports creation.");
+                return;
+            }
+
             Program.Logger.Debug($"Entering CreateUnitsReports for army {army.ID}.");
             List<UnitCasualitiesReport> reportsList = new List<UnitCasualitiesReport>();
 
@@ -1121,6 +1127,7 @@ namespace CrusaderWars
             int total = 0;
             foreach (Army army in armies)
             {
+                if (army.ArmyRegiments == null) continue;
                 total += army.ArmyRegiments.Where(y => y != null && y.Type == RegimentType.Levy).Sum(x => x.CurrentNum);
 
             }
@@ -1277,6 +1284,7 @@ namespace CrusaderWars
                 {
                     foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
                     {
+                        if (army_regiment == null) continue; // Added null check
                         if (army_regiment.Type == RegimentType.Knight) continue;
                         if (army_regiment.ID == army_regiment_id)
                         {
@@ -1462,6 +1470,7 @@ namespace CrusaderWars
                     if (armyRegiment.Regiments == null) continue;
                     foreach (Regiment regiment in armyRegiment.Regiments)
                     {
+                        if (regiment == null) continue; // Added null check
                         if (regiment.ID == regiment_id)
                         {
                             editStarted = true;

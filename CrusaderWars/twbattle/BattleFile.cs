@@ -377,7 +377,7 @@ namespace CrusaderWars
             //Write essential data
             CloseAlliance();
             //Write battle description
-            SetBattleDescription(player_main_army!, total_soldiers);
+            SetBattleDescription(player_main_army, total_soldiers);
             //Write battle map
             SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
             //Write essential data
@@ -467,19 +467,19 @@ namespace CrusaderWars
             //
             if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Controled)
             {
-                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
+                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
             }
             //  FRIENDLIES ONLY ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.Friendly_Only)
             {
-                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
+                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
             }
             //  ALL SEPARATE ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Separate)
             {
-                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
+                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
             }
 
             if (ModOptions.UnitCards())
@@ -537,12 +537,16 @@ namespace CrusaderWars
         private static string GetAttilaMap()
         {
             string default_attila_map = "Terrain/battles/main_attila_map/";
-            if (UnitMappers_BETA.Terrains == null)
-                return default_attila_map;
-            else if (UnitMappers_BETA.Terrains?.GetAttilaMap() != null)
-                return UnitMappers_BETA.Terrains.GetAttilaMap();
+            string? attilaMap = UnitMappers_BETA.Terrains?.GetAttilaMap();
+
+            if (!string.IsNullOrEmpty(attilaMap))
+            {
+                return attilaMap;
+            }
             else
+            {
                 return default_attila_map;
+            }
         }
 
         private static void OpenBattle()
