@@ -313,6 +313,12 @@ namespace CWUpdater
                     Logger.Log("Extracting update file.");
                     ZipFile.ExtractToDirectory(updateFilePath, tempDirectory);
 
+                    // Safeguard: Check if the extracted directory is empty
+                    if (!Directory.EnumerateFileSystemEntries(tempDirectory).Any())
+                    {
+                        throw new System.IO.InvalidDataException("The update archive is empty and cannot be applied.");
+                    }
+
                     // Delete obsolete files and directories
                     Logger.Log("Deleting obsolete files and directories.");
                     DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
@@ -363,7 +369,7 @@ namespace CWUpdater
                             string? destinationDir = Path.GetDirectoryName(destinationPath);
                             if (destinationDir != null && !Directory.Exists(destinationDir))
                             {
-                                Directory.CreateDirectory(destinationDir);
+Directory.CreateDirectory(destinationDir);
                             }
 
                             File.Copy(file, destinationPath, true);
@@ -385,11 +391,11 @@ namespace CWUpdater
                     Logger.Log("Update applied successfully.");
                     RestartApplication();
                 }
-                catch (System.IO.Compression.ZipException zipEx) // NEW: Specific catch for corrupt ZIP files
+                catch (System.IO.InvalidDataException ex) // Corrected exception type
                 {
-                    Logger.Log($"Error extracting update file (corrupt/incomplete ZIP): {zipEx.ToString()}");
+                    Logger.Log($"Error extracting update file (corrupt/incomplete ZIP or empty archive): {ex.ToString()}");
                     MessageBox.Show(
-                        $"The downloaded update file is corrupt or incomplete. Please check your internet connection and try again.\n\nError: {zipEx.Message}",
+                        $"The downloaded update file is corrupt, incomplete, or empty. Please check your internet connection and try again.\n\nError: {ex.Message}",
                         "Crusader Conflicts: Update Failed",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error
@@ -587,7 +593,7 @@ namespace CWUpdater
 
             foreach (var dirPath in Directory.GetDirectories(backupPath, "*", SearchOption.AllDirectories))
             {
-                Directory.CreateDirectory(dirPath.Replace(backupPath, applicationPath));
+CreateDirectory(dirPath.Replace(backupPath, applicationPath));
             }
 
             foreach (var filePath in Directory.GetFiles(backupPath, "*.*", SearchOption.AllDirectories))
