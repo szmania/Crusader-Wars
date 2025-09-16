@@ -121,31 +121,58 @@ namespace CrusaderWars
 
         static void FriendliesOnlyArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_main_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
         {
+            Program.Logger.Debug("--- Starting FriendliesOnlyArmies setup ---");
+            Program.Logger.Debug($"Initial armies: {temp_attacker_armies.Count} attackers, {temp_defender_armies.Count} defenders.");
+            Program.Logger.Debug($"Player main army: {player_main_army.ID}, Enemy main army: {enemy_main_army.ID}");
+
             //----------------------------------------------
             //  Merge friendly armies to main army     
             //----------------------------------------------
             bool isUserAlly = false; Army? userAlliedArmy = null;
             if (player_main_army.Owner?.GetID() == DataSearch.Player_Character?.GetID())
             {
+                Program.Logger.Debug("Player character is the main commander of their side.");
                 isUserAlly = false;
                 if (player_main_army.CombatSide == "attacker")
+                {
+                    Program.Logger.Debug($"Merging friendly attacker armies into player's main army ({player_main_army.ID}).");
                     player_main_army = ArmiesControl.MergeFriendlies(temp_attacker_armies, player_main_army);
+                }
                 else if (player_main_army.CombatSide == "defender")
+                {
+                    Program.Logger.Debug($"Merging friendly defender armies into player's main army ({player_main_army.ID}).");
                     player_main_army = ArmiesControl.MergeFriendlies(temp_defender_armies, player_main_army);
+                }
             }
             else
             {
+                Program.Logger.Debug("Player character is an ally, not the main commander.");
                 try
                 {
                     userAlliedArmy = temp_attacker_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID());
                     isUserAlly = true;
-                    if (userAlliedArmy?.CombatSide == "attacker")
-                        userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
-                    else if (userAlliedArmy?.CombatSide == "defender")
-                        userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
+                    if (userAlliedArmy != null)
+                    {
+                        Program.Logger.Debug($"Found player's allied army: {userAlliedArmy.ID}");
+                        if (userAlliedArmy.CombatSide == "attacker")
+                        {
+                            Program.Logger.Debug($"Merging friendly attacker armies into player's allied army ({userAlliedArmy.ID}).");
+                            userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
+                        }
+                        else if (userAlliedArmy.CombatSide == "defender")
+                        {
+                            Program.Logger.Debug($"Merging friendly defender armies into player's allied army ({userAlliedArmy.ID}).");
+                            userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug("CRITICAL: Player's allied army not found. This should be caught.");
+                    }
                 }
                 catch
                 {
+                    Program.Logger.Debug("ERROR: Exception caught while trying to find and merge player's allied army.");
                     MessageBox.Show("None of your armies are present in this battle! (If this error is unexpected, confirm your \"Armies Control\" selection in the mod settings)", "Crusader Conflicts: No Player Army",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     throw new Exception();
@@ -154,15 +181,23 @@ namespace CrusaderWars
             }
 
             if (enemy_main_army.CombatSide == "attacker")
+            {
+                Program.Logger.Debug($"Merging friendly attacker armies into enemy's main army ({enemy_main_army.ID}).");
                 enemy_main_army = ArmiesControl.MergeFriendlies(temp_attacker_armies, enemy_main_army);
+            }
             else if (enemy_main_army.CombatSide == "defender")
+            {
+                Program.Logger.Debug($"Merging friendly defender armies into enemy's main army ({enemy_main_army.ID}).");
                 enemy_main_army = ArmiesControl.MergeFriendlies(temp_defender_armies, enemy_main_army);
+            }
 
             //----------------------------------------------
             //  Merge armies until there are only three      
             //----------------------------------------------
+            Program.Logger.Debug($"Armies before merging down to three: {temp_attacker_armies.Count} attackers, {temp_defender_armies.Count} defenders.");
             ArmiesControl.MergeArmiesUntilThree(temp_attacker_armies);
             ArmiesControl.MergeArmiesUntilThree(temp_defender_armies);
+            Program.Logger.Debug($"Armies after merging down to three: {temp_attacker_armies.Count} attackers, {temp_defender_armies.Count} defenders.");
 
             // WRITE DECLARATIONS
             if(!isUserAlly)
@@ -173,15 +208,24 @@ namespace CrusaderWars
             //Write essential data
             OpenBattle();
             //Write essential data
+            Program.Logger.Debug("Writing player alliance to battle file...");
             OpenPlayerAlliance();
 
             //#### WRITE HUMAN PLAYER ARMY
             if(!isUserAlly)
+            {
+                Program.Logger.Debug($"Writing player main army {player_main_army.ID} to file.");
                 WriteArmy(player_main_army, total_soldiers, false, "stark");
+            }
             else
+            {
+                Program.Logger.Debug($"Writing player allied army {userAlliedArmy!.ID} to file.");
                 WriteArmy(userAlliedArmy!, total_soldiers, false, "stark");
+            }
+
 
             //#### WRITE AI ALLIED ARMIES
+            Program.Logger.Debug("Writing AI allied armies for player's side...");
             if (player_main_army.CombatSide == "attacker")
             {
                 if (!isUserAlly)
@@ -194,6 +238,7 @@ namespace CrusaderWars
                 }
                 foreach (var army in temp_attacker_armies.Where(a => a != null))
                 {
+                    Program.Logger.Debug($"Writing attacker/defender allied army {army.ID} to file.");
                     WriteArmy(army, total_soldiers, false, "stark");
 
                 }
@@ -210,6 +255,7 @@ namespace CrusaderWars
                 }
                 foreach (var army in temp_defender_armies.Where(a => a != null))
                 {
+                    Program.Logger.Debug($"Writing attacker/defender allied army {army.ID} to file.");
                     WriteArmy(army, total_soldiers, false, "stark");
                 }
             }
@@ -219,26 +265,33 @@ namespace CrusaderWars
             //Write essential data
             CloseAlliance();
             //Write essential data
+            Program.Logger.Debug("Writing enemy alliance to battle file...");
             OpenEnemyAlliance();
 
 
 
             //#### WRITE ENEMY MAIN ARMY
+            Program.Logger.Debug($"Writing enemy main army {enemy_main_army.ID} to file.");
             WriteArmy(enemy_main_army, total_soldiers, false, "bolton");
 
             //#### WRITE ENEMY ALLIED ARMIES
+            Program.Logger.Debug("Writing AI allied armies for enemy's side...");
             if (enemy_main_army.CombatSide == "attacker")
             {
-                foreach (var army in temp_attacker_armies)
+                if (enemy_main_army != null) temp_attacker_armies.Remove(enemy_main_army);
+                foreach (var army in temp_attacker_armies.Where(a => a != null))
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
+                    Program.Logger.Debug($"Writing attacker/defender enemy-allied army {army.ID} to file.");
+                    WriteArmy(army, total_soldiers, false, "bolton");
                 }
             }
             else if (enemy_main_army.CombatSide == "defender")
             {
-                foreach (var army in temp_defender_armies)
+                if (enemy_main_army != null) temp_defender_armies.Remove(enemy_main_army);
+                foreach (var army in temp_defender_armies.Where(a => a != null))
                 {
-                    if (army != null) WriteArmy(army, total_soldiers, false, "bolton");
+                    Program.Logger.Debug($"Writing attacker/defender enemy-allied army {army.ID} to file.");
+                    WriteArmy(army, total_soldiers, false, "bolton");
                 }
             }
 
@@ -252,6 +305,7 @@ namespace CrusaderWars
             SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
             //Write essential data
             CloseBattle();
+            Program.Logger.Debug("--- Finished FriendliesOnlyArmies setup ---");
 
         }
 
