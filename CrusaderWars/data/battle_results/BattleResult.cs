@@ -1102,21 +1102,11 @@ namespace CrusaderWars
         }
         static int GetArmiesTotalFightingMen(List<Army> armies)
         {
-            int total = 0;
-            foreach (Army army in armies)
-            {
-                if (army == null) continue;
-                if (army.ArmyRegiments != null)
-                {
-                    foreach (var r in army.ArmyRegiments)
-                    {
-                        if (r != null) // Changed from 'is not null'
-                        {
-                            total += r.CurrentNum;
-                        }
-                    }
-                }
-            }
+            int total = armies.Where(army => army != null && army.ArmyRegiments != null)
+                              .SelectMany(army => army.ArmyRegiments)
+                              .Where(armyRegiment => armyRegiment != null)
+                              .Sum(armyRegiment => armyRegiment.CurrentNum);
+
             string logMessage = string.Format("Calculated total fighting men for armies: {0}", total);
             Program.Logger.Debug(logMessage);
             return total;

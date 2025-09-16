@@ -59,9 +59,6 @@ namespace CrusaderWars.data.save_file
                 ReadCharacters();
                 ReadCourtPositions();
                 CheckForNullCultures();
-                ReadCultureManager();
-
-                // Organize Units
                 CreateUnits();
 
                 // Print Armies
@@ -382,7 +379,7 @@ namespace CrusaderWars.data.save_file
                             if (searchingArmy != null && searchingArmy.IsPlayer())
                             {
                                 var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight != null) // Changed from commanderKnight.id != null
+                                if (commanderKnight.id != null) // Reverted from commanderKnight != null
                                 {
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
@@ -401,7 +398,7 @@ namespace CrusaderWars.data.save_file
                             else if (searchingArmy != null && CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
                             {
                                 var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight != null) // Changed from commanderKnight.id != null
+                                if (commanderKnight.id != null) // Reverted from commanderKnight != null
                                 {
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
@@ -779,7 +776,7 @@ namespace CrusaderWars.data.save_file
             {
                 for (int x = 0; x < left_side_armies.Count; x++)
                 {
-                    var army = left_side_armies[x];
+                    var army = left_side[x];
                     for (int y = 0; y < army.ArmyRegiments.Count; y++)
                     {
                         var regiment = army.ArmyRegiments[y];
