@@ -247,7 +247,7 @@ namespace CrusaderWars
             //Write essential data
             CloseAlliance();
             //Write battle description
-            SetBattleDescription(player_main_army, total_soldiers);
+            SetBattleDescription(player_main_army!, total_soldiers);
             //Write battle map
             SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
             //Write essential data
@@ -377,7 +377,7 @@ namespace CrusaderWars
             //Write essential data
             CloseAlliance();
             //Write battle description
-            SetBattleDescription(player_main_army, total_soldiers);
+            SetBattleDescription(player_main_army!, total_soldiers);
             //Write battle map
             SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
             //Write essential data
@@ -631,7 +631,7 @@ namespace CrusaderWars
                     var cultureObj = unit.GetObjCulture();
                     if (cultureObj != null)
                     {
-                        string culture = cultureObj.GetCultureName();
+                        string culture = cultureObj!.GetCultureName();
                         string heritage = cultureObj.GetHeritageName();
                         string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
 

@@ -382,7 +382,7 @@ namespace CrusaderWars.data.save_file
                             if (searchingArmy != null && searchingArmy.IsPlayer())
                             {
                                 var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight.id != null) // Changed from commanderKnight != null
+                                if (commanderKnight != null) // Changed from commanderKnight.id != null
                                 {
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
@@ -401,7 +401,7 @@ namespace CrusaderWars.data.save_file
                             else if (searchingArmy != null && CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
                             {
                                 var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight.id != null) // Changed from commanderKnight != null
+                                if (commanderKnight != null) // Changed from commanderKnight.id != null
                                 {
                                     nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
                                     if (nonMainCommander_Rank == 1)
