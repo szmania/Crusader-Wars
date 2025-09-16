@@ -632,7 +632,7 @@ namespace CrusaderWars
                     if (cultureObj != null)
                     {
                         string culture = cultureObj!.GetCultureName();
-                        string heritage = cultureObj.GetHeritageName();
+                        string heritage = cultureObj!.GetHeritageName();
                         string attila_faction = UnitMappers_BETA.GetAttilaFaction(culture, heritage);
 
                         foreach (var item in aoj_list)

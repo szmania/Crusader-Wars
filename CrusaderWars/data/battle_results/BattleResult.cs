@@ -411,6 +411,11 @@ namespace CrusaderWars
             Program.Logger.Debug($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
             foreach(var group in grouped)
             {
+                if (group.Key.Type == null)
+                {
+                    Program.Logger.Debug($"Warning: Skipping unit report due to null unit type in group key for army {army.ID}.");
+                    continue;
+                }
                 Program.Logger.Debug($"Processing casualty report for group: Type='{group.Key.Type}', CultureID='{group.Key.CultureID}'.");
                 // Set the regiment type to the correct one
                 RegimentType unitType;

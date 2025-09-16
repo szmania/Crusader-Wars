@@ -776,7 +776,7 @@ namespace CrusaderWars.data.save_file
             {
                 for (int x = 0; x < left_side_armies.Count; x++)
                 {
-                    var army = left_side[x];
+                    var army = left_side_armies[x];
                     for (int y = 0; y < army.ArmyRegiments.Count; y++)
                     {
                         var regiment = army.ArmyRegiments[y];
