@@ -228,35 +228,49 @@ namespace CrusaderWars.data.save_file
                         // Program.Logger.Debug("    Starting line-by-line culture parsing...");
                     }
 
-                    // Add log for found culture name
-                    if (isSearchStared && line.Contains("\t\t\tname="))
+                    if (isSearchStared)
                     {
-                        culture_name = Regex.Match(line, @"""(.+)""").Groups[1].Value;
-                        culture_name = culture_name.Replace("-", "");
-                        culture_name = RemoveDiacritics(culture_name);
-                        culture_name = culture_name.Replace(" ", "");
-                        Program.Logger.Debug($"  [L:{lineNum}] Found CultureName: {culture_name}");
-                    }
+                        // If we haven't found the culture name yet, search for it on this line.
+                        if (string.IsNullOrEmpty(culture_name) && line.Contains("name="))
+                        {
+                            Match nameMatch = Regex.Match(line, @"name=""([^""]+)""");
+                            if (nameMatch.Success)
+                            {
+                                culture_name = nameMatch.Groups[1].Value;
+                                culture_name = culture_name.Replace("-", "");
+                                culture_name = RemoveDiacritics(culture_name);
+                                culture_name = culture_name.Replace(" ", "");
+                                Program.Logger.Debug($"  [L:{lineNum}] Found CultureName: {culture_name}");
+                            }
+                        }
 
-                    // Add log for found heritage
-                    else if (isSearchStared && line.Contains("\t\t\theritage="))
-                    {
-                        Match heritageMatch = Regex.Match(line, @"heritage=([^\s\t}]+)");
-                        if (heritageMatch.Success)
+                        // If we haven't found the heritage name yet, search for it on this line.
+                        if (string.IsNullOrEmpty(heritage_name) && line.Contains("heritage="))
                         {
-                            heritage_name = heritageMatch.Groups[1].Value.Trim('"');
-                            Program.Logger.Debug($"  [L:{lineNum}] Found Heritage: {heritage_name}");
+                            Match heritageMatch = Regex.Match(line, @"heritage=([^\s\t}]+)");
+                            if (heritageMatch.Success)
+                            {
+                                heritage_name = heritageMatch.Groups[1].Value.Trim('"');
+                                Program.Logger.Debug($"  [L:{lineNum}] Found Heritage: {heritage_name}");
+                            }
                         }
-                    }
-                    else if (isSearchStared && line.Contains("\t\t}"))
-                    {
-                        if (!string.IsNullOrEmpty(culture_id) && !string.IsNullOrEmpty(culture_name) && !string.IsNullOrEmpty(heritage_name))
+
+                        // Check for the end of the culture block.
+                        if (line.Contains("\t\t}"))
                         {
-                            found_cultures.Add((culture_id, culture_name, heritage_name));
-                            Program.Logger.Debug($"[L:{lineNum}] Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
+                            if (!string.IsNullOrEmpty(culture_id) && !string.IsNullOrEmpty(culture_name) && !string.IsNullOrEmpty(heritage_name))
+                            {
+                                found_cultures.Add((culture_id, culture_name, heritage_name));
+                                Program.Logger.Debug($"[L:{lineNum}] Processed Culture: ID={culture_id} | Name={culture_name} | Heritage={heritage_name}");
+                            }
+                            else
+                            {
+                                // Add a warning if we reached the end of the block without finding the necessary info.
+                                Program.Logger.Debug($"[L:{lineNum}] WARNING: Reached end of culture block for ID={culture_id} but could not find name ('{culture_name}') or heritage ('{heritage_name}'). This culture will be skipped.");
+                            }
+                            isSearchStared = false;
+                            culture_id = ""; culture_name = ""; heritage_name = "";
                         }
-                        isSearchStared = false;
-                        culture_id = ""; culture_name = ""; heritage_name = "";
                     }
                 }
             }
