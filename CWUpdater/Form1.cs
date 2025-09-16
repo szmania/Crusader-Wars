@@ -307,82 +307,109 @@ namespace CWUpdater
                 {
                     Directory.Delete(tempDirectory, true);
                 }
-                Logger.Log("Extracting update file.");
-                ZipFile.ExtractToDirectory(updateFilePath, tempDirectory);
 
-                // Delete obsolete files and directories
-                Logger.Log("Deleting obsolete files and directories.");
-                DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
-
-                // Copy new and updated files
-                Logger.Log("Copying new and updated files.");
-                foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
+                try // NEW: Specific try block for ZipException
                 {
-                    if(IsUnitMappers)//<-- UNIT MAPPERS UPDATER
+                    Logger.Log("Extracting update file.");
+                    ZipFile.ExtractToDirectory(updateFilePath, tempDirectory);
+
+                    // Delete obsolete files and directories
+                    Logger.Log("Deleting obsolete files and directories.");
+                    DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
+
+                    // Copy new and updated files
+                    Logger.Log("Copying new and updated files.");
+                    foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
                     {
-                        string relativePath = file.Substring(tempDirectory.Length + 1);
-                        // No parentFolder logic for unit mappers, as the zip should contain the mapper's root directly
-                        string destinationPath = Path.Combine(applicationPath, relativePath);
-
-                        string? destinationDir = Path.GetDirectoryName(destinationPath);
-                        if (destinationDir != null && !Directory.Exists(destinationDir))
+                        if(IsUnitMappers)//<-- UNIT MAPPERS UPDATER
                         {
-                            Directory.CreateDirectory(destinationDir);
-                        }
+                            string relativePath = file.Substring(tempDirectory.Length + 1);
+                            // No parentFolder logic for unit mappers, as the zip should contain the mapper's root directly
+                            string destinationPath = Path.Combine(applicationPath, relativePath);
 
-                        File.Copy(file, destinationPath, true);
+                            string? destinationDir = Path.GetDirectoryName(destinationPath);
+                            if (destinationDir != null && !Directory.Exists(destinationDir))
+                            {
+                                Directory.CreateDirectory(destinationDir);
+                            }
+
+                            File.Copy(file, destinationPath, true);
+                        }
+                        else if(!IsUnitMappers) //<-- APP UPDATER
+                        {
+                            string relativePath = file.Substring(tempDirectory.Length + 1);
+                            string parentFolder = relativePath.Split('\\')[0];
+                            string finalRelativePath = relativePath.Replace($"{parentFolder}\\", "");
+                            string destinationPath = Path.Combine(applicationPath, finalRelativePath);
+
+                            // Skip files that are part of the running updater
+                            if (destinationPath.StartsWith(updaterDirInMainApp, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Logger.Log($"Skipping copy of updater file: {file} to {destinationPath}");
+                                continue;
+                            }
+
+                            // Define directories to completely skip during an app update to preserve user data
+                            string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
+                            string settingsDir = Path.Combine(applicationPath, "settings");
+
+                            if (destinationPath.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
+                                destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Logger.Log($"Skipping overwrite of file in protected directory: {finalRelativePath}");
+                                continue;
+                            }
+
+                            string? destinationDir = Path.GetDirectoryName(destinationPath);
+                            if (destinationDir != null && !Directory.Exists(destinationDir))
+                            {
+                                Directory.CreateDirectory(destinationDir);
+                            }
+
+                            File.Copy(file, destinationPath, true);
+                        }
+     
                     }
-                    else if(!IsUnitMappers) //<-- APP UPDATER
-                    {
-                        string relativePath = file.Substring(tempDirectory.Length + 1);
-                        string parentFolder = relativePath.Split('\\')[0];
-                        string finalRelativePath = relativePath.Replace($"{parentFolder}\\", "");
-                        string destinationPath = Path.Combine(applicationPath, finalRelativePath);
 
-                        // Skip files that are part of the running updater
-                        if (destinationPath.StartsWith(updaterDirInMainApp, StringComparison.OrdinalIgnoreCase))
-                        {
-                            Logger.Log($"Skipping copy of updater file: {file} to {destinationPath}");
-                            continue;
-                        }
+                    // Step 5: Clean up backup if update was successful
+                    Logger.Log("Update successful, deleting backup.");
+                    Directory.Delete(backupPath, true);
 
-                        // Define directories to completely skip during an app update to preserve user data
-                        string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
-                        string settingsDir = Path.Combine(applicationPath, "settings");
+                    // Add this confirmation message
+                    MessageBox.Show("Update completed successfully! The application will now restart.",
+                                    "Update Successful",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
 
-                        if (destinationPath.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
-                            destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
-                        {
-                            Logger.Log($"Skipping overwrite of file in protected directory: {finalRelativePath}");
-                            continue;
-                        }
-
-                        string? destinationDir = Path.GetDirectoryName(destinationPath);
-                        if (destinationDir != null && !Directory.Exists(destinationDir))
-                        {
-                            Directory.CreateDirectory(destinationDir);
-                        }
-
-                        File.Copy(file, destinationPath, true);
-                    }
- 
+                    Console.WriteLine("Update applied successfully.");
+                    Logger.Log("Update applied successfully.");
+                    RestartApplication();
                 }
-
-                // Step 5: Clean up backup if update was successful
-                Logger.Log("Update successful, deleting backup.");
-                Directory.Delete(backupPath, true);
-
-                // Add this confirmation message
-                MessageBox.Show("Update completed successfully! The application will now restart.",
-                                "Update Successful",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
-
-                Console.WriteLine("Update applied successfully.");
-                Logger.Log("Update applied successfully.");
-                RestartApplication();
+                catch (System.IO.Compression.ZipException zipEx) // NEW: Specific catch for corrupt ZIP files
+                {
+                    Logger.Log($"Error extracting update file (corrupt/incomplete ZIP): {zipEx.ToString()}");
+                    MessageBox.Show(
+                        $"The downloaded update file is corrupt or incomplete. Please check your internet connection and try again.\n\nError: {zipEx.Message}",
+                        "Crusader Conflicts: Update Failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    if (File.Exists(updateFilePath))
+                    {
+                        try
+                        {
+                            File.Delete(updateFilePath);
+                            Logger.Log($"Deleted corrupt update file: {updateFilePath}");
+                        }
+                        catch (Exception deleteEx)
+                        {
+                            Logger.Log($"Failed to delete corrupt update file '{updateFilePath}': {deleteEx.Message}");
+                        }
+                    }
+                    RestartApplication(false); // Restart main app without updating version
+                }
             }
-            catch (Exception ex)
+            catch (Exception ex) // Existing general catch
             {
                 Logger.Log($"Error applying update: {ex.ToString()}");
                 MessageBox.Show($"Error applying update: {ex.Message}{ex.TargetSite}", "Error",
