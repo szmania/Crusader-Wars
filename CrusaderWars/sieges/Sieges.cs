@@ -29,6 +29,26 @@ namespace CrusaderWars.twbattle
         static int NumberSiegeEquipement { get; set; }
         static int FortLevel { get; set; }
 
+        public static void Reset()
+        {
+            HoldingLevel = 0;
+            HoldingCulture = string.Empty;
+            GarrisonHeritage = string.Empty;
+            GarrisonCulture = string.Empty;
+            GarrisonSize = 0;
+            SuppliesLevel = string.Empty;
+            SicknessLevel = string.Empty;
+            EscalationLevel = string.Empty;
+            NumberSiegeEquipement = 0;
+            FortLevel = 0;
+            Program.Logger.Debug("Siege data reset.");
+        }
+
+        public static void SetHoldingCulture(string culture)
+        {
+            HoldingCulture = culture;
+        }
+
         public static void SetFortLevel(int a)
         {
             FortLevel = a;

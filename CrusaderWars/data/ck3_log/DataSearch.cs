@@ -137,6 +137,7 @@ namespace CrusaderWars
 
             DateSearch(log);
             BattleNameSearch(log);
+            SearchForBattleType(log);
 
             /*---------------------------------------------
              * :::::::::::::::::Modifiers::::::::::::::::::
@@ -233,6 +234,30 @@ namespace CrusaderWars
 
              RealmsNamesSearch(log);
             Program.Logger.Debug("Finished CK3 log search.");
+        }
+
+        private static void SearchForBattleType(string log)
+        {
+            Match match = Regex.Match(log, @"BattleType:(.+)");
+            if (match.Success)
+            {
+                string battleType = match.Groups[1].Value.Trim();
+                if (battleType.Equals("siege", StringComparison.OrdinalIgnoreCase))
+                {
+                    twbattle.BattleState.IsSiegeBattle = true;
+                    Program.Logger.Debug("Siege battle detected.");
+                }
+                else
+                {
+                    twbattle.BattleState.IsSiegeBattle = false;
+                    Program.Logger.Debug($"Field battle detected (type: {battleType}).");
+                }
+            }
+            else
+            {
+                twbattle.BattleState.IsSiegeBattle = false;
+                Program.Logger.Debug("BattleType not found in log. Defaulting to field battle.");
+            }
         }
 
         private static void BattleNameSearch(string log)

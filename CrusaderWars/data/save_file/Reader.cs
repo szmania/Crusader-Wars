@@ -103,7 +103,11 @@ namespace CrusaderWars.data.save_file
                     {
                         Program.Logger.Debug($"... Read {lineCount} lines from save file ...");
                     }
-                    //GetterKeys.ReadProvinceBuildings(line, "5984");
+                    
+                    if (twbattle.BattleState.IsSiegeBattle && !string.IsNullOrEmpty(BattleResult.ProvinceID))
+                    {
+                        GetterKeys.ReadProvinceBuildings(line, BattleResult.ProvinceID);
+                    }
 
 
                     SearchKeys.TraitsList(line);
@@ -181,6 +185,7 @@ namespace CrusaderWars.data.save_file
         public static void Reset()
         {
             Program.Logger.Debug("Resetting all data containers and extraction flags.");
+            twbattle.Sieges.Reset();
             units_scripts.Clear();
             PlayerIDsAccolades = new List<string> ();
             EnemyIDsAccolades = new List<string>();
@@ -231,10 +236,20 @@ namespace CrusaderWars.data.save_file
                 Program.Logger.Debug($"GetterKeys: province buildings search permitted for province {province_id}.");
             }
 
-            if(isSearchBuildingsPermitted && line.Contains("buildings={"))
+            if(isSearchBuildingsPermitted)
             {
-                isExtractBuildingsPermitted = true;
-                Program.Logger.Debug("GetterKeys: building extraction permitted.");
+                if (line.Contains("culture="))
+                {
+                    string culture = Regex.Match(line, @"culture=(.+)").Groups[1].Value.Trim('"');
+                    twbattle.Sieges.SetHoldingCulture(culture);
+                    Program.Logger.Debug($"GetterKeys: Found culture: {culture}");
+                }
+
+                if (line.Contains("buildings={"))
+                {
+                    isExtractBuildingsPermitted = true;
+                    Program.Logger.Debug("GetterKeys: building extraction permitted.");
+                }
             }
 
             if(isExtractBuildingsPermitted)
@@ -258,12 +273,12 @@ namespace CrusaderWars.data.save_file
                 string fort_level = Regex.Match(line, @"=(.+)").Groups[1].Value.Trim('"').Trim('/');
                 if(int.TryParse(fort_level, out int level))
                 {
-                    Sieges.SetFortLevel(level);
+                    twbattle.Sieges.SetFortLevel(level);
                     Program.Logger.Debug($"GetterKeys: Found fort level: {level}");
                 }
                 else
                 {
-                    Sieges.SetFortLevel(0);
+                    twbattle.Sieges.SetFortLevel(0);
                     Program.Logger.Debug("GetterKeys: Could not parse fort level, setting to 0.");
                 }
                 

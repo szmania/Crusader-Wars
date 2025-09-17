@@ -8,6 +8,7 @@ namespace CrusaderWars.twbattle
         private static string StateFolder => @".\data\attila_battle";
         private static string StateFile => Path.Combine(StateFolder, "battle_state.txt");
         private static string LogSnippetFile => Path.Combine(StateFolder, "battle_log_snippet.txt");
+        public static bool IsSiegeBattle { get; set; }
 
         static BattleState()
         {
@@ -41,6 +42,7 @@ namespace CrusaderWars.twbattle
         public static void ClearBattleState()
         {
             Program.Logger.Debug("Clearing battle state...");
+            IsSiegeBattle = false;
             if (System.IO.File.Exists(StateFile))
             {
                 Program.Logger.Debug($"Deleting battle state file: '{StateFile}'");
