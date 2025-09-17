@@ -157,9 +157,8 @@ namespace CrusaderWars
                 {
                     Program.Logger.Debug("User agreed to change 'Armies Control' to 'All Controlled'.");
                     // Update the setting programmatically
-                    Properties.Settings.Default.VAR_armies_control = ModOptions.ArmiesSetup.All_Controled.ToString();
-                    Properties.Settings.Default.Save();
-                    Program.Logger.Debug($"'Armies Control' setting updated to: {Properties.Settings.Default.VAR_armies_control}");
+                    Options.SetArmiesControl(ModOptions.ArmiesSetup.All_Controled);
+                    Program.Logger.Debug($"'Armies Control' setting updated to: {ModOptions.SeparateArmies()}");
 
                     // Now call AllControledArmies and return
                     AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
@@ -872,7 +871,7 @@ namespace CrusaderWars
                         }
                         if (special_ability.secundaryKey != "null")
                         {
-                            PR_General += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
+                            PR_General += $"<special_ability>{accoladeAbilites.secundaryKey}</special_ability>\n";
                         }
 
                     }
