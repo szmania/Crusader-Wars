@@ -2311,7 +2311,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Steam button clicked.");
             SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_click;
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://github.com/szmania/Crusader-Wars/releases/") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://mods.paradoxplaza.com/mods/120158/Any") { UseShellExecute = true });
         }
 
         private void ExecuteButton_MouseEnter(object sender, EventArgs e)
