@@ -122,7 +122,7 @@ namespace CrusaderWars.client
             
         }
 
-        internal enum ArmiesSetup
+        public enum ArmiesSetup
         {
             All_Controled,
             Friendly_Only,
