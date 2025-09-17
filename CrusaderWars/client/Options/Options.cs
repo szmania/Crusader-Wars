@@ -17,7 +17,7 @@ namespace CrusaderWars
         // Placeholder for existing constructor and InitializeComponent
         public Options()
         {
-            // InitializeComponent(); // Assuming this exists for the Form
+            InitializeComponent(); // Uncommented this line
         }
 
         // Placeholder for ReadGamePaths if it exists in this file
@@ -161,5 +161,33 @@ namespace CrusaderWars
 
             Program.Logger.Debug($"ArmiesControl setting updated in options.xml and ModOptions.");
         }
+
+        // --- Missing Event Handler Stubs ---
+
+        private void ck3Btn_Click(object sender, EventArgs e) { }
+        private void ck3Btn_MouseHover(object sender, EventArgs e) { }
+        private void CloseBtn_Click(object sender, EventArgs e) { }
+        private void AttilaBtn_Click(object sender, EventArgs e) { }
+        private void AttilaBtn_MouseHover(object sender, EventArgs e) { }
+        private void Btn_GeneralTab_Click(object sender, EventArgs e) { }
+        private void Btn_UnitsTab_Click(object sender, EventArgs e) { }
+        private void Btn_BattleScaleTab_Click(object sender, EventArgs e) { }
+        private void Btn_CandKTab_Click(object sender, EventArgs e) { }
+        private void toggleModManagerButton_Click(object sender, EventArgs e) { }
+        private void Btn_CK3Tab_Click(object sender, EventArgs e) { }
+        private void Btn_TFETab_Click(object sender, EventArgs e) { }
+        private void Btn_LOTRTab_Click(object sender, EventArgs e) { }
+        private void Btn_AGOTTab_Click(object sender, EventArgs e) { }
+        private void Options_Load(object sender, EventArgs e) { }
+
+        private void ModManager_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e) { }
+        private void ModManager_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e) { }
+        private void ModManager_CellValueChanged(object sender, DataGridViewCellEventArgs e) { }
+
+        private void TableLayoutPlaythroughs_Paint(object sender, PaintEventArgs e) { }
+
+        private void Options_FormClosing(object sender, FormClosingEventArgs e) { }
+        private void Options_MouseDown(object sender, MouseEventArgs e) { }
+        private void Options_MouseMove(object sender, MouseEventArgs e) { }
     }
 }
