@@ -215,7 +215,14 @@ namespace CrusaderWars
             File.AppendAllText(filePath, unit_declaration);
             
         }
-        
+
+        public static void DeclareSiegeVariables()
+        {
+            string declarations = "\n-- Siege Specific Declarations --\n";
+            declarations += "declare_script_instance(\"DEFENDER_SUPPLY_LEVEL\");\n";
+            File.AppendAllText(filePath, declarations);
+        }
+
         public static void Erase()
         {
             File.WriteAllText(filePath, string.Empty);
