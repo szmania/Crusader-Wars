@@ -871,7 +871,7 @@ namespace CrusaderWars
                         }
                         if (special_ability.secundaryKey != "null")
                         {
-                            PR_General += $"<special_ability>{accoladeAbilites.secundaryKey}</special_ability>\n";
+                            PR_General += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
                         }
 
                     }
