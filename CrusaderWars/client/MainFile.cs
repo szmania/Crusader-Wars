@@ -1862,7 +1862,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
-                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
@@ -2302,7 +2302,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Website button clicked.");
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
             PlaySound(@"..\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://github.com/szmania/Crusader-Wars/releases/") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://crusader-conflicts-website.vercel.app/") { UseShellExecute = true });
 
         }
 
