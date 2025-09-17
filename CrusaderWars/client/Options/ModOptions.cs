@@ -12,7 +12,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace CrusaderWars.client
 {
-    internal static class ModOptions
+    public static class ModOptions
     {
         static List<(string option, string value)> optionsValuesCollection = new List<(string option, string value)>();
         public static void StoreOptionsValues(List<(string, string)> OptionsForm_ValuesCollection)
