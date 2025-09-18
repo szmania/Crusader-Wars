@@ -474,18 +474,10 @@ namespace CrusaderWars
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
 
             Program.Logger.Debug("Starting updater checks...");
-            if (_updater.ShouldPerformUpdateChecks())
-            {
-                Program.Logger.Debug("Initiating app and unit mappers version checks.");
-                await _updater.CheckAppVersion();
-                // If an app update is found, the process will exit and the next line won't be reached.
-                await _updater.CheckUnitMappersVersion();
-                _updater.UpdateLastCheckedTimestamp(); // Record that checks were performed
-            }
-            else
-            {
-                Program.Logger.Debug("Skipping update checks based on timestamp.");
-            }
+            Program.Logger.Debug("Initiating app and unit mappers version checks.");
+            await _updater.CheckAppVersion();
+            // If an app update is found, the process will exit and the next line won't be reached.
+            await _updater.CheckUnitMappersVersion();
 
             Program.Logger.Debug("Form1_Load complete.");
 
