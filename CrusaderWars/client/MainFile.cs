@@ -1515,7 +1515,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
@@ -1563,7 +1563,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
