@@ -270,12 +270,12 @@ namespace CWUpdater
 
                 if(!IsUnitMappers) {
                     Logger.Log("Applying application update.");
-                    ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
+                    await ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
                 }
                 else
                 {
                     Logger.Log("Applying Unit Mappers update.");
-                    ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
+                    await ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
                 }
             }
             catch (Exception ex)
@@ -288,7 +288,28 @@ namespace CWUpdater
             
         }
 
-        public void ApplyUpdate(string updateFilePath, string applicationPath)
+        private async Task RetryActionAsync(Action action, string actionName)
+        {
+            int maxRetries = 5;
+            int delayMilliseconds = 1000;
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try
+                {
+                    action();
+                    Logger.Log($"Action '{actionName}' successful.");
+                    return; // Success
+                }
+                catch (IOException ex) when (i < maxRetries - 1)
+                {
+                    Logger.Log($"Action '{actionName}' failed on attempt {i + 1} with error: {ex.Message}. Retrying in {delayMilliseconds}ms...");
+                    await Task.Delay(delayMilliseconds);
+                }
+                // On the last attempt, the exception will be re-thrown and caught by the calling method.
+            }
+        }
+
+        public async Task ApplyUpdate(string updateFilePath, string applicationPath)
         {
             Logger.Log($"Applying update from '{updateFilePath}' to '{applicationPath}'.");
             label1.Text = "Applying update...";
@@ -321,7 +342,7 @@ namespace CWUpdater
 
                     if (IsUnitMappers)
                     {
-                        // For Unit Mappers, use a more robust rename-and-replace strategy
+                        // For Unit Mappers, use a more robust rename-and-replace strategy with retries
                         string oldDirectory = applicationPath + "_old";
                         Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
 
@@ -329,20 +350,20 @@ namespace CWUpdater
                         if (Directory.Exists(oldDirectory))
                         {
                             Logger.Log($"Deleting leftover old directory: {oldDirectory}");
-                            Directory.Delete(oldDirectory, true);
+                            await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete leftover _old directory");
                         }
 
                         // 2. Rename current directory to _old
                         Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
-                        Directory.Move(applicationPath, oldDirectory);
+                        await RetryActionAsync(() => Directory.Move(applicationPath, oldDirectory), "Rename current to _old");
 
                         // 3. Move the new directory into place
                         Logger.Log($"Moving '{tempDirectory}' to '{applicationPath}'.");
-                        Directory.Move(tempDirectory, applicationPath);
+                        await RetryActionAsync(() => Directory.Move(tempDirectory, applicationPath), "Move new to current");
 
                         // 4. Delete the old directory
                         Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
-                        Directory.Delete(oldDirectory, true);
+                        await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
                     }
                     else // Existing logic for App Updater
                     {
