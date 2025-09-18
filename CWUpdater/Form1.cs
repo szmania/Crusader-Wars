@@ -319,43 +319,53 @@ namespace CWUpdater
                         throw new System.IO.InvalidDataException("The update archive is empty and cannot be applied.");
                     }
 
-                    // Delete obsolete files and directories
-                    Logger.Log("Deleting obsolete files and directories.");
-                    DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
-
-                    // Copy new and updated files
-                    Logger.Log("Copying new and updated files.");
-                    foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
+                    if (IsUnitMappers)
                     {
-                        if(IsUnitMappers)//<-- UNIT MAPPERS UPDATER
+                        // For Unit Mappers, use a more robust rename-and-replace strategy
+                        string oldDirectory = applicationPath + "_old";
+                        Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
+
+                        // 1. Clean up any leftover old directory from a previous failed update
+                        if (Directory.Exists(oldDirectory))
                         {
-                            string relativePath = file.Substring(tempDirectory.Length + 1);
-                            // No parentFolder logic for unit mappers, as the zip should contain the mapper's root directly
-                            string destinationPath = Path.Combine(applicationPath, relativePath);
-
-                            string? destinationDir = Path.GetDirectoryName(destinationPath);
-                            if (destinationDir != null && !Directory.Exists(destinationDir))
-                            {
-                                Directory.CreateDirectory(destinationDir);
-                            }
-
-                            File.Copy(file, destinationPath, true);
+                            Logger.Log($"Deleting leftover old directory: {oldDirectory}");
+                            Directory.Delete(oldDirectory, true);
                         }
-                        else if(!IsUnitMappers) //<-- APP UPDATER
+
+                        // 2. Rename current directory to _old
+                        Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
+                        Directory.Move(applicationPath, oldDirectory);
+
+                        // 3. Move the new directory into place
+                        Logger.Log($"Moving '{tempDirectory}' to '{applicationPath}'.");
+                        Directory.Move(tempDirectory, applicationPath);
+
+                        // 4. Delete the old directory
+                        Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
+                        Directory.Delete(oldDirectory, true);
+                    }
+                    else // Existing logic for App Updater
+                    {
+                        // Delete obsolete files and directories
+                        Logger.Log("Deleting obsolete files and directories.");
+                        DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
+
+                        // Copy new and updated files
+                        Logger.Log("Copying new and updated files.");
+                        foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
                         {
+                            // This part remains unchanged for the app updater
                             string relativePath = file.Substring(tempDirectory.Length + 1);
                             string parentFolder = relativePath.Split('\\')[0];
                             string finalRelativePath = relativePath.Replace($"{parentFolder}\\", "");
                             string destinationPath = Path.Combine(applicationPath, finalRelativePath);
 
-                            // Skip files that are part of the running updater
                             if (destinationPath.StartsWith(updaterDirInMainApp, StringComparison.OrdinalIgnoreCase))
                             {
                                 Logger.Log($"Skipping copy of updater file: {file} to {destinationPath}");
                                 continue;
                             }
 
-                            // Define directories to completely skip during an app update to preserve user data
                             string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
                             string settingsDir = Path.Combine(applicationPath, "settings");
 
@@ -369,12 +379,11 @@ namespace CWUpdater
                             string? destinationDir = Path.GetDirectoryName(destinationPath);
                             if (destinationDir != null && !Directory.Exists(destinationDir))
                             {
-Directory.CreateDirectory(destinationDir);
+                                Directory.CreateDirectory(destinationDir);
                             }
 
                             File.Copy(file, destinationPath, true);
                         }
-     
                     }
 
                     // Step 5: Clean up backup if update was successful
@@ -413,6 +422,25 @@ Directory.CreateDirectory(destinationDir);
                         }
                     }
                     RestartApplication(false); // Restart main app without updating version
+                }
+                catch (UnauthorizedAccessException uaEx)
+                {
+                    Logger.Log($"Access Denied Error during update: {uaEx.ToString()}");
+                    MessageBox.Show(
+                        "The updater was blocked by your system.\n\n" +
+                        "This is often caused by Antivirus software or Windows' 'Controlled Folder Access' feature.\n\n" +
+                        "Please try the following:\n" +
+                        "1. Run the main application as an Administrator.\n" +
+                        "2. Add an exception for 'CrusaderWars.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                        "3. Temporarily disable 'Controlled Folder Access' in Windows Security settings.\n\n" +
+                        $"Error details: {uaEx.Message}",
+                        "Crusader Conflicts: Update Failed (Access Denied)",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    Logger.Log("Rolling back to backup due to UnauthorizedAccessException.");
+                    RestoreBackup(backupPath, applicationPath);
+                    this.Close();
                 }
             }
             catch (Exception ex) // Existing general catch
