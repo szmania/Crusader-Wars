@@ -1299,6 +1299,7 @@ namespace CrusaderWars
 
         private async Task<bool> ProcessBattle(bool regenerateAndRestart = true)
         {
+            UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
 
@@ -1350,7 +1351,6 @@ namespace CrusaderWars
                     foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
                     foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
 
-                    UnitsFile.ResetProcessedArmies(); // Reset tracker before processing armies
                     BattleLog.Reset();
                     //Create Battle
                     Program.Logger.Debug("Creating battle file...");
