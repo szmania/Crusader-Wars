@@ -43,6 +43,7 @@ namespace CrusaderWars
         // NEW MEMBERS FOR PRE-RELEASE PULSE
         private System.Windows.Forms.Timer _preReleasePulseTimer = null!;
         private int _preReleasePulseStep = 0;
+        private bool _isUpdatingCheckboxState = false; // Added: Re-entry guard for checkbox state
 
         // Playthrough Display UI Elements
         private Panel playthroughPanel = null!;
@@ -2541,6 +2542,8 @@ namespace CrusaderWars
 
         private async void checkOptInPreReleases_CheckedChanged(object sender, EventArgs e)
         {
+            if (_isUpdatingCheckboxState) return; // Guard against re-entry
+
             Program.Logger.Debug($"Opt-in to pre-releases checkbox changed to: {checkOptInPreReleases.Checked}");
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav"); // Assuming this sound is appropriate for a checkbox click
 
@@ -2571,6 +2574,18 @@ namespace CrusaderWars
                 }
                 finally
                 {
+                    // Re-sync state from the file, which is the ultimate source of truth
+                    Options.ReadOptionsFile();
+                    if (Options.optionsValuesCollection != null)
+                    {
+                        ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
+                    }
+
+                    // Safely update the checkbox UI to match the saved state
+                    _isUpdatingCheckboxState = true;
+                    checkOptInPreReleases.Checked = ModOptions.GetOptInPreReleases();
+                    _isUpdatingCheckboxState = false;
+
                     checkOptInPreReleases.Enabled = true;
                     // Reset infoLabel after a short delay or based on actual update status
                     await Task.Delay(2000); // Give user time to read message
