@@ -54,7 +54,7 @@ namespace CrusaderWars
             return (null, null);
         }
 
-        string GetAppVersion()
+        public string GetAppVersion()
         {
             string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
             Program.Logger.Debug($"Reading app version from: {version_path}");
@@ -83,7 +83,7 @@ namespace CrusaderWars
             return app_version;
         }
 
-        string GetUnitMappersVersion()
+        public string GetUnitMappersVersion()
         {
             string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
             Program.Logger.Debug($"Reading unit mappers version from: {version_path}");
@@ -320,7 +320,7 @@ namespace CrusaderWars
             return null;
         }
 
-        public async void CheckAppVersion()
+        public async Task CheckAppVersion()
         {
             Program.Logger.Debug("Checking app version...");
             if (!HasInternetConnection())
@@ -397,7 +397,7 @@ namespace CrusaderWars
             }
         }
 
-        public async void CheckUnitMappersVersion()
+        public async Task CheckUnitMappersVersion()
         {
             Program.Logger.Debug("Checking unit mappers version...");
             if (!HasInternetConnection())

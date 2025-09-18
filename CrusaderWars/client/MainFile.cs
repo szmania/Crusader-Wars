@@ -137,13 +137,10 @@ namespace CrusaderWars
             Properties.Settings.Default.VAR_log_ck3 = debugLog_Path;
             Properties.Settings.Default.Save();
 
-            Program.Logger.Debug("Starting updater checks...");
             _updater = new Updater();
+            _updater.GetAppVersion();
+            _updater.GetUnitMappersVersion();
 
-            Program.Logger.Debug("Initiating app and unit mappers version checks.");
-            _updater.CheckAppVersion();
-            _updater.CheckUnitMappersVersion();
-            _updater.UpdateLastCheckedTimestamp(); // Record that checks were performed
 
             _appVersion = _updater.AppVersion;
 
@@ -318,7 +315,7 @@ namespace CrusaderWars
         static string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         static string debugLog_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\console_history.txt";
         string saveGames_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\save games";
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
@@ -475,6 +472,20 @@ namespace CrusaderWars
             InformationToolTip.SetToolTip(labelMappersVersion, "Version of the installed Unit Mappers.");
 
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
+
+            Program.Logger.Debug("Starting updater checks...");
+            if (_updater.ShouldPerformUpdateChecks())
+            {
+                Program.Logger.Debug("Initiating app and unit mappers version checks.");
+                await _updater.CheckAppVersion();
+                // If an app update is found, the process will exit and the next line won't be reached.
+                await _updater.CheckUnitMappersVersion();
+                _updater.UpdateLastCheckedTimestamp(); // Record that checks were performed
+            }
+            else
+            {
+                Program.Logger.Debug("Skipping update checks based on timestamp.");
+            }
 
             Program.Logger.Debug("Form1_Load complete.");
 
