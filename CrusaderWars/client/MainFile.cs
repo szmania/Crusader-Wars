@@ -458,7 +458,7 @@ namespace CrusaderWars
             labelVersion.Padding = new Padding(3, 3, 3, 3);
             labelMappersVersion.Margin = new Padding(4, 3, 4, 0);
             labelMappersVersion.Padding = new Padding(3, 3, 3, 3);
-            checkOptInPreReleases.Margin = new Padding(4, 3, 4, 0); // Margin for new checkbox
+            checkOptInPreReleases.Margin = new Padding(4, 3, 4, 5); // Margin for new checkbox - UPDATED
             checkOptInPreReleases.Padding = new Padding(3, 3, 3, 3); // Padding for new checkbox
             labelPreReleaseInfo.Margin = new Padding(4, 3, 4, 0); // Margin for new label
             labelPreReleaseInfo.Padding = new Padding(3, 3, 3, 3); // Padding for new label
@@ -500,8 +500,7 @@ namespace CrusaderWars
             infoLabel.BackColor = myColor;
             labelVersion.BackColor = myColor;
             labelMappersVersion.BackColor = myColor;
-            checkOptInPreReleases.BackColor = Color.Transparent; // Background for new checkbox - CHANGED
-            labelPreReleaseInfo.BackColor = Color.Transparent; // NEW Background for new label
+            VersionInfoFlowPanel.BackColor = Color.Transparent; // NEW
             EA_Label.BackColor = myColor;
 
             // Initialize and configure Playthrough Display

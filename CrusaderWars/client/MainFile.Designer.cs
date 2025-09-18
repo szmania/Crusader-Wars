@@ -12,13 +12,13 @@
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
             {
-                components.Dispose();
+                if (disposing && (components != null))
+                {
+                    components.Dispose();
+                }
+                base.Dispose(disposing);
             }
-            base.Dispose(disposing);
-        }
 
         #region Windows Form Designer generated code
 
@@ -47,6 +47,7 @@
             this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.labelSeparatorLeft = new System.Windows.Forms.Label();
+            this.VersionInfoFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.BottomRightFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.labelSeparatorRight = new System.Windows.Forms.Label();
             this.discordLink = new System.Windows.Forms.Button();
@@ -54,17 +55,14 @@
             this.WebsiteBTN = new System.Windows.Forms.Button();
             this.SteamBTN = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.PreReleasePanel = new System.Windows.Forms.TableLayoutPanel();
-            this.PreReleaseFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.MainPanelLayout.SuspendLayout();
             this.ButtonsContainerPanel.SuspendLayout();
             this.BottomPanelLayout.SuspendLayout();
             this.BottomLeftFlowPanel.SuspendLayout();
+            this.VersionInfoFlowPanel.SuspendLayout();
             this.BottomRightFlowPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.PreReleasePanel.SuspendLayout();
-            this.PreReleaseFlowPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // ExecuteButton
@@ -190,7 +188,7 @@
             this.checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.checkOptInPreReleases.Name = "checkOptInPreReleases";
             this.checkOptInPreReleases.TabStop = false;
-            this.checkOptInPreReleases.Text = "Opt-in to Pre-releases";
+            this.checkOptInPreReleases.Text = "Enable Pre-releases";
             this.checkOptInPreReleases.UseVisualStyleBackColor = false;
             this.checkOptInPreReleases.CheckedChanged += new System.EventHandler(this.checkOptInPreReleases_CheckedChanged);
             // 
@@ -201,7 +199,7 @@
             this.labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelPreReleaseInfo.Name = "labelPreReleaseInfo";
             resources.ApplyResources(this.labelPreReleaseInfo, "labelPreReleaseInfo");
-            this.labelPreReleaseInfo.Text = "Get early access to new features!";
+            this.labelPreReleaseInfo.Text = "Get early access!";
             this.labelPreReleaseInfo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 0);
             this.labelPreReleaseInfo.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             // 
@@ -273,10 +271,10 @@
             // 
             this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
-            this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
-            this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
-            this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
-            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.BottomLeftFlowPanel.Controls.Add(this.labelPreReleaseInfo);
+            this.BottomLeftFlowPanel.Controls.Add(this.checkOptInPreReleases);
+            this.BottomLeftFlowPanel.Controls.Add(this.VersionInfoFlowPanel);
+            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
             this.BottomLeftFlowPanel.WrapContents = false;
@@ -287,6 +285,22 @@
             this.labelSeparatorLeft.BackColor = System.Drawing.Color.Transparent;
             this.labelSeparatorLeft.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelSeparatorLeft.Name = "labelSeparatorLeft";
+            // 
+            // VersionInfoFlowPanel
+            // 
+            this.VersionInfoFlowPanel.AutoSize = true;
+            this.VersionInfoFlowPanel.BackColor = System.Drawing.Color.Transparent;
+            this.VersionInfoFlowPanel.Controls.Add(this.labelVersion);
+            this.VersionInfoFlowPanel.Controls.Add(this.labelSeparatorLeft);
+            this.VersionInfoFlowPanel.Controls.Add(this.labelMappersVersion);
+            this.VersionInfoFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.VersionInfoFlowPanel.Location = new System.Drawing.Point(0, 31);
+            this.VersionInfoFlowPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.VersionInfoFlowPanel.Name = "VersionInfoFlowPanel";
+            this.VersionInfoFlowPanel.Padding = new System.Windows.Forms.Padding(0);
+            this.VersionInfoFlowPanel.Size = new System.Drawing.Size(256, 27);
+            this.VersionInfoFlowPanel.TabIndex = 2;
+            this.VersionInfoFlowPanel.WrapContents = false;
             // 
             // BottomRightFlowPanel
             // 
@@ -381,31 +395,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             // 
-            // PreReleasePanel
-            // 
-            this.PreReleasePanel.BackColor = System.Drawing.Color.Transparent;
-            this.PreReleasePanel.ColumnCount = 1;
-            this.PreReleasePanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.PreReleasePanel.Controls.Add(this.PreReleaseFlowPanel, 0, 0);
-            this.PreReleasePanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.PreReleasePanel.Location = new System.Drawing.Point(0, 635);
-            this.PreReleasePanel.Name = "PreReleasePanel";
-            this.PreReleasePanel.RowCount = 1;
-            this.PreReleasePanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.PreReleasePanel.Size = new System.Drawing.Size(1219, 33);
-            this.PreReleasePanel.AutoSize = true;
-            // 
-            // PreReleaseFlowPanel
-            // 
-            this.PreReleaseFlowPanel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.PreReleaseFlowPanel.AutoSize = true;
-            this.PreReleaseFlowPanel.BackColor = System.Drawing.Color.Transparent;
-            this.PreReleaseFlowPanel.Controls.Add(this.labelPreReleaseInfo);
-            this.PreReleaseFlowPanel.Controls.Add(this.checkOptInPreReleases);
-            this.PreReleaseFlowPanel.Location = new System.Drawing.Point(450, 3);
-            this.PreReleaseFlowPanel.Name = "PreReleaseFlowPanel";
-            this.PreReleaseFlowPanel.Size = new System.Drawing.Size(318, 27);
-            // 
             // HomePage
             // 
             resources.ApplyResources(this, "$this");
@@ -416,7 +405,6 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btt_debug);
             this.Controls.Add(this.MainPanelLayout);
-            this.Controls.Add(this.PreReleasePanel);
             this.Controls.Add(this.BottomPanelLayout);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
@@ -436,13 +424,11 @@
             this.BottomPanelLayout.PerformLayout();
             this.BottomLeftFlowPanel.ResumeLayout(false);
             this.BottomLeftFlowPanel.PerformLayout();
+            this.VersionInfoFlowPanel.ResumeLayout(false);
+            this.VersionInfoFlowPanel.PerformLayout();
             this.BottomRightFlowPanel.ResumeLayout(false);
             this.BottomRightFlowPanel.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
-            this.PreReleasePanel.ResumeLayout(false);
-            this.PreReleasePanel.PerformLayout();
-            this.PreReleaseFlowPanel.ResumeLayout(false);
-            this.PreReleaseFlowPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -474,7 +460,6 @@
         private System.Windows.Forms.Label labelSeparatorLeft;
         private System.Windows.Forms.Label labelSeparatorRight;
         private System.Windows.Forms.Label labelPreReleaseInfo;
-        private System.Windows.Forms.TableLayoutPanel PreReleasePanel;
-        private System.Windows.Forms.FlowLayoutPanel PreReleaseFlowPanel;
+        private System.Windows.Forms.FlowLayoutPanel VersionInfoFlowPanel;
     }
 }
