@@ -609,7 +609,7 @@ window = {
 						texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
 						size = { 50 50 }
 						alpha = .60
-						visible = no
+						visible = yes
 
 						onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
 
