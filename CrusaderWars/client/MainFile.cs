@@ -454,13 +454,11 @@ namespace CrusaderWars
             SettingsBtn.Margin = new Padding(4, 4, 4, 4);
             viewLogsLink.Margin = new Padding(4, 3, 4, 0);
             viewLogsLink.Padding = new Padding(3, 3, 3, 3);
-            labelVersion.Margin = new Padding(4, 3, 4, 0);
-            labelVersion.Padding = new Padding(3, 3, 3, 3);
+            labelVersion.Margin = new Padding(0, 3, 4, 0);
             labelMappersVersion.Margin = new Padding(4, 3, 4, 0);
-            labelMappersVersion.Padding = new Padding(3, 3, 3, 3);
-            checkOptInPreReleases.Margin = new Padding(4, 3, 4, 5); // Margin for new checkbox - UPDATED
+            checkOptInPreReleases.Margin = new Padding(0, 3, 4, 5); // Margin for new checkbox - UPDATED
             checkOptInPreReleases.Padding = new Padding(3, 3, 3, 3); // Padding for new checkbox
-            labelPreReleaseInfo.Margin = new Padding(4, 3, 4, 0); // Margin for new label
+            labelPreReleaseInfo.Margin = new Padding(0, 3, 4, 0); // Margin for new label
             labelPreReleaseInfo.Padding = new Padding(3, 3, 3, 3); // Padding for new label
             pictureBox1.Margin = new Padding(4, 4, 4, 4);
             MainPanelLayout.Margin = new Padding(4, 4, 4, 4);
@@ -1517,7 +1515,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
@@ -1565,7 +1563,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
