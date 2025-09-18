@@ -466,6 +466,7 @@ namespace CrusaderWars
             EA_Label.Padding = new Padding(3, 3, 3, 3);
             discordLink.Margin = new Padding(4, 3, 4, 0);
             BottomPanelLayout.Margin = new Padding(0, 4, 4, 4);
+            BottomPanelLayout.Padding = new Padding(0); // Added this line
             WebsiteBTN.Margin = new Padding(4, 4, 4, 4);
             SteamBTN.Margin = new Padding(4, 4, 4, 4);
             tableLayoutPanel1.Margin = new Padding(4, 4, 4, 4);

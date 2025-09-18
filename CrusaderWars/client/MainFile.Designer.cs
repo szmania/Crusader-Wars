@@ -269,6 +269,7 @@
             // 
             // BottomLeftFlowPanel
             // 
+            this.BottomLeftFlowPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomLeftFlowPanel.Controls.Add(this.labelPreReleaseInfo);
@@ -304,6 +305,7 @@
             // 
             // BottomRightFlowPanel
             // 
+            this.BottomRightFlowPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.BottomRightFlowPanel.AutoSize = true;
             this.BottomRightFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
