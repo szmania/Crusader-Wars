@@ -258,5 +258,10 @@ namespace CrusaderWars.client
         public static int GetKnightOneLeggedChance() => Int32.Parse(optionsValuesCollection["KnightOneLeggedChance"]);
         public static int GetKnightOneEyedChance() => Int32.Parse(optionsValuesCollection["KnightOneEyedChance"]);
         public static int GetKnightDisfiguredChance() => Int32.Parse(optionsValuesCollection["KnightDisfiguredChance"]);
+
+        public static bool GetOptInPreReleases()
+        {
+            return optionsValuesCollection.TryGetValue("OptInPreReleases", out var value) && value == "True";
+        }
     }
 }

@@ -38,6 +38,7 @@
             this.viewLogsLink = new System.Windows.Forms.Button();
             this.labelVersion = new System.Windows.Forms.Button();
             this.labelMappersVersion = new System.Windows.Forms.Button();
+            this.checkOptInPreReleases = new System.Windows.Forms.CheckBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -171,6 +172,22 @@
             this.labelMappersVersion.Click += new System.EventHandler(this.labelMappersVersion_Click);
             this.labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // checkOptInPreReleases
+            // 
+            resources.ApplyResources(this.checkOptInPreReleases, "checkOptInPreReleases");
+            this.checkOptInPreReleases.AutoSize = true;
+            this.checkOptInPreReleases.BackColor = System.Drawing.Color.Transparent;
+            this.checkOptInPreReleases.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.checkOptInPreReleases.FlatAppearance.BorderSize = 0;
+            this.checkOptInPreReleases.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.checkOptInPreReleases.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.checkOptInPreReleases.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.checkOptInPreReleases.Name = "checkOptInPreReleases";
+            this.checkOptInPreReleases.TabStop = false;
+            this.checkOptInPreReleases.UseVisualStyleBackColor = false;
+            this.checkOptInPreReleases.CheckedChanged += new System.EventHandler(this.checkOptInPreReleases_CheckedChanged);
+            // 
             // pictureBox1
             // 
             resources.ApplyResources(this.pictureBox1, "pictureBox1");
@@ -242,6 +259,7 @@
             this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
             this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
             this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
+            this.BottomLeftFlowPanel.Controls.Add(this.checkOptInPreReleases);
             this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
@@ -408,5 +426,6 @@
         private System.Windows.Forms.Button discordLink;
         private System.Windows.Forms.Label labelSeparatorLeft;
         private System.Windows.Forms.Label labelSeparatorRight;
+        private System.Windows.Forms.CheckBox checkOptInPreReleases;
     }
 }

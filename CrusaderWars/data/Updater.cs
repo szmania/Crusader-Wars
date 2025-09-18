@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms; // Added for MessageBox
+using CrusaderWars.client; // Added for ModOptions
 
 namespace CrusaderWars
 {
@@ -20,38 +21,64 @@ namespace CrusaderWars
         private bool _updaterChecked = false;
 
         private static readonly HttpClient client = new HttpClient();
-        private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
-        private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases/latest";
-        private async Task<(string? version, string? downloadUrl)> GetLatestReleaseInfoAsync(string releaseUrl)
+        // Changed to /releases endpoint and renamed
+        private const string SzmaniaReleasesUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases";
+        private const string SzmaniaUnitMappersReleasesUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases";
+
+        // Modified signature to return releaseApiUrl
+        private async Task<(string? version, string? downloadUrl, string? releaseApiUrl)> GetLatestReleaseInfoAsync(string releasesUrl)
         {
-            Program.Logger.Debug($"Getting latest release info from: {releaseUrl}");
+            Program.Logger.Debug($"Getting latest release info from: {releasesUrl}");
             try
             {
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
-                string json = await client.GetStringAsync(releaseUrl);
+                string json = await client.GetStringAsync(releasesUrl);
 
-                // Parse the JSON response
                 using (JsonDocument document = JsonDocument.Parse(json))
                 {
                     JsonElement root = document.RootElement;
+                    if (root.ValueKind != JsonValueKind.Array)
+                    {
+                        Program.Logger.Debug($"Expected JSON array from {releasesUrl}, but got {root.ValueKind}.");
+                        return (null, null, null);
+                    }
 
-                    // Get the latest version tag
-                    string? latestVersion = root.GetProperty("tag_name").GetString();
+                    bool optInPreReleases = ModOptions.GetOptInPreReleases();
+                    JsonElement? targetRelease = null;
 
-                    // Get the download URL of the first asset
-                    string? downloadUrl = root.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
-                    Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}");
+                    foreach (JsonElement release in root.EnumerateArray())
+                    {
+                        bool isPreRelease = release.GetProperty("prerelease").GetBoolean();
+                        if (optInPreReleases || !isPreRelease)
+                        {
+                            targetRelease = release;
+                            break; // Found the most recent suitable release (either pre-release if opted in, or first stable)
+                        }
+                    }
 
-                    return (latestVersion, downloadUrl);
+                    if (targetRelease.HasValue)
+                    {
+                        string? latestVersion = targetRelease.Value.GetProperty("tag_name").GetString();
+                        string? releaseApiUrl = targetRelease.Value.GetProperty("url").GetString(); // API URL for this specific release
+
+                        string? downloadUrl = null;
+                        if (targetRelease.Value.TryGetProperty("assets", out JsonElement assets) && assets.EnumerateArray().Any())
+                        {
+                            downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
+                        }
+                        
+                        Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}, Release API URL: {releaseApiUrl} (Pre-release opt-in: {optInPreReleases})");
+                        return (latestVersion, downloadUrl, releaseApiUrl);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error getting release info from {releaseUrl}: {ex.Message}");
+                Program.Logger.Debug($"Error getting release info from {releasesUrl}: {ex.Message}");
             }
 
-            return (null, null);
+            return (null, null, null);
         }
 
         public string GetAppVersion()
@@ -282,7 +309,8 @@ namespace CrusaderWars
             return false;
         }
 
-        private async Task<(string? version, string? downloadUrl)> GetLatestReleaseFromReposAsync(string[] releaseUrls)
+        // Modified signature to return releaseApiUrl
+        private async Task<(string? version, string? downloadUrl, string? releaseApiUrl)> GetLatestReleaseFromReposAsync(string[] releaseUrls)
         {
             var releaseTasks = releaseUrls.Select(url => GetLatestReleaseInfoAsync(url)).ToArray();
             var releases = await Task.WhenAll(releaseTasks);
@@ -292,9 +320,10 @@ namespace CrusaderWars
             if (!validReleases.Any())
             {
                 Program.Logger.Debug("No releases found in any repository.");
-                return (null, null);
+                return (null, null, null);
             }
 
+            // Aggregate to find the single latest release based on IsNewerVersion logic
             var latestRelease = validReleases.Aggregate((r1, r2) => IsNewerVersion(r1.version!, r2.version!) ? r2 : r1);
             return latestRelease;
         }
@@ -320,14 +349,15 @@ namespace CrusaderWars
             return null;
         }
 
-        private async Task<string?> GetAssetDownloadUrlAsync(string releaseUrl, string assetName)
+        // Modified signature to accept releaseApiUrl
+        private async Task<string?> GetAssetDownloadUrlAsync(string releaseApiUrl, string assetName)
         {
-            Program.Logger.Debug($"Searching for asset '{assetName}' in release: {releaseUrl}");
+            Program.Logger.Debug($"Searching for asset '{assetName}' in release: {releaseApiUrl}");
             try
             {
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
-                string json = await client.GetStringAsync(releaseUrl);
+                string json = await client.GetStringAsync(releaseApiUrl); // Fetch single release object
 
                 using (JsonDocument document = JsonDocument.Parse(json))
                 {
@@ -348,7 +378,7 @@ namespace CrusaderWars
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error getting asset info from {releaseUrl}: {ex.Message}");
+                Program.Logger.Debug($"Error getting asset info from {releaseApiUrl}: {ex.Message}");
             }
 
             Program.Logger.Debug($"Asset '{assetName}' not found in release.");
@@ -386,10 +416,11 @@ namespace CrusaderWars
                 }
                 Program.Logger.Debug($"Using current app version for updater comparison: {currentVersion}");
 
-                var latestRelease = await GetLatestReleaseInfoAsync(SzmaniaLatestReleaseUrl);
-                if (string.IsNullOrEmpty(latestRelease.version))
+                // Use SzmaniaReleasesUrl (plural) and GetLatestReleaseInfoAsync to get the appropriate release based on opt-in
+                var latestRelease = await GetLatestReleaseInfoAsync(SzmaniaReleasesUrl);
+                if (string.IsNullOrEmpty(latestRelease.version) || string.IsNullOrEmpty(latestRelease.releaseApiUrl))
                 {
-                    Program.Logger.Debug("Could not fetch latest release version tag. Aborting self-update.");
+                    Program.Logger.Debug("Could not fetch latest release version tag or API URL. Aborting self-update.");
                     return;
                 }
 
@@ -397,7 +428,8 @@ namespace CrusaderWars
                 {
                     Program.Logger.Debug($"A newer release ({latestRelease.version}) is available. Checking for updated updater asset.");
 
-                    string? updaterDownloadUrl = await GetAssetDownloadUrlAsync(SzmaniaLatestReleaseUrl, "CWUpdater.exe");
+                    // Pass the specific release API URL to GetAssetDownloadUrlAsync
+                    string? updaterDownloadUrl = await GetAssetDownloadUrlAsync(latestRelease.releaseApiUrl, "CWUpdater.exe");
                     if (string.IsNullOrEmpty(updaterDownloadUrl))
                     {
                         Program.Logger.Debug("Newer release found, but it does not contain a 'CWUpdater.exe' asset. Skipping self-update.");
@@ -449,7 +481,8 @@ namespace CrusaderWars
                 return;
             }
 
-            string[] appReleaseUrls = { SzmaniaLatestReleaseUrl };
+            // Use SzmaniaReleasesUrl (plural)
+            string[] appReleaseUrls = { SzmaniaReleasesUrl };
             var latestRelease = await GetLatestReleaseFromReposAsync(appReleaseUrls);
 
             if (latestRelease.version == null) return;
@@ -527,7 +560,8 @@ namespace CrusaderWars
                 return;
             }
 
-            string[] umReleaseUrls = { SzmaniaUnitMappersLatestReleaseUrl };
+            // Use SzmaniaUnitMappersReleasesUrl (plural)
+            string[] umReleaseUrls = { SzmaniaUnitMappersReleasesUrl };
             var latestRelease = await GetLatestReleaseFromReposAsync(umReleaseUrls);
 
             if (latestRelease.version == null) return;

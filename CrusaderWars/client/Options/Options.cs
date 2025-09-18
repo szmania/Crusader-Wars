@@ -269,6 +269,9 @@ namespace CrusaderWars
                 var KnightOneEyedChance_Value = GetOptionValue(xmlDoc, "KnightOneEyedChance", "3");
                 var KnightDisfiguredChance_Value = GetOptionValue(xmlDoc, "KnightDisfiguredChance", "1");
 
+                // Add new OptInPreReleases option
+                var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
+
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("All options read from XML.");
@@ -301,6 +304,7 @@ namespace CrusaderWars
                 optionsValuesCollection.Add("KnightOneLeggedChance", KnightOneLeggedChance_Value);
                 optionsValuesCollection.Add("KnightOneEyedChance", KnightOneEyedChance_Value);
                 optionsValuesCollection.Add("KnightDisfiguredChance", KnightDisfiguredChance_Value);
+                optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
                 Program.Logger.Debug("Options collection populated.");
 
 
@@ -891,6 +895,55 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in SetArmiesControl: {ex.Message}");
+            }
+        }
+
+        public static void SetOptInPreReleases(bool enabled)
+        {
+            Program.Logger.Debug($"Setting 'OptInPreReleases' to {enabled}.");
+            string valueString = enabled ? "True" : "False";
+
+            try
+            {
+                string file = @".\settings\Options.xml";
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(file);
+
+                var optInPreReleasesNode = xmlDoc.SelectSingleNode("//Option [@name='OptInPreReleases']");
+                if (optInPreReleasesNode != null)
+                {
+                    optInPreReleasesNode.InnerText = valueString;
+                    xmlDoc.Save(file);
+                    Program.Logger.Debug("'OptInPreReleases' option updated in Options.xml.");
+
+                    if (optionsValuesCollection != null)
+                    {
+                        optionsValuesCollection["OptInPreReleases"] = valueString;
+                        ModOptions.StoreOptionsValues(optionsValuesCollection);
+                        Program.Logger.Debug("In-memory options collections updated.");
+                    }
+                }
+                else
+                {
+                    // If the node doesn't exist, create it (should be handled by ReadOptionsFile, but as a fallback)
+                    XmlElement newOption = xmlDoc.CreateElement("Option");
+                    newOption.SetAttribute("name", "OptInPreReleases");
+                    newOption.InnerText = valueString;
+                    xmlDoc.DocumentElement?.AppendChild(newOption);
+                    xmlDoc.Save(file);
+                    Program.Logger.Debug("Created and set 'OptInPreReleases' option in Options.xml.");
+
+                    if (optionsValuesCollection != null)
+                    {
+                        optionsValuesCollection["OptInPreReleases"] = valueString;
+                        ModOptions.StoreOptionsValues(optionsValuesCollection);
+                        Program.Logger.Debug("In-memory options collections updated after creation.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error in SetOptInPreReleases: {ex.Message}");
             }
         }
 
