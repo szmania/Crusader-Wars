@@ -376,14 +376,15 @@ namespace CrusaderWars
 
             try
             {
-                var localVersionInfo = FileVersionInfo.GetVersionInfo(localUpdaterPath);
-                if (string.IsNullOrEmpty(localVersionInfo.FileVersion))
+                // Per user request, use the main app version for comparison, not the updater's file version.
+                // The updater's version is tied to the main application release.
+                string currentVersion = GetAppVersion();
+                if (string.IsNullOrEmpty(currentVersion))
                 {
-                    Program.Logger.Debug("Could not determine local updater version. Aborting self-update.");
+                    Program.Logger.Debug("Could not determine current app version from app_version.txt. Aborting updater self-update.");
                     return;
                 }
-                Version localVersion = new Version(localVersionInfo.FileVersion);
-                Program.Logger.Debug($"Local updater version: {localVersion}");
+                Program.Logger.Debug($"Using current app version for updater comparison: {currentVersion}");
 
                 var latestRelease = await GetLatestReleaseInfoAsync(SzmaniaLatestReleaseUrl);
                 if (string.IsNullOrEmpty(latestRelease.version))
@@ -392,7 +393,7 @@ namespace CrusaderWars
                     return;
                 }
 
-                if (IsNewerVersion(localVersion.ToString(), latestRelease.version))
+                if (IsNewerVersion(currentVersion, latestRelease.version))
                 {
                     Program.Logger.Debug($"A newer release ({latestRelease.version}) is available. Checking for updated updater asset.");
 
@@ -412,15 +413,16 @@ namespace CrusaderWars
                         File.WriteAllBytes(tempUpdaterPath, fileBytes);
                     }
 
-                    var newVersionInfo = FileVersionInfo.GetVersionInfo(tempUpdaterPath);
-                    if (!string.IsNullOrEmpty(newVersionInfo.FileVersion) && new Version(newVersionInfo.FileVersion) > localVersion)
-                    {
-                        Program.Logger.Debug($"Downloaded updater ({newVersionInfo.FileVersion}) is newer. Replacing local updater.");
-                        File.Copy(tempUpdaterPath, localUpdaterPath, true);
-                        Program.Logger.Debug("Updater has been successfully updated.");
-                    }
+                    // The release tag is newer, so we assume the asset is newer and replace it without checking its internal version.
+                    Program.Logger.Debug($"Downloaded updater from release {latestRelease.version}. Replacing local updater.");
+                    File.Copy(tempUpdaterPath, localUpdaterPath, true);
+                    Program.Logger.Debug("Updater has been successfully updated.");
 
                     File.Delete(tempUpdaterPath);
+                }
+                else
+                {
+                    Program.Logger.Debug($"Current version ({currentVersion}) is up-to-date with latest release ({latestRelease.version}). No updater self-update needed.");
                 }
             }
             catch (Exception ex)
