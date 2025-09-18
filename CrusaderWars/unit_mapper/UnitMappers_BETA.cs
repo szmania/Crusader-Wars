@@ -850,7 +850,8 @@ namespace CrusaderWars.unit_mapper
                 Program.Logger.Debug("WARNING: HeritageName is null/empty");
             }
 
-            string faction = "";
+            string heritage_faction = "";
+            string culture_faction = "";
 
             if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath))
             {
@@ -879,8 +880,8 @@ namespace CrusaderWars.unit_mapper
 
                         if(heritage_name == HeritageName)
                         {
-                            faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{faction}");
+                            heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
+                            Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{heritage_faction}");
                         }
 
                         foreach(XmlNode culture in heritage.ChildNodes)
@@ -890,16 +891,22 @@ namespace CrusaderWars.unit_mapper
 
                             if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
                             {
-                                faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
-                                Program.Logger.Debug($"Matched culture: {CultureName}->faction:{faction}");
-                            }
-                            if (heritage_name == HeritageName && !string.IsNullOrEmpty(HeritageName))
-                            {
-                                Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{faction}");
+                                culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
+                                Program.Logger.Debug($"Matched culture: {CultureName}->faction:{culture_faction}");
                             }
                         }
                     }
                 }
+            }
+
+            string faction = "";
+            if (!string.IsNullOrEmpty(culture_faction))
+            {
+                faction = culture_faction;
+            }
+            else if (!string.IsNullOrEmpty(heritage_faction))
+            {
+                faction = heritage_faction;
             }
 
             if (string.IsNullOrEmpty(faction))
