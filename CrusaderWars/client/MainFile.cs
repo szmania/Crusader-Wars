@@ -122,11 +122,11 @@ namespace CrusaderWars
             labelVersion.MouseLeave += (sender, e) => { labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
-            checkOptInPreReleases.MouseEnter += (sender, e) => { checkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); }; // Hover for new checkbox
-            checkOptInPreReleases.MouseLeave += (sender, e) => { checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke; }; // Leave for new checkbox
-            // NEW HOVER EFFECTS FOR labelPreReleaseInfo
-            labelPreReleaseInfo.MouseEnter += (sender, e) => { labelPreReleaseInfo.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
-            labelPreReleaseInfo.MouseLeave += (sender, e) => { labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke; };
+            // NEW HOVER EFFECTS FOR labelPreReleaseInfo and checkOptInPreReleases
+            checkOptInPreReleases.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { checkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
+            checkOptInPreReleases.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke; } };
+            labelPreReleaseInfo.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
+            labelPreReleaseInfo.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke; } };
             
             Thread.Sleep(1000);
 
@@ -198,7 +198,7 @@ namespace CrusaderWars
 
             // NEW TIMER INITIALIZATION
             _preReleasePulseTimer = new System.Windows.Forms.Timer();
-            _preReleasePulseTimer.Interval = 600;
+            _preReleasePulseTimer.Interval = 50; // Changed from 600 to 50 for smoother animation
             _preReleasePulseTimer.Tick += PreReleasePulseTimer_Tick;
         }
 
@@ -213,11 +213,32 @@ namespace CrusaderWars
         // NEW TIMER TICK HANDLER
         private void PreReleasePulseTimer_Tick(object? sender, EventArgs e)
         {
-            _preReleasePulseStep++;
-            // Pulse between a light gold and the default WhiteSmoke
-            Color pulseColor = (_preReleasePulseStep % 2 == 0) ? Color.FromArgb(255, 255, 180) : Color.WhiteSmoke;
-            labelPreReleaseInfo.ForeColor = pulseColor;
-            checkOptInPreReleases.ForeColor = pulseColor;
+            _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle (10 up, 10 down)
+
+            Color startColor = Color.WhiteSmoke;
+            Color endColor = Color.Gold; // Vibrant Gold
+
+            Color currentColor;
+            if (_preReleasePulseStep < 10)
+            {
+                // Fade from startColor to endColor
+                int r = startColor.R + (int)((endColor.R - startColor.R) * (_preReleasePulseStep / 9.0));
+                int g = startColor.G + (int)((endColor.G - startColor.G) * (_preReleasePulseStep / 9.0));
+                int b = startColor.B + (int)((endColor.B - startColor.B) * (_preReleasePulseStep / 9.0));
+                currentColor = Color.FromArgb(r, g, b);
+            }
+            else
+            {
+                // Fade from endColor back to startColor
+                int step = _preReleasePulseStep - 10; // Normalize step for the second half (0-9)
+                int r = endColor.R + (int)((startColor.R - endColor.R) * (step / 9.0));
+                int g = endColor.G + (int)((startColor.G - endColor.G) * (step / 9.0));
+                int b = endColor.B + (int)((startColor.B - endColor.B) * (step / 9.0));
+                currentColor = Color.FromArgb(r, g, b);
+            }
+
+            labelPreReleaseInfo.ForeColor = currentColor;
+            checkOptInPreReleases.ForeColor = currentColor;
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -1497,7 +1518,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
@@ -1545,7 +1566,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {

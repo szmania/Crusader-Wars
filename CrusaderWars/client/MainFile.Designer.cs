@@ -186,7 +186,7 @@
             this.checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.checkOptInPreReleases.Name = "checkOptInPreReleases";
             this.checkOptInPreReleases.TabStop = false;
-            this.checkOptInPreReleases.Text = "Enable Pre-releases";
+            this.checkOptInPreReleases.Text = "Pre-releases";
             this.checkOptInPreReleases.UseVisualStyleBackColor = false;
             this.checkOptInPreReleases.CheckedChanged += new System.EventHandler(this.checkOptInPreReleases_CheckedChanged);
             // 
@@ -197,6 +197,7 @@
             this.labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelPreReleaseInfo.Name = "labelPreReleaseInfo";
             resources.ApplyResources(this.labelPreReleaseInfo, "labelPreReleaseInfo");
+            this.labelPreReleaseInfo.Text = "Get early access!";
             this.labelPreReleaseInfo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 0);
             this.labelPreReleaseInfo.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             // 
@@ -396,7 +397,7 @@
             this.Name = "HomePage";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HomePage_FormClosing);
+            this.FormClosing += new System.EventHandler(this.HomePage_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.HomePage_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
