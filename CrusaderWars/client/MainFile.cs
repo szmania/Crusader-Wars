@@ -15,7 +15,7 @@ using CrusaderWars.data.attila_settings;
 using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
 using CrusaderWars.twbattle;
-using System.Threading;
+using System.Threading; // Added for CancellationToken
 using CrusaderWars.mod_manager;
 using System.Xml;
 using System.Web;
@@ -38,6 +38,7 @@ namespace CrusaderWars
         private bool _isPulsing = false;
         private int _pulseStep = 0;
         private Color _originalInfoLabelBackColor;
+        private CancellationTokenSource? _battleMonitoringCts; // Added cancellation token source
 
         // Playthrough Display UI Elements
         private Panel playthroughPanel = null!;
@@ -903,6 +904,12 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Execute button clicked.");
 
+            // Cancel any previous monitoring operation
+            _battleMonitoringCts?.Cancel();
+            _battleMonitoringCts?.Dispose();
+            _battleMonitoringCts = new CancellationTokenSource();
+            CancellationToken token = _battleMonitoringCts.Token;
+
             if (BattleState.IsBattleInProgress())
             {
                 var confirmResult = MessageBox.Show("Starting a new battle will discard your progress from the current one in TW:Attila. Are you sure you want to continue?",
@@ -911,6 +918,7 @@ namespace CrusaderWars
                                                      MessageBoxIcon.Warning);
                 if (confirmResult == DialogResult.No)
                 {
+                    _battleMonitoringCts.Cancel(); // Cancel the newly created CTS if user aborts
                     return;
                 }
             }
@@ -926,6 +934,7 @@ namespace CrusaderWars
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
             ProcessCommands.ResumeProcess();
 
+            BattleResult.Player_Combat = null; // Reset the static combat data
             BattleState.ClearBattleState();
             UpdateUIForBattleState();
 
@@ -947,6 +956,12 @@ namespace CrusaderWars
 
             while (true)
             {
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("ExecuteButton_Click loop cancelled.");
+                    break;
+                }
+
                 Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
                 this.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
@@ -1058,6 +1073,12 @@ namespace CrusaderWars
                             //Wait for CW keyword
                             while (!battleHasStarted)
                             {
+                                if (token.IsCancellationRequested)
+                                {
+                                    Program.Logger.Debug("Waiting for CK3 battle loop cancelled.");
+                                    break;
+                                }
+
                                 //Read each line
                                 while (!reader.EndOfStream)
                                 {
@@ -1108,6 +1129,11 @@ namespace CrusaderWars
                             break;
                         }
 
+                        if (token.IsCancellationRequested)
+                        {
+                            Program.Logger.Debug("Skipping battle data reading due to cancellation.");
+                            break;
+                        }
 
                         try
                         {
@@ -1164,7 +1190,11 @@ namespace CrusaderWars
 
                 }
 
-
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("Skipping save file processing due to cancellation.");
+                    break;
+                }
 
                 try
                 {
@@ -1208,6 +1238,12 @@ namespace CrusaderWars
 
                     continue;
 
+                }
+
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("Skipping army data processing due to cancellation.");
+                    break;
                 }
 
                 try
@@ -1273,7 +1309,13 @@ namespace CrusaderWars
                     continue;
                 }
 
-                if (!await ProcessBattle())
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("Skipping ProcessBattle due to cancellation.");
+                    break;
+                }
+
+                if (!await ProcessBattle(token))
                 {
                     break;
                 }
@@ -1286,7 +1328,7 @@ namespace CrusaderWars
                 ExecuteButton.Size = new Size(197, 115);
             }
 
-            // Reset UI if the main loop is broken by a critical error
+            // Reset UI if the main loop is broken by a critical error or cancellation
             _myVariable = 0;
             ExecuteButton.Enabled = true;
             if (ExecuteButton.Enabled)
@@ -1297,8 +1339,9 @@ namespace CrusaderWars
             this.Text = "Crusader Conflicts";
         }
 
-        private async Task<bool> ProcessBattle(bool regenerateAndRestart = true)
+        private async Task<bool> ProcessBattle(CancellationToken token, bool regenerateAndRestart = true)
         {
+            UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
 
@@ -1350,7 +1393,6 @@ namespace CrusaderWars
                     foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
                     foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
 
-                    UnitsFile.ResetProcessedArmies(); // Reset tracker before processing armies
                     BattleLog.Reset();
                     //Create Battle
                     Program.Logger.Debug("Creating battle file...");
@@ -1516,6 +1558,12 @@ namespace CrusaderWars
                     return true; // Continue
                 }
 
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("Skipping Attila launch due to cancellation.");
+                    return false;
+                }
+
                 try
                 {
                     // Check for user.script.txt conflict before launching Attila
@@ -1626,6 +1674,11 @@ namespace CrusaderWars
             //  Waiting for TW:Attila battle to end...
             while (battleEnded == false)
             {
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("Battle monitoring cancelled by user action.");
+                    return false; // Indicate cancellation
+                }
                 // Check if Attila process is still running
                 if (Process.GetProcessesByName("Attila").Length == 0)
                 {
@@ -1810,6 +1863,13 @@ namespace CrusaderWars
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Continue Battle button clicked.");
+
+            // Cancel any previous monitoring operation
+            _battleMonitoringCts?.Cancel();
+            _battleMonitoringCts?.Dispose();
+            _battleMonitoringCts = new CancellationTokenSource();
+            CancellationToken token = _battleMonitoringCts.Token;
+
             PlaySound(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
             _myVariable = 1;
             ExecuteButton.Enabled = false;
@@ -1862,7 +1922,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
-                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
@@ -1906,19 +1966,20 @@ namespace CrusaderWars
                     }
                     infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
                     this.Text = "Crusader Conflicts"; // Reset status on early exit
+                    _battleMonitoringCts.Cancel(); // Cancel the newly created CTS if user aborts
                     return;
                 }
             }
 
             _programmaticClick = true;
-            if (await ProcessBattle(regenerateAndRestart))
+            if (await ProcessBattle(token, regenerateAndRestart))
             {
                 // The battle finished successfully, start the main loop to wait for the next one.
                 ExecuteButton.PerformClick();
             }
             else
             {
-                // A critical error occurred (e.g., couldn't start Attila). Reset UI.
+                // A critical error occurred (e.g., couldn't start Attila) or was cancelled. Reset UI.
                 UpdateUIForBattleState();
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
@@ -2241,6 +2302,8 @@ namespace CrusaderWars
         private void HomePage_FormClosing(object sender, FormClosingEventArgs e)
         {
             Program.Logger.Debug("HomePage form closing.");
+            _battleMonitoringCts?.Cancel(); // Cancel any active monitoring
+            _battleMonitoringCts?.Dispose(); // Dispose the CTS
             ProcessCommands.ResumeProcess();
         }
 

@@ -55,26 +55,22 @@ namespace CrusaderWars
             {
                 if (army.IsPlayer())
                 {
-                    stark_armies.AddRange(attacker);
-                    break;
+                    stark_armies.Add(army);
                 }
-                else if (army.IsEnemy())
+                else
                 {
-                    bolton_armies.AddRange(attacker);
-                    break;
+                    bolton_armies.Add(army);
                 }
             }
             foreach (var army in defender)
             {
                 if (army.IsPlayer())
                 {
-                    stark_armies.AddRange(defender);
-                    break;
+                    stark_armies.Add(army);
                 }
-                else if (army.IsEnemy())
+                else
                 {
-                    bolton_armies.AddRange(defender);
-                    break;
+                    bolton_armies.Add(army);
                 }
             }
         }

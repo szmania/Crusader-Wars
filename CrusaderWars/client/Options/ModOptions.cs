@@ -12,73 +12,59 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace CrusaderWars.client
 {
-    internal static class ModOptions
+    public static class ModOptions
     {
-        static List<(string option, string value)> optionsValuesCollection = new List<(string option, string value)>();
-        public static void StoreOptionsValues(List<(string, string)> OptionsForm_ValuesCollection)
+        static Dictionary<string, string> optionsValuesCollection = new Dictionary<string, string>();
+        public static void StoreOptionsValues(Dictionary<string, string> OptionsForm_ValuesCollection)
         {
             optionsValuesCollection = OptionsForm_ValuesCollection;
         }
 
         public static int GetLevyMax()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "LeviesMax");
-            return Int32.Parse(option.value);
+            return Int32.Parse(optionsValuesCollection["LeviesMax"]);
         }
         public static int GetInfantryMax()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "InfantryMax");
-            return Int32.Parse(option.value);
+            return Int32.Parse(optionsValuesCollection["InfantryMax"]);
         }
 
         public static int GetRangedMax()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "RangedMax");
-            return Int32.Parse(option.value);
+            return Int32.Parse(optionsValuesCollection["RangedMax"]);
         }
         public static int GetCavalryMax()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "CavalryMax");
-            return Int32.Parse(option.value);
+            return Int32.Parse(optionsValuesCollection["CavalryMax"]);
         }
 
         public static void SetLevyMax(int value)
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "LeviesMax");
-            int index = optionsValuesCollection.IndexOf(option);
-            optionsValuesCollection[index] = (optionsValuesCollection[index].option,value.ToString());
+            optionsValuesCollection["LeviesMax"] = value.ToString();
         }
         public static void SetInfantryMax(int value)
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "InfantryMax");
-            int index = optionsValuesCollection.IndexOf(option);
-            optionsValuesCollection[index] = (optionsValuesCollection[index].option, value.ToString());
+            optionsValuesCollection["InfantryMax"] = value.ToString();
         }
 
         public static void SetRangedMax(int value)
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "RangedMax");
-            int index = optionsValuesCollection.IndexOf(option);
-            optionsValuesCollection[index] = (optionsValuesCollection[index].option, value.ToString());
+            optionsValuesCollection["RangedMax"] = value.ToString();
         }
         public static void SetCavalryMax(int value)
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "CavalryMax");
-            int index = optionsValuesCollection.IndexOf(option);
-            optionsValuesCollection[index] = (optionsValuesCollection[index].option, value.ToString());
+            optionsValuesCollection["CavalryMax"] = value.ToString();
         }
 
 
         public static int GetBattleScale()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleScale");
-            return Int32.Parse(option.value.Trim('%'));
+            return Int32.Parse(optionsValuesCollection["BattleScale"].Trim('%'));
         }
         
         public static bool GetAutoScale()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "AutoScaleUnits");
-            switch (option.value)
+            switch (optionsValuesCollection["AutoScaleUnits"])
             {
                 case "Disabled":
                     return false;
@@ -93,8 +79,7 @@ namespace CrusaderWars.client
 
         public static bool CloseCK3DuringBattle()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseCK3");
-            switch(option.value)
+            switch(optionsValuesCollection["CloseCK3"])
             {
                 case "Disabled":
                     return false;
@@ -107,8 +92,7 @@ namespace CrusaderWars.client
 
         public static void CloseAttila()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseAttila");
-            switch(option.value)
+            switch(optionsValuesCollection["CloseAttila"])
             {
                 case "Disabled":
                     return;
@@ -122,7 +106,7 @@ namespace CrusaderWars.client
             
         }
 
-        internal enum ArmiesSetup
+        public enum ArmiesSetup
         {
             All_Controled,
             Friendly_Only,
@@ -131,8 +115,7 @@ namespace CrusaderWars.client
 
         public static ArmiesSetup SeparateArmies()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "SeparateArmies");
-            switch (option.value)
+            switch (optionsValuesCollection["SeparateArmies"])
             {
                 case "All Controled":
                     return ArmiesSetup.All_Controled;
@@ -148,17 +131,13 @@ namespace CrusaderWars.client
         
         public static string DeploymentsZones()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleMapsSize");
-            return option.value;
+            return optionsValuesCollection["BattleMapsSize"];
         }
 
 
         public static string SetMapSize(int total_soldiers)
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleMapsSize");
-
-
-            switch (option.value)
+            switch (optionsValuesCollection["BattleMapsSize"])
             {
                 case "Dynamic":
                     if (total_soldiers <= 5000)
@@ -189,7 +168,8 @@ namespace CrusaderWars.client
         {
             if (reg?.CurrentNum == null) return "0";
 
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "FullArmies");
+            // The "FullArmies" option is not directly used here, but the value is returned.
+            // var option = optionsValuesCollection["FullArmies"];
 
             return reg.CurrentNum;
 
@@ -209,8 +189,7 @@ namespace CrusaderWars.client
 
         public static string TimeLimit()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "TimeLimit");
-            switch (option.value) 
+            switch (optionsValuesCollection["TimeLimit"]) 
             {
                 case "Disabled":
                     return "";
@@ -223,8 +202,7 @@ namespace CrusaderWars.client
 
         public static bool DefensiveDeployables()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "DefensiveDeployables");
-            switch (option.value)
+            switch (optionsValuesCollection["DefensiveDeployables"])
             {
                 case "Disabled":
                     return false;
@@ -237,8 +215,7 @@ namespace CrusaderWars.client
 
         public static bool UnitCards()
         {
-            var option = optionsValuesCollection.FirstOrDefault(x => x.option == "UnitCards");
-            switch (option.value)
+            switch (optionsValuesCollection["UnitCards"])
             {
                 case "Disabled":
                     return false;
@@ -266,20 +243,20 @@ namespace CrusaderWars.client
             }
         }
 
-        public static int GetCommanderWoundedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderWoundedChance").value);
-        public static int GetCommanderSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderSeverelyInjuredChance").value);
-        public static int GetCommanderBrutallyMauledChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderBrutallyMauledChance").value);
-        public static int GetCommanderMaimedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderMaimedChance").value);
-        public static int GetCommanderOneLeggedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneLeggedChance").value);
-        public static int GetCommanderOneEyedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderOneEyedChance").value);
-        public static int GetCommanderDisfiguredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "CommanderDisfiguredChance").value);
+        public static int GetCommanderWoundedChance() => Int32.Parse(optionsValuesCollection["CommanderWoundedChance"]);
+        public static int GetCommanderSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection["CommanderSeverelyInjuredChance"]);
+        public static int GetCommanderBrutallyMauledChance() => Int32.Parse(optionsValuesCollection["CommanderBrutallyMauledChance"]);
+        public static int GetCommanderMaimedChance() => Int32.Parse(optionsValuesCollection["CommanderMaimedChance"]);
+        public static int GetCommanderOneLeggedChance() => Int32.Parse(optionsValuesCollection["CommanderOneLeggedChance"]);
+        public static int GetCommanderOneEyedChance() => Int32.Parse(optionsValuesCollection["CommanderOneEyedChance"]);
+        public static int GetCommanderDisfiguredChance() => Int32.Parse(optionsValuesCollection["CommanderDisfiguredChance"]);
 
-        public static int GetKnightWoundedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightWoundedChance").value);
-        public static int GetKnightSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightSeverelyInjuredChance").value);
-        public static int GetKnightBrutallyMauledChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightBrutallyMauledChance").value);
-        public static int GetKnightMaimedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightMaimedChance").value);
-        public static int GetKnightOneLeggedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneLeggedChance").value);
-        public static int GetKnightOneEyedChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightOneEyedChance").value);
-        public static int GetKnightDisfiguredChance() => Int32.Parse(optionsValuesCollection.FirstOrDefault(x => x.option == "KnightDisfiguredChance").value);
+        public static int GetKnightWoundedChance() => Int32.Parse(optionsValuesCollection["KnightWoundedChance"]);
+        public static int GetKnightSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection["KnightSeverelyInjuredChance"]);
+        public static int GetKnightBrutallyMauledChance() => Int32.Parse(optionsValuesCollection["KnightBrutallyMauledChance"]);
+        public static int GetKnightMaimedChance() => Int32.Parse(optionsValuesCollection["KnightMaimedChance"]);
+        public static int GetKnightOneLeggedChance() => Int32.Parse(optionsValuesCollection["KnightOneLeggedChance"]);
+        public static int GetKnightOneEyedChance() => Int32.Parse(optionsValuesCollection["KnightOneEyedChance"]);
+        public static int GetKnightDisfiguredChance() => Int32.Parse(optionsValuesCollection["KnightDisfiguredChance"]);
     }
 }

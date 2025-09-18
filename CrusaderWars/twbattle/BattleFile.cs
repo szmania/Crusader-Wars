@@ -144,40 +144,33 @@ namespace CrusaderWars
                     player_main_army = ArmiesControl.MergeFriendlies(temp_defender_armies, player_main_army);
                 }
             }
-            else
+            else // Player character is an ally, not the main commander
             {
-                Program.Logger.Debug("Player character is an ally, not the main commander.");
-                try
+                Program.Logger.Debug("Player character is an ally, not the main commander. Prompting user to change 'Armies Control' setting.");
+
+                string message = "To control your army as an ally, the 'Armies Control' setting must be 'All Controlled'.\n\n" +
+                                 "Do you want to change it automatically and proceed with the battle?";
+                string title = "Crusader Conflicts: Ally Army Control";
+                DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+
+                if (result == DialogResult.Yes)
                 {
-                    userAlliedArmy = temp_attacker_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID()) ?? temp_defender_armies.Find(x => x.Owner?.GetID() == DataSearch.Player_Character?.GetID());
-                    isUserAlly = true;
-                    if (userAlliedArmy != null)
-                    {
-                        Program.Logger.Debug($"Found player's allied army: {userAlliedArmy.ID}");
-                        if (userAlliedArmy.CombatSide == "attacker")
-                        {
-                            Program.Logger.Debug($"Merging friendly attacker armies into player's allied army ({userAlliedArmy.ID}).");
-                            userAlliedArmy = ArmiesControl.MergeFriendlies(temp_attacker_armies, userAlliedArmy);
-                        }
-                        else if (userAlliedArmy.CombatSide == "defender")
-                        {
-                            Program.Logger.Debug($"Merging friendly defender armies into player's allied army ({userAlliedArmy.ID}).");
-                            userAlliedArmy = ArmiesControl.MergeFriendlies(temp_defender_armies, userAlliedArmy);
-                        }
-                    }
-                    else
-                    {
-                        Program.Logger.Debug("CRITICAL: Player's allied army not found. This should be caught.");
-                    }
+                    Program.Logger.Debug("User agreed to change 'Armies Control' to 'All Controlled'.");
+                    // Update the setting programmatically
+                    Options.SetArmiesControl(ModOptions.ArmiesSetup.All_Controled);
+                    Program.Logger.Debug($"'Armies Control' setting updated to: {ModOptions.SeparateArmies()}");
+
+                    // Now call AllControledArmies and return
+                    AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                    return; // Exit FriendliesOnlyArmies after calling AllControledArmies
                 }
-                catch
+                else // User clicked No
                 {
-                    Program.Logger.Debug("ERROR: Exception caught while trying to find and merge player's allied army.");
+                    Program.Logger.Debug("User declined to change 'Armies Control' setting. Aborting battle generation.");
                     MessageBox.Show("None of your armies are present in this battle! (If this error is unexpected, confirm your \"Armies Control\" selection in the mod settings)", "Crusader Conflicts: No Player Army",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    throw new Exception();
+                    throw new Exception("Battle aborted: Player declined to change 'Armies Control' setting.");
                 }
-
             }
 
             if (enemy_main_army.CombatSide == "attacker")
@@ -441,6 +434,7 @@ namespace CrusaderWars
 
         public static void BETA_CreateBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            isFirstDirection = false; // Reset the static flag at the beginning of each battle creation
             Program.Logger.Debug("Starting TW:Attila battle file creation...");
             //  TEMP OBJETS TO USE HERE
             List<Army> temp_attacker_armies = new List<Army>(),

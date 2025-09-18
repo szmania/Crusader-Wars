@@ -55,8 +55,14 @@ namespace CrusaderWars
         public void AddMergedArmy(Army army) {
             MergedArmies.Add(army); 
         }
-        public void IsPlayer(bool u) { IsPlayerArmy = u; }
-        public void IsEnemy(bool u) { IsEnemyArmy = u; }
+        public void IsPlayer(bool u) { 
+            IsPlayerArmy = u;
+            if (u) IsEnemyArmy = false;
+        }
+        public void IsEnemy(bool u) { 
+            IsEnemyArmy = u;
+            if (u) IsPlayerArmy = false;
+        }
         public void SetUnits(List<Unit> l) { Units = l; }
         public void SetCommander(CommanderSystem l) { Commander = l; }
         public void SetDefences(DefensiveSystem l) { Defences = l; }

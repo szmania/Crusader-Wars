@@ -411,7 +411,7 @@ namespace CrusaderWars.unit_mapper
 
         static List<(int porcentage, string unit_key, string name, string max)> Levies(XmlDocument factions_file, string attila_faction)
         {
-            var levies_nodes = factions_file.SelectNodes($"/FactionsGroups/Faction[@name=\"{attila_faction}\"]/Levies");
+            var levies_nodes = factions_file.SelectNodes($"/Factions/Faction[@name=\"{attila_faction}\"]/Levies");
             List<(int porcentage, string unit_key, string name, string max)> list = new List<(int porcentage, string unit_key, string name, string max)>();
 
             if (levies_nodes?.Count == 0) 
@@ -457,6 +457,7 @@ namespace CrusaderWars.unit_mapper
 
         public static List<(int porcentage, string unit_key, string name, string max)> GetFactionLevies(string attila_faction)
         {
+            Program.Logger.Debug($"Getting faction levies: '{attila_faction}'");
             if (LoadedUnitMapper_FolderPath == null)
             {
                 Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get faction levies.");
@@ -850,7 +851,8 @@ namespace CrusaderWars.unit_mapper
                 Program.Logger.Debug("WARNING: HeritageName is null/empty");
             }
 
-            string faction = "";
+            string heritage_faction = "";
+            string culture_faction = "";
 
             if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath))
             {
@@ -879,27 +881,41 @@ namespace CrusaderWars.unit_mapper
 
                         if(heritage_name == HeritageName)
                         {
-                            faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{faction}");
-                        }
-
-                        foreach(XmlNode culture in heritage.ChildNodes)
-                        {
-                            if (culture is XmlComment) continue; 
-                            string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
-
-                            if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
+                            string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
+                            if (!string.IsNullOrEmpty(found_heritage_faction))
                             {
-                                faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
-                                Program.Logger.Debug($"Matched culture: {CultureName}->faction:{faction}");
+                                heritage_faction = found_heritage_faction;
+                                Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{heritage_faction}");
                             }
-                            if (heritage_name == HeritageName && !string.IsNullOrEmpty(HeritageName))
+
+                            foreach(XmlNode culture in heritage.ChildNodes)
                             {
-                                Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{faction}");
+                                if (culture is XmlComment) continue; 
+                                string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
+
+                                if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
+                                {
+                                    string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
+                                    if (!string.IsNullOrEmpty(found_culture_faction))
+                                    {
+                                        culture_faction = found_culture_faction;
+                                        Program.Logger.Debug($"Matched culture: {CultureName}->faction:{culture_faction}");
+                                    }
+                                }
                             }
                         }
                     }
                 }
+            }
+
+            string faction = "";
+            if (!string.IsNullOrEmpty(culture_faction))
+            {
+                faction = culture_faction;
+            }
+            else if (!string.IsNullOrEmpty(heritage_faction))
+            {
+                faction = heritage_faction;
             }
 
             if (string.IsNullOrEmpty(faction))
