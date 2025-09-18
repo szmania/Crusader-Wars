@@ -457,7 +457,7 @@ namespace CrusaderWars.unit_mapper
 
         public static List<(int porcentage, string unit_key, string name, string max)> GetFactionLevies(string attila_faction)
         {
-            Program.Logger.Debug($"Getting faction levies: '{attila_faction}'.");
+            Program.Logger.Debug($"Getting faction levies: '{attila_faction}'");
             if (LoadedUnitMapper_FolderPath == null)
             {
                 Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get faction levies.");
