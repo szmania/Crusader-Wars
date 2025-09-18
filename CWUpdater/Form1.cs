@@ -343,7 +343,8 @@ namespace CWUpdater
                     if (IsUnitMappers)
                     {
                         // For Unit Mappers, use a more robust rename-and-replace strategy with retries
-                        string oldDirectory = applicationPath + "_old";
+                        string cleanApplicationPath = applicationPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                        string oldDirectory = cleanApplicationPath + "_old";
                         Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
 
                         // 1. Clean up any leftover old directory from a previous failed update
