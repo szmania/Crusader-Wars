@@ -39,6 +39,7 @@
             this.labelVersion = new System.Windows.Forms.Button();
             this.labelMappersVersion = new System.Windows.Forms.Button();
             this.checkOptInPreReleases = new System.Windows.Forms.CheckBox();
+            this.labelPreReleaseInfo = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -185,8 +186,19 @@
             this.checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.checkOptInPreReleases.Name = "checkOptInPreReleases";
             this.checkOptInPreReleases.TabStop = false;
+            this.checkOptInPreReleases.Text = "Enable Pre-releases";
             this.checkOptInPreReleases.UseVisualStyleBackColor = false;
             this.checkOptInPreReleases.CheckedChanged += new System.EventHandler(this.checkOptInPreReleases_CheckedChanged);
+            // 
+            // labelPreReleaseInfo
+            // 
+            this.labelPreReleaseInfo.AutoSize = true;
+            this.labelPreReleaseInfo.BackColor = System.Drawing.Color.Transparent;
+            this.labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelPreReleaseInfo.Name = "labelPreReleaseInfo";
+            resources.ApplyResources(this.labelPreReleaseInfo, "labelPreReleaseInfo");
+            this.labelPreReleaseInfo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 0);
+            this.labelPreReleaseInfo.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             // 
             // pictureBox1
             // 
@@ -259,6 +271,7 @@
             this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
             this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
             this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
+            this.BottomLeftFlowPanel.Controls.Add(this.labelPreReleaseInfo);
             this.BottomLeftFlowPanel.Controls.Add(this.checkOptInPreReleases);
             this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
@@ -412,6 +425,7 @@
         private System.Windows.Forms.Button viewLogsLink;
         private System.Windows.Forms.Button labelVersion;
         private System.Windows.Forms.Button labelMappersVersion;
+        private System.Windows.Forms.CheckBox checkOptInPreReleases;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.FlowLayoutPanel MainPanelLayout;
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
@@ -426,6 +440,6 @@
         private System.Windows.Forms.Button discordLink;
         private System.Windows.Forms.Label labelSeparatorLeft;
         private System.Windows.Forms.Label labelSeparatorRight;
-        private System.Windows.Forms.CheckBox checkOptInPreReleases;
+        private System.Windows.Forms.Label labelPreReleaseInfo;
     }
 }
