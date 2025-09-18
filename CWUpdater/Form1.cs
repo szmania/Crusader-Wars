@@ -290,8 +290,8 @@ namespace CWUpdater
 
         private async Task RetryActionAsync(Action action, string actionName)
         {
-            int maxRetries = 5;
-            int delayMilliseconds = 1000;
+            int maxRetries = 10;
+            int delayMilliseconds = 1500;
             for (int i = 0; i < maxRetries; i++)
             {
                 try
@@ -463,6 +463,25 @@ namespace CWUpdater
                     RestoreBackup(backupPath, applicationPath);
                     this.Close();
                 }
+            }
+            catch (IOException ioEx)
+            {
+                Logger.Log($"I/O Error during update after multiple retries: {ioEx.ToString()}");
+                MessageBox.Show(
+                    "The updater could not access a file or directory because it is locked by another process.\n\n" +
+                    "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
+                    "Please try the following:\n" +
+                    "1. Temporarily pause your cloud sync client.\n" +
+                    "2. Add an exception for 'CrusaderWars.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                    "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
+                    $"Error details: {ioEx.Message}",
+                    "Crusader Conflicts: Update Failed (File Locked)",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                Logger.Log("Rolling back to backup due to IOException.");
+                RestoreBackup(backupPath, applicationPath);
+                this.Close();
             }
             catch (Exception ex) // Existing general catch
             {
