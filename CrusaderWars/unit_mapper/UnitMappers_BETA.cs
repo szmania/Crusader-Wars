@@ -881,19 +881,27 @@ namespace CrusaderWars.unit_mapper
 
                         if(heritage_name == HeritageName)
                         {
-                            heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{heritage_faction}");
-                        }
-
-                        foreach(XmlNode culture in heritage.ChildNodes)
-                        {
-                            if (culture is XmlComment) continue; 
-                            string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
-
-                            if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
+                            string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
+                            if (!string.IsNullOrEmpty(found_heritage_faction))
                             {
-                                culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
-                                Program.Logger.Debug($"Matched culture: {CultureName}->faction:{culture_faction}");
+                                heritage_faction = found_heritage_faction;
+                                Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{heritage_faction}");
+                            }
+
+                            foreach(XmlNode culture in heritage.ChildNodes)
+                            {
+                                if (culture is XmlComment) continue; 
+                                string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
+
+                                if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
+                                {
+                                    string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
+                                    if (!string.IsNullOrEmpty(found_culture_faction))
+                                    {
+                                        culture_faction = found_culture_faction;
+                                        Program.Logger.Debug($"Matched culture: {CultureName}->faction:{culture_faction}");
+                                    }
+                                }
                             }
                         }
                     }
