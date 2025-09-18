@@ -340,6 +340,51 @@ namespace CWUpdater
                         throw new System.IO.InvalidDataException("The update archive is empty and cannot be applied.");
                     }
 
+                    // --- START SELF-UPDATE LOGIC ---
+                    // Only perform self-update check for the main application, not unit mappers
+                    if (!IsUnitMappers)
+                    {
+                        string[] newUpdaters = Directory.GetFiles(tempDirectory, "CWUpdater.exe", SearchOption.AllDirectories);
+                        if (newUpdaters.Length > 0)
+                        {
+                            string newUpdaterPath = newUpdaters[0];
+                            string currentUpdaterPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+                            if (File.Exists(newUpdaterPath) && IsNewerUpdater(newUpdaterPath, currentUpdaterPath))
+                            {
+                                Logger.Log("Newer updater found. Staging self-update.");
+                                string tempUpdater = Path.Combine(Path.GetTempPath(), "CWUpdater_new.exe");
+                                File.Copy(newUpdaterPath, tempUpdater, true);
+
+                                // Reconstruct arguments, ensuring they are quoted
+                                string originalArgs = string.Join(" ", Environment.GetCommandLineArgs().Skip(1).Select(a => $"\"{a}\""));
+
+                                string batchScript = $@"
+@echo off
+echo Waiting for original updater to close...
+timeout /t 2 /nobreak > NUL
+echo Replacing updater...
+move /Y ""{tempUpdater}"" ""{currentUpdaterPath}""
+echo Relaunching updater to continue the update...
+start """" ""{currentUpdaterPath}"" {originalArgs}
+del ""%~f0""
+";
+                                string batchPath = Path.Combine(Path.GetTempPath(), "update_updater.bat");
+                                File.WriteAllText(batchPath, batchScript);
+
+                                Process.Start(new ProcessStartInfo(batchPath) { CreateNoWindow = true, UseShellExecute = false });
+                                Logger.Log("Launched self-update script. Exiting current instance.");
+                                Environment.Exit(0); // Exit to allow the batch file to replace this exe
+                            }
+                            else
+                            {
+                                Logger.Log("No new updater found or it's not newer. Proceeding with normal application update.");
+                            }
+                        }
+                    }
+                    // --- END SELF-UPDATE LOGIC ---
+
+
                     if (IsUnitMappers)
                     {
                         // For Unit Mappers, use a more robust rename-and-replace strategy with retries
@@ -747,6 +792,34 @@ namespace CWUpdater
                 }
             }
             RestartApplication(false);
+        }
+
+        private bool IsNewerUpdater(string newUpdaterPath, string currentUpdaterPath)
+        {
+            try
+            {
+                var newVersionInfo = FileVersionInfo.GetVersionInfo(newUpdaterPath);
+                var currentVersionInfo = FileVersionInfo.GetVersionInfo(currentUpdaterPath);
+
+                // FileVersion can be null or empty, handle this gracefully
+                if (string.IsNullOrEmpty(newVersionInfo.FileVersion) || string.IsNullOrEmpty(currentVersionInfo.FileVersion))
+                {
+                    Logger.Log("Could not retrieve file version from one or both updaters. Cannot compare versions.");
+                    return false;
+                }
+
+                var newVersion = new Version(newVersionInfo.FileVersion);
+                var currentVersion = new Version(currentVersionInfo.FileVersion);
+                
+                Logger.Log($"Comparing updater versions. New: {newVersion}, Current: {currentVersion}");
+
+                return newVersion > currentVersion;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error comparing updater versions: {ex.Message}");
+                return false; // Fail safe, don't attempt self-update if comparison fails
+            }
         }
 
         //
