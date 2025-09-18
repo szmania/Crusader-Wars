@@ -247,7 +247,7 @@
             this.ContinueBattleButton.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold);
             this.ContinueBattleButton.ForeColor = System.Drawing.Color.White;
             this.ContinueBattleButton.Name = "ContinueBattleButton";
-            this.ContinueButton.TabStop = false;
+            this.ContinueBattleButton.TabStop = false;
             this.ContinueBattleButton.UseVisualStyleBackColor = true;
             this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
             this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
