@@ -17,6 +17,7 @@ namespace CrusaderWars
     {
         public  string AppVersion { get; set; } = string.Empty;
         public string UMVersion { get; set; } = string.Empty;
+        private bool _updaterChecked = false;
 
         private static readonly HttpClient client = new HttpClient();
         private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
@@ -319,8 +320,118 @@ namespace CrusaderWars
             return null;
         }
 
+        private async Task<string?> GetAssetDownloadUrlAsync(string releaseUrl, string assetName)
+        {
+            Program.Logger.Debug($"Searching for asset '{assetName}' in release: {releaseUrl}");
+            try
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
+                string json = await client.GetStringAsync(releaseUrl);
+
+                using (JsonDocument document = JsonDocument.Parse(json))
+                {
+                    JsonElement root = document.RootElement;
+                    JsonElement assets = root.GetProperty("assets");
+
+                    foreach (JsonElement asset in assets.EnumerateArray())
+                    {
+                        string? name = asset.GetProperty("name").GetString();
+                        if (name != null && name.Equals(assetName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string? downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                            Program.Logger.Debug($"Found asset '{assetName}' with download URL: {downloadUrl}");
+                            return downloadUrl;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error getting asset info from {releaseUrl}: {ex.Message}");
+            }
+
+            Program.Logger.Debug($"Asset '{assetName}' not found in release.");
+            return null;
+        }
+
+        private async Task CheckForUpdaterUpdateAsync()
+        {
+            if (_updaterChecked) return;
+            _updaterChecked = true;
+
+            Program.Logger.Debug("Checking for updater self-update...");
+            if (!HasInternetConnection())
+            {
+                Program.Logger.Debug("No internet connection, skipping updater self-update check.");
+                return;
+            }
+
+            string? localUpdaterPath = GetUpdaterPath();
+            if (string.IsNullOrEmpty(localUpdaterPath))
+            {
+                Program.Logger.Debug("Local updater not found, cannot perform self-update check.");
+                return;
+            }
+
+            try
+            {
+                var localVersionInfo = FileVersionInfo.GetVersionInfo(localUpdaterPath);
+                if (string.IsNullOrEmpty(localVersionInfo.FileVersion))
+                {
+                    Program.Logger.Debug("Could not determine local updater version. Aborting self-update.");
+                    return;
+                }
+                Version localVersion = new Version(localVersionInfo.FileVersion);
+                Program.Logger.Debug($"Local updater version: {localVersion}");
+
+                var latestRelease = await GetLatestReleaseInfoAsync(SzmaniaLatestReleaseUrl);
+                if (string.IsNullOrEmpty(latestRelease.version))
+                {
+                    Program.Logger.Debug("Could not fetch latest release version tag. Aborting self-update.");
+                    return;
+                }
+
+                if (IsNewerVersion(localVersion.ToString(), latestRelease.version))
+                {
+                    Program.Logger.Debug($"A newer release ({latestRelease.version}) is available. Checking for updated updater asset.");
+
+                    string? updaterDownloadUrl = await GetAssetDownloadUrlAsync(SzmaniaLatestReleaseUrl, "CWUpdater.exe");
+                    if (string.IsNullOrEmpty(updaterDownloadUrl))
+                    {
+                        Program.Logger.Debug("Newer release found, but it does not contain a 'CWUpdater.exe' asset. Skipping self-update.");
+                        return;
+                    }
+
+                    Program.Logger.Debug($"Downloading new updater from: {updaterDownloadUrl}");
+                    string tempUpdaterPath = Path.Combine(Path.GetTempPath(), "CWUpdater_new.exe");
+
+                    using (var httpClient = new HttpClient())
+                    {
+                        byte[] fileBytes = await httpClient.GetByteArrayAsync(updaterDownloadUrl);
+                        File.WriteAllBytes(tempUpdaterPath, fileBytes);
+                    }
+
+                    var newVersionInfo = FileVersionInfo.GetVersionInfo(tempUpdaterPath);
+                    if (!string.IsNullOrEmpty(newVersionInfo.FileVersion) && new Version(newVersionInfo.FileVersion) > localVersion)
+                    {
+                        Program.Logger.Debug($"Downloaded updater ({newVersionInfo.FileVersion}) is newer. Replacing local updater.");
+                        File.Copy(tempUpdaterPath, localUpdaterPath, true);
+                        Program.Logger.Debug("Updater has been successfully updated.");
+                    }
+
+                    File.Delete(tempUpdaterPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"An error occurred during updater self-update check: {ex.Message}");
+            }
+        }
+
         public async Task CheckAppVersion()
         {
+            await CheckForUpdaterUpdateAsync();
             Program.Logger.Debug("Checking app version...");
             if (!HasInternetConnection())
             {
@@ -398,6 +509,7 @@ namespace CrusaderWars
 
         public async Task CheckUnitMappersVersion()
         {
+            await CheckForUpdaterUpdateAsync();
             Program.Logger.Debug("Checking unit mappers version...");
             if (!HasInternetConnection())
             {
