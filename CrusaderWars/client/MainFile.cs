@@ -465,7 +465,7 @@ namespace CrusaderWars
             EA_Label.Margin = new Padding(4, 0, 4, 0);
             EA_Label.Padding = new Padding(3, 3, 3, 3);
             discordLink.Margin = new Padding(4, 3, 4, 0);
-            BottomPanelLayout.Margin = new Padding(4, 4, 4, 4);
+            BottomPanelLayout.Margin = new Padding(0, 4, 4, 4);
             WebsiteBTN.Margin = new Padding(4, 4, 4, 4);
             SteamBTN.Margin = new Padding(4, 4, 4, 4);
             tableLayoutPanel1.Margin = new Padding(4, 4, 4, 4);
@@ -1515,7 +1515,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
@@ -1563,7 +1563,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
