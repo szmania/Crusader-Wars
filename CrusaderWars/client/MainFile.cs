@@ -1248,7 +1248,6 @@ namespace CrusaderWars
 
                 try
                 {
-
                     //1.0 Beta Debug
                     UpdateLoadingScreenMessage("Reading CK3 save file data...");
                     Program.Logger.Debug("Reading battle armies from CK3 save file.");
