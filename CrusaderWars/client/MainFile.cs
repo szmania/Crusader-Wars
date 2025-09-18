@@ -1484,7 +1484,7 @@ namespace CrusaderWars
                             sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
                         }
                         sb.AppendLine();
-                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team at https://discord.gg/X64pMysa");
+                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j");
                         sb.AppendLine();
                         sb.AppendLine("The battle will proceed without these units.");
 
@@ -2430,7 +2430,7 @@ namespace CrusaderWars
         private void discordLink_Click(object sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://discord.gg/usyHPp39") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://discord.gg/eFZTprHh3j") { UseShellExecute = true });
         }
 
         private void WebsiteBTN_Click(object sender, EventArgs e)
