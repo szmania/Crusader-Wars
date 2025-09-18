@@ -261,7 +261,7 @@ namespace CrusaderWars.client
 
         public static bool GetOptInPreReleases()
         {
-            return optionsValuesCollection.TryGetValue("OptInPreReleases", out var value) && value == "True";
+            return optionsValuesCollection.TryGetValue("OptInPreReleases", out var value) && bool.TryParse(value, out bool result) && result;
         }
     }
 }

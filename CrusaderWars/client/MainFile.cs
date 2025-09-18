@@ -471,6 +471,7 @@ namespace CrusaderWars
             tableLayoutPanel1.Margin = new Padding(4, 4, 4, 4);
             this.Margin = new Padding(4, 4, 4, 4); // For the form itself
             BottomLeftFlowPanel.Padding = new Padding(0, 5, 0, 0);
+            BottomLeftFlowPanel.Margin = new Padding(0, 3, 3, 3); // Added this line
             BottomRightFlowPanel.Padding = new Padding(0, 5, 0, 0);
             labelSeparatorLeft.Margin = new Padding(4, 3, 4, 0);
             labelSeparatorRight.Margin = new Padding(4, 3, 4, 0);
