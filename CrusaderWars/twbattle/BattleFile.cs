@@ -434,6 +434,7 @@ namespace CrusaderWars
 
         public static void BETA_CreateBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            isFirstDirection = false; // Reset the static flag at the beginning of each battle creation
             Program.Logger.Debug("Starting TW:Attila battle file creation...");
             //  TEMP OBJETS TO USE HERE
             List<Army> temp_attacker_armies = new List<Army>(),
