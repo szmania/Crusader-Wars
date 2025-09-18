@@ -934,6 +934,7 @@ namespace CrusaderWars
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
             ProcessCommands.ResumeProcess();
 
+            BattleResult.Player_Combat = null; // Reset the static combat data
             BattleState.ClearBattleState();
             UpdateUIForBattleState();
 
