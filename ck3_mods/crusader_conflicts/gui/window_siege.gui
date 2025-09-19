@@ -672,7 +672,7 @@ window = {
 							name = "log_attacker_divider"
 							duration = 0.01
 							next = "log_attacker_heritage"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Attacker Army---------'))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
 						}
 
 						state = {
@@ -707,38 +707,38 @@ window = {
 						state = {
 							name = "log_attacker_prowess_skill"
 							duration = 0.01
-							next = "log_holding_level"
+							next = "log_enemy_divider"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('Attacker Prowess:', Localize('attacker_prowess')))]"
 
 						}
 
+						state = {
+							name = "log_enemy_divider"
+							duration = 0.01
+							next = "log_garrison_culture"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+						}
 
 						state = {
-							name = "log_holding_level"
+							name = "log_garrison_culture"
 							duration = 0.01
 							next = "log_garrison"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('garrison_culture')))]"
 						}
 						state = {
 							name = "log_garrison"
 							duration = 0.01
-							next = "log_garrison_heritage"
+							next = "log_holding_level"
 							on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
 							on_finish = "[ExecuteConsoleCommand(Concatenate('Garrison Size:', Localize('garrison_num')))]"
 						}
+
 						state = {
-							name = "log_garrison_heritage"
-							duration = 0.01
-							next = "log_garrison_culture"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Garrison Heritage:', Localize('garrison_heritage')))]"
-						}
-						state = {
-							name = "log_garrison_culture"
+							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Garrison Culture:', Localize('garrison_culture')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
 						}
-
 						state = {
 							name = "log_sickness"
 							duration = 0.01
