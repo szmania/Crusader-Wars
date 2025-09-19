@@ -743,21 +743,21 @@ window = {
 							name = "log_sickness"
 							duration = 0.01
 							next = "log_starvation"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Sickness:',SiegeWindow.GetDiseaseStateTooltip))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('DiseaseFrame:', SiegeWindow.GetDiseaseStateFrame))]"
 						}
 
 						state = {
 							name = "log_starvation"
 							duration = 0.01
 							next = "log_wall_breaches"
-							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetStarvationStateTooltip)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('StarvationFrame:', SiegeWindow.GetStarvationStateFrame))]"
 						}	
 						
 						state = {
 							name = "log_wall_breaches"
 							duration = 0.01
 							next = "log_fort_level"
-							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetBreachStateTooltip)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('BreachFrame:', SiegeWindow.GetBreachStateFrame))]"
 						}											
 
 						state = {

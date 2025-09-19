@@ -1351,9 +1351,16 @@ window = {
 			state = {	
 				name = "print_modifiers"
 				duration = 0.01
-				next = "save_game"
+				next = "log_keyword"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetAdvantageDescription)]"				
-			}			
+			}
+
+			state = {
+				name = "log_keyword"
+				duration = 0.01
+				next = "save_game"
+				on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERWARS3_BATTLE')]"
+			}
 
 			state = {
 				name = save_game
@@ -1674,9 +1681,16 @@ window = {
 			state = {	
 				name = "print_modifiers"
 				duration = 0.01
-				next = "save_game"
+				next = "log_keyword"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetAdvantageDescription)]"				
-			}			
+			}
+
+			state = {
+				name = "log_keyword"
+				duration = 0.01
+				next = "save_game"
+				on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERWARS3_BATTLE')]"
+			}
 
 			state = {
 				name = save_game
@@ -1996,9 +2010,16 @@ window = {
 			state = {	
 				name = "print_modifiers"
 				duration = 0.01
-				next = "save_game"
+				next = "log_keyword"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetAdvantageDescription)]"				
-			}			
+			}
+
+			state = {
+				name = "log_keyword"
+				duration = 0.01
+				next = "save_game"
+				on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERWARS3_BATTLE')]"
+			}
 
 			state = {
 				name = save_game
@@ -2324,9 +2345,16 @@ window = {
 			state = {	
 				name = "print_modifiers"
 				duration = 0.01
-				next = "save_game"
+				next = "log_keyword"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetAdvantageDescription)]"				
-			}		
+			}
+
+			state = {
+				name = "log_keyword"
+				duration = 0.01
+				next = "save_game"
+				on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERWARS3_BATTLE')]"
+			}
 
 			state = {
 				name = save_game
