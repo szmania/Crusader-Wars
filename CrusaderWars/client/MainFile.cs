@@ -40,10 +40,6 @@ namespace CrusaderWars
         private Color _originalInfoLabelBackColor;
         private CancellationTokenSource? _battleMonitoringCts; // Added cancellation token source
 
-        // NEW MEMBERS FOR PRE-RELEASE PULSE
-        private System.Windows.Forms.Timer _preReleasePulseTimer = null!;
-        private int _preReleasePulseStep = 0;
-
         // Playthrough Display UI Elements
         private Panel playthroughPanel = null!;
         private PictureBox playthroughPictureBox = null!;
@@ -96,8 +92,7 @@ namespace CrusaderWars
             EA_Label.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold); // Programmatically set EA_Label font
             labelSeparatorLeft.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
             labelSeparatorRight.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
-            btnOptInPreReleases.Font = new Font("Microsoft Sans Serif", 10f); // Set font for new button
-            labelPreReleaseInfo.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Italic); // NEW FONT SETTING
+            linkOptInPreReleases.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Underline); // Set font for new label
 
             // Set FlatStyle programmatically
             ExecuteButton.FlatStyle = FlatStyle.Flat;
@@ -110,7 +105,7 @@ namespace CrusaderWars
             discordLink.FlatStyle = FlatStyle.Flat;
             labelVersion.FlatStyle = FlatStyle.Flat;
             labelMappersVersion.FlatStyle = FlatStyle.Flat;
-            btnOptInPreReleases.FlatStyle = FlatStyle.Flat; // Set FlatStyle for new button
+            // linkOptInPreReleases is a Label, no FlatStyle needed
 
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
@@ -122,12 +117,11 @@ namespace CrusaderWars
             labelVersion.MouseLeave += (sender, e) => { labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
-            // NEW HOVER EFFECTS FOR labelPreReleaseInfo and btnOptInPreReleases
-            btnOptInPreReleases.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { btnOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
-            btnOptInPreReleases.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { btnOptInPreReleases.ForeColor = ModOptions.GetOptInPreReleases() ? Color.Gold : Color.WhiteSmoke; } };
-            labelPreReleaseInfo.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
-            labelPreReleaseInfo.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke; } };
-            
+            // NEW HOVER EFFECTS FOR linkOptInPreReleases
+            linkOptInPreReleases.MouseEnter += (sender, e) => { linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
+            linkOptInPreReleases.MouseLeave += (sender, e) => { linkOptInPreReleases.ForeColor = ModOptions.GetOptInPreReleases() ? Color.Gold : Color.WhiteSmoke; };
+            linkOptInPreReleases.Click += new EventHandler(linkOptInPreReleases_Click); // Add click event handler
+
             Thread.Sleep(1000);
 
             documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -195,11 +189,6 @@ namespace CrusaderWars
             _pulseTimer = new System.Windows.Forms.Timer();
             _pulseTimer.Interval = 100;
             _pulseTimer.Tick += PulseTimer_Tick;
-
-            // NEW TIMER INITIALIZATION
-            _preReleasePulseTimer = new System.Windows.Forms.Timer();
-            _preReleasePulseTimer.Interval = 50; // Changed from 600 to 50 for smoother animation
-            _preReleasePulseTimer.Tick += PreReleasePulseTimer_Tick;
         }
 
         private void PulseTimer_Tick(object? sender, EventArgs e)
@@ -208,37 +197,6 @@ namespace CrusaderWars
             int redComponent = 120 + (_pulseStep < 10 ? _pulseStep * 10 : (20 - _pulseStep) * 10);
             SettingsBtn.FlatAppearance.BorderColor = Color.FromArgb(redComponent, 30, 30);
             SettingsBtn.FlatAppearance.BorderSize = 2;
-        }
-
-        // NEW TIMER TICK HANDLER
-        private void PreReleasePulseTimer_Tick(object? sender, EventArgs e)
-        {
-            _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle (10 up, 10 down)
-
-            Color startColor = Color.WhiteSmoke;
-            Color endColor = Color.Gold; // Vibrant Gold
-
-            Color currentColor;
-            if (_preReleasePulseStep < 10)
-            {
-                // Fade from startColor to endColor
-                int r = startColor.R + (int)((endColor.R - startColor.R) * (_preReleasePulseStep / 9.0));
-                int g = startColor.G + (int)((endColor.G - startColor.G) * (_preReleasePulseStep / 9.0));
-                int b = startColor.B + (int)((endColor.B - startColor.B) * (_preReleasePulseStep / 9.0));
-                currentColor = Color.FromArgb(r, g, b);
-            }
-            else
-            {
-                // Fade from endColor back to startColor
-                int step = _preReleasePulseStep - 10; // Normalize step for the second half (0-9)
-                int r = endColor.R + (int)((startColor.R - endColor.R) * (step / 9.0));
-                int g = endColor.G + (int)((startColor.G - endColor.G) * (step / 9.0));
-                int b = endColor.B + (int)((startColor.B - endColor.B) * (step / 9.0));
-                currentColor = Color.FromArgb(r, g, b);
-            }
-
-            labelPreReleaseInfo.ForeColor = currentColor;
-            btnOptInPreReleases.ForeColor = currentColor;
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -384,7 +342,6 @@ namespace CrusaderWars
             labelSeparatorLeft.Location = new Point(100, 0); // Example, adjust as needed
             labelSeparatorRight.Location = new Point(100, 0); // Example, adjust as needed
             // Positioning for FlowLayoutPanel is handled by the panel itself, no need to set here.
-            // btnOptInPreReleases.Location = new Point(labelMappersVersion.Right + 10, labelMappersVersion.Top); // Position relative to labelMappersVersion
 
 
             // Set sizes programmatically
@@ -405,8 +362,7 @@ namespace CrusaderWars
             viewLogsLink.Anchor = AnchorStyles.None;
             labelVersion.Anchor = AnchorStyles.None;
             labelMappersVersion.Anchor = AnchorStyles.None;
-            btnOptInPreReleases.Anchor = AnchorStyles.None; // Anchor for new button
-            labelPreReleaseInfo.Anchor = AnchorStyles.None; // Anchor for new label
+            linkOptInPreReleases.Anchor = AnchorStyles.None; // Anchor for new label
             pictureBox1.Anchor = AnchorStyles.None;
             EA_Label.Anchor = AnchorStyles.None;
             discordLink.Anchor = AnchorStyles.None;
@@ -438,8 +394,7 @@ namespace CrusaderWars
             infoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            btnOptInPreReleases.TextAlign = ContentAlignment.MiddleLeft; // TextAlign for new button
-            labelPreReleaseInfo.TextAlign = ContentAlignment.MiddleLeft; // TextAlign for new label
+            linkOptInPreReleases.TextAlign = ContentAlignment.MiddleLeft; // TextAlign for new label
             EA_Label.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             labelSeparatorLeft.TextAlign = ContentAlignment.MiddleCenter;
@@ -456,10 +411,8 @@ namespace CrusaderWars
             viewLogsLink.Padding = new Padding(3, 3, 3, 3);
             labelVersion.Margin = new Padding(0, 3, 4, 0);
             labelMappersVersion.Margin = new Padding(4, 3, 4, 0);
-            btnOptInPreReleases.Margin = new Padding(0, 3, 4, 5); // Margin for new button - UPDATED
-            btnOptInPreReleases.Padding = new Padding(0, 3, 3, 3); // Padding for new button
-            labelPreReleaseInfo.Margin = new Padding(0, 3, 4, 0); // Margin for new label
-            labelPreReleaseInfo.Padding = new Padding(0, 3, 3, 3); // Padding for new label
+            linkOptInPreReleases.Margin = new Padding(0, 3, 4, 5); // Margin for new label
+            linkOptInPreReleases.Padding = new Padding(0, 3, 3, 3); // Padding for new label
             pictureBox1.Margin = new Padding(4, 4, 4, 4);
             MainPanelLayout.Margin = new Padding(4, 4, 4, 4);
             EA_Label.Margin = new Padding(4, 0, 4, 0);
@@ -501,7 +454,6 @@ namespace CrusaderWars
             labelVersion.BackColor = myColor;
             labelMappersVersion.BackColor = myColor;
             VersionInfoFlowPanel.BackColor = Color.Transparent; // NEW
-            EA_Label.BackColor = myColor;
 
             // Initialize and configure Playthrough Display
             InitializePlaythroughDisplay();
@@ -517,7 +469,7 @@ namespace CrusaderWars
             AttilaPreferences.ValidateOnStartup();
 
             // Set initial state for Opt-in to pre-releases button
-            UpdatePreReleaseButtonState();
+            UpdatePreReleaseLinkState();
 
             UpdateUIForBattleState();
             UpdatePlaythroughDisplay(); // Initial update
@@ -534,8 +486,7 @@ namespace CrusaderWars
             InformationToolTip.SetToolTip(labelVersion, "Crusader Conflicts application version.");
             InformationToolTip.SetToolTip(labelMappersVersion, "Version of the installed Unit Mappers.");
             // NEW TOOLTIPS
-            InformationToolTip.SetToolTip(labelPreReleaseInfo, "Receive alpha, beta, and other pre-release versions to try out the latest features and improvements.");
-            InformationToolTip.SetToolTip(btnOptInPreReleases, "Click to toggle whether to receive pre-release updates."); // Updated tooltip
+            InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to toggle receiving pre-release updates."); // Updated tooltip
 
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
 
@@ -550,21 +501,18 @@ namespace CrusaderWars
             ShowOneTimeNotifications();
         }
 
-        private void UpdatePreReleaseButtonState()
+        private void UpdatePreReleaseLinkState()
         {
             bool isOptedIn = ModOptions.GetOptInPreReleases();
             if (isOptedIn)
             {
-                btnOptInPreReleases.Text = "Pre-releases: Enabled (click to disable)";
-                btnOptInPreReleases.ForeColor = Color.Gold;
-                _preReleasePulseTimer.Stop();
-                labelPreReleaseInfo.ForeColor = Color.WhiteSmoke; // Reset label color
+                linkOptInPreReleases.Text = "Pre-releases: Enabled (click to disable)";
+                linkOptInPreReleases.ForeColor = Color.Gold;
             }
             else
             {
-                btnOptInPreReleases.Text = "Enable Pre-releases";
-                btnOptInPreReleases.ForeColor = Color.WhiteSmoke;
-                _preReleasePulseTimer.Start();
+                linkOptInPreReleases.Text = "Opt-in to Pre-releases";
+                linkOptInPreReleases.ForeColor = Color.WhiteSmoke;
             }
         }
 
@@ -1068,7 +1016,7 @@ namespace CrusaderWars
                     }
                     catch (IOException ex)
                     {
-                        Program.Logger.Debug($"Attempt {i + 1} to clear log files failed due to file lock: {ex.Message}");
+                        Program.Logger.Debug($"Attempt {i + 1} to clear log files failed due to file lock: {ex.Message}. Retrying in 500ms...");
                         if (i == maxRetries - 1)
                         {
                             Program.Logger.Debug("Final attempt to clear log files failed.");
@@ -2390,7 +2338,6 @@ namespace CrusaderWars
             Program.Logger.Debug("HomePage form closing.");
             _battleMonitoringCts?.Cancel(); // Cancel any active monitoring
             _battleMonitoringCts?.Dispose(); // Dispose the CTS
-            _preReleasePulseTimer?.Stop(); // Stop the pre-release pulse timer
             ProcessCommands.ResumeProcess();
         }
 
@@ -2552,7 +2499,7 @@ namespace CrusaderWars
             }
         }
 
-        private async void btnOptInPreReleases_Click(object sender, EventArgs e)
+        private async void linkOptInPreReleases_Click(object sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
 
@@ -2561,14 +2508,14 @@ namespace CrusaderWars
             Options.SetOptInPreReleases(!currentState);
 
             // Update the button's appearance immediately
-            UpdatePreReleaseButtonState();
+            UpdatePreReleaseLinkState();
 
             // If the user just opted IN, check for updates
             if (ModOptions.GetOptInPreReleases())
             {
                 try
                 {
-                    btnOptInPreReleases.Enabled = false;
+                    linkOptInPreReleases.Enabled = false;
                     infoLabel.Text = "Checking for pre-release updates...";
                     Program.Logger.Debug("Triggering immediate update check due to pre-release opt-in.");
                     await _updater.CheckAppVersion();
@@ -2582,7 +2529,7 @@ namespace CrusaderWars
                 }
                 finally
                 {
-                    btnOptInPreReleases.Enabled = true;
+                    linkOptInPreReleases.Enabled = true;
                     await Task.Delay(2000);
                     infoLabel.Text = "Ready to Start!";
                 }

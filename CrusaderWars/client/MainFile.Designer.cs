@@ -38,16 +38,15 @@
             this.viewLogsLink = new System.Windows.Forms.Button();
             this.labelVersion = new System.Windows.Forms.Button();
             this.labelMappersVersion = new System.Windows.Forms.Button();
-            this.labelPreReleaseInfo = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.ContinueBattleButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnOptInPreReleases = new System.Windows.Forms.Button();
-            this.labelSeparatorLeft = new System.Windows.Forms.Label();
+            this.linkOptInPreReleases = new System.Windows.Forms.Label();
             this.VersionInfoFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelSeparatorLeft = new System.Windows.Forms.Label();
             this.BottomRightFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.labelSeparatorRight = new System.Windows.Forms.Label();
             this.discordLink = new System.Windows.Forms.Button();
@@ -175,17 +174,6 @@
             this.labelMappersVersion.Click += new System.EventHandler(this.labelMappersVersion_Click);
             this.labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // labelPreReleaseInfo
-            // 
-            this.labelPreReleaseInfo.AutoSize = true;
-            this.labelPreReleaseInfo.BackColor = System.Drawing.Color.Transparent;
-            this.labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.labelPreReleaseInfo.Name = "labelPreReleaseInfo";
-            resources.ApplyResources(this.labelPreReleaseInfo, "labelPreReleaseInfo");
-            this.labelPreReleaseInfo.Text = "Get Early Access!";
-            this.labelPreReleaseInfo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 0);
-            this.labelPreReleaseInfo.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            // 
             // pictureBox1
             // 
             resources.ApplyResources(this.pictureBox1, "pictureBox1");
@@ -255,38 +243,25 @@
             this.BottomLeftFlowPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
-            this.BottomLeftFlowPanel.Controls.Add(this.labelPreReleaseInfo);
-            this.BottomLeftFlowPanel.Controls.Add(this.btnOptInPreReleases);
+            this.BottomLeftFlowPanel.Controls.Add(this.linkOptInPreReleases);
             this.BottomLeftFlowPanel.Controls.Add(this.VersionInfoFlowPanel);
             this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
             this.BottomLeftFlowPanel.WrapContents = false;
             // 
-            // btnOptInPreReleases
+            // linkOptInPreReleases
             // 
-            this.btnOptInPreReleases = new System.Windows.Forms.Button();
-            this.btnOptInPreReleases.AutoSize = true;
-            this.btnOptInPreReleases.BackColor = System.Drawing.Color.Transparent;
-            this.btnOptInPreReleases.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnOptInPreReleases.FlatAppearance.BorderSize = 0;
-            this.btnOptInPreReleases.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.btnOptInPreReleases.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btnOptInPreReleases.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOptInPreReleases.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Underline);
-            this.btnOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.btnOptInPreReleases.Name = "btnOptInPreReleases";
-            this.btnOptInPreReleases.Margin = new System.Windows.Forms.Padding(0, 3, 4, 5);
-            this.btnOptInPreReleases.Text = "Enable Pre-releases";
-            this.btnOptInPreReleases.UseVisualStyleBackColor = false;
-            this.btnOptInPreReleases.Click += new System.EventHandler(this.btnOptInPreReleases_Click);
-            // 
-            // labelSeparatorLeft
-            // 
-            resources.ApplyResources(this.labelSeparatorLeft, "labelSeparatorLeft");
-            this.labelSeparatorLeft.BackColor = System.Drawing.Color.Transparent;
-            this.labelSeparatorLeft.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.labelSeparatorLeft.Name = "labelSeparatorLeft";
+            this.linkOptInPreReleases.AutoSize = true;
+            this.linkOptInPreReleases.BackColor = System.Drawing.Color.Transparent;
+            this.linkOptInPreReleases.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.linkOptInPreReleases.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Underline);
+            this.linkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.linkOptInPreReleases.Margin = new System.Windows.Forms.Padding(0, 3, 4, 5);
+            this.linkOptInPreReleases.Name = "linkOptInPreReleases";
+            this.linkOptInPreReleases.Padding = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            resources.ApplyResources(this.linkOptInPreReleases, "linkOptInPreReleases");
+            this.linkOptInPreReleases.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // VersionInfoFlowPanel
             // 
@@ -303,6 +278,13 @@
             this.VersionInfoFlowPanel.Size = new System.Drawing.Size(256, 27);
             this.VersionInfoFlowPanel.TabIndex = 2;
             this.VersionInfoFlowPanel.WrapContents = false;
+            // 
+            // labelSeparatorLeft
+            // 
+            resources.ApplyResources(this.labelSeparatorLeft, "labelSeparatorLeft");
+            this.labelSeparatorLeft.BackColor = System.Drawing.Color.Transparent;
+            this.labelSeparatorLeft.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.labelSeparatorLeft.Name = "labelSeparatorLeft";
             // 
             // BottomRightFlowPanel
             // 
@@ -416,7 +398,7 @@
             this.Name = "HomePage";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HomePage_FormClosing);
+            this.FormClosing += new System.EventHandler(this.HomePage_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.HomePage_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -461,8 +443,7 @@
         private System.Windows.Forms.Button discordLink;
         private System.Windows.Forms.Label labelSeparatorLeft;
         private System.Windows.Forms.Label labelSeparatorRight;
-        private System.Windows.Forms.Label labelPreReleaseInfo;
         private System.Windows.Forms.FlowLayoutPanel VersionInfoFlowPanel;
-        private System.Windows.Forms.Button btnOptInPreReleases;
+        private System.Windows.Forms.Label linkOptInPreReleases;
     }
 }
