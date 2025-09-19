@@ -10,6 +10,7 @@ using CrusaderWars.armies;
 using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
+using CrusaderWars.sieges;
 using CrusaderWars.terrain;
 using CrusaderWars.twbattle;
 using CrusaderWars.unit_mapper;
@@ -1053,15 +1054,36 @@ namespace CrusaderWars
             // 0 = player defender 
             // 1 = enemy defender
 
+            string battleType = "land_normal";
+            string fortificationDamageTags = "";
+
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                int holdingLevel = twbattle.Sieges.GetHoldingLevel();
+                if (holdingLevel > 1)
+                {
+                    battleType = "settlement_standard";
+                }
+                else
+                {
+                    battleType = "settlement_unfortified";
+                }
+
+                string escalationLevel = twbattle.Sieges.GetHoldingEscalation();
+                fortificationDamageTags = Sieges_DataTypes.Fortification.GetFortificationDamageTags(escalationLevel);
+            }
+
+
             string PR_BattleDescription = "<battle_description>\n" +
                                           "<battle_script prepare_for_fade_in=\"false\">tut_start.lua</battle_script>\n" +
                                           "<time_of_day>day</time_of_day>\n" +
                                           "<season>Summer</season>\n" +
                                           "<precipitation_type>snow</precipitation_type>\n" +
-                                          "<type>land_normal</type>\n" +
+                                          $"<type>{battleType}</type>\n" +
                                           ModOptions.TimeLimit() +
                                           $"<timeout_winning_alliance_index>{combat_side}</timeout_winning_alliance_index>\n" +
                                           "<boiling_oil></boiling_oil>\n" +
+                                          fortificationDamageTags +
                                           "</battle_description>\n\n";
 
             string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers)}\"/>\n\n";
@@ -1071,9 +1093,26 @@ namespace CrusaderWars
 
         private static void SetBattleTerrain(string X, string Y, string weather_key, string attila_map)
         {
-        
+            string PR_BattleTerrain;
+            string battleMapDefinitionContent;
 
-            string PR_BattleTerrain =   "<weather>\n" +
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                var (tilePath, levelUpgradeTag) = twbattle.Sieges.GetSettlementBattleMap();
+                string escalationLevel = twbattle.Sieges.GetHoldingEscalation();
+                string escalationTag = Sieges_DataTypes.Escalation.GetEscalationTileUpgrade(escalationLevel);
+
+                battleMapDefinitionContent = $"<name>{tilePath}</name>\n" +
+                                             $"{levelUpgradeTag}\n" +
+                                             $"{escalationTag}\n";
+            }
+            else
+            {
+                battleMapDefinitionContent = $"<name>{attila_map}</name>\n" +
+                                             $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n";
+            }
+
+            PR_BattleTerrain =   "<weather>\n" +
                                         $"<environment_key>{weather_key}</environment_key>\n" +
                                         "<prevailing_wind x=\"1.00\" y=\"0.00\"/>\n" +
                                         "</weather>\n\n" +
@@ -1081,8 +1120,7 @@ namespace CrusaderWars
                                         "<sea_surface_name>wind_level_4</sea_surface_name>\n\n" +
 
                                         "<battle_map_definition>\n" +
-                                        $"<name>{attila_map}</name>\n" +
-                                        $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n" +
+                                        battleMapDefinitionContent +
                                         "</battle_map_definition>\n\n";
 
             File.AppendAllText(battlePath, PR_BattleTerrain);

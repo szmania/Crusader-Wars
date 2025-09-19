@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CrusaderWars.data.save_file;
 using CrusaderWars.sieges;
 
 namespace CrusaderWars.twbattle
@@ -46,6 +47,36 @@ namespace CrusaderWars.twbattle
             FortLevel = 0;
             AttackerArmyComposition = string.Empty;
             Program.Logger.Debug("Siege data reset.");
+        }
+
+        public static int GetHoldingLevel() { return HoldingLevel; }
+        public static string GetGarrisonCulture() { return GarrisonCulture; }
+        public static string GetGarrisonHeritage() { return GarrisonHeritage; }
+        public static string GetHoldingEscalation() { return EscalationLevel; }
+
+        public static (string tilePath, string levelUpgradeTag) GetSettlementBattleMap()
+        {
+            string tilePath;
+            string levelUpgradeTag;
+
+            // This logic constructs a path to a predefined settlement map in Attila.
+            // The path is determined by the holding's culture (which maps to an architecture style)
+            // and can be further refined by building variations (e.g., military vs. civic).
+            string architecture = Sieges_DataTypes.Holding.GetArchitecture(HoldingCulture);
+            string variation = Sieges_DataTypes.Holding.GetVariation(Data.Province_Buildings.ToArray());
+
+            // Example path: terrain/tiles/battle/settlement_western_roman_cities/western_roman_city_a/medium/
+            // The variation can be used to select different city types (e.g. western_roman_city_b) for variety.
+            string basePath = $"terrain/tiles/battle/settlement_{architecture}_cities/{architecture}_city_a/medium/";
+
+            tilePath = basePath;
+
+            int level = HoldingLevel;
+            if (level > 4) level = 4; // Attila maps typically have a max level (e.g., 4)
+            if (level < 1) level = 1;
+            levelUpgradeTag = $"<tile_upgrade>level{level}</tile_upgrade>";
+
+            return (tilePath, levelUpgradeTag);
         }
 
         public static void SetHoldingCulture(string culture)

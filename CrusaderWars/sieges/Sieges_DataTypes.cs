@@ -50,6 +50,36 @@ namespace CrusaderWars.sieges
             }
         };
 
+        public struct Fortification
+        {
+            public static string GetFortificationDamageTags(string breach_status)
+            {
+                string wallDamage = "0.0";
+                string wallBreaches = "0";
+                string buildingDamage = "0.25"; // Default as per plan
+
+                switch (breach_status)
+                {
+                    case "Intact":
+                        wallDamage = "0.0";
+                        wallBreaches = "0";
+                        break;
+                    case "SmallBreach":
+                        wallDamage = "0.3";
+                        wallBreaches = "2";
+                        break;
+                    case "LargeBreach":
+                        wallDamage = "0.6";
+                        wallBreaches = "4";
+                        break;
+                }
+
+                return $"<fortification_wall_damage>{wallDamage}</fortification_wall_damage>\n" +
+                       $"<fortification_building_damage>{buildingDamage}</fortification_building_damage>\n" +
+                       $"<fortification_wall_breaches>{wallBreaches}</fortification_wall_breaches>\n";
+            }
+        }
+
         public struct Holding
         {
             public static string GetArchitecture(string architecture)
