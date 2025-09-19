@@ -124,7 +124,7 @@ namespace CrusaderWars
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             // NEW HOVER EFFECTS FOR labelPreReleaseInfo and btnOptInPreReleases
             btnOptInPreReleases.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { btnOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
-            btnOptInPreReleases.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { btnOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke; } };
+            btnOptInPreReleases.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { btnOptInPreReleases.ForeColor = ModOptions.GetOptInPreReleases() ? Color.Gold : Color.WhiteSmoke; } };
             labelPreReleaseInfo.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
             labelPreReleaseInfo.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke; } };
             
@@ -457,9 +457,9 @@ namespace CrusaderWars
             labelVersion.Margin = new Padding(0, 3, 4, 0);
             labelMappersVersion.Margin = new Padding(4, 3, 4, 0);
             btnOptInPreReleases.Margin = new Padding(0, 3, 4, 5); // Margin for new button - UPDATED
-            btnOptInPreReleases.Padding = new Padding(3, 3, 3, 3); // Padding for new button
+            btnOptInPreReleases.Padding = new Padding(0, 3, 3, 3); // Padding for new button
             labelPreReleaseInfo.Margin = new Padding(0, 3, 4, 0); // Margin for new label
-            labelPreReleaseInfo.Padding = new Padding(3, 3, 3, 3); // Padding for new label
+            labelPreReleaseInfo.Padding = new Padding(0, 3, 3, 3); // Padding for new label
             pictureBox1.Margin = new Padding(4, 4, 4, 4);
             MainPanelLayout.Margin = new Padding(4, 4, 4, 4);
             EA_Label.Margin = new Padding(4, 0, 4, 0);
@@ -555,14 +555,14 @@ namespace CrusaderWars
             bool isOptedIn = ModOptions.GetOptInPreReleases();
             if (isOptedIn)
             {
-                btnOptInPreReleases.Text = "Pre-releases: Enabled";
+                btnOptInPreReleases.Text = "Pre-releases: Enabled (click to disable)";
                 btnOptInPreReleases.ForeColor = Color.Gold;
                 _preReleasePulseTimer.Stop();
                 labelPreReleaseInfo.ForeColor = Color.WhiteSmoke; // Reset label color
             }
             else
             {
-                btnOptInPreReleases.Text = "Pre-releases: Disabled";
+                btnOptInPreReleases.Text = "Enable Pre-releases";
                 btnOptInPreReleases.ForeColor = Color.WhiteSmoke;
                 _preReleasePulseTimer.Start();
             }

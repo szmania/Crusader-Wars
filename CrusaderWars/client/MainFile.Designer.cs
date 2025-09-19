@@ -182,7 +182,7 @@
             this.labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.labelPreReleaseInfo.Name = "labelPreReleaseInfo";
             resources.ApplyResources(this.labelPreReleaseInfo, "labelPreReleaseInfo");
-            this.labelPreReleaseInfo.Text = "Get early access!";
+            this.labelPreReleaseInfo.Text = "Get Early Access!";
             this.labelPreReleaseInfo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 0);
             this.labelPreReleaseInfo.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             // 
@@ -273,11 +273,11 @@
             this.btnOptInPreReleases.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.btnOptInPreReleases.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.btnOptInPreReleases.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOptInPreReleases.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.btnOptInPreReleases.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Underline);
             this.btnOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.btnOptInPreReleases.Name = "btnOptInPreReleases";
             this.btnOptInPreReleases.Margin = new System.Windows.Forms.Padding(0, 3, 4, 5);
-            this.btnOptInPreReleases.Text = "Pre-releases: Disabled";
+            this.btnOptInPreReleases.Text = "Enable Pre-releases";
             this.btnOptInPreReleases.UseVisualStyleBackColor = false;
             this.btnOptInPreReleases.Click += new System.EventHandler(this.btnOptInPreReleases_Click);
             // 
