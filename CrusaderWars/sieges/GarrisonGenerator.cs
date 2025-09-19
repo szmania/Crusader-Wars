@@ -22,12 +22,12 @@ namespace CrusaderWars.sieges
         {
             if (garrisonSize <= 0)
             {
-                return new Army(); // Return an empty army
+                return new Army("garrison_army_empty", "defender", false); // Return an empty army
             }
 
             // Create a single army to hold the garrison regiments.
             // This army will represent the defender side in the battle.
-            Army garrisonArmy = new Army();
+            Army garrisonArmy = new Army("garrison_army", "defender", true);
             garrisonArmy.IsPlayer(false); // Garrison is always AI controlled.
 
             // Define garrison composition (e.g., 70% infantry, 30% ranged).
@@ -43,8 +43,10 @@ namespace CrusaderWars.sieges
 
             // Create and add regiments to the army.
             var armyRegiments = new List<ArmyRegiment>();
-            armyRegiments.AddRange(CreateArmyRegimentsForType(infantrySoldiers, infantryUnitKey, culture, heritage, RegimentType.Infantry, garrisonArmy));
-            armyRegiments.AddRange(CreateArmyRegimentsForType(rangedSoldiers, rangedUnitKey, culture, heritage, RegimentType.Ranged, garrisonArmy));
+            string infantryUnitName = "Garrison Levy Infantry";
+            string rangedUnitName = "Garrison Levy Ranged";
+            armyRegiments.AddRange(CreateArmyRegimentsForType(infantrySoldiers, infantryUnitKey, culture, heritage, infantryUnitName, garrisonArmy));
+            armyRegiments.AddRange(CreateArmyRegimentsForType(rangedSoldiers, rangedUnitKey, culture, heritage, rangedUnitName, garrisonArmy));
             
             // NOTE: Assumes the 'Army' class has a public property 'ArmyRegiments'.
             garrisonArmy.ArmyRegiments.AddRange(armyRegiments);
@@ -55,7 +57,7 @@ namespace CrusaderWars.sieges
         /// <summary>
         /// Creates a list of ArmyRegiment objects for a specific unit type (e.g., infantry, ranged).
         /// </summary>
-        private static List<ArmyRegiment> CreateArmyRegimentsForType(int totalSoldiers, string unitKey, string cultureName, string heritageName, RegimentType type, Army army)
+        private static List<ArmyRegiment> CreateArmyRegimentsForType(int totalSoldiers, string unitKey, string cultureName, string heritageName, string unitName, Army army)
         {
             var armyRegiments = new List<ArmyRegiment>();
             if (totalSoldiers <= 0 || string.IsNullOrEmpty(unitKey) || unitKey == UnitMappers_BETA.NOT_FOUND_KEY)
@@ -70,7 +72,7 @@ namespace CrusaderWars.sieges
             const int maxRegimentSize = 100;
 
             // Use a consistent name that includes "Levy" to be correctly identified as such during results processing.
-            string unitName = (type == RegimentType.Infantry) ? "Garrison Levy Infantry" : "Garrison Levy Ranged";
+            
 
             while (soldiersRemaining > 0)
             {
