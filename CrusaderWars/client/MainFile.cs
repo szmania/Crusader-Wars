@@ -1220,23 +1220,6 @@ namespace CrusaderWars
                                 Program.Logger.Debug("Searching log data...");
                                 DataSearch.Search(log);
 
-                                // Identify battle type
-                                if (log.Contains("Keyword:CRUSADERCONFLICTS_SIEGE"))
-                                {
-                                    Program.Logger.Debug("Siege battle detected.");
-                                    BattleState.IsSiegeBattle = true;
-                                }
-                                else if (log.Contains("Keyword:CRUSADERCONFLICTS_BATTLE"))
-                                {
-                                    Program.Logger.Debug("Field battle detected.");
-                                    BattleState.IsSiegeBattle = false;
-                                }
-                                else
-                                {
-                                    Program.Logger.Debug("Could not determine battle type from keyword. Defaulting to field battle.");
-                                    BattleState.IsSiegeBattle = false;
-                                }
-
                                 Program.Logger.Debug("Reading installed Attila mods...");
                                 AttilaModManager.ReadInstalledMods();
                                 Program.Logger.Debug("Setting playthrough...");
@@ -1980,23 +1963,6 @@ namespace CrusaderWars
                 return;
             }
             DataSearch.Search(logSnippet);
-
-            // Identify battle type from snippet
-            if (logSnippet.Contains("Keyword:CRUSADERCONFLICTS_SIEGE"))
-            {
-                Program.Logger.Debug("Siege battle detected from snippet.");
-                BattleState.IsSiegeBattle = true;
-            }
-            else if (logSnippet.Contains("Keyword:CRUSADERCONFLICTS_BATTLE"))
-            {
-                Program.Logger.Debug("Field battle detected from snippet.");
-                BattleState.IsSiegeBattle = false;
-            }
-            else
-            {
-                Program.Logger.Debug("Could not determine battle type from snippet keyword. Defaulting to field battle.");
-                BattleState.IsSiegeBattle = false;
-            }
 
             Program.Logger.Debug("Battle context restored.");
 
