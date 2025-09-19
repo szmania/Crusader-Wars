@@ -43,7 +43,6 @@ namespace CrusaderWars
         // NEW MEMBERS FOR PRE-RELEASE PULSE
         private System.Windows.Forms.Timer _preReleasePulseTimer = null!;
         private int _preReleasePulseStep = 0;
-        private bool _isUpdatingCheckboxState = false; // Added: Re-entry guard for checkbox state
 
         // Playthrough Display UI Elements
         private Panel playthroughPanel = null!;
@@ -97,7 +96,7 @@ namespace CrusaderWars
             EA_Label.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold); // Programmatically set EA_Label font
             labelSeparatorLeft.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
             labelSeparatorRight.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
-            checkOptInPreReleases.Font = new Font("Microsoft Sans Serif", 10f); // Set font for new checkbox
+            btnOptInPreReleases.Font = new Font("Microsoft Sans Serif", 10f); // Set font for new button
             labelPreReleaseInfo.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Italic); // NEW FONT SETTING
 
             // Set FlatStyle programmatically
@@ -111,7 +110,7 @@ namespace CrusaderWars
             discordLink.FlatStyle = FlatStyle.Flat;
             labelVersion.FlatStyle = FlatStyle.Flat;
             labelMappersVersion.FlatStyle = FlatStyle.Flat;
-            checkOptInPreReleases.FlatStyle = FlatStyle.Flat; // Set FlatStyle for new checkbox
+            btnOptInPreReleases.FlatStyle = FlatStyle.Flat; // Set FlatStyle for new button
 
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
@@ -123,9 +122,9 @@ namespace CrusaderWars
             labelVersion.MouseLeave += (sender, e) => { labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
-            // NEW HOVER EFFECTS FOR labelPreReleaseInfo and checkOptInPreReleases
-            checkOptInPreReleases.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { checkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
-            checkOptInPreReleases.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke; } };
+            // NEW HOVER EFFECTS FOR labelPreReleaseInfo and btnOptInPreReleases
+            btnOptInPreReleases.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { btnOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
+            btnOptInPreReleases.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { btnOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke; } };
             labelPreReleaseInfo.MouseEnter += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); } };
             labelPreReleaseInfo.MouseLeave += (sender, e) => { if (!_preReleasePulseTimer.Enabled) { labelPreReleaseInfo.ForeColor = System.Drawing.Color.WhiteSmoke; } };
             
@@ -239,7 +238,7 @@ namespace CrusaderWars
             }
 
             labelPreReleaseInfo.ForeColor = currentColor;
-            checkOptInPreReleases.ForeColor = currentColor;
+            btnOptInPreReleases.ForeColor = currentColor;
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -385,7 +384,7 @@ namespace CrusaderWars
             labelSeparatorLeft.Location = new Point(100, 0); // Example, adjust as needed
             labelSeparatorRight.Location = new Point(100, 0); // Example, adjust as needed
             // Positioning for FlowLayoutPanel is handled by the panel itself, no need to set here.
-            // checkOptInPreReleases.Location = new Point(labelMappersVersion.Right + 10, labelMappersVersion.Top); // Position relative to labelMappersVersion
+            // btnOptInPreReleases.Location = new Point(labelMappersVersion.Right + 10, labelMappersVersion.Top); // Position relative to labelMappersVersion
 
 
             // Set sizes programmatically
@@ -406,7 +405,7 @@ namespace CrusaderWars
             viewLogsLink.Anchor = AnchorStyles.None;
             labelVersion.Anchor = AnchorStyles.None;
             labelMappersVersion.Anchor = AnchorStyles.None;
-            checkOptInPreReleases.Anchor = AnchorStyles.None; // Anchor for new checkbox
+            btnOptInPreReleases.Anchor = AnchorStyles.None; // Anchor for new button
             labelPreReleaseInfo.Anchor = AnchorStyles.None; // Anchor for new label
             pictureBox1.Anchor = AnchorStyles.None;
             EA_Label.Anchor = AnchorStyles.None;
@@ -439,7 +438,7 @@ namespace CrusaderWars
             infoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            checkOptInPreReleases.TextAlign = ContentAlignment.MiddleLeft; // TextAlign for new checkbox
+            btnOptInPreReleases.TextAlign = ContentAlignment.MiddleLeft; // TextAlign for new button
             labelPreReleaseInfo.TextAlign = ContentAlignment.MiddleLeft; // TextAlign for new label
             EA_Label.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -457,8 +456,8 @@ namespace CrusaderWars
             viewLogsLink.Padding = new Padding(3, 3, 3, 3);
             labelVersion.Margin = new Padding(0, 3, 4, 0);
             labelMappersVersion.Margin = new Padding(4, 3, 4, 0);
-            checkOptInPreReleases.Margin = new Padding(0, 3, 4, 5); // Margin for new checkbox - UPDATED
-            checkOptInPreReleases.Padding = new Padding(3, 3, 3, 3); // Padding for new checkbox
+            btnOptInPreReleases.Margin = new Padding(0, 3, 4, 5); // Margin for new button - UPDATED
+            btnOptInPreReleases.Padding = new Padding(3, 3, 3, 3); // Padding for new button
             labelPreReleaseInfo.Margin = new Padding(0, 3, 4, 0); // Margin for new label
             labelPreReleaseInfo.Padding = new Padding(3, 3, 3, 3); // Padding for new label
             pictureBox1.Margin = new Padding(4, 4, 4, 4);
@@ -517,8 +516,8 @@ namespace CrusaderWars
             AttilaPreferences.ChangeUnitSizes();
             AttilaPreferences.ValidateOnStartup();
 
-            // Set initial state for Opt-in to pre-releases checkbox
-            checkOptInPreReleases.Checked = ModOptions.GetOptInPreReleases();
+            // Set initial state for Opt-in to pre-releases button
+            UpdatePreReleaseButtonState();
 
             UpdateUIForBattleState();
             UpdatePlaythroughDisplay(); // Initial update
@@ -536,7 +535,7 @@ namespace CrusaderWars
             InformationToolTip.SetToolTip(labelMappersVersion, "Version of the installed Unit Mappers.");
             // NEW TOOLTIPS
             InformationToolTip.SetToolTip(labelPreReleaseInfo, "Receive alpha, beta, and other pre-release versions to try out the latest features and improvements.");
-            InformationToolTip.SetToolTip(checkOptInPreReleases, "Check this box to enable updates for pre-release versions."); // Updated tooltip
+            InformationToolTip.SetToolTip(btnOptInPreReleases, "Click to toggle whether to receive pre-release updates."); // Updated tooltip
 
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
 
@@ -549,10 +548,22 @@ namespace CrusaderWars
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
 
-            // NEW: Start animation if not opted in
-            if (!checkOptInPreReleases.Checked)
+        private void UpdatePreReleaseButtonState()
+        {
+            bool isOptedIn = ModOptions.GetOptInPreReleases();
+            if (isOptedIn)
             {
+                btnOptInPreReleases.Text = "Pre-releases: Enabled";
+                btnOptInPreReleases.ForeColor = Color.Gold;
+                _preReleasePulseTimer.Stop();
+                labelPreReleaseInfo.ForeColor = Color.WhiteSmoke; // Reset label color
+            }
+            else
+            {
+                btnOptInPreReleases.Text = "Pre-releases: Disabled";
+                btnOptInPreReleases.ForeColor = Color.WhiteSmoke;
                 _preReleasePulseTimer.Start();
             }
         }
@@ -730,7 +741,7 @@ namespace CrusaderWars
             }
 
             string sanitizedVersionString = versionString.TrimStart('v');
-            int hyphenIndex = sanitizedVersionString.IndexOf('-');
+            int hyphenIndex = sanitizedVersionVersionString.IndexOf('-');
             if (hyphenIndex >= 0)
             {
                 sanitizedVersionString = sanitizedVersionString.Substring(0, hyphenIndex);
@@ -2541,32 +2552,28 @@ namespace CrusaderWars
             }
         }
 
-        private async void checkOptInPreReleases_CheckedChanged(object sender, EventArgs e)
+        private async void btnOptInPreReleases_Click(object sender, EventArgs e)
         {
-            if (_isUpdatingCheckboxState) return; // Guard against re-entry
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
 
-            Program.Logger.Debug($"Opt-in to pre-releases checkbox changed to: {checkOptInPreReleases.Checked}");
-            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav"); // Assuming this sound is appropriate for a checkbox click
+            // Toggle the setting
+            bool currentState = ModOptions.GetOptInPreReleases();
+            Options.SetOptInPreReleases(!currentState);
 
-            // Save the new setting
-            Options.SetOptInPreReleases(checkOptInPreReleases.Checked);
+            // Update the button's appearance immediately
+            UpdatePreReleaseButtonState();
 
-            // If the checkbox is now checked, trigger an immediate update check
-            if (checkOptInPreReleases.Checked)
+            // If the user just opted IN, check for updates
+            if (ModOptions.GetOptInPreReleases())
             {
-                _preReleasePulseTimer.Stop();
-                // Reset colors to default
-                labelPreReleaseInfo.ForeColor = Color.WhiteSmoke;
-                checkOptInPreReleases.ForeColor = Color.WhiteSmoke;
-
                 try
                 {
-                    checkOptInPreReleases.Enabled = false;
+                    btnOptInPreReleases.Enabled = false;
                     infoLabel.Text = "Checking for pre-release updates...";
                     Program.Logger.Debug("Triggering immediate update check due to pre-release opt-in.");
                     await _updater.CheckAppVersion();
                     await _updater.CheckUnitMappersVersion();
-                    infoLabel.Text = "Update check complete."; // Or reset to default if no update found
+                    infoLabel.Text = "Update check complete.";
                 }
                 catch (Exception ex)
                 {
@@ -2575,16 +2582,10 @@ namespace CrusaderWars
                 }
                 finally
                 {
-                    checkOptInPreReleases.Enabled = true;
-                    // Reset infoLabel after a short delay or based on actual update status
-                    await Task.Delay(2000); // Give user time to read message
-                    infoLabel.Text = "Ready to Start!"; // Or whatever the default ready message is
+                    btnOptInPreReleases.Enabled = true;
+                    await Task.Delay(2000);
+                    infoLabel.Text = "Ready to Start!";
                 }
-            }
-            else
-            {
-                // User opted out, start pulsing again
-                _preReleasePulseTimer.Start();
             }
         }
     }

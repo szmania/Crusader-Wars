@@ -38,7 +38,6 @@
             this.viewLogsLink = new System.Windows.Forms.Button();
             this.labelVersion = new System.Windows.Forms.Button();
             this.labelMappersVersion = new System.Windows.Forms.Button();
-            this.checkOptInPreReleases = new System.Windows.Forms.CheckBox();
             this.labelPreReleaseInfo = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
@@ -46,6 +45,7 @@
             this.ContinueBattleButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnOptInPreReleases = new System.Windows.Forms.Button();
             this.labelSeparatorLeft = new System.Windows.Forms.Label();
             this.VersionInfoFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.BottomRightFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -175,23 +175,6 @@
             this.labelMappersVersion.Click += new System.EventHandler(this.labelMappersVersion_Click);
             this.labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // checkOptInPreReleases
-            // 
-            resources.ApplyResources(this.checkOptInPreReleases, "checkOptInPreReleases");
-            this.checkOptInPreReleases.AutoSize = true;
-            this.checkOptInPreReleases.BackColor = System.Drawing.Color.Transparent;
-            this.checkOptInPreReleases.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.checkOptInPreReleases.FlatAppearance.BorderSize = 0;
-            this.checkOptInPreReleases.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.checkOptInPreReleases.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.checkOptInPreReleases.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.checkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.checkOptInPreReleases.Name = "checkOptInPreReleases";
-            this.checkOptInPreReleases.TabStop = false;
-            this.checkOptInPreReleases.Text = "Enable Pre-releases";
-            this.checkOptInPreReleases.UseVisualStyleBackColor = false;
-            this.checkOptInPreReleases.CheckedChanged += new System.EventHandler(this.checkOptInPreReleases_CheckedChanged);
-            // 
             // labelPreReleaseInfo
             // 
             this.labelPreReleaseInfo.AutoSize = true;
@@ -273,12 +256,30 @@
             this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomLeftFlowPanel.Controls.Add(this.labelPreReleaseInfo);
-            this.BottomLeftFlowPanel.Controls.Add(this.checkOptInPreReleases);
+            this.BottomLeftFlowPanel.Controls.Add(this.btnOptInPreReleases);
             this.BottomLeftFlowPanel.Controls.Add(this.VersionInfoFlowPanel);
             this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
             this.BottomLeftFlowPanel.WrapContents = false;
+            // 
+            // btnOptInPreReleases
+            // 
+            this.btnOptInPreReleases = new System.Windows.Forms.Button();
+            this.btnOptInPreReleases.AutoSize = true;
+            this.btnOptInPreReleases.BackColor = System.Drawing.Color.Transparent;
+            this.btnOptInPreReleases.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnOptInPreReleases.FlatAppearance.BorderSize = 0;
+            this.btnOptInPreReleases.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.btnOptInPreReleases.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.btnOptInPreReleases.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnOptInPreReleases.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.btnOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnOptInPreReleases.Name = "btnOptInPreReleases";
+            this.btnOptInPreReleases.Margin = new System.Windows.Forms.Padding(0, 3, 4, 5);
+            this.btnOptInPreReleases.Text = "Pre-releases: Disabled";
+            this.btnOptInPreReleases.UseVisualStyleBackColor = false;
+            this.btnOptInPreReleases.Click += new System.EventHandler(this.btnOptInPreReleases_Click);
             // 
             // labelSeparatorLeft
             // 
@@ -446,7 +447,6 @@
         private System.Windows.Forms.Button viewLogsLink;
         private System.Windows.Forms.Button labelVersion;
         private System.Windows.Forms.Button labelMappersVersion;
-        private System.Windows.Forms.CheckBox checkOptInPreReleases;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.FlowLayoutPanel MainPanelLayout;
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
@@ -463,5 +463,6 @@
         private System.Windows.Forms.Label labelSeparatorRight;
         private System.Windows.Forms.Label labelPreReleaseInfo;
         private System.Windows.Forms.FlowLayoutPanel VersionInfoFlowPanel;
+        private System.Windows.Forms.Button btnOptInPreReleases;
     }
 }
