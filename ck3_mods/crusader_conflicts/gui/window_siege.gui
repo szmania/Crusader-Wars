@@ -731,8 +731,25 @@ window = {
 						state = {
 							name = "log_garrison_culture"
 							duration = 0.01
-							next = "log_garrison"
+							next = "log_enemy_prowess"
+							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
+						}
+
+						state = {
+							name = "log_enemy_prowess"
+							duration = 0.01
+							next = "log_enemy_rank"
+							on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+							on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+						}
+
+						state = {
+							name = "log_enemy_rank"
+							duration = 0.01
+							next = "log_garrison"		
+							on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
+							on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
 						}
 						state = {
 							name = "log_garrison"
