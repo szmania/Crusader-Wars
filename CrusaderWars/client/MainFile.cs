@@ -51,7 +51,7 @@ namespace CrusaderWars
         private int _preReleasePulseStep = 0;
 
 
-        const string SEARCH_KEY = "CRUSADERWARS3";
+        const string SEARCH_KEY = "CRUSADERCONFLICTS";
 
         private int _myVariable = 0;
 
@@ -1131,7 +1131,7 @@ namespace CrusaderWars
                         {
                             infoLabel.Text = "Waiting for CK3 battle...";
                         }
-                        Program.Logger.Debug("Waiting for CRUSADERWARS3 keyword in CK3 log...");
+                        Program.Logger.Debug("Waiting for CRUSADERCONFLICTS keyword in CK3 log...");
                         try
                         {
                             //Wait for CW keyword
