@@ -1057,9 +1057,11 @@ namespace CrusaderWars
             string battleType = "land_normal";
             string fortificationDamageTags = "";
             string subcultureTag = "";
+            string battleScript = "tut_start.lua";
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
+                battleScript = "tut_tutorial_battle/tut_sieges.lua";
                 int holdingLevel = twbattle.Sieges.GetHoldingLevel();
                 if (holdingLevel > 1)
                 {
@@ -1091,7 +1093,7 @@ namespace CrusaderWars
 
 
             string PR_BattleDescription = "<battle_description>\n" +
-                                          "<battle_script prepare_for_fade_in=\"false\">tut_start.lua</battle_script>\n" +
+                                          $"<battle_script prepare_for_fade_in=\"false\">{battleScript}</battle_script>\n" +
                                           "<time_of_day>day</time_of_day>\n" +
                                           "<season>Summer</season>\n" +
                                           "<precipitation_type>snow</precipitation_type>\n" +
