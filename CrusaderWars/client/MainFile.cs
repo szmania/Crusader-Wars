@@ -741,7 +741,7 @@ namespace CrusaderWars
             }
 
             string sanitizedVersionString = versionString.TrimStart('v');
-            int hyphenIndex = sanitizedVersionVersionString.IndexOf('-');
+            int hyphenIndex = sanitizedVersionString.IndexOf('-');
             if (hyphenIndex >= 0)
             {
                 sanitizedVersionString = sanitizedVersionString.Substring(0, hyphenIndex);
