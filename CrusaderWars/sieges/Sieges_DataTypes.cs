@@ -169,50 +169,50 @@ namespace CrusaderWars.sieges
                     return "default";
                 }
             }
-            public static int GetLevel(string holding_key, string[] buildings_key)
+            public static int GetLevel(string holding_key, string[] buildings_key, int fortLevel)
             {
                 //If there is a holding building, increase wall size.
                 int building_wall_boost = 0;
-                if(buildings_key.Length > 0)
+                if (buildings_key.Length > 0)
                 {
-                    for (int i = 0; i < holding_key.Length; i++)
+                    foreach (var building in buildings_key)
                     {
-                        if (buildings_key[i].Contains("watchtowers_") ||
-                            buildings_key[i].Contains("curtain_walls_") ||
-                            buildings_key[i].Contains("hill_forts_") ||
-                            buildings_key[i].Contains("forest_forts_") ||
-                            buildings_key[i].Contains("palisades_"))
+                        if (building.Contains("watchtowers_") ||
+                            building.Contains("curtain_walls_") ||
+                            building.Contains("hill_forts_") ||
+                            building.Contains("forest_forts_") ||
+                            building.Contains("palisades_"))
                         {
                             building_wall_boost = 1;
+                            break; // Found one, no need to check more
                         }
                     }
                 }
 
-
-                switch(holding_key)
+                int baseLevel;
+                switch (holding_key)
                 {
                     //Feudal
                     case "castle_01":
-                        return 1 + building_wall_boost;
+                        baseLevel = 1 + building_wall_boost; break;
                     case "castle_02":
-                        return 3;
+                        baseLevel = 3; break;
                     case "castle_03":
-                        return 4 + building_wall_boost;
+                        baseLevel = 4 + building_wall_boost; break;
                     case "castle_04":
-                        return 6;
+                        baseLevel = 6; break;
 
                     //Tribal
                     case "tribe_01":
-                        return 1 + building_wall_boost;
+                        baseLevel = 1 + building_wall_boost; break;
                     case "tribe_02":
-                        return 3;
-
+                        baseLevel = 3; break;
+                    default:
+                        baseLevel = 0; break;
                 }
 
-
-
-
-                return 0;
+                // Only add fort level if a valid holding was found
+                return baseLevel > 0 ? baseLevel + fortLevel : 0;
             }
         };
     }

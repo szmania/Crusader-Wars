@@ -1322,7 +1322,8 @@ namespace CrusaderWars
 
                     if(twbattle.BattleState.IsSiegeBattle)
                     {
-                        Program.Logger.Debug("Siege battle detected. Generating garrison army.");
+                        Program.Logger.Debug("Siege battle detected. Calculating holding level and generating garrison army.");
+                        twbattle.Sieges.CalculateAndSetHoldingLevel();
                         int garrisonSize = twbattle.Sieges.GetGarrisonSize();
                         string garrisonCulture = twbattle.Sieges.GetGarrisonCulture();
                         string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();

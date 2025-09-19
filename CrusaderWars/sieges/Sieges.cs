@@ -104,9 +104,10 @@ namespace CrusaderWars.twbattle
             EscalationLevel = key;
         }
 
-        public static void SetHoldingLevel(string key)
+        public static void CalculateAndSetHoldingLevel()
         {
-            HoldingLevel = Sieges_DataTypes.Holding.GetLevel(key, Data.Province_Buildings.ToArray());
+            HoldingLevel = Sieges_DataTypes.Holding.GetLevel(HoldingLevelKey, Data.Province_Buildings.ToArray(), FortLevel);
+            Program.Logger.Debug($"Calculated Holding Level: {HoldingLevel} (Base Key: {HoldingLevelKey}, Fort Level: {FortLevel})");
         }
 
         public static void SetHoldingLevelKey(string key)
