@@ -214,8 +214,9 @@ namespace CrusaderWars
 
         public static void DeclareSiegeVariables()
         {
+            string supplyLevel = twbattle.Sieges.GetSuppliesLevel();
             string declarations = "\n-- Siege Specific Declarations --\n";
-            declarations += "declare_script_instance(\"DEFENDER_SUPPLY_LEVEL\");\n";
+            declarations += $"DEFENDER_SUPPLY_LEVEL = \"{supplyLevel}\"\n";
             File.AppendAllText(filePath, declarations);
         }
 

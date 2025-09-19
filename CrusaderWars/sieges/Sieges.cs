@@ -54,6 +54,7 @@ namespace CrusaderWars.twbattle
         public static string GetGarrisonCulture() { return GarrisonCulture; }
         public static string GetGarrisonHeritage() { return GarrisonHeritage; }
         public static string GetHoldingEscalation() { return EscalationLevel; }
+        public static string GetSuppliesLevel() { return SuppliesLevel; }
 
         public static (string tilePath, string levelUpgradeTag) GetSettlementBattleMap()
         {
