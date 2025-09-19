@@ -46,6 +46,10 @@ namespace CrusaderWars
         private Label playthroughTitleLabel = null!;
         private Label playthroughNameLabel = null!;
 
+        // Pre-release opt-in animation fields
+        private System.Windows.Forms.Timer? _preReleasePulseTimer;
+        private int _preReleasePulseStep = 0;
+
 
         const string SEARCH_KEY = "CRUSADERWARS3";
 
@@ -118,8 +122,17 @@ namespace CrusaderWars
             labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             // NEW HOVER EFFECTS FOR linkOptInPreReleases
-            linkOptInPreReleases.MouseEnter += (sender, e) => { linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
-            linkOptInPreReleases.MouseLeave += (sender, e) => { linkOptInPreReleases.ForeColor = ModOptions.GetOptInPreReleases() ? Color.Gold : Color.WhiteSmoke; };
+            linkOptInPreReleases.MouseEnter += (sender, e) => {
+                _preReleasePulseTimer?.Stop();
+                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
+            };
+            linkOptInPreReleases.MouseLeave += (sender, e) => {
+                if (ModOptions.GetOptInPreReleases()) {
+                    linkOptInPreReleases.ForeColor = Color.Gold;
+                } else {
+                    _preReleasePulseTimer?.Start();
+                }
+            };
             linkOptInPreReleases.Click += new EventHandler(linkOptInPreReleases_Click); // Add click event handler
 
             Thread.Sleep(1000);
@@ -189,6 +202,10 @@ namespace CrusaderWars
             _pulseTimer = new System.Windows.Forms.Timer();
             _pulseTimer.Interval = 100;
             _pulseTimer.Tick += PulseTimer_Tick;
+
+            _preReleasePulseTimer = new System.Windows.Forms.Timer();
+            _preReleasePulseTimer.Interval = 75; // Sets the pulse speed
+            _preReleasePulseTimer.Tick += PreReleasePulseTimer_Tick;
         }
 
         private void PulseTimer_Tick(object? sender, EventArgs e)
@@ -197,6 +214,16 @@ namespace CrusaderWars
             int redComponent = 120 + (_pulseStep < 10 ? _pulseStep * 10 : (20 - _pulseStep) * 10);
             SettingsBtn.FlatAppearance.BorderColor = Color.FromArgb(redComponent, 30, 30);
             SettingsBtn.FlatAppearance.BorderSize = 2;
+        }
+
+        private void PreReleasePulseTimer_Tick(object? sender, EventArgs e)
+        {
+            if (ModOptions.GetOptInPreReleases()) return; // Safety check
+
+            _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle
+            // Pulse between a bright yellow (255, 255, 150) and a slightly dimmer yellow (255, 255, 50)
+            int blueComponent = 150 - (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _preReleasePulseStep) * 10);
+            linkOptInPreReleases.ForeColor = Color.FromArgb(255, 255, blueComponent);
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -486,7 +513,7 @@ namespace CrusaderWars
             InformationToolTip.SetToolTip(labelVersion, "Crusader Conflicts application version.");
             InformationToolTip.SetToolTip(labelMappersVersion, "Version of the installed Unit Mappers.");
             // NEW TOOLTIPS
-            InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to toggle receiving pre-release updates."); // Updated tooltip
+            InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
 
@@ -506,13 +533,14 @@ namespace CrusaderWars
             bool isOptedIn = ModOptions.GetOptInPreReleases();
             if (isOptedIn)
             {
-                linkOptInPreReleases.Text = "Pre-releases: Enabled (click to disable)";
+                _preReleasePulseTimer?.Stop();
+                linkOptInPreReleases.Text = "Early Access Enabled (click to disable)";
                 linkOptInPreReleases.ForeColor = Color.Gold;
             }
             else
             {
-                linkOptInPreReleases.Text = "Opt-in to Pre-releases";
-                linkOptInPreReleases.ForeColor = Color.WhiteSmoke;
+                linkOptInPreReleases.Text = "Opt-in for Early Access to New Features";
+                _preReleasePulseTimer?.Start();
             }
         }
 
@@ -2336,6 +2364,7 @@ namespace CrusaderWars
         private void HomePage_FormClosing(object sender, FormClosingEventArgs e)
         {
             Program.Logger.Debug("HomePage form closing.");
+            _preReleasePulseTimer?.Stop(); // Add this line
             _battleMonitoringCts?.Cancel(); // Cancel any active monitoring
             _battleMonitoringCts?.Dispose(); // Dispose the CTS
             ProcessCommands.ResumeProcess();
