@@ -65,7 +65,8 @@ namespace CrusaderWars.sieges
                 return armyRegiments;
             }
 
-            var armyRegiment = new ArmyRegiment($"garrison_army_reg_{unitName.Replace(" ", "_")}", RegimentType.Levy, unitName);
+            var armyRegiment = new ArmyRegiment($"garrison_army_reg_{unitName.Replace(" ", "_")}");
+            armyRegiment.SetType(RegimentType.Levy, unitName);
 
             int soldiersRemaining = totalSoldiers;
             int regimentCounter = 0;
@@ -78,11 +79,11 @@ namespace CrusaderWars.sieges
                 int currentRegimentSize = Math.Min(soldiersRemaining, maxRegimentSize);
 
                 // Create the Unit, which represents the soldiers in Attila.
-                var unit = new Unit(unitName, unitKey);
-                unit.ChangeSoldiers(currentRegimentSize);
+                var culture = new Culture(cultureName, cultureName, heritageName);
+                var unit = new Unit(unitName, currentRegimentSize, culture, RegimentType.Levy);
+                unit.SetUnitKey(unitKey);
                 unit.SetMax(maxRegimentSize);
-                unit.ChangeCulture(new Culture(cultureName, cultureName, heritageName)); // Correct Culture constructor
-                army.Units.Add(unit); // Add the unit to the army's unit list
+                army.Units.Add(unit);
 
                 // Create the Regiment, which is a container for units in CK3.
                 var regiment = new Regiment($"garrison_reg_{unitName.Replace(" ", "_")}_{regimentCounter}", unitName); // Correct Regiment constructor
