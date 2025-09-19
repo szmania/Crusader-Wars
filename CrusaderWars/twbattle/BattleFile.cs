@@ -1056,6 +1056,7 @@ namespace CrusaderWars
 
             string battleType = "land_normal";
             string fortificationDamageTags = "";
+            string subcultureTag = "";
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -1071,6 +1072,15 @@ namespace CrusaderWars
 
                 string escalationLevel = twbattle.Sieges.GetHoldingEscalation();
                 fortificationDamageTags = Sieges_DataTypes.Fortification.GetFortificationDamageTags(escalationLevel);
+
+                string garrisonCulture = twbattle.Sieges.GetGarrisonCulture();
+                string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
+                string attilaFaction = UnitMappers_BETA.GetAttilaFaction(garrisonCulture, garrisonHeritage);
+                string subculture = UnitMappers_BETA.GetSubculture(attilaFaction);
+                if (!string.IsNullOrEmpty(subculture))
+                {
+                    subcultureTag = $"<subculture>{subculture}</subculture>\n";
+                }
             }
 
 
@@ -1080,6 +1090,7 @@ namespace CrusaderWars
                                           "<season>Summer</season>\n" +
                                           "<precipitation_type>snow</precipitation_type>\n" +
                                           $"<type>{battleType}</type>\n" +
+                                          subcultureTag +
                                           ModOptions.TimeLimit() +
                                           $"<timeout_winning_alliance_index>{combat_side}</timeout_winning_alliance_index>\n" +
                                           "<boiling_oil></boiling_oil>\n" +

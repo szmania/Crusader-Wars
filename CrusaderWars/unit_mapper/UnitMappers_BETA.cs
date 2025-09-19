@@ -409,6 +409,63 @@ namespace CrusaderWars.unit_mapper
             return max;
         }
 
+        public static string GetSubculture(string attila_faction)
+        {
+            Program.Logger.Debug($"Getting subculture for faction: '{attila_faction}'");
+            if (LoadedUnitMapper_FolderPath == null)
+            {
+                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get subculture.");
+                return ""; // Return empty string if not found
+            }
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+
+            string specific_subculture = "";
+            string default_subculture = "";
+
+            foreach (var xml_file in files_paths)
+            {
+                if (Path.GetExtension(xml_file) == ".xml")
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    // Check for specific faction
+                    XmlNode? specificNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{attila_faction}']");
+                    if (specificNode?.Attributes?["subculture"]?.Value is string foundSpecificSubculture)
+                    {
+                        specific_subculture = foundSpecificSubculture;
+                        Program.Logger.Debug($"Found specific subculture '{specific_subculture}' for faction '{attila_faction}' in file '{Path.GetFileName(xml_file)}'.");
+                    }
+
+                    // Check for default faction
+                    XmlNode? defaultNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='Default']");
+                    if (defaultNode?.Attributes?["subculture"]?.Value is string foundDefaultSubculture)
+                    {
+                        default_subculture = foundDefaultSubculture;
+                        Program.Logger.Debug($"Found default subculture '{default_subculture}' in file '{Path.GetFileName(xml_file)}'.");
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(specific_subculture))
+            {
+                return specific_subculture;
+            }
+
+            if (!string.IsNullOrEmpty(default_subculture))
+            {
+                Program.Logger.Debug($"No specific subculture found for faction '{attila_faction}'. Using default subculture '{default_subculture}'.");
+                return default_subculture;
+            }
+
+            Program.Logger.Debug($"WARNING: No subculture found for faction '{attila_faction}' or for 'Default' faction.");
+            return ""; // Return empty if nothing found
+        }
+
         static List<(int porcentage, string unit_key, string name, string max)> Levies(XmlDocument factions_file, string attila_faction)
         {
             var levies_nodes = factions_file.SelectNodes($"/Factions/Faction[@name=\"{attila_faction}\"]/Levies");
@@ -512,6 +569,47 @@ namespace CrusaderWars.unit_mapper
 
             // If neither loop finds any levies, throw an exception
             throw new Exception($"Unit Mapper Error: Could not find any levy definitions for faction '{attila_faction}' or for the 'Default' faction. Please check your unit mapper configuration.");
+        }
+
+        public static string GetGarrisonUnit(string unitType, string culture, string heritage)
+        {
+            string attilaFaction = GetAttilaFaction(culture, heritage);
+            var levies = GetFactionLevies(attilaFaction);
+
+            if (!levies.Any())
+            {
+                Program.Logger.Debug($"WARNING: No levy definitions found for faction '{attilaFaction}' when getting garrison unit. Cannot generate garrison.");
+                return NOT_FOUND_KEY;
+            }
+
+            if (unitType == "levy_infantry")
+            {
+                // Find the most common non-ranged, non-cavalry levy
+                var infantry = levies.Where(l => !l.unit_key.Contains("archer") && !l.unit_key.Contains("ranged") && !l.unit_key.Contains("cavalry") && !l.unit_key.Contains("skirmisher"))
+                                     .OrderByDescending(l => l.porcentage)
+                                     .FirstOrDefault();
+                if (!string.IsNullOrEmpty(infantry.unit_key))
+                    return infantry.unit_key;
+            }
+            else if (unitType == "levy_archer")
+            {
+                // Find the most common ranged levy
+                var ranged = levies.Where(l => l.unit_key.Contains("archer") || l.unit_key.Contains("ranged") || l.unit_key.Contains("skirmisher"))
+                                   .OrderByDescending(l => l.porcentage)
+                                   .FirstOrDefault();
+                if (!string.IsNullOrEmpty(ranged.unit_key))
+                    return ranged.unit_key;
+            }
+
+            // Fallback to the most common levy unit if specific type not found
+            if (levies.Any())
+            {
+                var fallback = levies.OrderByDescending(l => l.porcentage).First();
+                Program.Logger.Debug($"Could not find specific garrison unit type '{unitType}'. Falling back to most common levy '{fallback.unit_key}'.");
+                return fallback.unit_key;
+            }
+
+            return NOT_FOUND_KEY;
         }
 
         static string SearchInTitlesFile(Unit unit)
