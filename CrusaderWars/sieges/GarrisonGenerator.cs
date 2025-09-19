@@ -65,53 +65,43 @@ namespace CrusaderWars.sieges
                 return armyRegiments;
             }
 
+            var armyRegiment = new ArmyRegiment($"garrison_army_reg_{unitName.Replace(" ", "_")}");
+            armyRegiment.Type = RegimentType.Levy;
+            armyRegiment.MAA_Name = unitName;
+
             int soldiersRemaining = totalSoldiers;
             int regimentCounter = 0;
 
             // CK3 levy regiments are typically 100 soldiers at full strength.
             const int maxRegimentSize = 100;
 
-            // Use a consistent name that includes "Levy" to be correctly identified as such during results processing.
-            
-
             while (soldiersRemaining > 0)
             {
                 int currentRegimentSize = Math.Min(soldiersRemaining, maxRegimentSize);
 
-                // NOTE: The following block assumes standard C# properties and constructors
-                // for the data objects, as the provided summaries are incomplete.
-                
                 // Create the Unit, which represents the soldiers in Attila.
-                var unit = new Unit();
-                unit.SetAttilaKey(unitKey); 
+                var unit = new Unit(unitName, RegimentType.Levy, unitKey);
                 unit.ChangeSoldiers(currentRegimentSize);
                 unit.SetMax(maxRegimentSize);
-                unit.SetRegimentType(RegimentType.Levy); // Treat them as levies for casualty calculations
-                unit.ChangeCulture(new Culture(cultureName, heritageName));
-                unit.SetName(unitName); // Set a consistent name for grouping and casualty report matching.
+                unit.ChangeCulture(new Culture(cultureName, cultureName, heritageName)); // Correct Culture constructor
                 army.Units.Add(unit); // Add the unit to the army's unit list
 
                 // Create the Regiment, which is a container for units in CK3.
-                var regiment = new Regiment();
+                var regiment = new Regiment($"garrison_reg_{unitName.Replace(" ", "_")}_{regimentCounter}", unitName); // Correct Regiment constructor
                 regiment.IsGarrison(true);
                 regiment.isMercenary(false);
                 regiment.SetSoldiers(currentRegimentSize.ToString());
                 regiment.SetMax(maxRegimentSize.ToString());
                 regiment.SetCulture(cultureName);
-                regiment.AddUnit(unit);
 
-                // Create the ArmyRegiment, which links a Regiment to an Army.
-                var armyRegiment = new ArmyRegiment();
-                armyRegiment.SetRegiment(regiment);
-                armyRegiment.SetType(RegimentType.Levy); // Match the unit type for results processing.
-                armyRegiment.SetMAA_Name(unitName); // Match the unit name for casualty report lookup.
-
-                armyRegiments.Add(armyRegiment);
+                // Add the new regiment to the ArmyRegiment container's list of regiments.
+                armyRegiment.Regiments.Add(regiment);
 
                 soldiersRemaining -= currentRegimentSize;
                 regimentCounter++;
             }
 
+            armyRegiments.Add(armyRegiment);
             return armyRegiments;
         }
     }
