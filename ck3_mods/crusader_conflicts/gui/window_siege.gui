@@ -707,10 +707,19 @@ window = {
 						state = {
 							name = "log_attacker_prowess_skill"
 							duration = 0.01
-							next = "log_enemy_divider"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Attacker Prowess:', Localize('attacker_prowess')))]"
+							next = "log_player_rank"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
 
 						}
+
+                        state = {
+                            name = "log_player_rank"
+                            duration = 0.01
+                            next = "log_enemy_divider"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+            
+                        }
 
 						state = {
 							name = "log_enemy_divider"
@@ -723,7 +732,7 @@ window = {
 							name = "log_garrison_culture"
 							duration = 0.01
 							next = "log_garrison"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('garrison_culture')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 						}
 						state = {
 							name = "log_garrison"
