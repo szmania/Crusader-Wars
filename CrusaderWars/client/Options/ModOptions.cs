@@ -14,12 +14,8 @@ namespace CrusaderWars.client
 {
     public static class ModOptions
     {
-        static Dictionary<string, string> optionsValuesCollection = new Dictionary<string, string>();
-        public static void StoreOptionsValues(Dictionary<string, string> OptionsForm_ValuesCollection)
-        {
-            optionsValuesCollection = OptionsForm_ValuesCollection;
-        }
-
+        internal static Dictionary<string, string> optionsValuesCollection = new Dictionary<string, string>();
+        
         public static int GetLevyMax()
         {
             return Int32.Parse(optionsValuesCollection["LeviesMax"]);

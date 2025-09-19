@@ -207,8 +207,7 @@ namespace CrusaderWars
         }
 
         //this is to read the options values on the .xml file
-        public static Dictionary<string, string>? optionsValuesCollection { get; private set; }
-
+        
         private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
         {
             XmlNode? node = doc.SelectSingleNode($"//Option [@name='{optionName}']");
@@ -236,7 +235,7 @@ namespace CrusaderWars
                 xmlDoc.Load(file);
                 Program.Logger.Debug("XML options file loaded.");
 
-                optionsValuesCollection = new Dictionary<string, string>();
+                ModOptions.optionsValuesCollection.Clear();
                 var CloseCK3_Value = GetOptionValue(xmlDoc, "CloseCK3", "Enabled");
                 var CloseAttila_Value = GetOptionValue(xmlDoc, "CloseAttila", "Enabled");
                 var FullArmies_Value = GetOptionValue(xmlDoc, "FullArmies", "Disabled");
@@ -276,35 +275,35 @@ namespace CrusaderWars
                 xmlDoc.Save(file);
                 Program.Logger.Debug("All options read from XML.");
 
-                optionsValuesCollection.Add("CloseCK3", CloseCK3_Value);
-                optionsValuesCollection.Add("CloseAttila", CloseAttila_Value);
-                optionsValuesCollection.Add("FullArmies", FullArmies_Value);
-                optionsValuesCollection.Add("TimeLimit", TimeLimit_Value);
-                optionsValuesCollection.Add("BattleMapsSize", BattleMapsSize_Value);
-                optionsValuesCollection.Add("DefensiveDeployables", DefensiveDeployables_Value);
-                optionsValuesCollection.Add("UnitCards", UnitCards_Value);
-                optionsValuesCollection.Add("SeparateArmies", SeparateArmies_Value);
-                optionsValuesCollection.Add("LeviesMax", LeviesMax_Value);
-                optionsValuesCollection.Add("RangedMax", RangedMax_Value);
-                optionsValuesCollection.Add("InfantryMax", InfantryMax_Value);
-                optionsValuesCollection.Add("CavalryMax", CavalryMax_Value);
-                optionsValuesCollection.Add("BattleScale", BattleScale_Value);
-                optionsValuesCollection.Add("AutoScaleUnits", AutoScaleUnits_Value);
-                optionsValuesCollection.Add("CommanderWoundedChance", CommanderWoundedChance_Value);
-                optionsValuesCollection.Add("CommanderSeverelyInjuredChance", CommanderSeverelyInjuredChance_Value);
-                optionsValuesCollection.Add("CommanderBrutallyMauledChance", CommanderBrutallyMauledChance_Value);
-                optionsValuesCollection.Add("CommanderMaimedChance", CommanderMaimedChance_Value);
-                optionsValuesCollection.Add("CommanderOneLeggedChance", CommanderOneLeggedChance_Value);
-                optionsValuesCollection.Add("CommanderOneEyedChance", CommanderOneEyedChance_Value);
-                optionsValuesCollection.Add("CommanderDisfiguredChance", CommanderDisfiguredChance_Value);
-                optionsValuesCollection.Add("KnightWoundedChance", KnightWoundedChance_Value);
-                optionsValuesCollection.Add("KnightSeverelyInjuredChance", KnightSeverelyInjuredChance_Value);
-                optionsValuesCollection.Add("KnightBrutallyMauledChance", KnightBrutallyMauledChance_Value);
-                optionsValuesCollection.Add("KnightMaimedChance", KnightMaimedChance_Value);
-                optionsValuesCollection.Add("KnightOneLeggedChance", KnightOneLeggedChance_Value);
-                optionsValuesCollection.Add("KnightOneEyedChance", KnightOneEyedChance_Value);
-                optionsValuesCollection.Add("KnightDisfiguredChance", KnightDisfiguredChance_Value);
-                optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
+                ModOptions.optionsValuesCollection.Add("CloseCK3", CloseCK3_Value);
+                ModOptions.optionsValuesCollection.Add("CloseAttila", CloseAttila_Value);
+                ModOptions.optionsValuesCollection.Add("FullArmies", FullArmies_Value);
+                ModOptions.optionsValuesCollection.Add("TimeLimit", TimeLimit_Value);
+                ModOptions.optionsValuesCollection.Add("BattleMapsSize", BattleMapsSize_Value);
+                ModOptions.optionsValuesCollection.Add("DefensiveDeployables", DefensiveDeployables_Value);
+                ModOptions.optionsValuesCollection.Add("UnitCards", UnitCards_Value);
+                ModOptions.optionsValuesCollection.Add("SeparateArmies", SeparateArmies_Value);
+                ModOptions.optionsValuesCollection.Add("LeviesMax", LeviesMax_Value);
+                ModOptions.optionsValuesCollection.Add("RangedMax", RangedMax_Value);
+                ModOptions.optionsValuesCollection.Add("InfantryMax", InfantryMax_Value);
+                ModOptions.optionsValuesCollection.Add("CavalryMax", CavalryMax_Value);
+                ModOptions.optionsValuesCollection.Add("BattleScale", BattleScale_Value);
+                ModOptions.optionsValuesCollection.Add("AutoScaleUnits", AutoScaleUnits_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderWoundedChance", CommanderWoundedChance_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderSeverelyInjuredChance", CommanderSeverelyInjuredChance_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderBrutallyMauledChance", CommanderBrutallyMauledChance_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderMaimedChance", CommanderMaimedChance_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderOneLeggedChance", CommanderOneLeggedChance_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderOneEyedChance", CommanderOneEyedChance_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderDisfiguredChance", CommanderDisfiguredChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightWoundedChance", KnightWoundedChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightSeverelyInjuredChance", KnightSeverelyInjuredChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightBrutallyMauledChance", KnightBrutallyMauledChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightMaimedChance", KnightMaimedChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightOneLeggedChance", KnightOneLeggedChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightOneEyedChance", KnightOneEyedChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightDisfiguredChance", KnightDisfiguredChance_Value);
+                ModOptions.optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
                 Program.Logger.Debug("Options collection populated.");
 
 
@@ -359,94 +358,94 @@ namespace CrusaderWars
                 var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
 
 
-                CloseCK3_ComboBox!.SelectedItem = optionsValuesCollection!["CloseCK3"];
-                CloseAttila_ComboBox!.SelectedItem = optionsValuesCollection!["CloseAttila"];
-                FullArmies_ComboBox!.SelectedItem = optionsValuesCollection!["FullArmies"];
-                TimeLimit_ComboBox!.SelectedItem = optionsValuesCollection!["TimeLimit"];
-                BattleMapsSize_ComboBox!.SelectedItem = optionsValuesCollection!["BattleMapsSize"];
-                DefensiveDeployables_ComboBox!.SelectedItem = optionsValuesCollection!["DefensiveDeployables"];
-                UnitCards_ComboBox!.SelectedItem = optionsValuesCollection!["UnitCards"];
-                SeparateArmies_ComboBox!.SelectedItem = optionsValuesCollection!["SeparateArmies"];
+                CloseCK3_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseCK3"];
+                CloseAttila_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseAttila"];
+                FullArmies_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["FullArmies"];
+                TimeLimit_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["TimeLimit"];
+                BattleMapsSize_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleMapsSize"];
+                DefensiveDeployables_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["DefensiveDeployables"];
+                UnitCards_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["UnitCards"];
+                SeparateArmies_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["SeparateArmies"];
 
-                LeviesMax_ComboBox!.SelectedItem = optionsValuesCollection!["LeviesMax"];
-                RangedMax_ComboBox!.SelectedItem = optionsValuesCollection!["RangedMax"];
-                InfantryMax_ComboBox!.SelectedItem = optionsValuesCollection!["InfantryMax"];
-                CavalryMax_ComboBox!.SelectedItem = optionsValuesCollection!["CavalryMax"];
+                LeviesMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
+                RangedMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
+                InfantryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
+                CavalryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
 
-                BattleScale_ComboBox!.SelectedItem = optionsValuesCollection!["BattleScale"];
-                AutoScaleUnits_ComboBox!.SelectedItem = optionsValuesCollection!["AutoScaleUnits"];
+                BattleScale_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
+                AutoScaleUnits_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
 
                 // Set Commander NumericUpDown values with proper validation
                 if (numCommanderWounded != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["CommanderWoundedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderWoundedChance"]);
                     numCommanderWounded.Value = Math.Max(numCommanderWounded.Minimum, Math.Min(numCommanderWounded.Maximum, val));
                 }
                 if (numCommanderSeverelyInjured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["CommanderSeverelyInjuredChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderSeverelyInjuredChance"]);
                     numCommanderSeverelyInjured.Value = Math.Max(numCommanderSeverelyInjured.Minimum, Math.Min(numCommanderSeverelyInjured.Maximum, val));
                 }
                 if (numCommanderBrutallyMauled != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["CommanderBrutallyMauledChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderBrutallyMauledChance"]);
                     numCommanderBrutallyMauled.Value = Math.Max(numCommanderBrutallyMauled.Minimum, Math.Min(numCommanderBrutallyMauled.Maximum, val));
                 }
                 if (numCommanderMaimed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["CommanderMaimedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderMaimedChance"]);
                     numCommanderMaimed.Value = Math.Max(numCommanderMaimed.Minimum, Math.Min(numCommanderMaimed.Maximum, val));
                 }
                 if (numCommanderOneLegged != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["CommanderOneLeggedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderOneLeggedChance"]);
                     numCommanderOneLegged.Value = Math.Max(numCommanderOneLegged.Minimum, Math.Min(numCommanderOneLegged.Maximum, val));
                 }
                 if (numCommanderOneEyed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["CommanderOneEyedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderOneEyedChance"]);
                     numCommanderOneEyed.Value = Math.Max(numCommanderOneEyed.Minimum, Math.Min(numCommanderOneEyed.Maximum, val));
                 }
                 if (numCommanderDisfigured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["CommanderDisfiguredChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderDisfiguredChance"]);
                     numCommanderDisfigured.Value = Math.Max(numCommanderDisfigured.Minimum, Math.Min(numCommanderDisfigured.Maximum, val));
                 }
 
                 // Set Knight NumericUpDown values with proper validation
                 if (numKnightWounded != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["KnightWoundedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightWoundedChance"]);
                     numKnightWounded.Value = Math.Max(numKnightWounded.Minimum, Math.Min(numKnightWounded.Maximum, val));
                 }
                 if (numKnightSeverelyInjured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["KnightSeverelyInjuredChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightSeverelyInjuredChance"]);
                     numKnightSeverelyInjured.Value = Math.Max(numKnightSeverelyInjured.Minimum, Math.Min(numKnightSeverelyInjured.Maximum, val));
                 }
                 if (numKnightBrutallyMauled != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["KnightBrutallyMauledChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightBrutallyMauledChance"]);
                     numKnightBrutallyMauled.Value = Math.Max(numKnightBrutallyMauled.Minimum, Math.Min(numKnightBrutallyMauled.Maximum, val));
                 }
                 if (numKnightMaimed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["KnightMaimedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightMaimedChance"]);
                     numKnightMaimed.Value = Math.Max(numKnightMaimed.Minimum, Math.Min(numKnightMaimed.Maximum, val));
                 }
                 if (numKnightOneLegged != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["KnightOneLeggedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightOneLeggedChance"]);
                     numKnightOneLegged.Value = Math.Max(numKnightOneLegged.Minimum, Math.Min(numKnightOneLegged.Maximum, val));
                 }
                 if (numKnightOneEyed != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["KnightOneEyedChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightOneEyedChance"]);
                     numKnightOneEyed.Value = Math.Max(numKnightOneEyed.Minimum, Math.Min(numKnightOneEyed.Maximum, val));
                 }
                 if (numKnightDisfigured != null) 
                 {
-                    int val = Int32.Parse(optionsValuesCollection!["KnightDisfiguredChance"]);
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightDisfiguredChance"]);
                     numKnightDisfigured.Value = Math.Max(numKnightDisfigured.Minimum, Math.Min(numKnightDisfigured.Maximum, val));
                 }
 
@@ -884,12 +883,8 @@ namespace CrusaderWars
                     xmlDoc.Save(file);
                     Program.Logger.Debug("'SeparateArmies' option updated in Options.xml.");
 
-                    if (optionsValuesCollection != null)
-                    {
-                        optionsValuesCollection["SeparateArmies"] = valueString;
-                        ModOptions.StoreOptionsValues(optionsValuesCollection);
-                        Program.Logger.Debug("In-memory options collections updated.");
-                    }
+                    ModOptions.optionsValuesCollection["SeparateArmies"] = valueString;
+                    Program.Logger.Debug("In-memory options collections updated.");
                 }
             }
             catch (Exception ex)
@@ -916,12 +911,8 @@ namespace CrusaderWars
                     xmlDoc.Save(file);
                     Program.Logger.Debug("'OptInPreReleases' option updated in Options.xml.");
 
-                    if (optionsValuesCollection != null)
-                    {
-                        optionsValuesCollection["OptInPreReleases"] = valueString;
-                        ModOptions.StoreOptionsValues(optionsValuesCollection);
-                        Program.Logger.Debug("In-memory options collections updated.");
-                    }
+                    ModOptions.optionsValuesCollection["OptInPreReleases"] = valueString;
+                    Program.Logger.Debug("In-memory options collections updated.");
                 }
                 else
                 {
@@ -933,12 +924,8 @@ namespace CrusaderWars
                     xmlDoc.Save(file);
                     Program.Logger.Debug("Created and set 'OptInPreReleases' option in Options.xml.");
 
-                    if (optionsValuesCollection != null)
-                    {
-                        optionsValuesCollection["OptInPreReleases"] = valueString;
-                        ModOptions.StoreOptionsValues(optionsValuesCollection);
-                        Program.Logger.Debug("In-memory options collections updated after creation.");
-                    }
+                    ModOptions.optionsValuesCollection["OptInPreReleases"] = valueString;
+                    Program.Logger.Debug("In-memory options collections updated after creation.");
                 }
             }
             catch (Exception ex)
@@ -1375,10 +1362,7 @@ namespace CrusaderWars
             // If validation passes, proceed with saving and cleanup
             SaveValuesToOptionsFile();
             ReadOptionsFile();
-            if (optionsValuesCollection != null)
-            {
-                ModOptions.StoreOptionsValues(optionsValuesCollection);
-            }
+            ModOptions.StoreOptionsValues(ModOptions.optionsValuesCollection); // This line is now redundant, but kept for safety if StoreOptionsValues was not removed from ModOptions.cs
             WriteUnitMappersOptions();
 
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))

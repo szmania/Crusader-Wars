@@ -509,10 +509,12 @@ namespace CrusaderWars
 
             Options.ReadOptionsFile();
             // Line 452 - Add null check
-            if (Options.optionsValuesCollection != null)
-            {
-                ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
-            }
+            // Removed the block:
+            // if (Options.optionsValuesCollection != null)
+            // {
+            //     ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
+            // }
+            ModOptions.StoreOptionsValues(ModOptions.optionsValuesCollection); // This line is now redundant, but kept for safety if StoreOptionsValues was not removed from ModOptions.cs
             AttilaPreferences.ChangeUnitSizes();
             AttilaPreferences.ValidateOnStartup();
 
