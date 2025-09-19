@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms; // Added for MessageBox
+using CrusaderWars.client; // Added for ModOptions
 
 namespace CrusaderWars
 {
@@ -17,44 +18,78 @@ namespace CrusaderWars
     {
         public  string AppVersion { get; set; } = string.Empty;
         public string UMVersion { get; set; } = string.Empty;
+        private bool _updaterChecked = false;
 
-        private const string LastCheckedFilePath = @".\settings\lastchecked.txt";
         private static readonly HttpClient client = new HttpClient();
-        private const string SzmaniaLatestReleaseUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases/latest";
-        private const string SzmaniaUnitMappersLatestReleaseUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases/latest";
-        private async Task<(string? version, string? downloadUrl)> GetLatestReleaseInfoAsync(string releaseUrl)
+        // Changed to /releases endpoint and renamed
+        private const string SzmaniaReleasesUrl = "https://api.github.com/repos/szmania/Crusader-Wars/releases";
+        private const string SzmaniaUnitMappersReleasesUrl = "https://api.github.com/repos/szmania/CC-Mappers/releases";
+
+        // Modified signature to return releaseApiUrl
+        private async Task<(string? version, string? downloadUrl, string? releaseApiUrl)> GetLatestReleaseInfoAsync(string releasesUrl)
         {
-            Program.Logger.Debug($"Getting latest release info from: {releaseUrl}");
+            Program.Logger.Debug($"Getting latest release info from: {releasesUrl}");
             try
             {
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
-                string json = await client.GetStringAsync(releaseUrl);
+                string json = await client.GetStringAsync(releasesUrl);
 
-                // Parse the JSON response
                 using (JsonDocument document = JsonDocument.Parse(json))
                 {
                     JsonElement root = document.RootElement;
+                    if (root.ValueKind != JsonValueKind.Array)
+                    {
+                        Program.Logger.Debug($"Expected JSON array from {releasesUrl}, but got {root.ValueKind}.");
+                        return (null, null, null);
+                    }
 
-                    // Get the latest version tag
-                    string? latestVersion = root.GetProperty("tag_name").GetString();
+                    bool optInPreReleases = ModOptions.GetOptInPreReleases();
+                    JsonElement? targetRelease = null;
 
-                    // Get the download URL of the first asset
-                    string? downloadUrl = root.GetProperty("assets")[0].GetProperty("browser_download_url").GetString();
-                    Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}");
+                    foreach (JsonElement release in root.EnumerateArray())
+                    {
+                        bool isApiPreRelease = release.GetProperty("prerelease").GetBoolean();
+                        string tagName = release.GetProperty("tag_name").GetString() ?? "";
 
-                    return (latestVersion, downloadUrl);
+                        // A release is considered a pre-release if the API flag is true OR the tag contains a pre-release identifier.
+                        bool isEffectivelyPreRelease = isApiPreRelease || 
+                                                       tagName.Contains("-beta") || 
+                                                       tagName.Contains("-alpha") || 
+                                                       tagName.Contains("-rc");
+
+                        if (optInPreReleases || !isEffectivelyPreRelease)
+                        {
+                            targetRelease = release;
+                            break; // Found the most recent suitable release.
+                        }
+                    }
+
+                    if (targetRelease.HasValue)
+                    {
+                        string? latestVersion = targetRelease.Value.GetProperty("tag_name").GetString();
+                        string? releaseApiUrl = targetRelease.Value.GetProperty("url").GetString(); // API URL for this specific release
+
+                        string? downloadUrl = null;
+                        if (targetRelease.Value.TryGetProperty("assets", out JsonElement assets) && assets.EnumerateArray().Any())
+                        {
+                            downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
+                        }
+                        
+                        Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}, Release API URL: {releaseApiUrl} (Pre-release opt-in: {optInPreReleases})");
+                        return (latestVersion, downloadUrl, releaseApiUrl);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error getting release info from {releaseUrl}: {ex.Message}");
+                Program.Logger.Debug($"Error getting release info from {releasesUrl}: {ex.Message}");
             }
 
-            return (null, null);
+            return (null, null, null);
         }
 
-        string GetAppVersion()
+        public string GetAppVersion()
         {
             string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
             Program.Logger.Debug($"Reading app version from: {version_path}");
@@ -83,7 +118,7 @@ namespace CrusaderWars
             return app_version;
         }
 
-        string GetUnitMappersVersion()
+        public string GetUnitMappersVersion()
         {
             string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
             Program.Logger.Debug($"Reading unit mappers version from: {version_path}");
@@ -282,7 +317,8 @@ namespace CrusaderWars
             return false;
         }
 
-        private async Task<(string? version, string? downloadUrl)> GetLatestReleaseFromReposAsync(string[] releaseUrls)
+        // Modified signature to return releaseApiUrl
+        private async Task<(string? version, string? downloadUrl, string? releaseApiUrl)> GetLatestReleaseFromReposAsync(string[] releaseUrls)
         {
             var releaseTasks = releaseUrls.Select(url => GetLatestReleaseInfoAsync(url)).ToArray();
             var releases = await Task.WhenAll(releaseTasks);
@@ -292,9 +328,10 @@ namespace CrusaderWars
             if (!validReleases.Any())
             {
                 Program.Logger.Debug("No releases found in any repository.");
-                return (null, null);
+                return (null, null, null);
             }
 
+            // Aggregate to find the single latest release based on IsNewerVersion logic
             var latestRelease = validReleases.Aggregate((r1, r2) => IsNewerVersion(r1.version!, r2.version!) ? r2 : r1);
             return latestRelease;
         }
@@ -320,8 +357,123 @@ namespace CrusaderWars
             return null;
         }
 
-        public async void CheckAppVersion()
+        // Modified signature to accept releaseApiUrl
+        private async Task<string?> GetAssetDownloadUrlAsync(string releaseApiUrl, string assetName)
         {
+            Program.Logger.Debug($"Searching for asset '{assetName}' in release: {releaseApiUrl}");
+            try
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
+                string json = await client.GetStringAsync(releaseApiUrl); // Fetch single release object
+
+                using (JsonDocument document = JsonDocument.Parse(json))
+                {
+                    JsonElement root = document.RootElement;
+                    JsonElement assets = root.GetProperty("assets");
+
+                    foreach (JsonElement asset in assets.EnumerateArray())
+                    {
+                        string? name = asset.GetProperty("name").GetString();
+                        if (name != null && name.Equals(assetName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string? downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                            Program.Logger.Debug($"Found asset '{assetName}' with download URL: {downloadUrl}");
+                            return downloadUrl;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error getting asset info from {releaseApiUrl}: {ex.Message}");
+            }
+
+            Program.Logger.Debug($"Asset '{assetName}' not found in release.");
+            return null;
+        }
+
+        private async Task CheckForUpdaterUpdateAsync()
+        {
+            if (_updaterChecked) return;
+            _updaterChecked = true;
+
+            Program.Logger.Debug("Checking for updater self-update...");
+            if (!HasInternetConnection())
+            {
+                Program.Logger.Debug("No internet connection, skipping updater self-update check.");
+                return;
+            }
+
+            string? localUpdaterPath = GetUpdaterPath();
+            if (string.IsNullOrEmpty(localUpdaterPath))
+            {
+                Program.Logger.Debug("Local updater not found, cannot perform self-update check.");
+                return;
+            }
+
+            try
+            {
+                // Per user request, use the main app version for comparison, not the updater's file version.
+                // The updater's version is tied to the main application release.
+                string currentVersion = GetAppVersion();
+                if (string.IsNullOrEmpty(currentVersion))
+                {
+                    Program.Logger.Debug("Could not determine current app version from app_version.txt. Aborting updater self-update.");
+                    return;
+                }
+                Program.Logger.Debug($"Using current app version for updater comparison: {currentVersion}");
+
+                // Use SzmaniaReleasesUrl (plural) and GetLatestReleaseInfoAsync to get the appropriate release based on opt-in
+                var latestRelease = await GetLatestReleaseInfoAsync(SzmaniaReleasesUrl);
+                if (string.IsNullOrEmpty(latestRelease.version) || string.IsNullOrEmpty(latestRelease.releaseApiUrl))
+                {
+                    Program.Logger.Debug("Could not fetch latest release version tag or API URL. Aborting self-update.");
+                    return;
+                }
+
+                if (IsNewerVersion(currentVersion, latestRelease.version))
+                {
+                    Program.Logger.Debug($"A newer release ({latestRelease.version}) is available. Checking for updated updater asset.");
+
+                    // Pass the specific release API URL to GetAssetDownloadUrlAsync
+                    string? updaterDownloadUrl = await GetAssetDownloadUrlAsync(latestRelease.releaseApiUrl, "CWUpdater.exe");
+                    if (string.IsNullOrEmpty(updaterDownloadUrl))
+                    {
+                        Program.Logger.Debug("Newer release found, but it does not contain a 'CWUpdater.exe' asset. Skipping self-update.");
+                        return;
+                    }
+
+                    Program.Logger.Debug($"Downloading new updater from: {updaterDownloadUrl}");
+                    string tempUpdaterPath = Path.Combine(Path.GetTempPath(), "CWUpdater_new.exe");
+
+                    using (var httpClient = new HttpClient())
+                    {
+                        byte[] fileBytes = await httpClient.GetByteArrayAsync(updaterDownloadUrl);
+                        File.WriteAllBytes(tempUpdaterPath, fileBytes);
+                    }
+
+                    // The release tag is newer, so we assume the asset is newer and replace it without checking its internal version.
+                    Program.Logger.Debug($"Downloaded updater from release {latestRelease.version}. Replacing local updater.");
+                    File.Copy(tempUpdaterPath, localUpdaterPath, true);
+                    Program.Logger.Debug("Updater has been successfully updated.");
+
+                    File.Delete(tempUpdaterPath);
+                }
+                else
+                {
+                    Program.Logger.Debug($"Current version ({currentVersion}) is up-to-date with latest release ({latestRelease.version}). No updater self-update needed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"An error occurred during updater self-update check: {ex.Message}");
+            }
+        }
+
+        public async Task CheckAppVersion()
+        {
+            await CheckForUpdaterUpdateAsync();
             Program.Logger.Debug("Checking app version...");
             if (!HasInternetConnection())
             {
@@ -337,7 +489,8 @@ namespace CrusaderWars
                 return;
             }
 
-            string[] appReleaseUrls = { SzmaniaLatestReleaseUrl };
+            // Use SzmaniaReleasesUrl (plural)
+            string[] appReleaseUrls = { SzmaniaReleasesUrl };
             var latestRelease = await GetLatestReleaseFromReposAsync(appReleaseUrls);
 
             if (latestRelease.version == null) return;
@@ -397,8 +550,9 @@ namespace CrusaderWars
             }
         }
 
-        public async void CheckUnitMappersVersion()
+        public async Task CheckUnitMappersVersion()
         {
+            await CheckForUpdaterUpdateAsync();
             Program.Logger.Debug("Checking unit mappers version...");
             if (!HasInternetConnection())
             {
@@ -414,7 +568,8 @@ namespace CrusaderWars
                 return;
             }
 
-            string[] umReleaseUrls = { SzmaniaUnitMappersLatestReleaseUrl };
+            // Use SzmaniaUnitMappersReleasesUrl (plural)
+            string[] umReleaseUrls = { SzmaniaUnitMappersReleasesUrl };
             var latestRelease = await GetLatestReleaseFromReposAsync(umReleaseUrls);
 
             if (latestRelease.version == null) return;
@@ -531,66 +686,6 @@ namespace CrusaderWars
             string fallbackUrl = $"https://github.com/szmania/{repoName}/releases";
             Program.Logger.Debug($"Version tag not found in any user repo. Falling back to main releases page: {fallbackUrl}");
             return fallbackUrl;
-        }
-
-        public bool ShouldPerformUpdateChecks()
-        {
-            Program.Logger.Debug("Checking if update checks should be performed.");
-            if (!File.Exists(LastCheckedFilePath))
-            {
-                Program.Logger.Debug($"'{LastCheckedFilePath}' not found. Performing update checks.");
-                return true; // File doesn't exist, perform check
-            }
-
-            try
-            {
-                string lastCheckedString = File.ReadAllText(LastCheckedFilePath);
-                if (DateTime.TryParse(lastCheckedString, out DateTime lastCheckedTimeUtc))
-                {
-                    TimeSpan timeSinceLastCheck = DateTime.UtcNow - lastCheckedTimeUtc;
-                    // Check if more than 24 hours have passed
-                    if (timeSinceLastCheck.TotalHours >= 24)
-                    {
-                        Program.Logger.Debug($"More than 24 hours ({timeSinceLastCheck.TotalHours} hours) since last check. Performing update checks.");
-                        return true;
-                    }
-                    else
-                    {
-                        Program.Logger.Debug($"Less than 24 hours ({timeSinceLastCheck.TotalHours} hours) since last check. Skipping update checks.");
-                        return false;
-                    }
-                }
-                else
-                {
-                    Program.Logger.Debug($"Invalid timestamp in '{LastCheckedFilePath}'. Performing update checks.");
-                    return true; // Invalid format, perform check
-                }
-            }
-            catch (Exception ex)
-            {
-                Program.Logger.Debug($"Error reading '{LastCheckedFilePath}': {ex.Message}. Performing update checks.");
-                return true; // Error reading file, perform check
-            }
-        }
-
-        public void UpdateLastCheckedTimestamp()
-        {
-            Program.Logger.Debug("Updating last checked timestamp.");
-            try
-            {
-                string? settingsDir = Path.GetDirectoryName(LastCheckedFilePath);
-                if (settingsDir != null && !Directory.Exists(settingsDir))
-                {
-                    Directory.CreateDirectory(settingsDir);
-                    Program.Logger.Debug($"Created directory: {settingsDir}");
-                }
-                File.WriteAllText(LastCheckedFilePath, DateTime.UtcNow.ToString("o")); // "o" for round-trip format
-                Program.Logger.Debug($"Last checked timestamp updated to: {DateTime.UtcNow:o}");
-            }
-            catch (Exception ex)
-            {
-                Program.Logger.Debug($"Error writing to '{LastCheckedFilePath}': {ex.Message}");
-            }
         }
     }
 

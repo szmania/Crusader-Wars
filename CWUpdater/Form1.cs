@@ -270,12 +270,12 @@ namespace CWUpdater
 
                 if(!IsUnitMappers) {
                     Logger.Log("Applying application update.");
-                    ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
+                    await ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
                 }
                 else
                 {
                     Logger.Log("Applying Unit Mappers update.");
-                    ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
+                    await ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
                 }
             }
             catch (Exception ex)
@@ -288,7 +288,28 @@ namespace CWUpdater
             
         }
 
-        public void ApplyUpdate(string updateFilePath, string applicationPath)
+        private async Task RetryActionAsync(Action action, string actionName)
+        {
+            int maxRetries = 10;
+            int delayMilliseconds = 1500;
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try
+                {
+                    action();
+                    Logger.Log($"Action '{actionName}' successful.");
+                    return; // Success
+                }
+                catch (IOException ex) when (i < maxRetries - 1)
+                {
+                    Logger.Log($"Action '{actionName}' failed on attempt {i + 1} with error: {ex.Message}. Retrying in {delayMilliseconds}ms...");
+                    await Task.Delay(delayMilliseconds);
+                }
+                // On the last attempt, the exception will be re-thrown and caught by the calling method.
+            }
+        }
+
+        public async Task ApplyUpdate(string updateFilePath, string applicationPath)
         {
             Logger.Log($"Applying update from '{updateFilePath}' to '{applicationPath}'.");
             label1.Text = "Applying update...";
@@ -319,43 +340,99 @@ namespace CWUpdater
                         throw new System.IO.InvalidDataException("The update archive is empty and cannot be applied.");
                     }
 
-                    // Delete obsolete files and directories
-                    Logger.Log("Deleting obsolete files and directories.");
-                    DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
-
-                    // Copy new and updated files
-                    Logger.Log("Copying new and updated files.");
-                    foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
+                    // --- START SELF-UPDATE LOGIC ---
+                    // Only perform self-update check for the main application, not unit mappers
+                    if (!IsUnitMappers)
                     {
-                        if(IsUnitMappers)//<-- UNIT MAPPERS UPDATER
+                        string[] newUpdaters = Directory.GetFiles(tempDirectory, "CWUpdater.exe", SearchOption.AllDirectories);
+                        if (newUpdaters.Length > 0)
                         {
-                            string relativePath = file.Substring(tempDirectory.Length + 1);
-                            // No parentFolder logic for unit mappers, as the zip should contain the mapper's root directly
-                            string destinationPath = Path.Combine(applicationPath, relativePath);
+                            string newUpdaterPath = newUpdaters[0];
+                            string currentUpdaterPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
-                            string? destinationDir = Path.GetDirectoryName(destinationPath);
-                            if (destinationDir != null && !Directory.Exists(destinationDir))
+                            if (File.Exists(newUpdaterPath) && IsNewerUpdater(newUpdaterPath, currentUpdaterPath))
                             {
-                                Directory.CreateDirectory(destinationDir);
-                            }
+                                Logger.Log("Newer updater found. Staging self-update.");
+                                string tempUpdater = Path.Combine(Path.GetTempPath(), "CWUpdater_new.exe");
+                                File.Copy(newUpdaterPath, tempUpdater, true);
 
-                            File.Copy(file, destinationPath, true);
+                                // Reconstruct arguments, ensuring they are quoted
+                                string originalArgs = string.Join(" ", Environment.GetCommandLineArgs().Skip(1).Select(a => $"\"{a}\""));
+
+                                string batchScript = $@"
+@echo off
+echo Waiting for original updater to close...
+timeout /t 2 /nobreak > NUL
+echo Replacing updater...
+move /Y ""{tempUpdater}"" ""{currentUpdaterPath}""
+echo Relaunching updater to continue the update...
+start """" ""{currentUpdaterPath}"" {originalArgs}
+del ""%~f0""
+";
+                                string batchPath = Path.Combine(Path.GetTempPath(), "update_updater.bat");
+                                File.WriteAllText(batchPath, batchScript);
+
+                                Process.Start(new ProcessStartInfo(batchPath) { CreateNoWindow = true, UseShellExecute = false });
+                                Logger.Log("Launched self-update script. Exiting current instance.");
+                                Environment.Exit(0); // Exit to allow the batch file to replace this exe
+                            }
+                            else
+                            {
+                                Logger.Log("No new updater found or it's not newer. Proceeding with normal application update.");
+                            }
                         }
-                        else if(!IsUnitMappers) //<-- APP UPDATER
+                    }
+                    // --- END SELF-UPDATE LOGIC ---
+
+
+                    if (IsUnitMappers)
+                    {
+                        // For Unit Mappers, use a more robust rename-and-replace strategy with retries
+                        string cleanApplicationPath = applicationPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                        string oldDirectory = cleanApplicationPath + "_old";
+                        Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
+
+                        // 1. Clean up any leftover old directory from a previous failed update
+                        if (Directory.Exists(oldDirectory))
                         {
+                            Logger.Log($"Deleting leftover old directory: {oldDirectory}");
+                            await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete leftover _old directory");
+                        }
+
+                        // 2. Rename current directory to _old
+                        Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
+                        await RetryActionAsync(() => Directory.Move(applicationPath, oldDirectory), "Rename current to _old");
+
+                        // 3. Move the new directory into place
+                        Logger.Log($"Moving '{tempDirectory}' to '{applicationPath}'.");
+                        await RetryActionAsync(() => Directory.Move(tempDirectory, applicationPath), "Move new to current");
+
+                        // 4. Delete the old directory
+                        Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
+                        await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
+                    }
+                    else // Existing logic for App Updater
+                    {
+                        // Delete obsolete files and directories
+                        Logger.Log("Deleting obsolete files and directories.");
+                        DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
+
+                        // Copy new and updated files
+                        Logger.Log("Copying new and updated files.");
+                        foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
+                        {
+                            // This part remains unchanged for the app updater
                             string relativePath = file.Substring(tempDirectory.Length + 1);
                             string parentFolder = relativePath.Split('\\')[0];
                             string finalRelativePath = relativePath.Replace($"{parentFolder}\\", "");
                             string destinationPath = Path.Combine(applicationPath, finalRelativePath);
 
-                            // Skip files that are part of the running updater
                             if (destinationPath.StartsWith(updaterDirInMainApp, StringComparison.OrdinalIgnoreCase))
                             {
                                 Logger.Log($"Skipping copy of updater file: {file} to {destinationPath}");
                                 continue;
                             }
 
-                            // Define directories to completely skip during an app update to preserve user data
                             string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
                             string settingsDir = Path.Combine(applicationPath, "settings");
 
@@ -369,12 +446,11 @@ namespace CWUpdater
                             string? destinationDir = Path.GetDirectoryName(destinationPath);
                             if (destinationDir != null && !Directory.Exists(destinationDir))
                             {
-Directory.CreateDirectory(destinationDir);
+                                Directory.CreateDirectory(destinationDir);
                             }
 
                             File.Copy(file, destinationPath, true);
                         }
-     
                     }
 
                     // Step 5: Clean up backup if update was successful
@@ -414,6 +490,44 @@ Directory.CreateDirectory(destinationDir);
                     }
                     RestartApplication(false); // Restart main app without updating version
                 }
+                catch (UnauthorizedAccessException uaEx)
+                {
+                    Logger.Log($"Access Denied Error during update: {uaEx.ToString()}");
+                    MessageBox.Show(
+                        "The updater was blocked by your system.\n\n" +
+                        "This is often caused by Antivirus software or Windows' 'Controlled Folder Access' feature.\n\n" +
+                        "Please try the following:\n" +
+                        "1. Run the main application as an Administrator.\n" +
+                        "2. Add an exception for 'CrusaderWars.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                        "3. Temporarily disable 'Controlled Folder Access' in Windows Security settings.\n\n" +
+                        $"Error details: {uaEx.Message}",
+                        "Crusader Conflicts: Update Failed (Access Denied)",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    Logger.Log("Rolling back to backup due to UnauthorizedAccessException.");
+                    RestoreBackup(backupPath, applicationPath);
+                    this.Close();
+                }
+            }
+            catch (IOException ioEx)
+            {
+                Logger.Log($"I/O Error during update after multiple retries: {ioEx.ToString()}");
+                MessageBox.Show(
+                    "The updater could not access a file or directory because it is locked by another process.\n\n" +
+                    "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
+                    "Please try the following:\n" +
+                    "1. Temporarily pause your cloud sync client.\n" +
+                    "2. Add an exception for 'CrusaderWars.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                    "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
+                    $"Error details: {ioEx.Message}",
+                    "Crusader Conflicts: Update Failed (File Locked)",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                Logger.Log("Rolling back to backup due to IOException.");
+                RestoreBackup(backupPath, applicationPath);
+                this.Close();
             }
             catch (Exception ex) // Existing general catch
             {
@@ -678,6 +792,34 @@ Directory.CreateDirectory(destinationDir);
                 }
             }
             RestartApplication(false);
+        }
+
+        private bool IsNewerUpdater(string newUpdaterPath, string currentUpdaterPath)
+        {
+            try
+            {
+                var newVersionInfo = FileVersionInfo.GetVersionInfo(newUpdaterPath);
+                var currentVersionInfo = FileVersionInfo.GetVersionInfo(currentUpdaterPath);
+
+                // FileVersion can be null or empty, handle this gracefully
+                if (string.IsNullOrEmpty(newVersionInfo.FileVersion) || string.IsNullOrEmpty(currentVersionInfo.FileVersion))
+                {
+                    Logger.Log("Could not retrieve file version from one or both updaters. Cannot compare versions.");
+                    return false;
+                }
+
+                var newVersion = new Version(newVersionInfo.FileVersion);
+                var currentVersion = new Version(currentVersionInfo.FileVersion);
+                
+                Logger.Log($"Comparing updater versions. New: {newVersion}, Current: {currentVersion}");
+
+                return newVersion > currentVersion;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error comparing updater versions: {ex.Message}");
+                return false; // Fail safe, don't attempt self-update if comparison fails
+            }
         }
 
         //

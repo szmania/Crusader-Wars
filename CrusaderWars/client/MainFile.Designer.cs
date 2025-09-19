@@ -12,13 +12,13 @@
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
             {
-                components.Dispose();
+                if (disposing && (components != null))
+                {
+                    components.Dispose();
+                }
+                base.Dispose(disposing);
             }
-            base.Dispose(disposing);
-        }
 
         #region Windows Form Designer generated code
 
@@ -44,6 +44,8 @@
             this.ContinueBattleButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.linkOptInPreReleases = new System.Windows.Forms.Label();
+            this.VersionInfoFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.labelSeparatorLeft = new System.Windows.Forms.Label();
             this.BottomRightFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.labelSeparatorRight = new System.Windows.Forms.Label();
@@ -57,6 +59,7 @@
             this.ButtonsContainerPanel.SuspendLayout();
             this.BottomPanelLayout.SuspendLayout();
             this.BottomLeftFlowPanel.SuspendLayout();
+            this.VersionInfoFlowPanel.SuspendLayout();
             this.BottomRightFlowPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -237,15 +240,44 @@
             // 
             // BottomLeftFlowPanel
             // 
+            this.BottomLeftFlowPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.BottomLeftFlowPanel.AutoSize = true;
             this.BottomLeftFlowPanel.BackColor = System.Drawing.Color.Transparent;
-            this.BottomLeftFlowPanel.Controls.Add(this.labelVersion);
-            this.BottomLeftFlowPanel.Controls.Add(this.labelSeparatorLeft);
-            this.BottomLeftFlowPanel.Controls.Add(this.labelMappersVersion);
-            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.BottomLeftFlowPanel.Controls.Add(this.linkOptInPreReleases);
+            this.BottomLeftFlowPanel.Controls.Add(this.VersionInfoFlowPanel);
+            this.BottomLeftFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             resources.ApplyResources(this.BottomLeftFlowPanel, "BottomLeftFlowPanel");
             this.BottomLeftFlowPanel.Name = "BottomLeftFlowPanel";
             this.BottomLeftFlowPanel.WrapContents = false;
+            // 
+            // linkOptInPreReleases
+            // 
+            this.linkOptInPreReleases.AutoSize = true;
+            this.linkOptInPreReleases.BackColor = System.Drawing.Color.Transparent;
+            this.linkOptInPreReleases.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.linkOptInPreReleases.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Underline);
+            this.linkOptInPreReleases.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.linkOptInPreReleases.Margin = new System.Windows.Forms.Padding(0, 3, 4, 5);
+            this.linkOptInPreReleases.Name = "linkOptInPreReleases";
+            this.linkOptInPreReleases.Padding = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            resources.ApplyResources(this.linkOptInPreReleases, "linkOptInPreReleases");
+            this.linkOptInPreReleases.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // VersionInfoFlowPanel
+            // 
+            this.VersionInfoFlowPanel.AutoSize = true;
+            this.VersionInfoFlowPanel.BackColor = System.Drawing.Color.Transparent;
+            this.VersionInfoFlowPanel.Controls.Add(this.labelVersion);
+            this.VersionInfoFlowPanel.Controls.Add(this.labelSeparatorLeft);
+            this.VersionInfoFlowPanel.Controls.Add(this.labelMappersVersion);
+            this.VersionInfoFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.VersionInfoFlowPanel.Location = new System.Drawing.Point(0, 31);
+            this.VersionInfoFlowPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.VersionInfoFlowPanel.Name = "VersionInfoFlowPanel";
+            this.VersionInfoFlowPanel.Padding = new System.Windows.Forms.Padding(0);
+            this.VersionInfoFlowPanel.Size = new System.Drawing.Size(256, 27);
+            this.VersionInfoFlowPanel.TabIndex = 2;
+            this.VersionInfoFlowPanel.WrapContents = false;
             // 
             // labelSeparatorLeft
             // 
@@ -256,6 +288,7 @@
             // 
             // BottomRightFlowPanel
             // 
+            this.BottomRightFlowPanel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.BottomRightFlowPanel.AutoSize = true;
             this.BottomRightFlowPanel.BackColor = System.Drawing.Color.Transparent;
             this.BottomRightFlowPanel.Controls.Add(this.viewLogsLink);
@@ -376,6 +409,8 @@
             this.BottomPanelLayout.PerformLayout();
             this.BottomLeftFlowPanel.ResumeLayout(false);
             this.BottomLeftFlowPanel.PerformLayout();
+            this.VersionInfoFlowPanel.ResumeLayout(false);
+            this.VersionInfoFlowPanel.PerformLayout();
             this.BottomRightFlowPanel.ResumeLayout(false);
             this.BottomRightFlowPanel.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -408,5 +443,7 @@
         private System.Windows.Forms.Button discordLink;
         private System.Windows.Forms.Label labelSeparatorLeft;
         private System.Windows.Forms.Label labelSeparatorRight;
+        private System.Windows.Forms.FlowLayoutPanel VersionInfoFlowPanel;
+        private System.Windows.Forms.Label linkOptInPreReleases;
     }
 }

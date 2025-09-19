@@ -46,6 +46,10 @@ namespace CrusaderWars
         private Label playthroughTitleLabel = null!;
         private Label playthroughNameLabel = null!;
 
+        // Pre-release opt-in animation fields
+        private System.Windows.Forms.Timer? _preReleasePulseTimer;
+        private int _preReleasePulseStep = 0;
+
 
         const string SEARCH_KEY = "CRUSADERWARS3";
 
@@ -75,6 +79,7 @@ namespace CrusaderWars
         }
         public HomePage()
         {
+            Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
             CreateRequiredDirectories();
             LoadFont();
@@ -92,6 +97,7 @@ namespace CrusaderWars
             EA_Label.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold); // Programmatically set EA_Label font
             labelSeparatorLeft.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
             labelSeparatorRight.Font = new Font("Microsoft Sans Serif", 16f, FontStyle.Bold);
+            linkOptInPreReleases.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Underline); // Set font for new label
 
             // Set FlatStyle programmatically
             ExecuteButton.FlatStyle = FlatStyle.Flat;
@@ -104,6 +110,7 @@ namespace CrusaderWars
             discordLink.FlatStyle = FlatStyle.Flat;
             labelVersion.FlatStyle = FlatStyle.Flat;
             labelMappersVersion.FlatStyle = FlatStyle.Flat;
+            // linkOptInPreReleases is a Label, no FlatStyle needed
 
             // Add hover effects for links
             viewLogsLink.MouseEnter += (sender, e) => viewLogsLink.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
@@ -115,7 +122,20 @@ namespace CrusaderWars
             labelVersion.MouseLeave += (sender, e) => { labelVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
-            
+            // NEW HOVER EFFECTS FOR linkOptInPreReleases
+            linkOptInPreReleases.MouseEnter += (sender, e) => {
+                _preReleasePulseTimer?.Stop();
+                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
+            };
+            linkOptInPreReleases.MouseLeave += (sender, e) => {
+                if (ModOptions.GetOptInPreReleases()) {
+                    linkOptInPreReleases.ForeColor = Color.Gold;
+                } else {
+                    _preReleasePulseTimer?.Start();
+                }
+            };
+            linkOptInPreReleases.Click += new EventHandler(linkOptInPreReleases_Click); // Add click event handler
+
             Thread.Sleep(1000);
 
             documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -137,13 +157,10 @@ namespace CrusaderWars
             Properties.Settings.Default.VAR_log_ck3 = debugLog_Path;
             Properties.Settings.Default.Save();
 
-            Program.Logger.Debug("Starting updater checks...");
             _updater = new Updater();
+            _updater.GetAppVersion();
+            _updater.GetUnitMappersVersion();
 
-            Program.Logger.Debug("Initiating app and unit mappers version checks.");
-            _updater.CheckAppVersion();
-            _updater.CheckUnitMappersVersion();
-            _updater.UpdateLastCheckedTimestamp(); // Record that checks were performed
 
             _appVersion = _updater.AppVersion;
 
@@ -186,6 +203,10 @@ namespace CrusaderWars
             _pulseTimer = new System.Windows.Forms.Timer();
             _pulseTimer.Interval = 100;
             _pulseTimer.Tick += PulseTimer_Tick;
+
+            _preReleasePulseTimer = new System.Windows.Forms.Timer();
+            _preReleasePulseTimer.Interval = 75; // Sets the pulse speed
+            _preReleasePulseTimer.Tick += PreReleasePulseTimer_Tick;
         }
 
         private void PulseTimer_Tick(object? sender, EventArgs e)
@@ -194,6 +215,16 @@ namespace CrusaderWars
             int redComponent = 120 + (_pulseStep < 10 ? _pulseStep * 10 : (20 - _pulseStep) * 10);
             SettingsBtn.FlatAppearance.BorderColor = Color.FromArgb(redComponent, 30, 30);
             SettingsBtn.FlatAppearance.BorderSize = 2;
+        }
+
+        private void PreReleasePulseTimer_Tick(object? sender, EventArgs e)
+        {
+            if (ModOptions.GetOptInPreReleases()) return; // Safety check
+
+            _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle
+            // Pulse between a bright yellow (255, 255, 150) and a slightly dimmer yellow (255, 255, 50)
+            int blueComponent = 150 - (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _preReleasePulseStep) * 10);
+            linkOptInPreReleases.ForeColor = Color.FromArgb(255, 255, blueComponent);
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -318,7 +349,7 @@ namespace CrusaderWars
         static string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         static string debugLog_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\console_history.txt";
         string saveGames_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\save games";
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
@@ -338,6 +369,7 @@ namespace CrusaderWars
             tableLayoutPanel1.Location = new Point(0, 0);
             labelSeparatorLeft.Location = new Point(100, 0); // Example, adjust as needed
             labelSeparatorRight.Location = new Point(100, 0); // Example, adjust as needed
+            // Positioning for FlowLayoutPanel is handled by the panel itself, no need to set here.
 
 
             // Set sizes programmatically
@@ -358,6 +390,7 @@ namespace CrusaderWars
             viewLogsLink.Anchor = AnchorStyles.None;
             labelVersion.Anchor = AnchorStyles.None;
             labelMappersVersion.Anchor = AnchorStyles.None;
+            linkOptInPreReleases.Anchor = AnchorStyles.None; // Anchor for new label
             pictureBox1.Anchor = AnchorStyles.None;
             EA_Label.Anchor = AnchorStyles.None;
             discordLink.Anchor = AnchorStyles.None;
@@ -389,6 +422,7 @@ namespace CrusaderWars
             infoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             labelMappersVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            linkOptInPreReleases.TextAlign = ContentAlignment.MiddleLeft; // TextAlign for new label
             EA_Label.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             viewLogsLink.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             labelSeparatorLeft.TextAlign = ContentAlignment.MiddleCenter;
@@ -403,21 +437,23 @@ namespace CrusaderWars
             SettingsBtn.Margin = new Padding(4, 4, 4, 4);
             viewLogsLink.Margin = new Padding(4, 3, 4, 0);
             viewLogsLink.Padding = new Padding(3, 3, 3, 3);
-            labelVersion.Margin = new Padding(4, 3, 4, 0);
-            labelVersion.Padding = new Padding(3, 3, 3, 3);
+            labelVersion.Margin = new Padding(0, 3, 4, 0);
             labelMappersVersion.Margin = new Padding(4, 3, 4, 0);
-            labelMappersVersion.Padding = new Padding(3, 3, 3, 3);
+            linkOptInPreReleases.Margin = new Padding(0, 3, 4, 5); // Margin for new label
+            linkOptInPreReleases.Padding = new Padding(0, 3, 3, 3); // Padding for new label
             pictureBox1.Margin = new Padding(4, 4, 4, 4);
             MainPanelLayout.Margin = new Padding(4, 4, 4, 4);
             EA_Label.Margin = new Padding(4, 0, 4, 0);
             EA_Label.Padding = new Padding(3, 3, 3, 3);
             discordLink.Margin = new Padding(4, 3, 4, 0);
-            BottomPanelLayout.Margin = new Padding(4, 4, 4, 4);
+            BottomPanelLayout.Margin = new Padding(0, 4, 4, 4);
+            BottomPanelLayout.Padding = new Padding(0); // Added this line
             WebsiteBTN.Margin = new Padding(4, 4, 4, 4);
             SteamBTN.Margin = new Padding(4, 4, 4, 4);
             tableLayoutPanel1.Margin = new Padding(4, 4, 4, 4);
             this.Margin = new Padding(4, 4, 4, 4); // For the form itself
             BottomLeftFlowPanel.Padding = new Padding(0, 5, 0, 0);
+            BottomLeftFlowPanel.Margin = new Padding(0, 3, 3, 3); // Added this line
             BottomRightFlowPanel.Padding = new Padding(0, 5, 0, 0);
             labelSeparatorLeft.Margin = new Padding(4, 3, 4, 0);
             labelSeparatorRight.Margin = new Padding(4, 3, 4, 0);
@@ -445,19 +481,23 @@ namespace CrusaderWars
             infoLabel.BackColor = myColor;
             labelVersion.BackColor = myColor;
             labelMappersVersion.BackColor = myColor;
-            EA_Label.BackColor = myColor;
+            VersionInfoFlowPanel.BackColor = Color.Transparent; // NEW
 
             // Initialize and configure Playthrough Display
             InitializePlaythroughDisplay();
 
-            Options.ReadOptionsFile();
-            // Line 452 - Add null check before calling StoreOptionsValues
-            if (Options.optionsValuesCollection != null)
-            {
-                ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
-            }
+            // Options.ReadOptionsFile(); // REMOVED: Moved to constructor
+            // Line 452 - Add null check
+            // Removed the block:
+            // if (Options.optionsValuesCollection != null)
+            // {
+            //     ModOptions.StoreOptionsValues(Options.optionsValuesCollection);
+            // }
             AttilaPreferences.ChangeUnitSizes();
             AttilaPreferences.ValidateOnStartup();
+
+            // Set initial state for Opt-in to pre-releases button
+            UpdatePreReleaseLinkState();
 
             UpdateUIForBattleState();
             UpdatePlaythroughDisplay(); // Initial update
@@ -473,12 +513,36 @@ namespace CrusaderWars
 
             InformationToolTip.SetToolTip(labelVersion, "Crusader Conflicts application version.");
             InformationToolTip.SetToolTip(labelMappersVersion, "Version of the installed Unit Mappers.");
+            // NEW TOOLTIPS
+            InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
             infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
+
+            Program.Logger.Debug("Starting updater checks...");
+            Program.Logger.Debug("Initiating app and unit mappers version checks.");
+            await _updater.CheckAppVersion();
+            // If an app update is found, the process will exit and the next line won't be reached.
+            await _updater.CheckUnitMappersVersion();
 
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
+
+        private void UpdatePreReleaseLinkState()
+        {
+            bool isOptedIn = ModOptions.GetOptInPreReleases();
+            if (isOptedIn)
+            {
+                _preReleasePulseTimer?.Stop();
+                linkOptInPreReleases.Text = "Early Access Enabled (click to disable)";
+                linkOptInPreReleases.ForeColor = Color.Gold;
+            }
+            else
+            {
+                linkOptInPreReleases.Text = "Opt-in for Early Access to New Features";
+                _preReleasePulseTimer?.Start();
+            }
         }
 
         private void InitializePlaythroughDisplay()
@@ -981,7 +1045,7 @@ namespace CrusaderWars
                     }
                     catch (IOException ex)
                     {
-                        Program.Logger.Debug($"Attempt {i + 1} to clear log files failed due to file lock: {ex.Message}");
+                        Program.Logger.Debug($"Attempt {i + 1} to clear log files failed due to file lock: {ex.Message}. Retrying in 500ms...");
                         if (i == maxRetries - 1)
                         {
                             Program.Logger.Debug("Final attempt to clear log files failed.");
@@ -1248,7 +1312,6 @@ namespace CrusaderWars
 
                 try
                 {
-
                     //1.0 Beta Debug
                     UpdateLoadingScreenMessage("Reading CK3 save file data...");
                     Program.Logger.Debug("Reading battle armies from CK3 save file.");
@@ -1325,7 +1388,7 @@ namespace CrusaderWars
                 // without touching infoLabel.
                 ContinueBattleButton.Visible = false;
                 ExecuteButton.Text = "";
-                ExecuteButton.Size = new Size(197, 115);
+                ExecuteButton.Size = new Size(100, 115);
             }
 
             // Reset UI if the main loop is broken by a critical error or cancellation
@@ -1412,7 +1475,7 @@ namespace CrusaderWars
                             sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
                         }
                         sb.AppendLine();
-                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team at https://discord.gg/X64pMysa");
+                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j");
                         sb.AppendLine();
                         sb.AppendLine("The battle will proceed without these units.");
 
@@ -2302,6 +2365,7 @@ namespace CrusaderWars
         private void HomePage_FormClosing(object sender, FormClosingEventArgs e)
         {
             Program.Logger.Debug("HomePage form closing.");
+            _preReleasePulseTimer?.Stop(); // Add this line
             _battleMonitoringCts?.Cancel(); // Cancel any active monitoring
             _battleMonitoringCts?.Dispose(); // Dispose the CTS
             ProcessCommands.ResumeProcess();
@@ -2357,7 +2421,7 @@ namespace CrusaderWars
         private void discordLink_Click(object sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://discord.gg/usyHPp39") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://discord.gg/eFZTprHh3j") { UseShellExecute = true });
         }
 
         private void WebsiteBTN_Click(object sender, EventArgs e)
@@ -2461,6 +2525,43 @@ namespace CrusaderWars
                 if (!string.IsNullOrEmpty(url))
                 {
                     Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });
+                }
+            }
+        }
+
+        private async void linkOptInPreReleases_Click(object sender, EventArgs e)
+        {
+            PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
+
+            // Toggle the setting
+            bool currentState = ModOptions.GetOptInPreReleases();
+            Options.SetOptInPreReleases(!currentState);
+
+            // Update the button's appearance immediately
+            UpdatePreReleaseLinkState();
+
+            // If the user just opted IN, check for updates
+            if (ModOptions.GetOptInPreReleases())
+            {
+                try
+                {
+                    linkOptInPreReleases.Enabled = false;
+                    infoLabel.Text = "Checking for pre-release updates...";
+                    Program.Logger.Debug("Triggering immediate update check due to pre-release opt-in.");
+                    await _updater.CheckAppVersion();
+                    await _updater.CheckUnitMappersVersion();
+                    infoLabel.Text = "Update check complete.";
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error during immediate update check: {ex.Message}");
+                    infoLabel.Text = "Error during update check.";
+                }
+                finally
+                {
+                    linkOptInPreReleases.Enabled = true;
+                    await Task.Delay(2000);
+                    infoLabel.Text = "Ready to Start!";
                 }
             }
         }

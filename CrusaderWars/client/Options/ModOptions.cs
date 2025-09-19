@@ -14,12 +14,8 @@ namespace CrusaderWars.client
 {
     public static class ModOptions
     {
-        static Dictionary<string, string> optionsValuesCollection = new Dictionary<string, string>();
-        public static void StoreOptionsValues(Dictionary<string, string> OptionsForm_ValuesCollection)
-        {
-            optionsValuesCollection = OptionsForm_ValuesCollection;
-        }
-
+        internal static Dictionary<string, string> optionsValuesCollection = new Dictionary<string, string>();
+        
         public static int GetLevyMax()
         {
             return Int32.Parse(optionsValuesCollection["LeviesMax"]);
@@ -258,5 +254,10 @@ namespace CrusaderWars.client
         public static int GetKnightOneLeggedChance() => Int32.Parse(optionsValuesCollection["KnightOneLeggedChance"]);
         public static int GetKnightOneEyedChance() => Int32.Parse(optionsValuesCollection["KnightOneEyedChance"]);
         public static int GetKnightDisfiguredChance() => Int32.Parse(optionsValuesCollection["KnightDisfiguredChance"]);
+
+        public static bool GetOptInPreReleases()
+        {
+            return optionsValuesCollection.TryGetValue("OptInPreReleases", out var value) && bool.TryParse(value, out bool result) && result;
+        }
     }
 }
