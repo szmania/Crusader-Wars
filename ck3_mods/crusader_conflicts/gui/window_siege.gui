@@ -801,7 +801,7 @@ window = {
 							duration = 0.01
 							next = "log_attacker_commander_culture"
 							on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('AttackerCommanderID:', Localize('player_id')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
 						}
 
 						state = {
@@ -809,7 +809,7 @@ window = {
 							duration = 0.01
 							next = "log_attacker_commander_name"
 							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('AttackerCommanderCulture:', Localize('global_culture_ids_var')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 						}
 
 						state = {	
@@ -817,7 +817,7 @@ window = {
 							duration = 0.01
 							next = "log_attacker_owner_id"
 							on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Concatenate('AttackerCommanderName:', Localize('player_name')))]"			
+							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
 						}
 
 						state = {
@@ -825,7 +825,7 @@ window = {
 							duration = 0.01
 							next = "log_attacker_owner_culture"
 							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('AttackerOwnerID:', Localize('global_ids_var')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_ID:', Localize('global_ids_var')))]"
 						}
 
 						state = {
@@ -833,7 +833,7 @@ window = {
 							duration = 0.01
 							next = "log_defender_owner_id"
 							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('AttackerOwnerCulture:', Localize('global_culture_ids_var')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 						}
 
 						state = {
@@ -841,7 +841,7 @@ window = {
 							duration = 0.01
 							next = "log_defender_owner_culture"
 							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('DefenderOwnerID:', Localize('global_ids_var')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_ID:', Localize('global_ids_var')))]"
 						}
 
 						state = {
@@ -849,7 +849,7 @@ window = {
 							duration = 0.01
 							next = "log_defender_owner_name"
 							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('DefenderOwnerCulture:', Localize('global_culture_ids_var')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 						}
 
 						state = {	
@@ -857,7 +857,7 @@ window = {
 							duration = 0.01
 							next = "log_player_char_id"
 							on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Concatenate('DefenderOwnerName:', Localize('enemy_name')))]"			
+							on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
 						}
 
 						state = {
@@ -865,7 +865,7 @@ window = {
 							duration = 0.01
 							next = "log_player_char_culture"
 							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacterID:', Localize('global_ids_var')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
 						}
 
 						state = {
@@ -873,7 +873,7 @@ window = {
 							duration = 0.01
 							next = "log_keyword"
 							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacterCulture:', Localize('global_culture_ids_var')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_Culture:', Localize('global_culture_ids_var')))]"
 						}
 
 						state = {
@@ -1358,195 +1358,6 @@ window = {
 								text_single = {
 									text = "SW_SIEGE_WEAPON_NON"
 									parentanchor = center
-								}
-							}
-						}
-					}
-
-					vbox = {
-						layoutpolicy_horizontal = expanding
-						layoutpolicy_vertical = expanding
-						layoutstretchfactor_horizontal = 1
-
-						widget = {
-							layoutpolicy_horizontal = expanding
-							layoutpolicy_vertical = expanding
-							size = { 0 160 }
-							tooltip = "[SiegeWindow.GetSiegePhaseTooltip]"
-
-							background = {
-								using = Background_Area
-							}
-
-							icon = {
-								size = { 100% 100% }
-								texture = "gfx/interface/colors/white.dds"
-								using = Color_Blue_Transparent
-								alpha = 0
-
-								using = Mask_Rough_Edges
-
-								modify_texture = {
-									name = "flash"
-									texture = "gfx/interface/component_masks/mask_fade_horizontal_middle.dds"
-									blend_mode = alphamultiply
-								}
-
-								state = {
-									name = "siege_event_flash"
-									next = b
-									trigger_on_create = yes
-									using = Animation_Curve_Default
-									duration = 0.3
-									alpha = 1
-
-									modify_texture = {
-										name = "flash"
-										alpha = 0
-									}
-								}
-
-								state = {
-									name = b
-									duration = 1
-									using = Animation_Curve_Default
-									alpha = 0
-
-
-									modify_texture = {
-										name = "flash"
-										alpha = 1
-									}
-								}
-							}
-
-							hbox = {
-								state = {
-									name = "siege_window_refresh"
-									using = Animation_Refresh_FadeOut
-								}
-
-								state = {
-									using = Animation_Refresh_FadeIn
-								}
-
-								vbox = {
-									layoutpolicy_horizontal = expanding
-									layoutpolicy_vertical = expanding
-									spacing = 5
-									margin_bottom = 5
-
-									hbox = {
-										layoutpolicy_horizontal = expanding
-										margin_top = 10
-
-										hbox = {
-											layoutpolicy_horizontal = expanding
-											spacing = 10
-											margin = { 10 0 }
-
-											widget = {
-												size = { 40 40 }
-
-												icon = {
-													name = "progress_frame"
-													size = { 100% 100% }
-													texture = "gfx/interface/progressbars/progress_circle_frame.dds"
-													alpha = 0.5
-												}
-
-												progresspie = {
-													name = "progress"
-													size = { 100% 100% }
-													texture = "gfx/interface/progressbars/progress_circle.dds"
-													framesize = { 248 248 }
-													frame = "[SiegeWindow.GetPhaseTimerFrame]"
-													value = "[Siege.GetPhaseProgress]"
-													min = 0
-													max = 1
-												}
-											}
-
-
-											vbox = {
-												layoutpolicy_horizontal = expanding
-
-												text_single = {
-													layoutpolicy_horizontal = expanding
-													text = "SIEGE_EVENT"
-													max_width = 105
-													multiline = yes
-													align = left|vcenter
-												}
-
-												text_single = {
-													layoutpolicy_horizontal = expanding
-													text = "[SiegeWindow.GetSiegePhaseLength]"
-													default_format = "#high;glow_color:{0,0,0,1}"
-													using = Font_Size_Big
-													align = left|nobaseline
-												}
-											}
-										}
-									}
-
-									hbox = {
-										layoutpolicy_horizontal = expanding
-
-										margin = { 10 0 }
-
-										divider_light = {
-											layoutpolicy_horizontal = expanding
-											alpha = 0.5
-										}
-									}
-
-									vbox = {
-										layoutpolicy_horizontal = expanding
-										layoutpolicy_vertical = expanding
-										spacing = 5
-
-										text_multi = {
-											datacontext = "[SiegeWindow.GetSiege]"
-											layoutpolicy_horizontal = expanding
-											margin = { 10 0 }
-											autoresize = yes
-											max_width = 165
-											text = "[SiegeWindow.GetActionHistoryTooltip('0')]"
-										}
-
-										widget = {
-											layoutpolicy_horizontal = expanding
-											layoutpolicy_vertical = expanding
-
-											state = {
-												name = "siege_event_flash"
-												next = b
-												trigger_on_create = yes
-
-												alpha = 0
-											}
-
-											state = {
-												name = b
-												duration = 1
-												using = Animation_Curve_Default
-
-												alpha = 1
-											}
-
-											background = {
-												name = "latest_action"
-												visible = "[SiegeWindow.HasActionHistory('0')]"
-												frame = "[SiegeWindow.GetActionHistoryFrame('0')]"
-												texture = "gfx/interface/illustrations/siege/siege_actions.dds"
-												framesize = { 360 200 }
-												fittype = centercrop
-												margin = { -5 0 }
-												using = Mask_Rough_Edges
-											}
-										}
-									}
 								}
 							}
 						}
