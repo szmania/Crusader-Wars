@@ -299,7 +299,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("KnightWoundedChance", KnightWoundedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightSeverelyInjuredChance", KnightSeverelyInjuredChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightBrutallyMauledChance", KnightBrutallyMauledChance_Value);
-Options.optionsValuesCollection.Add("KnightMaimedChance", KnightMaimedChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightMaimedChance", KnightMaimedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightOneLeggedChance", KnightOneLeggedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightOneEyedChance", KnightOneEyedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightDisfiguredChance", KnightDisfiguredChance_Value);
