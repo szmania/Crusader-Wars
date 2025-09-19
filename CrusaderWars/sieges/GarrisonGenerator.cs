@@ -2,6 +2,7 @@ using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CrusaderWars.sieges
 {
@@ -66,7 +67,10 @@ namespace CrusaderWars.sieges
             int regimentCounter = 0;
 
             // CK3 levy regiments are typically 100 soldiers at full strength.
-            const int maxRegimentSize = 100; 
+            const int maxRegimentSize = 100;
+
+            // Use a consistent name that includes "Levy" to be correctly identified as such during results processing.
+            string unitName = (type == RegimentType.Infantry) ? "Garrison Levy Infantry" : "Garrison Levy Ranged";
 
             while (soldiersRemaining > 0)
             {
@@ -80,8 +84,9 @@ namespace CrusaderWars.sieges
                 unit.SetAttilaKey(unitKey); 
                 unit.ChangeSoldiers(currentRegimentSize);
                 unit.SetMax(maxRegimentSize);
-                unit.SetRegimentType(type);
+                unit.SetRegimentType(RegimentType.Levy); // Treat them as levies for casualty calculations
                 unit.ChangeCulture(new Culture(cultureName, heritageName));
+                unit.SetName(unitName); // Set a consistent name for grouping and casualty report matching.
                 army.Units.Add(unit); // Add the unit to the army's unit list
 
                 // Create the Regiment, which is a container for units in CK3.
@@ -96,6 +101,8 @@ namespace CrusaderWars.sieges
                 // Create the ArmyRegiment, which links a Regiment to an Army.
                 var armyRegiment = new ArmyRegiment();
                 armyRegiment.SetRegiment(regiment);
+                armyRegiment.SetType(RegimentType.Levy); // Match the unit type for results processing.
+                armyRegiment.SetMAA_Name(unitName); // Match the unit name for casualty report lookup.
 
                 armyRegiments.Add(armyRegiment);
 
