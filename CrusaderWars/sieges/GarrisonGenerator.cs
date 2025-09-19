@@ -42,11 +42,11 @@ namespace CrusaderWars.sieges
 
             // Create and add regiments to the army.
             var armyRegiments = new List<ArmyRegiment>();
-            armyRegiments.AddRange(CreateArmyRegimentsForType(infantrySoldiers, infantryUnitKey, culture, heritage, RegimentType.Infantry));
-            armyRegiments.AddRange(CreateArmyRegimentsForType(rangedSoldiers, rangedUnitKey, culture, heritage, RegimentType.Ranged));
+            armyRegiments.AddRange(CreateArmyRegimentsForType(infantrySoldiers, infantryUnitKey, culture, heritage, RegimentType.Infantry, garrisonArmy));
+            armyRegiments.AddRange(CreateArmyRegimentsForType(rangedSoldiers, rangedUnitKey, culture, heritage, RegimentType.Ranged, garrisonArmy));
             
-            // NOTE: Assumes the 'Army' class has a public method to add regiments.
-            garrisonArmy.AddRegiments(armyRegiments);
+            // NOTE: Assumes the 'Army' class has a public property 'ArmyRegiments'.
+            garrisonArmy.ArmyRegiments.AddRange(armyRegiments);
 
             return garrisonArmy;
         }
@@ -54,10 +54,10 @@ namespace CrusaderWars.sieges
         /// <summary>
         /// Creates a list of ArmyRegiment objects for a specific unit type (e.g., infantry, ranged).
         /// </summary>
-        private static List<ArmyRegiment> CreateArmyRegimentsForType(int totalSoldiers, string unitKey, string cultureName, string heritageName, RegimentType type)
+        private static List<ArmyRegiment> CreateArmyRegimentsForType(int totalSoldiers, string unitKey, string cultureName, string heritageName, RegimentType type, Army army)
         {
             var armyRegiments = new List<ArmyRegiment>();
-            if (totalSoldiers <= 0 || string.IsNullOrEmpty(unitKey))
+            if (totalSoldiers <= 0 || string.IsNullOrEmpty(unitKey) || unitKey == UnitMappers_BETA.NOT_FOUND_KEY)
             {
                 return armyRegiments;
             }
@@ -82,6 +82,7 @@ namespace CrusaderWars.sieges
                 unit.SetMax(maxRegimentSize);
                 unit.SetRegimentType(type);
                 unit.ChangeCulture(new Culture(cultureName, heritageName));
+                army.Units.Add(unit); // Add the unit to the army's unit list
 
                 // Create the Regiment, which is a container for units in CK3.
                 var regiment = new Regiment();

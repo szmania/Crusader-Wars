@@ -1081,6 +1081,12 @@ namespace CrusaderWars
                 {
                     subcultureTag = $"<subculture>{subculture}</subculture>\n";
                 }
+                else
+                {
+                    MessageBox.Show($"Could not determine a subculture for the defending faction '{attilaFaction}'.\n\nThe battle might not load correctly in Total War: Attila.\n\nPlease check your Unit Mapper files.",
+                                    "Crusader Conflicts: Subculture Warning",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                }
             }
 
 

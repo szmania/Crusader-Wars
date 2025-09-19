@@ -1319,6 +1319,26 @@ namespace CrusaderWars
                     var armies = ArmiesReader.ReadBattleArmies();
                     attacker_armies = armies.attacker;
                     defender_armies = armies.defender;
+
+                    if(twbattle.BattleState.IsSiegeBattle)
+                    {
+                        Program.Logger.Debug("Siege battle detected. Generating garrison army.");
+                        int garrisonSize = twbattle.Sieges.GetGarrisonSize();
+                        string garrisonCulture = twbattle.Sieges.GetGarrisonCulture();
+                        string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
+                        
+                        // For sieges, the defender is the garrison. Clear any field defenders that might have been read.
+                        defender_armies.Clear(); 
+                        
+                        Army garrisonArmy = CrusaderWars.sieges.GarrisonGenerator.GenerateGarrisonArmy(garrisonSize, garrisonCulture, garrisonHeritage);
+                        
+                        // The garrison is always the defender
+                        garrisonArmy.CombatSide = "defender"; 
+                        
+                        defender_armies.Add(garrisonArmy);
+                        Program.Logger.Debug($"Generated garrison army with {garrisonSize} soldiers and added to defenders.");
+                    }
+
                     Program.Logger.Debug($"Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
             
                     // Mark battle as started only if setup succeeded

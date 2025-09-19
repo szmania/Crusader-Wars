@@ -50,6 +50,7 @@ namespace CrusaderWars.twbattle
         }
 
         public static int GetHoldingLevel() { return HoldingLevel; }
+        public static int GetGarrisonSize() { return GarrisonSize; }
         public static string GetGarrisonCulture() { return GarrisonCulture; }
         public static string GetGarrisonHeritage() { return GarrisonHeritage; }
         public static string GetHoldingEscalation() { return EscalationLevel; }
