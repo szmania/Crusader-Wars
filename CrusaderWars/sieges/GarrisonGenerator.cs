@@ -65,9 +65,7 @@ namespace CrusaderWars.sieges
                 return armyRegiments;
             }
 
-            var armyRegiment = new ArmyRegiment($"garrison_army_reg_{unitName.Replace(" ", "_")}");
-            armyRegiment.Type = RegimentType.Levy;
-            armyRegiment.MAA_Name = unitName;
+            var armyRegiment = new ArmyRegiment($"garrison_army_reg_{unitName.Replace(" ", "_")}", RegimentType.Levy, unitName);
 
             int soldiersRemaining = totalSoldiers;
             int regimentCounter = 0;
@@ -80,7 +78,7 @@ namespace CrusaderWars.sieges
                 int currentRegimentSize = Math.Min(soldiersRemaining, maxRegimentSize);
 
                 // Create the Unit, which represents the soldiers in Attila.
-                var unit = new Unit(unitName, RegimentType.Levy, unitKey);
+                var unit = new Unit(unitName, unitKey);
                 unit.ChangeSoldiers(currentRegimentSize);
                 unit.SetMax(maxRegimentSize);
                 unit.ChangeCulture(new Culture(cultureName, cultureName, heritageName)); // Correct Culture constructor
