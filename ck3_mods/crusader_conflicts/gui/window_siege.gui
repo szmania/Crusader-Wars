@@ -763,8 +763,62 @@ window = {
 						state = {
 							name = "log_fort_level"
 							duration = 0.01
-							next = "log_keyword"
+							next = "log_terrain"
 							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetFortLevelImpactTooltip)]"
+						}
+
+						state = {
+							name = "log_terrain"
+							duration = 0.01
+							next = "log_region"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetTerrain.GetName)]"
+						}
+
+						state = {	
+							name = "log_region"
+							duration = 0.01	
+							next = "log_province_id"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Region:',SiegeWindow.GetSiege.GetProvince.Custom('GetProvinceRegion')))]"
+						}
+
+						state = {	
+							name = "log_province_id"
+							duration = 0.01	
+							next = "log_attacker_commander_id"
+							on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',Localize('province_id')))]"
+						}
+
+						state = {	
+							name = "log_attacker_commander_id"
+							duration = 0.01
+							next = "log_attacker_owner_id"
+							on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('AttackerCommanderID:', Localize('player_id')))]"
+						}
+
+						state = {
+							name = "log_attacker_owner_id"
+							duration = 0.01
+							next = "log_defender_owner_id"
+							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('AttackerOwnerID:', Localize('global_ids_var')))]"
+						}
+
+						state = {
+							name = "log_defender_owner_id"
+							duration = 0.01
+							next = "log_player_char_id"
+							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('DefenderOwnerID:', Localize('global_ids_var')))]"
+						}
+
+						state = {
+							name = "log_player_char_id"
+							duration = 0.01
+							next = "log_keyword"
+							on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacterID:', Localize('global_ids_var')))]"
 						}
 
 						state = {
@@ -772,24 +826,6 @@ window = {
 							duration = 0.01
 							on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERCONFLICTS_SIEGE')]"
 						}
-
-						##Need to do logging for these two below
-
-						state = {
-							name = "player_knight_count"
-							duration = 0.01
-							next = "log_player_knight_effectiveness"
-							on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftKnightBreakdown)]"
-						}
-
-						state = {
-							name = "log_player_knight_effectiveness"
-							duration = 0.01
-							next = "log_enemy_divider"
-							on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown)]"
-						}
-
-						
 																								
 					}
 
