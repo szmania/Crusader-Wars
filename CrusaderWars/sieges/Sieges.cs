@@ -19,6 +19,7 @@ namespace CrusaderWars.twbattle
          */
         // level 3/4 - mk1212 custom cities
         static int HoldingLevel { get; set; }
+        static string HoldingLevelKey { get; set; } = string.Empty;
         static string HoldingCulture { get; set; } = string.Empty;
         static string GarrisonHeritage { get; set; } = string.Empty;
         static string GarrisonCulture { get; set; } = string.Empty;
@@ -28,10 +29,12 @@ namespace CrusaderWars.twbattle
         static string EscalationLevel { get; set; } = string.Empty;
         static int NumberSiegeEquipement { get; set; }
         static int FortLevel { get; set; }
+        static string AttackerArmyComposition { get; set; } = string.Empty;
 
         public static void Reset()
         {
             HoldingLevel = 0;
+            HoldingLevelKey = string.Empty;
             HoldingCulture = string.Empty;
             GarrisonHeritage = string.Empty;
             GarrisonCulture = string.Empty;
@@ -41,6 +44,7 @@ namespace CrusaderWars.twbattle
             EscalationLevel = string.Empty;
             NumberSiegeEquipement = 0;
             FortLevel = 0;
+            AttackerArmyComposition = string.Empty;
             Program.Logger.Debug("Siege data reset.");
         }
 
@@ -70,6 +74,31 @@ namespace CrusaderWars.twbattle
         public static void SetHoldingLevel(string key)
         {
             HoldingLevel = Sieges_DataTypes.Holding.GetLevel(key, Data.Province_Buildings.ToArray());
+        }
+
+        public static void SetHoldingLevelKey(string key)
+        {
+            HoldingLevelKey = key;
+        }
+
+        public static void SetGarrisonCulture(string culture)
+        {
+            GarrisonCulture = culture;
+        }
+
+        public static void SetGarrisonHeritage(string heritage)
+        {
+            GarrisonHeritage = heritage;
+        }
+
+        public static void SetGarrisonSize(int size)
+        {
+            GarrisonSize = size;
+        }
+
+        public static void SetAttackerArmyComposition(string composition)
+        {
+            AttackerArmyComposition = composition;
         }
 
 
