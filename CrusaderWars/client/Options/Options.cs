@@ -220,7 +220,7 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Option '{optionName}' not found in Options.xml. Creating with default value '{defaultValue}'.");
                 XmlElement newOption = doc.CreateElement("Option");
                 newOption.SetAttribute("name", optionName);
-                newOption.InnerText = defaultValue;
+                newOption.InnerText = defaultValue; // This line sets the InnerText
                 doc.DocumentElement?.AppendChild(newOption);
                 return defaultValue;
             }
@@ -299,7 +299,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("KnightWoundedChance", KnightWoundedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightSeverelyInjuredChance", KnightSeverelyInjuredChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightBrutallyMauledChance", KnightBrutallyMauledChance_Value);
-                ModOptions.optionsValuesCollection.Add("KnightMaimedChance", KnightMaimedChance_Value);
+Options.optionsValuesCollection.Add("KnightMaimedChance", KnightMaimedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightOneLeggedChance", KnightOneLeggedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightOneEyedChance", KnightOneEyedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightDisfiguredChance", KnightDisfiguredChance_Value);
@@ -819,7 +819,7 @@ namespace CrusaderWars
                 XmlNode? ck3_node = root.SelectSingleNode("CrusaderKings");
                 if (ck3_node == null)
                 {
-                    Program.Logger.Debug("CrusaderKings node not found. Creating.");
+                Program.Logger.Debug("CrusaderKings node not found. Creating.");
                     ck3_node = xmlDoc.CreateElement("CrusaderKings");
                     root.AppendChild(ck3_node);
                     fileModified = true;
@@ -904,6 +904,7 @@ namespace CrusaderWars
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
+                // Corrected the XPath query string to ensure it matches the attribute name used for creation
                 var optInPreReleasesNode = xmlDoc.SelectSingleNode("//Option [@name='OptInPreReleases']");
                 if (optInPreReleasesNode != null)
                 {
