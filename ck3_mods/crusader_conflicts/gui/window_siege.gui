@@ -770,7 +770,7 @@ window = {
 						state = {
 							name = "log_keyword"
 							duration = 0.01
-							on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERWARS3_SIEGE')]"
+							on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERCONFLICTS_SIEGE')]"
 						}
 
 						##Need to do logging for these two below
