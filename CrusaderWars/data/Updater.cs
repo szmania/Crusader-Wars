@@ -49,11 +49,19 @@ namespace CrusaderWars
 
                     foreach (JsonElement release in root.EnumerateArray())
                     {
-                        bool isPreRelease = release.GetProperty("prerelease").GetBoolean();
-                        if (optInPreReleases || !isPreRelease)
+                        bool isApiPreRelease = release.GetProperty("prerelease").GetBoolean();
+                        string tagName = release.GetProperty("tag_name").GetString() ?? "";
+
+                        // A release is considered a pre-release if the API flag is true OR the tag contains a pre-release identifier.
+                        bool isEffectivelyPreRelease = isApiPreRelease || 
+                                                       tagName.Contains("-beta") || 
+                                                       tagName.Contains("-alpha") || 
+                                                       tagName.Contains("-rc");
+
+                        if (optInPreReleases || !isEffectivelyPreRelease)
                         {
                             targetRelease = release;
-                            break; // Found the most recent suitable release (either pre-release if opted in, or first stable)
+                            break; // Found the most recent suitable release.
                         }
                     }
 
