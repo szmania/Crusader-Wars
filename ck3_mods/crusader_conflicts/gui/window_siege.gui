@@ -603,7 +603,7 @@ window = {
 					############################################################					
 
 					button = { name = Siege_Button
-						tooltip = "siegeeee!"
+						tooltip = "Assault the settlement yourself!"
 						parentanchor = left
 						position = { 0 0 }
 						texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
@@ -634,7 +634,7 @@ window = {
 							name = "save_Game"
 							duration = 0.1
 							next = "exit_debug"
-							on_finish = "[ExecuteConsoleCommand('save CrusaderWars_Battle')]"	#save the game
+							on_finish = "[ExecuteConsoleCommand('save CrusaderConflicts_Battle')]"	#save the game
 						}
 
 						state = {
