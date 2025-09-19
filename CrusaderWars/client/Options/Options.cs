@@ -1362,7 +1362,6 @@ namespace CrusaderWars
             // If validation passes, proceed with saving and cleanup
             SaveValuesToOptionsFile();
             ReadOptionsFile();
-            ModOptions.StoreOptionsValues(ModOptions.optionsValuesCollection); // This line is now redundant, but kept for safety if StoreOptionsValues was not removed from ModOptions.cs
             WriteUnitMappersOptions();
 
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
