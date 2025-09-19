@@ -79,6 +79,7 @@ namespace CrusaderWars
         }
         public HomePage()
         {
+            Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
             CreateRequiredDirectories();
             LoadFont();
@@ -485,7 +486,7 @@ namespace CrusaderWars
             // Initialize and configure Playthrough Display
             InitializePlaythroughDisplay();
 
-            Options.ReadOptionsFile();
+            // Options.ReadOptionsFile(); // REMOVED: Moved to constructor
             // Line 452 - Add null check
             // Removed the block:
             // if (Options.optionsValuesCollection != null)
@@ -1506,7 +1507,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
@@ -1554,7 +1555,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
