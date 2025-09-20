@@ -1,6 +1,6 @@
 clear_log = {
     effect = {
-        debug_log = "CRUSADERWARS3"
+        debug_log = "CRUSADERCONFLICTS"
     }
     
 }
