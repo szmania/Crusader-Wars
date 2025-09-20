@@ -648,7 +648,7 @@ window = {
 							duration = 0.01
 							next = "log_enemy_realm"
 							on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Localize('occupant_realm'))]"	
+							on_finish = "[ExecuteConsoleCommand(Localize('attacker_realm'))]"	
 						}	
 
 						state = {
@@ -750,9 +750,16 @@ window = {
                         state = {
                             name = "log_attacker_army"
                             duration = 0.01
-                            next = "log_enemy_divider"
+                            next = "log_player_knight_effectiveness"
                             on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetComposition.GetArmyCompositionString)]"
                         }
+
+						state = {
+							name = "log_player_knight_effectiveness"
+							duration = 0.01
+							next = "log_enemy_divider"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown)]"
+						}
 
 						state = {
 							name = "log_enemy_divider"
@@ -773,7 +780,7 @@ window = {
 							name = "log_enemy_martial_skill"
 							duration = 0.01
 							next = "log_enemy_prowess"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Martial skill:', Localize('enemy_martial')))]"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetController.GetCommanderAdvantageDesc)]"
 						}
 
 						state = {
@@ -803,7 +810,7 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetPrimaryBuildingType.GetKey))]"
 						}
 						state = {
 							name = "log_sickness"
@@ -858,7 +865,7 @@ window = {
 							name = "log_province_id"
 							duration = 0.01	
 							next = "log_winter"
-							on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"
+							on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',SiegeWindow.GetSiege.MakeScope).End)]"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',Localize('province_id')))]"
 						}
 						
