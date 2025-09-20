@@ -75,6 +75,9 @@ namespace CrusaderWars.data.save_file
 
             //Clear Accolades File
             File.WriteAllText(Writter.DataFilesPaths.Accolades(), "");
+
+            //Clear Sieges File
+            File.WriteAllText(@".\data\save_file_data\Sieges.txt", "");
             Program.Logger.Debug("Finished clearing all temporary save file data.");
         }
 
@@ -128,6 +131,7 @@ namespace CrusaderWars.data.save_file
                     SearchKeys.CourtPositions(line);
                     SearchKeys.LandedTitles(line);
                     SearchKeys.Accolades(line);
+                    SearchKeys.Sieges(line); // Added call to new Sieges search method
                     
                 }
                 long endMemoryt = GC.GetTotalMemory(false);
@@ -176,6 +180,7 @@ namespace CrusaderWars.data.save_file
         public static StringBuilder SB_LandedTitles = new StringBuilder();
         public static StringBuilder SB_Accolades = new StringBuilder();
 		public static StringBuilder SB_Traits = new StringBuilder();
+        public static StringBuilder SB_Sieges = new StringBuilder(); // Added StringBuilder for Sieges
 
 
 
@@ -213,6 +218,7 @@ namespace CrusaderWars.data.save_file
             SearchKeys.HasCourtPositionsExtracted = false;
             SearchKeys.HasLandedTitlesExtracted = false;
             SearchKeys.HasAccoladesExtracted = false;
+            SearchKeys.HasSiegesExtracted = false; // Added reset for Sieges extraction flag
         }
     }
 
@@ -972,6 +978,57 @@ namespace CrusaderWars.data.save_file
                     HasAccoladesExtracted = true;
                     Start_AccoladesFound = false;
                     End_AccoladesFound = false;
+                }
+            }
+        }
+
+        // New properties for Sieges extraction
+        private static bool Start_SiegesFound { get; set; }
+        private static bool End_SiegesFound { get; set; }
+        public static bool HasSiegesExtracted { get; set; }
+
+        // New method for Sieges extraction
+        public static void Sieges(string line)
+        {
+            if (!HasSiegesExtracted)
+            {
+                if (!Start_SiegesFound)
+                {
+                    if (line == "sieges={") // Assuming top-level block, similar to "units={"
+                    {
+                        Program.Logger.Debug("Found start of sieges block.");
+                        Start_SiegesFound = true;
+                    }
+                }
+
+                if (Start_SiegesFound && !End_SiegesFound)
+                {
+                    // The plan specifies "the closing brace } at the same nesting level".
+                    // For top-level blocks like "units={", "counties={", "culture_manager={", "mercenary_company_manager={",
+                    // the end condition is a simple "}".
+                    if (line == "}") 
+                    {
+                        Program.Logger.Debug("Found end of sieges block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Sieges.Length} characters to Sieges.txt");
+                        using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Sieges.txt"))
+                        {
+                            sw.Write(Data.SB_Sieges);
+                            sw.Close();
+                        }
+                        Data.SB_Sieges = new StringBuilder();
+                        GC.Collect();
+                        End_SiegesFound = true;
+                        return;
+                    }
+
+                    Data.SB_Sieges.AppendLine(line);
+                }
+
+                if (End_SiegesFound)
+                {
+                    HasSiegesExtracted = true;
+                    Start_SiegesFound = false;
+                    End_SiegesFound = false;
                 }
             }
         }
