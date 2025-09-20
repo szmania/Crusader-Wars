@@ -934,7 +934,7 @@ window = {
 							name = "log_keyword"
 							duration = 0.01
 							next = "save_game_readable"
-							on_finish = "[ExecuteConsoleCommand('Keyword:CRUSADERCONFLICTS_SIEGE')]"
+							on_finish = "[ExecuteConsoleCommand('BattleType:CRUSADERCONFLICTS_SIEGE')]"
 						}
 						state = {
 							name = "save_game_readable"
