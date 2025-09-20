@@ -120,6 +120,100 @@ namespace CrusaderWars
 
         static string LogPath = Properties.Settings.Default.VAR_log_ck3;
 
+        private static void IdentifyBattleType(string log)
+        {
+            if (log.Contains("Keyword:CRUSADERCONFLICTS_SIEGE"))
+            {
+                Program.Logger.Debug("Siege battle detected.");
+                twbattle.BattleState.IsSiegeBattle = true;
+            }
+            else if (log.Contains("Keyword:CRUSADERCONFLICTS_BATTLE"))
+            {
+                Program.Logger.Debug("Field battle detected.");
+                twbattle.BattleState.IsSiegeBattle = false;
+            }
+            else
+            {
+                Program.Logger.Debug("Could not determine battle type from keyword. Defaulting to field battle.");
+                twbattle.BattleState.IsSiegeBattle = false;
+            }
+        }
+
+        private static void SearchSiegeData(string log)
+        {
+            Program.Logger.Debug("Searching for siege-specific data in log...");
+
+            // Holding type key
+            string holdingLevel = Regex.Match(log, @"Holding Level:(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Holding Level Key: {holdingLevel}");
+            twbattle.Sieges.SetHoldingLevelKey(holdingLevel);
+
+            // BreachFrame
+            string breachFrameStr = Regex.Match(log, @"BreachFrame:(\d+)").Groups[1].Value;
+            if (int.TryParse(breachFrameStr, out int breachFrame))
+            {
+                string escalation = "";
+                switch (breachFrame)
+                {
+                    case 0: escalation = "Intact"; break;
+                    case 1: escalation = "SmallBreach"; break;
+                    case 2: escalation = "LargeBreach"; break;
+                }
+                Program.Logger.Debug($"Found Breach Status: {escalation}");
+                twbattle.Sieges.SetHoldingEscalation(escalation);
+            }
+
+            // StarvationFrame
+            string starvationFrameStr = Regex.Match(log, @"StarvationFrame:(\d+)").Groups[1].Value;
+            if (int.TryParse(starvationFrameStr, out int starvationFrame))
+            {
+                string supplies = "";
+                switch (starvationFrame)
+                {
+                    case 0: supplies = "Fully Stocked"; break;
+                    case 1: supplies = "Running Low"; break;
+                    case 2: supplies = "Starvation"; break;
+                }
+                Program.Logger.Debug($"Found Supply Status: {supplies}");
+                twbattle.Sieges.SetHoldingSupplies(supplies);
+            }
+
+            // DiseaseFrame
+            string diseaseFrameStr = Regex.Match(log, @"DiseaseFrame:(\d+)").Groups[1].Value;
+            if (int.TryParse(diseaseFrameStr, out int diseaseFrame))
+            {
+                string sickness = "";
+                switch (diseaseFrame)
+                {
+                    case 0: sickness = "No Diseases"; break;
+                    case 1: sickness = "Sickness Spreading"; break;
+                    case 2: sickness = "Rampant Disease"; break;
+                }
+                Program.Logger.Debug($"Found Sickness Status: {sickness}");
+                twbattle.Sieges.SetHoldingSickness(sickness);
+            }
+
+            // Garrison culture and heritage
+            string garrisonCulture = Regex.Match(log, @"Garrison Culture:(.+)").Groups[1].Value.Trim();
+            string garrisonHeritage = Regex.Match(log, @"Garrison Heritage:(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Garrison Culture: {garrisonCulture}, Heritage: {garrisonHeritage}");
+            twbattle.Sieges.SetGarrisonCulture(garrisonCulture);
+            twbattle.Sieges.SetGarrisonHeritage(garrisonHeritage);
+
+            // Garrison size
+            string garrisonSizeStr = Regex.Match(log, @"Garrison Size:(\d+)").Groups[1].Value;
+            if (int.TryParse(garrisonSizeStr, out int garrisonSize))
+            {
+                Program.Logger.Debug($"Found Garrison Size: {garrisonSize}");
+                twbattle.Sieges.SetGarrisonSize(garrisonSize);
+            }
+
+            // Attacker's army composition string.
+            string attackerArmyComposition = Regex.Match(log, @"---------Attacker Army---------([\s\S]*?)Attacker Martial:").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Attacker Army Composition for siege.");
+            twbattle.Sieges.SetAttackerArmyComposition(attackerArmyComposition);
+        }
+
         public static void Search(string log)
         {
             Program.Logger.Debug("Starting CK3 log search...");
@@ -135,9 +229,14 @@ namespace CrusaderWars
              * :::::::::::::::::::Geral Data:::::::::::::::
              ---------------------------------------------*/
 
+            IdentifyBattleType(log);
             DateSearch(log);
             BattleNameSearch(log);
-            SearchForBattleType(log);
+
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                SearchSiegeData(log);
+            }
 
             /*---------------------------------------------
              * :::::::::::::::::Modifiers::::::::::::::::::
@@ -225,39 +324,15 @@ namespace CrusaderWars
             /*---------------------------------------------
              * :::::::::::Enemy Knight System:::::::::::::
              ---------------------------------------------*/
-
+            
             KnightsSearch(EnemyArmy, DataSearchSides.RightSide);
 
             /*---------------------------------------------
              * ::::::::::::::::Army Names::::::::::::::::::
              ---------------------------------------------*/
 
-             RealmsNamesSearch(log);
+            RealmsNamesSearch(log);
             Program.Logger.Debug("Finished CK3 log search.");
-        }
-
-        private static void SearchForBattleType(string log)
-        {
-            Match match = Regex.Match(log, @"BattleType:(.+)");
-            if (match.Success)
-            {
-                string battleType = match.Groups[1].Value.Trim();
-                if (battleType.Equals("siege", StringComparison.OrdinalIgnoreCase))
-                {
-                    twbattle.BattleState.IsSiegeBattle = true;
-                    Program.Logger.Debug("Siege battle detected.");
-                }
-                else
-                {
-                    twbattle.BattleState.IsSiegeBattle = false;
-                    Program.Logger.Debug($"Field battle detected (type: {battleType}).");
-                }
-            }
-            else
-            {
-                twbattle.BattleState.IsSiegeBattle = false;
-                Program.Logger.Debug("BattleType not found in log. Defaulting to field battle.");
-            }
         }
 
         private static void BattleNameSearch(string log)
