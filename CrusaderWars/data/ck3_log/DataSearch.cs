@@ -343,30 +343,13 @@ namespace CrusaderWars
             if (twbattle.BattleState.IsSiegeBattle && battle_name.Contains("ONCLICK:PROVINCE"))
             {
                 Program.Logger.Debug($"Original siege battle name: '{battle_name}'");
-                
-                // The actual name is usually after "L; ".
-                int locOfL = battle_name.IndexOf("L;");
-                if (locOfL != -1)
-                {
-                    // The prefix is everything before the metadata block
-                    string prefix = battle_name.Substring(0, battle_name.IndexOf("ONCLICK")).Trim();
 
-                    // The province name is after "L;"
-                    string provinceName = battle_name.Substring(locOfL + 2).Trim();
-                    
-                    // Remove trailing garbage like "! ! !"
-                    provinceName = Regex.Replace(provinceName, @"(\s*!)+$", "").Trim();
+                // New simplified replacement logic
+                battle_name = Regex.Replace(battle_name, @"ONCLICK:.*?( L |L;)", " ");
 
-                    // Reconstruct the name
-                    battle_name = prefix + " " + provinceName;
-                }
-                else
-                {
-                    // Fallback if "L;" is not found, less precise but should work
-                    battle_name = Regex.Replace(battle_name, @"ONCLICK:.*?L;", " ");
-                    battle_name = Regex.Replace(battle_name, @"(\s*!)+$", "").Trim();
-                    battle_name = Regex.Replace(battle_name, @"\s{2,}", " ").Trim();
-                }
+                // Existing cleanup logic
+                battle_name = Regex.Replace(battle_name, @"(\s*!)+$", "").Trim();
+                battle_name = Regex.Replace(battle_name, @"\s{2,}", " ").Trim();
                 
                 Program.Logger.Debug($"Cleaned siege battle name: '{battle_name}'");
             }
