@@ -737,21 +737,27 @@ window = {
 
 						}
 
-                        state = {
-                            name = "log_player_rank"
-                            duration = 0.01
-                            next = "log_attacker_army"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
-            
-                        }
-                        
-                        state = {
-                            name = "log_attacker_army"
-                            duration = 0.01
-                            next = "log_enemy_divider"
-                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetComposition.GetArmyCompositionString)]"
-                        }
+						state = {
+							name = "log_player_rank"
+							duration = 0.01
+							next = "log_attacker_knight_count"
+							on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+						}
+						
+						state = {
+							name = "log_attacker_knight_count"
+							duration = 0.01
+							next = "log_attacker_knight_effectiveness"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetKnightBreakdown)]"
+						}
+
+						state = {
+							name = "log_attacker_knight_effectiveness"
+							duration = 0.01
+							next = "log_enemy_divider"
+							on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+						}
 
 						state = {
 							name = "log_enemy_divider"
@@ -857,7 +863,7 @@ window = {
 							name = "log_province_id"
 							duration = 0.01	
 							next = "log_winter"
-							on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',SiegeWindow.GetSiege.MakeScope).End)]"
+							on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',Localize('province_id')))]"
 						}
 						
