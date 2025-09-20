@@ -523,7 +523,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    Program.Logger.Warning("Could not find enough realm names for siege battle.");
+                    Program.Logger.Debug("WARNING: Could not find enough realm names for siege battle.");
                 }
             }
             else
@@ -548,7 +548,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    Program.Logger.Warning("Could not find enough realm names for field battle.");
+                    Program.Logger.Debug("WARNING: Could not find enough realm names for field battle.");
                 }
             }
         }
