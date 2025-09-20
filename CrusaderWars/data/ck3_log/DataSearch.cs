@@ -505,7 +505,7 @@ namespace CrusaderWars
             {
                 // New, specific logic for siege battles
                 string text = Regex.Match(log, @"([\s\S]*?)---------Player Army---------").Groups[1].Value;
-                MatchCollection found_armies = Regex.Matches(text, @"ONCLICK:TITLE.+L; (.+)");
+                MatchCollection found_armies = Regex.Matches(text, @"TOOLTIP:LANDED_TITLE.+L; (.+)");
 
                 if (found_armies.Count >= 2)
                 {
