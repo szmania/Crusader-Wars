@@ -747,8 +747,15 @@ window = {
 						state = {
 							name = "log_attacker_knight_count"
 							duration = 0.01
-							next = "log_enemy_divider"
+							next = "log_attacker_knight_effectiveness"
 				            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+						}
+
+						state = {
+							name = "log_attacker_knight_effectiveness"
+							duration = 0.01
+							next = "log_enemy_divider"
+							on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
 						}
 
 						state = {
