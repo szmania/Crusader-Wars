@@ -236,7 +236,7 @@ window = {
 					name = "orange"
 					texture = "gfx/interface/colors/orange.dds"
 					blend_mode = colordodge
-					alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.005'))]"
+					alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)0.005')))]"
 				}
 			}
 
@@ -251,7 +251,7 @@ window = {
 					name = "orange"
 					texture = "gfx/interface/colors/orange.dds"
 					blend_mode = colordodge
-					alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.005'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.005'))]"
+					alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.005'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)0.005')))]"
 				}
 
 				modify_texture = {
@@ -398,7 +398,7 @@ window = {
 													size = { 100% 100% }
 													texture = "gfx/interface/colors/white.dds"
 													using = Color_Red
-													alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'))]"
+													alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)0.01')))]"
 													shaderfile = "gfx/FX/pdxgui_repeat_texture.shader"
 
 													modify_texture = {
@@ -437,7 +437,7 @@ window = {
 													size = { 100% 100% }
 													texture = "gfx/interface/colors/white.dds"
 													using = Color_Green
-													alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'))]"
+													alpha = "[Multiply_float(Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)100' )), '(float)0.01'), Multiply_float( IntToFloat(GetProgressBarValueMax( SiegeWindow.GetSiege.GetProgress, '(float)0.01')))]"
 													shaderfile = "gfx/FX/pdxgui_repeat_texture.shader"
 
 													modify_texture = {
@@ -638,7 +638,7 @@ window = {
 							name = "log_battle_name"
 							duration = 0.01
 							next = "log_player_realm"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:', SiegeWindow.GetSiege.GetName))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:Siege of ', SiegeWindow.GetSiege.GetProvince.GetName))]"
 						}
 						## Realms names
 
@@ -932,7 +932,7 @@ window = {
                             name = "print_modifiers"
                             duration = 0.01
                             next = "log_keyword"
-                            on_finish = "[ExecuteConsoleCommand(CombatWindow.GetAdvantageDescription)]"				
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetDailyProgressTooltip)]"				
                         }
 
 						state = {
