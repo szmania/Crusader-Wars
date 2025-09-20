@@ -647,8 +647,7 @@ window = {
 							name = "log_player_realm"
 							duration = 0.01
 							next = "log_enemy_realm"
-							on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Localize('attacker_realm'))]"	
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetPrimaryTitle.GetName)]"
 						}	
 
 						state = {
