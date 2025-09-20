@@ -810,27 +810,27 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetPrimaryBuildingType.GetKey))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetFortLevel))]"
 						}
 						state = {
 							name = "log_sickness"
 							duration = 0.01
 							next = "log_starvation"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('DiseaseFrame:', SiegeWindow.GetDiseaseStateFrame))]"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetDiseaseStateTooltip)]"
 						}
 
 						state = {
 							name = "log_starvation"
 							duration = 0.01
 							next = "log_wall_breaches"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('StarvationFrame:', SiegeWindow.GetStarvationStateFrame))]"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetStarvationStateTooltip)]"
 						}	
 						
 						state = {
 							name = "log_wall_breaches"
 							duration = 0.01
 							next = "log_fort_level"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('BreachFrame:', SiegeWindow.GetBreachStateFrame))]"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetBreachStateTooltip)]"
 						}											
 
 						state = {
@@ -1656,15 +1656,15 @@ window = {
 								}
 
 								state = {
-									name = "siege_breach_flash"
-									next = b
-									trigger_on_create = yes
+										name = "siege_breach_flash"
+										next = b
+										trigger_on_create = yes
 
-									modify_texture = {
-										name = "horizontal_wipe"
-										translate_uv = { 1 0 }
+										modify_texture = {
+											name = "horizontal_wipe"
+											translate_uv = { 1 0 }
+										}
 									}
-								}
 
 								state = {
 									name = b
