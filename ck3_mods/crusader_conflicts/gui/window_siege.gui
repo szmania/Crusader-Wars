@@ -749,7 +749,7 @@ window = {
 							name = "log_attacker_knight_count"
 							duration = 0.01
 							next = "log_attacker_knight_effectiveness"
-				            on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftKnightBreakdown)]"
+				            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerKnightBreakdown)]"
 						}
 
 						state = {
