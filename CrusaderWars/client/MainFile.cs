@@ -51,8 +51,6 @@ namespace CrusaderWars
         private int _preReleasePulseStep = 0;
 
 
-        const string SEARCH_KEY = "CRUSADERCONFLICTS";
-
         private int _myVariable = 0;
 
         private void CreateRequiredDirectories()
@@ -1150,7 +1148,7 @@ namespace CrusaderWars
                                     if (line == null) continue; // Ensure line is not null
 
                                     //If Battle Started
-                                    if (line.Contains(SEARCH_KEY))
+                                    if (line.Contains("CRUSADERWARS3") || line.Contains("CRUSADERCONFLICTS"))
                                     {
                                         Program.Logger.Debug("Battle keyword found in CK3 log. ");
                                         battleJustCompleted = false;
