@@ -750,16 +750,9 @@ window = {
                         state = {
                             name = "log_attacker_army"
                             duration = 0.01
-                            next = "log_player_knight_effectiveness"
+                            next = "log_enemy_divider"
                             on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetComposition.GetArmyCompositionString)]"
                         }
-
-						state = {
-							name = "log_player_knight_effectiveness"
-							duration = 0.01
-							next = "log_enemy_divider"
-							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown)]"
-						}
 
 						state = {
 							name = "log_enemy_divider"
@@ -810,20 +803,20 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetFortLevel))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
 						}
 						state = {
 							name = "log_sickness"
 							duration = 0.01
 							next = "log_starvation"
-							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetDiseaseStateTooltip)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Diseases:', SiegeWindow.GetDiseaseStateTooltip))]"
 						}
 
 						state = {
 							name = "log_starvation"
 							duration = 0.01
 							next = "log_wall_breaches"
-							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetStarvationStateTooltip)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Starvation:', SiegeWindow.GetStarvationStateTooltip))]"
 						}	
 						
 						state = {
