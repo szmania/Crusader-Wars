@@ -140,7 +140,6 @@ window = {
 				}
 
 				icon = { # Harsh Winter
-					name = "winter_level_icon_harsh"
 					datacontext = "[SiegeWindow.GetSiege.GetProvince]"
 					visible = "[Province.HasWinterLevel( '(int32)3' )]"
 					texture = "gfx/interface/icons/terrain_types/winter_harsh.dds"
@@ -748,15 +747,8 @@ window = {
 						state = {
 							name = "log_attacker_knight_count"
 							duration = 0.01
-							next = "log_attacker_knight_effectiveness"
-				            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerKnightBreakdown)]"
-						}
-
-						state = {
-							name = "log_attacker_knight_effectiveness"
-							duration = 0.01
 							next = "log_enemy_divider"
-							on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+				            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
 						}
 
 						state = {
