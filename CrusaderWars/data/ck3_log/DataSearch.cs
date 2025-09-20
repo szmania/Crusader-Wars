@@ -501,17 +501,55 @@ namespace CrusaderWars
         }
         static void RealmsNamesSearch(string log)
         {
-            string text = Regex.Match(log, "(Log[\\s\\S]*?)---------Player Army---------[\\s\\S]*?").Groups[1].Value;
-            MatchCollection found_armies = Regex.Matches(text, "L (.+)");
-            if(found_armies.Count >= 1)
+            if (twbattle.BattleState.IsSiegeBattle)
             {
-                string player_army = found_armies[0].Groups[1].Value;
-                string enemy_army = found_armies[1].Groups[1].Value;
+                // New, specific logic for siege battles
+                string text = Regex.Match(log, @"([\s\S]*?)---------Player Army---------").Groups[1].Value;
+                MatchCollection found_armies = Regex.Matches(text, @"ONCLICK:TITLE.+L; (.+)");
 
-                CK3LogData.LeftSide.SetRealmName(player_army);
-                CK3LogData.RightSide.SetRealmName(enemy_army);
-                Program.Logger.Debug($"Left side realm name: {player_army}");
-                Program.Logger.Debug($"Right side realm name: {enemy_army}");
+                if (found_armies.Count >= 2)
+                {
+                    string player_army = found_armies[0].Groups[1].Value;
+                    string enemy_army = found_armies[1].Groups[1].Value;
+
+                    // Clean the names
+                    player_army = Regex.Replace(player_army, @"(\s*!)+$", "").Trim();
+                    enemy_army = Regex.Replace(enemy_army, @"(\s*!)+$", "").Trim();
+
+                    CK3LogData.LeftSide.SetRealmName(player_army);
+                    CK3LogData.RightSide.SetRealmName(enemy_army);
+                    Program.Logger.Debug($"Left side realm name (siege): {player_army}");
+                    Program.Logger.Debug($"Right side realm name (siege): {enemy_army}");
+                }
+                else
+                {
+                    Program.Logger.Warning("Could not find enough realm names for siege battle.");
+                }
+            }
+            else
+            {
+                // Original logic for field battles, with minor improvements
+                string text = Regex.Match(log, "(Log[\\s\\S]*?)---------Player Army---------[\\s\\S]*?").Groups[1].Value;
+                MatchCollection found_armies = Regex.Matches(text, "L (.+)");
+
+                if (found_armies.Count >= 2) // Corrected condition
+                {
+                    string player_army = found_armies[0].Groups[1].Value;
+                    string enemy_army = found_armies[1].Groups[1].Value;
+
+                    // Clean the names
+                    player_army = Regex.Replace(player_army, @"(\s*!)+$", "").Trim();
+                    enemy_army = Regex.Replace(enemy_army, @"(\s*!)+$", "").Trim();
+
+                    CK3LogData.LeftSide.SetRealmName(player_army);
+                    CK3LogData.RightSide.SetRealmName(enemy_army);
+                    Program.Logger.Debug($"Left side realm name (field): {player_army}");
+                    Program.Logger.Debug($"Right side realm name (field): {enemy_army}");
+                }
+                else
+                {
+                    Program.Logger.Warning("Could not find enough realm names for field battle.");
+                }
             }
         }
 
@@ -543,7 +581,7 @@ namespace CrusaderWars
                 effectiveness += value;
             }
 
-            for (int i = 0; i< knights_text_data.Count; i++)
+            for (int i = 0; i < knights_text_data.Count; i++)
             {
                 var knight = knights_text_data[i];
                 data.Add((knight.Groups["ID"].Value, knight.Groups["Prowess"].Value, names_arr[i], effectiveness));
