@@ -618,7 +618,7 @@ window = {
 							duration = 0.01
 							next = "log_year"
 							on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
-							on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
+							on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.MakeScope).End)]"
 						}
 
 						state = {
