@@ -603,7 +603,8 @@ window = {
 					############################################################					
 
 					button = { name = Siege_Button
-						tooltip = "Assault the settlement yourself!"
+						tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(SiegeWindow.GetSiege.GetAttackerSide.GetSoftCasualties, '(CFixedPoint)0'), 'cw_bw_fight_button', 'cw_bw_wait_button')]"
+						enabled = "[GreaterThan_CFixedPoint(SiegeWindow.GetSiege.GetAttackerSide.GetSoftCasualties, '(CFixedPoint)0')]"
 						parentanchor = left
 						position = { 0 0 }
 						texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
