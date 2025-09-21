@@ -6,6 +6,7 @@ window = {
 	movable = no
 	layer = middle
 	datacontext = "[SiegeWindow.GetSiege]"
+	datacontext = "[Siege.GetProvince]"
 
 	state = {
 		name = "monthly_tick" # to prevent an error about there being no such animation
@@ -139,6 +140,7 @@ window = {
 				}
 
 				icon = { # Harsh Winter
+					name = "winter_level_icon_harsh"
 					datacontext = "[SiegeWindow.GetSiege.GetProvince]"
 					visible = "[Province.HasWinterLevel( '(int32)3' )]"
 					texture = "gfx/interface/icons/terrain_types/winter_harsh.dds"
@@ -606,10 +608,11 @@ window = {
 						position = { 0 0 }
 						texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
 						size = { 50 50 }
-						alpha = .60
+						#alpha = .60
 						visible = yes
 
-						onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
+						#onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
+			            onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
 
 						##Essential data
 						state = {
@@ -797,8 +800,22 @@ window = {
 						state = {
 							name = "log_garrison"
 							duration = 0.01
-							next = "log_holding_level"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonSize:', Localize('garrison_num')))]"
+							next = "log_garrison_heritage"
+							on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Garrison Size:', Localize('garrison_num')))]"
+						}
+
+				        state = {
+							name = "log_garrison_heritage"
+							duration = 0.01
+							next = "log_garrison_culture"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonHeritage:', Localize('garrison_heritage')))]"
+						}
+						state = {
+							name = "log_garrison_culture"
+							duration = 0.01
+							next = "log_sickness"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonCulture:', Localize('garrison_culture')))]"
 						}
 
 						state = {
@@ -818,7 +835,7 @@ window = {
 							name = "log_starvation"
 							duration = 0.01
 							next = "log_wall_breaches"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Starvation:', SiegeWindow.GetStarvationStateTooltip))]"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetStarvationStateTooltip)]"
 						}	
 						
 						state = {
@@ -935,7 +952,7 @@ window = {
 							name = "log_keyword"
 							duration = 0.01
 							#next = "save_game_readable"
-							on_finish = "[ExecuteConsoleCommand('BattleType:CRUSADERCONFLICTS_SIEGE')]"
+							on_finish = "[ExecuteConsoleCommand('BattleType:SIEGE')]"
 						}
 						state = {
 							name = "save_game_readable"
