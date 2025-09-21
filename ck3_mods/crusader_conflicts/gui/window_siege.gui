@@ -808,7 +808,8 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+							on_start = "[GetScriptedGui('holding_level').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('holding_level',SiegeWindow.GetSiege.GetProvince.GetHolding.MakeScope).End)]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', Localize('holding_level_loc')))]"
 						}
 						state = {
 							name = "log_sickness"

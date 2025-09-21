@@ -11,3 +11,9 @@ siege_data = {
         set_variable = {name = siege_var value = scope:siege_data}
     }
 }
+holding_level = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = holding_level_var value = scope:holding_level}
+    }
+}
