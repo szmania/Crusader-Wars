@@ -1,20 +1,14 @@
 
-attacker_army_data = {
+cw_attacker_army_data_gui = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = attacker_army_var value = scope:attacker_army_data}
+        set_variable = {name = attacker_army_var value = scope:cw_attacker_army_data_gui}
     }
 }
 
-siege_province_data = {
+cw_siege_data_gui = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = siege_province_var value = scope:siege_province_data}
-    }
-}
-siege_data = {
-    effect = {
-        debug_log_scopes = yes
-        set_variable = {name = siege_data_var value = scope:siege_data}
+        set_variable = {name = siege_data_var value = scope:cw_siege_data_gui}
     }
 }

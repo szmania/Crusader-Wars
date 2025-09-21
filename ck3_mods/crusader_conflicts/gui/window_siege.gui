@@ -617,7 +617,8 @@ window = {
 							duration = 0.01
 							next = "log_year"
 							on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
-							on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
+							on_start = "[GetScriptedGui('cw_siege_data_gui').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('cw_siege_data_gui',SiegeWindow.GetSiege.MakeScope).End)]"
+							on_start = "[GetScriptedGui('cw_attacker_army_data_gui').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('cw_attacker_army_data_gui',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
 						}
 
 						state = {
@@ -653,7 +654,6 @@ window = {
 							name = "log_enemy_realm"
 							duration = 0.01
 							next = "log_player_char_id"
-							on_start = "[GetScriptedGui('siege_province_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_province_data',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
 							on_finish = "[ExecuteConsoleCommand(Localize('defender_realm'))]"	
 						}
 						
@@ -717,9 +717,7 @@ window = {
                             name = "log_attacker_commander_culture"
                             duration = 0.01
                             next = "log_attacker_martial_skill"
-                            on_start = "[GetScriptedGui('attacker_army_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_army_data',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
-                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
                         }
 
 						state = {
@@ -863,7 +861,6 @@ window = {
 							name = "log_province_id"
 							duration = 0.01	
 							next = "log_winter"
-							on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:', Localize('siege_province_id')))]"
 						}
                         
@@ -925,7 +922,6 @@ window = {
                             name = "log_siege_id"
                             duration = 0.01	
                             next = "print_modifiers_line"
-                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', Localize('siege_id')))]"
                         }
             
