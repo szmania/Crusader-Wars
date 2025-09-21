@@ -618,6 +618,7 @@ window = {
 							duration = 0.01
 							next = "log_year"
 							on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
+							on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
 						}
 
 						state = {
@@ -862,7 +863,7 @@ window = {
 							name = "log_province_id"
 							duration = 0.01	
 							next = "log_winter"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetID))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:', Localize('siege_province_id')))]"
 						}
                         
                         state = {
@@ -924,7 +925,6 @@ window = {
                             name = "log_siege_id"
                             duration = 0.01	
                             next = "print_modifiers_line"
-                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', Localize('siege_id')))]"
                         }
             
