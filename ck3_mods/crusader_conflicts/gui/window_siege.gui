@@ -865,7 +865,7 @@ window = {
 							on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',SiegeWindow.GetSiege.MakeScope).End)]"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',Localize('province_id')))]"
 						}
-						
+                        
                         state = {
                             name = "log_winter"
                             duration = 0.01
@@ -916,10 +916,17 @@ window = {
                         state = {	
                             name = "print_special_building"
                             duration = 0.01	
-                            next = "print_modifiers_line"
+                            next = "log_siege_id"
                             on_start = "[GetScriptedGui('special_building').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('special_building',CombatWindow.GetCombat.GetProvince.GetHolding.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', Localize('building')))]"
                         }	
+            						
+                        state = {	
+                            name = "log_siege_id"
+                            duration = 0.01	
+                            next = "print_modifiers_line"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', Siege.GetID))]"
+                        }
             
                         state = {	
                             name = "print_modifiers_line"
