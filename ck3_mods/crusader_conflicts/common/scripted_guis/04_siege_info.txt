@@ -15,19 +15,6 @@ siege_province_data = {
 siege_data = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = siege_id_var value = scope:siege_data.GetID}
-        set_variable = {name = siege_province_id_var value = scope:siege_data.GetProvince.GetID}
-    }
-}
-holding_level = {
-    effect = {
-        debug_log_scopes = yes
-        set_variable = {name = holding_level_var value = scope:holding_level}
-    }
-}
-special_building = {
-    effect = {
-        debug_log_scopes = yes
-        set_variable = {name = special_building_key_var value = scope:special_building.GetHolding.GetSpecialBuildingType.GetKey}
+        set_variable = {name = siege_data_var value = scope:siege_data}
     }
 }

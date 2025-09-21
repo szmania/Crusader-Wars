@@ -808,7 +808,6 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_start = "[GetScriptedGui('holding_level').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('holding_level',SiegeWindow.GetSiege.GetProvince.GetHolding.MakeScope).End)]"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', Localize('holding_level_loc')))]"
 						}
 						state = {
@@ -919,7 +918,6 @@ window = {
                             name = "print_special_building"
                             duration = 0.01	
                             next = "log_siege_id"
-                            on_start = "[GetScriptedGui('special_building').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('special_building',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', Localize('special_building_key')))]"
                         }	
             						
