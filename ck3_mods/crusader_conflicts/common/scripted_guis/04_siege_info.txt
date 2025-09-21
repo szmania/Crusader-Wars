@@ -12,3 +12,10 @@ cw_siege_data_gui = {
         set_variable = {name = siege_data_var value = scope:cw_siege_data_gui}
     }
 }
+
+cw_special_building_gui = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = special_building_var value = scope:cw_special_building_gui}
+    }
+}
