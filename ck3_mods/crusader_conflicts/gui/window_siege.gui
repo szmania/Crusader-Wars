@@ -807,7 +807,7 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetPrimaryHolding.GetPrimaryBuildingType.GetKey))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
 						}
 						state = {
 							name = "log_sickness"
