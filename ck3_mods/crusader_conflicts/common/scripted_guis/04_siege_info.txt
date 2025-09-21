@@ -1,8 +1,15 @@
 
-attacker_side = {
+attacker_army_data = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = attacker_army value = scope:attacker_side}
+        set_variable = {name = attacker_army_var value = scope:attacker_army_data}
+    }
+}
+
+siege_province_data = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = siege_province_var value = scope:siege_province_data}
     }
 }
 siege_data = {
