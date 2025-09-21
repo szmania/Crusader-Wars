@@ -807,7 +807,7 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', SiegeWindow.GetSiege.GetProvince.GetPrimaryHolding.GetPrimaryBuildingType.GetKey))]"
 						}
 						state = {
 							name = "log_sickness"
@@ -931,11 +931,7 @@ window = {
                             name = "log_siege_id"
                             duration = 0.01	
                             next = "print_modifiers_line"
-                            #on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetID)]"
-                            #on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.Siege.GetProvince.MakeScope).End)]"
-                            #on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', SiegeWindow.Siege.GetName))]"
-                            #on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', Localize('building')))]"
-                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.Siege.GetProvince.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', Localize('siege_id')))]"
                         }
             
