@@ -28,6 +28,6 @@ holding_level = {
 special_building = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = unique_map_key_var value = scope:special_building.GetSpecialBuildingType.GetKey}
+        set_variable = {name = special_building_key_var value = scope:special_building.GetHolding.GetSpecialBuildingType.GetKey}
     }
 }
