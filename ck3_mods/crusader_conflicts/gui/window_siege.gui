@@ -920,7 +920,7 @@ window = {
                             duration = 0.01	
                             next = "log_siege_id"
                             on_start = "[GetScriptedGui('special_building').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('special_building',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', Localize('building')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', Localize('special_building_key')))]"
                         }	
             						
                         state = {	
