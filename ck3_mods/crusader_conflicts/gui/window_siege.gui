@@ -619,7 +619,6 @@ window = {
 							on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
 							on_start = "[GetScriptedGui('cw_siege_data_gui').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('cw_siege_data_gui',SiegeWindow.GetSiege.MakeScope).End)]"
 							on_start = "[GetScriptedGui('cw_attacker_army_data_gui').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('cw_attacker_army_data_gui',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
-							on_start = "[GetScriptedGui('cw_special_building_gui').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('cw_special_building_gui',SiegeWindow.GetSiege.GetProvince.GetHolding.MakeScope).End)]"
 						}
 
 						state = {
@@ -911,12 +910,12 @@ window = {
 							on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
 						}
 
-                        state = {	
-                            name = "print_special_building"
-                            duration = 0.01	
-                            next = "log_siege_id"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', Localize('special_building_key')))]"
-                        }	
+						state = {	
+							name = "print_special_building"
+							duration = 0.01	
+							next = "log_siege_id"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+						}	
             						
                         state = {	
                             name = "log_siege_id"

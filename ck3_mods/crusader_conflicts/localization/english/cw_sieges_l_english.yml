@@ -15,4 +15,3 @@
 	siege_id: "[GetPlayer.MakeScope.Var('siege_data_var').GetProvince.GetID]"
 	siege_province_id: "[GetPlayer.MakeScope.Var('siege_data_var').GetProvince.GetID]"
 	holding_level_loc: "[GetPlayer.MakeScope.Var('siege_data_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
-	special_building_key: "[GetPlayer.MakeScope.Var('special_building_var').GetSpecialBuildingType.GetKey]"
