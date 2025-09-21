@@ -1,0 +1,293 @@
+﻿######################################################################
+#  Crusader Conflicts Game Concepts by flogi
+######################################################################
+
+crusader_wars = {
+	texture = "gfx/interface/icons/crusader_wars_icon.dds"
+}
+
+crusader_wars_2 = {
+	texture = "gfx/interface/icons/crusader_wars_icon.dds"
+}
+
+cw_soldiers = {
+	texture = "gfx/interface/icons/icon_soldier.dds"
+}
+
+cw_experience = {
+	texture = "gfx/interface/icons/cw_icon_experience.dds"
+}
+
+cw_experience_modifier = {
+	texture = "gfx/interface/icons/cw_icon_experience_modifier.dds"
+}
+
+cw_general_unit = {
+	texture = "gfx/interface/icons/cw_icon_general_unit.dds"
+}
+
+cw_knight_unit = {
+	texture = "gfx/interface/icons/cw_icon_knight_unit.dds"
+}
+
+
+cw_blademaster_1 = {
+	texture = "gfx/interface/icons/blademaster_rank1.dds"
+}
+
+cw_blademaster_2 = {
+	texture = "gfx/interface/icons/blademaster_rank2.dds"
+}
+
+cw_blademaster_3 = {
+	texture = "gfx/interface/icons/blademaster_rank3.dds"
+}
+
+cw_charmer_1 = {
+	texture = "gfx/interface/icons/charmer_rank1.dds"
+}
+
+cw_charmer_2 = {
+	texture = "gfx/interface/icons/charmer_rank2.dds"
+}
+
+cw_charmer_3 = {
+	texture = "gfx/interface/icons/charmer_rank3.dds"
+}
+
+cw_contender_1 = {
+	texture = "gfx/interface/icons/contender_rank1.dds"
+}
+
+cw_contender_2 = {
+	texture = "gfx/interface/icons/contender_rank2.dds"
+}
+
+cw_contender_3 = {
+	texture = "gfx/interface/icons/contender_rank3.dds"
+}
+
+cw_disciplinarian_1 = {
+	texture = "gfx/interface/icons/disciplinarian_rank1.dds"
+}
+
+cw_disciplinarian_2 = {
+	texture = "gfx/interface/icons/disciplinarian_rank2.dds"
+}
+
+cw_disciplinarian_3 = {
+	texture = "gfx/interface/icons/disciplinarian_rank3.dds"
+}
+
+cw_fanatic_1 = {
+	texture = "gfx/interface/icons/fanatic_rank1.dds"
+}
+
+cw_fanatic_2 = {
+	texture = "gfx/interface/icons/fanatic_rank2.dds"
+}
+
+cw_fanatic_3 = {
+	texture = "gfx/interface/icons/fanatic_rank3.dds"
+}
+
+cw_house_paragon_1 = {
+	texture = "gfx/interface/icons/house_paragon_rank1.dds"
+}
+
+cw_house_paragon_2 = {
+	texture = "gfx/interface/icons/house_paragon_rank2.dds"
+}
+
+cw_house_paragon_3 = {
+	texture = "gfx/interface/icons/house_paragon_rank3.dds"
+}
+
+cw_huntsmaster_1 = {
+	texture = "gfx/interface/icons/huntsmaster_rank1.dds"
+}
+
+cw_huntsmaster_2 = {
+	texture = "gfx/interface/icons/huntsmaster_rank2.dds"
+}
+
+cw_huntsmaster_3 = {
+	texture = "gfx/interface/icons/huntsmaster_rank3.dds"
+}
+
+cw_idealist_1 = {
+	texture = "gfx/interface/icons/idealist_rank1.dds"
+}
+
+cw_idealist_2 = {
+	texture = "gfx/interface/icons/idealist_rank2.dds"
+}
+
+cw_idealist_3 = {
+	texture = "gfx/interface/icons/idealist_rank3.dds"
+}
+
+cw_manipulator_1 = {
+	texture = "gfx/interface/icons/manipulator_rank1.dds"
+}
+
+cw_manipulator_2 = {
+	texture = "gfx/interface/icons/manipulator_rank2.dds"
+}
+
+cw_manipulator_3 = {
+	texture = "gfx/interface/icons/manipulator_rank3.dds"
+}
+
+cw_marauder_1 = {
+	texture = "gfx/interface/icons/marauder_rank1.dds"
+}
+
+cw_marauder_2 = {
+	texture = "gfx/interface/icons/marauder_rank2.dds"
+}
+
+cw_marauder_3 = {
+	texture = "gfx/interface/icons/marauder_rank3.dds"
+}
+
+cw_master_of_revels_1 = {
+	texture = "gfx/interface/icons/master_of_revels_rank1.dds"
+}
+
+cw_master_of_revels_2 = {
+	texture = "gfx/interface/icons/master_of_revels_rank2.dds"
+}
+
+cw_master_of_revels_3 = {
+	texture = "gfx/interface/icons/master_of_revels_rank3.dds"
+}
+
+cw_mentor_1 = {
+	texture = "gfx/interface/icons/mentor_rank1.dds"
+}
+
+cw_mentor_2 = {
+	texture = "gfx/interface/icons/mentor_rank2.dds"
+}
+
+cw_mentor_3 = {
+	texture = "gfx/interface/icons/mentor_rank3.dds"
+}
+
+cw_politicker_1 = {
+	texture = "gfx/interface/icons/politicker_rank1.dds"
+}
+
+cw_politicker_2 = {
+	texture = "gfx/interface/icons/politicker_rank2.dds"
+}
+
+cw_politicker_3 = {
+	texture = "gfx/interface/icons/politicker_rank3.dds"
+}
+
+cw_reeve_1 = {
+	texture = "gfx/interface/icons/reeve_rank1.dds"
+}
+
+cw_reeve_2 = {
+	texture = "gfx/interface/icons/reeve_rank2.dds"
+}
+
+cw_reeve_3 = {
+	texture = "gfx/interface/icons/reeve_rank3.dds"
+}
+
+cw_scoundrel_1 = {
+	texture = "gfx/interface/icons/scoundrel_rank1.dds"
+}
+
+cw_scoundrel_2 = {
+	texture = "gfx/interface/icons/scoundrel_rank2.dds"
+}
+
+cw_scoundrel_3 = {
+	texture = "gfx/interface/icons/scoundrel_rank3.dds"
+}
+
+cw_stalwart_1 = {
+	texture = "gfx/interface/icons/stalwart_rank1.dds"
+}
+
+cw_stalwart_2 = {
+	texture = "gfx/interface/icons/stalwart_rank2.dds"
+}
+
+cw_stalwart_3 = {
+	texture = "gfx/interface/icons/stalwart_rank3.dds"
+}
+
+cw_tactician_1 = {
+	texture = "gfx/interface/icons/tactician_rank1.dds"
+}
+
+cw_tactician_2 = {
+	texture = "gfx/interface/icons/tactician_rank2.dds"
+}
+
+cw_tactician_3 = {
+	texture = "gfx/interface/icons/tactician_rank3.dds"
+}
+
+cw_thug_1 = {
+	texture = "gfx/interface/icons/thug_rank1.dds"
+}
+
+cw_thug_2 = {
+	texture = "gfx/interface/icons/thug_rank2.dds"
+}
+
+cw_thug_3 = {
+	texture = "gfx/interface/icons/thug_rank3.dds"
+}
+
+cw_valiant_1 = {
+	texture = "gfx/interface/icons/valiant_rank1.dds"
+}
+
+cw_valiant_2 = {
+	texture = "gfx/interface/icons/valiant_rank2.dds"
+}
+
+cw_valiant_3 = {
+	texture = "gfx/interface/icons/valiant_rank3.dds"
+}
+
+######################################################################
+#  Crusader Conflicts Game Concepts by Faray
+######################################################################
+
+cw_advantage_leading = {
+	texture = "gfx/interface/icons/advantage_leading.dds"
+}
+
+cw_advantage_river = {
+	texture = "gfx/interface/icons/combat_effects/defender_river.dds"
+}
+
+cw_advantage_big_river = {
+	texture = "gfx/interface/icons/combat_effects/defender_river_large.dds"
+}
+
+cw_advantage_strait = {
+	texture = "gfx/interface/icons/combat_effects/defender_strait.dds"
+}
+
+cw_advantage_gathering = {
+	texture = "gfx/interface/icons/combat_effects/gathering_army_advantage.dds"
+}
+
+cw_advantage_lowsupplies = {
+	texture = "gfx/interface/icons/combat_effects/supply_state_running_low_advantage.dds"
+}
+
+cw_advantage_nosupplies = {
+	texture = "gfx/interface/icons/combat_effects/supply_state_starving_advantage.dds"
+}
+

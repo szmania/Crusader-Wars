@@ -1,0 +1,59 @@
+GetProvinceRegion = {
+    type = province
+    
+    #Greece
+    text = {
+        trigger = {
+            #Greece
+            geographical_region = world_europe_south_east
+        }
+        localization_key = world_europe_south_east
+    }
+
+    #Italy
+    text = {
+        trigger = {
+            #Italy
+            geographical_region = world_europe_south_italy
+        }
+        localization_key = world_europe_south_italy
+    }
+
+    #Northern
+    text = {
+        trigger = {
+            geographical_region = world_europe_north
+        }
+        localization_key = world_europe_north
+    }
+    text = {
+        trigger = {
+            geographical_region = world_europe_west_britannia
+        }
+        localization_key = world_europe_west_britannia
+    }
+
+    #Whole Europe
+    text = {
+        trigger = {
+            geographical_region = world_europe
+        }
+        localization_key = world_europe
+    }
+
+    #Desert
+    text = {
+        trigger = {
+            geographical_region = world_africa
+        }
+        localization_key = world_africa
+    }   
+    text = {
+        trigger = {
+            geographical_region = world_middle_east
+        }
+        localization_key = world_middle_east
+    }
+
+
+}
