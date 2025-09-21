@@ -891,7 +891,7 @@ window = {
                             name = "log_enemy_commander_id"
                             duration = 0.01
                             next = "log_player_commander_name"
-                            on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
                             on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
                         }
                         
