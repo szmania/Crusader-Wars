@@ -639,7 +639,7 @@ window = {
 							name = "log_battle_name"
 							duration = 0.01
 							next = "log_player_realm"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:', SiegeWindow.GetSiege.GetName))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:Siege of ', SiegeWindow.GetSiege.GetProvince.GetName))]"
 						}
 						## Realms names
 
@@ -860,7 +860,7 @@ window = {
 							name = "log_province_id"
 							duration = 0.01	
 							next = "log_winter"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:', SiegeWindow.GetSiege.GetProvince.GetID))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetName))]"
 						}
                         
                         state = {
