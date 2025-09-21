@@ -12,11 +12,13 @@ namespace CrusaderWars.data.save_file
         static bool NeedSkiping { get; set; }
         static bool CombatResults_NeedsSkiping { get; set; }
         static bool Combats_NeedsSkiping { get; set; }
+        static bool Sieges_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             bool resultsFound = false;
             bool combatsFound = false;
+            bool siegesFound = false;
 
             //string tempFilePath = Directory.GetCurrentDirectory() + "\\CrusaderWars_Battle.ck3";
             string tempFilePath = @".\data\save_file_data\gamestate";
@@ -58,6 +60,13 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Combats_NeedsSkiping = false;
                         combatsFound = false;
+                    }
+                    else if (Sieges_NeedsSkiping && line == "\t\t}")
+                    {
+                        Program.Logger.Debug("Finished skipping Sieges block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        Sieges_NeedsSkiping = false;
+                        siegesFound = false;
                     }
                     else if (NeedSkiping && line == "\tarmy_regiments={")
                     {
@@ -137,7 +146,21 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("EDITED LIVING SENT!");
                         NeedSkiping = true;
                     }
-                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping)
+                    //Siege START
+                    else if (line == "sieges={")
+                    {
+                        siegesFound = true;
+                        streamWriter.WriteLine(line);
+                    }
+                    //Siege
+                    else if (line == $"\t\t{BattleResult.SiegeID}={{" && siegesFound && !Sieges_NeedsSkiping)
+                    {
+                        Program.Logger.Debug("Writing modified Sieges block.");
+                        WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Sieges_Path(), FileType.Sieges);
+                        Program.Logger.Debug("EDITED SIEGES SENT!");
+                        Sieges_NeedsSkiping = true;
+                    }
+                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping)
                     {
                         streamWriter.WriteLine(line);
                     }
@@ -171,6 +194,7 @@ namespace CrusaderWars.data.save_file
                     if (l is null) break;
                     switch(fileType)
                     {
+                        case FileType.Sieges:
                         case FileType.Combats:
                         case FileType.CombatResults:
                             if (l == "\t\t}") continue;
@@ -191,7 +215,8 @@ namespace CrusaderWars.data.save_file
             CombatResults,
             Combats,
             ArmyRegiments,
-            Regiments
+            Regiments,
+            Sieges
         }
 
         public struct DataFilesPaths
@@ -210,6 +235,7 @@ namespace CrusaderWars.data.save_file
 			public static string CourtPositions_Path() { return @".\data\save_file_data\CourtPositions.txt"; }
             public static string LandedTitles() { return @".\data\save_file_data\LandedTitles.txt"; }
             public static string Accolades() { return @".\data\save_file_data\Accolades.txt"; }
+            public static string Sieges_Path() { return @".\data\save_file_data\Sieges.txt"; }
 
         }
 
@@ -220,6 +246,7 @@ namespace CrusaderWars.data.save_file
             public static string Regiments_Path() { return @".\data\save_file_data\temp\Regiments.txt"; }
             public static string ArmyRegiments_Path() { return @".\data\save_file_data\temp\ArmyRegiments.txt"; }
             public static string Living_Path() { return @".\data\save_file_data\temp\Living.txt"; }
+            public static string Sieges_Path() { return @".\data\save_file_data\temp\Sieges.txt"; }
 
         }
 

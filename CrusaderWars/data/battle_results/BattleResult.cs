@@ -16,6 +16,7 @@ namespace CrusaderWars
         public static string? CombatID { get; set; }
         public static string? ResultID { get; set; }
         public static string? ProvinceID { get; set; }
+        public static string? SiegeID { get; set; }
         //public static twbattle.Date FirstDay_Date { get; set; }
 
 
@@ -155,6 +156,82 @@ namespace CrusaderWars
        
 
 
+        }
+
+        public static void GetPlayerSiege()
+        {
+            Program.Logger.Debug("Getting player siege data...");
+            try
+            {
+                string siege_id = "";
+                StringBuilder sb = new StringBuilder();
+                string siegesPath = CrusaderWars.data.save_file.Writter.DataFilesPaths.Sieges_Path();
+
+                // First pass: Find the correct siege_id
+                using (StreamReader sr = new StreamReader(siegesPath))
+                {
+                    string? current_siege_id = null;
+                    while (!sr.EndOfStream)
+                    {
+                        string? line = sr.ReadLine();
+                        if (line == null) break;
+
+                        if (Regex.IsMatch(line, @"\t\t\d+={"))
+                        {
+                            current_siege_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
+                        }
+                        else if (line.Trim() == $"province={ProvinceID}" && current_siege_id != null)
+                        {
+                            // We found the province, so the last siege_id we saw is the correct one.
+                            siege_id = current_siege_id;
+                            break;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(siege_id))
+                {
+                    Program.Logger.Debug($"Could not find a siege for ProvinceID: {ProvinceID}");
+                    return;
+                }
+
+                // Second pass: Extract the block for the found siege_id
+                using (StreamReader sr = new StreamReader(siegesPath))
+                {
+                    bool isSearchStarted = false;
+                    while (!sr.EndOfStream)
+                    {
+                        string? line = sr.ReadLine();
+                        if (line == null) break;
+
+                        if (!isSearchStarted && line == $"\t\t{siege_id}={{")
+                        {
+                            sb.AppendLine(line);
+                            isSearchStarted = true;
+                        }
+                        else if (isSearchStarted && line == "\t\t}")
+                        {
+                            sb.AppendLine(line);
+                            isSearchStarted = false;
+                            break; // Found the end of our block
+                        }
+                        else if (isSearchStarted)
+                        {
+                            sb.AppendLine(line);
+                        }
+                    }
+                }
+
+                BattleResult.SiegeID = siege_id;
+                Program.Logger.Debug("SiegeID - " + siege_id);
+                // Overwrite Sieges.txt with only the relevant block
+                File.WriteAllText(siegesPath, sb.ToString());
+                Program.Logger.Debug("Sieges.txt overwritten with only the relevant siege data.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error getting player siege data: {ex.Message}");
+            }
         }
 
         public static void SendToSaveFile(string filePath)
@@ -1440,7 +1517,7 @@ namespace CrusaderWars
 
                     if(!isNewData)
                     {
-                        streamWriter.WriteLine(line);
+Writer.cs                        streamWriter.WriteLine(line);
                     }
                     
                 }

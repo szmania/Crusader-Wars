@@ -288,6 +288,11 @@ namespace CrusaderWars
             TerrainSearch(log);
 
             UniqueMapsSearch(log);
+            
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                BattleResult.GetPlayerSiege();
+            }
 
             /*---------------------------------------------
              * ::::::::::::::Player Army:::::::::::::::::::

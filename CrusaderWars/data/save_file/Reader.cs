@@ -67,7 +67,7 @@ namespace CrusaderWars.data.save_file
             //Clear Units File
             File.WriteAllText(Writter.DataFilesPaths.Units_Path(), "");
 
-            //Clear Court Positions File
+			//Clear Court Positions File
             File.WriteAllText(Writter.DataFilesPaths.CourtPositions_Path(), "");
 
             //Clear Landed Titles File
@@ -203,6 +203,7 @@ namespace CrusaderWars.data.save_file
             PlayerCommanderAccolade = ("","","");
             EnemyCommanderAccolade = ("","","");
 
+            BattleResult.SiegeID = null; // Reset SiegeID
 
             SearchKeys.HasTraitsExtracted = false;
             SearchKeys.HasCombatsExtracted = false;
