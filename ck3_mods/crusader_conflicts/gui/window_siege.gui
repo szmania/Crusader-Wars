@@ -6,7 +6,6 @@ window = {
 	movable = no
 	layer = middle
 	datacontext = "[SiegeWindow.GetSiege]"
-	datacontext = "[Siege.GetProvince]"
 
 	state = {
 		name = "monthly_tick" # to prevent an error about there being no such animation
