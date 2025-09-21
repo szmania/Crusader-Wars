@@ -8,7 +8,8 @@ attacker_side = {
 siege_data = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = siege_var value = scope:siege_data}
+        set_variable = {name = siege_id_var value = scope:siege_data.GetID}
+        set_variable = {name = siege_province_id_var value = scope:siege_data.GetProvince.GetID}
     }
 }
 holding_level = {
@@ -20,6 +21,6 @@ holding_level = {
 special_building = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = unique_map value = scope:special_building}
+        set_variable = {name = unique_map_key_var value = scope:special_building.GetSpecialBuildingType.GetKey}
     }
 }

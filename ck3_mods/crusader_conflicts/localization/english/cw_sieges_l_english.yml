@@ -12,6 +12,6 @@
 	garrison_heritage: "[GetPlayer.MakeScope.Var('attacker_army').Province.GetCulture.GetHeritage.GetName]"
 
 	defender_realm: "[GetPlayer.MakeScope.Var('attacker_army').Province.GetHolding.GetHolder.GetPrimaryTitle.GetName]"
-	siege_id: "[GetPlayer.MakeScope.Var('siege_var').Siege.GetID]"
-	siege_province_id: "[GetPlayer.MakeScope.Var('siege_var').Siege.GetProvince.GetID]"
+	siege_id: "[GetPlayer.MakeScope.VarToString('siege_id_var')]"
+	siege_province_id: "[GetPlayer.MakeScope.VarToString('siege_province_id_var')]"
 	holding_level_loc: "[GetPlayer.MakeScope.Var('holding_level_var').GetPrimaryBuildingType.GetKey]"
