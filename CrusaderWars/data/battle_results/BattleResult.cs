@@ -1517,7 +1517,7 @@ namespace CrusaderWars
 
                     if(!isNewData)
                     {
-Writer.cs                        streamWriter.WriteLine(line);
+                        streamWriter.WriteLine(line);
                     }
                     
                 }

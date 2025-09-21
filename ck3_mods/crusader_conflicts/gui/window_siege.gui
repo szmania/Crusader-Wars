@@ -798,14 +798,14 @@ window = {
 							name = "log_garrison"
 							duration = 0.01
 							next = "log_holding_level"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Garrison Size:', Localize('garrison_num')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonSize:', Localize('garrison_num')))]"
 						}
 
 						state = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Holding Level:', Localize('holding_level_loc')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', Localize('holding_level_loc')))]"
 						}
 						state = {
 							name = "log_sickness"
@@ -860,7 +860,7 @@ window = {
 							name = "log_province_id"
 							duration = 0.01	
 							next = "log_winter"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetID))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetName))]"
 						}
                         
                         state = {
@@ -937,11 +937,11 @@ window = {
 							#next = "save_game_readable"
 							on_finish = "[ExecuteConsoleCommand('BattleType:CRUSADERCONFLICTS_SIEGE')]"
 						}
-						#state = {
-						#	name = "save_game_readable"
-						#	on_finish = "[OnPauseMenu]"
-						#	on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
-						#}																								
+						state = {
+							name = "save_game_readable"
+							on_finish = "[OnPauseMenu]"
+							on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+						}																								
 					}
 
 					############################################################

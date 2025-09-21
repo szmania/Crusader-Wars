@@ -144,8 +144,8 @@ namespace CrusaderWars
             Program.Logger.Debug("Searching for siege-specific data in log...");
 
             // Holding type key
-            string holdingLevel = Regex.Match(log, @"Holding Level:(.+)").Groups[1].Value.Trim();
-            Program.Logger.Debug($"Found Holding Level Key: {holdingLevel}");
+            string holdingLevel = Regex.Match(log, @"HoldingLevel:(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found HoldingLevel Key: {holdingLevel}");
             twbattle.Sieges.SetHoldingLevelKey(holdingLevel);
 
             // BreachFrame
@@ -201,10 +201,10 @@ namespace CrusaderWars
             twbattle.Sieges.SetGarrisonHeritage(garrisonHeritage);
 
             // Garrison size
-            string garrisonSizeStr = Regex.Match(log, @"Garrison Size:(\d+)").Groups[1].Value;
+            string garrisonSizeStr = Regex.Match(log, @"GarrisonSize:(\d+)").Groups[1].Value;
             if (int.TryParse(garrisonSizeStr, out int garrisonSize))
             {
-                Program.Logger.Debug($"Found Garrison Size: {garrisonSize}");
+                Program.Logger.Debug($"Found GarrisonSize: {garrisonSize}");
                 twbattle.Sieges.SetGarrisonSize(garrisonSize);
             }
 
@@ -681,10 +681,10 @@ namespace CrusaderWars
                 // Extract the entire line containing "ProvinceID:"
                 string provinceIDLine = Regex.Match(log, @"ProvinceID:(.+)\n").Groups[1].Value.Trim();
 
-                if (provinceIDLine.Contains("ONCLICK:PROVINCE,"))
+                if (provinceIDLine.Contains("ONCLICK:PROVINCE"))
                 {
                     // Complex format (siege battle)
-                    Match match = Regex.Match(provinceIDLine, @"ONCLICK:PROVINCE,(\d+)");
+                    Match match = Regex.Match(provinceIDLine, @"ONCLICK:PROVINCE(\d+)");
                     if (match.Success)
                     {
                         provinceID = match.Groups[1].Value;
