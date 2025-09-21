@@ -673,7 +673,7 @@ namespace CrusaderWars
             string provinceID;
             try
             {
-                provinceID = Regex.Match(log, @"ProvinceID:(.+)\n").Groups[1].Value;
+                provinceID = Regex.Match(log, @"ProvinceID:(.+)\n").Groups[1].Value.Trim();
                 Program.Logger.Debug($"Province ID found: {provinceID}");
             }
             catch
