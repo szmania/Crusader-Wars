@@ -925,7 +925,7 @@ window = {
                             name = "log_siege_id"
                             duration = 0.01	
                             next = "print_modifiers_line"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', Siege.GetID))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', Localize('siege_id')))]"
                         }
             
                         state = {	
