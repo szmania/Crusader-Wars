@@ -798,7 +798,6 @@ window = {
 							name = "log_garrison"
 							duration = 0.01
 							next = "log_holding_level"
-							on_start = "[GetScriptedGui('siege_province_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_province_data',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
 							on_finish = "[ExecuteConsoleCommand(Concatenate('Garrison Size:', Localize('garrison_num')))]"
 						}
 
