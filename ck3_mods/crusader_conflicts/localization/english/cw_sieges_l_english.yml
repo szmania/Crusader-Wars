@@ -13,3 +13,8 @@
 
 	defender_realm: "[GetPlayer.MakeScope.Var('siege_data_var').GetProvince.GetHolding.GetHolder.GetPrimaryTitle.GetName]"
 	holding_level_loc: "[GetPlayer.MakeScope.Var('siege_data_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
+    
+    cc_siege_fight_button: "Assault the settlement yourself!"
+    cc_siege_fight_button_disabled: "This character may not control battles.\nSee Mod Options: Preferences"
+    cc_siege_options_button: "Crusader Conflicts Mod Options"
+    cw_bw_wait_button: "Wait just a few more days to assault the settlement..."

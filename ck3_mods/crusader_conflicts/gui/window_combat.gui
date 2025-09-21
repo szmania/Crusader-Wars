@@ -1359,7 +1359,7 @@ window = {
 				name = "log_keyword"
 				duration = 0.01
 				next = "save_game"
-				on_finish = "[ExecuteConsoleCommand('BattleType:CRUSADERCONFLICTS_BATTLE')]"
+				on_finish = "[ExecuteConsoleCommand('BattleType:BATTLE')]"
 			}
 
 			state = {

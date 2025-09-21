@@ -122,12 +122,12 @@ namespace CrusaderWars
 
         private static void IdentifyBattleType(string log)
         {
-            if (log.Contains("BattleType:CRUSADERCONFLICTS_SIEGE"))
+            if (log.Contains("BattleType:SIEGE"))
             {
                 Program.Logger.Debug("Siege battle detected.");
                 twbattle.BattleState.IsSiegeBattle = true;
             }
-            else if (log.Contains("BattleType:CRUSADERCONFLICTS_BATTLE"))
+            else if (log.Contains("BattleType:BATTLE"))
             {
                 Program.Logger.Debug("Field battle detected.");
                 twbattle.BattleState.IsSiegeBattle = false;

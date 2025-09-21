@@ -612,8 +612,8 @@ window = {
 						#alpha = .60
 						visible = yes
 
-						#onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
-			            onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+						onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
+			            #onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
 
 						##Essential data
 						state = {
@@ -952,7 +952,7 @@ window = {
 						state = {
 							name = "log_keyword"
 							duration = 0.01
-							#next = "save_game_readable"
+							#nex`t = "save_game_readable"
 							on_finish = "[ExecuteConsoleCommand('BattleType:SIEGE')]"
 						}
 						state = {
