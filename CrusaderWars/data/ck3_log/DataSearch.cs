@@ -670,16 +670,36 @@ namespace CrusaderWars
 
         static void SearchForProvinceID(string log)
         {
-            string provinceID;
+            string provinceID = "not found"; // Default value
             try
             {
-                provinceID = Regex.Match(log, @"ProvinceID:(.+)\n").Groups[1].Value.Trim();
-                Program.Logger.Debug($"Province ID found: {provinceID}");
+                // Extract the entire line containing "ProvinceID:"
+                string provinceIDLine = Regex.Match(log, @"ProvinceID:(.+)\n").Groups[1].Value.Trim();
+
+                if (provinceIDLine.Contains("ONCLICK:PROVINCE,"))
+                {
+                    // Complex format (siege battle)
+                    Match match = Regex.Match(provinceIDLine, @"ONCLICK:PROVINCE,(\d+)");
+                    if (match.Success)
+                    {
+                        provinceID = match.Groups[1].Value;
+                        Program.Logger.Debug($"Province ID found (complex format): {provinceID}");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Province ID line contains 'ONCLICK:PROVINCE,' but could not parse ID from: '{provinceIDLine}'");
+                    }
+                }
+                else
+                {
+                    // Simple format (field battle)
+                    provinceID = provinceIDLine;
+                    Program.Logger.Debug($"Province ID found (simple format): {provinceID}");
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                provinceID = "not found";
-                Program.Logger.Debug("Province ID not found in log.");
+                Program.Logger.Debug($"Error searching for Province ID: {ex.Message}. Defaulting to '{provinceID}'.");
             }
 
             BattleResult.ProvinceID = provinceID;
