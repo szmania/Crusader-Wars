@@ -862,8 +862,14 @@ window = {
 							name = "log_province_id"
 							duration = 0.01	
 							next = "log_winter"
-							on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',SiegeWindow.GetSiege.MakeScope).End)]"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',Localize('province_id')))]"
+							#on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince))]"
+                            #on_start = "[GetScriptedGui('combat_data').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('combat_data',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"
+                            #on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceId:', SiegeWindow.GetSiege.GetProvince.MakeScope.Var('combat_var'),Combat.GetProvince.GetID))]"
+                            #on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',CombatWindow.GetCombat.MakeScope).End)]"
+                            #on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetID))]"				
+                            on_start = "[GetScriptedGui('combat_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('combat_data',CombatWindow.GetCombat.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',Localize('province_id')))]"
+                            
 						}
                         
                         state = {
@@ -925,6 +931,11 @@ window = {
                             name = "log_siege_id"
                             duration = 0.01	
                             next = "print_modifiers_line"
+                            #on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetID)]"
+                            #on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.Siege.GetProvince.MakeScope).End)]"
+                            #on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', SiegeWindow.Siege.GetName))]"
+                            #on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', Localize('building')))]"
+                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.Siege.GetProvince.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('SiegeID:', Localize('siege_id')))]"
                         }
             
@@ -945,14 +956,14 @@ window = {
 						state = {
 							name = "log_keyword"
 							duration = 0.01
-							next = "save_game_readable"
+							#next = "save_game_readable"
 							on_finish = "[ExecuteConsoleCommand('BattleType:CRUSADERCONFLICTS_SIEGE')]"
 						}
-						state = {
-							name = "save_game_readable"
-							on_finish = "[OnPauseMenu]"
-							on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
-						}																								
+						#state = {
+						#	name = "save_game_readable"
+						#	on_finish = "[OnPauseMenu]"
+						#	on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+						#}																								
 					}
 
 					############################################################

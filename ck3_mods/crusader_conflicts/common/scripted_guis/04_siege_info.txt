@@ -5,6 +5,3 @@ attacker_side = {
         set_variable = {name = attacker_army value = scope:attacker_side}
     }
 }
-
-
-
