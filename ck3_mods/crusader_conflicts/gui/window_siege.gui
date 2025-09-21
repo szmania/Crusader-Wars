@@ -717,6 +717,7 @@ window = {
                             name = "log_attacker_commander_culture"
                             duration = 0.01
                             next = "log_attacker_martial_skill"
+                            on_start = "[GetScriptedGui('attacker_army_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_army_data',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
                             on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
                         }
