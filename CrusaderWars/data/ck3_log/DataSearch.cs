@@ -148,9 +148,9 @@ namespace CrusaderWars
             Program.Logger.Debug($"Found HoldingLevel Key: {holdingLevel}");
             twbattle.Sieges.SetHoldingLevelKey(holdingLevel);
 
-            // BreachFrame
-            string breachFrameStr = Regex.Match(log, @"BreachFrame:(\d+)").Groups[1].Value;
-            if (int.TryParse(breachFrameStr, out int breachFrame))
+            // Walls
+            string wallsStr = Regex.Match(log, @"Walls:(\d+)").Groups[1].Value;
+            if (int.TryParse(wallsStr, out int breachFrame))
             {
                 string escalation = "";
                 switch (breachFrame)
@@ -163,9 +163,9 @@ namespace CrusaderWars
                 twbattle.Sieges.SetHoldingEscalation(escalation);
             }
 
-            // StarvationFrame
-            string starvationFrameStr = Regex.Match(log, @"StarvationFrame:(\d+)").Groups[1].Value;
-            if (int.TryParse(starvationFrameStr, out int starvationFrame))
+            // Starvation
+            string starvationStr = Regex.Match(log, @"Supplies:(\d+)").Groups[1].Value;
+            if (int.TryParse(starvationStr, out int starvationFrame))
             {
                 string supplies = "";
                 switch (starvationFrame)
@@ -179,7 +179,7 @@ namespace CrusaderWars
             }
 
             // DiseaseFrame
-            string diseaseFrameStr = Regex.Match(log, @"DiseaseFrame:(\d+)").Groups[1].Value;
+            string diseaseFrameStr = Regex.Match(log, @"Diseases:(\d+)").Groups[1].Value;
             if (int.TryParse(diseaseFrameStr, out int diseaseFrame))
             {
                 string sickness = "";
@@ -194,8 +194,8 @@ namespace CrusaderWars
             }
 
             // Garrison culture and heritage
-            string garrisonCulture = Regex.Match(log, @"Garrison Culture:(.+)").Groups[1].Value.Trim();
-            string garrisonHeritage = Regex.Match(log, @"Garrison Heritage:(.+)").Groups[1].Value.Trim();
+            string garrisonCulture = Regex.Match(log, @"GarrisonCulture:(.+)").Groups[1].Value.Trim();
+            string garrisonHeritage = Regex.Match(log, @"GarrisonHeritage:(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Garrison Culture: {garrisonCulture}, Heritage: {garrisonHeritage}");
             twbattle.Sieges.SetGarrisonCulture(garrisonCulture);
             twbattle.Sieges.SetGarrisonHeritage(garrisonHeritage);
@@ -204,7 +204,7 @@ namespace CrusaderWars
             string garrisonSizeStr = Regex.Match(log, @"GarrisonSize:(\d+)").Groups[1].Value;
             if (int.TryParse(garrisonSizeStr, out int garrisonSize))
             {
-                Program.Logger.Debug($"Found GarrisonSize: {garrisonSize}");
+                Program.Logger.Debug($"Found Garrison Size: {garrisonSize}");
                 twbattle.Sieges.SetGarrisonSize(garrisonSize);
             }
 
