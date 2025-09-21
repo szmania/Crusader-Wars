@@ -149,49 +149,19 @@ namespace CrusaderWars
             twbattle.Sieges.SetHoldingLevelKey(holdingLevel);
 
             // Walls
-            string wallsStr = Regex.Match(log, @"Walls:(\d+)").Groups[1].Value;
-            if (int.TryParse(wallsStr, out int breachFrame))
-            {
-                string escalation = "";
-                switch (breachFrame)
-                {
-                    case 0: escalation = "Intact"; break;
-                    case 1: escalation = "SmallBreach"; break;
-                    case 2: escalation = "LargeBreach"; break;
-                }
-                Program.Logger.Debug($"Found Breach Status: {escalation}");
-                twbattle.Sieges.SetHoldingEscalation(escalation);
-            }
+            string wallsStr = Regex.Match(log, @"Walls:\s*(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Breach Status: {wallsStr}");
+            twbattle.Sieges.SetHoldingEscalation(wallsStr);
 
             // Starvation
-            string starvationStr = Regex.Match(log, @"Supplies:(\d+)").Groups[1].Value;
-            if (int.TryParse(starvationStr, out int starvationFrame))
-            {
-                string supplies = "";
-                switch (starvationFrame)
-                {
-                    case 0: supplies = "Fully Stocked"; break;
-                    case 1: supplies = "Running Low"; break;
-                    case 2: supplies = "Starvation"; break;
-                }
-                Program.Logger.Debug($"Found Supply Status: {supplies}");
-                twbattle.Sieges.SetHoldingSupplies(supplies);
-            }
+            string starvationStr = Regex.Match(log, @"Supplies:\s*(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Supply Status: {starvationStr}");
+            twbattle.Sieges.SetHoldingSupplies(starvationStr);
 
             // DiseaseFrame
-            string diseaseFrameStr = Regex.Match(log, @"Diseases:(\d+)").Groups[1].Value;
-            if (int.TryParse(diseaseFrameStr, out int diseaseFrame))
-            {
-                string sickness = "";
-                switch (diseaseFrame)
-                {
-                    case 0: sickness = "No Diseases"; break;
-                    case 1: sickness = "Sickness Spreading"; break;
-                    case 2: sickness = "Rampant Disease"; break;
-                }
-                Program.Logger.Debug($"Found Sickness Status: {sickness}");
-                twbattle.Sieges.SetHoldingSickness(sickness);
-            }
+            string diseaseFrameStr = Regex.Match(log, @"Diseases:\s*(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Sickness Status: {diseaseFrameStr}");
+            twbattle.Sieges.SetHoldingSickness(diseaseFrameStr);
 
             // Garrison culture and heritage
             string garrisonCulture = Regex.Match(log, @"GarrisonCulture:(.+)").Groups[1].Value.Trim();
@@ -277,7 +247,7 @@ namespace CrusaderWars
 
             //Search enemy ID
             string right_side_commander_id = Regex.Match(log, @"EnemyID:(\d+)").Groups[1].Value;
-            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(\d+)").Groups[1].Value;
+            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(.+)\n").Groups[1].Value;
             Program.Logger.Debug($"Right side commander: ID={right_side_commander_id}, CultureID={right_side_commander_culture_id}");
 
             /*---------------------------------------------
