@@ -82,7 +82,7 @@
 	player_prowess: "[GetPlayer.MakeScope.Var('left_side_prowess').Char.GetProwess]"
 	enemy_prowess: "[GetPlayer.MakeScope.Var('right_side_prowess').Char.GetProwess]"
 	region_type: "[CombatWindow.GetCombat.GetProvince.Custom('GetProvinceRegion')]"
-	building: "[GetPlayer.MakeScope.Var('unique_map').GetProvince.GetHolding.GetSpecialBuildingType.GetKey]"
+	building: "[GetPlayer.MakeScope.Var('unique_map').GetSpecialBuildingType.GetKey]"
 
 	province_id: "[GetPlayer.MakeScope.Var('combat_var').Combat.GetProvince.GetID]"
 
