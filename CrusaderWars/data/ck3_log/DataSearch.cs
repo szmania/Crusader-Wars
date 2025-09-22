@@ -164,8 +164,8 @@ namespace CrusaderWars
             twbattle.Sieges.SetHoldingSickness(diseaseFrameStr);
 
             // Garrison culture and heritage
-            string garrisonCulture = Regex.Match(log, @"GarrisonCulture:(.+)").Groups[1].Value.Trim();
-            string garrisonHeritage = Regex.Match(log, @"GarrisonHeritage:(.+)").Groups[1].Value.Trim();
+            string garrisonCulture = Regex.Match(log, @"GarrisonCulture:.*?ONCLICK:CULTURE,(\d+)").Groups[1].Value.Trim();
+            string garrisonHeritage = Regex.Match(log, @"GarrisonHeritage:.*?TOOLTIP:CULTURE_PILLAR,(\S+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Garrison Culture: {garrisonCulture}, Heritage: {garrisonHeritage}");
             twbattle.Sieges.SetGarrisonCulture(garrisonCulture);
             twbattle.Sieges.SetGarrisonHeritage(garrisonHeritage);
