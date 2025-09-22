@@ -1127,9 +1127,9 @@ namespace CrusaderWars.unit_mapper
             return faction;
         }
 
-        public static (string X, string Y)? GetSettlementMap(string faction, string battleType)
+        public static (string X, string Y)? GetSettlementMap(string faction, string battleType, string provinceName)
         {
-            Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}'");
+            Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
 
             if (Terrains?.SettlementMaps == null || !Terrains.SettlementMaps.Any())
             {
@@ -1148,8 +1148,6 @@ namespace CrusaderWars.unit_mapper
                 return null;
             }
 
-            // If multiple maps match, we could add logic to prioritize or combine,
-            // but for now, let's just take the first one and its variants.
             var selectedMap = matchingMaps.First();
 
             if (!selectedMap.Variants.Any())
@@ -1158,12 +1156,33 @@ namespace CrusaderWars.unit_mapper
                 return null;
             }
 
-            // Randomly select a variant
-            int randomIndex = _random.Next(0, selectedMap.Variants.Count);
-            var selectedVariant = selectedMap.Variants[randomIndex];
+            var uniqueVariants = selectedMap.Variants.Where(v => v.IsUnique).ToList();
+            var nonUniqueVariants = selectedMap.Variants.Where(v => !v.IsUnique).ToList();
 
-            Program.Logger.Debug($"Found custom settlement map variant '{selectedVariant.Key}' for Faction: '{faction}', BattleType: '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
-            return (selectedVariant.X, selectedVariant.Y);
+            // 1. Check for a unique, location-specific match first
+            if (uniqueVariants.Any())
+            {
+                var uniqueMatch = uniqueVariants.FirstOrDefault(v => v.Key.Contains(provinceName, StringComparison.OrdinalIgnoreCase));
+                if (uniqueMatch != null)
+                {
+                    Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
+                    return (uniqueMatch.X, uniqueMatch.Y);
+                }
+                Program.Logger.Debug($"No unique settlement map variant found matching province '{provinceName}'.");
+            }
+
+            // 2. Fallback to non-unique variants if no unique match or no unique variants
+            if (nonUniqueVariants.Any())
+            {
+                // Randomly select a non-unique variant
+                int randomIndex = _random.Next(0, nonUniqueVariants.Count);
+                var selectedVariant = nonUniqueVariants[randomIndex];
+                Program.Logger.Debug($"No unique match found. Falling back to generic settlement map variant '{selectedVariant.Key}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+                return (selectedVariant.X, selectedVariant.Y);
+            }
+
+            Program.Logger.Debug($"No suitable settlement map variant (unique or generic) found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'.");
+            return null;
         }
 
         public static void SetMapperImage()

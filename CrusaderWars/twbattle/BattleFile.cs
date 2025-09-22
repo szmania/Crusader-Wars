@@ -513,7 +513,10 @@ namespace CrusaderWars
                     siegeBattleType = "settlement_unfortified";
                 }
 
-                var customSettlementMap = UnitMappers_BETA.GetSettlementMap(defenderAttilaFaction, siegeBattleType);
+                // Get the province name for unique map selection
+                string provinceName = Data.GetProvinceName(BattleResult.ProvinceID);
+
+                var customSettlementMap = UnitMappers_BETA.GetSettlementMap(defenderAttilaFaction, siegeBattleType, provinceName);
 
                 if (customSettlementMap.HasValue)
                 {
@@ -521,11 +524,11 @@ namespace CrusaderWars
                     battleMap.Y = customSettlementMap.Value.Y;
                     battleMap.attPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
                     battleMap.defPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
-                    Program.Logger.Debug($"Custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}': ({battleMap.X}, {battleMap.Y})");
+                    Program.Logger.Debug($"Custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}', Province '{provinceName}': ({battleMap.X}, {battleMap.Y})");
                 }
                 else
                 {
-                    Program.Logger.Debug($"No custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}'. Falling back to TerrainGenerator.GetBattleMap().");
+                    Program.Logger.Debug($"No custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}', Province '{provinceName}'. Falling back to TerrainGenerator.GetBattleMap().");
                     battleMap = TerrainGenerator.GetBattleMap(); // Fallback to existing logic
                 }
             }
