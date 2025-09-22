@@ -624,6 +624,7 @@ namespace CrusaderWars.terrain
 
         public static (string X, string Y, string[] attackerPositions, string[] defenderPositions) GetBattleMap(string terrain)
         {
+            Program.Logger.Debug($"GetBattleMap called for terrain: '{terrain}'");
             string[] ALL = { "All", "All" };
             string[] defPositions;
             string[] attPositions;
@@ -636,6 +637,7 @@ namespace CrusaderWars.terrain
             //Get battle maps from unit mappers
             if (UnitMappers_BETA.Terrains != null)
             {
+                Program.Logger.Debug($"Checking for custom map in unit mapper for terrain: '{terrain}'");
                 var terrainItems = UnitMappers_BETA.Terrains.GetNormalMaps().Where(item => item.terrain == terrain).ToList();
 
                 if (terrainItems.Count > 0)
@@ -647,8 +649,17 @@ namespace CrusaderWars.terrain
                     var randomTerrainItem = terrainItems[randomIndex];
                     Coordinates.X = randomTerrainItem.x;
                     Coordinates.Y = randomTerrainItem.y;
+                    Program.Logger.Debug($"Found custom map for '{terrain}' in unit mapper: ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 }
+                else
+                {
+                    Program.Logger.Debug($"No custom map found for '{terrain}' in unit mapper. Falling back to hardcoded maps.");
+                }
+            }
+            else
+            {
+                Program.Logger.Debug("No unit mapper terrains loaded. Using hardcoded maps.");
             }
 
 
@@ -658,6 +669,7 @@ namespace CrusaderWars.terrain
                     random = rnd.Next(0, BattleMaps.Desert_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Desert_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Desert_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "desert_mountains":
                     random = rnd.Next(0, BattleMaps.DesertMountains_Tiles.Length - 1);
@@ -665,23 +677,27 @@ namespace CrusaderWars.terrain
                     attPositions = BattleMaps.DesertMountains_Tiles[random].attPositions;
                     Coordinates.X = BattleMaps.DesertMountains_Tiles[random].X;
                     Coordinates.Y = BattleMaps.DesertMountains_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
 
                 case "drylands":
                     random = rnd.Next(0, BattleMaps.Dryland_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Dryland_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Dryland_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
 
                 case "farmlands":
                     random = rnd.Next(0, BattleMaps.Farmlands_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Farmlands_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Farmlands_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "forest":
                     random = rnd.Next(0, BattleMaps.Forest_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Forest_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Forest_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "hills":
                     random = rnd.Next(0, BattleMaps.Hills_Tiles.Length - 1);
@@ -689,6 +705,7 @@ namespace CrusaderWars.terrain
                     attPositions = BattleMaps.Hills_Tiles[random].attPositions;
                     Coordinates.X = BattleMaps.Hills_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Hills_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
                 case "mountains":
                     random = rnd.Next(0, BattleMaps.Mountains_Tiles.Length - 1);
@@ -696,49 +713,57 @@ namespace CrusaderWars.terrain
                     attPositions = BattleMaps.Mountains_Tiles[random].attPositions;
                     Coordinates.X = BattleMaps.Mountains_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Mountains_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
                 case "plains":
                     random = rnd.Next(0, BattleMaps.Plains_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Plains_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Plains_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "steppe":
                     random = rnd.Next(0, BattleMaps.Steppe_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Steppe_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Steppe_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "taiga":
                     random = rnd.Next(0, BattleMaps.Taiga_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Taiga_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Taiga_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "wetlands":
                     random = rnd.Next(0, BattleMaps.Wetlands_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Wetlands_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Wetlands_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "oasis":
                     // Desert Copy
                     random = rnd.Next(0, BattleMaps.Desert_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Desert_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Desert_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}' (Oasis, using Desert tiles): ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "jungle":
                     // Dryland Copy 
                     random = rnd.Next(0, BattleMaps.Dryland_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Dryland_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Dryland_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}' (Jungle, using Dryland tiles): ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
                 case "floodplains":
                     random = rnd.Next(0, BattleMaps.Floodplains_Tiles.Length - 1);
                     Coordinates.X = BattleMaps.Floodplains_Tiles[random].X;
                     Coordinates.Y = BattleMaps.Floodplains_Tiles[random].Y;
+                    Program.Logger.Debug($"Selected hardcoded map for '{terrain}': ({Coordinates.X}, {Coordinates.Y})");
                     return (Coordinates.X, Coordinates.Y, ALL, ALL);
 
             }
 
 
-
+            Program.Logger.Debug("No terrain matched in GetBattleMap. Returning default map.");
             return ("0.631", "0.199", ALL, ALL);
 
         }

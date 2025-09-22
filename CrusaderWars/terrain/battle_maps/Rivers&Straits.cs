@@ -75,6 +75,7 @@ namespace CrusaderWars.terrain
 
         public static (string X, string Y, string[] attackerPositions, string[] defenderPositions) GetBattleMap(string region, string terrain)
         {
+            Program.Logger.Debug($"GetBattleMap called for region: '{region}', terrain: '{terrain}'");
             Random random = new Random();
             string[] attPositions;
             string[] defPositions;
@@ -89,6 +90,7 @@ namespace CrusaderWars.terrain
                     Coordinates.Y = BattleMaps.Northern_Straits[index].Y;
                     attPositions = BattleMaps.Northern_Straits[index].attackerPositions;
                     defPositions = BattleMaps.Northern_Straits[index].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on region '{region}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
                 
                 case "Italia":
@@ -97,6 +99,7 @@ namespace CrusaderWars.terrain
                     Coordinates.Y = BattleMaps.Italy_Straits[i].Y;
                     attPositions = BattleMaps.Italy_Straits[i].attackerPositions;
                     defPositions = BattleMaps.Italy_Straits[i].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on region '{region}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
 
                 case "South-Eastern Europe":
@@ -105,6 +108,7 @@ namespace CrusaderWars.terrain
                     Coordinates.Y = BattleMaps.Greece_Straits[y].Y;
                     attPositions = BattleMaps.Greece_Straits[y].attackerPositions;
                     defPositions = BattleMaps.Greece_Straits[y].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on region '{region}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
                 case "Europe":
                     int l = random.Next(0, BattleMaps.Europe_Straits.Length);
@@ -112,6 +116,7 @@ namespace CrusaderWars.terrain
                     Coordinates.Y = BattleMaps.Europe_Straits[l].Y;
                     attPositions = BattleMaps.Europe_Straits[l].attackerPositions;
                     defPositions = BattleMaps.Europe_Straits[l].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on region '{region}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
                 case "Middle East":
                 case "Africa":
@@ -120,9 +125,11 @@ namespace CrusaderWars.terrain
                     Coordinates.Y = BattleMaps.Desert_Straits[t].Y;
                     attPositions = BattleMaps.Desert_Straits[t].attackerPositions;
                     defPositions = BattleMaps.Desert_Straits[t].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on region '{region}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
             }
 
+            Program.Logger.Debug($"Region '{region}' not matched. Attempting to select map based on terrain: '{terrain}'");
             switch(terrain)
             {
                 //desert
@@ -173,11 +180,13 @@ namespace CrusaderWars.terrain
                 case "Джунгли":
                 case "밀림":
                 case "丛林":
+                    Program.Logger.Debug($"Matched Desert terrain group for '{terrain}'.");
                     int t = random.Next(0, BattleMaps.Desert_Straits.Length);
                     Coordinates.X = BattleMaps.Desert_Straits[t].X;
                     Coordinates.Y = BattleMaps.Desert_Straits[t].Y;
                     attPositions = BattleMaps.Desert_Straits[t].attackerPositions;
                     defPositions = BattleMaps.Desert_Straits[t].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on terrain '{terrain}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
                 //farmlands
                 case "Farmlands":
@@ -219,11 +228,13 @@ namespace CrusaderWars.terrain
                 case "Равнины":
                 case "평야":
                 case "平原":
+                    Program.Logger.Debug($"Matched European terrain group for '{terrain}'.");
                     int i = random.Next(0, BattleMaps.Europe_Straits.Length);
                     Coordinates.X = BattleMaps.Europe_Straits[i].X;
                     Coordinates.Y = BattleMaps.Europe_Straits[i].Y;
                     attPositions = BattleMaps.Europe_Straits[i].attackerPositions;
                     defPositions = BattleMaps.Europe_Straits[i].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on terrain '{terrain}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
                 //steppe
                 case "Steppe":
@@ -249,15 +260,18 @@ namespace CrusaderWars.terrain
                 case "Болота":
                 case "습지대":
                 case "湿地":
+                    Program.Logger.Debug($"Matched Northern terrain group for '{terrain}'.");
                     int x = random.Next(0, BattleMaps.Northern_Straits.Length);
                     Coordinates.X = BattleMaps.Northern_Straits[x].X;
                     Coordinates.Y = BattleMaps.Northern_Straits[x].Y;
                     attPositions = BattleMaps.Northern_Straits[x].attackerPositions;
                     defPositions = BattleMaps.Northern_Straits[x].defenderPositions;
+                    Program.Logger.Debug($"Selected map based on terrain '{terrain}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
 
             }
 
+            Program.Logger.Debug("No region or terrain matched in GetBattleMap. Returning default strait map.");
             return ("0.574", "0.609", new string[] { "N", "N" }, new string[] { "S", "S" });
         }
 
