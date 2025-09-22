@@ -667,11 +667,13 @@ namespace CrusaderWars
                     }
 
                     // New logic to parse the province name as suggested
-                    Match nameMatch = Regex.Match(provinceIDLine, @"L;\s*(.+?)\s*!");
+                    Match nameMatch = Regex.Match(provinceIDLine, @"L;\s*(.*)");
                     if (nameMatch.Success)
                     {
-                        provinceName = nameMatch.Groups[1].Value.Trim();
-                        Program.Logger.Debug($"Province Name found (complex format): {provinceName}");
+                        provinceName = nameMatch.Groups[1].Value;
+                        // Clean the name, removing trailing " ! ! !" etc.
+                        provinceName = Regex.Replace(provinceName, @"(\s*!)+$", "").Trim();
+                        Program.Logger.Debug($"Province Name found and cleaned (complex format): '{provinceName}'");
                     }
                     else
                     {
