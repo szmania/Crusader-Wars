@@ -514,7 +514,7 @@ namespace CrusaderWars
                 }
 
                 // Get the province name for unique map selection
-                string provinceName = Data.GetProvinceName(BattleResult.ProvinceID);
+                string provinceName = BattleResult.ProvinceName ?? "";
 
                 var customSettlementMap = UnitMappers_BETA.GetSettlementMap(defenderAttilaFaction, siegeBattleType, provinceName);
 

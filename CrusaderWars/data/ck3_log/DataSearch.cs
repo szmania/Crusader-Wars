@@ -646,6 +646,7 @@ namespace CrusaderWars
         static void SearchForProvinceID(string log)
         {
             string provinceID = "not found"; // Default value
+            string provinceName = ""; // Default to empty
             try
             {
                 // Extract the entire line containing "ProvinceID:"
@@ -664,11 +665,25 @@ namespace CrusaderWars
                     {
                         Program.Logger.Debug($"Province ID line contains 'ONCLICK:PROVINCE,' but could not parse ID from: '{provinceIDLine}'");
                     }
+
+                    // New logic to parse the province name as suggested
+                    Match nameMatch = Regex.Match(provinceIDLine, @"L;\s*(.+?)\s*!");
+                    if (nameMatch.Success)
+                    {
+                        provinceName = nameMatch.Groups[1].Value.Trim();
+                        Program.Logger.Debug($"Province Name found (complex format): {provinceName}");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Could not parse Province Name from: '{provinceIDLine}'");
+                    }
                 }
                 else
                 {
                     // Simple format (field battle)
                     provinceID = provinceIDLine;
+                    // For field battles, we don't have the name in this line, so provinceName remains empty.
+                    // This is acceptable because we only need the name for siege battles.
                     Program.Logger.Debug($"Province ID found (simple format): {provinceID}");
                 }
             }
@@ -678,6 +693,7 @@ namespace CrusaderWars
             }
 
             BattleResult.ProvinceID = provinceID;
+            BattleResult.ProvinceName = provinceName; // Store the parsed name
         }
 
 

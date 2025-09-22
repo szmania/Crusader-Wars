@@ -17,6 +17,7 @@ namespace CrusaderWars
         public static string? ResultID { get; set; }
         public static string? ProvinceID { get; set; }
         public static string? SiegeID { get; set; }
+        public static string? ProvinceName { get; set; }
         //public static twbattle.Date FirstDay_Date { get; set; }
 
 
@@ -241,6 +242,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Resetting data and collecting garbage.");
             Data.Reset();
             Player_Combat = "";
+            ProvinceName = null;
             GC.Collect();
         }
 
