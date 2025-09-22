@@ -135,7 +135,16 @@ namespace CrusaderWars.data.save_file
             foreach(string file in files_to_delete)
             {
                 if(File.Exists(file))
+                {
+                    // If this is the original gamestate, create a backup before deleting
+                    if (file == gamestatePath)
+                    {
+                        string backupPath = file + ".bak";
+                        Program.Logger.Debug($"Backing up original gamestate to {backupPath}");
+                        File.Copy(file, backupPath, true);
+                    }
                     File.Delete(file);
+                }
             }
 
         }
