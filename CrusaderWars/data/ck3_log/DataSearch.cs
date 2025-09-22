@@ -322,8 +322,17 @@ namespace CrusaderWars
                 // New simplified replacement logic
                 battle_name = Regex.Replace(battle_name, @"ONCLICK:.*?( L |L;)", " ");
 
-                // Existing cleanup logic
-                battle_name = Regex.Replace(battle_name, @"(\s*!)+$", "").Trim();
+                // First, truncate at the first exclamation mark
+                int exclamationIndex = battle_name.IndexOf('!');
+                if (exclamationIndex >= 0)
+                {
+                    battle_name = battle_name.Substring(0, exclamationIndex);
+                }
+
+                // Second, remove any trailing non-letter, non-whitespace, non-hyphen characters
+                battle_name = Regex.Replace(battle_name, @"[^\p{L}\s-]*$", "").Trim();
+
+                // Existing cleanup logic for multiple spaces
                 battle_name = Regex.Replace(battle_name, @"\s{2,}", " ").Trim();
                 
                 Program.Logger.Debug($"Cleaned siege battle name: '{battle_name}'");
@@ -671,8 +680,14 @@ namespace CrusaderWars
                     if (nameMatch.Success)
                     {
                         provinceName = nameMatch.Groups[1].Value;
-                        // Clean the name, removing trailing " ! ! !" etc.
-                        provinceName = Regex.Replace(provinceName, @"(\s*!)+$", "").Trim();
+                        // First, truncate at the first exclamation mark
+                        int exclamationIndex = provinceName.IndexOf('!');
+                        if (exclamationIndex >= 0)
+                        {
+                            provinceName = provinceName.Substring(0, exclamationIndex);
+                        }
+                        // Second, remove any trailing non-letter, non-whitespace, non-hyphen characters
+                        provinceName = Regex.Replace(provinceName, @"[^\p{L}\s-]*$", "").Trim();
                         Program.Logger.Debug($"Province Name found and cleaned (complex format): '{provinceName}'");
                     }
                     else
