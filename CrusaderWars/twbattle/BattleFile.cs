@@ -494,8 +494,47 @@ namespace CrusaderWars
             Program.Logger.Debug($"Total soldiers for battle: {total_soldiers}");
 
             //  BATTLE MAP
-            var battleMap = TerrainGenerator.GetBattleMap();
+            (string X, string Y, string[] attPositions, string[] defPositions) battleMap = ("", "", new string[0], new string[0]); // Initialize as mutable tuple
             Program.Logger.Debug($"Battle map selected: X={battleMap.X}, Y={battleMap.Y}");
+
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                Program.Logger.Debug("Siege battle detected. Attempting to find custom settlement map.");
+                string defenderAttilaFaction = UnitMappers_BETA.GetAttilaFaction(twbattle.Sieges.GetGarrisonCulture(), twbattle.Sieges.GetGarrisonHeritage());
+                
+                string siegeBattleType;
+                int holdingLevel = twbattle.Sieges.GetHoldingLevel();
+                if (holdingLevel > 1)
+                {
+                    siegeBattleType = "settlement_standard";
+                }
+                else
+                {
+                    siegeBattleType = "settlement_unfortified";
+                }
+
+                var customSettlementMap = UnitMappers_BETA.GetSettlementMap(defenderAttilaFaction, siegeBattleType);
+
+                if (customSettlementMap.HasValue)
+                {
+                    battleMap.X = customSettlementMap.Value.X;
+                    battleMap.Y = customSettlementMap.Value.Y;
+                    battleMap.attPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
+                    battleMap.defPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
+                    Program.Logger.Debug($"Custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}': ({battleMap.X}, {battleMap.Y})");
+                }
+                else
+                {
+                    Program.Logger.Debug($"No custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}'. Falling back to TerrainGenerator.GetBattleMap().");
+                    battleMap = TerrainGenerator.GetBattleMap(); // Fallback to existing logic
+                }
+            }
+            else
+            {
+                Program.Logger.Debug("Land battle detected. Using TerrainGenerator.GetBattleMap().");
+                battleMap = TerrainGenerator.GetBattleMap(); // Existing logic for land battles
+            }
+            
             var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
             var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
 

@@ -9,22 +9,40 @@ using CrusaderWars.data.save_file;
 
 namespace CrusaderWars.unit_mapper
 {
+    internal class SettlementVariant
+    {
+        public string Key { get; set; } = string.Empty;
+        public bool IsUnique { get; set; }
+        public string X { get; set; } = string.Empty;
+        public string Y { get; set; } = string.Empty;
+    }
+
+    internal class SettlementMap
+    {
+        public string Faction { get; set; } = string.Empty;
+        public string BattleType { get; set; } = string.Empty;
+        public List<SettlementVariant> Variants { get; set; } = new List<SettlementVariant>();
+    }
+
     class TerrainsUM
     {
         string AttilaMap { get; set; }
         List<(string building, string x, string y)> HistoricalMaps { get; set; }
         List<(string terrain, string x, string y)> NormalMaps { get; set; }
+        public List<SettlementMap> SettlementMaps { get; private set; }
 
-        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps)
+        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps)
         {
             AttilaMap = attilaMap;
             HistoricalMaps = historicalMaps;    
             NormalMaps = normalMaps;
+            SettlementMaps = settlementMaps;
         }
 
         public string GetAttilaMap() { return AttilaMap; }
         public List<(string building, string x, string y)> GetHistoricalMaps() { return HistoricalMaps; }
         public List<(string terrain, string x, string y)> GetNormalMaps() { return NormalMaps; }
+        public List<SettlementMap> GetSettlementMaps() { return SettlementMaps; }
 
     }
     internal static class UnitMappers_BETA
@@ -116,6 +134,7 @@ namespace CrusaderWars.unit_mapper
                 string attilaMap = "";
                 var historicMaps = new List<(string building, string x, string y)>();
                 var normalMaps = new List<(string terrain, string x, string y)>();
+                var settlementMaps = new List<SettlementMap>(); // Initialize new list
 
                 foreach (var file in terrainFiles)
                 {
@@ -125,9 +144,16 @@ namespace CrusaderWars.unit_mapper
 
                     foreach (XmlElement Element in TerrainsFile.DocumentElement.ChildNodes)
                     {
-                        if (Element.Name == "Attila_Map")
+                        if (Element.Name == "Attila_Map" || Element.Name == "Map") // Updated condition
                         {
-                            attilaMap = Element.InnerText;
+                            if (Element.Name == "Map")
+                            {
+                                attilaMap = Element.Attributes?["name"]?.Value ?? string.Empty;
+                            }
+                            else
+                            {
+                                attilaMap = Element.InnerText;
+                            }
                         }
                         else if (Element.Name == "Historic_Maps")
                         {
@@ -153,14 +179,49 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
+                        else if (Element.Name == "Settlement_Maps") // New block for Settlement_Maps
+                        {
+                            foreach (XmlElement settlementNode in Element.ChildNodes)
+                            {
+                                if (settlementNode.Name == "Settlement")
+                                {
+                                    var settlementMap = new SettlementMap
+                                    {
+                                        Faction = settlementNode.Attributes?["faction"]?.Value ?? string.Empty,
+                                        BattleType = settlementNode.Attributes?["battle_type"]?.Value ?? string.Empty
+                                    };
+
+                                    foreach (XmlElement variantNode in settlementNode.ChildNodes)
+                                    {
+                                        if (variantNode.Name == "Variant")
+                                        {
+                                            var settlementVariant = new SettlementVariant
+                                            {
+                                                Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
+                                                IsUnique = bool.Parse(variantNode.Attributes?["is_unique"]?.Value ?? "false")
+                                            };
+
+                                            XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
+                                            if (mapNode != null)
+                                            {
+                                                settlementVariant.X = mapNode.Attributes?["x"]?.Value ?? string.Empty;
+                                                settlementVariant.Y = mapNode.Attributes?["y"]?.Value ?? string.Empty;
+                                            }
+                                            settlementMap.Variants.Add(settlementVariant);
+                                        }
+                                    }
+                                    settlementMaps.Add(settlementMap);
+                                }
+                            }
+                        }
                     }
                 }
 
-                Terrains = new TerrainsUM(attilaMap, historicMaps, normalMaps);
+                Terrains = new TerrainsUM(attilaMap, historicMaps, normalMaps, settlementMaps); // Updated constructor call
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show($"Error reading {GetLoadedUnitMapperName()} terrains file!", "Crusader Conflicts: Unit Mapper Error",
+                MessageBox.Show($"Error reading {GetLoadedUnitMapperName()} terrains file: {ex.Message}", "Crusader Conflicts: Unit Mapper Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
 
@@ -1064,6 +1125,45 @@ namespace CrusaderWars.unit_mapper
             }
 
             return faction;
+        }
+
+        public static (string X, string Y)? GetSettlementMap(string faction, string battleType)
+        {
+            Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}'");
+
+            if (Terrains?.SettlementMaps == null || !Terrains.SettlementMaps.Any())
+            {
+                Program.Logger.Debug("No settlement maps loaded in TerrainsUM.");
+                return null;
+            }
+
+            var matchingMaps = Terrains.SettlementMaps
+                                       .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                    sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                       .ToList();
+
+            if (!matchingMaps.Any())
+            {
+                Program.Logger.Debug($"No settlement map found for Faction: '{faction}', BattleType: '{battleType}'.");
+                return null;
+            }
+
+            // If multiple maps match, we could add logic to prioritize or combine,
+            // but for now, let's just take the first one and its variants.
+            var selectedMap = matchingMaps.First();
+
+            if (!selectedMap.Variants.Any())
+            {
+                Program.Logger.Debug($"No variants found for settlement map Faction: '{faction}', BattleType: '{battleType}'.");
+                return null;
+            }
+
+            // Randomly select a variant
+            int randomIndex = _random.Next(0, selectedMap.Variants.Count);
+            var selectedVariant = selectedMap.Variants[randomIndex];
+
+            Program.Logger.Debug($"Found custom settlement map variant '{selectedVariant.Key}' for Faction: '{faction}', BattleType: '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+            return (selectedVariant.X, selectedVariant.Y);
         }
 
         public static void SetMapperImage()
