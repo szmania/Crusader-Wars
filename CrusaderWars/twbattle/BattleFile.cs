@@ -990,9 +990,17 @@ namespace CrusaderWars
 
         private static void SetVictoryCondition()
         {
+            string captureSettlementVictoryConditionTag = "";
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                captureSettlementVictoryConditionTag = "<victory_condition>\n" +
+                    "<capture_settlement></capture_settlement>\n" +
+                    "</victory_condition>\n";
+            }
+            
             string PR_Victory = "<victory_condition>\n" +
                                 "<kill_or_rout_enemy></kill_or_rout_enemy>\n" +
-                                "</victory_condition>\n" +
+                                "</victory_condition>\n" + captureSettlementVictoryConditionTag +
                                 "<rout_position x=\"0.00\" y=\"0.00\"/>\n\n";
 
             File.AppendAllText(battlePath, PR_Victory);
@@ -1062,7 +1070,7 @@ namespace CrusaderWars
             if (twbattle.BattleState.IsSiegeBattle)
             {
                 DeclarationsFile.DeclareSiegeVariables();
-                battleScript = "tut_tutorial_battle/tut_sieges.lua";
+                battleScript = "tut_sieges.lua";
                 int holdingLevel = twbattle.Sieges.GetHoldingLevel();
                 if (holdingLevel > 1)
                 {
@@ -1105,7 +1113,7 @@ namespace CrusaderWars
                                           "<boiling_oil></boiling_oil>\n" +
                                           fortificationDamageTags +
                                           "</battle_description>\n\n";
-
+            
             string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers)}\"/>\n\n";
 
             File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
@@ -1118,11 +1126,12 @@ namespace CrusaderWars
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
-                var (tilePath, levelUpgradeTag) = twbattle.Sieges.GetSettlementBattleMap();
+                var levelUpgradeTag = twbattle.Sieges.GetSettlementBattleMap();
                 string escalationLevel = twbattle.Sieges.GetHoldingEscalation();
                 string escalationTag = Sieges_DataTypes.Escalation.GetEscalationTileUpgrade(escalationLevel);
 
-                battleMapDefinitionContent = $"<name>{tilePath}</name>\n" +
+                battleMapDefinitionContent = $"<name>{attila_map}</name>\n" +
+                                             $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n" +
                                              $"{levelUpgradeTag}\n" +
                                              $"{escalationTag}\n";
             }
