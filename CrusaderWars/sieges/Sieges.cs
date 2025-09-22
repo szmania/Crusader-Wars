@@ -56,9 +56,8 @@ namespace CrusaderWars.twbattle
         public static string GetHoldingEscalation() { return EscalationLevel; }
         public static string GetSuppliesLevel() { return SuppliesLevel; }
 
-        public static (string tilePath, string levelUpgradeTag) GetSettlementBattleMap()
+        public static string GetSettlementBattleMap()
         {
-            string tilePath;
             string levelUpgradeTag;
 
             // This logic constructs a path to a predefined settlement map in Attila.
@@ -71,14 +70,13 @@ namespace CrusaderWars.twbattle
             // The variation can be used to select different city types (e.g. western_roman_city_b) for variety.
             string basePath = $"terrain/tiles/battle/settlement_{architecture}_cities/{architecture}_city_a/medium/";
 
-            tilePath = basePath;
 
             int level = HoldingLevel;
             if (level > 4) level = 4; // Attila maps typically have a max level (e.g., 4)
             if (level < 1) level = 1;
             levelUpgradeTag = $"<tile_upgrade>level{level}</tile_upgrade>";
 
-            return (tilePath, levelUpgradeTag);
+            return levelUpgradeTag;
         }
 
         public static void SetHoldingCulture(string culture)
