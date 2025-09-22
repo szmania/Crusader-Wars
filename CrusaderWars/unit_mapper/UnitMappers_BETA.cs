@@ -12,7 +12,6 @@ namespace CrusaderWars.unit_mapper
     internal class SettlementVariant
     {
         public string Key { get; set; } = string.Empty;
-        public bool IsUnique { get; set; }
         public string X { get; set; } = string.Empty;
         public string Y { get; set; } = string.Empty;
     }
@@ -24,25 +23,34 @@ namespace CrusaderWars.unit_mapper
         public List<SettlementVariant> Variants { get; set; } = new List<SettlementVariant>();
     }
 
+    internal class UniqueSettlementMap
+    {
+        public string BattleType { get; set; } = string.Empty;
+        public List<SettlementVariant> Variants { get; set; } = new List<SettlementVariant>();
+    }
+
     class TerrainsUM
     {
         string AttilaMap { get; set; }
         List<(string building, string x, string y)> HistoricalMaps { get; set; }
         List<(string terrain, string x, string y)> NormalMaps { get; set; }
         public List<SettlementMap> SettlementMaps { get; private set; }
+        public List<UniqueSettlementMap> UniqueSettlementMaps { get; private set; }
 
-        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps)
+        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps)
         {
             AttilaMap = attilaMap;
             HistoricalMaps = historicalMaps;    
             NormalMaps = normalMaps;
             SettlementMaps = settlementMaps;
+            UniqueSettlementMaps = uniqueSettlementMaps;
         }
 
         public string GetAttilaMap() { return AttilaMap; }
         public List<(string building, string x, string y)> GetHistoricalMaps() { return HistoricalMaps; }
         public List<(string terrain, string x, string y)> GetNormalMaps() { return NormalMaps; }
         public List<SettlementMap> GetSettlementMaps() { return SettlementMaps; }
+        public List<UniqueSettlementMap> GetUniqueSettlementMaps() { return UniqueSettlementMaps; }
 
     }
     internal static class UnitMappers_BETA
@@ -134,7 +142,8 @@ namespace CrusaderWars.unit_mapper
                 string attilaMap = "";
                 var historicMaps = new List<(string building, string x, string y)>();
                 var normalMaps = new List<(string terrain, string x, string y)>();
-                var settlementMaps = new List<SettlementMap>(); // Initialize new list
+                var settlementMaps = new List<SettlementMap>();
+                var uniqueSettlementMaps = new List<UniqueSettlementMap>(); // Declare new list for unique settlement maps
 
                 foreach (var file in terrainFiles)
                 {
@@ -179,7 +188,7 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
-                        else if (Element.Name == "Settlement_Maps") // New block for Settlement_Maps
+                        else if (Element.Name == "Settlement_Maps") // Block for generic Settlement_Maps
                         {
                             foreach (XmlElement settlementNode in Element.ChildNodes)
                             {
@@ -198,7 +207,7 @@ namespace CrusaderWars.unit_mapper
                                             var settlementVariant = new SettlementVariant
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
-                                                IsUnique = bool.Parse(variantNode.Attributes?["is_unique"]?.Value ?? "false")
+                                                // Removed IsUnique property parsing
                                             };
 
                                             XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
@@ -214,10 +223,43 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
+                        else if (Element.Name == "Settlement_Maps_Unique") // New block for Unique Settlement Maps
+                        {
+                            foreach (XmlElement settlementUniqueNode in Element.ChildNodes)
+                            {
+                                if (settlementUniqueNode.Name == "Settlement_Unique")
+                                {
+                                    var uniqueSettlementMap = new UniqueSettlementMap
+                                    {
+                                        BattleType = settlementUniqueNode.Attributes?["battle_type"]?.Value ?? string.Empty
+                                    };
+
+                                    foreach (XmlElement variantNode in settlementUniqueNode.ChildNodes)
+                                    {
+                                        if (variantNode.Name == "Variant")
+                                        {
+                                            var settlementVariant = new SettlementVariant
+                                            {
+                                                Key = variantNode.Attributes?["key"]?.Value ?? string.Empty
+                                            };
+
+                                            XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
+                                            if (mapNode != null)
+                                            {
+                                                settlementVariant.X = mapNode.Attributes?["x"]?.Value ?? string.Empty;
+                                                settlementVariant.Y = mapNode.Attributes?["y"]?.Value ?? string.Empty;
+                                            }
+                                            uniqueSettlementMap.Variants.Add(settlementVariant);
+                                        }
+                                    }
+                                    uniqueSettlementMaps.Add(uniqueSettlementMap);
+                                }
+                            }
+                        }
                     }
                 }
 
-                Terrains = new TerrainsUM(attilaMap, historicMaps, normalMaps, settlementMaps); // Updated constructor call
+                Terrains = new TerrainsUM(attilaMap, historicMaps, normalMaps, settlementMaps, uniqueSettlementMaps); // Updated constructor call
             }
             catch (Exception ex)
             {
@@ -1131,57 +1173,68 @@ namespace CrusaderWars.unit_mapper
         {
             Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
 
-            if (Terrains?.SettlementMaps == null || !Terrains.SettlementMaps.Any())
+            // Priority 1: Search for a Unique Map
+            if (Terrains?.UniqueSettlementMaps != null && Terrains.UniqueSettlementMaps.Any())
             {
-                Program.Logger.Debug("No settlement maps loaded in TerrainsUM.");
-                return null;
-            }
+                Program.Logger.Debug("Searching for unique settlement map...");
+                var matchingUniqueMaps = Terrains.UniqueSettlementMaps
+                                                 .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                                 .ToList();
 
-            var matchingMaps = Terrains.SettlementMaps
-                                       .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                                    sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
-                                       .ToList();
-
-            if (!matchingMaps.Any())
-            {
-                Program.Logger.Debug($"No settlement map found for Faction: '{faction}', BattleType: '{battleType}'.");
-                return null;
-            }
-
-            var selectedMap = matchingMaps.First();
-
-            if (!selectedMap.Variants.Any())
-            {
-                Program.Logger.Debug($"No variants found for settlement map Faction: '{faction}', BattleType: '{battleType}'.");
-                return null;
-            }
-
-            var uniqueVariants = selectedMap.Variants.Where(v => v.IsUnique).ToList();
-            var nonUniqueVariants = selectedMap.Variants.Where(v => !v.IsUnique).ToList();
-
-            // 1. Check for a unique, location-specific match first
-            if (uniqueVariants.Any())
-            {
-                var uniqueMatch = uniqueVariants.FirstOrDefault(v => v.Key.Contains(provinceName, StringComparison.OrdinalIgnoreCase));
-                if (uniqueMatch != null)
+                foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
-                    return (uniqueMatch.X, uniqueMatch.Y);
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => v.Key.Contains(provinceName, StringComparison.OrdinalIgnoreCase));
+                    if (uniqueMatch != null)
+                    {
+                        Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
+                        return (uniqueMatch.X, uniqueMatch.Y);
+                    }
                 }
-                Program.Logger.Debug($"No unique settlement map variant found matching province '{provinceName}'.");
+                Program.Logger.Debug($"No unique settlement map variant found matching province '{provinceName}' for battle type '{battleType}'.");
             }
-
-            // 2. Fallback to non-unique variants if no unique match or no unique variants
-            if (nonUniqueVariants.Any())
+            else
             {
-                // Randomly select a non-unique variant
-                int randomIndex = _random.Next(0, nonUniqueVariants.Count);
-                var selectedVariant = nonUniqueVariants[randomIndex];
-                Program.Logger.Debug($"No unique match found. Falling back to generic settlement map variant '{selectedVariant.Key}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
-                return (selectedVariant.X, selectedVariant.Y);
+                Program.Logger.Debug("No unique settlement maps loaded in TerrainsUM.");
             }
 
-            Program.Logger.Debug($"No suitable settlement map variant (unique or generic) found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'.");
+            // Priority 2: Fallback to a Generic Faction Map
+            if (Terrains?.SettlementMaps != null && Terrains.SettlementMaps.Any())
+            {
+                Program.Logger.Debug("Falling back to generic faction settlement map...");
+                var matchingGenericMaps = Terrains.SettlementMaps
+                                                  .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                               sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                                  .ToList();
+
+                if (matchingGenericMaps.Any())
+                {
+                    var selectedMap = matchingGenericMaps.First(); // Take the first matching settlement map definition
+
+                    if (selectedMap.Variants.Any())
+                    {
+                        // Randomly select a variant from the generic map
+                        int randomIndex = _random.Next(0, selectedMap.Variants.Count);
+                        var selectedVariant = selectedMap.Variants[randomIndex];
+                        Program.Logger.Debug($"No unique match found. Falling back to generic settlement map variant '{selectedVariant.Key}' for Faction '{faction}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+                        return (selectedVariant.X, selectedVariant.Y);
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"No variants found for generic settlement map Faction: '{faction}', BattleType: '{battleType}'.");
+                    }
+                }
+                else
+                {
+                    Program.Logger.Debug($"No generic settlement map found for Faction: '{faction}', BattleType: '{battleType}'.");
+                }
+            }
+            else
+            {
+                Program.Logger.Debug("No generic settlement maps loaded in TerrainsUM.");
+            }
+
+            // Final Fallback
+            Program.Logger.Debug($"No suitable settlement map variant (unique or generic) found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
             return null;
         }
 
