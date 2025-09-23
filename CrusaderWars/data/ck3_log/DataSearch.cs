@@ -541,7 +541,7 @@ namespace CrusaderWars
             string Knights = Regex.Match(army_data, @"(?<Knights>ONCLICK:CHARACTER[\s\S]*?)\z[\s\S]*?").Groups["Knights"].Value;
             MatchCollection knights_text_data = Regex.Matches(Knights, @"ONCLICK:CHARACTER(?<ID>\d+).+ (?<Prowess>\d+)");
 
-            List<(string id, string prowess, string name, int effectivenss)> data = new List<(string id, string prowess, string name, int effectivenss)>();
+            List<(string id, string prowess, string name, int effectiveness)> data = new List<(string id, string prowess, string name, int effectiveness)>();
             string names = Knights;
             names = names.Replace("high", "");
             string[] names_arr = new string[knights_text_data.Count];
@@ -661,7 +661,7 @@ namespace CrusaderWars
                 if (provinceIDLine.Contains("ONCLICK:PROVINCE"))
                 {
                     // Complex format (siege battle)
-                    Match match = Regex.Match(provinceIDLine, @"ONCLICK:PROVINCE(\d+)");
+                    Match match = Regex.Match(provinceIDLine, @"ONCLICK:PROVINCE,(\d+)");
                     if (match.Success)
                     {
                         provinceID = match.Groups[1].Value;
