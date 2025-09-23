@@ -1277,6 +1277,7 @@ namespace CrusaderWars
                     Program.Logger.Debug("Uncompressing and reading CK3 save file.");
                     SaveFile.Uncompress();
                     Reader.ReadFile(path_editedSave);
+                    DataSearch.FindSiegeCombatID();
                     BattleResult.GetPlayerCombatResult();
                     BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
                 }

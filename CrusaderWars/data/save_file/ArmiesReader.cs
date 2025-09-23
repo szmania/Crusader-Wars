@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CrusaderWars.twbattle;
 
 namespace CrusaderWars.data.save_file
 {
@@ -29,10 +30,55 @@ namespace CrusaderWars.data.save_file
                 throw new Exception("Couldn't read traits data", ex);
             }
 
-            if (BattleResult.Player_Combat is not null)
+            if (twbattle.BattleState.IsSiegeBattle && !string.IsNullOrEmpty(BattleResult.SiegeID))
             {
-                ReadCombatArmies(BattleResult.Player_Combat);
+                Program.Logger.Debug($"Siege battle detected. Using found combat ID: {BattleResult.SiegeID}");
+                try
+                {
+                    string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+                    string combatBlockContent = "";
+
+                    string[] combatBlocks = Regex.Split(combatsContent, @"(?=\s*\t\t\d+={)");
+                    foreach (string block in combatBlocks)
+                    {
+                        if (Regex.IsMatch(block, $@"^\s*\t\t{BattleResult.SiegeID}={{"))
+                        {
+                            combatBlockContent = block;
+                            break;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(combatBlockContent))
+                    {
+                        Program.Logger.Debug("Found combat block for siege. Reading armies from it.");
+                        ReadCombatArmies(combatBlockContent);
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Could not find combat block for siege ID {BattleResult.SiegeID}. Falling back to Player_Combat.");
+                        if (BattleResult.Player_Combat is not null)
+                        {
+                            ReadCombatArmies(BattleResult.Player_Combat);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading siege combat from Combats.txt: {ex.Message}. Falling back to Player_Combat.");
+                    if (BattleResult.Player_Combat is not null)
+                    {
+                        ReadCombatArmies(BattleResult.Player_Combat);
+                    }
+                }
             }
+            else
+            {
+                if (BattleResult.Player_Combat is not null)
+                {
+                    ReadCombatArmies(BattleResult.Player_Combat);
+                }
+            }
+
             ReadArmiesData();
             ReadArmiesUnits();
             ReadArmyRegiments();
@@ -1581,12 +1627,12 @@ namespace CrusaderWars.data.save_file
                     string? line = SR.ReadLine();
                     if (line == null) break;
 
-                    if (line == "\t\t\tattacker={")
+                    if (line.Contains("\t\t\tattacker={"))
                     {
                         isAttacker = true;
                         isDefender = false;
                     }
-                    else if (line == "\t\t\tdefender={")
+                    else if (line.Contains("\t\t\tdefender={"))
                     {
                         isAttacker = false;
                         isDefender = true;
@@ -1668,12 +1714,12 @@ namespace CrusaderWars.data.save_file
                     string? line = SR.ReadLine();
                     if (line == null) break;
 
-                    if (line == "\t\t\tattacker={")
+                    if (line.Contains("\t\t\tattacker={"))
                     {
                         isAttacker = true;
                         isDefender = false;
                     }
-                    else if (line == "\t\t\tdefender={")
+                    else if (line.Contains("\t\t\tdefender={"))
                     {
                         isAttacker = false;
                         isDefender = true;

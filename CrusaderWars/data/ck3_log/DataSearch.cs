@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using CrusaderWars.armies;
 using CrusaderWars.client;
+using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.terrain;
 
@@ -259,10 +260,6 @@ namespace CrusaderWars
 
             UniqueMapsSearch(log);
             
-            if (twbattle.BattleState.IsSiegeBattle)
-            {
-                BattleResult.GetPlayerSiege();
-            }
 
             /*---------------------------------------------
              * ::::::::::::::Player Army:::::::::::::::::::
@@ -714,6 +711,100 @@ namespace CrusaderWars
         }
 
 
-       
+        public static void FindSiegeCombatID()
+        {
+            if (!twbattle.BattleState.IsSiegeBattle || string.IsNullOrEmpty(BattleResult.ProvinceID))
+            {
+                return;
+            }
+
+            Program.Logger.Debug($"Starting siege combat ID search for province: {BattleResult.ProvinceID}");
+
+            try
+            {
+                // Part 1: Find Unit ID from Siege in Sieges.txt
+                string siegesContent = File.ReadAllText(Writter.DataFilesPaths.Sieges_Path());
+                string? unitID = null;
+
+                string[] siegeBlocks = Regex.Split(siegesContent, @"(?=\s*\t\d+={)");
+                foreach (string block in siegeBlocks)
+                {
+                    if (block.Contains("location=" + BattleResult.ProvinceID))
+                    {
+                        Match ownerMatch = Regex.Match(block, @"owner=(\d+)");
+                        if (ownerMatch.Success)
+                        {
+                            unitID = ownerMatch.Groups[1].Value;
+                            break;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(unitID))
+                {
+                    Program.Logger.Debug($"Could not find siege unit for province {BattleResult.ProvinceID}");
+                    return;
+                }
+                Program.Logger.Debug($"Found siege unit ID: {unitID}");
+
+                // Part 2: Find Char ID and Prev Location from Unit in Units.txt
+                string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
+                string? unitBlockContent = null;
+                string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
+                foreach (string block in unitBlocks)
+                {
+                    if (Regex.IsMatch(block, $@"^\s*\t{unitID}={{"))
+                    {
+                        unitBlockContent = block;
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(unitBlockContent))
+                {
+                    Program.Logger.Debug($"Could not find unit block for ID: {unitID}");
+                    return;
+                }
+
+                string charID = Regex.Match(unitBlockContent, @"owner=(\d+)").Groups[1].Value;
+                string prevLocation = Regex.Match(unitBlockContent, @"prev=(\d+)").Groups[1].Value;
+
+                if (string.IsNullOrEmpty(charID) || string.IsNullOrEmpty(prevLocation))
+                {
+                    Program.Logger.Debug($"Could not find owner or prev location for unit ID: {unitID}");
+                    return;
+                }
+                Program.Logger.Debug($"Found char ID: {charID} and prev location: {prevLocation}");
+
+                // Part 3: Find Combat ID in Combats.txt
+                string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+                string[] combatBlocks = Regex.Split(combatsContent, @"(?=\s*\t\t\d+={)"); // Combats have specific indentation
+
+                foreach (string combatBlock in combatBlocks)
+                {
+                    if (string.IsNullOrWhiteSpace(combatBlock)) continue;
+
+                    Match idMatch = Regex.Match(combatBlock, @"\t\t(\d+)={");
+                    if (!idMatch.Success) continue;
+                    string combatID = idMatch.Groups[1].Value;
+
+                    bool locationMatch = combatBlock.Contains("location=" + prevLocation);
+                    bool participantMatch = combatBlock.Contains("main_participant=" + charID);
+
+                    if (locationMatch && participantMatch)
+                    {
+                        BattleResult.SiegeID = combatID;
+                        Program.Logger.Debug($"SUCCESS: Found matching combat ID for siege: {combatID}");
+                        return;
+                    }
+                }
+
+                Program.Logger.Debug($"Could not find matching combat for char {charID} at location {prevLocation}");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error in FindSiegeCombatID: {ex.Message}");
+            }
+        }
     }
 }
