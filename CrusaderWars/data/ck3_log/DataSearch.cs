@@ -165,8 +165,8 @@ namespace CrusaderWars
             twbattle.Sieges.SetHoldingSickness(diseaseFrameStr);
 
             // Garrison culture and heritage
-            string garrisonCulture = Regex.Match(log, @"GarrisonCulture:.*?ONCLICK:CULTURE,(\d+)").Groups[1].Value.Trim();
-            string garrisonHeritage = Regex.Match(log, @"GarrisonHeritage:.*?TOOLTIP:CULTURE_PILLAR,(\S+)").Groups[1].Value.Trim();
+            string garrisonCulture = Regex.Match(log, @"GarrisonCulture:.*?ONCLICK:CULTURE[,]*(\d+)").Groups[1].Value.Trim();
+            string garrisonHeritage = Regex.Match(log, @"GarrisonHeritage:.*?TOOLTIP:CULTURE_PILLAR[,]*(\S+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Garrison Culture: {garrisonCulture}, Heritage: {garrisonHeritage}");
             twbattle.Sieges.SetGarrisonCulture(garrisonCulture);
             twbattle.Sieges.SetGarrisonHeritage(garrisonHeritage);
@@ -243,7 +243,15 @@ namespace CrusaderWars
 
             //Search player ID
             string left_side_commander_id = Regex.Match(log, @"PlayerID:(\d+)").Groups[1].Value;
-            string left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:(\d+)").Groups[1].Value;
+            string left_side_commander_culture_id = "";
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:.*ONCLICK:CULTURE[,]*(\d+) ").Groups[1].Value;
+            }
+            else
+            {
+                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:(\d+)").Groups[1].Value;
+            }
             Program.Logger.Debug($"Left side commander: ID={left_side_commander_id}, CultureID={left_side_commander_culture_id}");
 
             //Search enemy ID
@@ -729,7 +737,7 @@ namespace CrusaderWars
                 string[] siegeBlocks = Regex.Split(siegesContent, @"(?=\s*\t\d+={)");
                 foreach (string block in siegeBlocks)
                 {
-                    if (block.Contains("location=" + BattleResult.ProvinceID))
+                    if (block.Contains("province=" + BattleResult.ProvinceID))
                     {
                         Match ownerMatch = Regex.Match(block, @"owner=(\d+)");
                         if (ownerMatch.Success)
@@ -767,14 +775,14 @@ namespace CrusaderWars
                 }
 
                 string charID = Regex.Match(unitBlockContent, @"owner=(\d+)").Groups[1].Value;
-                string prevLocation = Regex.Match(unitBlockContent, @"prev=(\d+)").Groups[1].Value;
+                string location = Regex.Match(unitBlockContent, @"location=(\d+)").Groups[1].Value;
 
-                if (string.IsNullOrEmpty(charID) || string.IsNullOrEmpty(prevLocation))
+                if (string.IsNullOrEmpty(charID) || string.IsNullOrEmpty(location))
                 {
-                    Program.Logger.Debug($"Could not find owner or prev location for unit ID: {unitID}");
+                    Program.Logger.Debug($"Could not find owner or location for unit ID: {unitID}");
                     return;
                 }
-                Program.Logger.Debug($"Found char ID: {charID} and prev location: {prevLocation}");
+                Program.Logger.Debug($"Found char ID: {charID} and location: {location}");
 
                 // Part 3: Find Combat ID in Combats.txt
                 string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
@@ -788,7 +796,7 @@ namespace CrusaderWars
                     if (!idMatch.Success) continue;
                     string combatID = idMatch.Groups[1].Value;
 
-                    bool locationMatch = combatBlock.Contains("location=" + prevLocation);
+                    bool locationMatch = combatBlock.Contains("location=" + location);
                     bool participantMatch = combatBlock.Contains("main_participant=" + charID);
 
                     if (locationMatch && participantMatch)
@@ -799,7 +807,7 @@ namespace CrusaderWars
                     }
                 }
 
-                Program.Logger.Debug($"Could not find matching combat for char {charID} at location {prevLocation}");
+                Program.Logger.Debug($"Could not find matching combat for char {charID} at location {location}");
             }
             catch (Exception ex)
             {
