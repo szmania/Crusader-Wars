@@ -2,10 +2,10 @@
 
 	#Extracting Data
 
-	attacker_heritage: "[GetPlayer.MakeScope.Var('attacker_army').GetCommander.GetCulture.GetHeritage.GetName]"
-	attacker_culture: "[GetPlayer.MakeScope.Var('attacker_army').GetCommander.GetCulture.GetName]"
-	attacker_martial: "[GetPlayer.MakeScope.Var('attacker_army').GetCommander.GetCommanderAdvantageDesc]"
-	attacker_prowess: "[GetPlayer.MakeScope.Var('attacker_army').GetCommander.GetProwess]"
+	attacker_heritage: "[GetPlayer.MakeScope.Var('attacker_army').Army.GetCommander.GetCulture.GetHeritage.GetName]"
+	attacker_culture: "[GetPlayer.MakeScope.Var('attacker_army').Army.GetCommander.GetCulture.GetName]"
+	attacker_martial: "[GetPlayer.MakeScope.Var('attacker_army').Army.GetCommander.GetCommanderAdvantageDesc]"
+	attacker_prowess: "[GetPlayer.MakeScope.Var('attacker_army').Army.GetCommander.GetProwess]"
 
 	garrison_num: "[GetPlayer.MakeScope.Var('attacker_army').GetProvince.GetHolding.GetCurrentGarrisonSize]"
 	garrison_culture: "[GetPlayer.MakeScope.Var('attacker_army').GetProvince.GetCulture.GetName]"

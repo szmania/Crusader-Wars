@@ -90,7 +90,7 @@
     
     global_date_year: "[GetCurrentDate.GetYear]"
     global_date_month: "[GetCurrentDate.GetMonthOfYear]"
-	global_culture_ids_var:"[GetPlayer.MakeScope.Var('id_var').Char.GetCulture.GetID]"
+	global_culture_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetCulture.GetID]"
 	global_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetID]"
 
 	#
