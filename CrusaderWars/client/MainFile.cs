@@ -1322,25 +1322,7 @@ namespace CrusaderWars
                     attacker_armies = armies.attacker;
                     defender_armies = armies.defender;
 
-                    if(twbattle.BattleState.IsSiegeBattle)
-                    {
-                        Program.Logger.Debug("Siege battle detected. Calculating holding level and generating garrison army.");
-                        twbattle.Sieges.CalculateAndSetHoldingLevel();
-                        int garrisonSize = twbattle.Sieges.GetGarrisonSize();
-                        string garrisonCulture = twbattle.Sieges.GetGarrisonCulture();
-                        string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
-                        
-                        // For sieges, the defender is the garrison. Clear any field defenders that might have been read.
-                        defender_armies.Clear(); 
-                        
-                        Army garrisonArmy = CrusaderWars.sieges.GarrisonGenerator.GenerateGarrisonArmy(garrisonSize, garrisonCulture, garrisonHeritage);
-                        
-                        // The garrison is always the defender
-                        garrisonArmy.CombatSide = "defender"; 
-                        
-                        defender_armies.Add(garrisonArmy);
-                        Program.Logger.Debug($"Generated garrison army with {garrisonSize} soldiers and added to defenders.");
-                    }
+                    // The previous siege garrison generation logic has been removed as ArmiesReader now correctly identifies siege defenders.
 
                     Program.Logger.Debug($"Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
             
@@ -2391,7 +2373,7 @@ namespace CrusaderWars
         }
 
 
-        private void HomePage_FormClosing(object sender, FormClosingEventArgs e)
+        private void HomePage_FormClosing(object sender, EventArgs e)
         {
             Program.Logger.Debug("HomePage form closing.");
             _preReleasePulseTimer?.Stop(); // Add this line

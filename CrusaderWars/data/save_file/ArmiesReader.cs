@@ -30,45 +30,73 @@ namespace CrusaderWars.data.save_file
                 throw new Exception("Couldn't read traits data", ex);
             }
 
-            if (twbattle.BattleState.IsSiegeBattle && !string.IsNullOrEmpty(BattleResult.SiegeID))
+            if (twbattle.BattleState.IsSiegeBattle)
             {
-                Program.Logger.Debug($"Siege battle detected. Using found combat ID: {BattleResult.SiegeID}");
+                Program.Logger.Debug("Siege battle detected. Reading armies directly from Units.txt based on province location.");
+
+                // Create sets of character IDs for quick lookup
+                HashSet<string> attackerCharIDs = new HashSet<string>();
+                attackerCharIDs.Add(CK3LogData.LeftSide.GetMainParticipant().id);
+                attackerCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
+                foreach (var knight in CK3LogData.LeftSide.GetKnights())
+                {
+                    attackerCharIDs.Add(knight.id);
+                }
+
+                HashSet<string> defenderCharIDs = new HashSet<string>();
+                defenderCharIDs.Add(CK3LogData.RightSide.GetMainParticipant().id);
+                defenderCharIDs.Add(CK3LogData.RightSide.GetCommander().id);
+                foreach (var knight in CK3LogData.RightSide.GetKnights())
+                {
+                    defenderCharIDs.Add(knight.id);
+                }
+                Program.Logger.Debug($"Attacker character IDs: {string.Join(", ", attackerCharIDs)}");
+                Program.Logger.Debug($"Defender character IDs: {string.Join(", ", defenderCharIDs)}");
+
                 try
                 {
-                    string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
-                    string combatBlockContent = "";
+                    string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
+                    string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)"); // Split by "\t<ID>={"
 
-                    string[] combatBlocks = Regex.Split(combatsContent, @"(?=\s*\t\t\d+={)");
-                    foreach (string block in combatBlocks)
+                    foreach (string block in unitBlocks)
                     {
-                        if (Regex.IsMatch(block, $@"^\s*\t\t{BattleResult.SiegeID}={{"))
-                        {
-                            combatBlockContent = block;
-                            break;
-                        }
-                    }
+                        if (string.IsNullOrWhiteSpace(block)) continue;
 
-                    if (!string.IsNullOrEmpty(combatBlockContent))
-                    {
-                        Program.Logger.Debug("Found combat block for siege. Reading armies from it.");
-                        ReadCombatArmies(combatBlockContent);
-                    }
-                    else
-                    {
-                        Program.Logger.Debug($"Could not find combat block for siege ID {BattleResult.SiegeID}. Falling back to Player_Combat.");
-                        if (BattleResult.Player_Combat is not null)
+                        // Check if the unit is located at the siege province
+                        if (block.Contains($"location={BattleResult.ProvinceID}"))
                         {
-                            ReadCombatArmies(BattleResult.Player_Combat);
+                            string armyID = Regex.Match(block, @"\t(\d+)={").Groups[1].Value;
+                            string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value;
+
+                            if (attackerCharIDs.Contains(ownerID))
+                            {
+                                // Check if army already added to avoid duplicates
+                                if (!attacker_armies.Any(a => a.ID == armyID))
+                                {
+                                    bool isMainArmy = (ownerID == CK3LogData.LeftSide.GetMainParticipant().id);
+                                    Army army = new Army(armyID, "attacker", isMainArmy);
+                                    attacker_armies.Add(army);
+                                    Program.Logger.Debug($"Found attacker army {armyID} (owner {ownerID}) at siege province {BattleResult.ProvinceID}. Main: {isMainArmy}");
+                                }
+                            }
+                            else if (defenderCharIDs.Contains(ownerID))
+                            {
+                                // Check if army already added to avoid duplicates
+                                if (!defender_armies.Any(a => a.ID == armyID))
+                                {
+                                    bool isMainArmy = (ownerID == CK3LogData.RightSide.GetMainParticipant().id);
+                                    Army army = new Army(armyID, "defender", isMainArmy);
+                                    defender_armies.Add(army);
+                                    Program.Logger.Debug($"Found defender army {armyID} (owner {ownerID}) at siege province {BattleResult.ProvinceID}. Main: {isMainArmy}");
+                                }
+                            }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error reading siege combat from Combats.txt: {ex.Message}. Falling back to Player_Combat.");
-                    if (BattleResult.Player_Combat is not null)
-                    {
-                        ReadCombatArmies(BattleResult.Player_Combat);
-                    }
+                    Program.Logger.Debug($"Error reading siege armies from Units.txt: {ex.Message}");
+                    throw new Exception("Couldn't read siege armies data from Units.txt", ex);
                 }
             }
             else
