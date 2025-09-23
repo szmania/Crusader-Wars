@@ -32,74 +32,59 @@ namespace CrusaderWars.data.save_file
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
-                Program.Logger.Debug("Siege battle detected. Reading armies directly from Units.txt based on province location.");
+                Program.Logger.Debug("Siege battle detected. Determining roles (assault vs. sally-out)...");
 
                 // Create sets of character IDs for quick lookup
-                HashSet<string> attackerCharIDs = new HashSet<string>();
-                attackerCharIDs.Add(CK3LogData.LeftSide.GetMainParticipant().id);
-                attackerCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
-                foreach (var knight in CK3LogData.LeftSide.GetKnights())
-                {
-                    attackerCharIDs.Add(knight.id);
-                }
+                var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id).Append(CK3LogData.LeftSide.GetCommander().id));
+                var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
 
-                HashSet<string> defenderCharIDs = new HashSet<string>();
-                defenderCharIDs.Add(CK3LogData.RightSide.GetMainParticipant().id);
-                defenderCharIDs.Add(CK3LogData.RightSide.GetCommander().id);
-                foreach (var knight in CK3LogData.RightSide.GetKnights())
-                {
-                    defenderCharIDs.Add(knight.id);
-                }
-                Program.Logger.Debug($"Attacker character IDs: {string.Join(", ", attackerCharIDs)}");
-                Program.Logger.Debug($"Defender character IDs: {string.Join(", ", defenderCharIDs)}");
+                DataSearchSides? besiegerSide = null;
+                var besiegerForce = new List<Army>();
 
+                // 1. Find the mobile besieger force and identify their side
                 try
                 {
                     string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
-                    string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)"); // Split by "\t<ID>={"
+                    string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
 
                     foreach (string block in unitBlocks)
                     {
-                        if (string.IsNullOrWhiteSpace(block)) continue;
+                        if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
 
-                        // Check if the unit is located at the siege province
-                        if (block.Contains($"location={BattleResult.ProvinceID}"))
+                        string armyID = Regex.Match(block, @"\t(\d+)={").Groups[1].Value;
+                        string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value;
+
+                        DataSearchSides? currentArmySide = null;
+                        if (attackerCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.LeftSide;
+                        else if (defenderCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.RightSide;
+                        else continue;
+
+                        if (besiegerSide == null)
                         {
-                            string armyID = Regex.Match(block, @"\t(\d+)={").Groups[1].Value;
-                            string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value;
+                            besiegerSide = currentArmySide;
+                            Program.Logger.Debug($"Besieger side identified as: {besiegerSide}. This side owns the mobile armies.");
+                        }
 
-                            if (attackerCharIDs.Contains(ownerID))
-                            {
-                                // Check if army already added to avoid duplicates
-                                if (!attacker_armies.Any(a => a.ID == armyID))
-                                {
-                                    bool isMainArmy = (ownerID == CK3LogData.LeftSide.GetMainParticipant().id);
-                                    Army army = new Army(armyID, "attacker", isMainArmy);
-                                    attacker_armies.Add(army);
-                                    Program.Logger.Debug($"Found attacker army {armyID} (owner {ownerID}) at siege province {BattleResult.ProvinceID}. Main: {isMainArmy}");
-                                }
-                            }
-                            else if (defenderCharIDs.Contains(ownerID))
-                            {
-                                // Check if army already added to avoid duplicates
-                                if (!defender_armies.Any(a => a.ID == armyID))
-                                {
-                                    bool isMainArmy = (ownerID == CK3LogData.RightSide.GetMainParticipant().id);
-                                    Army army = new Army(armyID, "defender", isMainArmy);
-                                    defender_armies.Add(army);
-                                    Program.Logger.Debug($"Found defender army {armyID} (owner {ownerID}) at siege province {BattleResult.ProvinceID}. Main: {isMainArmy}");
-                                }
-                            }
+                        if (currentArmySide == besiegerSide && !besiegerForce.Any(a => a.ID == armyID))
+                        {
+                            bool isMainArmy = (besiegerSide == DataSearchSides.LeftSide && ownerID == CK3LogData.LeftSide.GetMainParticipant().id) ||
+                                              (besiegerSide == DataSearchSides.RightSide && ownerID == CK3LogData.RightSide.GetMainParticipant().id);
+                            
+                            string combatSide = besiegerSide == DataSearchSides.LeftSide ? "attacker" : "defender";
+                            Army army = new Army(armyID, combatSide, isMainArmy);
+                            besiegerForce.Add(army);
+                            Program.Logger.Debug($"Found besieger army {armyID} (owner {ownerID}). Main: {isMainArmy}");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error reading siege armies from Units.txt: {ex.Message}");
-                    throw new Exception("Couldn't read siege armies data from Units.txt", ex);
+                    Program.Logger.Debug($"Error reading besieger armies from Units.txt: {ex.Message}");
+                    // We can continue, as we might still be able to generate a garrison
                 }
 
-                // NEW CODE INSERTION START
+                // 2. Generate the garrison force
+                Army? garrisonArmy = null;
                 try
                 {
                     int garrisonSize = twbattle.Sieges.GetGarrisonSize();
@@ -109,21 +94,36 @@ namespace CrusaderWars.data.save_file
                         string garrisonCultureID = twbattle.Sieges.GetGarrisonCulture();
                         string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
 
-                        bool isMainDefender = !defender_armies.Any();
-                        var defenderOwnerInfo = CK3LogData.RightSide.GetMainParticipant();
-                        var garrisonOwner = new Owner(defenderOwnerInfo.id, new Culture(defenderOwnerInfo.culture_id));
+                        var garrisonOwnerSide = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.RightSide : CK3LogData.LeftSide;
+                        var garrisonOwnerInfo = garrisonOwnerSide.GetMainParticipant();
+                        var garrisonOwner = new Owner(garrisonOwnerInfo.id, new Culture(garrisonOwnerInfo.culture_id));
 
-                        Army garrisonArmy = sieges.GarrisonGenerator.GenerateGarrisonArmy(garrisonSize, garrisonCultureID, garrisonHeritage, garrisonOwner, isMainDefender);
-                        
-                        defender_armies.Add(garrisonArmy);
-                        Program.Logger.Debug($"Successfully created and added garrison army to defenders.");
+                        garrisonArmy = sieges.GarrisonGenerator.GenerateGarrisonArmy(garrisonSize, garrisonCultureID, garrisonHeritage, garrisonOwner, true);
                     }
                 }
                 catch (Exception ex)
                 {
                     Program.Logger.Debug($"Failed to create garrison army: {ex.Message}");
                 }
-                // NEW CODE INSERTION END
+
+                // 3. Assign forces to Attila attacker/defender roles
+                if (!besiegerForce.Any() && garrisonArmy == null)
+                {
+                    throw new Exception("Could not find any besieger or garrison forces for the siege battle.");
+                }
+
+                if (besiegerSide == DataSearchSides.LeftSide) // Normal Assault
+                {
+                    Program.Logger.Debug("Normal siege assault detected. Besieger is Attacker, Garrison is Defender.");
+                    attacker_armies.AddRange(besiegerForce);
+                    if (garrisonArmy != null) defender_armies.Add(garrisonArmy);
+                }
+                else // Sally-out or Garrison-only
+                {
+                    Program.Logger.Debug("Sally-out or garrison-only scenario detected. Garrison is Attacker, Besieger is Defender.");
+                    if (garrisonArmy != null) attacker_armies.Add(garrisonArmy);
+                    defender_armies.AddRange(besiegerForce);
+                }
             }
             else
             {
