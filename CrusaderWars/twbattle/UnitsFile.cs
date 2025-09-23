@@ -401,29 +401,6 @@ namespace CrusaderWars
                 // Keep original faction_levy_porcentages as is (no change needed here as it's already the current value)
             }
 
-            var Levies_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
-
-            int total_soldiers = unit.GetSoldiers();
-
-            //  SINGULAR UNIT
-            //  select random levy type
-            if (unit.GetSoldiers() <= unit.GetMax())
-            {
-                Random r = new Random();
-                var random = faction_levy_porcentages[r.Next(faction_levy_porcentages.Count)]; // Fixed: r.Next(count - 1) to r.Next(count)
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
-                
-                string logLine = $"    - Levy Attila Unit: {random.unit_key}, Soldiers: {Levies_Data.UnitSoldiers} (1x unit of {Levies_Data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
-                BattleLog.AddLevyLog(army.ID, logLine);
-
-                i++;
-                return;
-            }
-
-
-            //  MULTIPLE UNITS
-            //  fulfill every levy type
             int levySoldiers = unit.GetSoldiers();
 
             int totalPercentageSum = faction_levy_porcentages.Sum(p => p.porcentage);
@@ -474,29 +451,6 @@ namespace CrusaderWars
 
             // Removed: MAA filtering logic is not needed for garrisons.
 
-            var Garrison_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
-
-            int total_soldiers = unit.GetSoldiers();
-
-            //  SINGULAR UNIT
-            //  select random garrison type
-            if (unit.GetSoldiers() <= unit.GetMax())
-            {
-                Random r = new Random();
-                var random = faction_garrison_porcentages[r.Next(faction_garrison_porcentages.Count)];
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEGarrison{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                BattleFile.AddUnit(random.unit_key, Garrison_Data.UnitSoldiers, 1, Garrison_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
-                
-                string logLine = $"    - Garrison Attila Unit: {random.unit_key}, Soldiers: {Garrison_Data.UnitSoldiers} (1x unit of {Garrison_Data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
-                BattleLog.AddLevyLog(army.ID, logLine); // Keep AddLevyLog as per instruction, only text changed
-
-                i++;
-                return;
-            }
-
-
-            //  MULTIPLE UNITS
-            //  fulfill every garrison type
             int garrisonSoldiers = unit.GetSoldiers();
 
             int totalPercentageSum = faction_garrison_porcentages.Sum(p => p.porcentage);
