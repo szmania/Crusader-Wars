@@ -74,6 +74,7 @@ namespace CrusaderWars
         public void SetBaseSkills(BaseSkills t) { BaseSkills = t; }
         public void SetAccolade(Accolade accolade) { Accolade = accolade; IsAccoladeCommander = true; }
 
+        public string GetID() { return ID; }
         public string GetCultureName() { return CultureObj?.GetCultureName() ?? "unknown_culture"; } // NULL-SAFE
         public string GetHeritageName() { return CultureObj?.GetHeritageName() ?? "unknown_heritage"; } // NULL-SAFE
         public Culture? GetCultureObj () { return CultureObj; } // NULLABLE RETURN TYPE
