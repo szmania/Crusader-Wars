@@ -495,7 +495,6 @@ namespace CrusaderWars
 
             //  BATTLE MAP
             (string X, string Y, string[] attPositions, string[] defPositions) battleMap = ("", "", new string[0], new string[0]); // Initialize as mutable tuple
-            Program.Logger.Debug($"Battle map selected: X={battleMap.X}, Y={battleMap.Y}");
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -538,6 +537,7 @@ namespace CrusaderWars
                 battleMap = TerrainGenerator.GetBattleMap(); // Existing logic for land battles
             }
             
+            Program.Logger.Debug($"Battle map selected: X={battleMap.X}, Y={battleMap.Y}");
             var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
             var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
 
