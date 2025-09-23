@@ -58,7 +58,7 @@ namespace CrusaderWars.sieges
         /// <param name="owner">The owner object for the garrison army.</param>
         /// <param name="isMainArmy">Indicates if this is the main army for its side.</param>
         /// <returns>An Army object populated with garrison regiments.</returns>
-        public static Army GenerateGarrisonArmy(int garrisonSize, string cultureID, string heritage, Owner owner, bool isMainArmy)
+        public static Army CreateGarrisonPlaceholderArmy(int garrisonSize, string cultureID, string heritage, Owner owner, bool isMainArmy)
         {
             if (garrisonSize <= 0)
             {
@@ -70,9 +70,35 @@ namespace CrusaderWars.sieges
             garrisonArmy.SetOwner(owner);
             garrisonArmy.SetIsGarrison(true);
 
-            string cultureName = GetCultureNameFromID(cultureID);
+            // Create a single placeholder unit for the garrison
+            var unit = new Unit("GarrisonLevies", garrisonSize, new Culture(cultureID), RegimentType.Levy);
+            garrisonArmy.Units.Add(unit);
+
+            Program.Logger.Debug($"Created garrison placeholder army with {garrisonSize} soldiers for culture ID {cultureID}.");
+            return garrisonArmy;
+        }
+
+        /// <summary>
+        /// Generates a list of distributed levy units for a garrison based on its size, culture, and heritage.
+        /// </summary>
+        /// <param name="garrisonSize">Total number of soldiers in the garrison.</param>
+        /// <param name="garrisonCulture">The culture object of the garrison.</param>
+        /// <param name="heritage">The heritage name of the garrison.</param>
+        /// <returns>A list of Unit objects representing the distributed levies.</returns>
+        public static List<Unit> GenerateDistributedLevyUnits(int garrisonSize, Culture garrisonCulture, string heritage)
+        {
+            Program.Logger.Debug($"Generating distributed levy units for garrison of size {garrisonSize}, culture {garrisonCulture.GetCultureName()}, heritage {heritage}.");
+
+            List<Unit> newUnits = new List<Unit>();
+            if (garrisonSize <= 0)
+            {
+                Program.Logger.Debug("Garrison size is 0 or less, returning empty unit list.");
+                return newUnits;
+            }
+
+            string cultureName = garrisonCulture.GetCultureName();
             string attilaFaction = UnitMappers_BETA.GetAttilaFaction(cultureName, heritage);
-            Program.Logger.Debug($"Generating garrison for faction: {attilaFaction}");
+            Program.Logger.Debug($"Determined Attila Faction for garrison: {attilaFaction}");
 
             List<(int porcentage, string unit_key, string name, string max)> levyComposition;
             try
@@ -81,24 +107,22 @@ namespace CrusaderWars.sieges
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Could not get levy composition for faction '{attilaFaction}'. Error: {ex.Message}. Cannot generate garrison.");
-                return garrisonArmy; // Return empty army
+                Program.Logger.Debug($"Could not get levy composition for faction '{attilaFaction}'. Error: {ex.Message}. Cannot generate distributed garrison units.");
+                return newUnits; // Return empty list
             }
 
             if (!levyComposition.Any())
             {
-                Program.Logger.Debug($"Warning: No levy composition found for faction '{attilaFaction}'. Cannot generate garrison.");
-                return garrisonArmy; // Return empty army
+                Program.Logger.Debug($"Warning: No levy composition found for faction '{attilaFaction}'. Cannot generate distributed garrison units.");
+                return newUnits; // Return empty list
             }
-
-            var armyRegiments = new List<ArmyRegiment>();
 
             // 1. Calculate total percentage to normalize distribution
             double totalPercentage = levyComposition.Sum(l => l.porcentage);
             if (totalPercentage == 0)
             {
-                Program.Logger.Debug($"Warning: Total percentage for levy composition is 0 for faction '{attilaFaction}'. Cannot generate garrison.");
-                return garrisonArmy; // Return empty army
+                Program.Logger.Debug($"Warning: Total percentage for levy composition is 0 for faction '{attilaFaction}'. Cannot generate distributed garrison units.");
+                return newUnits; // Return empty list
             }
 
             // 2. Calculate soldiers for each unit type and handle rounding
@@ -120,73 +144,32 @@ namespace CrusaderWars.sieges
                 soldiersPerType[largestGroup.Key] += roundingDifference;
             }
 
-            // 4. Create the actual regiments for each unit type
+            // 4. Create the actual Unit objects for each unit type
             foreach (var kvp in soldiersPerType)
             {
                 var unit_key = kvp.Key.unit_key;
-                var name = kvp.Key.name;
+                var name = kvp.Key.name; // This name is like "Levy_25"
                 var soldiers = kvp.Value;
 
                 if (soldiers > 0)
                 {
-                    Program.Logger.Debug($"Allocating {soldiers} soldiers to garrison unit '{unit_key}'");
-                    armyRegiments.AddRange(CreateArmyRegimentsForType(soldiers, unit_key, cultureID, name, garrisonArmy));
+                    Program.Logger.Debug($"Allocating {soldiers} soldiers to distributed garrison unit '{unit_key}' (original name: {name})");
+                    // Create the Unit, which represents the soldiers in Attila.
+                    // Use "Levy" as the generic name for these distributed units, as they will be merged later.
+                    var unit = new Unit("Levy", soldiers, garrisonCulture, RegimentType.Levy);
+                    unit.SetUnitKey(unit_key); // Set the specific Attila unit key
+                    unit.SetMax(UnitMappers_BETA.GetMax(unit)); // Get max based on the unit key/type
+                    newUnits.Add(unit);
                 }
             }
-            
-            garrisonArmy.ArmyRegiments.AddRange(armyRegiments);
 
-            return garrisonArmy;
-        }
+            // Populate Attila-specific data for the newly created units
+            newUnits = Armies_Functions.GetAllUnits_AttilaFaction(newUnits);
+            newUnits = Armies_Functions.GetAllUnits_Max(newUnits);
+            newUnits = Armies_Functions.GetAllUnits_UnitKeys(newUnits);
 
-        /// <summary>
-        /// Creates a list of ArmyRegiment objects for a specific unit type (e.g., infantry, ranged).
-        /// </summary>
-        private static List<ArmyRegiment> CreateArmyRegimentsForType(int totalSoldiers, string unitKey, string cultureID, string unitName, Army army)
-        {
-            var armyRegiments = new List<ArmyRegiment>();
-            if (totalSoldiers <= 0 || string.IsNullOrEmpty(unitKey) || unitKey == UnitMappers_BETA.NOT_FOUND_KEY)
-            {
-                return armyRegiments;
-            }
-
-            var armyRegiment = new ArmyRegiment($"garrison_army_reg_{unitName.Replace(" ", "_")}");
-            armyRegiment.SetType(RegimentType.Levy, unitName);
-
-            int soldiersRemaining = totalSoldiers;
-            int regimentCounter = 0;
-
-            // CK3 levy regiments are typically 100 soldiers at full strength.
-            const int maxRegimentSize = 100;
-
-            while (soldiersRemaining > 0)
-            {
-                int currentRegimentSize = Math.Min(soldiersRemaining, maxRegimentSize);
-
-                // Create the Unit, which represents the soldiers in Attila.
-                var culture = new Culture(cultureID);
-                var unit = new Unit(unitName, currentRegimentSize, culture, RegimentType.Levy);
-                unit.SetUnitKey(unitKey);
-                unit.SetMax(maxRegimentSize);
-                army.Units.Add(unit);
-
-                // Create the Regiment, which is a container for units in CK3.
-                var regiment = new Regiment($"garrison_reg_{unitName.Replace(" ", "_")}_{regimentCounter}", unitName); // Correct Regiment constructor
-                regiment.IsGarrison(true);
-                regiment.isMercenary(false);
-                regiment.SetSoldiers(currentRegimentSize.ToString());
-                regiment.SetMax(maxRegimentSize.ToString());
-                regiment.SetCulture(cultureID);
-
-                // Add the new regiment to the ArmyRegiment container's list of regiments.
-                armyRegiment.Regiments.Add(regiment);
-
-                soldiersRemaining -= currentRegimentSize;
-                regimentCounter++;
-            }
-
-            armyRegiments.Add(armyRegiment);
-            return armyRegiments;
+            Program.Logger.Debug($"Finished generating {newUnits.Count} distributed levy units for garrison.");
+            return newUnits;
         }
     }
 }

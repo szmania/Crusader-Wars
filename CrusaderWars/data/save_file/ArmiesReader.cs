@@ -90,19 +90,19 @@ namespace CrusaderWars.data.save_file
                     int garrisonSize = twbattle.Sieges.GetGarrisonSize();
                     if (garrisonSize > 0)
                     {
-                        Program.Logger.Debug($"Found garrison of size {garrisonSize}. Creating garrison army.");
+                        Program.Logger.Debug($"Found garrison of size {garrisonSize}. Creating garrison placeholder army.");
                         string garrisonCultureID = twbattle.Sieges.GetGarrisonCulture();
                         string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
 
                         var garrisonOwnerInfo = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.RightSide.GetMainParticipant() : CK3LogData.LeftSide.GetMainParticipant();
                         var garrisonOwner = new Owner(garrisonOwnerInfo.id, new Culture(garrisonOwnerInfo.culture_id));
 
-                        garrisonArmy = sieges.GarrisonGenerator.GenerateGarrisonArmy(garrisonSize, garrisonCultureID, garrisonHeritage, garrisonOwner, true);
+                        garrisonArmy = sieges.GarrisonGenerator.CreateGarrisonPlaceholderArmy(garrisonSize, garrisonCultureID, garrisonHeritage, garrisonOwner, true);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Failed to create garrison army: {ex.Message}");
+                    Program.Logger.Debug($"Failed to create garrison placeholder army: {ex.Message}");
                 }
 
                 // 3. Assign forces to Attila attacker/defender roles
@@ -162,6 +162,10 @@ namespace CrusaderWars.data.save_file
                 CheckForNullCultures();
                 ReadCultureManager();
                 CreateUnits();
+
+                // Expand garrison placeholder units into distributed levies
+                var allArmies = attacker_armies.Concat(defender_armies).ToList();
+                Armies_Functions.ExpandGarrisonArmies(allArmies);
 
                 // Print Armies
                 Print.PrintArmiesData(attacker_armies);

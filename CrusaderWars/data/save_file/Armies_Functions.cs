@@ -221,6 +221,15 @@ namespace CrusaderWars.data.save_file
                                 if (isSearchStared)
                                     break;
                             }
+                            // Units (for garrison placeholder)
+                            foreach (Unit unit in army.Units)
+                            {
+                                if (unit.GetObjCulture() != null && unit.GetObjCulture().ID == culture_id)
+                                {
+                                    isSearchStared = true;
+                                    break;
+                                }
+                            }
                             if (isSearchStared)
                                 break;
                         }
@@ -440,6 +449,21 @@ namespace CrusaderWars.data.save_file
                         }
                     }
                 }
+
+                // Units culture log (for garrison placeholder)
+                foreach (Unit unit in army.Units)
+                {
+                    string? unitCultureID = unit.GetObjCulture()?.ID;
+                    if (unitCultureID != null && foundCultures.Exists(c => c.culture_id == unitCultureID))
+                    {
+                        var found = foundCultures.Find(c => c.culture_id == unitCultureID);
+                        Program.Logger.Debug($"  APPLYING UNIT CULTURE: {unit.GetName()}");
+                        Program.Logger.Debug($"    Old: {(unit.GetCulture() ?? "null")}/{(unit.GetHeritage() ?? "null")}");
+                        Program.Logger.Debug($"    New: {found.culture_name}/{found.heritage_name}");
+                        unit.GetObjCulture().SetName(found.culture_name);
+                        unit.GetObjCulture().SetHeritage(found.heritage_name);
+                    }
+                }
             }
             Program.Logger.Debug("END SetCulturesToAll");
         }
@@ -594,7 +618,7 @@ namespace CrusaderWars.data.save_file
             //Set Unit Keys
             foreach (var unit in units)
             {
-                if (unit.GetRegimentType() == RegimentType.Levy) continue;
+                if (unit.GetRegimentType() == RegimentType.Levy && unit.GetName() != "Levy") continue; // Skip placeholder levies
 
                 Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', IsMercenary='{unit.IsMerc()}'");
                 string key = UnitMappers_BETA.GetUnitKey(unit);
@@ -666,6 +690,13 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Creating units from regiments for all armies...");
             foreach (var army in armies)
             {
+                // Skip garrison armies as their units are handled by placeholder logic
+                if (army.IsGarrisonArmy)
+                {
+                    Program.Logger.Debug($"Skipping unit creation from regiments for garrison army {army.ID}. Units already set by placeholder.");
+                    continue;
+                }
+
                 Program.Logger.Debug($"Creating units from {armies.Count} total armies, for army {army.ID}");
                 List<(Regiment regiment, RegimentType type, string maa_name)> list = new List<(Regiment regiment, RegimentType type, string maa_name)>();
                 foreach (var army_regiment in army.ArmyRegiments)
@@ -841,6 +872,42 @@ namespace CrusaderWars.data.save_file
             }
 
             return units;
+        }
+
+        internal static void ExpandGarrisonArmies(List<Army> armies)
+        {
+            Program.Logger.Debug("START ExpandGarrisonArmies: Expanding placeholder garrison units.");
+
+            foreach (var army in armies.Where(a => a.IsGarrisonArmy))
+            {
+                Program.Logger.Debug($"Processing garrison army: {army.ID}");
+                var placeholder = army.Units.FirstOrDefault(u => u.GetName() == "GarrisonLevies");
+
+                if (placeholder != null)
+                {
+                    int totalSoldiers = placeholder.GetSoldiers();
+                    Culture? culture = placeholder.GetObjCulture();
+                    string heritage = placeholder.GetHeritage();
+
+                    if (culture == null)
+                    {
+                        Program.Logger.Debug($"WARNING: Placeholder garrison unit in army {army.ID} has null culture. Cannot expand.");
+                        continue;
+                    }
+
+                    Program.Logger.Debug($"Expanding placeholder unit for army {army.ID} (Soldiers: {totalSoldiers}, Culture: {culture.GetCultureName()}, Heritage: {heritage}).");
+                    var newUnits = CrusaderWars.sieges.GarrisonGenerator.GenerateDistributedLevyUnits(totalSoldiers, culture, heritage);
+
+                    army.Units.Remove(placeholder);
+                    army.Units.AddRange(newUnits);
+                    Program.Logger.Debug($"Expanded placeholder in army {army.ID} into {newUnits.Count} distributed levy units.");
+                }
+                else
+                {
+                    Program.Logger.Debug($"No 'GarrisonLevies' placeholder found in garrison army {army.ID}. Skipping expansion.");
+                }
+            }
+            Program.Logger.Debug("END ExpandGarrisonArmies.");
         }
     }
 }
