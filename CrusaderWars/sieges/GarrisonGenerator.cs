@@ -68,6 +68,7 @@ namespace CrusaderWars.sieges
             Army garrisonArmy = new Army("garrison_army", "defender", isMainArmy);
             garrisonArmy.IsPlayer(false); // Garrison is always AI controlled.
             garrisonArmy.SetOwner(owner);
+            garrisonArmy.SetIsGarrison(true);
 
             string cultureName = GetCultureNameFromID(cultureID);
             string attilaFaction = UnitMappers_BETA.GetAttilaFaction(cultureName, heritage);
@@ -91,35 +92,48 @@ namespace CrusaderWars.sieges
             }
 
             var armyRegiments = new List<ArmyRegiment>();
-            int soldiersRemaining = garrisonSize;
 
-            levyComposition = levyComposition.OrderByDescending(l => l.porcentage).ToList();
-
-            for (int i = 0; i < levyComposition.Count; i++)
+            // 1. Calculate total percentage to normalize distribution
+            double totalPercentage = levyComposition.Sum(l => l.porcentage);
+            if (totalPercentage == 0)
             {
-                var levy = levyComposition[i];
-                int soldiersForThisType;
-
-                if (i == levyComposition.Count - 1)
-                {
-                    soldiersForThisType = soldiersRemaining;
-                }
-                else
-                {
-                    soldiersForThisType = (int)Math.Round(garrisonSize * (levy.porcentage / 100.0));
-                }
-
-                if (soldiersForThisType > 0)
-                {
-                    soldiersForThisType = Math.Min(soldiersForThisType, soldiersRemaining);
-                    Program.Logger.Debug($"Allocating {soldiersForThisType} soldiers to garrison unit '{levy.unit_key}' ({levy.porcentage}%)");
-                    armyRegiments.AddRange(CreateArmyRegimentsForType(soldiersForThisType, levy.unit_key, cultureID, levy.name, garrisonArmy));
-                    soldiersRemaining -= soldiersForThisType;
-                }
-                
-                if (soldiersRemaining <= 0) break;
+                Program.Logger.Debug($"Warning: Total percentage for levy composition is 0 for faction '{attilaFaction}'. Cannot generate garrison.");
+                return garrisonArmy; // Return empty army
             }
 
+            // 2. Calculate soldiers for each unit type and handle rounding
+            var soldiersPerType = new Dictionary<(string unit_key, string name), int>();
+            int totalAllocated = 0;
+
+            foreach (var levy in levyComposition)
+            {
+                int soldiersForThisType = (int)Math.Round(garrisonSize * (levy.porcentage / totalPercentage));
+                soldiersPerType[(levy.unit_key, levy.name)] = soldiersForThisType;
+                totalAllocated += soldiersForThisType;
+            }
+
+            // 3. Adjust for any rounding errors by adding/subtracting the difference to the largest group
+            int roundingDifference = garrisonSize - totalAllocated;
+            if (roundingDifference != 0 && soldiersPerType.Any())
+            {
+                var largestGroup = soldiersPerType.OrderByDescending(kvp => kvp.Value).First();
+                soldiersPerType[largestGroup.Key] += roundingDifference;
+            }
+
+            // 4. Create the actual regiments for each unit type
+            foreach (var kvp in soldiersPerType)
+            {
+                var unit_key = kvp.Key.unit_key;
+                var name = kvp.Key.name;
+                var soldiers = kvp.Value;
+
+                if (soldiers > 0)
+                {
+                    Program.Logger.Debug($"Allocating {soldiers} soldiers to garrison unit '{unit_key}'");
+                    armyRegiments.AddRange(CreateArmyRegimentsForType(soldiers, unit_key, cultureID, name, garrisonArmy));
+                }
+            }
+            
             garrisonArmy.ArmyRegiments.AddRange(armyRegiments);
 
             return garrisonArmy;

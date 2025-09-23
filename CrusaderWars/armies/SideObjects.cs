@@ -30,6 +30,7 @@ namespace CrusaderWars
         public bool isMainArmy { get; private set; }
         bool IsPlayerArmy { get; set; }
         bool IsEnemyArmy { get; set; }
+        public bool IsGarrisonArmy { get; private set; }
 
         public string? RealmName { get; set; }
         public string CombatSide { get; set; }
@@ -44,6 +45,7 @@ namespace CrusaderWars
             isMainArmy = is_main;
             Owner = new Owner(string.Empty); // Initialize Owner to a default non-null value
             Knights = new KnightSystem(new List<Knight>(), 0); // Initialize Knights to a default non-null value
+            IsGarrisonArmy = false; // Initialize new flag
         }
 
         //Getters
@@ -66,6 +68,7 @@ namespace CrusaderWars
         public void SetUnits(List<Unit> l) { Units = l; }
         public void SetCommander(CommanderSystem l) { Commander = l; }
         public void SetDefences(DefensiveSystem l) { Defences = l; }
+        public void SetIsGarrison(bool isGarrison) { IsGarrisonArmy = isGarrison; }
 
         public void SetOwner(string id) {
 

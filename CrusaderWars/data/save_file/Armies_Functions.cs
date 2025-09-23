@@ -709,7 +709,7 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // ADD COMMANDER UNIT
-                if (army.Commander != null)
+                if (army.Commander != null && !army.IsGarrisonArmy)
                 {
                     var cmdr = army.Commander;
                     Unit commanderUnit = new Unit(cmdr.Name, cmdr.GetUnitSoldiers(), cmdr.GetCultureObj(), RegimentType.Commander);
@@ -718,7 +718,7 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // ADD KNIGHT UNITS
-                if (army.Knights != null && army.Knights.GetKnightsList() != null)
+                if (army.Knights != null && army.Knights.GetKnightsList() != null && !army.IsGarrisonArmy)
                 {
                     foreach (var knight in army.Knights.GetKnightsList())
                     {
