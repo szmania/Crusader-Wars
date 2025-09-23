@@ -52,7 +52,7 @@ namespace CrusaderWars
 
 
         //Setters
-        public void AddMergedArmy(Army army) {
+        public void AddMergedArmy(Army army) { 
             MergedArmies.Add(army); 
         }
         public void IsPlayer(bool u) { 
@@ -76,6 +76,7 @@ namespace CrusaderWars
             else
                 Owner = new Owner(id);
         }
+        public void SetOwner(Owner owner) { this.Owner = owner; }
         public void SetArmyRegiments(List<ArmyRegiment> list) { ArmyRegiments = list; }
         public void SetKnights(KnightSystem knights){ Knights = knights; }
         public void SetCasualitiesReport(List<UnitCasualitiesReport> reports) { CasualitiesReports = reports; } 

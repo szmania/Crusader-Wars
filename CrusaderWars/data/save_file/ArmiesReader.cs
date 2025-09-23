@@ -98,6 +98,32 @@ namespace CrusaderWars.data.save_file
                     Program.Logger.Debug($"Error reading siege armies from Units.txt: {ex.Message}");
                     throw new Exception("Couldn't read siege armies data from Units.txt", ex);
                 }
+
+                // NEW CODE INSERTION START
+                try
+                {
+                    int garrisonSize = twbattle.Sieges.GetGarrisonSize();
+                    if (garrisonSize > 0)
+                    {
+                        Program.Logger.Debug($"Found garrison of size {garrisonSize}. Creating garrison army.");
+                        string garrisonCultureID = twbattle.Sieges.GetGarrisonCulture();
+                        string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
+
+                        bool isMainDefender = !defender_armies.Any();
+                        var defenderOwnerInfo = CK3LogData.RightSide.GetMainParticipant();
+                        var garrisonOwner = new Owner(defenderOwnerInfo.id, new Culture(defenderOwnerInfo.culture_id));
+
+                        Army garrisonArmy = sieges.GarrisonGenerator.GenerateGarrisonArmy(garrisonSize, garrisonCultureID, garrisonHeritage, garrisonOwner, isMainDefender);
+                        
+                        defender_armies.Add(garrisonArmy);
+                        Program.Logger.Debug($"Successfully created and added garrison army to defenders.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Failed to create garrison army: {ex.Message}");
+                }
+                // NEW CODE INSERTION END
             }
             else
             {

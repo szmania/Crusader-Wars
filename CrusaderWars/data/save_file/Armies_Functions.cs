@@ -344,7 +344,7 @@ namespace CrusaderWars.data.save_file
             SetCulturesToAll(armies, found_cultures);
         }
 
-        static string RemoveDiacritics(string text)
+        internal static string RemoveDiacritics(string text)
         {
             var normalizedString = text.Normalize(NormalizationForm.FormD);
             var stringBuilder = new StringBuilder(capacity: normalizedString.Length);
