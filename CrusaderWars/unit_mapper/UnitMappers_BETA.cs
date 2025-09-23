@@ -20,13 +20,13 @@ namespace CrusaderWars.unit_mapper
     {
         public string Faction { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; set; } = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; set; = new List<SettlementVariant>();
     }
 
     internal class UniqueSettlementMap
     {
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; set; } = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; set; = new List<SettlementVariant>();
     }
 
     class TerrainsUM
@@ -1208,13 +1208,14 @@ namespace CrusaderWars.unit_mapper
 
                 if (matchingGenericMaps.Any())
                 {
-                    var selectedMap = matchingGenericMaps.First(); // Take the first matching settlement map definition
+                    // Aggregate all variants from all matching generic maps into a single list
+                    var allGenericVariants = matchingGenericMaps.SelectMany(sm => sm.Variants).ToList();
 
-                    if (selectedMap.Variants.Any())
+                    if (allGenericVariants.Any())
                     {
-                        // Randomly select a variant from the generic map
-                        int randomIndex = _random.Next(0, selectedMap.Variants.Count);
-                        var selectedVariant = selectedMap.Variants[randomIndex];
+                        // Randomly select a variant from the aggregated list
+                        int randomIndex = _random.Next(0, allGenericVariants.Count);
+                        var selectedVariant = allGenericVariants[randomIndex];
                         Program.Logger.Debug($"No unique match found. Falling back to generic settlement map variant '{selectedVariant.Key}' for Faction '{faction}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
                         return (selectedVariant.X, selectedVariant.Y);
                     }
