@@ -7,6 +7,7 @@ using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.terrain;
+using System.Text;
 
 
 namespace CrusaderWars
@@ -721,97 +722,106 @@ namespace CrusaderWars
 
         public static void FindSiegeCombatID()
         {
+            // 1. Initial Check
             if (!twbattle.BattleState.IsSiegeBattle || string.IsNullOrEmpty(BattleResult.ProvinceID))
             {
+                Program.Logger.Debug("Skipping FindSiegeCombatID: Not a siege battle or ProvinceID is empty.");
                 return;
             }
 
-            Program.Logger.Debug($"Starting siege combat ID search for province: {BattleResult.ProvinceID}");
+            Program.Logger.Debug($"Starting FindSiegeCombatID for province: {BattleResult.ProvinceID}");
 
             try
             {
-                // Part 1: Find Unit ID from Siege in Sieges.txt
-                string siegesContent = File.ReadAllText(Writter.DataFilesPaths.Sieges_Path());
-                string? unitID = null;
+                string siegesPath = Writter.DataFilesPaths.Sieges_Path();
+                string combatsPath = Writter.DataFilesPaths.Combats_Path();
+                string? siegeId = null;
 
-                string[] siegeBlocks = Regex.Split(siegesContent, @"(?=\s*\t\d+={)");
-                foreach (string block in siegeBlocks)
+                // 2. Find Siege ID from Sieges.txt
+                Program.Logger.Debug($"Searching for siege ID in {siegesPath} for province {BattleResult.ProvinceID}");
+                using (StreamReader sr = new StreamReader(siegesPath))
                 {
-                    if (block.Contains("province=" + BattleResult.ProvinceID))
+                    string? currentBlockId = null;
+                    string? line;
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        Match ownerMatch = Regex.Match(block, @"owner=(\d+)");
-                        if (ownerMatch.Success)
+                        Match idMatch = Regex.Match(line, @"\t\t(\d+)={");
+                        if (idMatch.Success)
                         {
-                            unitID = ownerMatch.Groups[1].Value;
+                            currentBlockId = idMatch.Groups[1].Value;
+                        }
+                        else if (line.Trim() == $"province={BattleResult.ProvinceID}" && currentBlockId != null)
+                        {
+                            siegeId = currentBlockId;
+                            Program.Logger.Debug($"Found siege ID '{siegeId}' for province {BattleResult.ProvinceID}.");
                             break;
                         }
                     }
                 }
 
-                if (string.IsNullOrEmpty(unitID))
+                if (string.IsNullOrEmpty(siegeId))
                 {
-                    Program.Logger.Debug($"Could not find siege unit for province {BattleResult.ProvinceID}");
+                    Program.Logger.Debug($"Could not find siege ID for province {BattleResult.ProvinceID} in Sieges.txt.");
                     return;
                 }
-                Program.Logger.Debug($"Found siege unit ID: {unitID}");
 
-                // Part 2: Find Char ID and Prev Location from Unit in Units.txt
-                string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
-                string? unitBlockContent = null;
-                string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
-                foreach (string block in unitBlocks)
+                // 3. Set BattleResult IDs
+                BattleResult.SiegeID = siegeId;
+                BattleResult.CombatID = siegeId; // Crucial: Siege ID is the Combat ID for sieges
+                Program.Logger.Debug($"Set BattleResult.SiegeID and BattleResult.CombatID to '{siegeId}'.");
+
+                // 4. Retrieve Combat Data from Combats.txt
+                Program.Logger.Debug($"Searching for combat data in {combatsPath} for combat ID {BattleResult.CombatID}");
+                StringBuilder combatDataBuilder = new StringBuilder();
+                bool searchStarted = false;
+                using (StreamReader sr = new StreamReader(combatsPath))
                 {
-                    if (Regex.IsMatch(block, $@"^\s*\t{unitID}={{"))
+                    string? line;
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        unitBlockContent = block;
-                        break;
+                        // Check for start of combat block: either full block or =none
+                        if (!searchStarted && (line == $"\t\t{BattleResult.CombatID}={{" || line == $"\t\t{BattleResult.CombatID}=none"))
+                        {
+                            combatDataBuilder.AppendLine(line);
+                            searchStarted = true;
+
+                            // If it's a '=none' block, it's a single line, so we're done.
+                            if (line.EndsWith("=none"))
+                            {
+                                Program.Logger.Debug($"Found combat ID '{BattleResult.CombatID}' as 'none' block.");
+                                break;
+                            }
+                        }
+                        else if (searchStarted)
+                        {
+                            combatDataBuilder.AppendLine(line);
+                            // Check for end of full combat block
+                            if (line == "\t\t}")
+                            {
+                                Program.Logger.Debug($"Found full combat block for ID '{BattleResult.CombatID}'.");
+                                break;
+                            }
+                        }
                     }
                 }
 
-                if (string.IsNullOrEmpty(unitBlockContent))
+                if (combatDataBuilder.Length > 0)
                 {
-                    Program.Logger.Debug($"Could not find unit block for ID: {unitID}");
-                    return;
+                    BattleResult.Player_Combat = combatDataBuilder.ToString();
+                    Program.Logger.Debug($"Successfully retrieved combat data for ID '{BattleResult.CombatID}'. Length: {BattleResult.Player_Combat.Length}");
                 }
-
-                string charID = Regex.Match(unitBlockContent, @"owner=(\d+)").Groups[1].Value;
-                string location = Regex.Match(unitBlockContent, @"location=(\d+)").Groups[1].Value;
-
-                if (string.IsNullOrEmpty(charID) || string.IsNullOrEmpty(location))
+                else
                 {
-                    Program.Logger.Debug($"Could not find owner or location for unit ID: {unitID}");
-                    return;
+                    BattleResult.Player_Combat = null;
+                    Program.Logger.Debug($"Could not find combat data for ID '{BattleResult.CombatID}' in Combats.txt.");
                 }
-                Program.Logger.Debug($"Found char ID: {charID} and location: {location}");
-
-                // Part 3: Find Combat ID in Combats.txt
-                string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
-                string[] combatBlocks = Regex.Split(combatsContent, @"(?=\s*\t\t\d+={)"); // Combats have specific indentation
-
-                foreach (string combatBlock in combatBlocks)
-                {
-                    if (string.IsNullOrWhiteSpace(combatBlock)) continue;
-
-                    Match idMatch = Regex.Match(combatBlock, @"\t\t(\d+)={");
-                    if (!idMatch.Success) continue;
-                    string combatID = idMatch.Groups[1].Value;
-
-                    bool locationMatch = combatBlock.Contains("location=" + location);
-                    bool participantMatch = combatBlock.Contains("main_participant=" + charID);
-
-                    if (locationMatch && participantMatch)
-                    {
-                        BattleResult.SiegeID = combatID;
-                        Program.Logger.Debug($"SUCCESS: Found matching combat ID for siege: {combatID}");
-                        return;
-                    }
-                }
-
-                Program.Logger.Debug($"Could not find matching combat for char {charID} at location {location}");
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in FindSiegeCombatID: {ex.Message}");
+                BattleResult.SiegeID = null;
+                BattleResult.CombatID = null;
+                BattleResult.Player_Combat = null;
             }
         }
     }
