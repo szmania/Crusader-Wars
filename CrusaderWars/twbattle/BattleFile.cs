@@ -530,26 +530,27 @@ namespace CrusaderWars
                     Program.Logger.Debug($"No custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}', Province '{provinceName}'. Falling back to TerrainGenerator.GetBattleMap().");
                     battleMap = TerrainGenerator.GetBattleMap(); // Fallback to existing logic
                 }
+                Program.Logger.Debug("Setting up siege-specific deployment...");
+                Deployments.beta_SetSiegeDeployment(battleMap, total_soldiers);
             }
             else
             {
                 Program.Logger.Debug("Land battle detected. Using TerrainGenerator.GetBattleMap().");
                 battleMap = TerrainGenerator.GetBattleMap(); // Existing logic for land battles
-            }
             
-            Program.Logger.Debug($"Battle map selected: X={battleMap.X}, Y={battleMap.Y}");
-            var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
-            var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
+                var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
+                var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(false);
 
-            bool shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
-            bool shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
+                bool shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
+                bool shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
 
-            if (shouldPlayerRotateDeployment || shouldEnemyRotateDeployment)
-            {
-                Deployments.beta_SetSidesDirections(total_soldiers, battleMap, true);
+                if (shouldPlayerRotateDeployment || shouldEnemyRotateDeployment)
+                {
+                    Deployments.beta_SetSidesDirections(total_soldiers, battleMap, true);
+                }
+                else
+                    Deployments.beta_SetSidesDirections(total_soldiers, battleMap, false);
             }
-            else
-                Deployments.beta_SetSidesDirections(total_soldiers, battleMap, false);
 
 
 
@@ -1158,7 +1159,7 @@ namespace CrusaderWars
             
             string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers)}\"/>\n\n";
 
-            File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
+            File.AppendAllText(battlePath, PR_PlayableArea);
         }
 
         private static void SetBattleTerrain(string X, string Y, string weather_key, string attila_map)

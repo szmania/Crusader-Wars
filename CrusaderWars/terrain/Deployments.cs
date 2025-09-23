@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using CrusaderWars.client;
+using CrusaderWars.twbattle;
 
 namespace CrusaderWars.terrain
 {
@@ -161,6 +162,27 @@ namespace CrusaderWars.terrain
 
         }
 
+        public static void beta_SetSiegeDeployment((string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, int total_soldiers)
+        {
+            // Defender is at the center (0,0) because the map tile has been moved to the settlement's coordinates.
+            defender_direction = "S"; // Default direction, provides a forward-facing orientation.
+            defender_deployment = "<deployment_area>\n" +
+                                  $"<centre x =\"0.00\" y =\"0.00\"/>\n" +
+                                  $"<width metres =\"250\"/>\n" + // A reasonable fixed size for a garrison inside a settlement
+                                  $"<height metres =\"250\"/>\n" +
+                                  $"<orientation radians =\"{ROTATION_0º}\"/>\n" +
+                                  "</deployment_area>\n\n";
+
+            // Attacker gets a random direction from the edges of the map.
+            Random random = new Random();
+            string[] coords = { "N", "S", "E", "W" };
+            int index = random.Next(0, 4);
+            attacker_direction = coords[index];
+
+            // Use existing logic to place the attacker at the map edge.
+            attacker_deployment = Directions.SetDirection(attacker_direction, total_soldiers);
+        }
+
         public static string? beta_GetDeployment(string combat_side)
         {
 
@@ -206,21 +228,31 @@ namespace CrusaderWars.terrain
 
             if (option_map_size == "Dynamic")
             {
-                if (total_soldiers <= 5000)
+                if (BattleState.IsSiegeBattle)
                 {
-                    MapSize = "Medium";
+                    int holdingLevel = Sieges.GetHoldingLevel();
+                    if (holdingLevel <= 2) { MapSize = "Medium"; }
+                    else if (holdingLevel <= 4) { MapSize = "Big"; }
+                    else { MapSize = "Huge"; }
                 }
-                else if (total_soldiers > 5000 && total_soldiers < 20000)
+                else // Field battle
                 {
-                    MapSize = "Big";
-                }
-                else if (total_soldiers >= 20000)
-                {
-                    MapSize = "Huge";
-                }
-                else
-                {
-                    MapSize = "Medium"; // Default to medium if total_soldiers is outside expected range
+                    if (total_soldiers <= 5000)
+                    {
+                        MapSize = "Medium";
+                    }
+                    else if (total_soldiers > 5000 && total_soldiers < 20000)
+                    {
+                        MapSize = "Big";
+                    }
+                    else if (total_soldiers >= 20000)
+                    {
+                        MapSize = "Huge";
+                    }
+                    else
+                    {
+                        MapSize = "Medium"; // Default to medium if total_soldiers is outside expected range
+                    }
                 }
             }
             else
@@ -400,8 +432,25 @@ namespace CrusaderWars.terrain
             Direction = direction;
             MapSize = option_map_size;
 
-            BattleMap(option_map_size, total_soldiers);
-            UnitsPositionament();
+            if (BattleState.IsSiegeBattle)
+            {
+                // Attacker starts at the edge, as normal.
+                if (direction == Deployments.beta_GeDirection("attacker"))
+                {
+                    BattleMap(option_map_size, total_soldiers);
+                    UnitsPositionament();
+                }
+                else // Defender starts at the center (0,0).
+                {
+                    X = 0;
+                    Y = 0;
+                }
+            }
+            else // Field battle
+            {
+                BattleMap(option_map_size, total_soldiers);
+                UnitsPositionament();
+            }
         }
 
         /// <summary>
@@ -465,21 +514,31 @@ namespace CrusaderWars.terrain
         {
             if(option_map_size == "Dynamic")
             {
-                if (total_soldiers <= 5000)
+                if (BattleState.IsSiegeBattle)
                 {
-                    MapSize = "Medium";
+                    int holdingLevel = Sieges.GetHoldingLevel();
+                    if (holdingLevel <= 2) { MapSize = "Medium"; }
+                    else if (holdingLevel <= 4) { MapSize = "Big"; }
+                    else { MapSize = "Huge"; }
                 }
-                else if (total_soldiers > 5000 && total_soldiers < 20000)
+                else // Field battle
                 {
-                    MapSize = "Big";
-                }
-                else if (total_soldiers >= 20000)
-                {
-                    MapSize = "Huge";
-                }
-                else
-                {
-                    MapSize = "Medium"; // Default to medium if total_soldiers is outside expected range
+                    if (total_soldiers <= 5000)
+                    {
+                        MapSize = "Medium";
+                    }
+                    else if (total_soldiers > 5000 && total_soldiers < 20000)
+                    {
+                        MapSize = "Big";
+                    }
+                    else if (total_soldiers >= 20000)
+                    {
+                        MapSize = "Huge";
+                    }
+                    else
+                    {
+                        MapSize = "Medium"; // Default to medium if total_soldiers is outside expected range
+                    }
                 }
             }
             else
