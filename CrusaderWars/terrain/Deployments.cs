@@ -432,47 +432,90 @@ namespace CrusaderWars.terrain
 
         private void HorizontalSize()
         {
-            // Original depth for field battles
-            switch (MapSize)
+            if (BattleState.IsSiegeBattle)
             {
-                case "Medium":
-                    Width = "800";
-                    Height = "200";
-                    break;
-                case "Big":
-                    Width = "1300";
-                    Height = "400";
-                    break;
-                case "Huge":
-                    Width = "1800";
-                    Height = "600";
-                    break;
-                default:
-                    throw new ArgumentException($"Invalid MapSize '{MapSize}'.");
+                switch (MapSize)
+                {
+                    case "Medium":
+                        Width = "1200";
+                        Height = "150";
+                        break;
+                    case "Big":
+                        Width = "1800";
+                        Height = "250";
+                        break;
+                    case "Huge":
+                        Width = "2400";
+                        Height = "350";
+                        break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
+                }
+            }
+            else // Field battle
+            {
+                switch (MapSize)
+                {
+                    case "Medium":
+                        Width = "1000";
+                        Height = "200";
+                        break;
+                    case "Big":
+                        Width = "1600";
+                        Height = "400";
+                        break;
+                    case "Huge":
+                        Width = "2200";
+                        Height = "600";
+                        break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for field battle.");
+                }
             }
         }
 
         private void VerticalSize()
         {
-            // Original depth for field battles
-            switch (MapSize)
+            if (BattleState.IsSiegeBattle)
             {
-                case "Medium":
-                    Width = "200";
-                    Height = "800";
-                    break;
-                case "Big":
-                    Width = "400";
-                    Height = "1300";
-                    break;
-                case "Huge":
-                    Width = "600";
-                    Height = "1800";
-                    break;
-                default:
-                    throw new ArgumentException($"Invalid MapSize '{MapSize}'.");
+                switch (MapSize)
+                {
+                    case "Medium":
+                        Width = "150";
+                        Height = "1200";
+                        break;
+                    case "Big":
+                        Width = "250";
+                        Height = "1800";
+                        break;
+                    case "Huge":
+                        Width = "350";
+                        Height = "2400";
+                        break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
+                }
             }
-
+            else // Field battle
+            {
+                switch (MapSize)
+                {
+                    case "Medium":
+                        Width = "200";
+                        Height = "1000";
+                        break;
+                    case "Big":
+                        Width = "400";
+                        Height = "1600";
+                        break;
+                    case "Huge":
+                        Width = "600";
+                        Height = "2200";
+                        break;
+                    default:
+                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for field battle.");
+                }
+            }
         }
     }
 
