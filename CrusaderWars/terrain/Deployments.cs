@@ -172,15 +172,8 @@ namespace CrusaderWars.terrain
 
         public static void beta_SetSiegeDeployment((string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, int total_soldiers)
         {
-            // Convert settlement's abstract coordinates (0.0-1.0) to absolute meter coordinates.
-            float.TryParse(ModOptions.SetMapSize(total_soldiers), NumberStyles.Any, CultureInfo.InvariantCulture, out float mapDimension);
-            float.TryParse(battle_map.x, NumberStyles.Any, CultureInfo.InvariantCulture, out float x_float);
-            float.TryParse(battle_map.y, NumberStyles.Any, CultureInfo.InvariantCulture, out float y_float);
-            float x_meters = (x_float - 0.5f) * mapDimension;
-            float y_meters = (y_float - 0.5f) * mapDimension;
-
-            siege_center_x = x_meters.ToString("F2", CultureInfo.InvariantCulture);
-            siege_center_y = y_meters.ToString("F2", CultureInfo.InvariantCulture);
+            siege_center_x = "0.00";
+            siege_center_y = "0.00";
 
             // Defender is at the center of the settlement.
             defender_direction = "S"; // Default direction, provides a forward-facing orientation.
