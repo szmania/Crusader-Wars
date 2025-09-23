@@ -20,7 +20,9 @@ namespace CrusaderWars
         public string? ArmyUnitID { get; set; }
 
         public List<Army> MergedArmies { get; private set; } = new List<Army>();
+        // For field armies, this list is populated from the save file and converted into the Units list.
         public List<ArmyRegiment> ArmyRegiments { get; private set; } = new List<ArmyRegiment>();
+        // Contains the final list of units for battle. For garrison armies, this list is populated directly, bypassing the ArmyRegiments structure.
         public List<Unit> Units { get; private set; } = new List<Unit>();
         public KnightSystem? Knights { get; private set; }
         public CommanderSystem? Commander { get; private set; }

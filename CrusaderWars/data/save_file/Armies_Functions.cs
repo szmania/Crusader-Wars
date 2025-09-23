@@ -557,6 +557,8 @@ namespace CrusaderWars.data.save_file
                 // Skip garrison armies as their units are handled by placeholder logic
                 if (army.IsGarrisonArmy)
                 {
+                    // Garrison armies are not created from regiments. They start with a placeholder unit
+                    // which is later expanded by ExpandGarrisonArmies. Therefore, we skip this conversion process.
                     Program.Logger.Debug($"Skipping unit creation from regiments for garrison army {army.ID}. Units already set by placeholder.");
                     continue;
                 }
@@ -738,6 +740,10 @@ namespace CrusaderWars.data.save_file
             return units;
         }
 
+        /// <summary>
+        /// Finds garrison armies, replaces their single placeholder unit with a full list of distributed units
+        /// based on the holding's level and culture, and populates the army's 'Units' list directly.
+        /// </summary>
         internal static void ExpandGarrisonArmies(List<Army> armies)
         {
             Program.Logger.Debug("START ExpandGarrisonArmies: Expanding placeholder garrison units.");
