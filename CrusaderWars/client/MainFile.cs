@@ -1278,8 +1278,11 @@ namespace CrusaderWars
                     SaveFile.Uncompress();
                     Reader.ReadFile(path_editedSave);
                     DataSearch.FindSiegeCombatID();
-                    BattleResult.GetPlayerCombatResult();
-                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                    if (!twbattle.BattleState.IsSiegeBattle)
+                    {
+                        BattleResult.GetPlayerCombatResult();
+                        BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                    }
                 }
                 catch(Exception ex)
                 {
@@ -1997,8 +2000,12 @@ namespace CrusaderWars
                 SetPlaythrough();
                 AttilaModManager.CreateUserModsFile();
 
-                BattleResult.GetPlayerCombatResult();
-                BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                DataSearch.FindSiegeCombatID();
+                if (!twbattle.BattleState.IsSiegeBattle)
+                {
+                    BattleResult.GetPlayerCombatResult();
+                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                }
                 var armies = ArmiesReader.ReadBattleArmies();
                 attacker_armies = armies.attacker;
                 defender_armies = armies.defender;
