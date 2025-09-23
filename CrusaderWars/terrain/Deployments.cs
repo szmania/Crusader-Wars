@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
+using System.Globalization; // Added for CultureInfo
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -19,6 +20,13 @@ namespace CrusaderWars.terrain
         static string ROTATION_0º = "0.00";
         static string ROTATION_180º = "3.14";
         static string ROTATION_360º = "6.28";
+
+        // Siege center coordinates in meters
+        private static string siege_center_x = "0.00";
+        private static string siege_center_y = "0.00";
+
+        public static string GetSiegeCenterX() { return siege_center_x; }
+        public static string GetSiegeCenterY() { return siege_center_y; }
 
 
         struct Directions
@@ -164,10 +172,20 @@ namespace CrusaderWars.terrain
 
         public static void beta_SetSiegeDeployment((string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, int total_soldiers)
         {
-            // Defender is at the center (0,0) because the map tile has been moved to the settlement's coordinates.
+            // Convert settlement's abstract coordinates (0.0-1.0) to absolute meter coordinates.
+            float mapDimension = ModOptions.SetMapSize(total_soldiers);
+            float.TryParse(battle_map.x, NumberStyles.Any, CultureInfo.InvariantCulture, out float x_float);
+            float.TryParse(battle_map.y, NumberStyles.Any, CultureInfo.InvariantCulture, out float y_float);
+            float x_meters = (x_float - 0.5f) * mapDimension;
+            float y_meters = (y_float - 0.5f) * mapDimension;
+
+            siege_center_x = x_meters.ToString("F2", CultureInfo.InvariantCulture);
+            siege_center_y = y_meters.ToString("F2", CultureInfo.InvariantCulture);
+
+            // Defender is at the center of the settlement.
             defender_direction = "S"; // Default direction, provides a forward-facing orientation.
             defender_deployment = "<deployment_area>\n" +
-                                  $"<centre x =\"0.00\" y =\"0.00\"/>\n" +
+                                  $"<centre x =\"{siege_center_x}\" y =\"{siege_center_y}\"/>\n" +
                                   $"<width metres =\"250\"/>\n" + // A reasonable fixed size for a garrison inside a settlement
                                   $"<height metres =\"250\"/>\n" +
                                   $"<orientation radians =\"{ROTATION_0º}\"/>\n" +
@@ -440,10 +458,13 @@ namespace CrusaderWars.terrain
                     BattleMap(option_map_size, total_soldiers);
                     UnitsPositionament();
                 }
-                else // Defender starts at the center (0,0).
+                else // Defender starts at the center of the settlement.
                 {
-                    X = 0;
-                    Y = 0;
+                    // Use the pre-calculated meter coordinates.
+                    float.TryParse(Deployments.GetSiegeCenterX(), NumberStyles.Any, CultureInfo.InvariantCulture, out float x_float);
+                    float.TryParse(Deployments.GetSiegeCenterY(), NumberStyles.Any, CultureInfo.InvariantCulture, out float y_float);
+                    X = (int)x_float;
+                    Y = (int)y_float;
                 }
             }
             else // Field battle
