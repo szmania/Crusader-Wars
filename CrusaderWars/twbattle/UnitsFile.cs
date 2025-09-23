@@ -226,7 +226,7 @@ namespace CrusaderWars
             //    GARRISON     #
             //                 #
             //##################
-            var garrison_units = army.Units.Where(item => item.GetName() == "Garrison").ToList();
+            var garrison_units = army.Units.Where(item => item.GetRegimentType() == RegimentType.Garrison).ToList();
             if (garrison_units.Any())
             {
                 // Group garrisons by their target Attila faction to prevent duplicate generation
@@ -256,7 +256,7 @@ namespace CrusaderWars
                         garrisonCulture = army.Owner.GetCulture();
                     }
 
-                    Unit merged_garrison_unit = new Unit("Garrison", total_faction_garrison_soldiers, garrisonCulture, RegimentType.Levy, faction_group.Any(u => u.IsMerc()));
+                    Unit merged_garrison_unit = new Unit("Garrison", total_faction_garrison_soldiers, garrisonCulture, RegimentType.Garrison, faction_group.Any(u => u.IsMerc()));
                     merged_garrison_unit.SetAttilaFaction(factionName);
                     merged_garrison_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
 
@@ -274,7 +274,7 @@ namespace CrusaderWars
                 //                 #
                 //##################
     
-                var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy && item.GetName() != "Garrison").ToList();
+                var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy).ToList();
                 if (levies_units.Any())
                 {
                     // Group levies by their target Attila faction to prevent duplicate generation
@@ -326,7 +326,7 @@ namespace CrusaderWars
             {
                 string unitName = unit.GetName();
                 //Skip if its not a Men at Arms Unit
-                if (unitName == "General" || unit.GetRegimentType() == RegimentType.Knight || unit.GetRegimentType() == RegimentType.Levy) continue;
+                if (unitName == "General" || unit.GetRegimentType() == RegimentType.Knight || unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison) continue;
 
                 string attilaUnitKey = unit.GetAttilaUnitKey();
                 if (string.IsNullOrEmpty(attilaUnitKey) || attilaUnitKey == UnitMappers_BETA.NOT_FOUND_KEY)

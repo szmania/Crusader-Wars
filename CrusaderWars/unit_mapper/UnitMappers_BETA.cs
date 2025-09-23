@@ -26,7 +26,7 @@ namespace CrusaderWars.unit_mapper
     internal class UniqueSettlementMap
     {
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; = new List<SettlementVariant>();
     }
 
     class TerrainsUM
@@ -453,7 +453,7 @@ namespace CrusaderWars.unit_mapper
                                 // New Garrison handling
                                 if (node.Name == "Garrison" && node.Attributes?["max"] != null)
                                 {
-                                    if (unit.GetName() == "Garrison") // Check if it's a garrison unit
+                                    if (unit.GetRegimentType() == RegimentType.Garrison) // Changed from unit.GetName() == "Garrison"
                                     {
                                         string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);
@@ -498,7 +498,7 @@ namespace CrusaderWars.unit_mapper
                                 // New Garrison handling
                                 if (node.Name == "Garrison")
                                 {
-                                    if (unit.GetName() == "Garrison" && node.Attributes?["max"] != null)
+                                    if (unit.GetRegimentType() == RegimentType.Garrison && node.Attributes?["max"] != null) // Changed from unit.GetName() == "Garrison"
                                     {
                                         string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);
@@ -865,7 +865,7 @@ namespace CrusaderWars.unit_mapper
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY;
             //Garrison units also skip this, as their keys are set directly
-            if (unit.GetName() == "Garrison") return NOT_FOUND_KEY;
+            if (unit.GetRegimentType() == RegimentType.Garrison) return NOT_FOUND_KEY; // Changed from unit.GetName() == "Garrison"
 
             string unit_key = "";
             foreach (var xml_file in files_paths)
@@ -913,7 +913,7 @@ namespace CrusaderWars.unit_mapper
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY ;
             //Garrison units also skip this, as their keys are set directly
-            if (unit.GetName() == "Garrison") return NOT_FOUND_KEY;
+            if (unit.GetRegimentType() == RegimentType.Garrison) return NOT_FOUND_KEY; // Changed from unit.GetName() == "Garrison"
 
             string specific_unit_key = NOT_FOUND_KEY;
             string default_unit_key = NOT_FOUND_KEY;
@@ -1089,7 +1089,7 @@ namespace CrusaderWars.unit_mapper
         public static string GetUnitKey(Unit unit)
         {
             // If the unit is a Garrison unit, its key is already set directly from the XML
-            if (unit.GetName() == "Garrison" && unit.GetAttilaUnitKey() != string.Empty)
+            if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty) // Changed from unit.GetName() == "Garrison"
             {
                 return unit.GetAttilaUnitKey();
             }
@@ -1121,7 +1121,7 @@ namespace CrusaderWars.unit_mapper
         public static string GetDefaultUnitKey(RegimentType type)
         {
             if (type == RegimentType.Levy) return NOT_FOUND_KEY; // Levies are handled separately
-            if (type == RegimentType.Levy && type == RegimentType.MenAtArms) return NOT_FOUND_KEY; // Garrison units are handled separately
+            if (type == RegimentType.Garrison) return NOT_FOUND_KEY; // Garrison units are handled separately // Changed from `if (type == RegimentType.Levy && type == RegimentType.MenAtArms)`
 
             if (LoadedUnitMapper_FolderPath == null)
             {

@@ -173,7 +173,8 @@ namespace CrusaderWars.data.save_file
         Commander,
         MenAtArms,
         Levy,
-        Knight
+        Knight,
+        Garrison // Added Garrison regiment type
     };
 
     public class ArmyRegiment
@@ -198,6 +199,7 @@ namespace CrusaderWars.data.save_file
         {
             Type = type;
             if (type == RegimentType.Levy) MAA_Name = "Levy";
+            if (type == RegimentType.Garrison) MAA_Name = "Garrison"; // Set MAA_Name for Garrison
         }
         public void SetType(RegimentType type, string maa_name)
         {

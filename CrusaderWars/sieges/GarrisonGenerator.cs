@@ -71,7 +71,7 @@ namespace CrusaderWars.sieges
             garrisonArmy.SetIsGarrison(true);
 
             // Create a single placeholder unit for the garrison
-            var unit = new Unit("Garrison", garrisonSize, new Culture(cultureID), RegimentType.Levy);
+            var unit = new Unit("Garrison", garrisonSize, new Culture(cultureID), RegimentType.Garrison);
             garrisonArmy.Units.Add(unit);
 
             Program.Logger.Debug($"Created garrison placeholder army with {garrisonSize} soldiers for culture ID {cultureID}.");
@@ -157,7 +157,7 @@ namespace CrusaderWars.sieges
                     Program.Logger.Debug($"Allocating {soldiers} soldiers to distributed garrison unit '{unit_key}' (original name: {name})");
                     // Create the Unit, which represents the soldiers in Attila.
                     // Use "Garrison" as the generic name for these distributed units.
-                    var unit = new Unit("Garrison", soldiers, garrisonCulture, RegimentType.Levy);
+                    var unit = new Unit("Garrison", soldiers, garrisonCulture, RegimentType.Garrison);
                     unit.SetUnitKey(unit_key); // Set the specific Attila unit key
                     unit.SetMax(UnitMappers_BETA.GetMax(unit)); // Get max based on the unit key/type
                     newUnits.Add(unit);
