@@ -175,12 +175,48 @@ namespace CrusaderWars.terrain
             siege_center_x = "0.00";
             siege_center_y = "0.00";
 
+            // Determine map size to scale defender deployment area appropriately
+            string mapSize;
+            string optionMapSize = ModOptions.DeploymentsZones();
+            if (optionMapSize == "Dynamic")
+            {
+                int holdingLevel = Sieges.GetHoldingLevel();
+                if (holdingLevel <= 2) { mapSize = "Medium"; }
+                else if (holdingLevel <= 4) { mapSize = "Big"; }
+                else { mapSize = "Huge"; }
+            }
+            else
+            {
+                mapSize = optionMapSize;
+            }
+
+            string width, height;
+            switch (mapSize)
+            {
+                case "Medium":
+                    width = "500";
+                    height = "500";
+                    break;
+                case "Big":
+                    width = "750";
+                    height = "750";
+                    break;
+                case "Huge":
+                    width = "1000";
+                    height = "1000";
+                    break;
+                default: // Fallback to original size if map size is unexpected
+                    width = "250";
+                    height = "250";
+                    break;
+            }
+
             // Defender is at the center of the settlement.
             defender_direction = "S"; // Default direction, provides a forward-facing orientation.
             defender_deployment = "<deployment_area>\n" +
                                   $"<centre x =\"{siege_center_x}\" y =\"{siege_center_y}\"/>\n" +
-                                  $"<width metres =\"250\"/>\n" + // A reasonable fixed size for a garrison inside a settlement
-                                  $"<height metres =\"250\"/>\n" +
+                                  $"<width metres =\"{width}\"/>\n" +
+                                  $"<height metres =\"{height}\"/>\n" +
                                   $"<orientation radians =\"{ROTATION_0º}\"/>\n" +
                                   "</deployment_area>\n\n";
 
