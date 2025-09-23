@@ -221,13 +221,60 @@ namespace CrusaderWars
             if (army_xp < 0) { army_xp = 0; }
             if (army_xp > 9) { army_xp = 9; }
 
+            //##################
+            //                 #
+            //    GARRISON     #
+            //                 #
+            //##################
+            var garrison_units = army.Units.Where(item => item.GetName() == "Garrison").ToList();
+            if (garrison_units.Any())
+            {
+                // Group garrisons by their target Attila faction to prevent duplicate generation
+                var garrison_by_faction = garrison_units.GroupBy(u => u.GetAttilaFaction());
+
+                foreach (var faction_group in garrison_by_faction)
+                {
+                    string factionName = faction_group.Key;
+                    if (string.IsNullOrEmpty(factionName) || factionName == UnitMappers_BETA.NOT_FOUND_KEY)
+                    {
+                        int soldiers = faction_group.Sum(u => u.GetSoldiers());
+                        Program.Logger.Debug($"WARNING - {soldiers} GARRISON SOLDIERS WITHOUT A FACTION FOUND. SKIPPING.");
+                        continue;
+                    }
+
+                    // Sum up all soldiers for this faction
+                    int total_faction_garrison_soldiers = faction_group.Sum(u => u.GetSoldiers());
+
+                    // Create a representative garrison unit for this faction group.
+                    var representative_unit = faction_group.OrderByDescending(u => u.GetSoldiers()).First();
+
+                    // Determine the culture for the merged garrison unit, falling back to the army owner's culture if needed.
+                    var garrisonCulture = representative_unit.GetObjCulture();
+                    if (garrisonCulture == null)
+                    {
+                        Program.Logger.Debug($"  - Garrison representative unit for faction '{factionName}' has no culture. Falling back to owner's culture.");
+                        garrisonCulture = army.Owner.GetCulture();
+                    }
+
+                    Unit merged_garrison_unit = new Unit("Garrison", total_faction_garrison_soldiers, garrisonCulture, RegimentType.Levy, faction_group.Any(u => u.IsMerc()));
+                    merged_garrison_unit.SetAttilaFaction(factionName);
+                    merged_garrison_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
+
+                    Program.Logger.Debug($"Processing garrisons for faction '{factionName}' with a total of {total_faction_garrison_soldiers} soldiers.");
+
+                    int holdingLevel = twbattle.Sieges.GetHoldingLevel();
+                    var garrison_porcentages = UnitMappers_BETA.GetFactionGarrison(factionName, holdingLevel);
+                    BETA_GarrisonComposition(merged_garrison_unit, army, garrison_porcentages, army_xp);
+                }
+            }
+
                 //##################
                 //                 #
                 //      LEVIES     #
                 //                 #
                 //##################
     
-                var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy).ToList();
+                var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy && item.GetName() != "Garrison").ToList();
                 if (levies_units.Any())
                 {
                     // Group levies by their target Attila faction to prevent duplicate generation
@@ -413,6 +460,79 @@ namespace CrusaderWars
 
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                i++;
+            }
+        }
+
+        static void BETA_GarrisonComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_garrison_porcentages, int army_xp)
+        {
+            if (faction_garrison_porcentages == null || faction_garrison_porcentages.Count < 1)
+            {
+                Program.Logger.Debug("ERROR - GARRISON WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
+                return;
+            }
+
+            // Removed: MAA filtering logic is not needed for garrisons.
+
+            var Garrison_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
+
+            int total_soldiers = unit.GetSoldiers();
+
+            //  SINGULAR UNIT
+            //  select random garrison type
+            if (unit.GetSoldiers() <= unit.GetMax())
+            {
+                Random r = new Random();
+                var random = faction_garrison_porcentages[r.Next(faction_garrison_porcentages.Count)];
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEGarrison{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                BattleFile.AddUnit(random.unit_key, Garrison_Data.UnitSoldiers, 1, Garrison_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                
+                string logLine = $"    - Garrison Attila Unit: {random.unit_key}, Soldiers: {Garrison_Data.UnitSoldiers} (1x unit of {Garrison_Data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                BattleLog.AddLevyLog(army.ID, logLine); // Keep AddLevyLog as per instruction, only text changed
+
+                i++;
+                return;
+            }
+
+
+            //  MULTIPLE UNITS
+            //  fulfill every garrison type
+            int garrisonSoldiers = unit.GetSoldiers();
+
+            int totalPercentageSum = faction_garrison_porcentages.Sum(p => p.porcentage);
+            if (totalPercentageSum <= 0)
+            {
+                Program.Logger.Debug($"  BETA_GarrisonComposition ({army.CombatSide}): WARNING: Total percentage sum for garrisons is 0 or less for faction '{unit.GetAttilaFaction()}'. No garrison units will be generated.");
+                return;
+            }
+
+            int assignedSoldiers = 0;
+            for (int k = 0; k < faction_garrison_porcentages.Count; k++)
+            {
+                var porcentageData = faction_garrison_porcentages[k];
+                int result;
+
+                if (k < faction_garrison_porcentages.Count - 1)
+                {
+                    double t = (double)porcentageData.porcentage / totalPercentageSum;
+                    result = (int)Math.Round(garrisonSoldiers * t);
+                }
+                else
+                {
+                    // Last unit gets the remainder to ensure total is correct
+                    result = garrisonSoldiers - assignedSoldiers;
+                }
+
+                if (result <= 0) continue;
+
+                assignedSoldiers += result;
+
+                var garrison_type_data = RetriveCalculatedUnits(result, unit.GetMax());
+                string logLine = $"    - Garrison Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({garrison_type_data.UnitNum}x units of {garrison_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                BattleLog.AddLevyLog(army.ID, logLine); // Keep AddLevyLog as per instruction, only text changed
+
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEGarrison{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                BattleFile.AddUnit(porcentageData.unit_key, garrison_type_data.UnitSoldiers, garrison_type_data.UnitNum, garrison_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
         }
