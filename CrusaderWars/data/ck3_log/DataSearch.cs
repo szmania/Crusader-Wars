@@ -661,7 +661,7 @@ namespace CrusaderWars
                 if (provinceIDLine.Contains("ONCLICK:PROVINCE"))
                 {
                     // Complex format (siege battle)
-                    Match match = Regex.Match(provinceIDLine, @"ONCLICK:PROVINCE,(\d+)");
+                    Match match = Regex.Match(provinceIDLine, @"ONCLICK:PROVINCE[,]*(\d+)");
                     if (match.Success)
                     {
                         provinceID = match.Groups[1].Value;

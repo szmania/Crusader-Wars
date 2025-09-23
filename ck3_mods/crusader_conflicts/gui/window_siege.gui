@@ -603,7 +603,7 @@ window = {
 					############################################################					
 
 					button = { name = Siege_Button
-						tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(SiegeWindow.GetSiege.GetAttackerSide.GetSoftCasualties, '(CFixedPoint)0'), 'cw_bw_fight_button', 'cw_bw_wait_button')]"
+						tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(SiegeWindow.GetSiege.GetAttackerSide.GetSoftCasualties, '(CFixedPoint)0'), 'cc_siege_fight_button', 'cc_siege_wait_button')]"
 						enabled = "[GreaterThan_CFixedPoint(SiegeWindow.GetSiege.GetAttackerSide.GetSoftCasualties, '(CFixedPoint)0')]"
 						parentanchor = left
 						position = { 0 0 }
@@ -621,8 +621,8 @@ window = {
 							duration = 0.01
 							next = "log_year"
 							on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
-							on_start = "[GetScriptedGui('cw_siege_data_gui').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('cw_siege_data_gui',SiegeWindow.GetSiege.MakeScope).End)]"
-							on_start = "[GetScriptedGui('cw_attacker_army_data_gui').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('cw_attacker_army_data_gui',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
+							on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
+							on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
 						}
 
 						state = {
@@ -658,6 +658,7 @@ window = {
 							name = "log_enemy_realm"
 							duration = 0.01
 							next = "log_player_char_id"
+							on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
 							on_finish = "[ExecuteConsoleCommand(Localize('defender_realm'))]"	
 						}
 						
@@ -803,7 +804,7 @@ window = {
 							duration = 0.01
 							next = "log_garrison_heritage"
 							on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Concatenate('Garrison Size:', Localize('garrison_num')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonSize:', Localize('garrison_num')))]"
 						}
 
 				        state = {
@@ -815,7 +816,7 @@ window = {
 						state = {
 							name = "log_garrison_culture"
 							duration = 0.01
-							next = "log_sickness"
+							next = "log_holding_level"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonCulture:', Localize('garrison_culture')))]"
 						}
 
@@ -823,7 +824,7 @@ window = {
 							name = "log_holding_level"
 							duration = 0.01
 							next = "log_sickness"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', Localize('holding_level_loc')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
 						}
 						state = {
 							name = "log_sickness"
@@ -952,7 +953,7 @@ window = {
 						state = {
 							name = "log_keyword"
 							duration = 0.01
-							#nex`t = "save_game_readable"
+						    next = "save_game_readable"
 							on_finish = "[ExecuteConsoleCommand('BattleType:SIEGE')]"
 						}
 						state = {

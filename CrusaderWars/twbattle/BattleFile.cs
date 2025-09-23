@@ -1151,7 +1151,7 @@ namespace CrusaderWars
             
             string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers)}\"/>\n\n";
 
-            File.AppendAllText(battlePath, PR_PlayableArea);
+            File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
         }
 
         private static void SetBattleTerrain(string X, string Y, string weather_key, string attila_map)

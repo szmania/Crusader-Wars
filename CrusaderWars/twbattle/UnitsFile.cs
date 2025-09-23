@@ -27,7 +27,7 @@ namespace CrusaderWars
         public static void ResetProcessedArmies()
         {
             processedArmyIDs.Clear();
-            Program.Logger.Debug($"Cleared processed armies lsit.");
+            Program.Logger.Debug($"Cleared processed armies list.");
         }
 
         public static (int UnitSoldiers, int UnitNum, int SoldiersRest) RetriveCalculatedUnits(int soldiers, int unit_limit)

@@ -1,15 +1,20 @@
-
-cw_attacker_army_data_gui = {
+﻿
+attacker_side = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = attacker_army_var value = scope:cw_attacker_army_data_gui}
+        set_variable = {name = attacker_army value = scope:attacker_side}
     }
 }
 
-cw_siege_data_gui = {
+siege_data = {
     effect = {
         debug_log_scopes = yes
-        set_variable = {name = siege_data_var value = scope:cw_siege_data_gui}
+        set_variable = {name = siege_var value = scope:siege_data}
     }
 }
-
+holding_level = {
+    effect = {
+        debug_log_scopes = yes
+        set_variable = {name = holding_level_var value = scope:holding_level}
+    }
+}
