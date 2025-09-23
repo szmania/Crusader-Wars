@@ -91,7 +91,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition();
+            SetVictoryCondition(player_army);
             //Write essential data
             CloseAlliance();
             //Write essential data
@@ -109,7 +109,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition();
+            SetVictoryCondition(enemy_main_army);
             //Write essential data
             CloseAlliance();
             //Write battle description
@@ -255,7 +255,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition();
+            SetVictoryCondition(player_main_army);
             //Write essential data
             CloseAlliance();
             //Write essential data
@@ -290,7 +290,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition();
+            SetVictoryCondition(enemy_main_army);
             //Write essential data
             CloseAlliance();
             //Write battle description
@@ -391,7 +391,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition();
+            SetVictoryCondition(player_main_army);
             //Write essential data
             CloseAlliance();
             //Write essential data
@@ -421,7 +421,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition();
+            SetVictoryCondition(enemy_main_army);
             //Write essential data
             CloseAlliance();
             //Write battle description
@@ -1023,10 +1023,10 @@ namespace CrusaderWars
 
 
 
-        private static void SetVictoryCondition()
+        private static void SetVictoryCondition(Army army)
         {
             string captureSettlementVictoryConditionTag = "";
-            if (twbattle.BattleState.IsSiegeBattle)
+            if (twbattle.BattleState.IsSiegeBattle && army.CombatSide == "attacker")
             {
                 captureSettlementVictoryConditionTag = "<victory_condition>\n" +
                     "<capture_settlement></capture_settlement>\n" +
