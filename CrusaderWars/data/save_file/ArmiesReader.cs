@@ -94,8 +94,7 @@ namespace CrusaderWars.data.save_file
                         string garrisonCultureID = twbattle.Sieges.GetGarrisonCulture();
                         string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
 
-                        var garrisonOwnerSide = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.RightSide : CK3LogData.LeftSide;
-                        var garrisonOwnerInfo = garrisonOwnerSide.GetMainParticipant();
+                        var garrisonOwnerInfo = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.RightSide.GetMainParticipant() : CK3LogData.LeftSide.GetMainParticipant();
                         var garrisonOwner = new Owner(garrisonOwnerInfo.id, new Culture(garrisonOwnerInfo.culture_id));
 
                         garrisonArmy = sieges.GarrisonGenerator.GenerateGarrisonArmy(garrisonSize, garrisonCultureID, garrisonHeritage, garrisonOwner, true);
