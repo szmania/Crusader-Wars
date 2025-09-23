@@ -79,15 +79,15 @@ namespace CrusaderWars.sieges
         }
 
         /// <summary>
-        /// Generates a list of distributed levy units for a garrison based on its size, culture, and heritage.
+        /// Generates a list of distributed garrison units for a garrison based on its size, culture, and heritage.
         /// </summary>
         /// <param name="garrisonSize">Total number of soldiers in the garrison.</param>
         /// <param name="garrisonCulture">The culture object of the garrison.</param>
         /// <param name="heritage">The heritage name of the garrison.</param>
-        /// <returns>A list of Unit objects representing the distributed levies.</returns>
-        public static List<Unit> GenerateDistributedLevyUnits(int garrisonSize, Culture garrisonCulture, string heritage)
+        /// <returns>A list of Unit objects representing the distributed garrisons.</returns>
+        public static List<Unit> GenerateDistributedGarrisonUnits(int garrisonSize, Culture garrisonCulture, string heritage)
         {
-            Program.Logger.Debug($"Generating distributed levy units for garrison of size {garrisonSize}, culture {garrisonCulture.GetCultureName()}, heritage {heritage}.");
+            Program.Logger.Debug($"Generating distributed garrison units for garrison of size {garrisonSize}, culture {garrisonCulture.GetCultureName()}, heritage {heritage}.");
 
             List<Unit> newUnits = new List<Unit>();
             if (garrisonSize <= 0)
@@ -100,28 +100,29 @@ namespace CrusaderWars.sieges
             string attilaFaction = UnitMappers_BETA.GetAttilaFaction(cultureName, heritage);
             Program.Logger.Debug($"Determined Attila Faction for garrison: {attilaFaction}");
 
-            List<(int porcentage, string unit_key, string name, string max)> levyComposition;
+            List<(int porcentage, string unit_key, string name, string max)> garrisonComposition;
             try
             {
-                levyComposition = UnitMappers_BETA.GetFactionLevies(attilaFaction);
+                int holdingLevel = twbattle.Sieges.GetHoldingLevel();
+                garrisonComposition = UnitMappers_BETA.GetFactionGarrison(attilaFaction, holdingLevel);
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Could not get levy composition for faction '{attilaFaction}'. Error: {ex.Message}. Cannot generate distributed garrison units.");
+                Program.Logger.Debug($"Could not get garrison composition for faction '{attilaFaction}' at holding level {twbattle.Sieges.GetHoldingLevel()}. Error: {ex.Message}. Cannot generate distributed garrison units.");
                 return newUnits; // Return empty list
             }
 
-            if (!levyComposition.Any())
+            if (!garrisonComposition.Any())
             {
-                Program.Logger.Debug($"Warning: No levy composition found for faction '{attilaFaction}'. Cannot generate distributed garrison units.");
+                Program.Logger.Debug($"Warning: No garrison composition found for faction '{attilaFaction}'. Cannot generate distributed garrison units.");
                 return newUnits; // Return empty list
             }
 
             // 1. Calculate total percentage to normalize distribution
-            double totalPercentage = levyComposition.Sum(l => l.porcentage);
+            double totalPercentage = garrisonComposition.Sum(l => l.porcentage);
             if (totalPercentage == 0)
             {
-                Program.Logger.Debug($"Warning: Total percentage for levy composition is 0 for faction '{attilaFaction}'. Cannot generate distributed garrison units.");
+                Program.Logger.Debug($"Warning: Total percentage for garrison composition is 0 for faction '{attilaFaction}'. Cannot generate distributed garrison units.");
                 return newUnits; // Return empty list
             }
 
@@ -129,10 +130,10 @@ namespace CrusaderWars.sieges
             var soldiersPerType = new Dictionary<(string unit_key, string name), int>();
             int totalAllocated = 0;
 
-            foreach (var levy in levyComposition)
+            foreach (var garrisonUnit in garrisonComposition)
             {
-                int soldiersForThisType = (int)Math.Round(garrisonSize * (levy.porcentage / totalPercentage));
-                soldiersPerType[(levy.unit_key, levy.name)] = soldiersForThisType;
+                int soldiersForThisType = (int)Math.Round(garrisonSize * (garrisonUnit.porcentage / totalPercentage));
+                soldiersPerType[(garrisonUnit.unit_key, garrisonUnit.name)] = soldiersForThisType;
                 totalAllocated += soldiersForThisType;
             }
 
@@ -148,15 +149,15 @@ namespace CrusaderWars.sieges
             foreach (var kvp in soldiersPerType)
             {
                 var unit_key = kvp.Key.unit_key;
-                var name = kvp.Key.name; // This name is like "Levy_25"
+                var name = kvp.Key.name; // This name is like "Garrison_25"
                 var soldiers = kvp.Value;
 
                 if (soldiers > 0)
                 {
                     Program.Logger.Debug($"Allocating {soldiers} soldiers to distributed garrison unit '{unit_key}' (original name: {name})");
                     // Create the Unit, which represents the soldiers in Attila.
-                    // Use "Levy" as the generic name for these distributed units, as they will be merged later.
-                    var unit = new Unit("Levy", soldiers, garrisonCulture, RegimentType.Levy);
+                    // Use "Garrison" as the generic name for these distributed units.
+                    var unit = new Unit("Garrison", soldiers, garrisonCulture, RegimentType.Levy);
                     unit.SetUnitKey(unit_key); // Set the specific Attila unit key
                     unit.SetMax(UnitMappers_BETA.GetMax(unit)); // Get max based on the unit key/type
                     newUnits.Add(unit);
@@ -166,9 +167,9 @@ namespace CrusaderWars.sieges
             // Populate Attila-specific data for the newly created units
             newUnits = Armies_Functions.GetAllUnits_AttilaFaction(newUnits);
             newUnits = Armies_Functions.GetAllUnits_Max(newUnits);
-            newUnits = Armies_Functions.GetAllUnits_UnitKeys(newUnits);
+            // Removed: newUnits = Armies_Functions.GetAllUnits_UnitKeys(newUnits); // Unit keys are now set directly from XML
 
-            Program.Logger.Debug($"Finished generating {newUnits.Count} distributed levy units for garrison.");
+            Program.Logger.Debug($"Finished generating {newUnits.Count} distributed garrison units for garrison.");
             return newUnits;
         }
     }

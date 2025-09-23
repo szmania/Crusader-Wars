@@ -450,6 +450,19 @@ namespace CrusaderWars.unit_mapper
                                     else
                                         continue;
                                 }
+                                // New Garrison handling
+                                if (node.Name == "Garrison" && node.Attributes?["max"] != null)
+                                {
+                                    if (unit.GetName() == "Garrison") // Check if it's a garrison unit
+                                    {
+                                        string maxAttrValue = node.Attributes["max"]!.Value;
+                                        max = MaxType.GetMax(maxAttrValue);
+                                        Program.Logger.Debug($"Assigned max for Default Garrison (from attribute '{maxAttrValue}'): {max}");
+                                        continue;
+                                    }
+                                    else
+                                        continue;
+                                }
 
                                 if (node.Attributes?["type"]?.Value == unit.GetName())
                                 {
@@ -477,6 +490,19 @@ namespace CrusaderWars.unit_mapper
                                         string maxAttrValue = node.Attributes["max"]!.Value; 
                                         max = MaxType.GetMax(maxAttrValue); 
                                         Program.Logger.Debug($"Assigned max for specific faction '{faction}' Levy (from attribute '{maxAttrValue}'): {max}");
+                                        continue;
+                                    }
+                                    else
+                                        continue;
+                                }
+                                // New Garrison handling
+                                if (node.Name == "Garrison")
+                                {
+                                    if (unit.GetName() == "Garrison" && node.Attributes?["max"] != null)
+                                    {
+                                        string maxAttrValue = node.Attributes["max"]!.Value;
+                                        max = MaxType.GetMax(maxAttrValue);
+                                        Program.Logger.Debug($"Assigned max for specific faction '{faction}' Garrison (from attribute '{maxAttrValue}'): {max}");
                                         continue;
                                     }
                                     else
@@ -614,6 +640,60 @@ namespace CrusaderWars.unit_mapper
             return list;
         }
 
+        private static List<(int percentage, string unit_key, string name, string max, int level)> Garrison(XmlDocument factions_file, string attila_faction)
+        {
+            var garrison_nodes = factions_file.SelectNodes($"/Factions/Faction[@name=\"{attila_faction}\"]/Garrison");
+            List<(int percentage, string unit_key, string name, string max, int level)> list = new List<(int percentage, string unit_key, string name, string max, int level)>();
+
+            if (garrison_nodes?.Count == 0)
+                return list;
+
+            foreach (XmlNode garrison_node in garrison_nodes!)
+            {
+                int percentage = 0;
+                string key = string.Empty;
+                string name = string.Empty;
+                string max = MaxType.GetMax("LEVY").ToString(); // Garrisons are typically levies, use Levy max as default
+                int level = 1; // Default level
+
+                if (garrison_node.Attributes?["percentage"]?.Value is string percentageStr && Int32.TryParse(percentageStr, out int parsedPercentage))
+                {
+                    percentage = parsedPercentage;
+                }
+                else
+                {
+                    Program.Logger.Debug($"WARNING: Missing or invalid 'percentage' attribute for garrison in faction '{attila_faction}'. Defaulting to 0.");
+                }
+
+                if (garrison_node.Attributes?["key"]?.Value is string keyStr)
+                {
+                    key = keyStr;
+                }
+                else
+                {
+                    Program.Logger.Debug($"WARNING: Missing 'key' attribute for garrison in faction '{attila_faction}'. Defaulting to empty string.");
+                }
+
+                if (garrison_node.Attributes?["level"]?.Value is string levelStr && Int32.TryParse(levelStr, out int parsedLevel))
+                {
+                    level = parsedLevel;
+                }
+                else
+                {
+                    Program.Logger.Debug($"WARNING: Missing or invalid 'level' attribute for garrison in faction '{attila_faction}'. Defaulting to 1.");
+                }
+
+                name = $"Garrison_{percentage}"; // Naming convention for garrison units
+
+                if (garrison_node.Attributes?["max"] != null)
+                    max = MaxType.GetMax(garrison_node.Attributes["max"]!.Value).ToString();
+
+                list.Add((percentage, key, name, max, level));
+            }
+
+            return list;
+        }
+
 
         public static List<(int porcentage, string unit_key, string name, string max)> GetFactionLevies(string attila_faction)
         {
@@ -674,44 +754,82 @@ namespace CrusaderWars.unit_mapper
             throw new Exception($"Unit Mapper Error: Could not find any levy definitions for faction '{attila_faction}' or for the 'Default' faction. Please check your unit mapper configuration.");
         }
 
+        public static List<(int percentage, string unit_key, string name, string max)> GetFactionGarrison(string attila_faction, int holdingLevel)
+        {
+            Program.Logger.Debug($"Getting faction garrison for: '{attila_faction}' at holding level: {holdingLevel}");
+            if (LoadedUnitMapper_FolderPath == null)
+            {
+                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get faction garrison.");
+                throw new Exception("Unit mapper folder path not configured");
+            }
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            
+            List<(int percentage, string unit_key, string name, string max, int level)> allGarrisonDefinitions = new List<(int percentage, string unit_key, string name, string max, int level)>();
+
+            foreach (var xml_file in files_paths)
+            {
+                if (Path.GetExtension(xml_file) == ".xml")
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    // Collect specific faction garrisons
+                    var foundSpecific = Garrison(FactionsFile, attila_faction);
+                    if (foundSpecific.Any())
+                    {
+                        allGarrisonDefinitions.AddRange(foundSpecific);
+                        Program.Logger.Debug($"Found specific garrison definitions for faction '{attila_faction}' from file '{Path.GetFileName(xml_file)}'.");
+                    }
+
+                    // Collect default faction garrisons
+                    var foundDefault = Garrison(FactionsFile, "Default");
+                    if (foundDefault.Any())
+                    {
+                        allGarrisonDefinitions.AddRange(foundDefault);
+                        Program.Logger.Debug($"Found default garrison definitions from file '{Path.GetFileName(xml_file)}'.");
+                    }
+                }
+            }
+
+            // Filter by holding level
+            var filteredGarrisons = allGarrisonDefinitions.Where(g => g.level <= holdingLevel).ToList();
+
+            if (!filteredGarrisons.Any())
+            {
+                throw new Exception($"Unit Mapper Error: No valid garrison definitions found for faction '{attila_faction}' at holding level {holdingLevel} or below. Please check your unit mapper configuration.");
+            }
+
+            // Find the highest available level among the filtered garrisons
+            int highestAvailableLevel = filteredGarrisons.Max(g => g.level);
+            Program.Logger.Debug($"Highest available garrison level for {attila_faction} at holding level {holdingLevel} is {highestAvailableLevel}.");
+
+            // Filter again to only include units at the highest available level
+            var finalGarrisonComposition = filteredGarrisons
+                                            .Where(g => g.level == highestAvailableLevel)
+                                            .Select(g => (g.percentage, g.unit_key, g.name, g.max)) // Convert to tuple without level
+                                            .ToList();
+
+            if (!finalGarrisonComposition.Any())
+            {
+                throw new Exception($"Unit Mapper Error: After filtering by highest available level ({highestAvailableLevel}), no garrison units remain for faction '{attila_faction}'. This indicates a configuration issue.");
+            }
+
+            Program.Logger.Debug($"Final garrison composition for '{attila_faction}' at level {highestAvailableLevel} includes {finalGarrisonComposition.Count} unit types.");
+            return finalGarrisonComposition;
+        }
+
+
         public static string GetGarrisonUnit(string unitType, string culture, string heritage)
         {
             string attilaFaction = GetAttilaFaction(culture, heritage);
-            var levies = GetFactionLevies(attilaFaction);
-
-            if (!levies.Any())
-            {
-                Program.Logger.Debug($"WARNING: No levy definitions found for faction '{attilaFaction}' when getting garrison unit. Cannot generate garrison.");
-                return NOT_FOUND_KEY;
-            }
-
-            if (unitType == "levy_infantry")
-            {
-                // Find the most common non-ranged, non-cavalry levy
-                var infantry = levies.Where(l => !l.unit_key.Contains("archer") && !l.unit_key.Contains("ranged") && !l.unit_key.Contains("cavalry") && !l.unit_key.Contains("skirmisher"))
-                                     .OrderByDescending(l => l.porcentage)
-                                     .FirstOrDefault();
-                if (!string.IsNullOrEmpty(infantry.unit_key))
-                    return infantry.unit_key;
-            }
-            else if (unitType == "levy_archer")
-            {
-                // Find the most common ranged levy
-                var ranged = levies.Where(l => l.unit_key.Contains("archer") || l.unit_key.Contains("ranged") || l.unit_key.Contains("skirmisher"))
-                                   .OrderByDescending(l => l.porcentage)
-                                   .FirstOrDefault();
-                if (!string.IsNullOrEmpty(ranged.unit_key))
-                    return ranged.unit_key;
-            }
-
-            // Fallback to the most common levy unit if specific type not found
-            if (levies.Any())
-            {
-                var fallback = levies.OrderByDescending(l => l.porcentage).First();
-                Program.Logger.Debug($"Could not find specific garrison unit type '{unitType}'. Falling back to most common levy '{fallback.unit_key}'.");
-                return fallback.unit_key;
-            }
-
+            // This method is now deprecated as garrison units are directly provided by GetFactionGarrison
+            // However, if it's still called, we need a fallback.
+            // For now, it will return NOT_FOUND_KEY, as the new system provides full unit keys.
+            Program.Logger.Debug($"WARNING: GetGarrisonUnit is deprecated. Called for unitType: {unitType}, culture: {culture}, heritage: {heritage}. Returning NOT_FOUND_KEY.");
             return NOT_FOUND_KEY;
         }
 
@@ -733,6 +851,8 @@ namespace CrusaderWars.unit_mapper
             
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY;
+            //Garrison units also skip this, as their keys are set directly
+            if (unit.GetName() == "Garrison") return NOT_FOUND_KEY;
 
             string unit_key = "";
             foreach (var xml_file in files_paths)
@@ -779,6 +899,8 @@ namespace CrusaderWars.unit_mapper
 
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY ;
+            //Garrison units also skip this, as their keys are set directly
+            if (unit.GetName() == "Garrison") return NOT_FOUND_KEY;
 
             string specific_unit_key = NOT_FOUND_KEY;
             string default_unit_key = NOT_FOUND_KEY;
@@ -930,6 +1052,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     if (node is XmlComment) continue;
                     if (node.Name == "Levies") continue;
+                    if (node.Name == "Garrison") continue; // Skip Garrison nodes here
 
                     //MenAtArms
                     if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
@@ -952,6 +1075,12 @@ namespace CrusaderWars.unit_mapper
 
         public static string GetUnitKey(Unit unit)
         {
+            // If the unit is a Garrison unit, its key is already set directly from the XML
+            if (unit.GetName() == "Garrison" && unit.GetAttilaUnitKey() != string.Empty)
+            {
+                return unit.GetAttilaUnitKey();
+            }
+
             string unit_key = SearchInTitlesFile(unit);
             if (unit_key != NOT_FOUND_KEY)
             {
@@ -979,6 +1108,7 @@ namespace CrusaderWars.unit_mapper
         public static string GetDefaultUnitKey(RegimentType type)
         {
             if (type == RegimentType.Levy) return NOT_FOUND_KEY; // Levies are handled separately
+            if (type == RegimentType.Levy && type == RegimentType.MenAtArms) return NOT_FOUND_KEY; // Garrison units are handled separately
 
             if (LoadedUnitMapper_FolderPath == null)
             {
@@ -1030,6 +1160,13 @@ namespace CrusaderWars.unit_mapper
                                 else if (type == RegimentType.MenAtArms && node.Name == "MenAtArm")
                                 {
                                     // Overwrite with the last MAA unit found as a generic fallback
+                                    found_key = current_key;
+                                }
+                                else if (node.Name == "Garrison") // Default garrison unit
+                                {
+                                    // This is a generic fallback for garrison if no specific one is found.
+                                    // The actual garrison units are determined by GetFactionGarrison.
+                                    // This might be used if a unit is somehow created as "Garrison" but without a specific key.
                                     found_key = current_key;
                                 }
                             }

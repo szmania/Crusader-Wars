@@ -472,142 +472,6 @@ namespace CrusaderWars.data.save_file
         /*##############################################
          *####                  Unit                #### 
          *####--------------------------------------####
-         *####         Searcher for unit file       ####
-         *##############################################
-         */
-
-        public static (bool searchHasStarted, Army? army) SearchUnit(string unitID, List<Army> armies)
-        {
-            foreach (Army army in armies)
-            {
-                if(unitID == army.ArmyUnitID)
-                {
-                    Program.Logger.Debug($"Found army unit ID '{unitID}' in army '{army.ID}'.");
-                    return (true, army);
-                }
-            }
-            return (false, null);
-        }
-
-        /*##############################################
-         *####             Army Regiments           #### 
-         *####--------------------------------------####
-         *####    Searcher for army regiments file  ####
-         *##############################################
-         */
-
-        public static (bool searchHasStarted, ArmyRegiment? regiment) SearchArmyRegiments(string armyRegimentId, List<Army> armies)
-        {
-            foreach (Army army in armies)
-            {
-                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
-                {
-                    if(armyRegimentId == armyRegiment.ID)
-                    {
-                        Program.Logger.Debug($"Found army regiment ID '{armyRegimentId}' in army '{army.ID}'.");
-                        return (true, armyRegiment);
-                    }
-                }
-            }
-            return (false, null);
-        }
-
-        /*##############################################
-         *####               Regiments              #### 
-         *####--------------------------------------####
-         *####      Searcher for regiments file     ####
-         *##############################################
-         */
-
-        public static (bool searchHasStarted, Regiment? regiment) SearchRegiments(string regiment_id, List<Army> armies)
-        {
-            foreach(Army army in armies)
-            {
-                foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
-                {
-                    if(armyRegiment.Regiments != null)
-                    {
-                        foreach(Regiment regiment in armyRegiment.Regiments)
-                        {
-                            if(regiment.ID == regiment_id)
-                            {
-                                Program.Logger.Debug($"Found regiment ID '{regiment_id}' in army '{army.ID}'.");
-                                return (true, regiment);
-                            }
-                        }
-                    }
-                }
-            }
-            return (false, null);
-        }
-
-        /*##############################################
-         *####              CHARACTERS              #### 
-         *####--------------------------------------####
-         *####      Reader for the living file      ####
-         *##############################################
-         */
-
-        public static (bool searchStarted, Army? searchingArmy, bool isCommander, bool isMainCommander, bool isKnight, Knight? knight, bool isOwner) SearchCharacters(string id, List<Army> armies)
-        {
-            foreach (Army army in armies)
-            {
-                //Main Commanders
-                if(army.Commander != null && id == army.Commander.ID && id == army.Owner?.GetID())
-                {
-                    Program.Logger.Debug($"Found character '{id}': Main Commander and Owner of army '{army.ID}'.");
-                    return (true, army, false, true, false, null, true);
-                }
-                else if (army.Commander != null && id == army.Commander.ID)
-                {
-                    Program.Logger.Debug($"Found character '{id}': Main Commander of army '{army.ID}'.");
-                    return (true, army, false, true,false, null, false);
-                }
-
-                //Commanders
-                if(id == army.CommanderID && id == army.Owner?.GetID())
-                {
-                    Program.Logger.Debug($"Found character '{id}': Commander and Owner of army '{army.ID}'.");
-                    return (true, army, true, false, false, null, true);
-                }
-                else if (id == army.CommanderID)
-                {
-                    Program.Logger.Debug($"Found character '{id}': Commander of army '{army.ID}'.");
-                    return (true, army, true, false, false, null, false);
-                }
-
-                // KNIGHTS
-                else if (army.Knights?.GetKnightsList() != null)
-                {
-                    foreach (var knight in army.Knights.GetKnightsList())
-                    {
-                        if (id == knight.GetID() && id == army.Owner?.GetID())
-                        {
-                            Program.Logger.Debug($"Found character '{id}': Knight and Owner of army '{army.ID}'.");
-                            return (true, army, false, false,true, knight, true);
-                        }
-                        else if(id == knight.GetID())
-                        {
-                            Program.Logger.Debug($"Found character '{id}': Knight in army '{army.ID}'.");
-                            return (true, army, false, false, true, knight, false);
-                        }
-                    }
-                }
-                //ARMY OWNER
-                else if (id == army.Owner?.GetID())
-                {
-                    Program.Logger.Debug($"Found character '{id}': Owner of army '{army.ID}'.");
-                    return (true, army, false, false,false, null, true);
-                }
-            }
-
-            return (false, null, false, false,false, null, false);
-        }
-
-        
-        /*##############################################
-         *####                  Unit                #### 
-         *####--------------------------------------####
          *####   Conversion of regiments to units   ####
          *##############################################
          */
@@ -618,7 +482,7 @@ namespace CrusaderWars.data.save_file
             //Set Unit Keys
             foreach (var unit in units)
             {
-                if (unit.GetRegimentType() == RegimentType.Levy && unit.GetName() != "Levy") continue; // Skip placeholder levies
+                if (unit.GetRegimentType() == RegimentType.Levy && unit.GetName() != "Levy" && unit.GetName() != "Garrison") continue; // Skip placeholder levies and garrisons
 
                 Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', IsMercenary='{unit.IsMerc()}'");
                 string key = UnitMappers_BETA.GetUnitKey(unit);
@@ -896,11 +760,11 @@ namespace CrusaderWars.data.save_file
                     }
 
                     Program.Logger.Debug($"Expanding placeholder unit for army {army.ID} (Soldiers: {totalSoldiers}, Culture: {culture.GetCultureName()}, Heritage: {heritage}).");
-                    var newUnits = CrusaderWars.sieges.GarrisonGenerator.GenerateDistributedLevyUnits(totalSoldiers, culture, heritage);
+                    var newUnits = CrusaderWars.sieges.GarrisonGenerator.GenerateDistributedGarrisonUnits(totalSoldiers, culture, heritage);
 
                     army.Units.Remove(placeholder);
                     army.Units.AddRange(newUnits);
-                    Program.Logger.Debug($"Expanded placeholder in army {army.ID} into {newUnits.Count} distributed levy units.");
+                    Program.Logger.Debug($"Expanded placeholder in army {army.ID} into {newUnits.Count} distributed garrison units.");
                 }
                 else
                 {
