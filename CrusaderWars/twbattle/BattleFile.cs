@@ -1021,26 +1021,74 @@ namespace CrusaderWars
 
         }
 
+        private static (string x, string y) GetRoutPositionCoordinates(string direction)
+        {
+            string x = "0.00";
+            string y = "0.00";
+            string farDistance = "5000.00"; // A large distance off the map
 
+            switch (direction)
+            {
+                case "N":
+                    y = farDistance;
+                    break;
+                case "S":
+                    y = "-" + farDistance;
+                    break;
+                case "E":
+                    x = farDistance;
+                    break;
+                case "W":
+                    x = "-" + farDistance;
+                    break;
+            }
+            return (x, y);
+        }
 
         private static void SetVictoryCondition(Army army)
         {
-            string captureSettlementVictoryConditionTag = "";
-            if (twbattle.BattleState.IsSiegeBattle && army.CombatSide == "attacker")
+            StringBuilder victoryConditions = new StringBuilder();
+
+            // Always add kill_or_rout_enemy
+            victoryConditions.AppendLine("<victory_condition>");
+            victoryConditions.AppendLine("<kill_or_rout_enemy></kill_or_rout_enemy>");
+            victoryConditions.AppendLine("</victory_condition>");
+
+            if (twbattle.BattleState.IsSiegeBattle)
             {
-                captureSettlementVictoryConditionTag = "<victory_condition>\n" +
-                    "<capture_settlement></capture_settlement>\n" +
-                    "</victory_condition>\n";
+                if (army.CombatSide == "attacker")
+                {
+                    // Attacker specific conditions for siege
+                    victoryConditions.AppendLine("<victory_condition>");
+                    victoryConditions.AppendLine("<capture_settlement></capture_settlement>");
+                    victoryConditions.AppendLine("</victory_condition>");
+
+                    // Rout position for attacker (same side as deployment)
+                    string attackerDeploymentDirection = Deployments.beta_GeDirection("attacker");
+                    (string routX, string routY) = GetRoutPositionCoordinates(attackerDeploymentDirection);
+                    victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
+                    victoryConditions.AppendLine("<deploys_first></deploys_first>");
+                }
+                else // Defender specific conditions for siege
+                {
+                    victoryConditions.AppendLine("<starting_tickets>100</starting_tickets>");
+
+                    // Rout position for defender (opposite side of attacker's deployment)
+                    string attackerDeploymentDirection = Deployments.beta_GeDirection("attacker");
+                    string defenderRoutDirection = Deployments.GetOppositeDirection(attackerDeploymentDirection);
+                    (string routX, string routY) = GetRoutPositionCoordinates(defenderRoutDirection);
+                    victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
+                }
             }
-            
-            string PR_Victory = "<victory_condition>\n" +
-                                "<kill_or_rout_enemy></kill_or_rout_enemy>\n" +
-                                "</victory_condition>\n" + captureSettlementVictoryConditionTag +
-                                "<rout_position x=\"0.00\" y=\"0.00\"/>\n\n";
+            else // Not a siege battle (field battle)
+            {
+                // Default rout position for field battles
+                victoryConditions.AppendLine("<rout_position x=\"0.00\" y=\"0.00\"/>");
+            }
 
-            File.AppendAllText(battlePath, PR_Victory);
+            victoryConditions.AppendLine(); // Add an extra newline for formatting
 
-
+            File.AppendAllText(battlePath, victoryConditions.ToString());
         }
 
         private static void CloseArmy()

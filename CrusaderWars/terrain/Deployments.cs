@@ -256,6 +256,11 @@ namespace CrusaderWars.terrain
             return attacker_direction;
         }
 
+        public static string GetOppositeDirection(string direction)
+        {
+            return Directions.GetOppositeDirection(direction);
+        }
+
     }
 
     class DeploymentArea
