@@ -773,5 +773,90 @@ namespace CrusaderWars.data.save_file
             }
             Program.Logger.Debug("END ExpandGarrisonArmies.");
         }
+
+        #region SEARCH HELPERS
+        internal static (bool searchStarted, bool isKnight, bool isMainCommander, bool isCommander, bool isOwner, Army? searchingArmy, Knight? knight) SearchCharacters(string character_id, List<Army> armies)
+        {
+            foreach (var army in armies)
+            {
+                bool isOwner = army.Owner?.GetID() == character_id;
+
+                // Check Main Commander
+                if (army.isMainArmy && army.Commander?.GetID() == character_id)
+                {
+                    return (true, false, true, false, isOwner, army, null);
+                }
+
+                // Check non-main Commander
+                if (!army.isMainArmy && army.CommanderID == character_id)
+                {
+                    return (true, false, false, true, isOwner, army, null);
+                }
+
+                // Check Knights
+                if (army.Knights?.GetKnightsList() != null)
+                {
+                    foreach (var knight in army.Knights.GetKnightsList())
+                    {
+                        if (knight.GetID() == character_id)
+                        {
+                            return (true, true, false, false, isOwner, army, knight);
+                        }
+                    }
+                }
+                
+                // Check Owner only (if not a commander or knight in this army)
+                if (isOwner)
+                {
+                    return (true, false, false, false, true, army, null);
+                }
+            }
+
+            return (false, false, false, false, false, null, null);
+        }
+
+        internal static (bool searchHasStarted, Regiment? regiment) SearchRegiments(string regiment_id, List<Army> armies)
+        {
+            foreach (var army in armies)
+            {
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    foreach (var regiment in armyRegiment.Regiments)
+                    {
+                        if (regiment.ID == regiment_id)
+                        {
+                            return (true, regiment);
+                        }
+                    }
+                }
+            }
+            return (false, null);
+        }
+
+        internal static (bool searchHasStarted, Army? army) SearchUnit(string army_id, List<Army> armies)
+        {
+            var army = armies.FirstOrDefault(a => a.ID == army_id);
+            if (army != null)
+            {
+                return (true, army);
+            }
+            return (false, null);
+        }
+
+        internal static (bool searchHasStarted, ArmyRegiment? regiment) SearchArmyRegiments(string army_regiment_id, List<Army> armies)
+        {
+            foreach (var army in armies)
+            {
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment.ID == army_regiment_id)
+                    {
+                        return (true, armyRegiment);
+                    }
+                }
+            }
+            return (false, null);
+        }
+        #endregion
     }
 }
