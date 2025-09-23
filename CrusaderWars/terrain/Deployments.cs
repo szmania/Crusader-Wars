@@ -271,6 +271,19 @@ namespace CrusaderWars.terrain
                 MapSize = option_map_size;
             }
 
+            // Define base distances for field battles
+            string mediumDist = "300.00";
+            string bigDist = "450.00";
+            string hugeDist = "700.00";
+
+            // If it's a siege, use larger distances to push attackers to the map edge
+            if (BattleState.IsSiegeBattle)
+            {
+                mediumDist = "400.00";
+                bigDist = "600.00";
+                hugeDist = "900.00";
+            }
+
             X = "0.00"; // Initialize X and Y to avoid CS8618
             Y = "0.00";
             Width = "0";
@@ -282,17 +295,17 @@ namespace CrusaderWars.terrain
                 {
                     case "Medium":
                         X = "0.00";
-                        Y = "300.00";
+                        Y = mediumDist;
                         HorizontalSize();
                         break;
                     case "Big":
                         X = "0.00";
-                        Y = "450.00";
+                        Y = bigDist;
                         HorizontalSize();
                         break;
                     case "Huge":
                         X = "0.00";
-                        Y = "700.00";
+                        Y = hugeDist;
                         HorizontalSize();
                         break;
                     default:
@@ -305,17 +318,17 @@ namespace CrusaderWars.terrain
                 {
                     case "Medium":
                         X = "0.00";
-                        Y = "-300.00";
+                        Y = "-" + mediumDist;
                         HorizontalSize();
                         break;
                     case "Big":
                         X = "0.00";
-                        Y = "-450.00";
+                        Y = "-" + bigDist;
                         HorizontalSize();
                         break;
                     case "Huge":
                         X = "0.00";
-                        Y = "-700.00";
+                        Y = "-" + hugeDist;
                         HorizontalSize();
                         break;
                     default:
@@ -327,17 +340,17 @@ namespace CrusaderWars.terrain
                 switch (MapSize)
                 {
                     case "Medium":
-                        X = "-300.00";
+                        X = "-" + mediumDist;
                         Y = "0.00";
                         VerticalSize();
                         break;
                     case "Big":
-                        X = "-450.00";
+                        X = "-" + bigDist;
                         Y = "0.00";
                         VerticalSize();
                         break;
                     case "Huge":
-                        X = "-700.00";
+                        X = "-" + hugeDist;
                         Y = "0.00";
                         VerticalSize();
                         break;
@@ -350,17 +363,17 @@ namespace CrusaderWars.terrain
                 switch (MapSize)
                 {
                     case "Medium":
-                        X = "300.00";
+                        X = mediumDist;
                         Y = "0.00";
                         VerticalSize();
                         break;
                     case "Big":
-                        X = "450.00";
+                        X = bigDist;
                         Y = "0.00";
                         VerticalSize();
                         break;
                     case "Huge":
-                        X = "700.00";
+                        X = hugeDist;
                         Y = "0.00";
                         VerticalSize(); // Added this line
                         break;
