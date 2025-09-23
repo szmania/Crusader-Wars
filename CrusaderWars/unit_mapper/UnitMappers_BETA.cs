@@ -20,13 +20,13 @@ namespace CrusaderWars.unit_mapper
     {
         public string Faction { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; set; } = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
     internal class UniqueSettlementMap
     {
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; set; } = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
     class TerrainsUM
@@ -795,30 +795,43 @@ namespace CrusaderWars.unit_mapper
                 }
             }
 
-            // Filter by holding level
-            var filteredGarrisons = allGarrisonDefinitions.Where(g => g.level <= holdingLevel).ToList();
+            List<(int percentage, string unit_key, string name, string max)> finalGarrisonComposition;
 
-            if (!filteredGarrisons.Any())
+            // Attempt to find garrisons at or below the current holding level
+            var suitableGarrisons = allGarrisonDefinitions.Where(g => g.level <= holdingLevel).ToList();
+
+            if (suitableGarrisons.Any())
             {
-                throw new Exception($"Unit Mapper Error: No valid garrison definitions found for faction '{attila_faction}' at holding level {holdingLevel} or below. Please check your unit mapper configuration.");
-            }
-
-            // Find the highest available level among the filtered garrisons
-            int highestAvailableLevel = filteredGarrisons.Max(g => g.level);
-            Program.Logger.Debug($"Highest available garrison level for {attila_faction} at holding level {holdingLevel} is {highestAvailableLevel}.");
-
-            // Filter again to only include units at the highest available level
-            var finalGarrisonComposition = filteredGarrisons
+                // If suitable garrisons are found, use the highest level among them
+                int highestAvailableLevel = suitableGarrisons.Max(g => g.level);
+                Program.Logger.Debug($"Found suitable garrisons. Using highest available level: {highestAvailableLevel}");
+                finalGarrisonComposition = suitableGarrisons
                                             .Where(g => g.level == highestAvailableLevel)
-                                            .Select(g => (g.percentage, g.unit_key, g.name, g.max)) // Convert to tuple without level
+                                            .Select(g => (g.percentage, g.unit_key, g.name, g.max))
                                             .ToList();
+            }
+            else
+            {
+                // Fallback: No garrisons at or below the holding level, so use the lowest level available
+                if (!allGarrisonDefinitions.Any())
+                {
+                    throw new Exception($"Unit Mapper Error: No garrison definitions found at all for faction '{attila_faction}'.");
+                }
+
+                int lowestAvailableLevel = allGarrisonDefinitions.Min(g => g.level);
+                Program.Logger.Debug($"No garrisons found at or below holding level {holdingLevel}. Falling back to lowest available level: {lowestAvailableLevel}");
+                finalGarrisonComposition = allGarrisonDefinitions
+                                            .Where(g => g.level == lowestAvailableLevel)
+                                            .Select(g => (g.percentage, g.unit_key, g.name, g.max))
+                                            .ToList();
+            }
 
             if (!finalGarrisonComposition.Any())
             {
-                throw new Exception($"Unit Mapper Error: After filtering by highest available level ({highestAvailableLevel}), no garrison units remain for faction '{attila_faction}'. This indicates a configuration issue.");
+                throw new Exception($"Unit Mapper Error: After filtering, no garrison units remain for faction '{attila_faction}'. This indicates a configuration issue.");
             }
 
-            Program.Logger.Debug($"Final garrison composition for '{attila_faction}' at level {highestAvailableLevel} includes {finalGarrisonComposition.Count} unit types.");
+            Program.Logger.Debug($"Final garrison composition for '{attila_faction}' includes {finalGarrisonComposition.Count} unit types.");
             return finalGarrisonComposition;
         }
 

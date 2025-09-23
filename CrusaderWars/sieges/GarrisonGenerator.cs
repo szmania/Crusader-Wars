@@ -71,7 +71,7 @@ namespace CrusaderWars.sieges
             garrisonArmy.SetIsGarrison(true);
 
             // Create a single placeholder unit for the garrison
-            var unit = new Unit("GarrisonLevy", garrisonSize, new Culture(cultureID), RegimentType.Levy);
+            var unit = new Unit("Garrison", garrisonSize, new Culture(cultureID), RegimentType.Levy);
             garrisonArmy.Units.Add(unit);
 
             Program.Logger.Debug($"Created garrison placeholder army with {garrisonSize} soldiers for culture ID {cultureID}.");

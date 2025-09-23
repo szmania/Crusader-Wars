@@ -745,7 +745,7 @@ namespace CrusaderWars.data.save_file
             foreach (var army in armies.Where(a => a.IsGarrisonArmy))
             {
                 Program.Logger.Debug($"Processing garrison army: {army.ID}");
-                var placeholder = army.Units.FirstOrDefault(u => u.GetName() == "GarrisonLevy");
+                var placeholder = army.Units.FirstOrDefault(u => u.GetName() == "Garrison");
 
                 if (placeholder != null)
                 {
@@ -768,7 +768,7 @@ namespace CrusaderWars.data.save_file
                 }
                 else
                 {
-                    Program.Logger.Debug($"No 'GarrisonLevy' placeholder found in garrison army {army.ID}. Skipping expansion.");
+                    Program.Logger.Debug($"No 'Garrison' placeholder found in garrison army {army.ID}. Skipping expansion.");
                 }
             }
             Program.Logger.Debug("END ExpandGarrisonArmies.");
