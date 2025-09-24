@@ -29,6 +29,13 @@ namespace CrusaderWars.unit_mapper
         public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
+    internal class SiegeEngine
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public int SiegeEffortCost { get; set; }
+    }
+
     class TerrainsUM
     {
         string AttilaMap { get; set; }
@@ -65,6 +72,8 @@ namespace CrusaderWars.unit_mapper
         public static string? ActivePlaythroughTag { get; private set; }
         public const string NOT_FOUND_KEY = "not_found";
         private static readonly Random _random = new Random();
+
+        public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
@@ -133,6 +142,8 @@ namespace CrusaderWars.unit_mapper
 
         private static void ReadTerrainsFile()
         {
+            SiegeEngines.Clear(); // Clear the list to prevent duplicate data on re-read
+
             if(LoadedUnitMapper_FolderPath == null || !Directory.Exists($@"{LoadedUnitMapper_FolderPath}\terrains")) { Terrains = null; return; }
 
             var terrainFiles = Directory.GetFiles($@"{LoadedUnitMapper_FolderPath}\terrains");
@@ -253,6 +264,31 @@ namespace CrusaderWars.unit_mapper
                                         }
                                     }
                                     uniqueSettlementMaps.Add(uniqueSettlementMap);
+                                }
+                            }
+                        }
+                        else if (Element.Name == "Siege_Engines")
+                        {
+                            foreach (XmlElement siegeEngineNode in Element.ChildNodes)
+                            {
+                                if (siegeEngineNode.Name == "Siege_Engine")
+                                {
+                                    var siegeEngine = new SiegeEngine
+                                    {
+                                        Key = siegeEngineNode.Attributes?["key"]?.Value ?? string.Empty,
+                                        Type = siegeEngineNode.Attributes?["type"]?.Value ?? string.Empty
+                                    };
+
+                                    if (siegeEngineNode.Attributes?["siege_effort_cost"]?.Value is string costStr && int.TryParse(costStr, out int cost))
+                                    {
+                                        siegeEngine.SiegeEffortCost = cost;
+                                    }
+                                    else
+                                    {
+                                        Program.Logger.Debug($"Warning: Missing or invalid 'siege_effort_cost' for siege engine '{siegeEngine.Key}'. Defaulting to 0.");
+                                        siegeEngine.SiegeEffortCost = 0;
+                                    }
+                                    SiegeEngines.Add(siegeEngine);
                                 }
                             }
                         }

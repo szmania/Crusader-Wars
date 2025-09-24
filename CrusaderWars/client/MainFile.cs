@@ -1839,7 +1839,7 @@ namespace CrusaderWars
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
                         BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForDeathCommanders(army, path_log_attila);
+                        BattleResult.CheckForDeathCommanders(army, path_attila_log);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForDeathKnights(army);
 
