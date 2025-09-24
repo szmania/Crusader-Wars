@@ -31,6 +31,7 @@ namespace CrusaderWars.twbattle
         static int NumberSiegeEquipement { get; set; }
         static int FortLevel { get; set; }
         static string AttackerArmyComposition { get; set; } = string.Empty;
+        static double SiegeProgress { get; set; } // New property for siege progress
 
         public static void Reset()
         {
@@ -46,6 +47,7 @@ namespace CrusaderWars.twbattle
             NumberSiegeEquipement = 0;
             FortLevel = 0;
             AttackerArmyComposition = string.Empty;
+            SiegeProgress = 0; // Reset siege progress
             Program.Logger.Debug("Siege data reset.");
         }
 
@@ -56,6 +58,7 @@ namespace CrusaderWars.twbattle
         public static string GetHoldingEscalation() { return EscalationLevel; }
         public static string GetSuppliesLevel() { return SuppliesLevel; }
         public static int GetFortLevel() { return FortLevel; }
+        public static double GetSiegeProgress() { return SiegeProgress; } // New getter for siege progress
 
         public static string GetSettlementBattleMap()
         {
@@ -134,6 +137,11 @@ namespace CrusaderWars.twbattle
             AttackerArmyComposition = composition;
         }
 
+        public static void SetSiegeProgress(double progress) // New setter for siege progress
+        {
+            SiegeProgress = progress;
+            Program.Logger.Debug($"Siege progress set to: {progress}");
+        }
 
 
     }

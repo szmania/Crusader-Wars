@@ -8,6 +8,7 @@ using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.terrain;
 using System.Text;
+using System.Globalization; // Added for CultureInfo
 
 
 namespace CrusaderWars
@@ -748,7 +749,7 @@ namespace CrusaderWars
                 string? siegeId = null;
 
                 // 2. Find Siege ID from Sieges.txt
-                Program.Logger.Debug($"Searching for siege ID in {siegesPath} for province {BattleResult.ProvinceID}");
+                Program.Logger.Debug($"Searching for siege ID and progress in {siegesPath} for province {BattleResult.ProvinceID}");
                 using (StreamReader sr = new StreamReader(siegesPath))
                 {
                     string? currentBlockId = null;
@@ -764,7 +765,32 @@ namespace CrusaderWars
                         {
                             siegeId = currentBlockId;
                             Program.Logger.Debug($"Found siege ID '{siegeId}' for province {BattleResult.ProvinceID}.");
-                            break;
+
+                            // NEW LOGIC STARTS HERE: Read siege progress
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                if (line.Trim().StartsWith("progress="))
+                                {
+                                    string progressValueStr = Regex.Match(line, @"progress=([\d\.]+)").Groups[1].Value;
+                                    if (double.TryParse(progressValueStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double parsedProgress))
+                                    {
+                                        twbattle.Sieges.SetSiegeProgress(parsedProgress);
+                                        Program.Logger.Debug($"Found siege progress: {parsedProgress}");
+                                    }
+                                    else
+                                    {
+                                        Program.Logger.Debug($"Warning: Could not parse siege progress from line: '{line}'");
+                                    }
+                                    break; // Exit the inner while loop after finding progress
+                                }
+                                if (line.Trim() == "}") // Stop if we reach the end of the block
+                                {
+                                    break;
+                                }
+                            }
+                            // END OF NEW LOGIC
+
+                            break; // This existing break exits the outer while loop
                         }
                     }
                 }
