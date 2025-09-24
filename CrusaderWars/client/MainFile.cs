@@ -1216,6 +1216,7 @@ namespace CrusaderWars
                             {
                                 Program.Logger.Debug("Reading CK3 battle data from log.");
                                 Program.Logger.Debug("Searching log data...");
+                                Data.Reset();
                                 DataSearch.Search(log);
 
                                 Program.Logger.Debug("Reading installed Attila mods...");
