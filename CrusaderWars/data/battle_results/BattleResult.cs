@@ -610,7 +610,7 @@ namespace CrusaderWars
                 if (army.UnitsResults == null) return;
 
                 int remaining = 0;
-                var knightReport = default((string Script, string Type, string CultureID, string Remaining));
+                var knightReport = default((string Script, string Type, string string CultureID, string Remaining));
 
                 if (army.UnitsResults.Alive_PursuitPhase != null)
                 {
@@ -1273,7 +1273,7 @@ namespace CrusaderWars
         public static string GetAttilaWinner(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
         {
             Program.Logger.Debug($"Entering GetAttilaWinner for log file: {path_attila_log}");
-            string winner = "";
+            string winner = enemy_armies_combat_side; // Initialize to enemy as default fallback
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(logFile))
             {
@@ -1281,9 +1281,17 @@ namespace CrusaderWars
                 //winning_side=attacker/defender
                 while ((line = reader.ReadLine()) != null)
                 {
-                    if (line.Contains("Victory")) { winner = player_armies_combat_side; break; }
-                    else if (line.Contains("Defeat")) { winner = enemy_armies_combat_side; break; }
-                    else winner = enemy_armies_combat_side;
+                    if (line.Contains("Victory"))
+                    {
+                        winner = player_armies_combat_side;
+                        break;
+                    }
+                    else if (line.Contains("Defeat"))
+                    {
+                        winner = enemy_armies_combat_side;
+                        break;
+                    }
+                    // Removed the 'else winner = enemy_armies_combat_side;'
                 }
 
                 reader.Close();
