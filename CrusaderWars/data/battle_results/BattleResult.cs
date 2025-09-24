@@ -610,7 +610,7 @@ namespace CrusaderWars
                 if (army.UnitsResults == null) return;
 
                 int remaining = 0;
-                var knightReport = default((string Script, string Type, string string CultureID, string Remaining));
+                var knightReport = default((string Script, string Type, string CultureID, string Remaining));
 
                 if (army.UnitsResults.Alive_PursuitPhase != null)
                 {
