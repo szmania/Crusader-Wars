@@ -55,7 +55,7 @@ namespace CrusaderWars.unit_mapper
 
         public string GetAttilaMap() { return AttilaMap; }
         public List<(string building, string x, string y)> GetHistoricalMaps() { return HistoricalMaps; }
-        public List<(string terrain, string x, string y)> GetNormalMaps() { return NormalMaps; }
+        public List<(string terrain, string x, string string y)> GetNormalMaps() { return NormalMaps; }
         public List<SettlementMap> GetSettlementMaps() { return SettlementMaps; }
         public List<UniqueSettlementMap> GetUniqueSettlementMaps() { return UniqueSettlementMaps; }
 
@@ -267,7 +267,7 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
-                        else if (Element.Name == "Siege_Engines")
+                        else if (twbattle.BattleState.IsSiegeBattle && Element.Name == "Siege_Engines")
                         {
                             foreach (XmlElement siegeEngineNode in Element.ChildNodes)
                             {
@@ -792,6 +792,12 @@ namespace CrusaderWars.unit_mapper
 
         public static List<(int percentage, string unit_key, string name, string max)> GetFactionGarrison(string attila_faction, int holdingLevel)
         {
+            if (!twbattle.BattleState.IsSiegeBattle)
+            {
+                Program.Logger.Debug("GetFactionGarrison called for a non-siege battle. Returning empty list as a safeguard.");
+                return new List<(int, string, string, string)>();
+            }
+
             Program.Logger.Debug($"Getting faction garrison for: '{attila_faction}' at holding level: {holdingLevel}");
             if (LoadedUnitMapper_FolderPath == null)
             {
