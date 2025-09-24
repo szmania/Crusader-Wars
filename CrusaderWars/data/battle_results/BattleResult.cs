@@ -93,21 +93,48 @@ namespace CrusaderWars
             Program.Logger.Debug("Getting player combat result...");
             try
             {
-                string battle_id="";
+                string battle_id = "";
                 StringBuilder f = new StringBuilder();
-                using(StreamReader sr = new StreamReader(@".\data\save_file_data\BattleResults.txt"))
+                using (StreamReader sr = new StreamReader(@".\data\save_file_data\BattleResults.txt"))
                 {
-                    while(!sr.EndOfStream)
+                    if (twbattle.BattleState.IsSiegeBattle && SiegeID != null)
                     {
-                        string? line = sr.ReadLine();
-                        if (line == null) break;
-                        if (Regex.IsMatch(line, @"\t\t\d+={"))
+                        Program.Logger.Debug($"Searching for siege battle result using SiegeID: {SiegeID}");
+                        string? current_result_block_id = null;
+                        while (!sr.EndOfStream)
                         {
-                            battle_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
+                            string? line = sr.ReadLine();
+                            if (line == null) break;
+
+                            Match idMatch = Regex.Match(line, @"\t\t(\d+)={");
+                            if (idMatch.Success)
+                            {
+                                current_result_block_id = idMatch.Groups[1].Value;
+                            }
+                            else if (line.Trim() == $"siege={SiegeID}") // Trim for safety
+                            {
+                                battle_id = current_result_block_id ?? ""; // Use the last captured ID
+                                Program.Logger.Debug($"Found siege battle result block ID: {battle_id} for SiegeID: {SiegeID}");
+                                break;
+                            }
                         }
-                        else if (line == $"\t\t\tlocation={ProvinceID}")
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Searching for field battle result using ProvinceID: {ProvinceID}");
+                        while (!sr.EndOfStream)
                         {
-                            break;
+                            string? line = sr.ReadLine();
+                            if (line == null) break;
+                            if (Regex.IsMatch(line, @"\t\t\d+={"))
+                            {
+                                battle_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
+                            }
+                            else if (line == $"\t\t\tlocation={ProvinceID}")
+                            {
+                                Program.Logger.Debug($"Found field battle result block ID: {battle_id} for ProvinceID: {ProvinceID}");
+                                break;
+                            }
                         }
                     }
 
@@ -313,7 +340,7 @@ namespace CrusaderWars
                     }
                 }
             }
-            Program.Logger.Debug($"Found {aliveList.Count} alive reports and {killsList.Count} kill reports.");
+            Program.Logger.Debug($"Found {aliveList.Count} entries for alive reports and {killsList.Count} entries for kill reports.");
             return (aliveList, killsList);
         }
 

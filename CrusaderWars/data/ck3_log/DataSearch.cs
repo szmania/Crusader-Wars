@@ -777,10 +777,12 @@ namespace CrusaderWars
 
                 // 3. Set BattleResult IDs
                 BattleResult.SiegeID = siegeId;
-                BattleResult.CombatID = siegeId; // Crucial: Siege ID is the Combat ID for sieges
-                Program.Logger.Debug($"Set BattleResult.SiegeID and BattleResult.CombatID to '{siegeId}'.");
+                // BattleResult.CombatID = siegeId; // Crucial: Siege ID is the Combat ID for sieges // REMOVED as per plan
+                Program.Logger.Debug($"Set BattleResult.SiegeID to '{siegeId}'."); // UPDATED log message
 
                 // 4. Retrieve Combat Data from Combats.txt
+                // This block is now effectively skipped for sieges as CombatID is not set.
+                // However, the original logic remains here, but it won't find anything if CombatID is null.
                 Program.Logger.Debug($"Searching for combat data in {combatsPath} for combat ID {BattleResult.CombatID}");
                 StringBuilder combatDataBuilder = new StringBuilder();
                 bool searchStarted = false;
@@ -830,7 +832,7 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug($"Error in FindSiegeCombatID: {ex.Message}");
                 BattleResult.SiegeID = null;
-                BattleResult.CombatID = null;
+                BattleResult.CombatID = null; // Ensure CombatID is null on error
                 BattleResult.Player_Combat = null;
             }
         }
