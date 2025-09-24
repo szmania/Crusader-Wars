@@ -149,22 +149,32 @@ namespace CrusaderWars
             string holdingLevel = Regex.Match(log, @"HoldingLevel:(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found HoldingLevel Key: {holdingLevel}");
             twbattle.Sieges.SetHoldingLevelKey(holdingLevel);
-
+                        
+            // Disease
+            string diseaseFrameStr = Regex.Match(log, @"Diseases:\s*(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Sickness Status: {diseaseFrameStr}");
+            twbattle.Sieges.SetHoldingSickness(diseaseFrameStr);
+            
+            // Starvation
+            string suppliesStr = Regex.Match(log, @"Supplies:\s*(.+)").Groups[1].Value.Trim();
+            Program.Logger.Debug($"Found Supply Status: {suppliesStr}");
+            twbattle.Sieges.SetHoldingSupplies(suppliesStr);
+            
             // Walls
             string wallsStr = Regex.Match(log, @"Walls:\s*(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Breach Status: {wallsStr}");
             twbattle.Sieges.SetHoldingEscalation(wallsStr);
 
-            // Starvation
-            string starvationStr = Regex.Match(log, @"Supplies:\s*(.+)").Groups[1].Value.Trim();
-            Program.Logger.Debug($"Found Supply Status: {starvationStr}");
-            twbattle.Sieges.SetHoldingSupplies(starvationStr);
-
-            // DiseaseFrame
-            string diseaseFrameStr = Regex.Match(log, @"Diseases:\s*(.+)").Groups[1].Value.Trim();
-            Program.Logger.Debug($"Found Sickness Status: {diseaseFrameStr}");
-            twbattle.Sieges.SetHoldingSickness(diseaseFrameStr);
-
+            // Fort Level
+            string fortLevelStr = Regex
+                .Match(log, @"FortLevel:.*?TOOLTIP:GAME_CONCEPT,[,]*fort_level Fort Level.*; (\d+)").Groups[1].Value
+                .Trim();
+            if (int.TryParse(fortLevelStr, out int fortLevel))
+            {
+                Program.Logger.Debug($"Found Fort Level: {fortLevel}");
+                twbattle.Sieges.SetGarrisonSize(fortLevel);
+            }
+            
             // Garrison culture and heritage
             string garrisonCulture = Regex.Match(log, @"GarrisonCulture:.*?ONCLICK:CULTURE[,]*(\d+)").Groups[1].Value.Trim();
             string garrisonHeritage = Regex.Match(log, @"GarrisonHeritage:.*?TOOLTIP:CULTURE_PILLAR[,]*(\S+)").Groups[1].Value.Trim();
