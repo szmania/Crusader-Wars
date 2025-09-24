@@ -1270,6 +1270,29 @@ namespace CrusaderWars
             return null;
         }
 
+        public static string GetAttilaWinner(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
+        {
+            Program.Logger.Debug($"Entering GetAttilaWinner for log file: {path_attila_log}");
+            string winner = "";
+            using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (StreamReader reader = new StreamReader(logFile))
+            {
+                string? line;
+                //winning_side=attacker/defender
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.Contains("Victory")) { winner = player_armies_combat_side; break; }
+                    else if (line.Contains("Defeat")) { winner = enemy_armies_combat_side; break; }
+                    else winner = enemy_armies_combat_side;
+                }
+
+                reader.Close();
+                logFile.Close();
+                Program.Logger.Debug($"Determined Attila winner: {winner}");
+                return winner;
+            }
+        }
+
         static void SetWinner(string winner)
         {
             Program.Logger.Debug($"Setting battle winner to: {winner}");
@@ -1298,7 +1321,7 @@ namespace CrusaderWars
         }
 
         //Get winner from Attila
-        static string GetAttilaWinner(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
+        public static string GetAttilaWinner(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
         {
             Program.Logger.Debug($"Entering GetAttilaWinner for log file: {path_attila_log}");
             string winner = "";

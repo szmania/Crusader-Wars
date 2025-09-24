@@ -55,6 +55,7 @@ namespace CrusaderWars.twbattle
         public static string GetGarrisonHeritage() { return GarrisonHeritage; }
         public static string GetHoldingEscalation() { return EscalationLevel; }
         public static string GetSuppliesLevel() { return SuppliesLevel; }
+        public static int GetFortLevel() { return FortLevel; }
 
         public static string GetSettlementBattleMap()
         {
