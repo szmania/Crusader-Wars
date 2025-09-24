@@ -194,16 +194,16 @@ namespace CrusaderWars.terrain
             switch (mapSize)
             {
                 case "Medium":
-                    width = "600"; // Increased from 500
-                    height = "600"; // Increased from 500
+                    width = "750"; // Changed from 600
+                    height = "750"; // Changed from 600
                     break;
                 case "Big":
-                    width = "900"; // Increased from 750
-                    height = "900"; // Increased from 750
+                    width = "1100"; // Changed from 900
+                    height = "1100"; // Changed from 900
                     break;
                 case "Huge":
-                    width = "1200"; // Increased from 1000
-                    height = "1200"; // Increased from 1000
+                    width = "1500"; // Changed from 1200
+                    height = "1500"; // Changed from 1200
                     break;
                 default: // Fallback to original size if map size is unexpected
                     width = "250";
@@ -437,15 +437,15 @@ namespace CrusaderWars.terrain
                 switch (MapSize)
                 {
                     case "Medium":
-                        Width = "1200";
+                        Width = "1500"; // Changed from 1200
                         Height = "150";
                         break;
                     case "Big":
-                        Width = "1800";
+                        Width = "2200"; // Changed from 1800
                         Height = "250";
                         break;
                     case "Huge":
-                        Width = "2400";
+                        Width = "3000"; // Changed from 2400
                         Height = "350";
                         break;
                     default:
@@ -482,15 +482,15 @@ namespace CrusaderWars.terrain
                 {
                     case "Medium":
                         Width = "150";
-                        Height = "1200";
+                        Height = "1500"; // Changed from 1200
                         break;
                     case "Big":
                         Width = "250";
-                        Height = "1800";
+                        Height = "2200"; // Changed from 1800
                         break;
                     case "Huge":
                         Width = "350";
-                        Height = "2400";
+                        Height = "3000"; // Changed from 2400
                         break;
                     default:
                         throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
