@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using CrusaderWars.data.save_file;
 using static CrusaderWars.data.save_file.Writter;
+using CrusaderWars.twbattle; // Added for BattleFile access
 
 
 namespace CrusaderWars
@@ -265,6 +266,15 @@ namespace CrusaderWars
         public static void SendToSaveFile(string filePath)
         {
             Program.Logger.Debug($"Sending battle results to save file: {filePath}");
+
+            // Get necessary parameters for EditSiegesFile
+            string playerCombatSide = BattleFile.GetPlayerCombatSide();
+            string enemyCombatSide = BattleFile.GetEnemyCombatSide();
+            string attilaLogPath = Properties.Settings.Default.VAR_log_attila;
+
+            // Call the new method to edit the sieges file if applicable
+            Armies_Functions.EditSiegesFile(attilaLogPath, playerCombatSide, enemyCombatSide);
+
             Writter.SendDataToFile(filePath);
             Program.Logger.Debug("Resetting data and collecting garbage.");
             Data.Reset();
@@ -1250,7 +1260,7 @@ namespace CrusaderWars
                         if (armyRegiment.Type == RegimentType.Knight) continue;
                         if (armyRegiment.ID == army_regiment_id)
                         {
-                            Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id} in army {army.ID}.");
+                            Program.Logger.Debug($"Found ArmyRegiment {army.ID}.{armyRegiment.ID}.");
                             return armyRegiment;
                         }
                     }
@@ -1546,7 +1556,7 @@ namespace CrusaderWars
 
                     if(!isNewData)
                     {
-                        streamWriter.WriteLine(line);
+Writer.WriteLine(line);
                     }
                     
                 }
