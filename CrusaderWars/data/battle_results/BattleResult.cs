@@ -1320,30 +1320,6 @@ namespace CrusaderWars
 
         }
 
-        //Get winner from Attila
-        public static string GetAttilaWinner(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
-        {
-            Program.Logger.Debug($"Entering GetAttilaWinner for log file: {path_attila_log}");
-            string winner = "";
-            using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader reader = new StreamReader(logFile))
-            {
-                string? line;
-                //winning_side=attacker/defender
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (line.Contains("Victory")) { winner = player_armies_combat_side; break; }
-                    else if (line.Contains("Defeat")) { winner = enemy_armies_combat_side; break; }
-                    else winner = enemy_armies_combat_side;
-                }
-
-                reader.Close();
-                logFile.Close();
-                Program.Logger.Debug($"Determined Attila winner: {winner}");
-                return winner;
-            }
-        }
-
         public static void EditArmyRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Army Regiments file...");
