@@ -1869,6 +1869,12 @@ namespace CrusaderWars
                     Program.Logger.Debug("Editing ArmyRegiments.txt file...");
                     BattleResult.EditArmyRegimentsFile(attacker_armies, defender_armies);
 
+                    //  EDIT SIEGES FILE
+                    if (twbattle.BattleState.IsSiegeBattle)
+                    {
+                        Program.Logger.Debug("Editing Sieges.txt file...");
+                        BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide);
+                    }
 
                     //  WRITE TO CK3 SAVE FILE
                     Program.Logger.Debug("Writing results to gamestate file...");

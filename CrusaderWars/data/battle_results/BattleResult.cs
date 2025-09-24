@@ -267,14 +267,6 @@ namespace CrusaderWars
         {
             Program.Logger.Debug($"Sending battle results to save file: {filePath}");
 
-            // Get necessary parameters for EditSiegesFile
-            string playerCombatSide = BattleFile.GetPlayerCombatSide();
-            string enemyCombatSide = BattleFile.GetEnemyCombatSide();
-            string attilaLogPath = Properties.Settings.Default.VAR_log_attila;
-
-            // Call the new method to edit the sieges file if applicable
-            Armies_Functions.EditSiegesFile(attilaLogPath, playerCombatSide, enemyCombatSide);
-
             Writter.SendDataToFile(filePath);
             Program.Logger.Debug("Resetting data and collecting garbage.");
             Data.Reset();
@@ -1738,6 +1730,39 @@ namespace CrusaderWars
                 }
             }
             Program.Logger.Debug("************************************************************************************");
+        }
+
+        public static void EditSiegesFile(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
+        {
+            Program.Logger.Debug("Entering EditSiegesFile method.");
+
+            if (!BattleState.IsSiegeBattle)
+            {
+                Program.Logger.Debug("Not a siege battle. Skipping EditSiegesFile.");
+                return;
+            }
+
+            string winner = BattleResult.GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
+            Program.Logger.Debug($"Siege battle winner: {winner}");
+
+            string originalSiegeContent = File.ReadAllText(Writter.DataFilesPaths.Sieges_Path());
+            string finalSiegeContent;
+
+            if (winner == "attacker")
+            {
+                int fortLevel = Sieges.GetFortLevel();
+                int newProgress = 100 + (fortLevel * 75);
+                finalSiegeContent = Regex.Replace(originalSiegeContent, @"progress=[\d\.]+", $"progress={newProgress}");
+                Program.Logger.Debug($"Attacker won. Updating siege progress to {newProgress}% (based on fort level {fortLevel}).");
+            }
+            else // winner == "defender"
+            {
+                finalSiegeContent = originalSiegeContent;
+                Program.Logger.Debug("Defender won. Siege block not modified.");
+            }
+
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Sieges_Path(), finalSiegeContent);
+            Program.Logger.Debug("Finished editing Sieges file.");
         }
     }
 }
