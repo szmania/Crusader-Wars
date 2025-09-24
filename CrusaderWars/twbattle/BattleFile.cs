@@ -63,7 +63,7 @@ namespace CrusaderWars
             }
         }
 
-        static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
+        static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap, Dictionary<string, int> siegeEngines)
         {
             //----------------------------------------------
             //  Merge armies until there are only one      
@@ -83,12 +83,12 @@ namespace CrusaderWars
             if (player_army.CombatSide == "attacker")
             {
                 //#### WRITE HUMAN PLAYER ARMY
-                WriteArmy(temp_attacker_armies[0], total_soldiers, false, "stark");
+                WriteArmy(temp_attacker_armies[0], total_soldiers, false, "stark", siegeEngines);
             }
             else if (player_army.CombatSide == "defender")
             {
                 //#### WRITE HUMAN PLAYER ARMY
-                WriteArmy(temp_defender_armies[0], total_soldiers, false, "stark");
+                WriteArmy(temp_defender_armies[0], total_soldiers, false, "stark", siegeEngines);
             }
 
             //Write essential data
@@ -101,12 +101,12 @@ namespace CrusaderWars
             if (enemy_main_army.CombatSide == "attacker")
             {
                 //#### WRITE HUMAN PLAYER ARMY
-                WriteArmy(temp_attacker_armies[0], total_soldiers, false, "bolton");
+                WriteArmy(temp_attacker_armies[0], total_soldiers, false, "bolton", siegeEngines);
             }
             else if (enemy_main_army.CombatSide == "defender")
             {
                 //#### WRITE HUMAN PLAYER ARMY
-                WriteArmy(temp_defender_armies[0], total_soldiers, false, "bolton");
+                WriteArmy(temp_defender_armies[0], total_soldiers, false, "bolton", siegeEngines);
             }
 
             //Write essential data
@@ -121,7 +121,7 @@ namespace CrusaderWars
             CloseBattle();
         }
 
-        static void FriendliesOnlyArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_main_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
+        static void FriendliesOnlyArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_main_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap, Dictionary<string, int> siegeEngines)
         {
             Program.Logger.Debug("--- Starting FriendliesOnlyArmies setup ---");
             Program.Logger.Debug($"Initial armies: {temp_attacker_armies.Count} attackers, {temp_defender_armies.Count} defenders.");
@@ -163,7 +163,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"'Armies Control' setting updated to: {ModOptions.SeparateArmies()}");
 
                     // Now call AllControledArmies and return
-                    AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                    AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap, siegeEngines);
                     return; // Exit FriendliesOnlyArmies after calling AllControledArmies
                 }
                 else // User clicked No
@@ -210,12 +210,12 @@ namespace CrusaderWars
             if(!isUserAlly)
             {
                 Program.Logger.Debug($"Writing player main army {player_main_army.ID} to file.");
-                WriteArmy(player_main_army, total_soldiers, false, "stark");
+                WriteArmy(player_main_army, total_soldiers, false, "stark", siegeEngines);
             }
             else
             {
                 Program.Logger.Debug($"Writing player allied army {userAlliedArmy!.ID} to file.");
-                WriteArmy(userAlliedArmy!, total_soldiers, false, "stark");
+                WriteArmy(userAlliedArmy!, total_soldiers, false, "stark", siegeEngines);
             }
 
 
@@ -234,7 +234,7 @@ namespace CrusaderWars
                 foreach (var army in temp_attacker_armies.Where(a => a != null))
                 {
                     Program.Logger.Debug($"Writing attacker/defender allied army {army.ID} to file.");
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    WriteArmy(army, total_soldiers, false, "stark", siegeEngines);
 
                 }
             }
@@ -251,7 +251,7 @@ namespace CrusaderWars
                 foreach (var army in temp_defender_armies.Where(a => a != null))
                 {
                     Program.Logger.Debug($"Writing attacker/defender allied army {army.ID} to file.");
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    WriteArmy(army, total_soldiers, false, "stark", siegeEngines);
                 }
             }
 
@@ -267,7 +267,7 @@ namespace CrusaderWars
 
             //#### WRITE ENEMY MAIN ARMY
             Program.Logger.Debug($"Writing enemy main army {enemy_main_army.ID} to file.");
-            WriteArmy(enemy_main_army, total_soldiers, false, "bolton");
+            WriteArmy(enemy_main_army, total_soldiers, false, "bolton", siegeEngines);
 
             //#### WRITE ENEMY ALLIED ARMIES
             Program.Logger.Debug("Writing AI allied armies for enemy's side...");
@@ -277,7 +277,7 @@ namespace CrusaderWars
                 foreach (var army in temp_attacker_armies.Where(a => a != null))
                 {
                     Program.Logger.Debug($"Writing attacker/defender enemy-allied army {army.ID} to file.");
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    WriteArmy(army, total_soldiers, false, "bolton", siegeEngines);
                 }
             }
             else if (enemy_main_army.CombatSide == "defender")
@@ -286,7 +286,7 @@ namespace CrusaderWars
                 foreach (var army in temp_defender_armies.Where(a => a != null))
                 {
                     Program.Logger.Debug($"Writing attacker/defender enemy-allied army {army.ID} to file.");
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    WriteArmy(army, total_soldiers, false, "bolton", siegeEngines);
                 }
             }
 
@@ -304,7 +304,7 @@ namespace CrusaderWars
 
         }
 
-        static void AllSeparateArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_main_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap)
+        static void AllSeparateArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_main_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap, Dictionary<string, int> siegeEngines)
         {
             bool isUserAlly = false; Army? userAlliedArmy = null;
             //----------------------------------------------
@@ -354,9 +354,9 @@ namespace CrusaderWars
 
             //#### WRITE HUMAN PLAYER ARMY
             if(!isUserAlly)
-                WriteArmy(player_main_army, total_soldiers, false, "stark");
+                WriteArmy(player_main_army, total_soldiers, false, "stark", siegeEngines);
             else
-                WriteArmy(userAlliedArmy!, total_soldiers, false, "stark");
+                WriteArmy(userAlliedArmy!, total_soldiers, false, "stark", siegeEngines);
 
             //#### WRITE AI ALLIED ARMIES
             if (player_main_army.CombatSide == "attacker")
@@ -371,7 +371,7 @@ namespace CrusaderWars
                 }
                 foreach (var army in temp_attacker_armies.Where(a => a != null))
                 {
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    WriteArmy(army, total_soldiers, false, "stark", siegeEngines);
 
                 }
             }
@@ -387,7 +387,7 @@ namespace CrusaderWars
                 }
                 foreach (var army in temp_defender_armies.Where(a => a != null))
                 {
-                    WriteArmy(army, total_soldiers, false, "stark");
+                    WriteArmy(army, total_soldiers, false, "stark", siegeEngines);
                 }
             }
 
@@ -401,7 +401,7 @@ namespace CrusaderWars
 
 
             //#### WRITE ENEMY MAIN ARMY
-            WriteArmy(enemy_main_army, total_soldiers, false, "bolton");
+            WriteArmy(enemy_main_army, total_soldiers, false, "bolton", siegeEngines);
 
             //#### WRITE ENEMY ALLIED ARMIES
             if (enemy_main_army.CombatSide == "attacker")
@@ -409,7 +409,7 @@ namespace CrusaderWars
                 if (enemy_main_army != null) temp_attacker_armies.Remove(enemy_main_army);
                 foreach (var army in temp_attacker_armies.Where(a => a != null))
                 {
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    WriteArmy(army, total_soldiers, false, "bolton", siegeEngines);
                 }
             }
             else if (enemy_main_army.CombatSide == "defender")
@@ -417,7 +417,7 @@ namespace CrusaderWars
                 if (enemy_main_army != null) temp_defender_armies.Remove(enemy_main_army);
                 foreach (var army in temp_defender_armies.Where(a => a != null))
                 {
-                    WriteArmy(army, total_soldiers, false, "bolton");
+                    WriteArmy(army, total_soldiers, false, "bolton", siegeEngines);
                 }
             }
 
@@ -495,6 +495,7 @@ namespace CrusaderWars
 
             //  BATTLE MAP
             (string X, string Y, string[] attPositions, string[] defPositions) battleMap = ("", "", new string[0], new string[0]); // Initialize as mutable tuple
+            Dictionary<string, int> siegeEngines = new Dictionary<string, int>(); // Initialize siegeEngines
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -532,6 +533,10 @@ namespace CrusaderWars
                 }
                 Program.Logger.Debug("Setting up siege-specific deployment...");
                 Deployments.beta_SetSiegeDeployment(battleMap, total_soldiers);
+
+                // Generate siege engines for the attacker
+                siegeEngines = SiegeEngineGenerator.Generate();
+                Program.Logger.Debug($"Generated {siegeEngines.Count} siege engine types for the attacker.");
             }
             else
             {
@@ -559,19 +564,19 @@ namespace CrusaderWars
             //
             if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Controled)
             {
-                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap, siegeEngines);
             }
             //  FRIENDLIES ONLY ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.Friendly_Only)
             {
-                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap, siegeEngines);
             }
             //  ALL SEPARATE ARMIES
             //
             else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Separate)
             {
-                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap);
+                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army!, enemy_main_army!, total_soldiers, battleMap, siegeEngines);
             }
 
             if (ModOptions.UnitCards())
@@ -584,7 +589,7 @@ namespace CrusaderWars
 
         }
 
-        private static void WriteArmy(Army army, int total_soldiers, bool isReinforcement, string x)
+        private static void WriteArmy(Army army, int total_soldiers, bool isReinforcement, string x, Dictionary<string, int> siegeEngines)
         {
             Program.Logger.Debug($"Writing army {army.ID} to battle file. Side: {army.CombatSide}, Alliance: {x}");
             //Write essential data
@@ -617,6 +622,13 @@ namespace CrusaderWars
             SetPositions(total_soldiers, Deployments.beta_GeDirection(army.CombatSide));
             //Write all player army units
             UnitsFile.BETA_ConvertandAddArmyUnits(army);
+
+            // Add siege equipment if this is the attacking army in a siege battle
+            if (army.CombatSide == "attacker" && siegeEngines != null && siegeEngines.Any())
+            {
+                AddAssaultEquipment(siegeEngines);
+            }
+
             //Write essential data
             if (isReinforcement)
                 //CloseReinforcementArmy();
@@ -1021,6 +1033,42 @@ namespace CrusaderWars
                 Position.AddUnitXSpacing(direction);
 
         }
+
+        private static void AddAssaultEquipment(Dictionary<string, int> siegeEngines)
+        {
+            Program.Logger.Debug($"Adding {siegeEngines.Count} types of assault equipment.");
+            if (Position == null || Rotation == null)
+            {
+                Program.Logger.Debug("CRITICAL: Position or Rotation is null when trying to add assault equipment. Aborting.");
+                return;
+            }
+
+            File.AppendAllText(battlePath, "<assault_equipment>\n");
+
+            foreach (var entry in siegeEngines)
+            {
+                string engineKey = entry.Key;
+                int quantity = entry.Value;
+                Program.Logger.Debug($"Adding {quantity} units of '{engineKey}'.");
+
+                for (int i = 0; i < quantity; i++)
+                {
+                    string PR_Equipment = $"<assault_equipment_item>\n" +
+                                          $"<equipment_type type=\"{engineKey}\"/>\n" +
+                                          $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
+                                          $"<orientation radians=\"{Rotation}\"/>\n" +
+                                          "</assault_equipment_item>\n\n";
+                    File.AppendAllText(battlePath, PR_Equipment);
+
+                    // Advance position for the next equipment item
+                    Position.AddUnitXSpacing(Deployments.beta_GeDirection("attacker"));
+                }
+            }
+
+            File.AppendAllText(battlePath, "</assault_equipment>\n\n");
+            Program.Logger.Debug("Finished adding assault equipment.");
+        }
+
 
         private static (string x, string y) GetRoutPositionCoordinates(string direction)
         {
