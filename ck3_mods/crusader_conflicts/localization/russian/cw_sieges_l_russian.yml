@@ -16,8 +16,8 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
   
-    cc_siege_fight_button: "Возглавьте штурм поселения!"
-    cc_siege_fight_button_disabled: "Этот персонаж не может управлять битвами.\nСм. Настройки мода: Предпочтения"
-    cc_siege_options_button: "Настройки мода Crusader Conflicts"
-    cw_bw_wait_button: "Подождите еще несколько дней, чтобы штурмовать поселение..."
+    cc_siege_fight_button: "Сразитесь в этой осаде сами!"
+    cc_siege_fight_button_disabled: "Этот персонаж не может управлять битвами.\nСм. Параметры мода: Настройки"
+    cc_siege_options_button: "Параметры мода Crusader Conflicts"
+    cw_bw_wait_button: "Подождите ещё несколько дней, чтобы сразиться в этой осаде..."
     cw_bw_options_button: "Параметры мода Crusader Conflicts"

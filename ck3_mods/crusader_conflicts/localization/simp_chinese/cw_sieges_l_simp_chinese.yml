@@ -15,8 +15,8 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
-    cc_siege_fight_button: "亲自突袭定居点！"
-    cc_siege_fight_button_disabled: "该角色无法指挥战斗。\n请参阅模组选项：偏好设置"
+    cc_siege_fight_button: "亲自参与这场围攻战吧！"
+    cc_siege_fight_button_disabled: "该角色无法指挥战斗。\n查看模组选项：偏好设置"
     cc_siege_options_button: "十字军冲突模组选项"
-    cw_bw_wait_button: "再等几天才能突袭定居点..."
-    cw_bw_options_button: "十字军冲突模组选项" 
+    cw_bw_wait_button: "再等几天再参与这场围攻战..."
+    cw_bw_options_button: "十字军冲突模组选项"

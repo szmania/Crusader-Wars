@@ -55,7 +55,7 @@ namespace CrusaderWars.unit_mapper
 
         public string GetAttilaMap() { return AttilaMap; }
         public List<(string building, string x, string y)> GetHistoricalMaps() { return HistoricalMaps; }
-        public List<(string terrain, string x, string string y)> GetNormalMaps() { return NormalMaps; }
+        public List<(string terrain, string x, string y)> GetNormalMaps() { return NormalMaps; }
         public List<SettlementMap> GetSettlementMaps() { return SettlementMaps; }
         public List<UniqueSettlementMap> GetUniqueSettlementMaps() { return UniqueSettlementMaps; }
 

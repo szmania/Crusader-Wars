@@ -15,8 +15,8 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
-    cc_siege_fight_button: "¡Asalta el asentamiento tú mismo!"
-    cc_siege_fight_button_disabled: "Este personaje no puede controlar batallas.\nVer Opciones del Mod: Preferencias"
-    cc_siege_options_button: "Opciones del Mod Crusader Conflicts"
-    cw_bw_wait_button: "Espera unos días más para asaltar el asentamiento..."
+    cc_siege_fight_button: "¡Lucha este asedio tú mismo!"
+    cc_siege_fight_button_disabled: "Este personaje no puede controlar batallas.\nVer Opciones del mod: Preferencias"
+    cc_siege_options_button: "Opciones del mod Crusader Conflicts"
+    cw_bw_wait_button: "Espera unos días más para luchar este asedio..."
     cw_bw_options_button: "Opciones del mod Crusader Conflicts"
