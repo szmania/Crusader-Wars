@@ -18,4 +18,5 @@
     cc_siege_fight_button: "¡Asalta el asentamiento tú mismo!"
     cc_siege_fight_button_disabled: "Este personaje no puede controlar batallas.\nVer Opciones del Mod: Preferencias"
     cc_siege_options_button: "Opciones del Mod Crusader Conflicts"
-    cw_bw_wait_button: "Espera unos días más para asaltar el asentamiento..."         
+    cw_bw_wait_button: "Espera unos días más para asaltar el asentamiento..."
+    cw_bw_options_button: "Opciones del mod Crusader Conflicts"

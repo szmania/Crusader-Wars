@@ -167,7 +167,7 @@ namespace CrusaderWars
 
             // Fort Level
             string fortLevelStr = Regex
-                .Match(log, @"FortLevel:.*?TOOLTIP:GAME_CONCEPT,[,]*fort_level Fort Level.*; (\d+)").Groups[1].Value
+                .Match(log, @"FortLevel:.*?TOOLTIP:GAME_CONCEPT[,]*fort_level Fort Level.*[:;]* [V ]*(\d+)").Groups[1].Value
                 .Trim();
             if (int.TryParse(fortLevelStr, out int fortLevel))
             {
@@ -529,7 +529,7 @@ namespace CrusaderWars
             else
             {
                 // Original logic for field battles, with minor improvements
-                string text = Regex.Match(log, "(Log[\\s\\S]*?)---------Player Army---------[\\s\S]*?").Groups[1].Value;
+                string text = Regex.Match(log, "(Log[\\s\\S]*?)---------Player Army---------[\\s\\S]*?").Groups[1].Value;
                 MatchCollection found_armies = Regex.Matches(text, "L (.+)");
 
                 if (found_armies.Count >= 2) // Corrected condition
@@ -642,7 +642,7 @@ namespace CrusaderWars
 
         static string SearchForWinter(string content)
         {
-            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\S]*?)PlayerID").Groups[1].Value;
+            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)PlayerID").Groups[1].Value;
 
             string[] AllWinter = new string[] {"Mild", "Normal", "Harsh" ,
                                               "suave", "normal", "duro" ,

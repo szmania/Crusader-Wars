@@ -18,4 +18,5 @@
     cc_siege_fight_button: "Donnez l'assaut vous-même !"
     cc_siege_fight_button_disabled: "Ce personnage ne peut pas diriger les batailles.\nVoir Options du Mod : Préférences"
     cc_siege_options_button: "Options du Mod Crusader Conflicts"
-    cw_bw_wait_button: "Attendez encore quelques jours pour donner l'assaut..."           
+    cw_bw_wait_button: "Attendez encore quelques jours pour donner l'assaut..."
+    cw_bw_options_button: "Options du mod Crusader Conflicts"

@@ -58,48 +58,6 @@ function Start_Battle()
     -- This script reads siege-specific variables declared in tut_declarations.lua
     -- and applies effects to the defending army based on their supply status.
 
-    -- Check if the siege variable exists. If not, this is not a siege battle, so do nothing.
-    if DEFENDER_SUPPLY_LEVEL == nil then
-        bm:out("Siege Script: DEFENDER_SUPPLY_LEVEL not found. Assuming field battle. No siege effects applied.")
-        return
-    end
-
-    -- The defending alliance is Alliance_Bolton (the enemy side)
-    local defending_alliance = Alliance_Bolton
-    if not defending_alliance then
-        script_error("Siege Script Error: Could not find defending alliance (Alliance_Bolton).")
-        return
-    end
-
-    -- Log the supply level for debugging
-    bm:out("Siege Script: Defender Supply Level is " .. tostring(DEFENDER_SUPPLY_LEVEL))
-
-    -- Apply effects based on supply level
-    if DEFENDER_SUPPLY_LEVEL == "Running Low" then
-        bm:out("Siege Script: Applying 'Running Low' penalties to defenders.")
-        for i = 1, defending_alliance:armies():count() do
-            local army = defending_alliance:armies():item(i)
-            for j = 1, army:units():count() do
-                local unit = army:units():item(j)
-                -- Apply a moderate fatigue penalty
-                unit:apply_fatigue(2) -- Corresponds to "Tired"
-            end
-        end
-    elseif DEFENDER_SUPPLY_LEVEL == "Starvation" then
-        bm:out("Siege Script: Applying 'Starvation' penalties to defenders.")
-        for i = 1, defending_alliance:armies():count() do
-            local army = defending_alliance:armies():item(i)
-            for j = 1, army:units():count() do
-                local unit = army:units():item(j)
-                -- Apply a severe fatigue penalty
-                unit:apply_fatigue(3) -- Corresponds to "Very Tired"
-                -- Apply a morale penalty (e.g., -8 morale)
-                unit:set_morale_impetus(-8)
-            end
-        end
-    else -- "Fully Stocked" or any other value
-        bm:out("Siege Script: Defenders are fully stocked. No penalties applied.")
-    end
 end;
 
 local scripting = require "lua_scripts.episodicscripting"

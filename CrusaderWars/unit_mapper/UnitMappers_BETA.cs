@@ -26,7 +26,7 @@ namespace CrusaderWars.unit_mapper
     internal class UniqueSettlementMap
     {
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; private set; = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
     class TerrainsUM

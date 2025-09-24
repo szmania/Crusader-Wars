@@ -19,4 +19,5 @@
     cc_siege_fight_button: "Возглавьте штурм поселения!"
     cc_siege_fight_button_disabled: "Этот персонаж не может управлять битвами.\nСм. Настройки мода: Предпочтения"
     cc_siege_options_button: "Настройки мода Crusader Conflicts"
-    cw_bw_wait_button: "Подождите еще несколько дней, чтобы штурмовать поселение..."      
+    cw_bw_wait_button: "Подождите еще несколько дней, чтобы штурмовать поселение..."
+    cw_bw_options_button: "Параметры мода Crusader Conflicts"

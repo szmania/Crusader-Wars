@@ -18,4 +18,6 @@
     cc_siege_fight_button: "Stürmen Sie die Siedlung selbst!"
     cc_siege_fight_button_disabled: "Dieser Charakter kann keine Schlachten kontrollieren.\nSiehe Mod-Optionen: Einstellungen"
     cc_siege_options_button: "Crusader Conflicts Mod-Optionen"
-    cw_bw_wait_button: "Warten Sie noch ein paar Tage, um die Siedlung zu stürmen..."      
+    cw_bw_wait_button: "Warten Sie noch ein paar Tage, um die Siedlung zu stürmen..."
+    cw_bw_options_button: "Crusader-Conflicts-Mod-Optionen"
+    
