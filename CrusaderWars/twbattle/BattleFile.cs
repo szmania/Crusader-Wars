@@ -1154,7 +1154,6 @@ namespace CrusaderWars
             if (twbattle.BattleState.IsSiegeBattle)
             {
                 DeclarationsFile.DeclareSiegeVariables();
-                battleScript = "tut_sieges.lua";
                 int holdingLevel = twbattle.Sieges.GetHoldingLevel();
                 if (holdingLevel > 1)
                 {
