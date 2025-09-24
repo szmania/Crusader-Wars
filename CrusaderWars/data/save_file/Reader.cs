@@ -91,7 +91,7 @@ namespace CrusaderWars.data.save_file
             //Clean all data in save file data files
             Program.Logger.Debug("Clearing previous save data from temp files...");
             ClearFilesData();
-            Data.Reset(); // Reset all static data containers and extraction flags
+            // Data.Reset(); // Reset all static data containers and extraction flags -- REMOVED as per plan
             Program.Logger.Debug("Previous save data cleared.");
             long startMemoryt = GC.GetTotalMemory(false);
 

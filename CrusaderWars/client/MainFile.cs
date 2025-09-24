@@ -1215,8 +1215,8 @@ namespace CrusaderWars
                             if (battleHasStarted)
                             {
                                 Program.Logger.Debug("Reading CK3 battle data from log.");
+                                Data.Reset(); // ADDED as per plan
                                 Program.Logger.Debug("Searching log data...");
-                                Data.Reset();
                                 DataSearch.Search(log);
 
                                 Program.Logger.Debug("Reading installed Attila mods...");
@@ -1974,6 +1974,7 @@ namespace CrusaderWars
                 this.Text = "Crusader Conflicts"; // Reset status on early exit
                 return;
             }
+            Data.Reset(); // ADDED as per plan
             DataSearch.Search(logSnippet);
 
             Program.Logger.Debug("Battle context restored.");
