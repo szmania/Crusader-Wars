@@ -1054,8 +1054,7 @@ namespace CrusaderWars
 
                 for (int i = 0; i < quantity; i++)
                 {
-                    string PR_Equipment = $"<assault_equipment_item>\n" +
-                                          $"<equipment_type type=\"{engineKey}\"/>\n" +
+                    string PR_Equipment = $"<assault_equipment_item equipment_name=\"{engineKey}\">\n" +
                                           $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                                           $"<orientation radians=\"{Rotation}\"/>\n" +
                                           "</assault_equipment_item>\n\n";

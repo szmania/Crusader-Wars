@@ -59,24 +59,6 @@ namespace CrusaderWars
         public static void Reset()
         {
             Program.Logger.Debug("Resetting all data containers and extraction flags.");
-
-            // Clear StringBuilders
-            SB_Living.Clear();
-            SB_Regiments.Clear();
-            SB_ArmyRegiments.Clear();
-            SB_Armies.Clear();
-            SB_CombatResults.Clear();
-            SB_Combats.Clear();
-            SB_Counties.Clear();
-            SB_Cultures.Clear();
-            SB_Mercenaries.Clear();
-            SB_Units.Clear();
-            SB_CourtPositions.Clear();
-            SB_LandedTitles.Clear();
-            SB_Accolades.Clear();
-            SB_Traits.Clear();
-            SB_Sieges.Clear();
-
             // Clear lists and reset values
             twbattle.Sieges.Reset();
             units_scripts.Clear();

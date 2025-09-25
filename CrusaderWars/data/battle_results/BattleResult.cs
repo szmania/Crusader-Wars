@@ -7,6 +7,8 @@ using System.Text;
 using CrusaderWars.data.save_file;
 using static CrusaderWars.data.save_file.Writter;
 using CrusaderWars.twbattle; // Added for BattleFile access
+using System.Globalization; // Added for CultureInfo
+using CrusaderWars.armies; // Added for List<Army>
 
 
 namespace CrusaderWars
@@ -1702,7 +1704,7 @@ namespace CrusaderWars
             Program.Logger.Debug("************************************************************************************");
         }
 
-        public static void EditSiegesFile(string path_attila_log, string player_armies_combat_side, string enemy_armies_combat_side)
+        public static void EditSiegesFile(string path_log_attila, string attacker_side, string defender_side, List<Army> defender_armies)
         {
             Program.Logger.Debug("Entering EditSiegesFile method.");
 
@@ -1712,52 +1714,84 @@ namespace CrusaderWars
                 return;
             }
 
-            string winner = BattleResult.GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
+            if (string.IsNullOrEmpty(SiegeID))
+            {
+                Program.Logger.Debug("ERROR: BattleResult.SiegeID is null. Cannot update siege progress.");
+                return;
+            }
+
+            string winner = GetAttilaWinner(path_log_attila, attacker_side, defender_side);
             Program.Logger.Debug($"Siege battle winner: {winner}");
 
             string originalSiegesFilePath = Writter.DataFilesPaths.Sieges_Path();
             string tempSiegesFilePath = Writter.DataTEMPFilesPaths.Sieges_Path();
 
-            // Read all lines from the original Sieges.txt
             List<string> allLines = File.ReadAllLines(originalSiegesFilePath).ToList();
             List<string> modifiedLines = new List<string>();
 
-            if (winner == "defender")
-            {
-                // If defender won, no changes to siege progress are needed.
-                // Just copy the original content to the temp file.
-                File.WriteAllLines(tempSiegesFilePath, allLines);
-                Program.Logger.Debug("Defender won. Original Sieges.txt copied to temp file without modifications.");
-                return;
-            }
-
-            // If attacker won, calculate new progress and modify the specific siege block.
-            if (BattleResult.SiegeID == null)
-            {
-                Program.Logger.Debug("ERROR: BattleResult.SiegeID is null. Cannot update siege progress.");
-                File.WriteAllLines(tempSiegesFilePath, allLines); // Copy original to avoid data loss
-                return;
-            }
-
-            int fortLevel = Sieges.GetFortLevel();
-            int newProgress = 100 + (fortLevel * 75);
-            Program.Logger.Debug($"Attacker won. Updating siege progress for SiegeID {BattleResult.SiegeID} to {newProgress}% (based on fort level {fortLevel}).");
-
             bool inTargetSiegeBlock = false;
+            bool progressLineUpdated = false;
+
             foreach (string line in allLines)
             {
                 string trimmedLine = line.Trim();
-                if (trimmedLine == $"{BattleResult.SiegeID}={{") // Start of the target siege block
+
+                if (trimmedLine == $"{SiegeID}={{")
                 {
                     inTargetSiegeBlock = true;
                     modifiedLines.Add(line);
                 }
                 else if (inTargetSiegeBlock && trimmedLine.StartsWith("progress="))
                 {
-                    modifiedLines.Add($"\t\t\tprogress={newProgress}");
-                    Program.Logger.Debug($"  - Replaced 'progress=' line in SiegeID {BattleResult.SiegeID}.");
+                    progressLineUpdated = true;
+                    if (winner == attacker_side)
+                    {
+                        // Attacker won: set progress to 100%
+                        int fortLevel = Sieges.GetFortLevel();
+                        double newProgress = 100 + (fortLevel * 75);
+                        Program.Logger.Debug($"Attacker won. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
+                        modifiedLines.Add($"\t\t\tprogress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                    }
+                    else // Attacker lost (defender won)
+                    {
+                        // --- LOGIC FOR ATTACKER DEFEAT ---
+                        int initialGarrisonSize = twbattle.Sieges.GetGarrisonSize();
+                        int finalGarrisonSize = defender_armies.Where(a => a.IsGarrison()).Sum(a => a.GetTotalSoldiers());
+
+                        double casualtyPercentage = 0;
+                        if (initialGarrisonSize > 0)
+                        {
+                            int casualties = initialGarrisonSize - finalGarrisonSize;
+                            if (casualties > 0)
+                            {
+                                casualtyPercentage = (double)casualties / initialGarrisonSize;
+                            }
+                        }
+                        Program.Logger.Debug($"Attacker lost. Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
+
+                        if (casualtyPercentage > 0)
+                        {
+                            int fortLevel = twbattle.Sieges.GetFortLevel();
+                            double totalRequiredProgress = 100 + (fortLevel * 75);
+                            double currentProgress = twbattle.Sieges.GetSiegeProgress();
+                            double remainingProgress = totalRequiredProgress - currentProgress;
+
+                            if (remainingProgress < 0) remainingProgress = 0;
+
+                            double progressToAdd = casualtyPercentage * remainingProgress;
+                            double newProgress = currentProgress + progressToAdd;
+
+                            Program.Logger.Debug($"Adding {progressToAdd:F2} to siege progress. New progress: {newProgress:F2}");
+                            modifiedLines.Add($"\t\t\tprogress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                        }
+                        else
+                        {
+                            Program.Logger.Debug("No garrison casualties. Siege progress remains unchanged.");
+                            modifiedLines.Add(line); // Add original line back
+                        }
+                    }
                 }
-                else if (inTargetSiegeBlock && trimmedLine == "}") // End of the target siege block
+                else if (inTargetSiegeBlock && trimmedLine == "}")
                 {
                     inTargetSiegeBlock = false;
                     modifiedLines.Add(line);
@@ -1766,6 +1800,11 @@ namespace CrusaderWars
                 {
                     modifiedLines.Add(line);
                 }
+            }
+
+            if (!progressLineUpdated)
+            {
+                Program.Logger.Debug($"Warning: Could not find 'progress=' line for SiegeID {SiegeID}.");
             }
 
             File.WriteAllLines(tempSiegesFilePath, modifiedLines);

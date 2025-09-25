@@ -168,7 +168,7 @@ namespace CrusaderWars
 
             // Fort Level
             string fortLevelStr = Regex
-                .Match(log, @"FortLevel:.*?TOOLTIP:GAME_CONCEPT[,]*fort_level Fort Level.*[:;]* [V ]*(\d+)").Groups[1].Value
+                .Match(log, @"FortLevel:.*?TOOLTIP:GAME_CONCEPT[,]*fort_level Fort Level.*[:;]* [V]*\s*(\d+)").Groups[1].Value
                 .Trim();
             if (int.TryParse(fortLevelStr, out int fortLevel))
             {
@@ -209,7 +209,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Battle scale set to: {ModOptions.GetBattleScale()}");
 
             /*---------------------------------------------
-             * :::::::::::::::::::Geral Data:::::::::::::::
+             * :::::::::::::::::::General Data:::::::::::::::
              ---------------------------------------------*/
 
             IdentifyBattleType(log);
@@ -693,7 +693,7 @@ namespace CrusaderWars
                     }
 
                     // New logic to parse the province name as suggested
-                    Match nameMatch = Regex.Match(provinceIDLine, @"L;\s*(.*)");
+                    Match nameMatch = Regex.Match(provinceIDLine, @"\s*L[;]*\s*(.*)");
                     if (nameMatch.Success)
                     {
                         provinceName = nameMatch.Groups[1].Value;
@@ -704,7 +704,7 @@ namespace CrusaderWars
                             provinceName = provinceName.Substring(0, exclamationIndex);
                         }
                         // Second, remove any trailing non-letter, non-whitespace, non-hyphen characters
-                        provinceName = Regex.Replace(provinceName, @"[^\p{L}\s-]*$", "").Trim();
+                        provinceName = Regex.Replace(provinceName, @".*\d+\s*L[;\s]+", "").Trim();
                         Program.Logger.Debug($"Province Name found and cleaned (complex format): '{provinceName}'");
                     }
                     else
