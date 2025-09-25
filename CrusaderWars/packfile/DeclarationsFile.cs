@@ -136,7 +136,7 @@ namespace CrusaderWars
             string side;
 
             //Find army declaration side
-            string army_id = Regex.Match(unit_name, @"_army(\d+)_").Groups[1].Value;
+            string army_id = Regex.Match(unit_name, @"_army(\d+|garrison_army)_").Groups[1].Value;
             int index = -1;
 
             if (stark_armies[0].MergedArmies != null)
