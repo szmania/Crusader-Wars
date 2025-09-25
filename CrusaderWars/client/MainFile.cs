@@ -20,6 +20,8 @@ using CrusaderWars.mod_manager;
 using System.Xml;
 using System.Web;
 using System.Drawing.Text;
+using CrusaderWars.sieges; // Added for SiegeEngineGenerator
+
 
 namespace CrusaderWars
 {
@@ -1549,6 +1551,19 @@ namespace CrusaderWars
                             }
                         }
                     }
+                    if (twbattle.BattleState.IsSiegeBattle)
+                    {
+                        int attackerArmySize = attacker_armies.Sum(a => a.GetTotalSoldiers());
+                        var siegeEngines = SiegeEngineGenerator.Generate(attackerArmySize);
+                        if (siegeEngines != null && siegeEngines.Any())
+                        {
+                            Program.Logger.Debug("  --- Siege Engines ---");
+                            foreach (var engine in siegeEngines)
+                            {
+                                Program.Logger.Debug($"  - Type: {engine.Key}, Quantity: {engine.Value}");
+                            }
+                        }
+                    }
                     Program.Logger.Debug($"TOTAL ATTACKER SOLDIERS: {attacker_armies.Sum(a => a.GetTotalSoldiers())}");
                     Program.Logger.Debug("--------------------------------------------------");
 
@@ -1822,6 +1837,7 @@ namespace CrusaderWars
                         }
                     }
                     // --- END: Capture pre-battle state ---
+                    int originalTotalAttackerSoldiers = attacker_armies.Sum(a => a.GetTotalSoldiers());
 
                     //  SET CASUALITIES
                     Program.Logger.Debug("Setting casualties for attacker armies...");
@@ -1846,6 +1862,18 @@ namespace CrusaderWars
 
                     // --- START: Call new logging method ---
                     BattleResult.LogPostBattleReport(attacker_armies, originalAttackerSizes, "ATTACKER");
+                    if (twbattle.BattleState.IsSiegeBattle)
+                    {
+                        var siegeEngines = SiegeEngineGenerator.Generate(originalTotalAttackerSoldiers);
+                        if (siegeEngines != null && siegeEngines.Any())
+                        {
+                            Program.Logger.Debug("  --- Siege Engines ---");
+                            foreach (var engine in siegeEngines)
+                            {
+                                Program.Logger.Debug($"  - Type: {engine.Key}, Quantity: {engine.Value}");
+                            }
+                        }
+                    }
                     BattleResult.LogPostBattleReport(defender_armies, originalDefenderSizes, "DEFENDER");
                     // --- END: Call new logging method ---
 
