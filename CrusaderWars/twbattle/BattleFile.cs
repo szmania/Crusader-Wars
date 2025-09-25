@@ -535,7 +535,8 @@ namespace CrusaderWars
                 Deployments.beta_SetSiegeDeployment(battleMap, total_soldiers);
 
                 // Generate siege engines for the attacker
-                siegeEngines = SiegeEngineGenerator.Generate();
+                int attackerTotalSoldiers = attacker_armies.Sum(army => army.GetTotalSoldiers());
+                siegeEngines = SiegeEngineGenerator.Generate(attackerTotalSoldiers);
                 Program.Logger.Debug($"Generated {siegeEngines.Count} siege engine types for the attacker.");
             }
             else

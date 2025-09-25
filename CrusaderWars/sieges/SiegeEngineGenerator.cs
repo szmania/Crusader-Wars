@@ -8,7 +8,7 @@ namespace CrusaderWars.sieges
 {
     public static class SiegeEngineGenerator
     {
-        public static Dictionary<string, int> Generate()
+        public static Dictionary<string, int> Generate(int attackerArmySize)
         {
             Program.Logger.Debug("Starting SiegeEngineGenerator.Generate()");
             var siegeEnginesToBuild = new Dictionary<string, int>();
@@ -96,6 +96,35 @@ namespace CrusaderWars.sieges
                 siegeEnginesToBuild.Add(bestLadder.Key, finalQuantity);
                 Program.Logger.Debug($"Selected Ladder: {bestLadder.Key}, Quantity: {finalQuantity}");
             }
+
+            // --- START: NEW CAPPING LOGIC ---
+            int maxAllowedEngines = Math.Max(1, attackerArmySize / 700);
+            int currentTotalEngines = siegeEnginesToBuild.Values.Sum();
+            Program.Logger.Debug($"Siege engine limit: {maxAllowedEngines} (based on {attackerArmySize} soldiers). Current count before limit: {currentTotalEngines}.");
+
+            while (currentTotalEngines > maxAllowedEngines)
+            {
+                // Find the key of the cheapest engine currently in our results
+                var keyToRemove = siegeEnginesToBuild.Keys
+                    .Select(key => new { Key = key, Cost = UnitMappers_BETA.SiegeEngines.FirstOrDefault(se => se.Key == key)?.SiegeEffortCost ?? int.MaxValue })
+                    .OrderBy(x => x.Cost)
+                    .FirstOrDefault()?.Key;
+
+                if (keyToRemove == null) { break; } // Safety break
+
+                // Decrement the count and total
+                siegeEnginesToBuild[keyToRemove]--;
+                currentTotalEngines--;
+                Program.Logger.Debug($"Removing one '{keyToRemove}' to meet limit. New total: {currentTotalEngines}");
+
+                // If count is zero, remove the engine type from the dictionary
+                if (siegeEnginesToBuild[keyToRemove] == 0)
+                {
+                    siegeEnginesToBuild.Remove(keyToRemove);
+                }
+            }
+            Program.Logger.Debug($"Final siege engine count after applying limit: {currentTotalEngines}.");
+            // --- END: NEW CAPPING LOGIC ---
 
             Program.Logger.Debug($"Finished SiegeEngineGenerator.Generate(). Generated {siegeEnginesToBuild.Count} unique siege engine types.");
             return siegeEnginesToBuild;
