@@ -193,7 +193,6 @@ namespace CrusaderWars
             try
             {
                 string siege_id = "";
-                StringBuilder sb = new StringBuilder();
                 string siegesPath = CrusaderWars.data.save_file.Writter.DataFilesPaths.Sieges_Path();
 
                 // First pass: Find the correct siege_id
@@ -224,38 +223,9 @@ namespace CrusaderWars
                     return;
                 }
 
-                // Second pass: Extract the block for the found siege_id
-                using (StreamReader sr = new StreamReader(siegesPath))
-                {
-                    bool isSearchStarted = false;
-                    while (!sr.EndOfStream)
-                    {
-                        string? line = sr.ReadLine();
-                        if (line == null) break;
-
-                        if (!isSearchStarted && line == $"\t\t{siege_id}={{")
-                        {
-                            sb.AppendLine(line);
-                            isSearchStarted = true;
-                        }
-                        else if (isSearchStarted && line == "\t\t}")
-                        {
-                            sb.AppendLine(line);
-                            isSearchStarted = false;
-                            break; // Found the end of our block
-                        }
-                        else if (isSearchStarted)
-                        {
-                            sb.AppendLine(line);
-                        }
-                    }
-                }
-
                 BattleResult.SiegeID = siege_id;
                 Program.Logger.Debug("SiegeID - " + siege_id);
-                // Overwrite Sieges.txt with only the relevant block
-                File.WriteAllText(siegesPath, sb.ToString());
-                Program.Logger.Debug("Sieges.txt overwritten with only the relevant siege data.");
+                Program.Logger.Debug("Siege ID identified. No further modification to Sieges.txt in GetPlayerSiege.");
             }
             catch (Exception ex)
             {
@@ -490,7 +460,7 @@ namespace CrusaderWars
                         
                     regiment.SetSoldiers(regSoldiers.ToString());
                     unitReport.SetKilled(killed);
-                    Program.Logger.Debug($"Setting Unit Report: Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
+                    Program.Logger.Debug($"Setting Unit Report: Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
                 }
                 // Moved these lines outside the inner loop
                 int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum)).Sum(x => Int32.Parse(x.CurrentNum!));
@@ -1745,24 +1715,61 @@ namespace CrusaderWars
             string winner = BattleResult.GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
             Program.Logger.Debug($"Siege battle winner: {winner}");
 
-            string originalSiegeContent = File.ReadAllText(Writter.DataFilesPaths.Sieges_Path());
-            string finalSiegeContent;
+            string originalSiegesFilePath = Writter.DataFilesPaths.Sieges_Path();
+            string tempSiegesFilePath = Writter.DataTEMPFilesPaths.Sieges_Path();
 
-            if (winner == "attacker")
+            // Read all lines from the original Sieges.txt
+            List<string> allLines = File.ReadAllLines(originalSiegesFilePath).ToList();
+            List<string> modifiedLines = new List<string>();
+
+            if (winner == "defender")
             {
-                int fortLevel = Sieges.GetFortLevel();
-                int newProgress = 100 + (fortLevel * 75);
-                finalSiegeContent = Regex.Replace(originalSiegeContent, @"progress=[\d\.]+", $"progress={newProgress}");
-                Program.Logger.Debug($"Attacker won. Updating siege progress to {newProgress}% (based on fort level {fortLevel}).");
-            }
-            else // winner == "defender"
-            {
-                finalSiegeContent = originalSiegeContent;
-                Program.Logger.Debug("Defender won. Siege block not modified.");
+                // If defender won, no changes to siege progress are needed.
+                // Just copy the original content to the temp file.
+                File.WriteAllLines(tempSiegesFilePath, allLines);
+                Program.Logger.Debug("Defender won. Original Sieges.txt copied to temp file without modifications.");
+                return;
             }
 
-            File.WriteAllText(Writter.DataTEMPFilesPaths.Sieges_Path(), finalSiegeContent);
-            Program.Logger.Debug("Finished editing Sieges file.");
+            // If attacker won, calculate new progress and modify the specific siege block.
+            if (BattleResult.SiegeID == null)
+            {
+                Program.Logger.Debug("ERROR: BattleResult.SiegeID is null. Cannot update siege progress.");
+                File.WriteAllLines(tempSiegesFilePath, allLines); // Copy original to avoid data loss
+                return;
+            }
+
+            int fortLevel = Sieges.GetFortLevel();
+            int newProgress = 100 + (fortLevel * 75);
+            Program.Logger.Debug($"Attacker won. Updating siege progress for SiegeID {BattleResult.SiegeID} to {newProgress}% (based on fort level {fortLevel}).");
+
+            bool inTargetSiegeBlock = false;
+            foreach (string line in allLines)
+            {
+                string trimmedLine = line.Trim();
+                if (trimmedLine == $"{BattleResult.SiegeID}={{") // Start of the target siege block
+                {
+                    inTargetSiegeBlock = true;
+                    modifiedLines.Add(line);
+                }
+                else if (inTargetSiegeBlock && trimmedLine.StartsWith("progress="))
+                {
+                    modifiedLines.Add($"\t\t\tprogress={newProgress}");
+                    Program.Logger.Debug($"  - Replaced 'progress=' line in SiegeID {BattleResult.SiegeID}.");
+                }
+                else if (inTargetSiegeBlock && trimmedLine == "}") // End of the target siege block
+                {
+                    inTargetSiegeBlock = false;
+                    modifiedLines.Add(line);
+                }
+                else
+                {
+                    modifiedLines.Add(line);
+                }
+            }
+
+            File.WriteAllLines(tempSiegesFilePath, modifiedLines);
+            Program.Logger.Debug("Finished editing Sieges file. Modified content written to temp file.");
         }
     }
 }
