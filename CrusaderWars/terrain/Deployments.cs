@@ -194,16 +194,16 @@ namespace CrusaderWars.terrain
             switch (mapSize)
             {
                 case "Medium":
-                    width = "750"; // Changed from 600
-                    height = "750"; // Changed from 600
+                    width = "900"; // Changed from 750
+                    height = "900"; // Changed from 750
                     break;
                 case "Big":
-                    width = "1100"; // Changed from 900
-                    height = "1100"; // Changed from 900
+                    width = "1300"; // Changed from 1100
+                    height = "1300"; // Changed from 1100
                     break;
                 case "Huge":
-                    width = "1500"; // Changed from 1200
-                    height = "1500"; // Changed from 1200
+                    width = "1800"; // Changed from 1500
+                    height = "1800"; // Changed from 1500
                     break;
                 default: // Fallback to original size if map size is unexpected
                     width = "250";
@@ -266,7 +266,7 @@ namespace CrusaderWars.terrain
     class DeploymentArea
     {
         //CENTER POSITIONS
-        public string X { get; private set; }
+        public string X {  get; private set; }
         public string Y { get; private set; }
 
         //AREA DIAMETER
