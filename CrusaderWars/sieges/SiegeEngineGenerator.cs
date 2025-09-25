@@ -32,17 +32,18 @@ namespace CrusaderWars.sieges
                 return siegeEnginesToBuild;
             }
 
-            // Determine the required wall height for siege equipment
-            // Holding level 1 or 2 typically means smaller walls (8m equipment)
-            // Holding level 3 or higher means larger walls (15m equipment)
-            string requiredWallHeight = (holdingLevel >= 3) ? "15m" : "8m";
-            Program.Logger.Debug($"Required wall height based on holding level ({holdingLevel}): {requiredWallHeight}");
+            // Determine which wall height to exclude from siege equipment
+            // Holding level 1 or 2 means we exclude 15m equipment
+            // Holding level 3 or higher means we exclude 8m equipment
+            string excludedWallHeight = (holdingLevel >= 3) ? "8m" : "15m";
+            Program.Logger.Debug($"Excluding engines with wall height '{excludedWallHeight}' based on holding level ({holdingLevel}).");
 
-            // Filter engines based on wall height. Battering rams are always allowed.
+            // Filter out engines designed for the wrong wall height.
+            // This correctly includes engines for the required height AND engines with no height requirement (like rams).
             var filteredEngines = allAvailableEngines
-                .Where(e => e.Type == "ram" || e.Key.Contains(requiredWallHeight, StringComparison.OrdinalIgnoreCase))
+                .Where(e => !e.Key.Contains(excludedWallHeight, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-            Program.Logger.Debug($"Filtered {filteredEngines.Count} engines based on wall height '{requiredWallHeight}'.");
+            Program.Logger.Debug($"Filtered to {filteredEngines.Count} engines after excluding '{excludedWallHeight}'.");
 
             // Calculate progress percentage to determine allowed effort cost and quantity
             double progressPercentage = siegeProgress / totalRequiredProgress;
@@ -52,17 +53,17 @@ namespace CrusaderWars.sieges
 
             // Select the best available engine for each type that meets the criteria
             var bestRam = filteredEngines
-                .Where(e => e.Type == "ram" && e.SiegeEffortCost <= maxEffortCost)
+                .Where(e => e.Type.Contains("ram", StringComparison.OrdinalIgnoreCase) && e.SiegeEffortCost <= maxEffortCost)
                 .OrderByDescending(e => e.SiegeEffortCost)
                 .FirstOrDefault();
 
             var bestTower = filteredEngines
-                .Where(e => e.Type == "tower" && e.SiegeEffortCost <= maxEffortCost)
+                .Where(e => e.Type.Contains("tower", StringComparison.OrdinalIgnoreCase) && e.SiegeEffortCost <= maxEffortCost)
                 .OrderByDescending(e => e.SiegeEffortCost)
                 .FirstOrDefault();
 
             var bestLadder = filteredEngines
-                .Where(e => e.Type == "ladder" && e.SiegeEffortCost <= maxEffortCost)
+                .Where(e => e.Type.Contains("ladder", StringComparison.OrdinalIgnoreCase) && e.SiegeEffortCost <= maxEffortCost)
                 .OrderByDescending(e => e.SiegeEffortCost)
                 .FirstOrDefault();
 

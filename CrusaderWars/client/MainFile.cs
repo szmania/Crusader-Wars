@@ -1436,7 +1436,6 @@ namespace CrusaderWars
                 try
                 {
                     Program.Logger.Debug("Clearing previous battle files before regeneration...");
-                    // Data.Reset(); // REMOVED: This line was causing premature reset of siege data
                     BattleFile.ClearFile();
                     DeclarationsFile.Erase();
                     BattleScript.EraseScript();
