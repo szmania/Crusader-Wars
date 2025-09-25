@@ -766,13 +766,14 @@ namespace CrusaderWars
                 notificationForm.Icon = this.Icon; // Use the main form's icon
 
                 Label messageLabel = new Label();
-                messageLabel.Text = "New Playthroughs Added!\n\n" +
-                                    "• A Game of Thrones (AGOT) playthrough is now available.\n" +
-                                    "• The Lord of the Rings (LOTR) playthrough is now fully supported.\n\n" +
-                                    "----------------------------------------------------------\n\n" +
-                                    "Important Update for 'The Fallen Eagle' Playthrough!\n\n" +
-                                    "This playthrough now requires the 'Age of Justinian 555 2.0' mod for Total War: Attila to ensure the best experience.\n\n" +
-                                    "Please subscribe to it on the Steam Workshop before starting your next campaign.";
+                messageLabel.Text = 
+                    "Sieges Added!\n\n" +
+                    "• Siege battles can be fought and won in all your favorite playthroughs!.\n" +
+                    "----------------------------------------------------------\n\n" +
+                    "New Playthroughs Added!\n\n" +
+                    "• A Game of Thrones (AGOT) playthrough is now available.\n" +
+                    "• The Lord of the Rings (LOTR) playthrough is now fully supported.\n\n" +
+                    "----------------------------------------------------------\n\n";
                 messageLabel.Location = new Point(10, 10);
                 messageLabel.AutoSize = true;
                 messageLabel.MaximumSize = new Size(notificationForm.ClientSize.Width - 20, 0);
