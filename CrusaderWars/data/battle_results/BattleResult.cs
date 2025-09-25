@@ -464,7 +464,7 @@ namespace CrusaderWars.data.battle_results
 
                 foreach (Regiment regiment in armyRegiment.Regiments)
                 {
-                    if(regiment.Culture is null ) continue; // skip siege maa
+                    if (regiment.Culture is null) continue; // skip siege maa
 
                     var unitReport = army.CasualitiesReports.FirstOrDefault(x => x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null && x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == armyRegiment.MAA_Name);
                     if (unitReport == null)
@@ -529,16 +529,37 @@ namespace CrusaderWars.data.battle_results
                     continue;
                 }
                 Program.Logger.Debug($"Processing casualty report for group: Type='{group.Key.Type}', CultureID='{group.Key.CultureID}'.");
-                // Set the regiment type to the correct one
+                
                 RegimentType unitType;
-                if (group.Key.Type.Contains("Levy")) { unitType = RegimentType.Levy; }
-                else if (group.Key.Type.Contains("commander") || group.Key.Type == "knights") { continue; }
-                else if (group.Key.Type.Contains("Garrison")) { unitType = RegimentType.Garrison; } // Added for garrison units
-                else { unitType = RegimentType.MenAtArms; }
+                string type; // This is the identifier string (CK3 name, Attila key, or generic "Levy")
+
+                if (army.IsGarrison())
+                {
+                    unitType = RegimentType.Garrison;
+                    type = group.Key.Type; // The log type is the Attila unit key
+                }
+                else
+                {
+                    // This logic is for field armies
+                    if (group.Key.Type.Contains("Levy"))
+                    {
+                        unitType = RegimentType.Levy;
+                        type = "Levy"; // Match against the generic unit name "Levy"
+                    }
+                    else if (group.Key.Type.Contains("commander") || group.Key.Type == "knights")
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        unitType = RegimentType.MenAtArms;
+                        type = group.Key.Type; // The log type is the CK3 MAA name
+                    }
+                }
 
                 // Search for type, culture, starting soldiers and remaining soldiers of a Unit
-                if(army.Units == null) { continue; }
-                string type = Regex.Match(group.Key.Type, @"\D+").Value;
+                if (army.Units == null) { continue; }
+                
                 // Safely get the unit, then its culture. If unit is null, culture will be null.
                 // The warning CS8600 is because GetObjCulture() is called on a potentially null result of FirstOrDefault().
                 var matchingUnit = army.Units.Where(x => x != null).FirstOrDefault(x =>
