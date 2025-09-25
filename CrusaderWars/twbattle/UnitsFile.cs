@@ -508,7 +508,7 @@ namespace CrusaderWars
                 string logLine = $"    - Garrison Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({garrison_type_data.UnitNum}x units of {garrison_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
                 BattleLog.AddLevyLog(army.ID, logLine); // Keep AddLevyLog as per instruction, only text changed
 
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEGarrison{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{porcentageData.unit_key}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(porcentageData.unit_key, garrison_type_data.UnitSoldiers, garrison_type_data.UnitNum, garrison_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
