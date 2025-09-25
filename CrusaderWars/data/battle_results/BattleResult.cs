@@ -427,6 +427,37 @@ namespace CrusaderWars.data.battle_results
         static void ChangeRegimentsSoldiers(Army army)
         {
             Program.Logger.Debug($"Entering ChangeRegimentsSoldiers for army {army.ID}.");
+            if (army.IsGarrison())
+            {
+                Program.Logger.Debug($"Processing casualties for Garrison Army {army.ID}.");
+                foreach (var unit in army.Units)
+                {
+                    if (unit == null) continue;
+
+                    var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
+                        x.GetUnitType() == unit.GetRegimentType() &&
+                        x.GetCulture()?.ID == unit.GetObjCulture()?.ID &&
+                        x.GetTypeName() == unit.GetAttilaUnitKey() // Garrisons are matched by Attila key
+                    );
+
+                    if (unitReport != null)
+                    {
+                        int killed = unitReport.GetKilled();
+                        if (killed <= 0) continue;
+
+                        int originalSoldiers = unit.GetSoldiers();
+                        int remainingSoldiers = Math.Max(0, originalSoldiers - killed);
+                        int casualtiesApplied = originalSoldiers - remainingSoldiers;
+
+                        unit.ChangeSoldiers(remainingSoldiers);
+                        unitReport.SetKilled(killed - casualtiesApplied); // Update report with remaining casualties
+
+                        Program.Logger.Debug($"Garrison Unit Report: Type '{unit.GetAttilaUnitKey()}', Culture: {unit.GetCulture()}: Soldiers changed from {originalSoldiers} to {remainingSoldiers}.");
+                    }
+                }
+                return; // Exit after processing garrison
+            }
+
             foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
             {
                 if (armyRegiment.Type == data.save_file.RegimentType.Commander || armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
@@ -502,6 +533,7 @@ namespace CrusaderWars.data.battle_results
                 RegimentType unitType;
                 if (group.Key.Type.Contains("Levy")) { unitType = RegimentType.Levy; }
                 else if (group.Key.Type.Contains("commander") || group.Key.Type == "knights") { continue; }
+                else if (group.Key.Type.Contains("Garrison")) { unitType = RegimentType.Garrison; } // Added for garrison units
                 else { unitType = RegimentType.MenAtArms; }
 
                 // Search for type, culture, starting soldiers and remaining soldiers of a Unit
@@ -509,7 +541,11 @@ namespace CrusaderWars.data.battle_results
                 string type = Regex.Match(group.Key.Type, @"\D+").Value;
                 // Safely get the unit, then its culture. If unit is null, culture will be null.
                 // The warning CS8600 is because GetObjCulture() is called on a potentially null result of FirstOrDefault().
-                var matchingUnit = army.Units.Where(x => x != null).FirstOrDefault(x => x.GetRegimentType() == unitType && x.GetObjCulture()?.ID == group.Key.CultureID && x.GetName() == type);
+                var matchingUnit = army.Units.Where(x => x != null).FirstOrDefault(x =>
+                    x.GetRegimentType() == unitType &&
+                    x.GetObjCulture()?.ID == group.Key.CultureID &&
+                    ((unitType == RegimentType.Garrison && x.GetAttilaUnitKey() == type) || (unitType != RegimentType.Garrison && x.GetName() == type))
+                );
                 
                 if (matchingUnit == null)
                 {
