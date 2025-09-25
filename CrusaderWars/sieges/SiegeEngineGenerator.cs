@@ -25,8 +25,8 @@ namespace CrusaderWars.sieges
             double totalRequiredProgress = 100 + (fortLevel * 75);
             Program.Logger.Debug($"Total Required Siege Progress: {totalRequiredProgress}");
 
-            // Return immediately if current progress is less than one-third of the total required progress
-            if (siegeProgress < totalRequiredProgress / 3)
+            // Return immediately if current progress is less than one-fourth of the total required progress
+            if (siegeProgress < totalRequiredProgress / 4)
             {
                 Program.Logger.Debug($"Siege progress ({siegeProgress}) is less than one-third of total required progress ({totalRequiredProgress / 3}). No siege engines generated.");
                 return siegeEnginesToBuild;
