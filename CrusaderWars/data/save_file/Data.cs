@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
+using CrusaderWars.data.battle_results;
 
 namespace CrusaderWars
 {

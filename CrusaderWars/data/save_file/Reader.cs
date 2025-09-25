@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
 using CrusaderWars; // Added to access the consolidated Data class
+using CrusaderWars.data.battle_results;
 
 namespace CrusaderWars.data.save_file
 {

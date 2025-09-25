@@ -53,6 +53,7 @@ namespace CrusaderWars
         //Getters
         public bool IsEnemy() { return IsEnemyArmy; }
         public bool IsPlayer() { return IsPlayerArmy; }
+        public bool IsGarrison() { return IsGarrisonArmy; }
 
 
         //Setters

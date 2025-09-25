@@ -9,6 +9,7 @@ using CrusaderWars.locs;
 using CrusaderWars.terrain;
 using System.Text;
 using System.Globalization; // Added for CultureInfo
+using CrusaderWars.data.battle_results;
 
 
 namespace CrusaderWars

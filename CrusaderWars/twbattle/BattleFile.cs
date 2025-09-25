@@ -16,6 +16,7 @@ using CrusaderWars.twbattle;
 using CrusaderWars.unit_mapper;
 using static CrusaderWars.terrain.Lands;
 using System.Text;
+using CrusaderWars.data.battle_results;
 
 
 namespace CrusaderWars
