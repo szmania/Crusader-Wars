@@ -602,7 +602,12 @@ window = {
 					############################################################
 					############################################################					
 
-					button = { name = Siege_Button
+                    ############################################################
+                    ###   ---Added Crusader Conflicts Play Siege Battle Control1---     ###
+                    ###      Enabled for player character only lead army     ### 
+                    ############################################################
+
+					button = { name = Siege_Button_control1
 			            tooltip = cc_siege_fight_button
 						#enabled = "[Siege.EnableAssaultButton]"
 						parentanchor = left
@@ -610,7 +615,8 @@ window = {
 						texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
 						size = { 50 50 }
 						#alpha = .60
-						visible = yes
+						#visible = yes
+			            visible = "[And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
 
 						onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
 			            #onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
@@ -962,6 +968,1110 @@ window = {
 							on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
 						}																								
 					}
+					
+					
+                    ############################################################
+                    ###   ---Added Crusader Conflicts Play Siege Battle Control2---     ###
+                    ###      Enabled for player character only lead army     ### 
+                    ############################################################
+
+                    button = { name = Siege_Button_control2
+                        tooltip = cc_siege_fight_button
+                        #enabled = "[Siege.EnableAssaultButton]"
+                        parentanchor = left
+                        position = { 0 0 }
+                        texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
+                        size = { 50 50 }
+                        #alpha = .60
+                        #visible = yes
+                        visible = "[And(And(Or(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, ObjectsEqual(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetCouncilTitle, 'Marshal')), GetVariableSystem.HasValue('cw_op_control', 'control2')), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
+
+                        onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
+                        #onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+
+                        ##Essential data
+                        state = {
+                            name = "clear_log"
+                            duration = 0.01
+                            next = "log_year"
+                            on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
+                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
+                        }
+
+                        state = {
+                            name = "log_year"
+                            duration = 0.01
+                            next = "log_month"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('DateYear:', Localize('global_date_year')))]"
+                        }
+
+                        state = {
+                            name = "log_month"
+                            duration = 0.01
+                            next = "log_battle_name"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('DateMonth:', Localize('global_date_month')))]"
+                        }
+
+                        state = {
+                            name = "log_battle_name"
+                            duration = 0.01
+                            next = "log_player_realm"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:Siege of ', SiegeWindow.GetSiege.GetProvince.GetName))]"
+                        }
+                        ## Realms names
+
+                        state = {
+                            name = "log_player_realm"
+                            duration = 0.01
+                            next = "log_enemy_realm"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetPrimaryTitle.GetName)]"
+                        }	
+
+                        state = {
+                            name = "log_enemy_realm"
+                            duration = 0.01
+                            next = "log_player_char_id"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Localize('defender_realm'))]"	
+                        }
+                        
+                        state = {
+                            name = "log_player_char_id"
+                            duration = 0.01
+                            next = "log_player_char_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_player_char_culture"
+                            duration = 0.01
+                            next = "log_attacker_owner_id"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_attacker_owner_id"
+                            duration = 0.01
+                            next = "log_attacker_owner_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_ID:', Localize('global_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_owner_culture"
+                            duration = 0.01
+                            next = "log_defender_owner_id"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_defender_owner_id"
+                            duration = 0.01
+                            next = "log_defender_owner_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_ID:', Localize('global_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_defender_owner_culture"
+                            duration = 0.01
+                            next = "log_player_divider"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        
+                        #Console Command Divider
+                        state = {
+                            name = "log_player_divider"
+                            duration = 0.01
+                            next = "log_attacker_commander_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
+                        }
+                        state = {
+                            name = "log_attacker_commander_culture"
+                            duration = 0.01
+                            next = "log_attacker_martial_skill"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_martial_skill"
+                            duration = 0.01
+                            next = "log_attacker_prowess_skill"
+                            on_finish = "[ExecuteConsoleCommand(Localize('attacker_martial'))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_prowess_skill"
+                            duration = 0.01
+                            next = "log_player_rank"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
+
+                        }
+
+                        state = {
+                            name = "log_player_rank"
+                            duration = 0.01
+                            next = "log_attacker_knight_count"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+                        }
+                        
+                        state = {
+                            name = "log_attacker_knight_count"
+                            duration = 0.01
+                            next = "log_attacker_knight_effectiveness"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+                        }
+
+                        state = {
+                            name = "log_attacker_knight_effectiveness"
+                            duration = 0.01
+                            next = "log_enemy_divider"
+                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_divider"
+                            duration = 0.01
+                            next = "log_enemy_commander_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_commander_culture"
+                            duration = 0.01
+                            next = "log_enemy_martial_skill"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_enemy_martial_skill"
+                            duration = 0.01
+                            next = "log_enemy_prowess"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetController.GetCommanderAdvantageDesc)]"
+                        }
+
+                        state = {
+                            name = "log_enemy_prowess"
+                            duration = 0.01
+                            next = "log_enemy_rank"
+                            on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_rank"
+                            duration = 0.01
+                            next = "log_garrison"		
+                            on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+                        }
+                        state = {
+                            name = "log_garrison"
+                            duration = 0.01
+                            next = "log_garrison_heritage"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonSize:', Localize('garrison_num')))]"
+                        }
+
+                        state = {
+                            name = "log_garrison_heritage"
+                            duration = 0.01
+                            next = "log_garrison_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonHeritage:', Localize('garrison_heritage')))]"
+                        }
+                        state = {
+                            name = "log_garrison_culture"
+                            duration = 0.01
+                            next = "log_holding_level"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonCulture:', Localize('garrison_culture')))]"
+                        }
+
+                        state = {
+                            name = "log_holding_level"
+                            duration = 0.01
+                            next = "log_sickness"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+                        }
+                        state = {
+                            name = "log_sickness"
+                            duration = 0.01
+                            next = "log_starvation"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('Diseases:', SiegeWindow.GetDiseaseStateTooltip))]"
+                        }
+
+                        state = {
+                            name = "log_starvation"
+                            duration = 0.01
+                            next = "log_wall_breaches"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetStarvationStateTooltip)]"
+                        }	
+                        
+                        state = {
+                            name = "log_wall_breaches"
+                            duration = 0.01
+                            next = "log_fort_level"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetBreachStateTooltip)]"
+                        }											
+
+                        state = {
+                            name = "log_fort_level"
+                            duration = 0.01
+                            next = "log_completed_divider"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('FortLevel:', SiegeWindow.GetSiege.GetProvince.GetFortLevelTooltip))]"
+                        }
+
+                        state = {
+                            name = "log_completed_divider"
+                            duration = 0.01
+                            next = "log_terrain"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Completed---------'))]"
+                        }
+
+                        state = {
+                            name = "log_terrain"
+                            duration = 0.01
+                            next = "log_region"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetTerrain.GetName)]"
+                        }
+
+                        state = {	
+                            name = "log_region"
+                            duration = 0.01	
+                            next = "log_province_id"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('Region:',SiegeWindow.GetSiege.GetProvince.Custom('GetProvinceRegion')))]"
+                        }
+
+                        state = {	
+                            name = "log_province_id"
+                            duration = 0.01	
+                            next = "log_winter"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetName))]"
+                        }
+                        
+                        state = {
+                            name = "log_winter"
+                            duration = 0.01
+                            next = "log_province_style"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetWinterSeverityName)]"
+                        }
+                        
+                        state = {
+                            name = "log_province_style"
+                            duration = 0.01
+                            next = "log_player_commander_id"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetCulture.GetBuildingGfxName)]"
+            
+                        }	
+                        
+                        state = {	
+                            name = "log_player_commander_id"
+                            duration = 0.01
+                            next = "log_enemy_commander_id"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
+                        }
+                        
+                        state = {	
+                            name = "log_enemy_commander_id"
+                            duration = 0.01
+                            next = "log_player_commander_name"
+                            on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
+                        }
+                        
+                        state = {	
+                            name = "log_player_commander_name"
+                            duration = 0.01
+                            next = "log_defender_commander_name"
+                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
+                        }
+
+                        state = {	
+                            name = "log_defender_commander_name"
+                            duration = 0.01
+                            next = "print_special_building"
+                            on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
+                        }
+
+                        state = {	
+                            name = "print_special_building"
+                            duration = 0.01	
+                            next = "print_modifiers_line"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+                        }	
+            
+                        state = {	
+                            name = "print_modifiers_line"
+                            duration = 0.01	
+                            next = "print_modifiers"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Modifiers---------'))]"
+                        }	
+                    
+                        state = {	
+                            name = "print_modifiers"
+                            duration = 0.01
+                            next = "log_keyword"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetDailyProgressTooltip)]"				
+                        }
+
+                        state = {
+                            name = "log_keyword"
+                            duration = 0.01
+                            next = "save_game_readable"
+                            on_finish = "[ExecuteConsoleCommand('BattleType:SIEGE')]"
+                        }
+                        state = {
+                            name = "save_game_readable"
+                            on_finish = "[OnPauseMenu]"
+                            on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+                        }																								
+                    }
+					
+							
+                    ############################################################
+                    ###   ---Added Crusader Conflicts Play Siege Battle Control3---     ###
+                    ###      Enabled for player character only lead army     ### 
+                    ############################################################
+
+                    button = { name = Siege_Button_control3
+                        tooltip = cc_siege_fight_button
+                        #enabled = "[Siege.EnableAssaultButton]"
+                        parentanchor = left
+                        position = { 0 0 }
+                        texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
+                        size = { 50 50 }
+                        #alpha = .60
+                        #visible = yes
+                        visible = "[And(And(ObjectsEqual(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetDynasty, GetPlayer.GetDynasty), GetVariableSystem.HasValue('cw_op_control', 'control3')), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
+
+                        onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
+                        #onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+
+                        ##Essential data
+                        state = {
+                            name = "clear_log"
+                            duration = 0.01
+                            next = "log_year"
+                            on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
+                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
+                        }
+
+                        state = {
+                            name = "log_year"
+                            duration = 0.01
+                            next = "log_month"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('DateYear:', Localize('global_date_year')))]"
+                        }
+
+                        state = {
+                            name = "log_month"
+                            duration = 0.01
+                            next = "log_battle_name"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('DateMonth:', Localize('global_date_month')))]"
+                        }
+
+                        state = {
+                            name = "log_battle_name"
+                            duration = 0.01
+                            next = "log_player_realm"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:Siege of ', SiegeWindow.GetSiege.GetProvince.GetName))]"
+                        }
+                        ## Realms names
+
+                        state = {
+                            name = "log_player_realm"
+                            duration = 0.01
+                            next = "log_enemy_realm"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetPrimaryTitle.GetName)]"
+                        }	
+
+                        state = {
+                            name = "log_enemy_realm"
+                            duration = 0.01
+                            next = "log_player_char_id"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Localize('defender_realm'))]"	
+                        }
+                        
+                        state = {
+                            name = "log_player_char_id"
+                            duration = 0.01
+                            next = "log_player_char_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_player_char_culture"
+                            duration = 0.01
+                            next = "log_attacker_owner_id"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_attacker_owner_id"
+                            duration = 0.01
+                            next = "log_attacker_owner_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_ID:', Localize('global_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_owner_culture"
+                            duration = 0.01
+                            next = "log_defender_owner_id"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_defender_owner_id"
+                            duration = 0.01
+                            next = "log_defender_owner_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_ID:', Localize('global_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_defender_owner_culture"
+                            duration = 0.01
+                            next = "log_player_divider"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        
+                        #Console Command Divider
+                        state = {
+                            name = "log_player_divider"
+                            duration = 0.01
+                            next = "log_attacker_commander_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
+                        }
+                        state = {
+                            name = "log_attacker_commander_culture"
+                            duration = 0.01
+                            next = "log_attacker_martial_skill"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_martial_skill"
+                            duration = 0.01
+                            next = "log_attacker_prowess_skill"
+                            on_finish = "[ExecuteConsoleCommand(Localize('attacker_martial'))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_prowess_skill"
+                            duration = 0.01
+                            next = "log_player_rank"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
+
+                        }
+
+                        state = {
+                            name = "log_player_rank"
+                            duration = 0.01
+                            next = "log_attacker_knight_count"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+                        }
+                        
+                        state = {
+                            name = "log_attacker_knight_count"
+                            duration = 0.01
+                            next = "log_attacker_knight_effectiveness"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+                        }
+
+                        state = {
+                            name = "log_attacker_knight_effectiveness"
+                            duration = 0.01
+                            next = "log_enemy_divider"
+                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_divider"
+                            duration = 0.01
+                            next = "log_enemy_commander_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_commander_culture"
+                            duration = 0.01
+                            next = "log_enemy_martial_skill"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_enemy_martial_skill"
+                            duration = 0.01
+                            next = "log_enemy_prowess"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetController.GetCommanderAdvantageDesc)]"
+                        }
+
+                        state = {
+                            name = "log_enemy_prowess"
+                            duration = 0.01
+                            next = "log_enemy_rank"
+                            on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_rank"
+                            duration = 0.01
+                            next = "log_garrison"		
+                            on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+                        }
+                        state = {
+                            name = "log_garrison"
+                            duration = 0.01
+                            next = "log_garrison_heritage"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonSize:', Localize('garrison_num')))]"
+                        }
+
+                        state = {
+                            name = "log_garrison_heritage"
+                            duration = 0.01
+                            next = "log_garrison_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonHeritage:', Localize('garrison_heritage')))]"
+                        }
+                        state = {
+                            name = "log_garrison_culture"
+                            duration = 0.01
+                            next = "log_holding_level"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonCulture:', Localize('garrison_culture')))]"
+                        }
+
+                        state = {
+                            name = "log_holding_level"
+                            duration = 0.01
+                            next = "log_sickness"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+                        }
+                        state = {
+                            name = "log_sickness"
+                            duration = 0.01
+                            next = "log_starvation"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('Diseases:', SiegeWindow.GetDiseaseStateTooltip))]"
+                        }
+
+                        state = {
+                            name = "log_starvation"
+                            duration = 0.01
+                            next = "log_wall_breaches"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetStarvationStateTooltip)]"
+                        }	
+                        
+                        state = {
+                            name = "log_wall_breaches"
+                            duration = 0.01
+                            next = "log_fort_level"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetBreachStateTooltip)]"
+                        }											
+
+                        state = {
+                            name = "log_fort_level"
+                            duration = 0.01
+                            next = "log_completed_divider"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('FortLevel:', SiegeWindow.GetSiege.GetProvince.GetFortLevelTooltip))]"
+                        }
+
+                        state = {
+                            name = "log_completed_divider"
+                            duration = 0.01
+                            next = "log_terrain"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Completed---------'))]"
+                        }
+
+                        state = {
+                            name = "log_terrain"
+                            duration = 0.01
+                            next = "log_region"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetTerrain.GetName)]"
+                        }
+
+                        state = {	
+                            name = "log_region"
+                            duration = 0.01	
+                            next = "log_province_id"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('Region:',SiegeWindow.GetSiege.GetProvince.Custom('GetProvinceRegion')))]"
+                        }
+
+                        state = {	
+                            name = "log_province_id"
+                            duration = 0.01	
+                            next = "log_winter"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetName))]"
+                        }
+                        
+                        state = {
+                            name = "log_winter"
+                            duration = 0.01
+                            next = "log_province_style"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetWinterSeverityName)]"
+                        }
+                        
+                        state = {
+                            name = "log_province_style"
+                            duration = 0.01
+                            next = "log_player_commander_id"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetCulture.GetBuildingGfxName)]"
+            
+                        }	
+                        
+                        state = {	
+                            name = "log_player_commander_id"
+                            duration = 0.01
+                            next = "log_enemy_commander_id"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
+                        }
+                        
+                        state = {	
+                            name = "log_enemy_commander_id"
+                            duration = 0.01
+                            next = "log_player_commander_name"
+                            on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
+                        }
+                        
+                        state = {	
+                            name = "log_player_commander_name"
+                            duration = 0.01
+                            next = "log_defender_commander_name"
+                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
+                        }
+
+                        state = {	
+                            name = "log_defender_commander_name"
+                            duration = 0.01
+                            next = "print_special_building"
+                            on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
+                        }
+
+                        state = {	
+                            name = "print_special_building"
+                            duration = 0.01	
+                            next = "print_modifiers_line"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+                        }	
+            
+                        state = {	
+                            name = "print_modifiers_line"
+                            duration = 0.01	
+                            next = "print_modifiers"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Modifiers---------'))]"
+                        }	
+                    
+                        state = {	
+                            name = "print_modifiers"
+                            duration = 0.01
+                            next = "log_keyword"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetDailyProgressTooltip)]"				
+                        }
+
+                        state = {
+                            name = "log_keyword"
+                            duration = 0.01
+                            next = "save_game_readable"
+                            on_finish = "[ExecuteConsoleCommand('BattleType:SIEGE')]"
+                        }
+                        state = {
+                            name = "save_game_readable"
+                            on_finish = "[OnPauseMenu]"
+                            on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+                        }																								
+                    }
+                    
+                    		
+                    ############################################################
+                    ###   ---Added Crusader Conflicts Play Siege Battle Control4---     ###
+                    ###      Enabled for player character only lead army     ### 
+                    ############################################################
+
+                    button = { name = Siege_Button_control4
+                        tooltip = cc_siege_fight_button
+                        #enabled = "[Siege.EnableAssaultButton]"
+                        parentanchor = left
+                        position = { 0 0 }
+                        texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
+                        size = { 50 50 }
+                        #alpha = .60
+                        #visible = yes
+                        visible = "[And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsValid, GetVariableSystem.HasValue( 'cw_op_control', 'control4' )), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
+
+                        onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
+                        #onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+
+                        ##Essential data
+                        state = {
+                            name = "clear_log"
+                            duration = 0.01
+                            next = "log_year"
+                            on_start = "[ExecuteConsoleCommand('Log.ClearAll')]"
+                            on_start = "[GetScriptedGui('siege_data').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('siege_data',SiegeWindow.GetSiege.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetAttackerUnitItem.GetArmy.MakeScope).End)]"
+                        }
+
+                        state = {
+                            name = "log_year"
+                            duration = 0.01
+                            next = "log_month"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('DateYear:', Localize('global_date_year')))]"
+                        }
+
+                        state = {
+                            name = "log_month"
+                            duration = 0.01
+                            next = "log_battle_name"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('DateMonth:', Localize('global_date_month')))]"
+                        }
+
+                        state = {
+                            name = "log_battle_name"
+                            duration = 0.01
+                            next = "log_player_realm"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:Siege of ', SiegeWindow.GetSiege.GetProvince.GetName))]"
+                        }
+                        ## Realms names
+
+                        state = {
+                            name = "log_player_realm"
+                            duration = 0.01
+                            next = "log_enemy_realm"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetPrimaryTitle.GetName)]"
+                        }	
+
+                        state = {
+                            name = "log_enemy_realm"
+                            duration = 0.01
+                            next = "log_player_char_id"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Localize('defender_realm'))]"	
+                        }
+                        
+                        state = {
+                            name = "log_player_char_id"
+                            duration = 0.01
+                            next = "log_player_char_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_player_char_culture"
+                            duration = 0.01
+                            next = "log_attacker_owner_id"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_attacker_owner_id"
+                            duration = 0.01
+                            next = "log_attacker_owner_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_ID:', Localize('global_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_owner_culture"
+                            duration = 0.01
+                            next = "log_defender_owner_id"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_defender_owner_id"
+                            duration = 0.01
+                            next = "log_defender_owner_culture"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_ID:', Localize('global_ids_var')))]"
+                        }
+
+                        state = {
+                            name = "log_defender_owner_culture"
+                            duration = 0.01
+                            next = "log_player_divider"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        
+                        #Console Command Divider
+                        state = {
+                            name = "log_player_divider"
+                            duration = 0.01
+                            next = "log_attacker_commander_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
+                        }
+                        state = {
+                            name = "log_attacker_commander_culture"
+                            duration = 0.01
+                            next = "log_attacker_martial_skill"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_martial_skill"
+                            duration = 0.01
+                            next = "log_attacker_prowess_skill"
+                            on_finish = "[ExecuteConsoleCommand(Localize('attacker_martial'))]"
+                        }
+
+                        state = {
+                            name = "log_attacker_prowess_skill"
+                            duration = 0.01
+                            next = "log_player_rank"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
+
+                        }
+
+                        state = {
+                            name = "log_player_rank"
+                            duration = 0.01
+                            next = "log_attacker_knight_count"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+                        }
+                        
+                        state = {
+                            name = "log_attacker_knight_count"
+                            duration = 0.01
+                            next = "log_attacker_knight_effectiveness"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+                        }
+
+                        state = {
+                            name = "log_attacker_knight_effectiveness"
+                            duration = 0.01
+                            next = "log_enemy_divider"
+                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_divider"
+                            duration = 0.01
+                            next = "log_enemy_commander_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_commander_culture"
+                            duration = 0.01
+                            next = "log_enemy_martial_skill"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
+                        }
+                        
+                        state = {
+                            name = "log_enemy_martial_skill"
+                            duration = 0.01
+                            next = "log_enemy_prowess"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetController.GetCommanderAdvantageDesc)]"
+                        }
+
+                        state = {
+                            name = "log_enemy_prowess"
+                            duration = 0.01
+                            next = "log_enemy_rank"
+                            on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+                        }
+
+                        state = {
+                            name = "log_enemy_rank"
+                            duration = 0.01
+                            next = "log_garrison"		
+                            on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+                        }
+                        state = {
+                            name = "log_garrison"
+                            duration = 0.01
+                            next = "log_garrison_heritage"
+                            on_start = "[GetScriptedGui('attacker_side').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('attacker_side',SiegeWindow.GetSiege.GetProvince.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonSize:', Localize('garrison_num')))]"
+                        }
+
+                        state = {
+                            name = "log_garrison_heritage"
+                            duration = 0.01
+                            next = "log_garrison_culture"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonHeritage:', Localize('garrison_heritage')))]"
+                        }
+                        state = {
+                            name = "log_garrison_culture"
+                            duration = 0.01
+                            next = "log_holding_level"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('GarrisonCulture:', Localize('garrison_culture')))]"
+                        }
+
+                        state = {
+                            name = "log_holding_level"
+                            duration = 0.01
+                            next = "log_sickness"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('HoldingLevel:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetPrimaryBuildingType.GetKey))]"
+                        }
+                        state = {
+                            name = "log_sickness"
+                            duration = 0.01
+                            next = "log_starvation"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('Diseases:', SiegeWindow.GetDiseaseStateTooltip))]"
+                        }
+
+                        state = {
+                            name = "log_starvation"
+                            duration = 0.01
+                            next = "log_wall_breaches"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetStarvationStateTooltip)]"
+                        }	
+                        
+                        state = {
+                            name = "log_wall_breaches"
+                            duration = 0.01
+                            next = "log_fort_level"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetBreachStateTooltip)]"
+                        }											
+
+                        state = {
+                            name = "log_fort_level"
+                            duration = 0.01
+                            next = "log_completed_divider"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('FortLevel:', SiegeWindow.GetSiege.GetProvince.GetFortLevelTooltip))]"
+                        }
+
+                        state = {
+                            name = "log_completed_divider"
+                            duration = 0.01
+                            next = "log_terrain"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Completed---------'))]"
+                        }
+
+                        state = {
+                            name = "log_terrain"
+                            duration = 0.01
+                            next = "log_region"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetTerrain.GetName)]"
+                        }
+
+                        state = {	
+                            name = "log_region"
+                            duration = 0.01	
+                            next = "log_province_id"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('Region:',SiegeWindow.GetSiege.GetProvince.Custom('GetProvinceRegion')))]"
+                        }
+
+                        state = {	
+                            name = "log_province_id"
+                            duration = 0.01	
+                            next = "log_winter"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('ProvinceID:',SiegeWindow.GetSiege.GetProvince.GetName))]"
+                        }
+                        
+                        state = {
+                            name = "log_winter"
+                            duration = 0.01
+                            next = "log_province_style"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetWinterSeverityName)]"
+                        }
+                        
+                        state = {
+                            name = "log_province_style"
+                            duration = 0.01
+                            next = "log_player_commander_id"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetProvince.GetCulture.GetBuildingGfxName)]"
+            
+                        }	
+                        
+                        state = {	
+                            name = "log_player_commander_id"
+                            duration = 0.01
+                            next = "log_enemy_commander_id"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
+                        }
+                        
+                        state = {	
+                            name = "log_enemy_commander_id"
+                            duration = 0.01
+                            next = "log_player_commander_name"
+                            on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
+                        }
+                        
+                        state = {	
+                            name = "log_player_commander_name"
+                            duration = 0.01
+                            next = "log_defender_commander_name"
+                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
+                        }
+
+                        state = {	
+                            name = "log_defender_commander_name"
+                            duration = 0.01
+                            next = "print_special_building"
+                            on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
+                        }
+
+                        state = {	
+                            name = "print_special_building"
+                            duration = 0.01	
+                            next = "print_modifiers_line"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('SpecialBuilding:', SiegeWindow.GetSiege.GetProvince.GetHolding.GetSpecialBuildingType.GetKey))]"
+                        }	
+            
+                        state = {	
+                            name = "print_modifiers_line"
+                            duration = 0.01	
+                            next = "print_modifiers"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Modifiers---------'))]"
+                        }	
+                    
+                        state = {	
+                            name = "print_modifiers"
+                            duration = 0.01
+                            next = "log_keyword"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetDailyProgressTooltip)]"				
+                        }
+
+                        state = {
+                            name = "log_keyword"
+                            duration = 0.01
+                            next = "save_game_readable"
+                            on_finish = "[ExecuteConsoleCommand('BattleType:SIEGE')]"
+                        }
+                        state = {
+                            name = "save_game_readable"
+                            on_finish = "[OnPauseMenu]"
+                            on_finish = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
+                        }																								
+                    }
 					
                     ############################################################
                     ### Added Crusader Conflicts Options Button & Background icon ###

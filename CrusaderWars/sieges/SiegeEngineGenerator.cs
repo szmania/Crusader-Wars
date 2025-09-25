@@ -28,7 +28,7 @@ namespace CrusaderWars.sieges
             // Return immediately if current progress is less than one-fourth of the total required progress
             if (siegeProgress < totalRequiredProgress / 4)
             {
-                Program.Logger.Debug($"Siege progress ({siegeProgress}) is less than one-third of total required progress ({totalRequiredProgress / 3}). No siege engines generated.");
+                Program.Logger.Debug($"Siege progress ({siegeProgress}) is less than one-fourth of total required progress ({totalRequiredProgress / 4}). No siege engines generated.");
                 return siegeEnginesToBuild;
             }
 
