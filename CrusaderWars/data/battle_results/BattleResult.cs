@@ -21,6 +21,7 @@ namespace CrusaderWars
         public static string? ProvinceID { get; set; }
         public static string? SiegeID { get; set; }
         public static string? ProvinceName { get; set; }
+        public static bool IsAttackerVictorious { get; set; } = false; 
         //public static twbattle.Date FirstDay_Date { get; set; }
 
 
@@ -133,7 +134,7 @@ namespace CrusaderWars
                             {
                                 battle_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
                             }
-                            else if (line == $"\t\t\tlocation={ProvinceID}")
+                            else if (line.Trim() == $"\t\t\tlocation={ProvinceID}")
                             {
                                 Program.Logger.Debug($"Found field battle result block ID: {battle_id} for ProvinceID: {ProvinceID}");
                                 break;
@@ -1716,45 +1717,46 @@ namespace CrusaderWars
 
             if (string.IsNullOrEmpty(SiegeID))
             {
-                Program.Logger.Debug("ERROR: BattleResult.SiegeID is null. Cannot update siege progress.");
+                Program.Logger.Debug("SiegeID is null or empty. Cannot edit Sieges.txt.");
                 return;
             }
 
-            string winner = GetAttilaWinner(path_log_attila, attacker_side, defender_side);
-            Program.Logger.Debug($"Siege battle winner: {winner}");
-
-            string originalSiegesFilePath = Writter.DataFilesPaths.Sieges_Path();
-            string tempSiegesFilePath = Writter.DataTEMPFilesPaths.Sieges_Path();
-
-            List<string> allLines = File.ReadAllLines(originalSiegesFilePath).ToList();
-            List<string> modifiedLines = new List<string>();
-
-            bool inTargetSiegeBlock = false;
-            bool progressLineUpdated = false;
-
-            foreach (string line in allLines)
+            string siegesFilePath = Writter.DataFilesPaths.Sieges_Path();
+            if (!File.Exists(siegesFilePath))
             {
+                Program.Logger.Debug($"Sieges file not found at {siegesFilePath}. Cannot edit siege progress.");
+                return;
+            }
+
+            List<string> fileLines = File.ReadAllLines(siegesFilePath).ToList();
+            StringBuilder updatedContent = new StringBuilder();
+            bool inTargetSiegeBlock = false;
+            bool targetSiegeBlockFound = false; // Track if we entered the target siege block at all
+
+            // Determine if attacker lost. This would be set by other BattleResult methods.
+            bool attackerLost = !IsAttackerVictorious; // Assuming IsAttackerVictorious is set elsewhere
+
+            for (int i = 0; i < fileLines.Count; i++)
+            {
+                string line = fileLines[i];
                 string trimmedLine = line.Trim();
 
                 if (trimmedLine == $"{SiegeID}={{")
                 {
                     inTargetSiegeBlock = true;
-                    modifiedLines.Add(line);
+                    targetSiegeBlockFound = true;
+                    updatedContent.AppendLine(line);
+                }
+                else if (inTargetSiegeBlock && trimmedLine == "}")
+                {
+                    inTargetSiegeBlock = false;
+                    updatedContent.AppendLine(line);
                 }
                 else if (inTargetSiegeBlock && trimmedLine.StartsWith("progress="))
                 {
-                    progressLineUpdated = true;
-                    if (winner == attacker_side)
+                    if (attackerLost)
                     {
-                        // Attacker won: set progress to 100%
-                        int fortLevel = Sieges.GetFortLevel();
-                        double newProgress = 100 + (fortLevel * 75);
-                        Program.Logger.Debug($"Attacker won. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
-                        modifiedLines.Add($"\t\t\tprogress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
-                    }
-                    else // Attacker lost (defender won)
-                    {
-                        // --- LOGIC FOR ATTACKER DEFEAT ---
+                        // --- NEW LOGIC FOR ATTACKER DEFEAT ---
                         int initialGarrisonSize = twbattle.Sieges.GetGarrisonSize();
                         int finalGarrisonSize = defender_armies.Where(a => a.IsGarrison()).Sum(a => a.GetTotalSoldiers());
 
@@ -1767,7 +1769,7 @@ namespace CrusaderWars
                                 casualtyPercentage = (double)casualties / initialGarrisonSize;
                             }
                         }
-                        Program.Logger.Debug($"Attacker lost. Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
+                        Program.Logger.Debug($"Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
 
                         if (casualtyPercentage > 0)
                         {
@@ -1782,33 +1784,42 @@ namespace CrusaderWars
                             double newProgress = currentProgress + progressToAdd;
 
                             Program.Logger.Debug($"Adding {progressToAdd:F2} to siege progress. New progress: {newProgress:F2}");
-                            modifiedLines.Add($"\t\t\tprogress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+
+                            // Append the new progress line, preserving indentation
+                            updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
                         }
                         else
                         {
                             Program.Logger.Debug("No garrison casualties. Siege progress remains unchanged.");
-                            modifiedLines.Add(line); // Add original line back
+                            updatedContent.AppendLine(line); // Append original line
                         }
+                        // --- END NEW LOGIC ---
                     }
-                }
-                else if (inTargetSiegeBlock && trimmedLine == "}")
-                {
-                    inTargetSiegeBlock = false;
-                    modifiedLines.Add(line);
+                    else // Attacker won
+                    {
+                        // Attacker won: set progress to 100%
+                        int fortLevel = twbattle.Sieges.GetFortLevel();
+                        double newProgress = 100 + (fortLevel * 75);
+                        Program.Logger.Debug($"Attacker won. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
+                        updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                    }
                 }
                 else
                 {
-                    modifiedLines.Add(line);
+                    // For all other lines, just append them
+                    updatedContent.AppendLine(line);
                 }
             }
 
-            if (!progressLineUpdated)
+            if (targetSiegeBlockFound) // Only write if we actually found the target siege block
             {
-                Program.Logger.Debug($"Warning: Could not find 'progress=' line for SiegeID {SiegeID}.");
+                File.WriteAllText(Writter.DataTEMPFilesPaths.Sieges_Path(), updatedContent.ToString());
+                Program.Logger.Debug($"Sieges.txt updated for siege ID {SiegeID}.");
             }
-
-            File.WriteAllLines(tempSiegesFilePath, modifiedLines);
-            Program.Logger.Debug("Finished editing Sieges file. Modified content written to temp file.");
+            else
+            {
+                Program.Logger.Debug($"Sieges.txt for siege ID {SiegeID} was read, but the target siege block was not found.");
+            }
         }
     }
 }
