@@ -26,7 +26,6 @@ using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 namespace CrusaderWars
 {
-    
     public partial class HomePage : Form
     {
         private LoadingScreen? loadingScreen;
@@ -244,8 +243,7 @@ namespace CrusaderWars
                 MessageBox.Show("Font file not found.", "Crusader Conflicts: Font error");
             }
         }
-
-
+        
 
         System.Drawing.Color Original_Color;
 
