@@ -21,6 +21,7 @@ using System.Xml;
 using System.Web;
 using System.Drawing.Text;
 using CrusaderWars.sieges; // Added for SiegeEngineGenerator
+using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 
 namespace CrusaderWars

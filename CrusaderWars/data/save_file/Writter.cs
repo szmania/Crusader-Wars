@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CrusaderWars; // Added for BattleResult class
+using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 namespace CrusaderWars.data.save_file
 {

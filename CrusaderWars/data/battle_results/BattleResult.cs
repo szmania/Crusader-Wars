@@ -11,7 +11,7 @@ using System.Globalization; // Added for CultureInfo
 using CrusaderWars.armies; // Added for List<Army>
 
 
-namespace CrusaderWars
+namespace CrusaderWars.data.battle_results
 {
     public static class BattleResult
     {
