@@ -48,6 +48,7 @@ namespace CrusaderWars
         public static StringBuilder SB_LandedTitles = new StringBuilder();
         public static StringBuilder SB_Accolades = new StringBuilder();
 		public static StringBuilder SB_Traits = new StringBuilder();
+        public static StringBuilder SB_Sieges = new StringBuilder(); // Added StringBuilder for Sieges
 
 
 
@@ -58,6 +59,26 @@ namespace CrusaderWars
         public static void Reset()
         {
             Program.Logger.Debug("Resetting all data containers and extraction flags.");
+
+            // Clear StringBuilders
+            SB_Living.Clear();
+            SB_Regiments.Clear();
+            SB_ArmyRegiments.Clear();
+            SB_Armies.Clear();
+            SB_CombatResults.Clear();
+            SB_Combats.Clear();
+            SB_Counties.Clear();
+            SB_Cultures.Clear();
+            SB_Mercenaries.Clear();
+            SB_Units.Clear();
+            SB_CourtPositions.Clear();
+            SB_LandedTitles.Clear();
+            SB_Accolades.Clear();
+            SB_Traits.Clear();
+            SB_Sieges.Clear();
+
+            // Clear lists and reset values
+            twbattle.Sieges.Reset();
             units_scripts.Clear();
             PlayerIDsAccolades = new List<string> ();
             EnemyIDsAccolades = new List<string>();
@@ -69,7 +90,9 @@ namespace CrusaderWars
             PlayerCommanderAccolade = ("","","");
             EnemyCommanderAccolade = ("","","");
 
+            BattleResult.SiegeID = null; // Reset SiegeID
 
+            // Reset extraction flags
             SearchKeys.HasTraitsExtracted = false;
             SearchKeys.HasCombatsExtracted = false;
             SearchKeys.HasLivingExtracted = false;
@@ -84,6 +107,7 @@ namespace CrusaderWars
             SearchKeys.HasCourtPositionsExtracted = false;
             SearchKeys.HasLandedTitlesExtracted = false;
             SearchKeys.HasAccoladesExtracted = false;
+            SearchKeys.HasSiegesExtracted = false; // Added reset for Sieges extraction flag
         }
     }
 
@@ -108,10 +132,20 @@ namespace CrusaderWars
                 Program.Logger.Debug($"GetterKeys: province buildings search permitted for province {province_id}.");
             }
 
-            if(isSearchBuildingsPermitted && line.Contains("buildings={"))
+            if(isSearchBuildingsPermitted)
             {
-                isExtractBuildingsPermitted = true;
-                Program.Logger.Debug("GetterKeys: building extraction permitted.");
+                if (line.Contains("culture="))
+                {
+                    string culture = Regex.Match(line, @"culture=(.+)").Groups[1].Value.Trim('"');
+                    twbattle.Sieges.SetHoldingCulture(culture);
+                    Program.Logger.Debug($"GetterKeys: Found culture: {culture}");
+                }
+
+                if (line.Contains("buildings={"))
+                {
+                    isExtractBuildingsPermitted = true;
+                    Program.Logger.Debug("GetterKeys: building extraction permitted.");
+                }
             }
 
             if(isExtractBuildingsPermitted)
@@ -135,12 +169,12 @@ namespace CrusaderWars
                 string fort_level = Regex.Match(line, @"=(.+)").Groups[1].Value.Trim('"').Trim('/');
                 if(int.TryParse(fort_level, out int level))
                 {
-                    Sieges.SetFortLevel(level);
+                    twbattle.Sieges.SetFortLevel(level);
                     Program.Logger.Debug($"GetterKeys: Found fort level: {level}");
                 }
                 else
                 {
-                    Sieges.SetFortLevel(0);
+                    twbattle.Sieges.SetFortLevel(0);
                     Program.Logger.Debug("GetterKeys: Could not parse fort level, setting to 0.");
                 }
                 
@@ -822,6 +856,57 @@ namespace CrusaderWars
                     HasAccoladesExtracted = true;
                     Start_AccoladesFound = false;
                     End_AccoladesFound = false;
+                }
+            }
+        }
+
+        // New properties for Sieges extraction
+        private static bool Start_SiegesFound { get; set; }
+        private static bool End_SiegesFound { get; set; }
+        public static bool HasSiegesExtracted { get; set; }
+
+        // New method for Sieges extraction
+        public static void Sieges(string line)
+        {
+            if (!HasSiegesExtracted)
+            {
+                if (!Start_SiegesFound)
+                {
+                    if (line == "sieges={") // Assuming top-level block, similar to "units={"
+                    {
+                        Program.Logger.Debug("Found start of sieges block.");
+                        Start_SiegesFound = true;
+                    }
+                }
+
+                if (Start_SiegesFound && !End_SiegesFound)
+                {
+                    // The plan specifies "the closing brace } at the same nesting level".
+                    // For top-level blocks like "units={", "counties={", "culture_manager={", "mercenary_company_manager={",
+                    // the end condition is a simple "}".
+                    if (line == "}") 
+                    {
+                        Program.Logger.Debug("Found end of sieges block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Sieges.Length} characters to Sieges.txt");
+                        using (StreamWriter sw = File.AppendText(@".\data\save_file_data\Sieges.txt"))
+                        {
+                            sw.Write(Data.SB_Sieges);
+                            sw.Close();
+                        }
+                        Data.SB_Sieges = new StringBuilder();
+                        GC.Collect();
+                        End_SiegesFound = true;
+                        return;
+                    }
+
+                    Data.SB_Sieges.AppendLine(line);
+                }
+
+                if (End_SiegesFound)
+                {
+                    HasSiegesExtracted = true;
+                    Start_SiegesFound = false;
+                    End_SiegesFound = false;
                 }
             }
         }
