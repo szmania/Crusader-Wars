@@ -1903,6 +1903,18 @@ namespace CrusaderWars
                         Program.Logger.Debug("Editing Sieges.txt file...");
                         BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, defender_armies);
                     }
+                    else
+                    {
+                        // For non-siege battles, copy the original sieges data to the temp file
+                        // to ensure it's written back to the save file unmodified.
+                        string sourcePath = CrusaderWars.data.save_file.Writter.DataFilesPaths.Sieges_Path();
+                        string destPath = CrusaderWars.data.save_file.Writter.DataTEMPFilesPaths.Sieges_Path();
+                        if (File.Exists(sourcePath))
+                        {
+                            File.Copy(sourcePath, destPath, true);
+                            Program.Logger.Debug("Copied original Sieges.txt to temp folder for non-siege battle.");
+                        }
+                    }
 
                     //  WRITE TO CK3 SAVE FILE
                     Program.Logger.Debug("Writing results to gamestate file...");
