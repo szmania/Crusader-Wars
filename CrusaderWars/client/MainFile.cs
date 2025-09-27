@@ -223,7 +223,7 @@ namespace CrusaderWars
 
             _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle
             // Pulse between a bright yellow (255, 255, 150) and a slightly dimmer yellow (255, 255, 50)
-            int blueComponent = 150 - (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _preReleasePulseStep) * 10);
+            int blueComponent = 150 - (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _pulseStep) * 10);
             linkOptInPreReleases.ForeColor = Color.FromArgb(255, 255, blueComponent);
         }
 
@@ -999,6 +999,13 @@ namespace CrusaderWars
                 System.IO.File.Delete(editedGamestateFile);
             if (System.IO.File.Exists(savefileZip))
                 System.IO.File.Delete(savefileZip);
+
+            string tempSiegesFile = CrusaderWars.data.save_file.Writter.DataTEMPFilesPaths.Sieges_Path();
+            if (System.IO.File.Exists(tempSiegesFile))
+            {
+                System.IO.File.Delete(tempSiegesFile);
+                Program.Logger.Debug("Deleted stale temp Sieges.txt file.");
+            }
 
             // UnitsCardsNames.RemoveFiles(); // Moved to ProcessBattle
 
