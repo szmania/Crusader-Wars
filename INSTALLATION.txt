@@ -1,0 +1,68 @@
+﻿! - DO THIS FOR EVERY CRUSADER CONFLICTS UPDATE. 
+
+Download & Unzip
+
+1. Download & Unzip: Unzip the downloaded file and place the main 'crusader-conflicts' directory in a preferred location on your computer.
+
+2. Locate Your Mod Directory: Navigate to your Crusader Kings III user directory. This is typically found at: Documents\Paradox Interactive\Crusader Kings III\mod
+
+3. Install the Mod Files: Open the 'crusader-conflicts' directory you unzipped and find the 'ck3_mods' folder inside. 
+Copy all folders and '.mod' files from within the 'ck3_mods' folder and paste them into the CK3 'mod' directory listed in the previous step.
+
+4. Check Playthrough Mod Requirements: Each playthrough (e.g., A Game of Thrones, Late Roman Era) requires specific mods 
+for both Crusader Kings III and Total War: Attila. Please consult the detailed mod and load order requirements for your chosen playthrough:
+
+5. Activate in Launcher: Open the Crusader Kings III launcher. Go to the 'Playsets' tab and add "Crusader Conflicts" and any other required mods to your playset. 
+Remember to set the correct load order as specified in the playthrough guide. Then go back to the Home page, select your playset, and hit Play. 
+This will set up Crusader Kings III for Crusader Conflicts. Then follow the Gameplay loop below to launch Crusader Conflicts and fight your battles.
+
+
+
+
+###	CK3 MOD INSTALLATION	###
+1. Drag and drop the ck3 mod files located in 'ck3_mods' in to "Documents\Paradox Interactive\Crusader Kings III\mod" folder.
+2. Open Crusader Kings III and add them to your playset.
+  2.1 For Lord of the Rings playthrough (Realms in Exile) mod, be sure to use the "Crusader Conflicts + Realms In Exile - Compatibility Patch". And put that after Realms in Exile and Crusader Conflicts mods. 
+    2.2.0 Move these files/folders to your <Documents>/Paradox Interactive/Crusader Kings III/mods folder:
+      a. crusader_conflicts_realms_in_exile_compat_patch
+      b. crusader_conflicts_realms_in_exile_compat_patch.mod
+    2.2.1 Load them in your CK3 playset in this Order: 
+      1. Realms in Exile
+      2. Crusader Conflicts
+      3. Crusader Conflicts + Realms In Exile - Compatibility Patch
+  2.2 For A Game of Thrones (AGOT) playthrough (AGOT) mod, be sure to use the "Crusader Conflicts + AGOT - Compatibility Patch". And put that after AGOT and Crusader Conflicts mods. 
+    2.2.0 Move these files/folders to your <Documents>/Paradox Interactive/Crusader Kings III/mods folder:
+      a. crusader_conflicts_agot_compat_patch
+      b. crusader_conflicts_agot_compat_patch.mod
+    2.2.1 Load them in your CK3 playset in this Order: 
+      1. AGOT
+      2. Crusader Conflicts
+      3. Crusader Conflicts + AGOT - Compatibility Patch
+3. Done!
+
+
+
+### Gameplay Loop ###
+
+Step 1: Launch & Configure
+Launch the Crusader Conflicts application, found within the "crusader-conflicts" directory downloaded in Step 1 of the Installation Guide. Select your desired playthrough and configure your mod options before starting.
+
+
+Step 2: Start the Game
+After configuration, press "Start" in the application to automatically launch Crusader Kings III.
+
+
+Step 3: Initiate Battle/Siege in CK3
+Once two armies are engaged in battle or a settlement is besieged within CK3, you will see a new Crossed Swords button on the battle/siege screen. Click it to export the battle/siege to Total War: Attila.
+
+
+Step 4: Command Your Army in TW: Attila
+Total War: Attila will launch. From the main menu, select "Historical Battles" to load the exported scenario. Deploy your troops and command them to victory!
+
+
+Step 5: Load Results
+After the battle, the results are automatically imported. Simply load the "battle_results" save in Crusader Kings III or click "Continue" in the launcher to resume with the new outcome.
+
+
+Step 6: Resume Your Campaign
+Continue your campaign in Crusader Kings III, see the results of your battle, and prep

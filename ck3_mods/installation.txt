@@ -1,6 +1,4 @@
-! - DO THIS FOR EVERY CRUSADER CONFLICTS UPDATE IF YOU ARE A NON-STEAM USER. 
-
-If you're a steam user the easiest method is subscribing to the Crusader Conflicts mods in the Paradox Mods library: https://mods.paradoxplaza.com/games/ck3?orderBy=desc&search=crusader%20conflicts&sortBy=best&time=quarter
+! - DO THIS FOR EVERY CRUSADER CONFLICTS UPDATE. 
 
 Download & Unzip
 
