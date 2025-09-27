@@ -15,7 +15,7 @@
 
 	holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
 
-    cc_siege_fight_button: "Fight this siege yourself!"
+    cc_siege_fight_button: "Fight the siege yourself!"
     cc_siege_fight_button_disabled: "This character may not control battles.\nSee Mod Options: Preferences"
     cc_siege_options_button: "Crusader Conflicts Mod Options"
     cw_bw_wait_button: "Wait just a few more days to fight this siege..."
