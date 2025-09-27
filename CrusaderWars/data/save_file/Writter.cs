@@ -17,8 +17,8 @@ namespace CrusaderWars.data.save_file
         public static void SendDataToFile(string savePath)
         {
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
-            // siegesFound is no longer needed as we replace the entire block at "sieges={"
-            // bool siegesFound = false; 
+            bool resultsFound = false;
+            bool combatsFound = false;
 
             //string tempFilePath = Directory.GetCurrentDirectory() + "\\CrusaderWars_Battle.ck3";
             string tempFilePath = @".\data\save_file_data\gamestate";
@@ -52,14 +52,14 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("Finished skipping CombatResults block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         CombatResults_NeedsSkiping = false;
-                        // siegesFound = false; // No longer needed
+                        resultsFound = false;
                     }
                     else if (Combats_NeedsSkiping && line == "\t\t}")
                     {
                         Program.Logger.Debug("Finished skipping Combats block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Combats_NeedsSkiping = false;
-                        // siegesFound = false; // No longer needed
+                        combatsFound = false;
                     }
                     // Corrected condition to match the top-level closing brace for the entire sieges block
                     else if (Sieges_NeedsSkiping && line == "}")
@@ -98,13 +98,13 @@ namespace CrusaderWars.data.save_file
                     //Combat Result START
                     else if (line == "\tcombat_results={")
                     {
-                        // siegesFound = true; // No longer needed
+                        resultsFound = true;
                         streamWriter.WriteLine(line);
                         continue;
                     }
 
                     //Combat Result
-                    else if (line == $"\t\t{BattleResult.ResultID}={{" && !CombatResults_NeedsSkiping) // Removed siegesFound check
+                    else if (line == $"\t\t{BattleResult.ResultID}={{" && resultsFound && !CombatResults_NeedsSkiping)
                     {
                         Program.Logger.Debug("Writing modified CombatResults block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.CombatResults_Path(), FileType.CombatResults);
@@ -115,12 +115,11 @@ namespace CrusaderWars.data.save_file
                     //Combat START
                     else if (line == "\tcombats={")
                     {
-                        // siegesFound = true; // No longer needed
+                        combatsFound = true;
                         streamWriter.WriteLine(line);
-                        continue; // ADDED: Prevent duplication of "\tcombats={"
                     }
                     //Combat
-                    else if (line == $"\t\t{BattleResult.CombatID}={{" && !Combats_NeedsSkiping) // Removed siegesFound check
+                    else if (line == $"\t\t{BattleResult.CombatID}={{" && combatsFound && !Combats_NeedsSkiping)
                     {
                         Program.Logger.Debug("Writing modified Combats block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Combats_Path(), FileType.Combats);

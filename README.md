@@ -4,7 +4,8 @@ Crusader Conflicts revolutionizes the Crusader Kings 3 warfare experience by sea
 This project builds upon the foundational concepts of the original open-source GPL3 licensed Crusader Wars mod, expanding and refining its vision for a new generation of players.
 
 # Current features:
-- **Epic Land Battles** Engage in massive, 1:1 scale land battles from Crusader Kings 3 directly within Total War: Attila, experiencing every strategic and tactical detail.
+- **Epic & Tactical Siege and Field Battles** Lead your armies in epic sieges. Assault or defend castles and cities from CK3, now fully realized on the Total War battlefield.
+- **Realistically Scaled Battles** Engage in massive, 1:1 scale battles from Crusader Kings 3 directly within Total War: Attila, experiencing every strategic and tactical detail.
 - **Persistent Consequences** Battle outcomes are meticulously calculated, with every casualty accurately reflected in your Crusader Kings 3 save file, ensuring your decisions on the battlefield have lasting impact.
 - **Dynamic Unit Rosters** Experience historically authentic warfare with unit rosters dynamically mapped from CK3 cultures, heritages, and Men-at-Arms to a curated collection of Total War: Attila mods, spanning the 8th to 15th centuries.
 - **Unique Levy Compositions** Discover the distinct fighting styles of each culture and heritage through their unique levy compositions, ranging from infantry-heavy formations to cavalry-focused forces, making every battle feel unique.
