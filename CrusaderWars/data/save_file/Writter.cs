@@ -161,7 +161,6 @@ namespace CrusaderWars.data.save_file
                     }
 
                 }
-
                 Program.Logger.Debug("Finished writing to temporary file. All blocks processed.");
                 streamWriter.Close();
                 streamReader.Close();
