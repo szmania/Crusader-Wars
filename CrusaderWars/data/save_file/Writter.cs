@@ -117,6 +117,7 @@ namespace CrusaderWars.data.save_file
                     {
                         // siegesFound = true; // No longer needed
                         streamWriter.WriteLine(line);
+                        continue; // ADDED: Prevent duplication of "\tcombats={"
                     }
                     //Combat
                     else if (line == $"\t\t{BattleResult.CombatID}={{" && !Combats_NeedsSkiping) // Removed siegesFound check
