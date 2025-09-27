@@ -1115,6 +1115,9 @@ namespace CrusaderWars
                         {
                             infoLabel.Text = "Waiting for CK3 battle...";
                         }
+                        // Paste the line here
+                        ExecuteButton.Size = new Size(197, 115); 
+
                         Program.Logger.Debug("Waiting for CRUSADERCONFLICTS keyword in CK3 log...");
                         try
                         {
@@ -1381,7 +1384,7 @@ namespace CrusaderWars
                 // without touching infoLabel.
                 ContinueBattleButton.Visible = false;
                 ExecuteButton.Text = "";
-                ExecuteButton.Size = new Size(197, 115);
+                // The line `ExecuteButton.Size = new Size(197, 115);` was moved from here.
             }
 
             // Reset UI if the main loop is broken by a critical error or cancellation
