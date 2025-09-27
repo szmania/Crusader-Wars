@@ -780,27 +780,11 @@ namespace CrusaderWars
                 messageLabel.Font = new Font("Microsoft Sans Serif", 10f);
                 notificationForm.Controls.Add(messageLabel);
 
-                LinkLabel steamLink = new LinkLabel();
-                steamLink.Text = "Age of Justinian 555 2.0 on Steam Workshop";
-                steamLink.LinkArea = new LinkArea(0, steamLink.Text.Length);
-                steamLink.Location = new Point(10, messageLabel.Bottom + 10);
-                steamLink.AutoSize = true;
-                steamLink.Font = new Font("Microsoft Sans Serif", 10f, FontStyle.Underline);
-                steamLink.LinkColor = Color.LightBlue;
-                steamLink.ActiveLinkColor = Color.White;
-                steamLink.VisitedLinkColor = Color.LightBlue;
-                steamLink.LinkClicked += (s, args) =>
-                {
-                    Process.Start(new ProcessStartInfo("https://steamcommunity.com/sharedfiles/filedetails/?id=3293483560") { UseShellExecute = true });
-                    steamLink.LinkVisited = true;
-                };
-                notificationForm.Controls.Add(steamLink);
-
                 Button okButton = new Button();
                 okButton.Text = "OK";
                 okButton.DialogResult = DialogResult.OK;
                 okButton.Size = new Size(100, 30);
-                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2, steamLink.Bottom + 20);
+                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2);
                 notificationForm.Controls.Add(okButton);
                 notificationForm.ClientSize = new Size(notificationForm.ClientSize.Width, okButton.Bottom + 15);
                 notificationForm.AcceptButton = okButton;
