@@ -150,10 +150,22 @@ namespace CrusaderWars.data.save_file
                     // NEW BLOCK: Replace the entire sieges block when "sieges={" is encountered
                     else if (line == "sieges={" && !Sieges_NeedsSkiping)
                     {
-                        Program.Logger.Debug("Writing modified Sieges block.");
-                        WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Sieges_Path(), FileType.Sieges);
-                        Program.Logger.Debug("EDITED SIEGES SENT!");
-                        Sieges_NeedsSkiping = true;
+                        string tempSiegesPath = DataTEMPFilesPaths.Sieges_Path();
+                        if (File.Exists(tempSiegesPath))
+                        {
+                            Program.Logger.Debug("Writing modified Sieges block from temporary file.");
+                            WriteDataToSaveFile(streamWriter, tempSiegesPath, FileType.Sieges);
+                            Program.Logger.Debug("EDITED SIEGES SENT!");
+                            Sieges_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            // If the temporary Sieges.txt doesn't exist, it means no siege battle occurred
+                            // or the data wasn't processed. Preserve the original block.
+                            Program.Logger.Debug($"Temporary Sieges file not found at {Path.GetFullPath(tempSiegesPath)}. Preserving original sieges block.");
+                            streamWriter.WriteLine(line); // Write the "sieges={" line
+                            // DO NOT set Sieges_NeedsSkiping = true, so the original content is copied.
+                        }
                     }
                     else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping)
                     {
