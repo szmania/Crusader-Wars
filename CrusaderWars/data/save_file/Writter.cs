@@ -16,6 +16,12 @@ namespace CrusaderWars.data.save_file
         static bool Sieges_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
+            // Reset static state variables
+            NeedSkiping = false;
+            CombatResults_NeedsSkiping = false;
+            Combats_NeedsSkiping = false;
+            Sieges_NeedsSkiping = false;
+
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             bool resultsFound = false;
             bool combatsFound = false;
