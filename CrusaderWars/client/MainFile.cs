@@ -958,61 +958,96 @@ namespace CrusaderWars
             string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
             if (!string.IsNullOrEmpty(ck3SaveGameDir))
             {
-                string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
-                if(parentDir != null && Directory.Exists(parentDir))
-                {
-                    string dlcLoadPath = Path.Combine(parentDir, "dlc_load.json");
-                    if (File.Exists(dlcLoadPath))
-                    {
-                        try
-                        {
-                            string jsonContent = File.ReadAllText(dlcLoadPath);
-                            bool isModEnabled = false;
-                            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
-                            {
-                                JsonElement root = doc.RootElement;
-                                if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
-                                {
-                                    foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
-                                    {
-                                        string? modPath = modEntry.GetString();
-                                        if (modPath != null && modPath.EndsWith("/crusader_conflicts.mod", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            isModEnabled = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!isModEnabled)
-                            {
-                                Program.Logger.Debug("Crusader Conflicts mod not found in enabled_mods in dlc_load.json.");
-                                var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Do you still want to continue?",
-                                                             "Crusader Conflicts Mod Not Enabled",
-                                                             MessageBoxButtons.YesNo,
-                                                             MessageBoxIcon.Warning);
-                                if (result == DialogResult.No)
-                                {
-                                    Program.Logger.Debug("User cancelled execution because mod is not enabled.");
-                                    return; // Stop execution
-                                }
-                            }
-                            else
-                            {
-                                Program.Logger.Debug("Crusader Conflicts mod is enabled in the current playset.");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
-                        }
-                    }
-                    else
-                    {
-                        Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
-                    }
-                }
+                 string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
+                 if (parentDir != null && Directory.Exists(parentDir))
+                 {
+                     string dlcLoadPath = Path.Combine(parentDir, "dlc_load.json");
+                     if (File.Exists(dlcLoadPath))
+                     {
+                         try
+                         {
+                             string jsonContent = File.ReadAllText(dlcLoadPath);
+                             var enabledMods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                             using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                             {
+                                 JsonElement root = doc.RootElement;
+                                 if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
+                                 {
+                                     foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                     {
+                                         string? modPath = modEntry.GetString();
+                                         if (modPath != null)
+                                         {
+                                             // The path is like "mod/crusader_conflicts.mod", GetFileName extracts the .mod file name
+                                             enabledMods.Add(Path.GetFileName(modPath));
+                                         }
+                                     }
+                                 }
+                             }
+ 
+                             // Check for base mod
+                             if (!enabledMods.Contains("crusader_conflicts.mod"))
+                             {
+                                 Program.Logger.Debug("Crusader Conflicts mod not found in enabled_mods in dlc_load.json.");
+                                 var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Do you still want to continue?",
+                                                              "Crusader Conflicts Mod Not Enabled",
+                                                              MessageBoxButtons.YesNo,
+                                                              MessageBoxIcon.Warning);
+                                 if (result == DialogResult.No)
+                                 {
+                                     Program.Logger.Debug("User cancelled execution because mod is not enabled.");
+                                     return; // Stop execution
+                                 }
+                             }
+                             else
+                             {
+                                 Program.Logger.Debug("Crusader Conflicts mod is enabled in the current playset.");
+                             }
+ 
+                             // Check for compatibility patches based on playthrough
+                             string activePlaythrough = GetActivePlaythroughTag();
+                             string requiredPatch = "";
+                             string playthroughName = "";
+ 
+                             if (activePlaythrough == "AGOT")
+                             {
+                                 requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
+                                 playthroughName = "A Game of Thrones (AGOT)";
+                             }
+                             else if (activePlaythrough == "RealmsInExile")
+                             {
+                                 requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                 playthroughName = "Realms in Exile (LOTR)";
+                             }
+ 
+                             if (!string.IsNullOrEmpty(requiredPatch) && !enabledMods.Contains(requiredPatch))
+                             {
+                                 Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' not found in dlc_load.json.");
+                                 var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch}\n\nDo you still want to continue?",
+                                                              "Compatibility Patch Not Enabled",
+                                                              MessageBoxButtons.YesNo,
+                                                              MessageBoxIcon.Warning);
+                                 if (result == DialogResult.No)
+                                 {
+                                     Program.Logger.Debug("User cancelled execution because compatibility patch is not enabled.");
+                                     return; // Stop execution
+                                 }
+                             }
+                             else if (!string.IsNullOrEmpty(requiredPatch))
+                             {
+                                 Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' is enabled.");
+                             }
+                         }
+                         catch (Exception ex)
+                         {
+                             Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
+                         }
+                     }
+                     else
+                     {
+                         Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
+                     }
+                 }
             }
 
 
@@ -2225,6 +2260,35 @@ namespace CrusaderWars
         /*---------------------------------------------
          * :::::::::::::: PLAYTHROUGHS ::::::::::::::::
          ---------------------------------------------*/
+        private string GetActivePlaythroughTag()
+        {
+            string um_file = @".\settings\UnitMappers.xml";
+            if (File.Exists(um_file))
+            {
+                try
+                {
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.Load(um_file);
+                    var root = xmlDoc.DocumentElement;
+                    if (root != null)
+                    {
+                        foreach (XmlNode node in root.ChildNodes)
+                        {
+                            if (node is XmlComment) continue;
+                            if (node.InnerText == "True")
+                            {
+                                return node.Attributes?["name"]?.Value ?? "";
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading UnitMappers.xml for playthrough tag: {ex.Message}");
+                }
+            }
+            return "";
+        }
         void SetPlaythrough()
         {
             Program.Logger.Debug("Setting playthrough...");
