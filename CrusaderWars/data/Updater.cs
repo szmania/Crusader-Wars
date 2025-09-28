@@ -73,7 +73,35 @@ namespace CrusaderWars
                         string? downloadUrl = null;
                         if (targetRelease.Value.TryGetProperty("assets", out JsonElement assets) && assets.EnumerateArray().Any())
                         {
-                            downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
+                            // If this is the main app repo, look for the specific zip file.
+                            if (releasesUrl == SzmaniaReleasesUrl)
+                            {
+                                Program.Logger.Debug("Searching for main application asset 'crusader-conflicts*.zip'...");
+                                foreach (var asset in assets.EnumerateArray())
+                                {
+                                    string? assetName = asset.GetProperty("name").GetString();
+                                    if (assetName != null &&
+                                        assetName.StartsWith("crusader-conflicts", StringComparison.OrdinalIgnoreCase) &&
+                                        assetName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                                        Program.Logger.Debug($"Found matching asset: {assetName}");
+                                        break;
+                                    }
+                                }
+
+                                // Fallback if no specific asset was found
+                                if (string.IsNullOrEmpty(downloadUrl))
+                                {
+                                    Program.Logger.Debug("No specific 'crusader-conflicts*.zip' asset found. Falling back to first asset.");
+                                    downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
+                                }
+                            }
+                            else // For other repos (like unit mappers), just take the first asset.
+                            {
+                                Program.Logger.Debug("Not main app repo, taking first asset.");
+                                downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
+                            }
                         }
                         
                         Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}, Release API URL: {releaseApiUrl} (Pre-release opt-in: {optInPreReleases})");
