@@ -88,7 +88,7 @@ namespace CrusaderWars
                                         Program.Logger.Debug($"Found matching asset: {assetName}");
                                         break;
                                     }
-                                }
+                                 }
 
                                 // Fallback if no specific asset was found
                                 if (string.IsNullOrEmpty(downloadUrl))
@@ -233,7 +233,7 @@ namespace CrusaderWars
             return null;
         }
 
-        bool IsNewerVersion(string versionA, string versionB)
+        public bool IsNewerVersion(string versionA, string versionB)
         {
             Program.Logger.Debug($"Comparing versions - A: '{versionA}', B: '{versionB}'");
 

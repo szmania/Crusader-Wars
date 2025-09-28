@@ -522,6 +522,7 @@ namespace CrusaderWars
             await _updater.CheckAppVersion();
             // If an app update is found, the process will exit and the next line won't be reached.
             await _updater.CheckUnitMappersVersion();
+            await CheckForCK3ModUpdatesAsync();
 
             Program.Logger.Debug("Form1_Load complete.");
 
@@ -2617,5 +2618,261 @@ namespace CrusaderWars
                 }
             }
         }
+
+        #region CK3 Mod Updater Logic
+
+        private class ModUpdateInfo
+        {
+            public string Name { get; set; } = "";
+            public string OldVersion { get; set; } = "0.0.0";
+            public string NewVersion { get; set; } = "0.0.0";
+            public string SourceModFile { get; set; } = "";
+            public string SourceModDir { get; set; } = "";
+            public string TargetModFile { get; set; } = "";
+            public string TargetModDir { get; set; } = "";
+            public string ModDirectoryName { get; set; } = "";
+        }
+
+        private (string version, string name, string pathDir) ParseModFile(string modFilePath)
+        {
+            if (!File.Exists(modFilePath))
+            {
+                return ("0.0.0", "", "");
+            }
+
+            string version = "0.0.0";
+            string name = "";
+            string pathDir = "";
+
+            try
+            {
+                var lines = File.ReadAllLines(modFilePath);
+                foreach (var line in lines)
+                {
+                    if (line.Trim().StartsWith("version="))
+                    {
+                        var match = System.Text.RegularExpressions.Regex.Match(line, @"version\s*=\s*""([^""]*)""");
+                        if (match.Success)
+                        {
+                            version = match.Groups[1].Value;
+                        }
+                    }
+                    else if (line.Trim().StartsWith("name="))
+                    {
+                        var match = System.Text.RegularExpressions.Regex.Match(line, @"name\s*=\s*""([^""]*)""");
+                        if (match.Success)
+                        {
+                            name = match.Groups[1].Value;
+                        }
+                    }
+                    else if (line.Trim().StartsWith("path="))
+                    {
+                        var match = System.Text.RegularExpressions.Regex.Match(line, @"path\s*=\s*""([^""]*)""");
+                        if (match.Success)
+                        {
+                            pathDir = Path.GetFileName(match.Groups[1].Value.TrimEnd('/', '\\'));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error parsing .mod file '{modFilePath}': {ex.Message}");
+                return ("0.0.0", "", "");
+            }
+
+            return (version, name, pathDir);
+        }
+
+        private async Task CheckForCK3ModUpdatesAsync()
+        {
+            Program.Logger.Debug("Checking for CK3 mod updates...");
+            string sourceModsDir = @".\ck3_mods";
+
+            string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
+            if (string.IsNullOrEmpty(ck3SaveGameDir) || !ck3SaveGameDir.EndsWith("save games"))
+            {
+                Program.Logger.Debug("CK3 save game directory is not configured correctly. Skipping CK3 mod update check.");
+                return;
+            }
+            string targetModsDir = ck3SaveGameDir.Replace("save games", "mod");
+
+            if (!Directory.Exists(sourceModsDir))
+            {
+                Program.Logger.Debug("Source ck3_mods directory not found. Skipping check.");
+                return;
+            }
+            if (!Directory.Exists(targetModsDir))
+            {
+                Program.Logger.Debug($"Target CK3 mod directory not found at '{targetModsDir}'. Skipping check.");
+                return;
+            }
+
+            var modsToUpdate = new List<ModUpdateInfo>();
+
+            try
+            {
+                foreach (var sourceModFile in Directory.GetFiles(sourceModsDir, "*.mod"))
+                {
+                    var (newVersion, modName, modDirName) = ParseModFile(sourceModFile);
+
+                    if (string.IsNullOrEmpty(modName) || string.IsNullOrEmpty(modDirName))
+                    {
+                        Program.Logger.Debug($"Could not parse name or path from '{sourceModFile}'. Skipping.");
+                        continue;
+                    }
+
+                    string targetModFile = Path.Combine(targetModsDir, Path.GetFileName(sourceModFile));
+                    var (oldVersion, _, _) = ParseModFile(targetModFile);
+
+                    if (_updater.IsNewerVersion(oldVersion, newVersion))
+                    {
+                        Program.Logger.Debug($"Found newer version for mod '{modName}'. Old: {oldVersion}, New: {newVersion}");
+                        modsToUpdate.Add(new ModUpdateInfo
+                        {
+                            Name = modName,
+                            OldVersion = oldVersion,
+                            NewVersion = newVersion,
+                            SourceModFile = sourceModFile,
+                            TargetModFile = targetModFile,
+                            ModDirectoryName = modDirName,
+                            SourceModDir = Path.Combine(sourceModsDir, modDirName),
+                            TargetModDir = Path.Combine(targetModsDir, modDirName)
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"An error occurred while checking for mod updates: {ex.Message}");
+                return;
+            }
+
+            if (modsToUpdate.Any())
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("Updates are available for your Crusader Kings III mods managed by this app.");
+                sb.AppendLine();
+                sb.AppendLine("The following mods will be updated:");
+                foreach (var mod in modsToUpdate)
+                {
+                    sb.AppendLine($"  • {mod.Name} (v{mod.OldVersion} -> v{mod.NewVersion})");
+                }
+                sb.AppendLine();
+                sb.AppendLine($"Mods will be updated in the following directory:");
+                sb.AppendLine(targetModsDir);
+                sb.AppendLine();
+                sb.AppendLine("Crusader Kings III must be closed to perform this update.");
+                sb.AppendLine();
+                sb.AppendLine("Do you want to update these mods now?");
+
+                var result = MessageBox.Show(sb.ToString(), "CK3 Mod Updates Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+                if (result == DialogResult.Yes)
+                {
+                    await PerformModUpdateAsync(modsToUpdate, targetModsDir);
+                }
+                else
+                {
+                    Program.Logger.Debug("User declined CK3 mod updates.");
+                }
+            }
+            else
+            {
+                Program.Logger.Debug("All CK3 mods are up-to-date.");
+            }
+        }
+
+        private async Task PerformModUpdateAsync(List<ModUpdateInfo> modsToUpdate, string targetModsDir)
+        {
+            Program.Logger.Debug("Starting CK3 mod update process...");
+
+            if (Process.GetProcessesByName("ck3").Length > 0)
+            {
+                var closeResult = MessageBox.Show("Crusader Kings III is currently running. It must be closed to update the mods.\n\nDo you want to close it now?", "Close Crusader Kings III?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (closeResult == DialogResult.Yes)
+                {
+                    Games.CloseCrusaderKingsProcess();
+                    await Task.Delay(1000); // Give it a moment to close
+                }
+                else
+                {
+                    MessageBox.Show("Mod update cancelled because Crusader Kings III was not closed.", "Update Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Program.Logger.Debug("Mod update cancelled by user because CK3 is running.");
+                    return;
+                }
+            }
+
+            int successCount = 0;
+            foreach (var mod in modsToUpdate)
+            {
+                try
+                {
+                    // Delete old files
+                    if (File.Exists(mod.TargetModFile))
+                    {
+                        Program.Logger.Debug($"Deleting old mod file: {mod.TargetModFile}");
+                        File.Delete(mod.TargetModFile);
+                    }
+                    if (Directory.Exists(mod.TargetModDir))
+                    {
+                        Program.Logger.Debug($"Deleting old mod directory: {mod.TargetModDir}");
+                        Directory.Delete(mod.TargetModDir, true);
+                    }
+
+                    // Copy new files
+                    Program.Logger.Debug($"Copying new mod file from {mod.SourceModFile} to {mod.TargetModFile}");
+                    File.Copy(mod.SourceModFile, mod.TargetModFile);
+
+                    if (Directory.Exists(mod.SourceModDir))
+                    {
+                        Program.Logger.Debug($"Copying new mod directory from {mod.SourceModDir} to {mod.TargetModDir}");
+                        CopyDirectory(mod.SourceModDir, mod.TargetModDir, true);
+                    }
+                    Program.Logger.Debug($"Successfully updated mod '{mod.Name}'.");
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Failed to update mod '{mod.Name}'. Error: {ex.Message}");
+                    MessageBox.Show($"Failed to update the mod '{mod.Name}'.\n\nPlease ensure you have the correct permissions for the CK3 mod directory and that no other programs (like antivirus) are blocking access.\n\nError: {ex.Message}", "Mod Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Stop on first error to prevent further issues
+                    return;
+                }
+            }
+
+            if (successCount == modsToUpdate.Count)
+            {
+                MessageBox.Show("The selected CK3 mods have been successfully updated.", "Update Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Program.Logger.Debug("CK3 mod update process completed successfully.");
+            }
+        }
+
+        private static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
+        {
+            var dir = new DirectoryInfo(sourceDir);
+            if (!dir.Exists)
+                return;
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+            Directory.CreateDirectory(destinationDir);
+
+            foreach (FileInfo file in dir.GetFiles())
+            {
+                string targetFilePath = Path.Combine(destinationDir, file.Name);
+                file.CopyTo(targetFilePath, true);
+            }
+
+            if (recursive)
+            {
+                foreach (DirectoryInfo subDir in dirs)
+                {
+                    string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                    CopyDirectory(subDir.FullName, newDestinationDir, true);
+                }
+            }
+        }
+
+        #endregion
     }
 }
