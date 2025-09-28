@@ -97,9 +97,32 @@ namespace CrusaderWars
                                     downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
                                 }
                             }
-                            else // For other repos (like unit mappers), just take the first asset.
+                            else if (releasesUrl == SzmaniaUnitMappersReleasesUrl) // Specific handling for Unit Mappers
                             {
-                                Program.Logger.Debug("Not main app repo, taking first asset.");
+                                Program.Logger.Debug("Searching for Unit Mappers asset 'CC-Mappers*.zip'...");
+                                foreach (var asset in assets.EnumerateArray())
+                                {
+                                    string? assetName = asset.GetProperty("name").GetString();
+                                    if (assetName != null &&
+                                        assetName.StartsWith("CC-Mappers", StringComparison.OrdinalIgnoreCase) &&
+                                        assetName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                                        Program.Logger.Debug($"Found matching Unit Mappers asset: {assetName}");
+                                        break;
+                                    }
+                                }
+
+                                // Fallback if no specific asset was found
+                                if (string.IsNullOrEmpty(downloadUrl))
+                                {
+                                    Program.Logger.Debug("No specific 'CC-Mappers*.zip' asset found. Falling back to first asset.");
+                                    downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
+                                }
+                            }
+                            else // For any other repos, just take the first asset (general fallback)
+                            {
+                                Program.Logger.Debug("Unknown repo, taking first asset as general fallback.");
                                 downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
                             }
                         }
