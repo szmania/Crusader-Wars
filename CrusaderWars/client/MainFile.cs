@@ -16,6 +16,7 @@ using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
 using CrusaderWars.twbattle;
 using System.Threading; // Added for CancellationToken
+using System.Text.Json; // Added for playset check
 using CrusaderWars.mod_manager;
 using System.Xml;
 using System.Web;
@@ -952,6 +953,68 @@ namespace CrusaderWars
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Execute button clicked.");
+
+            // Check if Crusader Conflicts mod is enabled in the playset
+            string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
+            if (!string.IsNullOrEmpty(ck3SaveGameDir))
+            {
+                string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
+                if(parentDir != null && Directory.Exists(parentDir))
+                {
+                    string dlcLoadPath = Path.Combine(parentDir, "dlc_load.json");
+                    if (File.Exists(dlcLoadPath))
+                    {
+                        try
+                        {
+                            string jsonContent = File.ReadAllText(dlcLoadPath);
+                            bool isModEnabled = false;
+                            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                            {
+                                JsonElement root = doc.RootElement;
+                                if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                    {
+                                        string? modPath = modEntry.GetString();
+                                        if (modPath != null && modPath.EndsWith("/crusader_conflicts.mod", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            isModEnabled = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!isModEnabled)
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod not found in enabled_mods in dlc_load.json.");
+                                var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Do you still want to continue?",
+                                                             "Crusader Conflicts Mod Not Enabled",
+                                                             MessageBoxButtons.YesNo,
+                                                             MessageBoxIcon.Warning);
+                                if (result == DialogResult.No)
+                                {
+                                    Program.Logger.Debug("User cancelled execution because mod is not enabled.");
+                                    return; // Stop execution
+                                }
+                            }
+                            else
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod is enabled in the current playset.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
+                    }
+                }
+            }
+
 
             // Cancel any previous monitoring operation
             _battleMonitoringCts?.Cancel();
