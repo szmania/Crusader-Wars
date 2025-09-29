@@ -115,6 +115,25 @@ namespace CrusaderWars.mod_manager
             BtnVerifyMods.Enabled = false;
             button1.Enabled = false;
 
+            // Create and show a simple status form
+            Form statusForm = new Form
+            {
+                Width = 300,
+                Height = 100,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = "Verification in Progress",
+                StartPosition = FormStartPosition.CenterParent,
+                ControlBox = false
+            };
+            Label statusLabel = new Label
+            {
+                Text = "Validating mod files...",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            statusForm.Controls.Add(statusLabel);
+            statusForm.Show(this.FindForm());
+
             try
             {
                 var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled());
@@ -164,6 +183,7 @@ namespace CrusaderWars.mod_manager
             finally
             {
                 // Restore UI state
+                statusForm.Close();
                 this.Cursor = Cursors.Default;
                 uC_Toggle1.Enabled = true;
                 BtnVerifyMods.Enabled = true;
@@ -180,6 +200,25 @@ namespace CrusaderWars.mod_manager
                 uC_Toggle1.Enabled = false;
                 BtnVerifyMods.Enabled = false;
                 button1.Enabled = false;
+
+                // Create and show a simple status form
+                Form statusForm = new Form
+                {
+                    Width = 300,
+                    Height = 100,
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    Text = "Verification in Progress",
+                    StartPosition = FormStartPosition.CenterParent,
+                    ControlBox = false
+                };
+                Label statusLabel = new Label
+                {
+                    Text = "Validating mod files...",
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+                statusForm.Controls.Add(statusLabel);
+                statusForm.Show(this.FindForm());
 
                 try
                 {
@@ -212,13 +251,14 @@ namespace CrusaderWars.mod_manager
                     {
                         string message = verificationResult.MismatchedFiles.Any()
                             ? "All required mods are installed.\n(Note: Version mismatches were detected, see previous message)."
-                            : "All mods are installed, you are good to go!";
-                        MessageBox.Show(message, "Crusader Conflicts: All mods installed!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            : "Successfully validated TW:Attila mod files.";
+                        MessageBox.Show(message, "Crusader Conflicts: Mod Verification Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 finally
                 {
                     // Restore UI state
+                    statusForm.Close();
                     this.Cursor = Cursors.Default;
                     uC_Toggle1.Enabled = true;
                     BtnVerifyMods.Enabled = true;
