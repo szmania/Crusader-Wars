@@ -956,7 +956,7 @@ window = {
                         blockoverride "vce_desc"
                         {
                             #raw_text = cw_op_help_desc
-                            text = "https://discord.gg/acRJ8AKnfd"
+                            text = "https://discord.gg/eFZTprHh3j"
                         }
                     }                         
                     }
@@ -984,7 +984,7 @@ window = {
                             blockoverride "vce_desc"
                             {
                             #raw_text = cw_op_help_desc
-                            text = "https://discord.gg/acRJ8AKnfd"
+                            text = "https://discord.gg/eFZTprHh3j"
                             }
                         }  
                     }
@@ -1142,7 +1142,7 @@ window = {
                         blockoverride "vce_desc"
                         {
                             #raw_text = cw_op_help_desc
-                            text = "https://discord.gg/acRJ8AKnfd"
+                            text = "https://discord.gg/eFZTprHh3j"
                         }
                     }                         
                     }
@@ -1170,7 +1170,7 @@ window = {
                             blockoverride "vce_desc"
                             {
                             #raw_text = cw_op_help_desc
-                            text = "https://discord.gg/acRJ8AKnfd"
+                            text = "https://discord.gg/eFZTprHh3j"
                             }
                         }  
                     }
