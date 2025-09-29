@@ -1118,10 +1118,10 @@ namespace CrusaderWars
             }
         }
 
-        List<string> GetUnitMappersModsCollectionFromTag(string tag)
+        List<(string FileName, string Sha256)> GetUnitMappersModsCollectionFromTag(string tag)
         {
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
-            List<string> requiredMods = new List<string>();
+            List<(string FileName, string Sha256)> requiredMods = new List<(string FileName, string Sha256)>();
 
             foreach(var mapper in unit_mappers_folder)
             {
@@ -1147,7 +1147,9 @@ namespace CrusaderWars
                                         if (node is XmlComment) continue;
                                         if (node.Name == "Mod")
                                         {
-                                            requiredMods.Add(node.InnerText);
+                                            string modFileName = node.InnerText;
+                                            string sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty;
+                                            requiredMods.Add((modFileName, sha256));
                                         }
                                     }
                                 }

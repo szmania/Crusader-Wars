@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Text; // Added for StringBuilder
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace CrusaderWars.mod_manager
 {
@@ -18,11 +19,11 @@ namespace CrusaderWars.mod_manager
         List<UC_UnitMapper> AllControlsReferences { get; set; } = null!;
 
         string SteamCollectionLink {  get; set; }
-        List<string> RequiredModsList { get; set; }
+        List<(string FileName, string Sha256)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
         private string _playthroughTag; // NEW FIELD
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<string> requiredMods, bool state, string playthroughTag) // UPDATED CONSTRUCTOR SIGNATURE
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256)> requiredMods, bool state, string playthroughTag) // UPDATED CONSTRUCTOR SIGNATURE
         {
             InitializeComponent();
 
@@ -81,7 +82,7 @@ namespace CrusaderWars.mod_manager
                 if (RequiredModsList != null && RequiredModsList.Count > 0)
                 {
                     modsMessage.AppendLine($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:");
-                    foreach (var mod in RequiredModsList)
+                    foreach (var (mod, _) in RequiredModsList)
                     {
                         modsMessage.AppendLine($"- {mod}");
                     }
@@ -107,23 +108,44 @@ namespace CrusaderWars.mod_manager
 
         private void uC_Toggle1_Click(object sender, EventArgs e)
         {
-            var notFoundMods = VerifyIfAllModsAreInstalled();
+            var verificationResult = VerifyIfAllModsAreInstalled();
 
-            //Print Message
-            if (notFoundMods.Count > 0) // not all installed
+            // 1. Check for missing files (highest priority)
+            if (verificationResult.MissingFiles.Any())
             {
-                string missingMods = "";
-                foreach (var mod in notFoundMods)
-                    missingMods += $"{mod}\n";
-
-                MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
-                MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                string missingMods = string.Join("\n", verificationResult.MissingFiles);
+                MessageBox.Show($"You are missing these required mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
                 uC_Toggle1.SetState(false);
+                return; // Stop here
             }
 
-            if(uC_Toggle1.State == true)
+            // 2. Check for mismatched files
+            if (verificationResult.MismatchedFiles.Any())
             {
-                foreach(var controlReference in AllControlsReferences)
+                var sb = new StringBuilder();
+                sb.AppendLine("The required mod files for this playthrough have different versions than expected.");
+                sb.AppendLine("This could cause instability and unit mapping issues.");
+                sb.AppendLine("\nMismatched files:");
+                foreach (var (fileName, _) in verificationResult.MismatchedFiles)
+                {
+                    sb.AppendLine($"- {fileName}");
+                }
+                sb.AppendLine("\nAre you sure you want to continue?");
+
+                var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: Mod Version Mismatch", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (dialogResult == DialogResult.No)
+                {
+                    uC_Toggle1.SetState(false);
+                    return; // User cancelled
+                }
+            }
+
+            // If we get here, either everything is fine, or the user chose to ignore mismatches.
+            if (uC_Toggle1.State == true)
+            {
+                foreach (var controlReference in AllControlsReferences)
                 {
                     controlReference.uC_Toggle1.SetState(false);
                 }
@@ -133,28 +155,47 @@ namespace CrusaderWars.mod_manager
 
         private void BtnVerifyMods_Click(object sender, EventArgs e)
         {
-            if(RequiredModsList != null)
+            if (RequiredModsList != null)
             {
+                var verificationResult = VerifyIfAllModsAreInstalled();
 
-                var notFoundMods = VerifyIfAllModsAreInstalled();
-
-                //Print Message
-                if (notFoundMods.Count > 0) // not all installed
+                // 1. Check for missing files
+                if (verificationResult.MissingFiles.Any())
                 {
-                    string missingMods = "";
-                    foreach (var mod in notFoundMods)
-                        missingMods += $"{mod}\n";
-
+                    string missingMods = string.Join("\n", verificationResult.MissingFiles);
                     MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                     uC_Toggle1.SetState(false);
                 }
-                else if (notFoundMods.Count == 0) // all installed
+
+                // 2. Check for mismatched files
+                if (verificationResult.MismatchedFiles.Any())
                 {
-                    MessageBox.Show("All mods are installed, you are good to go!", "Crusader Conflicts: All mods installed!",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    var sb = new StringBuilder();
+                    sb.AppendLine("The following required mods have a different version than expected:");
+                    foreach (var (fileName, _) in verificationResult.MismatchedFiles)
+                    {
+                        sb.AppendLine($"- {fileName}");
+                    }
+                    sb.AppendLine("\nThis may cause issues. It is recommended to re-subscribe to the mods on the Steam Workshop.");
+                    MessageBox.Show(sb.ToString(), "Crusader Conflicts: Mod Version Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                // 3. If no missing files, show success message
+                if (!verificationResult.MissingFiles.Any())
+                {
+                    string message = verificationResult.MismatchedFiles.Any()
+                        ? "All required mods are installed.\n(Note: Version mismatches were detected, see previous message)."
+                        : "All mods are installed, you are good to go!";
+                    MessageBox.Show(message, "Crusader Conflicts: All mods installed!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+        }
+
+        internal class VerificationResult
+        {
+            public List<string> MissingFiles { get; } = new List<string>();
+            public List<(string FileName, string ExpectedSha)> MismatchedFiles { get; } = new List<(string, string)>();
         }
 
         public void SetSteamLinkButtonTooltip(string text)
@@ -170,12 +211,24 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        List<string> VerifyIfAllModsAreInstalled()
+        private string CalculateSHA256(string filePath)
         {
-            Program.Logger.Debug("Verifying if all required mods are installed...");
-            List<string> notFoundMods = new List<string>();
-            notFoundMods.AddRange(RequiredModsList);
-            Program.Logger.Debug($"Required mods list: {string.Join(", ", RequiredModsList)}");
+            using (var sha256 = SHA256.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    var hash = sha256.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+
+        VerificationResult VerifyIfAllModsAreInstalled()
+        {
+            Program.Logger.Debug("Verifying if all required mods are installed and match hashes...");
+            var result = new VerificationResult();
+            var modsToFind = new Dictionary<string, string>(RequiredModsList.ToDictionary(item => item.FileName, item => item.Sha256));
+            Program.Logger.Debug($"Required mods list: {string.Join(", ", modsToFind.Keys)}");
 
 
             //Verify data folder
@@ -187,12 +240,28 @@ namespace CrusaderWars.mod_manager
                 foreach (var file in dataModsPaths)
                 {
                     var fileName = Path.GetFileName(file);
-                    foreach (var mod in RequiredModsList)
+                    if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                     {
-                        if (mod == fileName && Path.GetExtension(fileName) == ".pack")
+                        string expectedSha = modsToFind[fileName];
+                        if (!string.IsNullOrEmpty(expectedSha))
                         {
-                            Program.Logger.Debug($"Found required mod in data folder: {fileName}");
-                            notFoundMods.Remove(mod);
+                            string actualSha = CalculateSHA256(file);
+                            if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Program.Logger.Debug($"Found required mod in data folder with matching hash: {fileName}");
+                                modsToFind.Remove(fileName);
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"Found required mod '{fileName}' in data folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
+                                result.MismatchedFiles.Add((fileName, expectedSha));
+                                modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
+                            }
+                        }
+                        else // No hash provided, just check for existence
+                        {
+                            Program.Logger.Debug($"Found required mod in data folder (no hash check): {fileName}");
+                            modsToFind.Remove(fileName);
                         }
                     }
                 }
@@ -215,27 +284,41 @@ namespace CrusaderWars.mod_manager
                     foreach (var file in files)
                     {
                         var fileName = Path.GetFileName(file);
-                        foreach (var mod in RequiredModsList)
+                        if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                         {
-                            if (mod == fileName && Path.GetExtension(fileName) == ".pack")
+                            string expectedSha = modsToFind[fileName];
+                            if (!string.IsNullOrEmpty(expectedSha))
                             {
-                                Program.Logger.Debug($"Found required mod in workshop folder: {fileName}");
-                                notFoundMods.Remove(mod);
+                                string actualSha = CalculateSHA256(file);
+                                if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Program.Logger.Debug($"Found required mod in workshop folder with matching hash: {fileName}");
+                                    modsToFind.Remove(fileName);
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
+                                    result.MismatchedFiles.Add((fileName, expectedSha));
+                                    modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
+                                }
+                            }
+                            else // No hash provided, just check for existence
+                            {
+                                Program.Logger.Debug($"Found required mod in workshop folder (no hash check): {fileName}");
+                                modsToFind.Remove(fileName);
                             }
                         }
                     }
                 }
             }
 
-            if (notFoundMods.Count > 0)
-            {
-                Program.Logger.Debug($"Mods not found: {string.Join(", ", notFoundMods)}");
-            }
-            else
-            {
-                Program.Logger.Debug("All required mods were found.");
-            }
-            return notFoundMods;
+            // Any mods remaining in modsToFind are missing from both locations.
+            result.MissingFiles.AddRange(modsToFind.Keys);
+
+            if (result.MissingFiles.Any()) Program.Logger.Debug($"Mods not found: {string.Join(", ", result.MissingFiles)}");
+            if (result.MismatchedFiles.Any()) Program.Logger.Debug($"Mismatched mods: {string.Join(", ", result.MismatchedFiles.Select(m => m.FileName))}");
+            if (!result.MissingFiles.Any() && !result.MismatchedFiles.Any()) Program.Logger.Debug("All required mods were found and hashes match.");
+            return result;
         }
 
     }
