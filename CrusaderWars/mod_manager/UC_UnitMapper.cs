@@ -124,7 +124,7 @@ namespace CrusaderWars.mod_manager
             if (verificationResult.MismatchedFiles.Any())
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("The required mod files for this playthrough have different versions than expected.");
+                sb.AppendLine("The required TW:Attila mod files for this playthrough have different versions than expected.");
                 sb.AppendLine("This could cause instability and unit mapping issues.");
                 sb.AppendLine("\nMismatched files:");
                 foreach (var (fileName, _) in verificationResult.MismatchedFiles)
