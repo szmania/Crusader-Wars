@@ -728,20 +728,22 @@ window = {
                             name = "log_attacker_commander_culture"
                             duration = 0.01
                             next = "log_attacker_martial_skill"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
                         }
 
 						state = {
 							name = "log_attacker_martial_skill"
 							duration = 0.01
 							next = "log_attacker_prowess_skill"
-							on_finish = "[ExecuteConsoleCommand(Localize('attacker_martial'))]"
+							on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetCommanderAdvantageDesc)]"
 						}
 
 						state = {
 							name = "log_attacker_prowess_skill"
 							duration = 0.01
 							next = "log_player_rank"
+							on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
 							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
 
 						}
@@ -750,7 +752,7 @@ window = {
 							name = "log_player_rank"
 							duration = 0.01
 							next = "log_attacker_knight_count"
-							on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+							on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
 							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
 						}
 						
@@ -758,14 +760,14 @@ window = {
 							name = "log_attacker_knight_count"
 							duration = 0.01
 							next = "log_attacker_knight_effectiveness"
-				            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+				            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerKnightBreakdown)]"
 						}
 
 						state = {
 							name = "log_attacker_knight_effectiveness"
 							duration = 0.01
 							next = "log_enemy_divider"
-							on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+							on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetAttackerKnightEffectivenessBreakdown), 'x', SiegeWindow.GetAttackerKnightEffectivenessBreakdown))]"
 						}
 
 						state = {
@@ -907,7 +909,7 @@ window = {
                             name = "log_player_commander_id"
                             duration = 0.01
                             next = "log_enemy_commander_id"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
                         }
 						
@@ -923,7 +925,7 @@ window = {
 							name = "log_player_commander_name"
 							duration = 0.01
 							next = "log_defender_commander_name"
-							on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+							on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
 							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
 						}
 
@@ -1096,20 +1098,22 @@ window = {
                             name = "log_attacker_commander_culture"
                             duration = 0.01
                             next = "log_attacker_martial_skill"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
                         }
 
                         state = {
                             name = "log_attacker_martial_skill"
                             duration = 0.01
                             next = "log_attacker_prowess_skill"
-                            on_finish = "[ExecuteConsoleCommand(Localize('attacker_martial'))]"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetCommanderAdvantageDesc)]"
                         }
 
                         state = {
                             name = "log_attacker_prowess_skill"
                             duration = 0.01
                             next = "log_player_rank"
+                            on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
 
                         }
@@ -1118,7 +1122,7 @@ window = {
                             name = "log_player_rank"
                             duration = 0.01
                             next = "log_attacker_knight_count"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
                         }
                         
@@ -1126,14 +1130,14 @@ window = {
                             name = "log_attacker_knight_count"
                             duration = 0.01
                             next = "log_attacker_knight_effectiveness"
-                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerKnightBreakdown)]"
                         }
 
                         state = {
                             name = "log_attacker_knight_effectiveness"
                             duration = 0.01
                             next = "log_enemy_divider"
-                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetAttackerKnightEffectivenessBreakdown), 'x', SiegeWindow.GetAttackerKnightEffectivenessBreakdown))]"
                         }
 
                         state = {
@@ -1275,7 +1279,7 @@ window = {
                             name = "log_player_commander_id"
                             duration = 0.01
                             next = "log_enemy_commander_id"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
                         }
                         
@@ -1291,7 +1295,7 @@ window = {
                             name = "log_player_commander_name"
                             duration = 0.01
                             next = "log_defender_commander_name"
-                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
                         }
 
@@ -1464,20 +1468,22 @@ window = {
                             name = "log_attacker_commander_culture"
                             duration = 0.01
                             next = "log_attacker_martial_skill"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
                         }
 
                         state = {
                             name = "log_attacker_martial_skill"
                             duration = 0.01
                             next = "log_attacker_prowess_skill"
-                            on_finish = "[ExecuteConsoleCommand(Localize('attacker_martial'))]"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetCommanderAdvantageDesc)]"
                         }
 
                         state = {
                             name = "log_attacker_prowess_skill"
                             duration = 0.01
                             next = "log_player_rank"
+                            on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
 
                         }
@@ -1486,7 +1492,7 @@ window = {
                             name = "log_player_rank"
                             duration = 0.01
                             next = "log_attacker_knight_count"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
                         }
                         
@@ -1494,14 +1500,14 @@ window = {
                             name = "log_attacker_knight_count"
                             duration = 0.01
                             next = "log_attacker_knight_effectiveness"
-                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerKnightBreakdown)]"
                         }
 
                         state = {
                             name = "log_attacker_knight_effectiveness"
                             duration = 0.01
                             next = "log_enemy_divider"
-                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetAttackerKnightEffectivenessBreakdown), 'x', SiegeWindow.GetAttackerKnightEffectivenessBreakdown))]"
                         }
 
                         state = {
@@ -1643,7 +1649,7 @@ window = {
                             name = "log_player_commander_id"
                             duration = 0.01
                             next = "log_enemy_commander_id"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
                         }
                         
@@ -1659,7 +1665,7 @@ window = {
                             name = "log_player_commander_name"
                             duration = 0.01
                             next = "log_defender_commander_name"
-                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
                         }
 
@@ -1832,20 +1838,22 @@ window = {
                             name = "log_attacker_commander_culture"
                             duration = 0.01
                             next = "log_attacker_martial_skill"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('attacker_culture')))]"
+                            on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
                         }
 
                         state = {
                             name = "log_attacker_martial_skill"
                             duration = 0.01
                             next = "log_attacker_prowess_skill"
-                            on_finish = "[ExecuteConsoleCommand(Localize('attacker_martial'))]"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetCommanderAdvantageDesc)]"
                         }
 
                         state = {
                             name = "log_attacker_prowess_skill"
                             duration = 0.01
                             next = "log_player_rank"
+                            on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
 
                         }
@@ -1854,7 +1862,7 @@ window = {
                             name = "log_player_rank"
                             duration = 0.01
                             next = "log_attacker_knight_count"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
                         }
                         
@@ -1862,14 +1870,14 @@ window = {
                             name = "log_attacker_knight_count"
                             duration = 0.01
                             next = "log_attacker_knight_effectiveness"
-                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightBreakdown)]"
+                            on_finish = "[ExecuteConsoleCommand(SiegeWindow.GetAttackerKnightBreakdown)]"
                         }
 
                         state = {
                             name = "log_attacker_knight_effectiveness"
                             duration = 0.01
                             next = "log_enemy_divider"
-                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown), 'x', SiegeWindow.GetSiege.GetSiegingRealmCharacter.GetKnightEffectivenessBreakdown))]"
+                            on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(SiegeWindow.GetAttackerKnightEffectivenessBreakdown), 'x', SiegeWindow.GetAttackerKnightEffectivenessBreakdown))]"
                         }
 
                         state = {
@@ -2011,7 +2019,7 @@ window = {
                             name = "log_player_commander_id"
                             duration = 0.01
                             next = "log_enemy_commander_id"
-                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
+                            on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
                         }
                         
@@ -2027,7 +2035,7 @@ window = {
                             name = "log_player_commander_name"
                             duration = 0.01
                             next = "log_defender_commander_name"
-                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
+                            on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetSiege.GetSiegingRealmCharacter.MakeScope).End)]"								
                             on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
                         }
 
@@ -2076,58 +2084,19 @@ window = {
                     ############################################################
                     ### Added Crusader Conflicts Options Button & Background icon ###
                     ###   New mod options window that controls many features ###
+                    ### (These buttons are outside the scope of the current task, but are part of the original file) ###
                     ############################################################
-                    # The following two entries give us the options scroll/settings button and the background grey nice looking circle around it
-                    # The two separate entries with all the same actions/states allow for a player to either click the icon(background circle) or the scroll image and get the same result, opens the mod options window 
-                    #button = { name = cc_options_icon
-                    #    #visible = "[Not(CombatWindow.IsCombatInPursuitPhase)]"
-                    #    visible = yes
-                    #    parentanchor = left
-                    #    position = { 10 10 }
-                    #    texture = "gfx/interface/buttons/button_lifestyles_base.dds"
-                    #    size = { 42 42 }
-                    #
-                    #    onclick = "[ExecuteConsoleCommand('gui.createwidget gui/custom_gui/cw_options.gui cw_options')]"
-                    #    ### SET DEFAULTS CC OPTIONS ### 
-                    #    # When opening CC options menu, set a number of defaults visual indicators for options
-                    #    onclick = "[GetVariableSystem.Set( 'cw_op_tabs', 'prefs' )]"
-                    #    # Disabled the default on click, this was overwriting player choices each time they opened the mod options window
-                    #    # Probably a better way to do this, will work on it later. Commented out for now
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_scale', 'scale3' )]"
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_auto_scale', 'auto_enable' )]"
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_maxnum', 'maxnum2' )]"
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_levysize', 'levysize2' )]"
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_meleesize', 'meleesize2' )]"
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_rangedsize', 'rangedsize2' )]"
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_mountedsize', 'mountedsize2' )]"
-                    #    onclick = "[And(Not(GetVariableSystem.Exists('cw_op_tabs')), GetVariableSystem.Set( 'cw_op_control', 'control1' ))]"
-                    #    #onclick = "[GetVariableSystem.Set( 'cw_op_unitnames', 'unitnames1' )]"
-                    #}
                     
                     button_settings = { name = cc_options_button
-                        #visible = "[Not(CombatWindow.IsCombatInPursuitPhase)]"
                         visible = yes
                         parentanchor = left
                         position = { -10 -10 }
                         size = { 30 30 }	
-                        #raw_tooltip = "Crusader Conflicts Mod Options"
                         tooltip = cw_bw_options_button
             
                         onclick = "[ExecuteConsoleCommand('gui.createwidget gui/custom_gui/cw_options.gui cw_options')]"
-                        ### SET DEFAULT CC OPTIONS ### 
-                        # When opening CC options menu, set a number of default visual indicators for options
                         onclick = "[GetVariableSystem.Set( 'cw_op_tabs', 'prefs' )]"
-                        # Disabled the default on click, this was overwriting player choices each time they opened the mod options window
-                        # Probably a better way to do this, will work on it later. Commented out for now
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_scale', 'scale3' )]"
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_auto_scale', 'auto_enable' )]"
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_maxnum', 'maxnum2' )]"
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_levysize', 'levysize1' )]"
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_meleesize', 'meleesize2' )]"
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_rangedsize', 'rangedsize2' )]"
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_mountedsize', 'mountedsize1' )]"
                         onclick = "[And(Not(GetVariableSystem.Exists('cw_op_tabs')), GetVariableSystem.Set( 'cw_op_control', 'control1' ))]"
-                        #onclick = "[GetVariableSystem.Set( 'cw_op_unitnames', 'unitnames1' )]"
                     }
 
 					############################################################

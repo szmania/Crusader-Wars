@@ -259,7 +259,7 @@ namespace CrusaderWars
             string left_side_commander_culture_id = "";
             if (twbattle.BattleState.IsSiegeBattle)
             {
-                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:.*ONCLICK:CULTURE[,]*(\d+) ").Groups[1].Value;
+                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:.*ONCLICK:CULTURE[,]*(\d+)").Groups[1].Value;
             }
             else
             {
@@ -453,7 +453,7 @@ namespace CrusaderWars
             int rank = 0;
 
 
-            Match martial_match = Regex.Match(army_data, @"positive_value (\d+)");
+            Match martial_match = Regex.Match(army_data, @"(?:positive_value|zero_value|negative_value)\s+(\d+)");
             if (martial_match.Success)
             {
                 string martial_str = martial_match.Groups[1].Value;
