@@ -159,6 +159,8 @@ namespace CrusaderWars.mod_manager
                     {
                         sb.AppendLine($"- {fileName}");
                     }
+                    sb.AppendLine("\nPlease ensure you have the latest versions of these mods from the Steam Workshop.");
+                    sb.AppendLine("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j");
                     sb.AppendLine("\nAre you sure you want to continue?");
 
                     var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
@@ -242,7 +244,8 @@ namespace CrusaderWars.mod_manager
                         {
                             sb.AppendLine($"- {fileName}");
                         }
-                        sb.AppendLine("\nThis may cause issues. It is recommended to re-subscribe to the mods on the Steam Workshop.");
+                        sb.AppendLine("\nThis may cause issues. Please ensure you have the latest versions of these mods from the Steam Workshop.");
+                        sb.AppendLine("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j");
                         MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
