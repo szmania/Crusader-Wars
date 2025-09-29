@@ -127,7 +127,7 @@ namespace CrusaderWars.mod_manager
             };
             Label statusLabel = new Label
             {
-                Text = "Validating mod files...",
+                Text = "Validating TW:Attila mod files...",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter
             };
@@ -215,7 +215,7 @@ namespace CrusaderWars.mod_manager
                 };
                 Label statusLabel = new Label
                 {
-                    Text = "Validating mod files...",
+                    Text = "Validating TW:Attila mod files...",
                     Dock = DockStyle.Fill,
                     TextAlign = ContentAlignment.MiddleCenter
                 };
