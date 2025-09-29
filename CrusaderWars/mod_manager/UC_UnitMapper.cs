@@ -305,7 +305,7 @@ namespace CrusaderWars.mod_manager
         {
             Program.Logger.Debug("Verifying if all required mods are installed and match hashes...");
             var result = new VerificationResult();
-            var modsToFind = new Dictionary<string, string>(RequiredModsList.ToDictionary(item => item.FileName, item => item.Sha256));
+            var modsToFind = RequiredModsList.GroupBy(item => item.FileName).ToDictionary(g => g.Key, g => g.First().Sha256);
             Program.Logger.Debug($"Required mods list: {string.Join(", ", modsToFind.Keys)}");
 
 
