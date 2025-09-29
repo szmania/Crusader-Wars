@@ -42,6 +42,29 @@ namespace CrusaderWars.data.save_file
                 DataSearchSides? besiegerSide = null;
                 var besiegerForce = new List<Army>();
 
+                // Pre-parse Armies.txt to map army IDs to commander IDs
+                var armyToCommanderMap = new Dictionary<string, string>();
+                try
+                {
+                    string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
+                    string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
+                    foreach (var block in armyBlocks)
+                    {
+                        if (string.IsNullOrWhiteSpace(block)) continue;
+                        var armyIdMatch = Regex.Match(block, @"\t\t(\d+)={");
+                        var commanderIdMatch = Regex.Match(block, @"commander=(\d+)");
+                        if (armyIdMatch.Success && commanderIdMatch.Success)
+                        {
+                            armyToCommanderMap[armyIdMatch.Groups[1].Value] = commanderIdMatch.Groups[1].Value;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error pre-parsing Armies.txt to map commanders: {ex.Message}");
+                    throw new Exception("Could not map armies to commanders, cannot identify siege participants.", ex);
+                }
+
                 // 1. Find the mobile besieger force and identify their side
                 try
                 {
@@ -53,11 +76,20 @@ namespace CrusaderWars.data.save_file
                         if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
 
                         string armyID = Regex.Match(block, @"\t(\d+)={").Groups[1].Value;
-                        string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value;
+                        // string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
+
+                        if (!armyToCommanderMap.TryGetValue(armyID, out var commanderID))
+                        {
+                            continue; // This army has no commander, so skip it
+                        }
 
                         DataSearchSides? currentArmySide = null;
-                        if (attackerCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.LeftSide;
-                        else if (defenderCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.RightSide;
+                        if (attackerCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.LeftSide;
+                        else if (defenderCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.RightSide;
+                        // Original logic:
+                        // DataSearchSides? currentArmySide = null;
+                        // if (attackerCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.LeftSide;
+                        // else if (defenderCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.RightSide;
                         else continue;
 
                         if (besiegerSide == null)
@@ -68,13 +100,13 @@ namespace CrusaderWars.data.save_file
 
                         if (currentArmySide == besiegerSide && !besiegerForce.Any(a => a.ID == armyID))
                         {
-                            bool isMainArmy = (besiegerSide == DataSearchSides.LeftSide && ownerID == CK3LogData.LeftSide.GetMainParticipant().id) ||
-                                              (besiegerSide == DataSearchSides.RightSide && ownerID == CK3LogData.RightSide.GetMainParticipant().id);
+                            bool isMainArmy = (besiegerSide == DataSearchSides.LeftSide && commanderID == CK3LogData.LeftSide.GetMainParticipant().id) ||
+                                              (besiegerSide == DataSearchSides.RightSide && commanderID == CK3LogData.RightSide.GetMainParticipant().id);
                             
                             string combatSide = besiegerSide == DataSearchSides.LeftSide ? "attacker" : "defender";
                             Army army = new Army(armyID, combatSide, isMainArmy);
                             besiegerForce.Add(army);
-                            Program.Logger.Debug($"Found besieger army {armyID} (owner {ownerID}). Main: {isMainArmy}");
+                            Program.Logger.Debug($"Found besieger army {armyID} (commander {commanderID}). Main: {isMainArmy}");
                         }
                     }
                 }

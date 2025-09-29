@@ -50,7 +50,7 @@ namespace CrusaderWars.data.save_file
                         }
                         else
                         {
-                            ///Program.Logger.Debug($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {t.CurrentNum} | County Key: {t.GetCountyKey()} | Culture ID: null");
+                            ///Program.Logger.Debug($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {t.CurrentNum} | County Key: {t.GetCountyKey()} | Culture: {t.Culture?.GetCultureName() ?? "null"} | Heritage: {t.Culture?.GetHeritageName() ?? "null"}"); // Applied null-conditional and null-coalescing
                             Program.Logger.Debug($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture: {t.Culture?.GetCultureName() ?? "null"} | Heritage: {t.Culture?.GetHeritageName() ?? "null"}"); // Applied null-conditional and null-coalescing
                             regimentsTotal += int.TryParse(t.CurrentNum, out int currentNum) ? currentNum : 0;
                         }
