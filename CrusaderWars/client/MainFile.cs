@@ -995,13 +995,13 @@ namespace CrusaderWars
                                                               MessageBoxIcon.Warning);
                                  if (result == DialogResult.No)
                                  {
-                                     Program.Logger.Debug("User cancelled execution because mod is not enabled.");
+                                     Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
                                      return; // Stop execution
                                  }
                              }
                              else
                              {
-                                 Program.Logger.Debug("Crusader Conflicts mod is enabled in the current playset.");
+                                 Program.Logger.Debug("Crusader Conflicts mod is enabled in the current Paradox Launcher playset.");
                              }
  
                              // Check for compatibility patches based on playthrough
