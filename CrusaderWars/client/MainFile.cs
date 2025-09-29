@@ -1037,6 +1037,52 @@ namespace CrusaderWars
                              {
                                  Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' is enabled.");
                              }
+ 
+                             // Check for incorrectly enabled compatibility patches
+                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
+                             string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+ 
+                             if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
+                             {
+                                 Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
+                                 MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                 "Incorrect Compatibility Patch Enabled",
+                                                 MessageBoxButtons.OK,
+                                                 MessageBoxIcon.Warning);
+                                 return;
+                             }
+ 
+                             if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
+                             {
+                                 Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
+                                 MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                 "Incorrect Compatibility Patch Enabled",
+                                                 MessageBoxButtons.OK,
+                                                 MessageBoxIcon.Warning);
+                                 return;
+                             }
+ 
+                             if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
+                             {
+                                 if (enabledMods.Contains(agotPatch))
+                                 {
+                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but AGOT patch is also enabled.");
+                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                     "Incorrect Compatibility Patch Enabled",
+                                                     MessageBoxButtons.OK,
+                                                     MessageBoxIcon.Warning);
+                                     return;
+                                 }
+                                 if (enabledMods.Contains(lotrPatch))
+                                 {
+                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
+                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                     "Incorrect Compatibility Patch Enabled",
+                                                     MessageBoxButtons.OK,
+                                                     MessageBoxIcon.Warning);
+                                     return;
+                                 }
+                             }
                          }
                          catch (Exception ex)
                          {
@@ -2288,6 +2334,22 @@ namespace CrusaderWars
                 }
             }
             return "";
+        }
+        private string GetFriendlyPlaythroughName(string tag)
+        {
+            switch (tag)
+            {
+                case "DefaultCK3":
+                    return "Crusader Kings";
+                case "TheFallenEagle":
+                    return "The Fallen Eagle";
+                case "RealmsInExile":
+                    return "Realms in Exile (LOTR)";
+                case "AGOT":
+                    return "A Game of Thrones (AGOT)";
+                default:
+                    return "Selected"; // A safe default
+            }
         }
         void SetPlaythrough()
         {
