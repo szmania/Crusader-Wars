@@ -1,4 +1,4 @@
-﻿using CrusaderWars.client;
+using CrusaderWars.client;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Text; // Added for StringBuilder
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace CrusaderWars.mod_manager
 {
@@ -106,88 +107,122 @@ namespace CrusaderWars.mod_manager
             return uC_Toggle1.State;
         }
 
-        private void uC_Toggle1_Click(object sender, EventArgs e)
+        private async void uC_Toggle1_Click(object sender, EventArgs e)
         {
-            var verificationResult = VerifyIfAllModsAreInstalled();
+            // Show loading state
+            this.Cursor = Cursors.WaitCursor;
+            uC_Toggle1.Enabled = false;
+            BtnVerifyMods.Enabled = false;
+            button1.Enabled = false;
 
-            // 1. Check for missing files (highest priority)
-            if (verificationResult.MissingFiles.Any())
+            try
             {
-                string missingMods = string.Join("\n", verificationResult.MissingFiles);
-                MessageBox.Show($"You are missing these required mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                uC_Toggle1.SetState(false);
-                return; // Stop here
-            }
+                var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled());
 
-            // 2. Check for mismatched files
-            if (verificationResult.MismatchedFiles.Any())
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine("The required TW:Attila mod files for this playthrough have different versions than expected.");
-                sb.AppendLine("This could cause instability and unit mapping issues.");
-                sb.AppendLine("\nMismatched files:");
-                foreach (var (fileName, _) in verificationResult.MismatchedFiles)
-                {
-                    sb.AppendLine($"- {fileName}");
-                }
-                sb.AppendLine("\nAre you sure you want to continue?");
-
-                var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                if (dialogResult == DialogResult.No)
-                {
-                    uC_Toggle1.SetState(false);
-                    return; // User cancelled
-                }
-            }
-
-            // If we get here, either everything is fine, or the user chose to ignore mismatches.
-            if (uC_Toggle1.State == true)
-            {
-                foreach (var controlReference in AllControlsReferences)
-                {
-                    controlReference.uC_Toggle1.SetState(false);
-                }
-            }
-            ToggleClicked?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void BtnVerifyMods_Click(object sender, EventArgs e)
-        {
-            if (RequiredModsList != null)
-            {
-                var verificationResult = VerifyIfAllModsAreInstalled();
-
-                // 1. Check for missing files
+                // 1. Check for missing files (highest priority)
                 if (verificationResult.MissingFiles.Any())
                 {
                     string missingMods = string.Join("\n", verificationResult.MissingFiles);
-                    MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
+                    MessageBox.Show($"You are missing these required mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                     uC_Toggle1.SetState(false);
+                    return; // Stop here
                 }
 
                 // 2. Check for mismatched files
                 if (verificationResult.MismatchedFiles.Any())
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("The following required mods have a different version than expected:");
+                    sb.AppendLine("The required TW:Attila mod files for this playthrough have different versions than expected.");
+                    sb.AppendLine("This could cause instability and unit mapping issues.");
+                    sb.AppendLine("\nMismatched files:");
                     foreach (var (fileName, _) in verificationResult.MismatchedFiles)
                     {
                         sb.AppendLine($"- {fileName}");
                     }
-                    sb.AppendLine("\nThis may cause issues. It is recommended to re-subscribe to the mods on the Steam Workshop.");
-                    MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    sb.AppendLine("\nAre you sure you want to continue?");
+
+                    var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                    if (dialogResult == DialogResult.No)
+                    {
+                        uC_Toggle1.SetState(false);
+                        return; // User cancelled
+                    }
                 }
 
-                // 3. If no missing files, show success message
-                if (!verificationResult.MissingFiles.Any())
+                // If we get here, either everything is fine, or the user chose to ignore mismatches.
+                if (uC_Toggle1.State == true)
                 {
-                    string message = verificationResult.MismatchedFiles.Any()
-                        ? "All required mods are installed.\n(Note: Version mismatches were detected, see previous message)."
-                        : "All mods are installed, you are good to go!";
-                    MessageBox.Show(message, "Crusader Conflicts: All mods installed!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    foreach (var controlReference in AllControlsReferences)
+                    {
+                        controlReference.uC_Toggle1.SetState(false);
+                    }
+                }
+                ToggleClicked?.Invoke(this, EventArgs.Empty);
+            }
+            finally
+            {
+                // Restore UI state
+                this.Cursor = Cursors.Default;
+                uC_Toggle1.Enabled = true;
+                BtnVerifyMods.Enabled = true;
+                button1.Enabled = true;
+            }
+        }
+
+        private async void BtnVerifyMods_Click(object sender, EventArgs e)
+        {
+            if (RequiredModsList != null)
+            {
+                // Show loading state
+                this.Cursor = Cursors.WaitCursor;
+                uC_Toggle1.Enabled = false;
+                BtnVerifyMods.Enabled = false;
+                button1.Enabled = false;
+
+                try
+                {
+                    var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled());
+
+                    // 1. Check for missing files
+                    if (verificationResult.MissingFiles.Any())
+                    {
+                        string missingMods = string.Join("\n", verificationResult.MissingFiles);
+                        MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        uC_Toggle1.SetState(false);
+                    }
+
+                    // 2. Check for mismatched files
+                    if (verificationResult.MismatchedFiles.Any())
+                    {
+                        var sb = new StringBuilder();
+                        sb.AppendLine("The following required mods have a different version than expected:");
+                        foreach (var (fileName, _) in verificationResult.MismatchedFiles)
+                        {
+                            sb.AppendLine($"- {fileName}");
+                        }
+                        sb.AppendLine("\nThis may cause issues. It is recommended to re-subscribe to the mods on the Steam Workshop.");
+                        MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+
+                    // 3. If no missing files, show success message
+                    if (!verificationResult.MissingFiles.Any())
+                    {
+                        string message = verificationResult.MismatchedFiles.Any()
+                            ? "All required mods are installed.\n(Note: Version mismatches were detected, see previous message)."
+                            : "All mods are installed, you are good to go!";
+                        MessageBox.Show(message, "Crusader Conflicts: All mods installed!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                finally
+                {
+                    // Restore UI state
+                    this.Cursor = Cursors.Default;
+                    uC_Toggle1.Enabled = true;
+                    BtnVerifyMods.Enabled = true;
+                    button1.Enabled = true;
                 }
             }
         }
