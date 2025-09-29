@@ -134,9 +134,13 @@ namespace CrusaderWars.mod_manager
             statusForm.Controls.Add(statusLabel);
             statusForm.Show(this.FindForm());
 
+            var progress = new Progress<string>(update => {
+                statusLabel.Text = update;
+            });
+
             try
             {
-                var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled());
+                var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled(progress));
 
                 // 1. Check for missing files (highest priority)
                 if (verificationResult.MissingFiles.Any())
@@ -222,9 +226,13 @@ namespace CrusaderWars.mod_manager
                 statusForm.Controls.Add(statusLabel);
                 statusForm.Show(this.FindForm());
 
+                var progress = new Progress<string>(update => {
+                    statusLabel.Text = update;
+                });
+
                 try
                 {
-                    var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled());
+                    var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled(progress));
 
                     // 1. Check for missing files
                     if (verificationResult.MissingFiles.Any())
@@ -301,7 +309,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        VerificationResult VerifyIfAllModsAreInstalled()
+        VerificationResult VerifyIfAllModsAreInstalled(IProgress<string>? progress)
         {
             Program.Logger.Debug("Verifying if all required mods are installed and match hashes...");
             var result = new VerificationResult();
@@ -320,6 +328,7 @@ namespace CrusaderWars.mod_manager
                     var fileName = Path.GetFileName(file);
                     if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                     {
+                        progress?.Report($"Verifying: {fileName}");
                         string expectedSha = modsToFind[fileName];
                         if (!string.IsNullOrEmpty(expectedSha))
                         {
@@ -364,6 +373,7 @@ namespace CrusaderWars.mod_manager
                         var fileName = Path.GetFileName(file);
                         if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                         {
+                            progress?.Report($"Verifying: {fileName}");
                             string expectedSha = modsToFind[fileName];
                             if (!string.IsNullOrEmpty(expectedSha))
                             {
