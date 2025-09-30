@@ -143,7 +143,9 @@ namespace CrusaderWars
                 
                 Unit commander_unit = new Unit("General", commander_soldiers, commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName()));
-                commander_unit.SetUnitKey(UnitMappers_BETA.GetUnitKey(commander_unit));
+                var (commanderKey, isSiege) = UnitMappers_BETA.GetUnitKey(commander_unit);
+                commander_unit.SetUnitKey(commanderKey);
+                commander_unit.SetIsSiegeWeapon(isSiege);
 
                 string commanderAttilaKey = commander_unit.GetAttilaUnitKey();
                 if (string.IsNullOrEmpty(commanderAttilaKey) || commanderAttilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
@@ -178,7 +180,9 @@ namespace CrusaderWars
 
 
                 knights_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(knights_unit.GetCulture(), knights_unit.GetHeritage()));
-                knights_unit.SetUnitKey(UnitMappers_BETA.GetUnitKey(knights_unit));
+                var (knightKey, isSiegeKnight) = UnitMappers_BETA.GetUnitKey(knights_unit);
+                knights_unit.SetUnitKey(knightKey);
+                knights_unit.SetIsSiegeWeapon(isSiegeKnight);
                 
                 string knightAttilaKey = knights_unit.GetAttilaUnitKey();
                 if (string.IsNullOrEmpty(knightAttilaKey) || knightAttilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
