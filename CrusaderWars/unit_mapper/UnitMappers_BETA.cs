@@ -294,8 +294,6 @@ namespace CrusaderWars.unit_mapper
                         }
                     }
                 }
-
-                Terrains = new TerrainsUM(attilaMap, historicMaps, normalMaps, settlementMaps, uniqueSettlementMaps); // Updated constructor call
             }
             catch (Exception ex)
             {
@@ -1114,7 +1112,7 @@ namespace CrusaderWars.unit_mapper
                     if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
                     {
                         if (node.Attributes?["type"]?.Value == unit.GetName())
-                        {
+                            {
                             if (node?.Attributes?["key"] != null)
                             {
                                 string? unit_key = node.Attributes["key"]?.Value;
@@ -1391,14 +1389,33 @@ namespace CrusaderWars.unit_mapper
                 Program.Logger.Debug("No unique settlement maps loaded in TerrainsUM.");
             }
 
-            // Priority 2: Fallback to a Generic Faction Map
+            // Priority 2: Search for a Generic Faction Map (with Default fallback)
             if (Terrains?.SettlementMaps != null && Terrains.SettlementMaps.Any())
             {
-                Program.Logger.Debug("Falling back to generic faction settlement map...");
+                Program.Logger.Debug("Searching for generic faction settlement map...");
+
+                // First, try to find maps for the specific faction
                 var matchingGenericMaps = Terrains.SettlementMaps
                                                   .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
                                                                sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
                                                   .ToList();
+
+                string usedFactionForLog = faction; // Keep track of which faction was actually used for logging
+
+                // If no maps found for the specific faction, try "Default"
+                if (!matchingGenericMaps.Any())
+                {
+                    Program.Logger.Debug($"No generic settlement map found for specific Faction: '{faction}'. Attempting fallback to 'Default' faction.");
+                    matchingGenericMaps = Terrains.SettlementMaps
+                                                      .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                                      .ToList();
+                    if (matchingGenericMaps.Any())
+                    {
+                        usedFactionForLog = "Default";
+                        Program.Logger.Debug($"Found generic settlement map for 'Default' faction.");
+                    }
+                }
 
                 if (matchingGenericMaps.Any())
                 {
@@ -1410,17 +1427,17 @@ namespace CrusaderWars.unit_mapper
                         // Randomly select a variant from the aggregated list
                         int randomIndex = _random.Next(0, allGenericVariants.Count);
                         var selectedVariant = allGenericVariants[randomIndex];
-                        Program.Logger.Debug($"No unique match found. Falling back to generic settlement map variant '{selectedVariant.Key}' for Faction '{faction}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+                        Program.Logger.Debug($"Found settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
                         return (selectedVariant.X, selectedVariant.Y);
                     }
                     else
                     {
-                        Program.Logger.Debug($"No variants found for generic settlement map Faction: '{faction}', BattleType: '{battleType}'.");
+                        Program.Logger.Debug($"No variants found for generic settlement map Faction: '{usedFactionForLog}', BattleType: '{battleType}'.");
                     }
                 }
                 else
                 {
-                    Program.Logger.Debug($"No generic settlement map found for Faction: '{faction}', BattleType: '{battleType}'.");
+                    Program.Logger.Debug($"No generic settlement map found for Faction: '{usedFactionForLog}', BattleType: '{battleType}'.");
                 }
             }
             else
