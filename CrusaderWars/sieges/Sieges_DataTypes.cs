@@ -88,7 +88,6 @@ namespace CrusaderWars.sieges
                 {
                     case "African": return "muslim";
                     case "Arabic": return "muslim";
-                    case "Berber": return "muslim";
                     case "Indian": return "muslim";
                     case "Mediterranean": return "eastern_roman";
                     case "Norse": return "germanic";

@@ -1093,6 +1093,7 @@ namespace CrusaderWars.unit_mapper
                         finalSelectionPool = knightRanks.Where(t => t.rank == lowestRank).ToList();
                     }
 
+                    // Randomly select one candidate from the final pool
                     if (finalSelectionPool.Any())
                     {
                         int index = _random.Next(finalSelectionPool.Count);

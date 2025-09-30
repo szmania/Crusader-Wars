@@ -1693,7 +1693,7 @@ namespace CrusaderWars
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
                         int attackerArmySize = attacker_armies.Sum(a => a.GetTotalSoldiers());
-                        var siegeEngines = SiegeEngineGenerator.Generate(attackerArmySize);
+                        var siegeEngines = SiegeEngineGenerator.Generate(attacker_armies); // Pass attacker_armies
                         if (siegeEngines != null && siegeEngines.Any())
                         {
                             Program.Logger.Debug("  --- Siege Engines ---");
@@ -2003,7 +2003,7 @@ namespace CrusaderWars
                     BattleResult.LogPostBattleReport(attacker_armies, originalAttackerSizes, "ATTACKER");
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
-                        var siegeEngines = SiegeEngineGenerator.Generate(originalTotalAttackerSoldiers);
+                        var siegeEngines = SiegeEngineGenerator.Generate(attacker_armies); // Pass attacker_armies
                         if (siegeEngines != null && siegeEngines.Any())
                         {
                             Program.Logger.Debug("  --- Siege Engines ---");
