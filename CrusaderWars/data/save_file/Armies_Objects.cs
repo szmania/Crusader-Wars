@@ -85,7 +85,7 @@ namespace CrusaderWars.data.save_file
         int Max { get; set; }
         string LocName { get; set; }
         public int CharacterRank { get; private set; }
-
+        private bool IsSiegeWeapon { get; set; }
 
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
@@ -98,6 +98,7 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            IsSiegeWeapon = false;
         }
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
@@ -111,6 +112,7 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            IsSiegeWeapon = false;
         }
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
         {
@@ -124,6 +126,7 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            IsSiegeWeapon = false;
         }
 
 
@@ -137,6 +140,7 @@ namespace CrusaderWars.data.save_file
         public void SetLocName(string t) { LocName = t; }
         public void ChangeCulture(Culture culture) { UnitCulture = culture; }
         public void SetCharacterRank(int rank) { CharacterRank = rank; }
+        public void SetIsSiegeWeapon(bool isSiege) { IsSiegeWeapon = isSiege; }
 
 
         public int GetMax() { return Max; }
@@ -165,6 +169,7 @@ namespace CrusaderWars.data.save_file
         public bool IsMerc() { return IsMercenaryBool; }
         public RegimentType GetRegimentType() { return Type; }
         public string GetLocName() { return LocName; }
+        public bool IsSiege() { return IsSiegeWeapon; }
 
     }
 

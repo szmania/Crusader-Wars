@@ -888,28 +888,28 @@ namespace CrusaderWars.unit_mapper
             return NOT_FOUND_KEY;
         }
 
-        static string SearchInTitlesFile(Unit unit)
+        static (string, bool) SearchInTitlesFile(Unit unit)
         {
             if (LoadedUnitMapper_FolderPath == null)
             {
                 Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot search in titles file.");
-                return NOT_FOUND_KEY;
+                return (NOT_FOUND_KEY, false);
             }
 
             string titles_folder_path = LoadedUnitMapper_FolderPath + @"\Titles";
-            if (!Directory.Exists(titles_folder_path)) return NOT_FOUND_KEY;
+            if (!Directory.Exists(titles_folder_path)) return (NOT_FOUND_KEY, false);
             var files_paths = Directory.GetFiles(titles_folder_path);
 
             var owner = unit.GetOwner();
             if(owner == null || owner.GetPrimaryTitleKey() == string.Empty)
-                return NOT_FOUND_KEY;
+                return (NOT_FOUND_KEY, false);
             
             //LEVIES skip
-            if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY;
+            if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false);
             //Garrison units also skip this, as their keys are set directly
-            if (unit.GetRegimentType() == RegimentType.Garrison) return NOT_FOUND_KEY; // Changed from unit.GetName() == "Garrison"
+            if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"
 
-            string unit_key = "";
+            (string key, bool isSiege) unit_data = (string.Empty, false);
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
@@ -929,23 +929,23 @@ namespace CrusaderWars.unit_mapper
                         {
                             foreach (XmlNode node in element.ChildNodes)
                             {
-                                unit_key = FindUnitKeyInFaction(element, unit);
-                                return unit_key;
+                                unit_data = FindUnitKeyInFaction(element, unit);
+                                return unit_data;
                             }
                         }
                     }
                 }
             }
 
-            return NOT_FOUND_KEY;
+            return (NOT_FOUND_KEY, false);
         }
 
-        static string SearchInFactionFiles(Unit unit)
+        static (string, bool) SearchInFactionFiles(Unit unit)
         {
             if (LoadedUnitMapper_FolderPath == null)
             {
                 Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot search in faction files.");
-                return NOT_FOUND_KEY;
+                return (NOT_FOUND_KEY, false);
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
@@ -953,12 +953,12 @@ namespace CrusaderWars.unit_mapper
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
 
             //LEVIES skip
-            if (unit.GetRegimentType() == RegimentType.Levy) return NOT_FOUND_KEY ;
+            if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false) ;
             //Garrison units also skip this, as their keys are set directly
-            if (unit.GetRegimentType() == RegimentType.Garrison) return NOT_FOUND_KEY; // Changed from unit.GetName() == "Garrison"
+            if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"
 
-            string specific_unit_key = NOT_FOUND_KEY;
-            string default_unit_key = NOT_FOUND_KEY;
+            (string key, bool isSiege) specific_unit = (NOT_FOUND_KEY, false);
+            (string key, bool isSiege) default_unit = (NOT_FOUND_KEY, false);
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
@@ -978,19 +978,19 @@ namespace CrusaderWars.unit_mapper
                             //Store Default unit key first
                             if (faction == "Default" || faction == "DEFAULT")
                             {
-                                string foundKey = FindUnitKeyInFaction(element, unit);
+                                var (foundKey, foundIsSiege) = FindUnitKeyInFaction(element, unit);
                                 if (foundKey != NOT_FOUND_KEY)
                                 {
-                                    default_unit_key = foundKey; // Overwrite default key
+                                    default_unit = (foundKey, foundIsSiege); // Overwrite default key
                                 }
                             }
                             //Then stores culture specific unit key
                             else if (faction == unit.GetAttilaFaction())
                             {
-                                string foundKey = FindUnitKeyInFaction(element, unit);
+                                var (foundKey, foundIsSiege) = FindUnitKeyInFaction(element, unit);
                                 if (foundKey != NOT_FOUND_KEY)
                                 {
-                                    specific_unit_key = foundKey; // Overwrite specific key
+                                    specific_unit = (foundKey, foundIsSiege); // Overwrite specific key
                                 }
                             }
                         }
@@ -998,15 +998,15 @@ namespace CrusaderWars.unit_mapper
                 }
             }
 
-            if (specific_unit_key != NOT_FOUND_KEY)
+            if (specific_unit.key != NOT_FOUND_KEY)
             {
-                return specific_unit_key;
+                return specific_unit;
             }
 
-            return default_unit_key;
+            return default_unit;
         }
 
-        static string FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
+        static (string, bool) FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
         {
             if (unit.GetRegimentType() == RegimentType.Commander)
             {
@@ -1054,7 +1054,7 @@ namespace CrusaderWars.unit_mapper
                     if (finalSelectionPool.Any())
                     {
                         int index = _random.Next(finalSelectionPool.Count);
-                        return finalSelectionPool[index].key;
+                        return (finalSelectionPool[index].key, false);
                     }
                 }
             }
@@ -1096,7 +1096,7 @@ namespace CrusaderWars.unit_mapper
                     if (finalSelectionPool.Any())
                     {
                         int index = _random.Next(finalSelectionPool.Count);
-                        return finalSelectionPool[index].key;
+                        return (finalSelectionPool[index].key, false);
                     }
                 }
             }
@@ -1117,62 +1117,63 @@ namespace CrusaderWars.unit_mapper
                             if (node?.Attributes?["key"] != null)
                             {
                                 string? unit_key = node.Attributes["key"]?.Value;
-                                if (unit_key != null) return unit_key;
+                                bool isSiege = node.Attributes?["siege"]?.Value == "true";
+                                if (unit_key != null) return (unit_key, isSiege);
                             }
                         }
                     }
                 }
             }
 
-            return NOT_FOUND_KEY;
+            return (NOT_FOUND_KEY, false);
         }
 
 
-        public static string GetUnitKey(Unit unit)
+        public static (string, bool) GetUnitKey(Unit unit)
         {
             // If the unit is a Garrison unit, its key is already set directly from the XML
             if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty) // Changed from unit.GetName() == "Garrison"
             {
-                return unit.GetAttilaUnitKey();
+                return (unit.GetAttilaUnitKey(), false); // Garrison units are not siege weapons
             }
 
-            string unit_key = SearchInTitlesFile(unit);
+            var (unit_key, isSiege) = SearchInTitlesFile(unit);
             if (unit_key != NOT_FOUND_KEY)
             {
-                return unit_key;
+                return (unit_key, isSiege);
             }
 
-            unit_key = SearchInFactionFiles(unit);
+            (unit_key, isSiege) = SearchInFactionFiles(unit);
             if (unit_key != NOT_FOUND_KEY)
             {
-                return unit_key;
+                return (unit_key, isSiege);
             }
 
             // Fallback to default unit if no specific mapping is found
-            string default_key = GetDefaultUnitKey(unit.GetRegimentType());
+            var (default_key, defaultIsSiege) = GetDefaultUnitKey(unit.GetRegimentType());
             if (default_key != NOT_FOUND_KEY)
             {
                 Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
-                return default_key;
+                return (default_key, defaultIsSiege);
             }
 
             Program.Logger.Debug($"  - CRITICAL: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
-            return NOT_FOUND_KEY; // This will be the found key or NOT_FOUND_KEY
+            return (NOT_FOUND_KEY, false); // This will be the found key or NOT_FOUND_KEY
         }
 
-        public static string GetDefaultUnitKey(RegimentType type)
+        public static (string, bool) GetDefaultUnitKey(RegimentType type)
         {
-            if (type == RegimentType.Levy) return NOT_FOUND_KEY; // Levies are handled separately
-            if (type == RegimentType.Garrison) return NOT_FOUND_KEY; // Garrison units are handled separately // Changed from `if (type == RegimentType.Levy && type == RegimentType.MenAtArms)`
+            if (type == RegimentType.Levy) return (NOT_FOUND_KEY, false); // Levies are handled separately
+            if (type == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Garrison units are handled separately // Changed from `if (type == RegimentType.Levy && type == RegimentType.MenAtArms)`
 
             if (LoadedUnitMapper_FolderPath == null)
             {
                 Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get default unit key.");
-                return NOT_FOUND_KEY;
+                return (NOT_FOUND_KEY, false);
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            if (!Directory.Exists(factions_folder_path)) return NOT_FOUND_KEY;
+            if (!Directory.Exists(factions_folder_path)) return (NOT_FOUND_KEY, false);
 
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
@@ -1229,7 +1230,7 @@ namespace CrusaderWars.unit_mapper
                     }
                 }
             }
-            return found_key; // Return last found key
+            return (found_key, false); // Return last found key, default to not siege weapon
         }
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)

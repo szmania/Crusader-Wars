@@ -486,11 +486,15 @@ namespace CrusaderWars.data.save_file
                 if (unit.GetRegimentType() == RegimentType.Levy && unit.GetName() != "Levy" && unit.GetName() != "Garrison") continue; // Skip placeholder levies and garrisons
 
                 Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', IsMercenary='{unit.IsMerc()}'");
-                string key = UnitMappers_BETA.GetUnitKey(unit);
+                var (key, isSiege) = UnitMappers_BETA.GetUnitKey(unit);
+                unit.SetIsSiegeWeapon(isSiege);
+
                 if (key == UnitMappers_BETA.NOT_FOUND_KEY)
                 {
                     Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' ({unit.GetCulture()}). Attempting to find a default fallback.");
-                    string fallbackKey = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
+                    var (fallbackKey, fallbackIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
+                    unit.SetIsSiegeWeapon(fallbackIsSiege);
+
                     if (fallbackKey != UnitMappers_BETA.NOT_FOUND_KEY)
                     {
                         Program.Logger.Debug($"Using default fallback unit key '{fallbackKey}' for unit '{unit.GetName()}'.");
@@ -779,6 +783,64 @@ namespace CrusaderWars.data.save_file
                 }
             }
             Program.Logger.Debug("END ExpandGarrisonArmies.");
+        }
+
+        internal static void EnsureAttackerHasSiegeEngine(List<Army> attackerArmies)
+        {
+            Program.Logger.Debug("Checking if attacker has siege equipment for siege battle...");
+
+            if (attackerArmies.SelectMany(a => a.Units).Any(u => u.IsSiege()))
+            {
+                Program.Logger.Debug("Attacker army already has siege units. No changes needed.");
+                return;
+            }
+
+            Program.Logger.Debug("Attacker army has no mapped siege units. Adding a default battering ram.");
+
+            var cheapestRam = UnitMappers_BETA.SiegeEngines
+                .Where(se => se.Type.Contains("ram", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(se => se.SiegeEffortCost)
+                .FirstOrDefault();
+
+            if (cheapestRam == null || string.IsNullOrEmpty(cheapestRam.Key))
+            {
+                Program.Logger.Debug("WARNING: Could not find any battering ram in siege engine definitions. Cannot add default siege engine.");
+                return;
+            }
+
+            var mainAttackerArmy = attackerArmies.FirstOrDefault(a => a.isMainArmy && !a.IsGarrison()) ?? 
+                                   attackerArmies.FirstOrDefault(a => !a.IsGarrison()) ?? 
+                                   attackerArmies.FirstOrDefault();
+
+            if (mainAttackerArmy == null)
+            {
+                Program.Logger.Debug("WARNING: Could not find any attacker army to add the default siege engine to.");
+                return;
+            }
+
+            var ramCulture = mainAttackerArmy.Owner?.GetCulture() ?? 
+                             mainAttackerArmy.Commander?.GetCultureObj() ?? 
+                             mainAttackerArmy.Units.FirstOrDefault(u => u.GetObjCulture() != null)?.GetObjCulture();
+
+            if (ramCulture == null)
+            {
+                Program.Logger.Debug("WARNING: Could not determine a culture for the default siege engine. Cannot add unit.");
+                return;
+            }
+
+            var tempUnit = new Unit(cheapestRam.Key, 0, ramCulture, RegimentType.MenAtArms);
+            tempUnit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(tempUnit.GetCulture(), tempUnit.GetHeritage()));
+            int maxSoldiers = UnitMappers_BETA.GetMax(tempUnit);
+            if (maxSoldiers <= 0) maxSoldiers = 60; // Fallback
+
+            Unit ramUnit = new Unit(cheapestRam.Key, maxSoldiers, ramCulture, RegimentType.MenAtArms);
+            ramUnit.SetIsSiegeWeapon(true);
+            ramUnit.SetUnitKey(cheapestRam.Key);
+            ramUnit.SetAttilaFaction(tempUnit.GetAttilaFaction());
+            ramUnit.SetMax(maxSoldiers);
+
+            mainAttackerArmy.Units.Add(ramUnit);
+            Program.Logger.Debug($"Added one unit of '{cheapestRam.Key}' with {maxSoldiers} soldiers to army '{mainAttackerArmy.ID}'.");
         }
 
         #region SEARCH HELPERS
