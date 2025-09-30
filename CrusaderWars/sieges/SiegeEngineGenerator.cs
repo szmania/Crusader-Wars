@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using CrusaderWars.twbattle;
 using CrusaderWars.unit_mapper;
+using CrusaderWars.data.save_file; // Added for Army
 
 namespace CrusaderWars.sieges
 {
     public static class SiegeEngineGenerator
     {
-        public static Dictionary<string, int> Generate(int attackerArmySize)
+        public static Dictionary<string, int> Generate(List<Army> attackerArmies)
         {
             Program.Logger.Debug("Starting SiegeEngineGenerator.Generate()");
             var siegeEnginesToBuild = new Dictionary<string, int>();
+
+            int attackerArmySize = attackerArmies.SelectMany(a => a.Units).Sum(u => u.GetSoldiers());
 
             double siegeProgress = Sieges.GetSiegeProgress();
             int fortLevel = Sieges.GetFortLevel();
@@ -28,7 +31,28 @@ namespace CrusaderWars.sieges
             // Return immediately if current progress is less than one-fourth of the total required progress
             if (siegeProgress < totalRequiredProgress / 4)
             {
-                Program.Logger.Debug($"Siege progress ({siegeProgress}) is less than one-fourth of total required progress ({totalRequiredProgress / 4}). No siege engines generated.");
+                Program.Logger.Debug($"Siege progress ({siegeProgress}) is less than one-fourth of total required progress ({totalRequiredProgress / 4}). No siege engines generated based on progress.");
+                // --- START: NEW DEFAULT RAM LOGIC ---
+                bool attackerHasSiegeUnits = attackerArmies.SelectMany(a => a.Units).Any(u => u.IsSiege());
+                if (!attackerHasSiegeUnits && !siegeEnginesToBuild.Any())
+                {
+                    Program.Logger.Debug("Attacker has no mapped siege units and siege progress is too low to generate any deployables. Adding a default battering ram.");
+                    var cheapestRam = UnitMappers_BETA.SiegeEngines
+                        .Where(se => se.Type.Contains("ram", StringComparison.OrdinalIgnoreCase))
+                        .OrderBy(se => se.SiegeEffortCost)
+                        .FirstOrDefault();
+
+                    if (cheapestRam != null && !string.IsNullOrEmpty(cheapestRam.Key))
+                    {
+                        siegeEnginesToBuild.Add(cheapestRam.Key, 1);
+                        Program.Logger.Debug($"Added one deployable of '{cheapestRam.Key}'.");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug("WARNING: Could not find any battering ram in siege engine definitions. Cannot add default siege engine.");
+                    }
+                }
+                // --- END: NEW DEFAULT RAM LOGIC ---
                 return siegeEnginesToBuild;
             }
 
@@ -97,6 +121,28 @@ namespace CrusaderWars.sieges
                 siegeEnginesToBuild.Add(bestLadder.Key, finalQuantity);
                 Program.Logger.Debug($"Selected Ladder: {bestLadder.Key}, Quantity: {finalQuantity}");
             }
+
+            // --- START: NEW DEFAULT RAM LOGIC ---
+            bool attackerHasSiegeUnits = attackerArmies.SelectMany(a => a.Units).Any(u => u.IsSiege());
+            if (!attackerHasSiegeUnits && !siegeEnginesToBuild.Any())
+            {
+                Program.Logger.Debug("Attacker has no mapped siege units and siege progress is too low to generate any deployables. Adding a default battering ram.");
+                var cheapestRam = UnitMappers_BETA.SiegeEngines
+                    .Where(se => se.Type.Contains("ram", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(se => se.SiegeEffortCost)
+                    .FirstOrDefault();
+
+                if (cheapestRam != null && !string.IsNullOrEmpty(cheapestRam.Key))
+                {
+                    siegeEnginesToBuild.Add(cheapestRam.Key, 1);
+                    Program.Logger.Debug($"Added one deployable of '{cheapestRam.Key}'.");
+                }
+                else
+                {
+                    Program.Logger.Debug("WARNING: Could not find any battering ram in siege engine definitions. Cannot add default siege engine.");
+                }
+            }
+            // --- END: NEW DEFAULT RAM LOGIC ---
 
             // --- START: NEW CAPPING LOGIC ---
             int maxAllowedEngines = Math.Min(15, Math.Max(1, attackerArmySize / 700));

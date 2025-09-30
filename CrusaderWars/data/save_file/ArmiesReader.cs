@@ -200,11 +200,6 @@ namespace CrusaderWars.data.save_file
                 var allArmies = attacker_armies.Concat(defender_armies).ToList();
                 Armies_Functions.ExpandGarrisonArmies(allArmies);
 
-                if (twbattle.BattleState.IsSiegeBattle)
-                {
-                    Armies_Functions.EnsureAttackerHasSiegeEngine(attacker_armies);
-                }
-
                 // Print Armies
                 Print.PrintArmiesData(attacker_armies);
                 Print.PrintArmiesData(defender_armies);
