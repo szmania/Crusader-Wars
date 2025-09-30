@@ -47,7 +47,7 @@ namespace CrusaderWars.sieges
                 var filteredEngines = allAvailableEngines
                     .Where(e => !e.Key.Contains(excludedWallHeight, StringComparison.OrdinalIgnoreCase))
                     .ToList();
-                Program.Logger.Debug($"Filtered to {filteredEngeredEngines.Count} engines after excluding '{excludedWallHeight}'.");
+                Program.Logger.Debug($"Filtered to {filteredEngines.Count} engines after excluding '{excludedWallHeight}'.");
 
                 // Calculate progress percentage to determine allowed effort cost and quantity
                 double progressPercentage = siegeProgress / totalRequiredProgress;
