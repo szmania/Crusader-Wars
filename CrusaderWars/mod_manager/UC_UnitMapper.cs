@@ -109,6 +109,13 @@ namespace CrusaderWars.mod_manager
 
         private async void uC_Toggle1_Click(object sender, EventArgs e)
         {
+            // 1. Skip Verification When Deactivating a Playthrough
+            if (!uC_Toggle1.State)
+            {
+                ToggleClicked?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
             // Show loading state
             this.Cursor = Cursors.WaitCursor;
             uC_Toggle1.Enabled = false;
@@ -177,9 +184,10 @@ namespace CrusaderWars.mod_manager
                 }
 
                 // If we get here, either everything is fine, or the user chose to ignore mismatches.
-                if (uC_Toggle1.State == true)
+                // 2. Correctly Deactivate Other Playthroughs on Activation
+                foreach (var controlReference in AllControlsReferences)
                 {
-                    foreach (var controlReference in AllControlsReferences)
+                    if (controlReference != this)
                     {
                         controlReference.uC_Toggle1.SetState(false);
                     }
