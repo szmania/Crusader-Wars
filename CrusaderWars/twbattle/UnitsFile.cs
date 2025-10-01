@@ -145,7 +145,7 @@ namespace CrusaderWars
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName()));
                 var (commanderKey, isSiege) = UnitMappers_BETA.GetUnitKey(commander_unit);
                 commander_unit.SetUnitKey(commanderKey);
-                commander_unit.SetIsSiegeWeapon(isSiege);
+                commander_unit.SetIsSiege(isSiege);
 
                 string commanderAttilaKey = commander_unit.GetAttilaUnitKey();
                 if (string.IsNullOrEmpty(commanderAttilaKey) || commanderAttilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
@@ -182,7 +182,7 @@ namespace CrusaderWars
                 knights_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(knights_unit.GetCulture(), knights_unit.GetHeritage()));
                 var (knightKey, isSiegeKnight) = UnitMappers_BETA.GetUnitKey(knights_unit);
                 knights_unit.SetUnitKey(knightKey);
-                knights_unit.SetIsSiegeWeapon(isSiegeKnight);
+                knights_unit.SetIsSiege(isSiegeKnight);
                 
                 string knightAttilaKey = knights_unit.GetAttilaUnitKey();
                 if (string.IsNullOrEmpty(knightAttilaKey) || knightAttilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
