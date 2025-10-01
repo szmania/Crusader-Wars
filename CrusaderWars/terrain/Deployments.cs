@@ -132,7 +132,7 @@ namespace CrusaderWars.terrain
  
         static string attacker_direction = "", defender_direction = "";
         static string? attacker_deployment, defender_deployment = "";
-        public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, bool shouldRotateDeployment)
+        public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attPositions, string[] defPositions) battle_map, bool shouldRotateDeployment)
         {
             Random random = new Random();
             //All directions battle maps
@@ -194,16 +194,16 @@ namespace CrusaderWars.terrain
             switch (mapSize)
             {
                 case "Medium":
-                    width = "900"; // Changed from 750
-                    height = "900"; // Changed from 750
+                    width = "750";
+                    height = "750";
                     break;
                 case "Big":
-                    width = "1300"; // Changed from 1100
-                    height = "1300"; // Changed from 1100
+                    width = "1100";
+                    height = "1100";
                     break;
                 case "Huge":
-                    width = "1800"; // Changed from 1500
-                    height = "1800"; // Changed from 1500
+                    width = "1500";
+                    height = "1500";
                     break;
                 default: // Fallback to original size if map size is unexpected
                     width = "250";
@@ -326,9 +326,9 @@ namespace CrusaderWars.terrain
             // If it's a siege, use larger distances to push attackers to the map edge
             if (BattleState.IsSiegeBattle)
             {
-                mediumDist = "600.00"; // Changed from 450.00
-                bigDist = "900.00";    // Changed from 700.00
-                hugeDist = "1250.00";  // Changed from 1050.00
+                mediumDist = "600.00";
+                bigDist = "900.00";
+                hugeDist = "1250.00";
             }
 
             X = "0.00"; // Initialize X and Y to avoid CS8618
@@ -453,15 +453,15 @@ namespace CrusaderWars.terrain
                 switch (MapSize)
                 {
                     case "Medium":
-                        Width = "1500"; // Changed from 1200
+                        Width = "1500";
                         Height = "150";
                         break;
                     case "Big":
-                        Width = "2200"; // Changed from 1800
+                        Width = "2200";
                         Height = "250";
                         break;
                     case "Huge":
-                        Width = "3000"; // Changed from 2400
+                        Width = "3000";
                         Height = "350";
                         break;
                     default:
@@ -498,15 +498,15 @@ namespace CrusaderWars.terrain
                 {
                     case "Medium":
                         Width = "150";
-                        Height = "1500"; // Changed from 1200
+                        Height = "1500";
                         break;
                     case "Big":
                         Width = "250";
-                        Height = "2200"; // Changed from 1800
+                        Height = "2200";
                         break;
                     case "Huge":
                         Width = "350";
-                        Height = "3000"; // Changed from 2400
+                        Height = "3000";
                         break;
                     default:
                         throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
