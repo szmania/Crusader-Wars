@@ -80,9 +80,22 @@ namespace CrusaderWars.mod_manager
                 // Build a string containing the list of mods
                 StringBuilder modsMessage = new StringBuilder();
                 string messageBoxTitle = $"{_playthroughTag} - Required Mods"; // Dynamic title
-                if (RequiredModsList != null && RequiredModsList.Count > 0)
+
+                if (_playthroughTag == "AGOT")
+                {
+                    modsMessage.AppendLine("For the 'A Game of Thrones (AGOT)' playthrough, please ensure you have the following CK3 submod installed:");
+                    modsMessage.AppendLine("• Lord of the Tides (adds House Velaryon)");
+                    modsMessage.AppendLine("  Download: https://www.moddb.com/downloads/lord-of-the-tides-v04");
+                    modsMessage.AppendLine();
+                    modsMessage.AppendLine("Additionally, the following Total War: Attila mods are required:");
+                }
+                else // TheFallenEagle
                 {
                     modsMessage.AppendLine($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:");
+                }
+
+                if (RequiredModsList != null && RequiredModsList.Count > 0)
+                {
                     foreach (var (mod, _) in RequiredModsList)
                     {
                         modsMessage.AppendLine($"- {mod}");
@@ -91,7 +104,14 @@ namespace CrusaderWars.mod_manager
                 }
                 else
                 {
-                    modsMessage.AppendLine($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.");
+                    if (_playthroughTag == "AGOT")
+                    {
+                        modsMessage.AppendLine("No additional Total War: Attila mods are listed as required for this playthrough.");
+                    }
+                    else
+                    {
+                        modsMessage.AppendLine($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.");
+                    }
                 }
 
                 MessageBox.Show(modsMessage.ToString(), messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
