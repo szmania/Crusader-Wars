@@ -134,6 +134,34 @@ function kills()
             File.AppendAllText(filePath, close);
         }
 
+        public static void AddSiegeEvents()
+        {
+            Program.Logger.Debug("Adding siege event listeners to script...");
+            string siegeEventsScript = @"
+local walls_attacked = false;
+
+function building_destroyed()
+  if walls_attacked == true then
+    bm:out(""WALLS_DESTROYED"");
+    dev.log(""WALLS_DESTROYED"");
+    walls_attacked = false;
+  end; 
+end;
+
+scripting.AddEventCallBack(""BattleUnitDestroysBuilding"", building_destroyed);
+
+function walls_attacked_func()
+  bm:out(""WALLS_ATTACKED"");
+  dev.log(""WALLS_ATTACKED"");
+  walls_attacked = true;
+end;
+
+scripting.AddEventCallBack(""BattleUnitAttacksWalls"", walls_attacked_func);
+";
+            File.AppendAllText(filePath, siegeEventsScript);
+            Program.Logger.Debug("Siege event listeners added.");
+        }
+
         //Add
         public static void EraseScript()
         {

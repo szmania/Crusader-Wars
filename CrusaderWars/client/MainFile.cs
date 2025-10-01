@@ -1645,6 +1645,13 @@ namespace CrusaderWars
                     //Close Script
                     BattleScript.CloseScript();
 
+                    // NEW: Add siege event listeners if it's a siege battle
+                    if (twbattle.BattleState.IsSiegeBattle)
+                    {
+                        Program.Logger.Debug("Adding siege event listeners to script...");
+                        BattleScript.AddSiegeEvents();
+                    }
+
                     Program.Logger.Debug("--- FINAL ATTACKER ARMY COMPOSITION FOR ATTILA ---");
                     foreach (var army in attacker_armies)
                     {
@@ -1654,7 +1661,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
@@ -1715,7 +1722,7 @@ namespace CrusaderWars
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
                             foreach (var unit in army.Units)
                             {
-                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()} (Culture: {unit.Culture})";
 
                                 if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
