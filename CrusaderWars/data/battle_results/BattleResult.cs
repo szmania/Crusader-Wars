@@ -1785,6 +1785,40 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
+            // 1. Calculate Breach Increment
+            int breachIncrement = 0;
+            if (File.Exists(path_log_attila))
+            {
+                string attilaLogContent = File.ReadAllText(path_log_attila);
+                int wallsAttackedCount = Regex.Matches(attilaLogContent, "WALLS_ATTACKED").Count;
+                int wallsDestroyedCount = Regex.Matches(attilaLogContent, "WALLS_DESTROYED").Count;
+
+                if (wallsDestroyedCount > 1)
+                {
+                    breachIncrement = 3;
+                    Program.Logger.Debug($"Attila log: Multiple WALLS_DESTROYED events ({wallsDestroyedCount}). Setting breachIncrement to 3.");
+                }
+                else if (wallsDestroyedCount == 1)
+                {
+                    breachIncrement = 2;
+                    Program.Logger.Debug($"Attila log: One WALLS_DESTROYED event. Setting breachIncrement to 2.");
+                }
+                else if (wallsAttackedCount > 0)
+                {
+                    breachIncrement = 1;
+                    Program.Logger.Debug($"Attila log: WALLS_ATTACKED event(s) found ({wallsAttackedCount}). Setting breachIncrement to 1.");
+                }
+                else
+                {
+                    Program.Logger.Debug("Attila log: No wall attack/destruction events found. breachIncrement remains 0.");
+                }
+            }
+            else
+            {
+                Program.Logger.Debug($"Attila log file not found at {path_log_attila}. Cannot calculate breach increment.");
+            }
+
+
             List<string> fileLines = File.ReadAllLines(siegesFilePath).ToList();
             StringBuilder updatedContent = new StringBuilder();
             bool inTargetSiegeBlock = false;
@@ -1859,6 +1893,74 @@ namespace CrusaderWars.data.battle_results
                         double newProgress = 100 + (fortLevel * 75);
                         Program.Logger.Debug($"Attacker won. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
                         updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                    }
+                }
+                else if (inTargetSiegeBlock && trimmedLine.StartsWith("breach=")) // NEW BLOCK: Update breach value
+                {
+                    if (breachIncrement > 0)
+                    {
+                        int currentBreach = 0;
+                        Match breachMatch = Regex.Match(trimmedLine, @"breach=(\d+)");
+                        if (breachMatch.Success && int.TryParse(breachMatch.Groups[1].Value, out currentBreach))
+                        {
+                            int newBreach = Math.Min(3, currentBreach + breachIncrement); // Cap at max 3
+                            Program.Logger.Debug($"Updating breach from {currentBreach} to {newBreach} (increment: {breachIncrement}).");
+                            updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("breach="))}breach={newBreach}");
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Warning: Could not parse current breach value from line: '{line}'. Appending original line.");
+                            updatedContent.AppendLine(line);
+                        }
+                    }
+                    else
+                    {
+                        updatedContent.AppendLine(line); // No increment, append original line
+                    }
+                }
+                else if (inTargetSiegeBlock && trimmedLine.StartsWith("action_history={")) // NEW BLOCK: Update action_history
+                {
+                    if (breachIncrement > 0)
+                    {
+                        // Extract tokens, e.g., "none none none starvation"
+                        Match historyMatch = Regex.Match(line, @"action_history=\{\s*(.*?)\s*\}");
+                        if (historyMatch.Success)
+                        {
+                            List<string> tokens = historyMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                            string originalTokens = string.Join(" ", tokens);
+
+                            for (int k = 0; k < breachIncrement; k++)
+                            {
+                                int noneIndex = tokens.IndexOf("none");
+                                if (noneIndex != -1)
+                                {
+                                    tokens[noneIndex] = "breach";
+                                }
+                                else if (tokens.Any())
+                                {
+                                    // If no "none" tokens, remove the oldest and add "breach"
+                                    tokens.RemoveAt(0);
+                                    tokens.Add("breach");
+                                }
+                                else
+                                {
+                                    // If history is empty, just add "breach"
+                                    tokens.Add("breach");
+                                }
+                            }
+                            string newTokens = string.Join(" ", tokens);
+                            Program.Logger.Debug($"Updating action_history from '{{ {originalTokens} }}' to '{{ {newTokens} }}' (increment: {breachIncrement}).");
+                            updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("action_history={"))}action_history={{ {newTokens} }}");
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Warning: Could not parse action_history from line: '{line}'. Appending original line.");
+                            updatedContent.AppendLine(line);
+                        }
+                    }
+                    else
+                    {
+                        updatedContent.AppendLine(line); // No increment, append original line
                     }
                 }
                 else
