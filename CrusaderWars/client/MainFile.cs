@@ -523,7 +523,7 @@ namespace CrusaderWars
             await _updater.CheckAppVersion();
             // If an app update is found, the process will exit and the next line won't be reached.
             await _updater.CheckUnitMappersVersion();
-            await CheckForCK3ModUpdatesAsync();
+            // await CheckForCK3ModUpdatesAsync(); // MOVED TO ExecuteButton_Click
 
             Program.Logger.Debug("Form1_Load complete.");
 
@@ -957,6 +957,13 @@ namespace CrusaderWars
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
             Program.Logger.Debug("Execute button clicked.");
+
+            // ADDED: CK3 mod update check
+            if (!await CheckForCK3ModUpdatesAsync())
+            {
+                Program.Logger.Debug("CK3 mod update check failed or was cancelled. Aborting execution.");
+                return;
+            }
 
             // Check if Crusader Conflicts mod is enabled in the playset
             string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
@@ -2434,7 +2441,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    Program.Logger.Debug("CK3 process is already running. Cannot automatically load last save. Please continue manually in CK3.");
+Logger.Debug("CK3 process is already running. Cannot automatically load last save. Please continue manually in CK3.");
                 }
             }
 
@@ -2884,7 +2891,7 @@ namespace CrusaderWars
             return (version, name, pathDir);
         }
 
-        private async Task CheckForCK3ModUpdatesAsync()
+        private async Task<bool> CheckForCK3ModUpdatesAsync()
         {
             Program.Logger.Debug("Checking for CK3 mod updates...");
             string sourceModsDir = @".\ck3_mods";
@@ -2893,19 +2900,19 @@ namespace CrusaderWars
             if (string.IsNullOrEmpty(ck3SaveGameDir) || !ck3SaveGameDir.EndsWith("save games"))
             {
                 Program.Logger.Debug("CK3 save game directory is not configured correctly. Skipping CK3 mod update check.");
-                return;
+                return true; // Allow execution to continue if path is bad
             }
             string targetModsDir = ck3SaveGameDir.Replace("save games", "mod");
 
             if (!Directory.Exists(sourceModsDir))
             {
                 Program.Logger.Debug("Source ck3_mods directory not found. Skipping check.");
-                return;
+                return true; // Allow execution to continue
             }
             if (!Directory.Exists(targetModsDir))
             {
                 Program.Logger.Debug($"Target CK3 mod directory not found at '{targetModsDir}'. Skipping check.");
-                return;
+                return true; // Allow execution to continue
             }
 
             var modsToUpdate = new List<ModUpdateInfo>();
@@ -2945,7 +2952,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"An error occurred while checking for mod updates: {ex.Message}");
-                return;
+                return true; // Allow execution to continue on unexpected error
             }
 
             if (modsToUpdate.Any())
@@ -2970,20 +2977,22 @@ namespace CrusaderWars
 
                 if (result == DialogResult.Yes)
                 {
-                    await PerformModUpdateAsync(modsToUpdate, targetModsDir);
+                    return await PerformModUpdateAsync(modsToUpdate, targetModsDir);
                 }
                 else
                 {
                     Program.Logger.Debug("User declined CK3 mod updates.");
+                    return true; // User declined, but allow execution to continue
                 }
             }
             else
             {
                 Program.Logger.Debug("All CK3 mods are up-to-date.");
+                return true; // No updates needed, allow execution to continue
             }
         }
 
-        private async Task PerformModUpdateAsync(List<ModUpdateInfo> modsToUpdate, string targetModsDir)
+        private async Task<bool> PerformModUpdateAsync(List<ModUpdateInfo> modsToUpdate, string targetModsDir)
         {
             Program.Logger.Debug("Starting CK3 mod update process...");
 
@@ -2999,7 +3008,7 @@ namespace CrusaderWars
                 {
                     MessageBox.Show("Mod update cancelled because Crusader Kings III was not closed.", "Update Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Program.Logger.Debug("Mod update cancelled by user because CK3 is running.");
-                    return;
+                    return false; // User cancelled
                 }
             }
 
@@ -3037,7 +3046,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Failed to update mod '{mod.Name}'. Error: {ex.Message}");
                     MessageBox.Show($"Failed to update the mod '{mod.Name}'.\n\nPlease ensure you have the correct permissions for the CK3 mod directory and that no other programs (like antivirus) are blocking access.\n\nError: {ex.Message}", "Mod Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     // Stop on first error to prevent further issues
-                    return;
+                    return false; // Update failed
                 }
             }
 
@@ -3045,7 +3054,9 @@ namespace CrusaderWars
             {
                 MessageBox.Show("The selected CK3 mods have been successfully updated.", "Update Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Program.Logger.Debug("CK3 mod update process completed successfully.");
+                return true; // All updates successful
             }
+            return false; // Should not be reached if successCount != modsToUpdate.Count and no exception was thrown.
         }
 
         private static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
