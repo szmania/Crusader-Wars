@@ -487,13 +487,13 @@ namespace CrusaderWars.data.save_file
 
                 Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', IsMercenary='{unit.IsMerc()}'");
                 var (key, isSiege) = UnitMappers_BETA.GetUnitKey(unit);
-                unit.SetIsSiegeWeapon(isSiege);
+                unit.SetIsSiege(isSiege);
 
                 if (key == UnitMappers_BETA.NOT_FOUND_KEY)
                 {
                     Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' ({unit.GetCulture()}). Attempting to find a default fallback.");
                     var (fallbackKey, fallbackIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
-                    unit.SetIsSiegeWeapon(fallbackIsSiege);
+                    unit.SetIsSiege(fallbackIsSiege);
 
                     if (fallbackKey != UnitMappers_BETA.NOT_FOUND_KEY)
                     {
