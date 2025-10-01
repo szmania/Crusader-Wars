@@ -769,6 +769,10 @@ namespace CrusaderWars
 
                 Label messageLabel = new Label();
                 messageLabel.Text = 
+                    "AGOT Playthrough Update!\n\n" +
+                    "• The AGOT playthrough now requires the 'Lord of the Tides' submod, which adds House Velaryon.\n" +
+                    "• Download it here: https://www.moddb.com/downloads/lord-of-the-tides-v04\n" +
+                    "----------------------------------------------------------\n\n" +
                     "Sieges Added!\n\n" +
                     "• Siege battles can be fought and won in all your favorite playthroughs!.\n" +
                     "----------------------------------------------------------\n\n" +
@@ -903,7 +907,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error creating/updating Attila shortcut: {ex.Message}");
+Logger.Debug($"Error creating/updating Attila shortcut: {ex.Message}");
                     // Optionally re-throw or handle more gracefully if shortcut creation is critical
                 }
             }
