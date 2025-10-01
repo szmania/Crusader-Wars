@@ -128,9 +128,9 @@ namespace CrusaderWars.sieges
             // --- END: NEW DEFAULT RAM LOGIC ---
 
             // --- START: NEW CAPPING LOGIC ---
-            int maxAllowedEngines = Math.Min(15, Math.Max(1, attackerArmySize / 700));
+            int maxAllowedEngines = Math.Min(10, Math.Max(1, attackerArmySize / 800));
             int currentTotalEngines = siegeEnginesToBuild.Values.Sum();
-            Program.Logger.Debug($"Siege engine limit: {maxAllowedEngines} (based on {attackerArmySize} soldiers, capped at 15). Current count before limit: {currentTotalEngines}.");
+            Program.Logger.Debug($"Siege engine limit: {maxAllowedEngines} (based on {attackerArmySize} soldiers, capped at 10). Current count before limit: {currentTotalEngines}.");
 
             while (currentTotalEngines > maxAllowedEngines)
             {

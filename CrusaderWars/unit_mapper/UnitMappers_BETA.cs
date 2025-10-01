@@ -294,6 +294,8 @@ namespace CrusaderWars.unit_mapper
                         }
                     }
                 }
+
+                Terrains = new TerrainsUM(attilaMap, historicMaps, normalMaps, settlementMaps, uniqueSettlementMaps); // Updated constructor call
             }
             catch (Exception ex)
             {
