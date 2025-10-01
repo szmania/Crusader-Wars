@@ -21,7 +21,7 @@ namespace CrusaderWars.data.battle_results
         public static string? ProvinceID { get; set; }
         public static string? SiegeID { get; set; }
         public static string? ProvinceName { get; set; }
-        public static bool IsAttackerVictorious { get; set; = false; 
+        public static bool IsAttackerVictorious { get; set; } = false; 
         //public static twbattle.Date FirstDay_Date { get; set; }
 
 
