@@ -1378,6 +1378,17 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug($"Setting battle winner to: {winner}");
             try
             {
+                if (winner == "attacker")
+                {
+                    IsAttackerVictorious = true;
+                    Program.Logger.Debug("Battle winner is attacker. IsAttackerVictorious = true.");
+                }
+                else
+                {
+                    IsAttackerVictorious = false;
+                    Program.Logger.Debug("Battle winner is defender. IsAttackerVictorious = false.");
+                }
+
                 //Set pursuit phase
                 Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(phase=)\w+", "$1" + "pursuit");
 
