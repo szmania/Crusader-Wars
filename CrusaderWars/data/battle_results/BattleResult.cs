@@ -1879,6 +1879,7 @@ namespace CrusaderWars.data.battle_results
             StringBuilder updatedContent = new StringBuilder();
             bool inTargetSiegeBlock = false;
             bool targetSiegeBlockFound = false; // Track if we entered the target siege block at all
+            bool breachLineHandled = false; // NEW: Track if breach= line was found/handled
 
             // Determine if attacker lost. This would be set by other BattleResult methods.
             bool attackerLost = !IsAttackerVictorious; // Assuming IsAttackerVictorious is set elsewhere
@@ -1892,10 +1893,19 @@ namespace CrusaderWars.data.battle_results
                 {
                     inTargetSiegeBlock = true;
                     targetSiegeBlockFound = true;
+                    breachLineHandled = false; // NEW: Reset for each siege block
                     updatedContent.AppendLine(line);
                 }
                 else if (inTargetSiegeBlock && trimmedLine == "}")
                 {
+                    // NEW: Add missing breach= line before closing brace if applicable
+                    if (!breachLineHandled && breachIncrement > 0)
+                    {
+                        int newBreach = Math.Min(3, breachIncrement);
+                        updatedContent.AppendLine($"\t\t\tbreach={newBreach}");
+                        Program.Logger.Debug($"Added missing breach line with value: {newBreach}");
+                    }
+
                     inTargetSiegeBlock = false;
                     updatedContent.AppendLine(line);
                 }
@@ -1953,6 +1963,7 @@ namespace CrusaderWars.data.battle_results
                 }
                 else if (inTargetSiegeBlock && trimmedLine.StartsWith("breach=")) // NEW BLOCK: Update breach value
                 {
+                    breachLineHandled = true; // NEW: Mark that breach line was handled
                     if (breachIncrement > 0)
                     {
                         int currentBreach = 0;
@@ -1974,49 +1985,48 @@ namespace CrusaderWars.data.battle_results
                         updatedContent.AppendLine(line); // No increment, append original line
                     }
                 }
-                else if (inTargetSiegeBlock && trimmedLine.StartsWith("action_history={")) // NEW BLOCK: Update action_history
+                else if (inTargetSiegeBlock && trimmedLine.StartsWith("action_history={")) // MODIFIED BLOCK: Update action_history
                 {
-                    if (breachIncrement > 0)
+                    if (breachIncrement > 0 && i + 2 < fileLines.Count) // Ensure there are enough lines to read (opening, tokens, closing)
                     {
-                        // Extract tokens, e.g., "none none none starvation"
-                        Match historyMatch = Regex.Match(line, @"action_history=\{\s*(.*?)\s*\}");
-                        if (historyMatch.Success)
-                        {
-                            List<string> tokens = historyMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                            string originalTokens = string.Join(" ", tokens);
+                        string tokensLineContent = fileLines[i + 1].Trim(); // e.g., "none none none starvation"
+                        string tokensLineIndentation = fileLines[i + 1].Substring(0, fileLines[i + 1].IndexOf(tokensLineContent)); // Get indentation of tokens line
+                        string closingBraceIndentation = fileLines[i + 2].Substring(0, fileLines[i + 2].IndexOf('}')); // Get indentation of closing brace line
 
-                            for (int k = 0; k < breachIncrement; k++)
-                            {
-                                int noneIndex = tokens.IndexOf("none");
-                                if (noneIndex != -1)
-                                {
-                                    tokens[noneIndex] = "breach";
-                                }
-                                else if (tokens.Any())
-                                {
-                                    // If no "none" tokens, remove the oldest and add "breach"
-                                    tokens.RemoveAt(0);
-                                    tokens.Add("breach");
-                                }
-                                else
-                                {
-                                    // If history is empty, just add "breach"
-                                    tokens.Add("breach");
-                                }
-                            }
-                            string newTokens = string.Join(" ", tokens);
-                            Program.Logger.Debug($"Updating action_history from '{{ {originalTokens} }}' to '{{ {newTokens} }}' (increment: {breachIncrement}).");
-                            updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("action_history={"))}action_history={{ {newTokens} }}");
-                        }
-                        else
+                        List<string> tokens = tokensLineContent.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        string originalTokensString = string.Join(" ", tokens); // For logging
+
+                        for (int k = 0; k < breachIncrement; k++)
                         {
-                            Program.Logger.Debug($"Warning: Could not parse action_history from line: '{line}'. Appending original line.");
-                            updatedContent.AppendLine(line);
+                            int noneIndex = tokens.IndexOf("none");
+                            if (noneIndex != -1)
+                            {
+                                tokens[noneIndex] = "breach";
+                            }
+                            else if (tokens.Any())
+                            {
+                                // If no "none" tokens, remove the oldest and add "breach"
+                                tokens.RemoveAt(0);
+                                tokens.Add("breach");
+                            }
+                            else
+                            {
+                                // If history is empty, just add "breach"
+                                tokens.Add("breach");
+                            }
                         }
+                        string newTokensString = string.Join(" ", tokens);
+                        Program.Logger.Debug($"Updating action_history from '{{ {originalTokensString} }}' to '{{ {newTokensString} }}' (increment: {breachIncrement}).");
+
+                        updatedContent.AppendLine(line); // Append "action_history={"
+                        updatedContent.AppendLine($"{tokensLineIndentation}{newTokensString}"); // Append modified tokens line
+                        updatedContent.AppendLine($"{closingBraceIndentation}}}"); // Append "}"
+
+                        i += 2; // Skip the next two lines as they have been processed
                     }
                     else
                     {
-                        updatedContent.AppendLine(line); // No increment, append original line
+                        updatedContent.AppendLine(line); // No increment or not enough lines, append original line
                     }
                 }
                 else
