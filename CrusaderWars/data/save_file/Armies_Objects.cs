@@ -136,11 +136,12 @@ namespace CrusaderWars.data.save_file
         public void SetUnitKey(string unit_key) { AttilaKey = unit_key; }
         public void ChangeName(string y) { Name = y; }
         public void ChangeSoldiers(int y) { Soldiers = y; }
+        public void SetSoldiers(int soldiers) { Soldiers = soldiers; }
         public void SetMax(int i) { Max = i; }
         public void SetLocName(string t) { LocName = t; }
         public void ChangeCulture(Culture culture) { UnitCulture = culture; }
         public void SetCharacterRank(int rank) { CharacterRank = rank; }
-        public void SetIsSiegeWeapon(bool isSiege) { IsSiegeWeapon = isSiege; }
+        public void SetIsSiege(bool isSiege) { IsSiegeWeapon = isSiege; }
 
 
         public int GetMax() { return Max; }

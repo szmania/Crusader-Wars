@@ -1127,25 +1127,45 @@ namespace CrusaderWars.unit_mapper
             return (NOT_FOUND_KEY, false);
         }
 
+        private static int CalculateAttilaSiegeUnitSoldiers(int ck3SiegeWeaponCount)
+        {
+            // The user-provided Lua script calculates machines from men. We need the reverse.
+            // The script implies a base ratio of 5 men per machine, which is a logical standard for creating new units.
+            return ck3SiegeWeaponCount * 5;
+        }
+
+        private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)
+        {
+            unit.SetIsSiege(isSiege);
+            if (isSiege)
+            {
+                int machineCount = unit.GetSoldiers();
+                int attilaSoldiers = CalculateAttilaSiegeUnitSoldiers(machineCount);
+                unit.SetSoldiers(attilaSoldiers);
+                Program.Logger.Debug($"  - SIEGE UNIT: Converted '{unit.GetName()}' from {machineCount} machines to {attilaSoldiers} soldiers.");
+            }
+            return (key, isSiege);
+        }
+
 
         public static (string, bool) GetUnitKey(Unit unit)
         {
             // If the unit is a Garrison unit, its key is already set directly from the XML
             if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty) // Changed from unit.GetName() == "Garrison"
             {
-                return (unit.GetAttilaUnitKey(), false); // Garrison units are not siege weapons
+                return ProcessUnitKeyResult(unit, unit.GetAttilaUnitKey(), false); // Garrison units are not siege weapons
             }
 
             var (unit_key, isSiege) = SearchInTitlesFile(unit);
             if (unit_key != NOT_FOUND_KEY)
             {
-                return (unit_key, isSiege);
+                return ProcessUnitKeyResult(unit, unit_key, isSiege);
             }
 
             (unit_key, isSiege) = SearchInFactionFiles(unit);
             if (unit_key != NOT_FOUND_KEY)
             {
-                return (unit_key, isSiege);
+                return ProcessUnitKeyResult(unit, unit_key, isSiege);
             }
 
             // Fallback to default unit if no specific mapping is found
@@ -1153,11 +1173,11 @@ namespace CrusaderWars.unit_mapper
             if (default_key != NOT_FOUND_KEY)
             {
                 Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
-                return (default_key, defaultIsSiege);
+                return ProcessUnitKeyResult(unit, default_key, defaultIsSiege);
             }
 
             Program.Logger.Debug($"  - CRITICAL: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
-            return (NOT_FOUND_KEY, false); // This will be the found key or NOT_FOUND_KEY
+            return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, false); // This will be the found key or NOT_FOUND_KEY
         }
 
         public static (string, bool) GetDefaultUnitKey(RegimentType type)
