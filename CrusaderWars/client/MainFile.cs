@@ -907,7 +907,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-Logger.Debug($"Error creating/updating Attila shortcut: {ex.Message}");
+                    Program.Logger.Debug($"Error creating/updating Attila shortcut: {ex.Message}");
                     // Optionally re-throw or handle more gracefully if shortcut creation is critical
                 }
             }
