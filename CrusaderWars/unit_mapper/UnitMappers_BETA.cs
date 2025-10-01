@@ -1130,8 +1130,8 @@ namespace CrusaderWars.unit_mapper
         private static int CalculateAttilaSiegeUnitSoldiers(int ck3SiegeWeaponCount)
         {
             // The user-provided Lua script calculates machines from men. We need the reverse.
-            // The script implies a base ratio of 5 men per machine, which is a logical standard for creating new units.
-            return ck3SiegeWeaponCount * 5;
+            // The script implies a base ratio of 3 men per machine, which is a logical standard for creating new units.
+            return ck3SiegeWeaponCount * 3;
         }
 
         private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)

@@ -21,7 +21,7 @@ namespace CrusaderWars.data.battle_results
         public static string? ProvinceID { get; set; }
         public static string? SiegeID { get; set; }
         public static string? ProvinceName { get; set; }
-        public static bool IsAttackerVictorious { get; set; } = false; 
+        public static bool IsAttackerVictorious { get; set; = false; 
         //public static twbattle.Date FirstDay_Date { get; set; }
 
 
@@ -462,6 +462,36 @@ namespace CrusaderWars.data.battle_results
             {
                 if (armyRegiment.Type == data.save_file.RegimentType.Commander || armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
 
+                // Determine if this ArmyRegiment represents a siege unit
+                bool isSiegeType = false;
+                // The `Unit` objects in army.Units are the *processed* units for Attila.
+                // We need to find the Unit that corresponds to this ArmyRegiment's *type* and *name*.
+                // For MAA, the Unit.GetName() is armyRegiment.MAA_Name.
+                // For Levy, the Unit.GetName() is "Levy".
+                // For Garrison, the Unit.GetName() is "Garrison".
+                string unitNameToMatch = armyRegiment.MAA_Name;
+                if (armyRegiment.Type == RegimentType.Levy) unitNameToMatch = "Levy";
+                if (armyRegiment.Type == RegimentType.Garrison) unitNameToMatch = "Garrison";
+
+                // Find a corresponding Unit object. We use the culture of the first regiment for matching,
+                // assuming all regiments within an ArmyRegiment share the same base unit type and culture for siege status.
+                Unit? correspondingUnit = army.Units.FirstOrDefault(u =>
+                    u.GetRegimentType() == armyRegiment.Type &&
+                    u.GetName() == unitNameToMatch &&
+                    u.GetObjCulture()?.ID == armyRegiment.Regiments.FirstOrDefault()?.Culture?.ID
+                );
+
+                if (correspondingUnit != null && correspondingUnit.IsSiege())
+                {
+                    isSiegeType = true;
+                    Program.Logger.Debug($"ArmyRegiment {armyRegiment.ID} (Type: {armyRegiment.Type}, Name: {armyRegiment.MAA_Name}) identified as a siege unit.");
+                }
+                else
+                {
+                    Program.Logger.Debug($"ArmyRegiment {armyRegiment.ID} (Type: {armyRegiment.Type}, Name: {armyRegiment.MAA_Name}) identified as a non-siege unit.");
+                }
+
+
                 foreach (Regiment regiment in armyRegiment.Regiments)
                 {
                     if (regiment.Culture is null) continue; // skip siege maa
@@ -475,26 +505,43 @@ namespace CrusaderWars.data.battle_results
                     // Check if CurrentNum is null or empty before parsing
                     if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
 
-                    int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
-                    int regSoldiers = originalSoldiers;
-                    while (regSoldiers > 0 && killed > 0)
+                    if (isSiegeType)
                     {
-                        if (regSoldiers > killed)
-                        {
-                            regSoldiers -= killed;
-                            killed = 0;
-                        }
-                        else
-                        {
-                            killed -= regSoldiers;
-                            regSoldiers = 0;
-                        }
+                        // Logic for siege units (machines)
+                        int originalMachines = Int32.Parse(regiment.CurrentNum);
+                        int startingMen = originalMachines * 3; // Convert machines to men for casualty calculation
+
+                        int menKilledInThisRegiment = Math.Min(killed, startingMen);
+                        int remainingMen = startingMen - menKilledInThisRegiment;
+                        int remainingMachines = ConvertMenToMachines(remainingMen);
+
+                        regiment.SetSoldiers(remainingMachines.ToString());
+                        unitReport.SetKilled(killed - menKilledInThisRegiment); // Update report with remaining casualties
+                        Program.Logger.Debug($"Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Machines changed from {originalMachines} to {remainingMachines} (Men: {startingMen} -> {remainingMen}). Killed: {menKilledInThisRegiment}.");
                     }
-                    
+                    else
+                    {
+                        // Original logic for non-siege units (soldiers)
+                        int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
+                        int regSoldiers = originalSoldiers;
+                        while (regSoldiers > 0 && killed > 0)
+                        {
+                            if (regSoldiers > killed)
+                            {
+                                regSoldiers -= killed;
+                                killed = 0;
+                            }
+                            else
+                            {
+                                killed -= regSoldiers;
+                                regSoldiers = 0;
+                            }
+                        }
                         
-                    regiment.SetSoldiers(regSoldiers.ToString());
-                    unitReport.SetKilled(killed);
-                    Program.Logger.Debug($"Setting Unit Report: Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
+                        regiment.SetSoldiers(regSoldiers.ToString());
+                        unitReport.SetKilled(killed);
+                        Program.Logger.Debug($"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
+                    }
                 }
                 // Moved these lines outside the inner loop
                 int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum)).Sum(x => Int32.Parse(x.CurrentNum!));
@@ -1348,6 +1395,13 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug($"Error setting winner of battle: {ex.Message}");
             }
 
+        }
+
+        static int ConvertMenToMachines(int men)
+        {
+            if (men <= 0) return 0;
+            if (men % 3 == 2) return (men / 3) + 1;
+            else return men / 3;
         }
 
         public static void EditArmyRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
