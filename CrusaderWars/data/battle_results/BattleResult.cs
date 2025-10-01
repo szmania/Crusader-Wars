@@ -509,7 +509,10 @@ namespace CrusaderWars.data.battle_results
                     {
                         // Logic for siege units (machines)
                         int originalMachines = Int32.Parse(regiment.CurrentNum);
-                        int startingMen = originalMachines * 3; // Convert machines to men for casualty calculation
+                        int startingMen;
+                        if (originalMachines <= 0) startingMen = 0;
+                        else if (originalMachines == 1) startingMen = 3;
+                        else startingMen = (originalMachines * 4) - 2;
 
                         int menKilledInThisRegiment = Math.Min(killed, startingMen);
                         int remainingMen = startingMen - menKilledInThisRegiment;
@@ -1399,9 +1402,8 @@ namespace CrusaderWars.data.battle_results
 
         static int ConvertMenToMachines(int men)
         {
-            if (men <= 0) return 0;
-            if (men % 3 == 2) return (men / 3) + 1;
-            else return men / 3;
+            if (men < 3) return 0;
+            return (int)Math.Round(men / 4.0, MidpointRounding.AwayFromZero);
         }
 
         public static void EditArmyRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
