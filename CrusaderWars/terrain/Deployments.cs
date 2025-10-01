@@ -275,6 +275,12 @@ namespace CrusaderWars.terrain
 
         //MAP SIZE OPTION
         string MapSize { get; set; }
+
+        public float MinX { get; private set; }
+        public float MaxX { get; private set; }
+        public float MinY { get; private set; }
+        public float MaxY { get; private set; }
+
         public DeploymentArea(string direction, string option_map_size, int total_soldiers)
         {
 
@@ -426,6 +432,16 @@ namespace CrusaderWars.terrain
             {
                 throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
             }
+
+            float centerX = float.Parse(this.X, CultureInfo.InvariantCulture);
+            float centerY = float.Parse(this.Y, CultureInfo.InvariantCulture);
+            float halfWidth = float.Parse(this.Width, CultureInfo.InvariantCulture) / 2f;
+            float halfHeight = float.Parse(this.Height, CultureInfo.InvariantCulture) / 2f;
+
+            this.MinX = centerX - halfWidth;
+            this.MaxX = centerX + halfWidth;
+            this.MinY = centerY - halfHeight;
+            this.MaxY = centerY + halfHeight;
         }
 
 
@@ -531,6 +547,8 @@ namespace CrusaderWars.terrain
         //MAP SIZE USER OPTION
         private string MapSize { get; set; }
 
+        private DeploymentArea _deploymentArea;
+
         /// <summary>
         /// Dynamic constructor for units positioning
         /// </summary>
@@ -541,6 +559,7 @@ namespace CrusaderWars.terrain
         {
             Direction = direction;
             MapSize = option_map_size;
+            _deploymentArea = new DeploymentArea(direction, option_map_size, total_soldiers);
 
             if (BattleState.IsSiegeBattle)
             {
@@ -578,48 +597,63 @@ namespace CrusaderWars.terrain
             Y = y;
             Direction = string.Empty; // Initialize Direction
             MapSize = string.Empty;   // Initialize MapSize
+            // _deploymentArea is not initialized here, as this constructor is for default values, not dynamic deployment.
+            // If this constructor is used for units that need boundary checks, _deploymentArea would need to be passed or initialized differently.
+            // For now, assuming this constructor is for fixed positions not requiring dynamic boundary checks.
         }
 
         public void AddUnitXSpacing(string direction)
         {
             int xSpacing = 15; //old 30
+            float newX = this.X; // Use float for calculation
+
             if (direction is "N" || direction is "S")
             {
-                X = X - xSpacing;
-                Y = Y;
+                newX -= xSpacing;
             }
             else if (direction is "E")
             {
                 xSpacing = 10; //old 15
-                X = X + xSpacing;
-                Y = Y;
+                newX += xSpacing;
             }
             else if (direction is "W")
             {
                 xSpacing = 10; //old 15
-                X = X - xSpacing;
-                Y = Y;
+                newX -= xSpacing;
             }
+
+            float clampedX = Math.Clamp(newX, _deploymentArea.MinX, _deploymentArea.MaxX);
+            if (clampedX != newX)
+            {
+                Program.Logger.Debug($"WARNING: Unit X coordinate ({newX}) exceeded deployment boundary. Clamped to {clampedX}. Army may be too large for the deployment zone.");
+            }
+            this.X = (int)clampedX;
         }
         public void AddUnitYSpacing(string direction)
         {
             int ySpacing = 10; //old 15
+            float newY = this.Y; // Use float for calculation
+
             if (direction is "N")
             {
-                X = X;
-                Y = Y + ySpacing;
+                newY += ySpacing;
             }
             else if (direction is "S")
             {
-                X = X;
-                Y = Y - ySpacing;
+                newY -= ySpacing;
             }
             else if (direction is "E" || direction is "W")
             {
                 ySpacing = 15; //old 30
-                X = X;
-                Y = Y + ySpacing;
+                newY += ySpacing;
             }
+
+            float clampedY = Math.Clamp(newY, _deploymentArea.MinY, _deploymentArea.MaxY);
+            if (clampedY != newY)
+            {
+                Program.Logger.Debug($"WARNING: Unit Y coordinate ({newY}) exceeded deployment boundary. Clamped to {clampedY}. Army may be too large for the deployment zone.");
+            }
+            this.Y = (int)clampedY;
         }
 
 
