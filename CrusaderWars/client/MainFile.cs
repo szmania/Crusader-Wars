@@ -2441,7 +2441,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-Logger.Debug("CK3 process is already running. Cannot automatically load last save. Please continue manually in CK3.");
+                    Program.Logger.Debug("CK3 process is already running. Cannot automatically load last save. Please continue manually in CK3.");
                 }
             }
 
