@@ -523,7 +523,7 @@ namespace CrusaderWars
             await _updater.CheckAppVersion();
             // If an app update is found, the process will exit and the next line won't be reached.
             await _updater.CheckUnitMappersVersion();
-            // await CheckForCK3ModUpdatesAsync(); // MOVED TO ExecuteButton_Click
+            await CheckForCK3ModUpdatesAsync(); // MOVED TO Form1_Load
 
             Program.Logger.Debug("Form1_Load complete.");
 
@@ -958,13 +958,6 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Execute button clicked.");
 
-            // ADDED: CK3 mod update check
-            if (!await CheckForCK3ModUpdatesAsync())
-            {
-                Program.Logger.Debug("CK3 mod update check failed or was cancelled. Aborting execution.");
-                return;
-            }
-
             // Check if Crusader Conflicts mod is enabled in the playset
             string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
             if (!string.IsNullOrEmpty(ck3SaveGameDir))
@@ -1091,7 +1084,7 @@ namespace CrusaderWars
                                                      "Incorrect Compatibility Patch Enabled",
                                                      MessageBoxButtons.OK,
                                                      MessageBoxIcon.Warning);
-                                     return;
+                                 return;
                                  }
                              }
                          }
