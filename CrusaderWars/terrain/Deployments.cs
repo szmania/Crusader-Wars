@@ -132,7 +132,7 @@ namespace CrusaderWars.terrain
  
         static string attacker_direction = "", defender_direction = "";
         static string? attacker_deployment, defender_deployment = "";
-        public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attPositions, string[] defPositions) battle_map, bool shouldRotateDeployment)
+        public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, bool shouldRotateDeployment)
         {
             Random random = new Random();
             //All directions battle maps
