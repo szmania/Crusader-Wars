@@ -716,89 +716,29 @@ namespace CrusaderWars.terrain
 
         private void UnitsPositionament()
         {
-            if (Direction == "N")
+            float centerX = float.Parse(_deploymentArea.X, CultureInfo.InvariantCulture);
+            float centerY = float.Parse(_deploymentArea.Y, CultureInfo.InvariantCulture);
+
+            switch (Direction)
             {
-                switch(MapSize)
-                {
-                    case "Medium":
-                        X = 0;
-                        Y = 200;
-                        break;
-                    case "Big":
-                        X = 0;
-                        Y = 350;
-                        break;
-                    case "Huge":
-                        X = 0;
-                        Y = 600;
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
-                }
-            }
-            else if (Direction == "S")
-            {
-                switch (MapSize)
-                {
-                    case "Medium":
-                        X = 0;
-                        Y = -200;
-                        break;
-                    case "Big":
-                        X = 0;
-                        Y = -350;
-                        break;
-                    case "Huge":
-                        X = 0;
-                        Y = -600;
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
-                }
-            }
-            else if (Direction == "E")
-            {
-                switch (MapSize)
-                {
-                    case "Medium":
-                        X = 200;
-                        Y = 0;
-                        break;
-                    case "Big":
-                        X = 350;
-                        Y = 0;
-                        break;
-                    case "Huge":
-                        X = 600;
-                        Y = 0;
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
-                }
-            }
-            else if (Direction == "W")
-            {
-                switch (MapSize)
-                {
-                    case "Medium":
-                        X = -200;
-                        Y = 0;
-                        break;
-                    case "Big":
-                        X = -350;
-                        Y = 0;
-                        break;
-                    case "Huge":
-                        X = -600;
-                        Y = 0;
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{Direction}'.");
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException($"Invalid direction '{Direction}' encountered during unit positioning.");
+                case "N":
+                    X = (int)centerX;
+                    Y = (int)_deploymentArea.MinY;
+                    break;
+                case "S":
+                    X = (int)centerX;
+                    Y = (int)_deploymentArea.MaxY;
+                    break;
+                case "E":
+                    X = (int)_deploymentArea.MinX;
+                    Y = (int)centerY;
+                    break;
+                case "W":
+                    X = (int)_deploymentArea.MaxX;
+                    Y = (int)centerY;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Invalid direction '{Direction}' encountered during unit positioning.");
             }
         }
     }

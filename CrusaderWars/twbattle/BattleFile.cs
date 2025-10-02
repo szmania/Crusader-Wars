@@ -1245,7 +1245,15 @@ namespace CrusaderWars
                                           fortificationDamageTags +
                                           "</battle_description>\n\n";
             
-            string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers)}\"/>\n\n";
+            // Start of new logic for map size adjustment
+            int effective_soldiers = total_soldiers;
+            if (twbattle.BattleState.IsSiegeBattle && total_soldiers <= 5000)
+            {
+                effective_soldiers = 5001;
+            }
+            // End of new logic
+
+            string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(effective_soldiers)}\"/>\n\n";
 
             File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
         }
