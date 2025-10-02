@@ -140,11 +140,11 @@ namespace CrusaderWars.client
                     {
                         if (total_soldiers <= 5000)
                         {
-                            return "1700";
+                            return "1800";
                         }
                         else if (total_soldiers < 20000)
                         {
-                            return "2000";
+                            return "2200";
                         }
                         else // total_soldiers >= 20000
                         {
