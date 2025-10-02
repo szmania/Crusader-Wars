@@ -921,9 +921,7 @@ namespace CrusaderWars
                             PR_General += $"<special_ability>{special_ability.primaryKey}</special_ability>\n";
                         }
                         if (special_ability.secundaryKey != "null")
-                        {
-                            PR_General += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
-                        }
+                        PR_General += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
 
                     }
 
@@ -1245,15 +1243,7 @@ namespace CrusaderWars
                                           fortificationDamageTags +
                                           "</battle_description>\n\n";
             
-            // Start of new logic for map size adjustment
-            int effective_soldiers = total_soldiers;
-            if (twbattle.BattleState.IsSiegeBattle && total_soldiers <= 5000)
-            {
-                effective_soldiers = 5001;
-            }
-            // End of new logic
-
-            string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(effective_soldiers)}\"/>\n\n";
+            string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers, twbattle.BattleState.IsSiegeBattle)}\"/>\n\n";
 
             File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
         }
