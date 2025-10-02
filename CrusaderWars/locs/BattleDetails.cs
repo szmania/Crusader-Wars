@@ -64,7 +64,7 @@ namespace CrusaderWars.locs
                 {
                     if (line.Contains("uied_component_texts_localised_string_string_NewState_Text_3a000c"))
                     {
-                        string new_version = $"uied_component_texts_localised_string_string_NewState_Text_3a000c\tCrusader Wars V{version}\ttrue";
+                        string new_version = $"uied_component_texts_localised_string_string_NewState_Text_3a000c\tCrusader Conflicts V{version}\ttrue";
                         new_data += new_version + "\n";
                         continue;
                     }
