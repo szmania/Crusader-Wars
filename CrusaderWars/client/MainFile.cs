@@ -790,8 +790,11 @@ namespace CrusaderWars
                 okButton.Text = "OK";
                 okButton.DialogResult = DialogResult.OK;
                 okButton.Size = new Size(100, 30);
-                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2);
+                // Position the button below the label, centered horizontally.
+                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2, messageLabel.Bottom + 15);
                 notificationForm.Controls.Add(okButton);
+
+                // Resize the form to fit the label and the button with padding.
                 notificationForm.ClientSize = new Size(notificationForm.ClientSize.Width, okButton.Bottom + 15);
                 notificationForm.AcceptButton = okButton;
 
