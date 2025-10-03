@@ -16,7 +16,7 @@
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
      
     cc_siege_fight_button: "Kämpfe diese Belagerung selbst!"
-    cc_siege_fight_button_disabled: "Dieser Charakter darf keine Schlachten kontrollieren.\nSiehe Mod-Optionen: Einstellungen"
+    cc_siege_fight_button_disabled: "Dieser Charakter darf keine Belagerungsschlachten kontrollieren.\nSiehe Mod-Optionen: Einstellungen"
     cc_siege_options_button: "Crusader-Conflicts-Mod-Optionen"
     cw_bw_wait_button: "Warte noch ein paar Tage, um diese Belagerung zu kämpfen..."
     cw_bw_options_button: "Crusader-Conflicts-Mod-Optionen"

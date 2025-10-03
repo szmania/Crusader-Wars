@@ -16,7 +16,7 @@
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
 
     cc_siege_fight_button: "이 공성을 직접 싸우십시오!"
-    cc_siege_fight_button_disabled: "이 인물은 전투를 지휘할 수 없습니다.\n모드 옵션: 기본 설정을 확인하세요"
+    cc_siege_fight_button_disabled: "이 캐릭터는 공성전을 지휘할 수 없습니다.\n모드 옵션: 환경설정 참조"
     cc_siege_options_button: "크루세이더 분쟁 모드 옵션"
     cw_bw_wait_button: "이 공성을 싸우려면 며칠만 더 기다리십시오..."
     cw_bw_options_button: "크루세이더 분쟁 모드 옵션"
