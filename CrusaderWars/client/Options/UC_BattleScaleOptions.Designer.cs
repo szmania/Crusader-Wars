@@ -107,7 +107,7 @@
             this.OptionSelection_AutoScale.Name = "OptionSelection_AutoScale";
             this.OptionSelection_AutoScale.Size = new System.Drawing.Size(185, 26);
             this.OptionSelection_AutoScale.TabIndex = 8;
-            this.toolTip1.SetToolTip(this.OptionSelection_AutoScale, "Enabled: CW will auto size the maximum number of soldiers an Attila can have acco" +
+            this.toolTip1.SetToolTip(this.OptionSelection_AutoScale, "Enabled: CC will auto size the maximum number of soldiers an Attila can have acco" +
         "rding to huge scale battles. (Recommended)\r\nDisabled: Units maximum size will al" +
         "ways be from user set options.");
             // 

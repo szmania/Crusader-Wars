@@ -996,7 +996,7 @@ namespace CrusaderWars
                              if (!enabledMods.Contains("crusader_conflicts.mod"))
                              {
                                  Program.Logger.Debug("Crusader Conflicts mod not found in enabled_mods in dlc_load.json.");
-                                 var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Do you still want to continue?",
+                                 var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
                                                               "Crusader Conflicts Mod Not Enabled",
                                                               MessageBoxButtons.YesNo,
                                                               MessageBoxIcon.Warning);
@@ -2215,7 +2215,7 @@ namespace CrusaderWars
                 string message = "Total War: Attila is already running.\n\n" +
                                  "Do you want to restart it to ensure the latest battle data is loaded?\n\n" +
                                  "• Yes: Restart Attila. (Recommended to retry the battle)\n" +
-                                 "• No: Continue with the current session. (If the CW launcher closed unexpectedly)\n" +
+                                 "• No: Continue with the current session. (If the CC launcher closed unexpectedly)\n" +
                                  "• Cancel: Do nothing.";
                 string title = "Attila is Running";
                 DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
