@@ -1358,18 +1358,14 @@ namespace CrusaderWars.data.battle_results
                     if (line.Contains("Victory"))
                     {
                         winner = player_armies_combat_side;
-                        break;
                     }
                     else if (line.Contains("Defeat"))
                     {
                         winner = enemy_armies_combat_side;
-                        break;
                     }
                     // Removed the 'else winner = enemy_armies_combat_side;'
                 }
 
-                reader.Close();
-                logFile.Close();
                 Program.Logger.Debug($"Determined Attila winner: {winner}");
                 return winner;
             }
