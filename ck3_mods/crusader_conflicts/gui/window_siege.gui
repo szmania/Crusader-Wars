@@ -316,7 +316,7 @@ window = {
                 #raw_tooltip = "This character may not control battles."
                 tooltip = cc_siege_fight_button_disabled
                 parentanchor = center
-                position = { 90 65 }
+                position = { 92 67 }
                 texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
                 size = { 49 49 }
                 alpha = .60
@@ -630,9 +630,7 @@ window = {
 					###   START CRUSADER CONFLICTS EDITS TO window_siege.gui ###
 					############################################################
 					############################################################					
-
-                 
-                    
+ 
                     ############################################################
                     ###   ---Added Crusader Conflicts Play Siege Battle Control1---     ###
                     ###      Enabled for player character only lead army     ### 
@@ -648,7 +646,7 @@ window = {
 						#alpha = .60
 						#visible = yes
 			            visible = "[And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
-                        #visible = no
+                        #visible = yes
                         #enabled = "[And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress))]"
                         
 						onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
@@ -1755,8 +1753,8 @@ window = {
                         size = { 50 50 }
                         #alpha = .60
                         #visible = yes
-                        #visible = "[And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsValid, GetVariableSystem.HasValue( 'cw_op_control', 'control4' )), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
-                        enabled = "[And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsValid, GetVariableSystem.HasValue( 'cw_op_control', 'control4' )), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]"
+                        visible = "[And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsValid, GetVariableSystem.HasValue( 'cw_op_control', 'control4' )), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
+                        #enabled = "[And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsValid, GetVariableSystem.HasValue( 'cw_op_control', 'control4' )), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]"
 
                         onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
                         #onclick = "[PdxGuiTriggerAllAnimations('create_readable_save_file')]"
