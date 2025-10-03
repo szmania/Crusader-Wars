@@ -339,25 +339,27 @@ namespace CrusaderWars.data.battle_results
                 else if (AliveList.Count == 1)
                 {
                     Program.Logger.Debug($"Single battle phase detected for army {army.ID}.");
-                    Alive_MainPhase = ReturnList(army, AliveList[0], DataType.Alive);
+                    Alive_MainPhase = ReturnList(army, AliveList.Last(), DataType.Alive);
                     units.SetAliveMainPhase(Alive_MainPhase);
-                    Kills_MainPhase = ReturnList(army, KillsList[0], DataType.Kills);
+                    Kills_MainPhase = ReturnList(army, KillsList.Last(), DataType.Kills);
                     units.SetKillsMainPhase(Kills_MainPhase);
 
                 }
                 else if (AliveList.Count > 1)
                 {
-                    Program.Logger.Debug($"Multiple battle phases detected for army {army.ID}. (Main and Pursuit)");
-                    Alive_MainPhase = ReturnList(army, AliveList[0], DataType.Alive);
+                    Program.Logger.Debug($"Multiple battle reports found for army {army.ID}. Using the last two reports for Main and Pursuit phases.");
+                    // Use the second-to-last report for the Main Phase
+                    Alive_MainPhase = ReturnList(army, AliveList[AliveList.Count - 2], DataType.Alive);
                     units.SetAliveMainPhase(Alive_MainPhase);
 
-                    Alive_PursuitPhase = ReturnList(army, AliveList[1], DataType.Alive);
+                    // Use the very last report for the Pursuit Phase
+                    Alive_PursuitPhase = ReturnList(army, AliveList.Last(), DataType.Alive);
                     units.SetAlivePursuitPhase(Alive_PursuitPhase);
 
-                    Kills_MainPhase = ReturnList(army, KillsList[0], DataType.Kills);
+                    Kills_MainPhase = ReturnList(army, KillsList[KillsList.Count - 2], DataType.Kills);
                     units.SetKillsMainPhase(Kills_MainPhase);
 
-                    Kills_PursuitPhase = ReturnList(army, KillsList[1], DataType.Kills);
+                    Kills_PursuitPhase = ReturnList(army, KillsList.Last(), DataType.Kills);
                     units.SetKillsPursuitPhase(Kills_PursuitPhase);
                 }
 
