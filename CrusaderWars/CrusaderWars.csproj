@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>CrusaderWars</AssemblyName>
+    <AssemblyName>CrusaderConflicts</AssemblyName>
     <RootNamespace>CrusaderWars</RootNamespace>
     <ApplicationIcon>logo.ico</ApplicationIcon>
     <ProductName>Crusader Conflicts</ProductName>
