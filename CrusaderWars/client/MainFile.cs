@@ -224,7 +224,9 @@ namespace CrusaderWars
 
             _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle
             // Pulse between a bright yellow (255, 255, 150) and a slightly dimmer yellow (255, 255, 50)
-            int blueComponent = 150 - (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _pulseStep) * 10);
+            int pulseValue = (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _preReleasePulseStep) * 10);
+            int blueComponent = 150 - pulseValue;
+            blueComponent = Math.Max(0, Math.Min(255, blueComponent)); // Clamp the value
             linkOptInPreReleases.ForeColor = Color.FromArgb(255, 255, blueComponent);
         }
 
@@ -1243,7 +1245,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                    Program.Logger.Debug($"Error starting CK3: {ex.Message}");
+Logger.Debug($"Error starting CK3: {ex.Message}");
                     MessageBox.Show("Couldn't find 'ck3.exe'. Change the Crusader Kings 3 path. ", "Crusader Conflicts: Path Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
