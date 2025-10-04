@@ -993,7 +993,20 @@ namespace CrusaderWars
                                      }
                                  }
                              }
- 
+                             
+                             // NEW: Check for incompatible Paradox Plaza version
+                             if (enabledMods.Contains("pdx_120158.mod"))
+                             {
+                                 Program.Logger.Debug("Incompatible Paradox Plaza version of Crusader Conflicts mod found in enabled_mods.");
+                                 MessageBox.Show("It appears you have the Paradox Plaza version of the 'Crusader Conflicts' mod enabled in your Paradox Launcher playset.\n\n" +
+                                                 "This version is incompatible with the Crusader Conflicts application.\n\n" +
+                                                 "Please unsubscribe from the Paradox Plaza version and enable the local 'crusader_conflicts.mod' provided with this application instead.",
+                                                 "Incompatible Mod Version Detected",
+                                                 MessageBoxButtons.OK,
+                                                 MessageBoxIcon.Error);
+                                 return; // Stop execution
+                             }
+
                              // Check for base mod
                              if (!enabledMods.Contains("crusader_conflicts.mod"))
                              {
