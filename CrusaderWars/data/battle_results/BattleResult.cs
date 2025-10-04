@@ -1348,18 +1348,359 @@ namespace CrusaderWars.data.battle_results
         {
             Program.Logger.Debug($"Entering GetAttilaWinner for log file: {path_attila_log}");
             string winner = enemy_armies_combat_side; // Initialize to enemy as default fallback
-
-            try
+            using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (StreamReader reader = new StreamReader(logFile))
             {
-                if (!File.Exists(path_attila_log))
+                string? line;
+                //winning_side=attacker/defender
+                while ((line = reader.ReadLine()) != null)
                 {
-                    Program.Logger.Debug($"Attila log file not found at: {path_attila_log}. Defaulting to enemy win.");
-                    return winner;
+                    if (line.Contains("Victory"))
+                    {
+                        winner = player_armies_combat_side;
+                    }
+                    else if (line.Contains("Defeat"))
+                    {
+                        winner = enemy_armies_combat_side;
+                    }
+                    // Removed the 'else winner = enemy_armies_combat_side;'
                 }
 
-                string logContent;
-                using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (StreamReader reader = new StreamReader(logFile))
+                Program.Logger.Debug($"Determined Attila winner: {winner}");
+                return winner;
+            }
+        }
+
+        static void SetWinner(string winner)
+        {
+            Program.Logger.Debug($"Setting battle winner to: {winner}");
+            try
+            {
+                if (winner == "attacker")
+                {
+                    IsAttackerVictorious = true;
+                    Program.Logger.Debug("Battle winner is attacker. IsAttackerVictorious = true.");
+                }
+                else
+                {
+                    IsAttackerVictorious = false;
+                    Program.Logger.Debug("Battle winner is defender. IsAttackerVictorious = false.");
+                }
+
+                //Set pursuit phase
+                Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(phase=)\w+", "$1" + "pursuit");
+
+                //Set last day of phase
+                Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(days=\d+)", "days=3\n\t\t\twiped=no");
+
+                //Set winner
+                Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(base_combat_width=\d+)", "$1\n\t\t\twinning_side=" + winner);
+
+                Player_Combat = Player_Combat?.Replace("\r", "");
+
+                File.WriteAllText(Writter.DataFilesPaths.Combats_Path(), Player_Combat);
+
+                Program.Logger.Debug("Winner of battle set successfully");
+            }
+            catch(Exception ex)
+            {
+                Program.Logger.Debug($"Error setting winner of battle: {ex.Message}");
+            }
+
+        }
+
+        static int ConvertMenToMachines(int men)
+        {
+            if (men < 3) return 0;
+            return (int)Math.Round(men / 4.0, MidpointRounding.AwayFromZero);
+        }
+
+        public static void EditArmyRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Editing Army Regiments file...");
+            bool editStarted = false;
+            ArmyRegiment? editArmyRegiment = null;
+
+            using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.ArmyRegiments_Path()))
+            using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.ArmyRegiments_Path()))
+            {
+                streamWriter.NewLine = "\n";
+
+                string? line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+
+                    //Regiment ID line
+                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
+                    {
+                        string army_regiment_id = Regex.Match(line, @"\d+").Value;
+
+
+                        var searchingData = SearchArmyRegimentsFile(attacker_armies, army_regiment_id);
+                        if (searchingData.editStarted)
+                        {
+                            editStarted = true;
+                            editArmyRegiment = searchingData.editArmyRegiment;
+                            Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id} for editing (Attacker).");
+                        }
+                        else
+                        {
+                            searchingData = SearchArmyRegimentsFile(defender_armies, army_regiment_id);
+                            if (searchingData.editStarted)
+                            {
+                                editStarted = true;
+                                editArmyRegiment = searchingData.editArmyRegiment;
+                                Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id} for editing (Defender).");
+                            }
+                        }
+
+                    }
+
+                    else if (editStarted == true && line.Contains("\t\t\t\tcurrent=") && editArmyRegiment != null)
+                    {
+                        string edited_line = "\t\t\t\tcurrent=" + editArmyRegiment.CurrentNum;
+                        streamWriter.WriteLine(edited_line);
+                        Program.Logger.Debug($"Updated ArmyRegiment {editArmyRegiment.ID} current soldiers to {editArmyRegiment.CurrentNum}.");
+                        continue;
+                    }
+
+                    //End Line
+                    else if (editStarted && line == "\t\t}")
+                    {
+                        editStarted = false; editArmyRegiment = null;
+                    }
+
+                    streamWriter.WriteLine(line);
+                }
+            }
+            Program.Logger.Debug("Finished editing Army Regiments file.");
+        }
+
+        static (bool editStarted, ArmyRegiment? editArmyRegiment) SearchArmyRegimentsFile(List<Army> armies, string army_regiment_id)
+        {
+            // Program.Logger.Debug($"Searching for ArmyRegiment ID: {army_regiment_id} in ArmyRegiments file.");
+            bool editStarted = false;
+            ArmyRegiment? editRegiment = null;
+
+            foreach (Army army in armies)
+            {
+                if (army == null) continue;
+                if (army.ArmyRegiments != null)
+                {
+                    foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
+                    {
+                        if (army_regiment == null) continue; // Added null check
+                        if (army_regiment.Type == RegimentType.Knight) continue;
+                        if (army_regiment.ID == army_regiment_id)
+                        {
+                            editStarted = true;
+                            editRegiment = army_regiment;
+                            Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id}.");
+                            return (editStarted, editRegiment);
+                        }
+                    }
+                }
+            }
+            // Program.Logger.Debug($"ArmyRegiment ID: {army_regiment_id} not found in ArmyRegiments file.");
+            return (false, null);
+        }
+
+
+        static string GetChunksText(string size, string owner, string current)
+        {
+            string str;
+            if (string.IsNullOrEmpty(owner))
+            {
+                str =      $"\t\t\tmax={size}\n" +
+                           $"\t\t\tchunks={{\n" +
+                           $"\t\t\t\t{{\n" +
+                           $"\t\t\t\t\tmax={size}\n" +
+                           $"\t\t\t\t\tcurrent={current}\n" +
+                           $"\t\t\t\t}}\n" +
+                           $"\t\t\t}}\n";
+            }
+            else
+            {
+                str =      $"\t\t\tmax={size}\n" +
+                           $"\t\t\towner={owner}\n" +
+                           $"\t\t\tchunks={{\n" +
+                           $"\t\t\t\t{{\n" +
+                           $"\t\t\t\t\tmax={size}\n" +
+                           $"\t\t\t\t\tcurrent={current}\n" +
+                           $"\t\t\t\t}}\n" +
+                           $"\t\t\t}}\n";
+            }
+
+
+            return str;
+        }
+        public static void EditRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Editing Regiments file...");
+            bool editStarted = false;
+            bool editIndex = false;
+            Regiment? editRegiment = null;
+            ArmyRegiment? parentArmyRegiment = null; // Declare new variable
+
+            int index = -1;
+            bool isNewData = false;
+            
+
+            using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
+            using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Regiments_Path()))
+            { 
+                streamWriter.NewLine = "\n";
+
+                string? line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+
+                    //Regiment ID line
+                    if(!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
+                    {
+                        string regiment_id = Regex.Match(line, @"\d+").Value;
+
+
+                        var searchingData = SearchRegimentsFile(attacker_armies,regiment_id);
+                        if(searchingData.editStarted)
+                        {
+                            editStarted = true;
+                            editRegiment = searchingData.editRegiment;
+                            parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
+                            Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Attacker).");
+                        }
+                        else
+                        {
+                            searchingData = SearchRegimentsFile(defender_armies,regiment_id);
+                            if(searchingData.editStarted)
+                            {
+                                editStarted = true;
+                                editRegiment = searchingData.editRegiment;
+                                parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
+                                Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Defender).");
+                            }
+                        }
+
+                    }
+
+                    else if(editStarted && line.Contains("\t\t\tsize="))
+                    {
+                        if (parentArmyRegiment != null && parentArmyRegiment.Type == RegimentType.MenAtArms)
+                        {
+                            if (editRegiment != null)
+                            {
+                                // For Men-at-Arms, only update the 'size' line and keep other properties.
+                                string currentNum = editRegiment.CurrentNum ?? "0";
+                                string edited_line = "\t\t\tsize=" + currentNum;
+                                streamWriter.WriteLine(edited_line);
+                                string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
+                                string logMessage = string.Format("Regiment {0}: Updating Men-at-Arms size to {1}.", regId, currentNum);
+                                Program.Logger.Debug(logMessage);
+                            }
+                            continue; // Continue to next line without setting isNewData
+                        }
+                        else if (editRegiment != null)
+                        {
+                            var reg = editRegiment; // New local variable
+                            // For other types (Levy), use the existing logic to rewrite the block.
+                            isNewData = true;
+                            string max = reg.Max ?? "0";
+                            string owner = reg.Owner ?? "";
+                            string current = reg.CurrentNum ?? "0";
+                            string newLine = GetChunksText(max, owner, current);
+                            streamWriter.WriteLine(newLine);
+                            string regId = reg.ID ?? "N/A"; // Extract ID for logging
+                            Program.Logger.Debug($"Regiment {regId}: Writing new data format with current soldiers {reg.CurrentNum ?? "0"}.");
+                            continue;
+                        }
+                    }
+
+                    //Index Counter
+                    else if(!isNewData && editStarted && line == "\t\t\t\t{")
+                    {
+                        index++;
+                        if (editRegiment != null && editRegiment.Index == "") 
+                            editRegiment.ChangeIndex(0.ToString());
+                        if(editRegiment != null && index.ToString() == editRegiment.Index)
+                        {
+                            editIndex = true;
+                        }
+                    }
+
+                    else if(!isNewData && (editStarted==true && editIndex==true) && line.Contains("\t\t\t\t\tcurrent="))
+                    {
+                        if (editRegiment != null) // Added null check
+                        {
+                            string currentNum = editRegiment.CurrentNum ?? "0";
+                            string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
+                            streamWriter.WriteLine(edited_line);
+                            string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
+                            string logMessage = string.Format("Regiment {0}: Updating old data format with current soldiers {1}.", regId, currentNum);
+                            Program.Logger.Debug(logMessage);
+                            continue;
+                        }
+                    }
+
+                    //End Line
+                    else if(editStarted && line == "\t\t}")
+                    {
+                        editStarted = false; editRegiment = null; editIndex = false; index = -1; isNewData = false;
+                        parentArmyRegiment = null; // Reset parent ArmyRegiment
+                    }
+
+                    if(!isNewData)
+                    {
+                        streamWriter.WriteLine(line);
+                    }
+                    
+                }
+            }
+            Program.Logger.Debug("Finished editing Regiments file.");
+        }
+
+        static (bool editStarted, Regiment? editRegiment, ArmyRegiment? parentArmyRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
+        {
+            // Program.Logger.Debug($"Searching for Regiment ID: {regiment_id} in Regiments file.");
+            bool editStarted = false;
+            Regiment? editRegiment = null;
+            ArmyRegiment? parentArmyRegiment = null;
+
+            foreach (Army army in armies)
+            {
+                if (army == null) continue;
+                if (army.ArmyRegiments == null) continue;
+                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null) continue;
+                    if (armyRegiment.Regiments == null) continue;
+                    foreach (Regiment regiment in armyRegiment.Regiments)
+                    {
+                        if (regiment == null) continue; // Added null check
+                        if (regiment.ID == regiment_id)
+                        {
+                            editStarted = true;
+                            editRegiment = regiment;
+                            parentArmyRegiment = armyRegiment;
+                            Program.Logger.Debug($"Found Regiment {regiment_id} with parent ArmyRegiment {armyRegiment.ID}.");
+                            return (editStarted, editRegiment, parentArmyRegiment);
+                        }
+                    }
+                }
+            }
+            // Program.Logger.Debug($"Regiment ID: {regiment_id} not found in Regiments file.");
+            return (false, null, null);
+        }
+
+
+        public static bool HasBattleEnded(string path_attila_log)
+        {
+            Program.Logger.Debug($"Checking if battle has ended in log file: {path_attila_log}");
+            using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (StreamReader reader = new StreamReader(logFile))
+            {
+                string str = reader.ReadToEnd();
+
+                if (str.Contains("Battle has finished"))
                 {
                     logContent = reader.ReadToEnd();
                 }
