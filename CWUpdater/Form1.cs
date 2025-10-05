@@ -500,7 +500,7 @@ del ""%~f0""
                         "This is often caused by Antivirus software or Windows' 'Controlled Folder Access' feature.\n\n" +
                         "Please try the following:\n" +
                         "1. Run the main application as an Administrator.\n" +
-                        "2. Add an exception for 'CrusaderWars.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                        "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
                         "3. Temporarily disable 'Controlled Folder Access' in Windows Security settings.\n\n" +
                         $"Error details: {uaEx.Message}",
                         "Crusader Conflicts: Update Failed (Access Denied)",
@@ -520,7 +520,7 @@ del ""%~f0""
                     "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
                     "Please try the following:\n" +
                     "1. Temporarily pause your cloud sync client.\n" +
-                    "2. Add an exception for 'CrusaderWars.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                    "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
                     "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
                     $"Error details: {ioEx.Message}",
                     "Crusader Conflicts: Update Failed (File Locked)",
