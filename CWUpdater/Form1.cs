@@ -171,11 +171,13 @@ namespace CWUpdater
 
             string exe1 = Path.Combine(currentDir, "CrusaderWars.exe");
             string exe2 = Path.Combine(currentDir, "Crusader Wars.exe");
+            string exe3 = Path.Combine(currentDir, "CrusaderConflicts.exe"); // New executable name
 
             if (File.Exists(exe1)) return exe1;
             if (File.Exists(exe2)) return exe2;
+            if (File.Exists(exe3)) return exe3; // Check for the new executable name
 
-            Logger.Log("Neither CrusaderWars.exe nor Crusader Wars.exe was found.");
+            Logger.Log("Neither CrusaderWars.exe, Crusader Wars.exe, nor CrusaderConflicts.exe was found.");
             return null;
         }
 
