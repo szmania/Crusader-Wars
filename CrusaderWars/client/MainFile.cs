@@ -1516,12 +1516,14 @@ namespace CrusaderWars
                             "❌ Playing in debug mode\n" +
                             "❌ Save file using old format\n" +
                             "❌ Unsupported game mods\n\n" +
+                            "❌ Crusader Conflicts CK3 mod is not at the bottom of your playset\n\n" +
                             "Troubleshooting:\n" +
                             "1. Disable Ironman mode\n" +
                             "2. Use local saves instead of Steam Cloud\n" +
                             "3. Start a new non-debug game\n" +
                             "4. Verify game files in Steam\n" +
-                            "5. Try a different save file";
+                            "5. Try a different save file\n" +
+                            "6. Place Crusader Conflicts at the bottom of your playset";
 
                     MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Crusader Conflicts: Army Data Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
