@@ -31,9 +31,13 @@ namespace CrusaderWars.data.save_file
                 throw new Exception("Couldn't read traits data", ex);
             }
 
-            if (twbattle.BattleState.IsSiegeBattle)
+            if (BattleResult.Player_Combat is not null)
             {
-                Program.Logger.Debug("Siege battle detected. Determining roles (assault vs. sally-out)...");
+                ReadCombatArmies(BattleResult.Player_Combat);
+            }
+            else if (twbattle.BattleState.IsSiegeBattle)
+            {
+                Program.Logger.Debug("Siege battle detected. No combat data found, falling back to location-based army search.");
 
                 // Determine the player's actual side, accounting for the log swap when the player is besieged.
                 DataSearchSides playerSide;
@@ -113,8 +117,8 @@ namespace CrusaderWars.data.save_file
 
                         if (currentArmySide == besiegerSide && !besiegerForce.Any(a => a.ID == armyID))
                         {
-                            bool isMainArmy = (besiegerSide == DataSearchSides.LeftSide && commanderID == CK3LogData.LeftSide.GetMainParticipant().id) ||
-                                              (besiegerSide == DataSearchSides.RightSide && commanderID == CK3LogData.RightSide.GetMainParticipant().id);
+                            bool isMainArmy = (besiegerSide == DataSearchSides.LeftSide && commanderID == CK3LogData.LeftSide.GetCommander().id) ||
+                                              (besiegerSide == DataSearchSides.RightSide && commanderID == CK3LogData.RightSide.GetCommander().id);
                             
                             string combatSide = besiegerSide == DataSearchSides.LeftSide ? "attacker" : "defender";
                             Army army = new Army(armyID, combatSide, isMainArmy);
@@ -157,27 +161,11 @@ namespace CrusaderWars.data.save_file
                     throw new Exception("Could not find any besieger or garrison forces for the siege battle.");
                 }
 
-                if (besiegerSide == playerSide) // Player is the besieger
-                {
-                    Program.Logger.Debug("Player is the besieger. Setting up a normal assault.");
-                    Program.Logger.Debug("Besieger (Player) is Attacker, Garrison (Enemy) is Defender.");
-                    attacker_armies.AddRange(besiegerForce);
-                    if (garrisonArmy != null) defender_armies.Add(garrisonArmy);
-                }
-                else // Player is the one being besieged
-                {
-                    Program.Logger.Debug("Player is the besieged. Setting up a sally-out.");
-                    Program.Logger.Debug("Garrison (Player) is Attacker, Besieger (Enemy) is Defender.");
-                    if (garrisonArmy != null) attacker_armies.Add(garrisonArmy);
-                    defender_armies.AddRange(besiegerForce);
-                }
-            }
-            else
-            {
-                if (BattleResult.Player_Combat is not null)
-                {
-                    ReadCombatArmies(BattleResult.Player_Combat);
-                }
+                // Besieger is ALWAYS the Attila attacker, Garrison is ALWAYS the Attila defender.
+                // The IsPlayer() flag, set later, determines who the player controls.
+                Program.Logger.Debug("Assigning besieger to Attila attacker role and garrison to defender role.");
+                attacker_armies.AddRange(besiegerForce);
+                if (garrisonArmy != null) defender_armies.Add(garrisonArmy);
             }
 
             ReadArmiesData();

@@ -804,8 +804,8 @@ namespace CrusaderWars
 
                 // 3. Set BattleResult IDs
                 BattleResult.SiegeID = siegeId;
-                // BattleResult.CombatID = siegeId; // Crucial: Siege ID is the Combat ID for sieges // REMOVED as per plan
-                Program.Logger.Debug($"Set BattleResult.SiegeID to '{siegeId}'."); // UPDATED log message
+                BattleResult.CombatID = siegeId; // Crucial: Siege ID is the Combat ID for sieges
+                Program.Logger.Debug($"Set BattleResult.SiegeID and BattleResult.CombatID to '{siegeId}'.");
 
                 // 4. Retrieve Combat Data from Combats.txt
                 // This block is now effectively skipped for sieges as CombatID is not set.
