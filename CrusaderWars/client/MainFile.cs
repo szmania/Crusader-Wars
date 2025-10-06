@@ -27,6 +27,7 @@ using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 namespace CrusaderWars
 {
+    
     public partial class HomePage : Form
     {
         private LoadingScreen? loadingScreen;
@@ -1517,7 +1518,7 @@ namespace CrusaderWars
                             "❌ Using Steam Cloud saves\n" +
                             "❌ Playing in debug mode\n" +
                             "❌ Save file using old format\n" +
-                            "❌ Unsupported game mods\n\n" +
+                            "❌ Unsupported CK3 game mods\n" +
                             "❌ Crusader Conflicts CK3 mod is not at the bottom of your playset\n\n" +
                             "Troubleshooting:\n" +
                             "1. Disable Ironman mode\n" +
