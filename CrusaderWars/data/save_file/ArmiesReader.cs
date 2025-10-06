@@ -54,6 +54,7 @@ namespace CrusaderWars.data.save_file
 
                 DataSearchSides? besiegerSide = null;
                 var besiegerForce = new List<Army>();
+                var reliefForce = new List<Army>(); // New list for relief forces
 
                 // Pre-parse Armies.txt to map army IDs to commander IDs
                 var armyToCommanderMap = new Dictionary<string, string>();
@@ -78,7 +79,7 @@ namespace CrusaderWars.data.save_file
                     throw new Exception("Could not map armies to commanders, cannot identify siege participants.", ex);
                 }
 
-                // 1. Find the mobile besieger force and identify their side
+                // 1. Find all mobile forces at the location and categorize them
                 try
                 {
                     string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
@@ -88,7 +89,8 @@ namespace CrusaderWars.data.save_file
                     {
                         if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
 
-                        string armyID = Regex.Match(block, @"\t(\d+)={").Groups[1].Value;
+                        // Modified regex to robustly handle whitespace
+                        string armyID = Regex.Match(block, @"^\s*(\d+)={").Groups[1].Value;
 
                         if (!armyToCommanderMap.TryGetValue(armyID, out var commanderID))
                         {
@@ -106,15 +108,20 @@ namespace CrusaderWars.data.save_file
                             Program.Logger.Debug($"Besieger side identified as: {besiegerSide}. This side owns the mobile armies.");
                         }
 
+                        // Categorize armies into besiegerForce or reliefForce
                         if (currentArmySide == besiegerSide && !besiegerForce.Any(a => a.ID == armyID))
                         {
-                            bool isMainArmy = (besiegerSide == DataSearchSides.LeftSide && commanderID == CK3LogData.LeftSide.GetCommander().id) ||
-                                              (besiegerSide == DataSearchSides.RightSide && commanderID == CK3LogData.RightSide.GetCommander().id);
-
                             string combatSide = "attacker"; // Besiegers are always attackers in Attila
-                            Army army = new Army(armyID, combatSide, isMainArmy);
+                            Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
                             besiegerForce.Add(army);
-                            Program.Logger.Debug($"Found besieger army {armyID} (commander {commanderID}). Main: {isMainArmy}");
+                            Program.Logger.Debug($"Found besieger army {armyID} (commander {commanderID}).");
+                        }
+                        else if (currentArmySide != besiegerSide && !reliefForce.Any(a => a.ID == armyID))
+                        {
+                            string combatSide = "defender"; // Relief forces are defenders in Attila
+                            Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
+                            reliefForce.Add(army);
+                            Program.Logger.Debug($"Found relief army {armyID} (commander {commanderID}).");
                         }
                     }
                 }
@@ -122,6 +129,23 @@ namespace CrusaderWars.data.save_file
                 {
                     Program.Logger.Debug($"Error reading besieger armies from Units.txt: {ex.Message}");
                 }
+
+                // Flag relief forces as reinforcements
+                foreach (var army in reliefForce)
+                {
+                    army.SetAsReinforcement(true);
+                    Program.Logger.Debug($"Army {army.ID} flagged as reinforcement.");
+                }
+
+                // Identify the main besieger army after all besiegerForce armies are collected
+                string mainBesiegerCommanderId = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
+                var mainBesiegerArmy = besiegerForce.FirstOrDefault(a => a.CommanderID == mainBesiegerCommanderId);
+                if (mainBesiegerArmy != null)
+                {
+                    mainBesiegerArmy.isMainArmy = true;
+                    Program.Logger.Debug($"Main besieger army identified: {mainBesiegerArmy.ID}");
+                }
+
 
                 // 2. Generate the garrison force
                 Army? garrisonArmy = null;
@@ -146,14 +170,15 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // 3. Assign forces to Attila attacker/defender roles
-                if (!besiegerForce.Any() && garrisonArmy == null)
+                if (!besiegerForce.Any() && garrisonArmy == null && !reliefForce.Any())
                 {
-                    throw new Exception("Could not find any besieger or garrison forces for the siege battle.");
+                    throw new Exception("Could not find any besieger, garrison, or relief forces for the siege battle.");
                 }
 
-                Program.Logger.Debug("Assigning besieger to Attila attacker role and garrison to defender role.");
+                Program.Logger.Debug("Assigning besieger to Attila attacker role and garrison/relief to defender role.");
                 attacker_armies.AddRange(besiegerForce);
                 if (garrisonArmy != null) defender_armies.Add(garrisonArmy);
+                defender_armies.AddRange(reliefForce); // Add relief forces to defender_armies
             }
             else if (BattleResult.Player_Combat is not null)
             {

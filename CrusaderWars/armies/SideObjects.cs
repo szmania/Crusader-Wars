@@ -29,10 +29,11 @@ namespace CrusaderWars
         public DefensiveSystem? Defences { get; private set; }
 
         public string? CommanderID { get; set; }
-        public bool isMainArmy { get; private set; }
+        public bool isMainArmy { get; set; } // Changed to public set for easier modification in ArmiesReader
         bool IsPlayerArmy { get; set; }
         bool IsEnemyArmy { get; set; }
         public bool IsGarrisonArmy { get; private set; }
+        public bool IsReinforcement { get; private set; } // New property for reinforcements
 
         public string? RealmName { get; set; }
         public string CombatSide { get; set; }
@@ -48,12 +49,14 @@ namespace CrusaderWars
             Owner = new Owner(string.Empty); // Initialize Owner to a default non-null value
             Knights = new KnightSystem(new List<Knight>(), 0); // Initialize Knights to a default non-null value
             IsGarrisonArmy = false; // Initialize new flag
+            IsReinforcement = false; // Initialize new reinforcement flag
         }
 
         //Getters
         public bool IsEnemy() { return IsEnemyArmy; }
         public bool IsPlayer() { return IsPlayerArmy; }
         public bool IsGarrison() { return IsGarrisonArmy; }
+        public bool IsReinforcementArmy() { return IsReinforcement; } // New getter for reinforcement
 
 
         //Setters
@@ -72,6 +75,7 @@ namespace CrusaderWars
         public void SetCommander(CommanderSystem l) { Commander = l; }
         public void SetDefences(DefensiveSystem l) { Defences = l; }
         public void SetIsGarrison(bool isGarrison) { IsGarrisonArmy = isGarrison; }
+        public void SetAsReinforcement(bool isReinforcement) { IsReinforcement = isReinforcement; } // New setter for reinforcement
 
         public void SetOwner(string id) {
 
