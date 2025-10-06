@@ -746,10 +746,9 @@ namespace CrusaderWars
             try
             {
                 string siegesPath = Writter.DataFilesPaths.Sieges_Path();
-                string combatsPath = Writter.DataFilesPaths.Combats_Path();
                 string? siegeId = null;
 
-                // 2. Find Siege ID from Sieges.txt
+                // 2. Find Siege ID and Progress from Sieges.txt
                 Program.Logger.Debug($"Searching for siege ID and progress in {siegesPath} for province {BattleResult.ProvinceID}");
                 using (StreamReader sr = new StreamReader(siegesPath))
                 {
@@ -767,7 +766,7 @@ namespace CrusaderWars
                             siegeId = currentBlockId;
                             Program.Logger.Debug($"Found siege ID '{siegeId}' for province {BattleResult.ProvinceID}.");
 
-                            // NEW LOGIC STARTS HERE: Read siege progress
+                            // Read siege progress from the same block
                             while ((line = sr.ReadLine()) != null)
                             {
                                 if (line.Trim().StartsWith("progress="))
@@ -789,9 +788,7 @@ namespace CrusaderWars
                                     break;
                                 }
                             }
-                            // END OF NEW LOGIC
-
-                            break; // This existing break exits the outer while loop
+                            break; // Exit the outer while loop once the correct province is found
                         }
                     }
                 }
@@ -802,64 +799,15 @@ namespace CrusaderWars
                     return;
                 }
 
-                // 3. Set BattleResult IDs
+                // 3. Set BattleResult SiegeID. Do NOT set CombatID or search Combats.txt for sieges.
                 BattleResult.SiegeID = siegeId;
-                BattleResult.CombatID = siegeId; // Crucial: Siege ID is the Combat ID for sieges
-                Program.Logger.Debug($"Set BattleResult.SiegeID and BattleResult.CombatID to '{siegeId}'.");
-
-                // 4. Retrieve Combat Data from Combats.txt
-                // This block is now effectively skipped for sieges as CombatID is not set.
-                // However, the original logic remains here, but it won't find anything if CombatID is null.
-                Program.Logger.Debug($"Searching for combat data in {combatsPath} for combat ID {BattleResult.CombatID}");
-                StringBuilder combatDataBuilder = new StringBuilder();
-                bool searchStarted = false;
-                using (StreamReader sr = new StreamReader(combatsPath))
-                {
-                    string? line;
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        // Check for start of combat block: either full block or =none
-                        if (!searchStarted && (line == $"\t\t{BattleResult.CombatID}={{" || line == $"\t\t{BattleResult.CombatID}=none"))
-                        {
-                            combatDataBuilder.AppendLine(line);
-                            searchStarted = true;
-
-                            // If it's a '=none' block, it's a single line, so we're done.
-                            if (line.EndsWith("=none"))
-                            {
-                                Program.Logger.Debug($"Found combat ID '{BattleResult.CombatID}' as 'none' block.");
-                                break;
-                            }
-                        }
-                        else if (searchStarted)
-                        {
-                            combatDataBuilder.AppendLine(line);
-                            // Check for end of full combat block
-                            if (line == "\t\t}")
-                            {
-                                Program.Logger.Debug($"Found full combat block for ID '{BattleResult.CombatID}'.");
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (combatDataBuilder.Length > 0)
-                {
-                    BattleResult.Player_Combat = combatDataBuilder.ToString();
-                    Program.Logger.Debug($"Successfully retrieved combat data for ID '{BattleResult.CombatID}'. Length: {BattleResult.Player_Combat.Length}");
-                }
-                else
-                {
-                    BattleResult.Player_Combat = null;
-                    Program.Logger.Debug($"Could not find combat data for ID '{BattleResult.CombatID}' in Combats.txt.");
-                }
+                Program.Logger.Debug($"Set BattleResult.SiegeID to '{siegeId}'. No combat block is searched for sieges.");
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in FindSiegeCombatID: {ex.Message}");
                 BattleResult.SiegeID = null;
-                BattleResult.CombatID = null; // Ensure CombatID is null on error
+                BattleResult.CombatID = null;
                 BattleResult.Player_Combat = null;
             }
         }
