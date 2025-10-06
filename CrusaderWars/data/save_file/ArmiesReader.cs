@@ -35,6 +35,19 @@ namespace CrusaderWars.data.save_file
             {
                 Program.Logger.Debug("Siege battle detected. Determining roles (assault vs. sally-out)...");
 
+                // Determine the player's actual side, accounting for the log swap when the player is besieged.
+                DataSearchSides playerSide;
+                if (CK3LogData.LeftSide.GetMainParticipant().id == DataSearch.Player_Character.GetID())
+                {
+                    playerSide = DataSearchSides.LeftSide;
+                    Program.Logger.Debug("Player is LeftSide in the log. Normal siege role configuration.");
+                }
+                else
+                {
+                    playerSide = DataSearchSides.RightSide;
+                    Program.Logger.Debug("Player is RightSide in the log. Roles were swapped by CK3 mod for besieged player.");
+                }
+
                 // Create sets of character IDs for quick lookup
                 var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id).Append(CK3LogData.LeftSide.GetCommander().id));
                 var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
@@ -144,15 +157,17 @@ namespace CrusaderWars.data.save_file
                     throw new Exception("Could not find any besieger or garrison forces for the siege battle.");
                 }
 
-                if (besiegerSide == DataSearchSides.LeftSide) // Normal Assault
+                if (besiegerSide == playerSide) // Player is the besieger
                 {
-                    Program.Logger.Debug("Normal siege assault detected. Besieger is Attacker, Garrison is Defender.");
+                    Program.Logger.Debug("Player is the besieger. Setting up a normal assault.");
+                    Program.Logger.Debug("Besieger (Player) is Attacker, Garrison (Enemy) is Defender.");
                     attacker_armies.AddRange(besiegerForce);
                     if (garrisonArmy != null) defender_armies.Add(garrisonArmy);
                 }
-                else // Sally-out or Garrison-only
+                else // Player is the one being besieged
                 {
-                    Program.Logger.Debug("Sally-out or garrison-only scenario detected. Garrison is Attacker, Besieger is Defender.");
+                    Program.Logger.Debug("Player is the besieged. Setting up a sally-out.");
+                    Program.Logger.Debug("Garrison (Player) is Attacker, Besieger (Enemy) is Defender.");
                     if (garrisonArmy != null) attacker_armies.Add(garrisonArmy);
                     defender_armies.AddRange(besiegerForce);
                 }
