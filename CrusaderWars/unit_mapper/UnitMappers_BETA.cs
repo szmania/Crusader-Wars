@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using CrusaderWars.client;
@@ -72,6 +74,7 @@ namespace CrusaderWars.unit_mapper
         public static string? ActivePlaythroughTag { get; private set; }
         public const string NOT_FOUND_KEY = "not_found";
         private static readonly Random _random = new Random();
+        private static Dictionary<string, (string X, string Y)> _provinceMapCache = new Dictionary<string, (string X, string Y)>();
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
@@ -101,6 +104,33 @@ namespace CrusaderWars.unit_mapper
                     return null;
             }
             
+        }
+
+        public static void ClearProvinceMapCache()
+        {
+            _provinceMapCache.Clear();
+            Program.Logger.Debug("Province settlement map cache has been cleared for the new battle.");
+        }
+
+        private static int GetDeterministicIndex(string input, int listCount)
+        {
+            if (listCount <= 0) return 0;
+
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                // 1. Convert the input string to a byte array.
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+
+                // 2. Compute the hash.
+                byte[] hashBytes = sha256.ComputeHash(inputBytes);
+
+                // 3. Convert the first 4 bytes of the hash to an integer.
+                // This gives us a stable, well-distributed number.
+                int hashAsInt = BitConverter.ToInt32(hashBytes, 0);
+
+                // 4. Use the absolute value and the modulo operator to get a valid index.
+                return Math.Abs(hashAsInt % listCount);
+            }
         }
 
         private static List<string> GetSortedFilePaths(string directoryPath, string priorityFilePattern)
@@ -1390,6 +1420,13 @@ namespace CrusaderWars.unit_mapper
         {
             Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
 
+            string cacheKey = $"{provinceName}_{battleType}";
+            if (_provinceMapCache.TryGetValue(cacheKey, out var cachedMap))
+            {
+                Program.Logger.Debug($"Found cached settlement map for '{cacheKey}'. Coordinates: ({cachedMap.X}, {cachedMap.Y})");
+                return cachedMap;
+            }
+
             // Priority 1: Search for a Unique Map
             if (Terrains?.UniqueSettlementMaps != null && Terrains.UniqueSettlementMaps.Any())
             {
@@ -1404,6 +1441,7 @@ namespace CrusaderWars.unit_mapper
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
+                        _provinceMapCache[cacheKey] = (uniqueMatch.X, uniqueMatch.Y);
                         return (uniqueMatch.X, uniqueMatch.Y);
                     }
                 }
@@ -1449,10 +1487,11 @@ namespace CrusaderWars.unit_mapper
 
                     if (allGenericVariants.Any())
                     {
-                        // Randomly select a variant from the aggregated list
-                        int randomIndex = _random.Next(0, allGenericVariants.Count);
-                        var selectedVariant = allGenericVariants[randomIndex];
-                        Program.Logger.Debug($"Found settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+                        // Use a hash of the province name for deterministic selection
+                        int deterministicIndex = GetDeterministicIndex(provinceName, allGenericVariants.Count);
+                        var selectedVariant = allGenericVariants[deterministicIndex];
+                        Program.Logger.Debug($"Deterministically selected settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+                        _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y);
                         return (selectedVariant.X, selectedVariant.Y);
                     }
                     else

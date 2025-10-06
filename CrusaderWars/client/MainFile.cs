@@ -1102,7 +1102,7 @@ namespace CrusaderWars
                                                      "Incorrect Compatibility Patch Enabled",
                                                      MessageBoxButtons.OK,
                                                      MessageBoxIcon.Warning);
-                                 return;
+                                     return;
                                  }
                              }
                          }
@@ -1124,6 +1124,8 @@ namespace CrusaderWars
             _battleMonitoringCts?.Dispose();
             _battleMonitoringCts = new CancellationTokenSource();
             CancellationToken token = _battleMonitoringCts.Token;
+
+            UnitMappers_BETA.ClearProvinceMapCache();
 
             if (BattleState.IsBattleInProgress())
             {
