@@ -138,13 +138,14 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // Identify the main besieger army after all besiegerForce armies are collected
-                string mainBesiegerCommanderId = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
-                var mainBesiegerArmy = besiegerForce.FirstOrDefault(a => a.CommanderID == mainBesiegerCommanderId);
-                if (mainBesiegerArmy != null)
-                {
-                    mainBesiegerArmy.isMainArmy = true;
-                    Program.Logger.Debug($"Main besieger army identified: {mainBesiegerArmy.ID}");
-                }
+                // DELETED: This block is removed as per instructions.
+                // string mainBesiegerCommanderId = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
+                // var mainBesiegerArmy = besiegerForce.FirstOrDefault(a => a.CommanderID == mainBesiegerCommanderId);
+                // if (mainBesiegerArmy != null)
+                // {
+                //     mainBesiegerArmy.isMainArmy = true;
+                //     Program.Logger.Debug($"Main besieger army identified: {mainBesiegerArmy.ID}");
+                // }
 
 
                 // 2. Generate the garrison force
@@ -221,6 +222,50 @@ namespace CrusaderWars.data.save_file
                 // Expand garrison placeholder units into distributed levies
                 var allArmies = attacker_armies.Concat(defender_armies).ToList();
                 Armies_Functions.ExpandGarrisonArmies(allArmies);
+
+                if (twbattle.BattleState.IsSiegeBattle)
+                {
+                    // Consolidate all mobile besieging armies into a single force before returning.
+                    // This must be done after all army data is loaded, but before passing the list to the battle generator.
+                    var besiegers = attacker_armies.Where(a => !a.IsGarrison() && !a.IsReinforcementArmy()).ToList();
+                    if (besiegers.Count > 1)
+                    {
+                        Program.Logger.Debug($"Consolidating {besiegers.Count} besieging armies into one force.");
+
+                        // Find the main besieger army (the one with the main commander from the log data).
+                        var leftSideCommanderId = CK3LogData.LeftSide.GetCommander().id;
+                        var rightSideCommanderId = CK3LogData.RightSide.GetCommander().id;
+                        var mainBesieger = besiegers.FirstOrDefault(a => a.CommanderID == leftSideCommanderId || a.CommanderID == rightSideCommanderId);
+
+                        // Fallback if the main commander's army isn't in the list.
+                        if (mainBesieger == null)
+                        {
+                            mainBesieger = besiegers.OrderByDescending(a => a.GetTotalSoldiers()).FirstOrDefault();
+                            if (mainBesieger != null)
+                            {
+                                Program.Logger.Debug($"Main besieger commander's army not found. Using largest army as main: {mainBesieger.ID}");
+                            }
+                        }
+
+                        if (mainBesieger != null)
+                        {
+                            mainBesieger.isMainArmy = true; // Ensure the consolidated army is marked as the main one.
+
+                            var otherBesiegers = besiegers.Where(a => a != mainBesieger).ToList();
+                            foreach (var other in otherBesiegers)
+                            {
+                                Program.Logger.Debug($"Merging army {other.ID} into main besieger {mainBesieger.ID}");
+                                mainBesieger.AddMergedArmy(other);
+                                attacker_armies.Remove(other); // Remove from the top-level list.
+                            }
+                        }
+                    }
+                    else if (besiegers.Count == 1)
+                    {
+                        // If there's only one besieger, ensure it's marked as the main army.
+                        besiegers[0].isMainArmy = true;
+                    }
+                }
 
                 // Print Armies
                 Print.PrintArmiesData(attacker_armies);
