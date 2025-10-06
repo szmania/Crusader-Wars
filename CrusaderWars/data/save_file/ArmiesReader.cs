@@ -225,45 +225,67 @@ namespace CrusaderWars.data.save_file
 
                 if (twbattle.BattleState.IsSiegeBattle)
                 {
-                    // Consolidate all mobile besieging armies into a single force before returning.
-                    // This must be done after all army data is loaded, but before passing the list to the battle generator.
+                    // --- Attacker (Besieger) Side ---
+                    // Identify the main besieging army without consolidating. This allows BattleFile.cs
+                    // to apply the user's "Armies Control" setting correctly.
+                    // The besieger is always LeftSide in the log data for sieges.
                     var besiegers = attacker_armies.Where(a => !a.IsGarrison() && !a.IsReinforcementArmy()).ToList();
-                    if (besiegers.Count > 1)
+                    if (besiegers.Any())
                     {
-                        Program.Logger.Debug($"Consolidating {besiegers.Count} besieging armies into one force.");
+                        var mainBesiegerCommanderId = CK3LogData.LeftSide.GetCommander().id;
+                        var mainBesieger = besiegers.FirstOrDefault(a => a.CommanderID == mainBesiegerCommanderId);
 
-                        // Find the main besieger army (the one with the main commander from the log data).
-                        var leftSideCommanderId = CK3LogData.LeftSide.GetCommander().id;
-                        var rightSideCommanderId = CK3LogData.RightSide.GetCommander().id;
-                        var mainBesieger = besiegers.FirstOrDefault(a => a.CommanderID == leftSideCommanderId || a.CommanderID == rightSideCommanderId);
-
-                        // Fallback if the main commander's army isn't in the list.
                         if (mainBesieger == null)
                         {
                             mainBesieger = besiegers.OrderByDescending(a => a.GetTotalSoldiers()).FirstOrDefault();
-                            if (mainBesieger != null)
-                            {
-                                Program.Logger.Debug($"Main besieger commander's army not found. Using largest army as main: {mainBesieger.ID}");
-                            }
+                            if (mainBesieger != null) Program.Logger.Debug($"Main besieger commander's army not found. Using largest army as main: {mainBesieger.ID}");
                         }
 
                         if (mainBesieger != null)
                         {
-                            mainBesieger.isMainArmy = true; // Ensure the consolidated army is marked as the main one.
-
-                            var otherBesiegers = besiegers.Where(a => a != mainBesieger).ToList();
-                            foreach (var other in otherBesiegers)
-                            {
-                                Program.Logger.Debug($"Merging army {other.ID} into main besieger {mainBesieger.ID}");
-                                mainBesieger.AddMergedArmy(other);
-                                attacker_armies.Remove(other); // Remove from the top-level list.
-                            }
+                            mainBesieger.isMainArmy = true;
+                            Program.Logger.Debug($"Main besieger army flagged: {mainBesieger.ID}");
+                        }
+                        else // Fallback if still null
+                        {
+                            besiegers[0].isMainArmy = true;
+                            Program.Logger.Debug($"Could not determine main besieger. Using first army in list as main: {besiegers[0].ID}");
                         }
                     }
-                    else if (besiegers.Count == 1)
+
+                    // --- Defender (Besieged) Side ---
+                    // Identify the main defending army (garrison or main relief force).
+                    // The besieged side is always RightSide in the log data for sieges.
+                    var reliefForces = defender_armies.Where(a => a.IsReinforcementArmy()).ToList();
+                    var garrison = defender_armies.FirstOrDefault(a => a.IsGarrison());
+
+                    if (reliefForces.Any())
                     {
-                        // If there's only one besieger, ensure it's marked as the main army.
-                        besiegers[0].isMainArmy = true;
+                        var mainDefenderCommanderId = CK3LogData.RightSide.GetCommander().id;
+                        var mainReliefForce = reliefForces.FirstOrDefault(a => a.CommanderID == mainDefenderCommanderId);
+
+                        if (mainReliefForce == null)
+                        {
+                            mainReliefForce = reliefForces.OrderByDescending(a => a.GetTotalSoldiers()).FirstOrDefault();
+                            if (mainReliefForce != null) Program.Logger.Debug($"Main relief force commander's army not found. Using largest relief army as main: {mainReliefForce.ID}");
+                        }
+
+                        if (mainReliefForce != null)
+                        {
+                            mainReliefForce.isMainArmy = true;
+                            Program.Logger.Debug($"Main relief force army flagged: {mainReliefForce.ID}");
+                        }
+                        else // Fallback if still null
+                        {
+                            reliefForces[0].isMainArmy = true;
+                            Program.Logger.Debug($"Could not determine main relief force. Using first in list as main: {reliefForces[0].ID}");
+                        }
+                    }
+                    else if (garrison != null)
+                    {
+                        // If there are no relief forces, the garrison is the main defending "army".
+                        garrison.isMainArmy = true;
+                        Program.Logger.Debug($"Garrison flagged as main defending army: {garrison.ID}");
                     }
                 }
 
