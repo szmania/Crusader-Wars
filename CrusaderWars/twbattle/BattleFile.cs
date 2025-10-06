@@ -46,21 +46,44 @@ namespace CrusaderWars
 
         public static void SetArmiesSides(List<Army> attacker_armies, List<Army> defender_armies)
         {
-            string player_commander_id = CK3LogData.LeftSide.GetCommander().id;
-
-            bool isPlayerTheAttacker = attacker_armies.Any(army => army.CommanderID == player_commander_id);
-
-            if (isPlayerTheAttacker)
+            if (twbattle.BattleState.IsSiegeBattle)
             {
-                // Player is attacker, enemy is defender
-                foreach (var army in attacker_armies) { army.IsPlayer(true); }
-                foreach (var army in defender_armies) { army.IsEnemy(true); }
+                // New logic for siege battles
+                string player_character_id = DataSearch.Player_Character.GetID();
+                bool playerIsDefender = defender_armies.Any(army => army.Owner?.GetID() == player_character_id);
+
+                if (playerIsDefender)
+                {
+                    Program.Logger.Debug("Siege battle: Player is defending. Assigning defender_armies as player side, attacker_armies as enemy side.");
+                    foreach (var army in defender_armies) { army.IsPlayer(true); }
+                    foreach (var army in attacker_armies) { army.IsEnemy(true); }
+                }
+                else
+                {
+                    Program.Logger.Debug("Siege battle: Player is attacking. Assigning attacker_armies as player side, defender_armies as enemy side.");
+                    foreach (var army in attacker_armies) { army.IsPlayer(true); }
+                    foreach (var army in defender_armies) { army.IsEnemy(true); }
+                }
             }
             else
             {
-                // Player is defender, enemy is attacker
-                foreach (var army in attacker_armies) { army.IsEnemy(true); }
-                foreach (var army in defender_armies) { army.IsPlayer(true); }
+                // Original logic for field battles
+                string player_commander_id = CK3LogData.LeftSide.GetCommander().id;
+
+                bool isPlayerTheAttacker = attacker_armies.Any(army => army.CommanderID == player_commander_id);
+
+                if (isPlayerTheAttacker)
+                {
+                    // Player is attacker, enemy is defender
+                    foreach (var army in attacker_armies) { army.IsPlayer(true); }
+                    foreach (var army in defender_armies) { army.IsEnemy(true); }
+                }
+                else
+                {
+                    // Player is defender, enemy is attacker
+                    foreach (var army in attacker_armies) { army.IsEnemy(true); }
+                    foreach (var army in defender_armies) { army.IsPlayer(true); }
+                }
             }
         }
 
@@ -277,7 +300,6 @@ namespace CrusaderWars
                 if (enemy_main_army != null) temp_attacker_armies.Remove(enemy_main_army);
                 foreach (var army in temp_attacker_armies.Where(a => a != null))
                 {
-                    Program.Logger.Debug($"Writing attacker/defender enemy-allied army {army.ID} to file.");
                     WriteArmy(army, total_soldiers, false, "bolton", siegeEngines);
                 }
             }
@@ -286,7 +308,6 @@ namespace CrusaderWars
                 if (enemy_main_army != null) temp_defender_armies.Remove(enemy_main_army);
                 foreach (var army in temp_defender_armies.Where(a => a != null))
                 {
-                    Program.Logger.Debug($"Writing attacker/defender enemy-allied army {army.ID} to file.");
                     WriteArmy(army, total_soldiers, false, "bolton", siegeEngines);
                 }
             }
