@@ -1406,6 +1406,7 @@ namespace CrusaderWars
 
                             //Data Clear
                             Data.Reset();
+                            SetPlaythrough(); // Re-initialize playthrough after reset
 
                             continue;
                         }
@@ -1469,6 +1470,7 @@ namespace CrusaderWars
 
                     //Data Clear
                     Data.Reset();
+                    SetPlaythrough(); // Re-initialize playthrough after reset
 
                     continue;
 
@@ -1543,6 +1545,7 @@ namespace CrusaderWars
 
                     //Data Clear
                     Data.Reset();
+                    SetPlaythrough(); // Re-initialize playthrough after reset
 
                     continue;
                 }
