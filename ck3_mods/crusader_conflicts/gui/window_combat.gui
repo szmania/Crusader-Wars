@@ -1082,34 +1082,34 @@ window = {
 			state = {
 				name = "log_battle_name"
 				duration = 0.01
-				next = "log_player_realm"
+				next = "log_leftside_realm"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:', CombatWindow.GetCombat.GetName))]"
 			}
 			
 			state = {
-				name = "log_player_realm"
+				name = "log_leftside_realm"
 				duration = 0.01
-				next = "log_enemy_realm"
+				next = "log_rightside_realm"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideRealmFlagTooltip)]"
 			}	
 
 			state = {
-				name = "log_enemy_realm"
+				name = "log_rightside_realm"
 				duration = 0.01
-				next = "log_player_char_id"
+				next = "log_leftside_char_id"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideRealmFlagTooltip)]"
 			}
 
 			state = {
-				name = "log_player_char_id"
+				name = "log_leftside_char_id"
 				duration = 0.01
-				next = "log_player_char_culture"
+				next = "log_leftside_char_culture"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
 			}
 
 			state = {
-				name = "log_player_char_culture"
+				name = "log_leftside_char_culture"
 				duration = 0.01
 				next = "log_leftside_owner_id"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
@@ -1143,49 +1143,49 @@ window = {
 			state = {
 				name = "log_rightside_owner_culture"
 				duration = 0.01
-				next = "log_player_divider"
+				next = "log_leftside_divider"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideMainParticipant.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 			}			
 														
 
-			#--------Crusader Conflicts Player Army---------
+			#--------Crusader Conflicts Left-Side-Army---------
 
 			#Console Command Divider
 			state = {
-				name = "log_player_divider"
+				name = "log_leftside_divider"
 				duration = 0.01
-				next = "log_player_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
+				next = "log_leftside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Left-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_player_culture"
+				name = "log_leftside_culture"
 				duration = 0.01
-				next = "log_player_martial_skill"
+				next = "log_leftside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetLeftSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 
 			state = {
-				name = "log_player_martial_skill"
+				name = "log_leftside_martial_skill"
 				duration = 0.01
-				next = "log_player_prowess_skill"
+				next = "log_leftside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_player_prowess_skill"
+				name = "log_leftside_prowess_skill"
 				duration = 0.01
-				next = "log_player_rank"
+				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_player_rank"
+				name = "log_leftside_rank"
 				duration = 0.01
 				next = "player_knight_count"
 				on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
@@ -1196,52 +1196,52 @@ window = {
 			state = {
 				name = "player_knight_count"
 				duration = 0.01
-				next = "log_player_knight_effectiveness"
+				next = "log_leftside_knight_effectiveness"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_player_knight_effectiveness"
+				name = "log_leftside_knight_effectiveness"
 				duration = 0.01
-				next = "log_enemy_divider"
+				next = "log_rightside_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Conflicts Enemy Army---------
+			#--------Crusader Conflicts Right-Side-Army---------
 			state = {
-				name = "log_enemy_divider"
+				name = "log_rightside_divider"
 				duration = 0.01
-				next = "log_enemy_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+				next = "log_rightside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Right-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_enemy_culture"
+				name = "log_rightside_culture"
 				duration = 0.01
-				next = "log_enemy_martial_skill"
+				next = "log_rightside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 
 			state = {
-				name = "log_enemy_martial_skill"
+				name = "log_rightside_martial_skill"
 				duration = 0.01
-				next = "log_enemy_prowess_skill"
+				next = "log_rightside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_enemy_prowess_skill"
+				name = "log_rightside_prowess_skill"
 				duration = 0.01
-				next = "log_enemy_rank"
+				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_enemy_rank"
+				name = "log_rightside_rank"
 				duration = 0.01
 				next = "enemy_knight_count"		
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"													
@@ -1252,12 +1252,12 @@ window = {
 			state = {
 				name = "enemy_knight_count"
 				duration = 0.01
-				next = "log_enemy_knight_effectiveness"
+				next = "log_rightside_knight_effectiveness"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_enemy_knight_effectiveness"
+				name = "log_rightside_knight_effectiveness"
 				duration = 0.01
 				next = "log_completed_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown))]"
@@ -1412,34 +1412,34 @@ window = {
 			state = {
 				name = "log_battle_name"
 				duration = 0.01
-				next = "log_player_realm"
+				next = "log_leftside_realm"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:', CombatWindow.GetCombat.GetName))]"
 			}
 			
 			state = {
-				name = "log_player_realm"
+				name = "log_leftside_realm"
 				duration = 0.01
-				next = "log_enemy_realm"
+				next = "log_rightside_realm"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideRealmFlagTooltip)]"
 			}	
 
 			state = {
-				name = "log_enemy_realm"
+				name = "log_rightside_realm"
 				duration = 0.01
-				next = "log_player_char_id"
+				next = "log_leftside_char_id"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideRealmFlagTooltip)]"
 			}
 
 			state = {
-				name = "log_player_char_id"
+				name = "log_leftside_char_id"
 				duration = 0.01
-				next = "log_player_char_culture"
+				next = "log_leftside_char_culture"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
 			}
 
 			state = {
-				name = "log_player_char_culture"
+				name = "log_leftside_char_culture"
 				duration = 0.01
 				next = "log_leftside_owner_id"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
@@ -1473,49 +1473,49 @@ window = {
 			state = {
 				name = "log_rightside_owner_culture"
 				duration = 0.01
-				next = "log_player_divider"
+				next = "log_leftside_divider"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideMainParticipant.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 			}	
 
-			#--------Crusader Conflicts Player Army---------
+			#--------Crusader Conflicts Left-Side-Army---------
 
 			#Console Command Divider
 			state = {
-				name = "log_player_divider"
+				name = "log_leftside_divider"
 				duration = 0.01
-				next = "log_player_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
+				next = "log_leftside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Left-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_player_culture"
+				name = "log_leftside_culture"
 				duration = 0.01
-				next = "log_player_martial_skill"
+				next = "log_leftside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetLeftSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 			
 
 			state = {
-				name = "log_player_martial_skill"
+				name = "log_leftside_martial_skill"
 				duration = 0.01
-				next = "log_player_prowess_skill"
+				next = "log_leftside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_player_prowess_skill"
+				name = "log_leftside_prowess_skill"
 				duration = 0.01
-				next = "log_player_rank"
+				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_player_rank"
+				name = "log_leftside_rank"
 				duration = 0.01
 				next = "player_knight_count"
 				on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
@@ -1526,52 +1526,52 @@ window = {
 			state = {
 				name = "player_knight_count"
 				duration = 0.01
-				next = "log_player_knight_effectiveness"
+				next = "log_leftside_knight_effectiveness"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_player_knight_effectiveness"
+				name = "log_leftside_knight_effectiveness"
 				duration = 0.01
-				next = "log_enemy_divider"
+				next = "log_rightside_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Conflicts Enemy Army---------
+			#--------Crusader Conflicts Right-Side-Army---------
 			state = {
-				name = "log_enemy_divider"
+				name = "log_rightside_divider"
 				duration = 0.01
-				next = "log_enemy_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+				next = "log_rightside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Right-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_enemy_culture"
+				name = "log_rightside_culture"
 				duration = 0.01
-				next = "log_enemy_martial_skill"
+				next = "log_rightside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 
 			state = {
-				name = "log_enemy_martial_skill"
+				name = "log_rightside_martial_skill"
 				duration = 0.01
-				next = "log_enemy_prowess_skill"
+				next = "log_rightside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_enemy_prowess_skill"
+				name = "log_rightside_prowess_skill"
 				duration = 0.01
-				next = "log_enemy_rank"
+				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_enemy_rank"
+				name = "log_rightside_rank"
 				duration = 0.01
 				next = "enemy_knight_count"		
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"													
@@ -1582,12 +1582,12 @@ window = {
 			state = {
 				name = "enemy_knight_count"
 				duration = 0.01
-				next = "log_enemy_knight_effectiveness"
+				next = "log_rightside_knight_effectiveness"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_enemy_knight_effectiveness"
+				name = "log_rightside_knight_effectiveness"
 				duration = 0.01
 				next = "log_completed_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown))]"
@@ -1741,34 +1741,34 @@ window = {
 			state = {
 				name = "log_battle_name"
 				duration = 0.01
-				next = "log_player_realm"
+				next = "log_leftside_realm"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:', CombatWindow.GetCombat.GetName))]"
 			}
 			
 			state = {
-				name = "log_player_realm"
+				name = "log_leftside_realm"
 				duration = 0.01
-				next = "log_enemy_realm"
+				next = "log_rightside_realm"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideRealmFlagTooltip)]"
 			}	
 
 			state = {
-				name = "log_enemy_realm"
+				name = "log_rightside_realm"
 				duration = 0.01
-				next = "log_player_char_id"
+				next = "log_leftside_char_id"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideRealmFlagTooltip)]"
 			}
 
 			state = {
-				name = "log_player_char_id"
+				name = "log_leftside_char_id"
 				duration = 0.01
-				next = "log_player_char_culture"
+				next = "log_leftside_char_culture"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
 			}
 
 			state = {
-				name = "log_player_char_culture"
+				name = "log_leftside_char_culture"
 				duration = 0.01
 				next = "log_leftside_owner_id"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
@@ -1802,49 +1802,49 @@ window = {
 			state = {
 				name = "log_rightside_owner_culture"
 				duration = 0.01
-				next = "log_player_divider"
+				next = "log_leftside_divider"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideMainParticipant.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 			}		
 
-			#--------Crusader Conflicts Player Army---------
+			#--------Crusader Conflicts Left-Side-Army---------
 
 			#Console Command Divider
 			state = {
-				name = "log_player_divider"
+				name = "log_leftside_divider"
 				duration = 0.01
-				next = "log_player_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
+				next = "log_leftside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Left-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_player_culture"
+				name = "log_leftside_culture"
 				duration = 0.01
-				next = "log_player_martial_skill"
+				next = "log_leftside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetLeftSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 			
 
 			state = {
-				name = "log_player_martial_skill"
+				name = "log_leftside_martial_skill"
 				duration = 0.01
-				next = "log_player_prowess_skill"
+				next = "log_leftside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_player_prowess_skill"
+				name = "log_leftside_prowess_skill"
 				duration = 0.01
-				next = "log_player_rank"
+				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_player_rank"
+				name = "log_leftside_rank"
 				duration = 0.01
 				next = "player_knight_count"
 				on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
@@ -1855,52 +1855,52 @@ window = {
 			state = {
 				name = "player_knight_count"
 				duration = 0.01
-				next = "log_player_knight_effectiveness"
+				next = "log_leftside_knight_effectiveness"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_player_knight_effectiveness"
+				name = "log_leftside_knight_effectiveness"
 				duration = 0.01
-				next = "log_enemy_divider"
+				next = "log_rightside_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Conflicts Enemy Army---------
+			#--------Crusader Conflicts Right-Side-Army---------
 			state = {
-				name = "log_enemy_divider"
+				name = "log_rightside_divider"
 				duration = 0.01
-				next = "log_enemy_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+				next = "log_rightside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Right-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_enemy_culture"
+				name = "log_rightside_culture"
 				duration = 0.01
-				next = "log_enemy_martial_skill"
+				next = "log_rightside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 
 			state = {
-				name = "log_enemy_martial_skill"
+				name = "log_rightside_martial_skill"
 				duration = 0.01
-				next = "log_enemy_prowess_skill"
+				next = "log_rightside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_enemy_prowess_skill"
+				name = "log_rightside_prowess_skill"
 				duration = 0.01
-				next = "log_enemy_rank"
+				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_enemy_rank"
+				name = "log_rightside_rank"
 				duration = 0.01
 				next = "enemy_knight_count"			
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"												
@@ -1911,12 +1911,12 @@ window = {
 			state = {
 				name = "enemy_knight_count"
 				duration = 0.01
-				next = "log_enemy_knight_effectiveness"
+				next = "log_rightside_knight_effectiveness"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_enemy_knight_effectiveness"
+				name = "log_rightside_knight_effectiveness"
 				duration = 0.01
 				next = "log_completed_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown))]"
@@ -2070,34 +2070,34 @@ window = {
 			state = {
 				name = "log_battle_name"
 				duration = 0.01
-				next = "log_player_realm"
+				next = "log_leftside_realm"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('BattleName:', CombatWindow.GetCombat.GetName))]"
 			}
 			
 			state = {
-				name = "log_player_realm"
+				name = "log_leftside_realm"
 				duration = 0.01
-				next = "log_enemy_realm"
+				next = "log_rightside_realm"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideRealmFlagTooltip)]"
 			}	
 
 			state = {
-				name = "log_enemy_realm"
+				name = "log_rightside_realm"
 				duration = 0.01
-				next = "log_player_char_id"
+				next = "log_leftside_char_id"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideRealmFlagTooltip)]"
 			}
 
 			state = {
-				name = "log_player_char_id"
+				name = "log_leftside_char_id"
 				duration = 0.01
-				next = "log_player_char_culture"
+				next = "log_leftside_char_culture"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerCharacter_ID:', Localize('global_ids_var')))]"
 			}
 
 			state = {
-				name = "log_player_char_culture"
+				name = "log_leftside_char_culture"
 				duration = 0.01
 				next = "log_leftside_owner_id"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',GetPlayer.MakeScope).End)]"
@@ -2131,49 +2131,49 @@ window = {
 			state = {
 				name = "log_rightside_owner_culture"
 				duration = 0.01
-				next = "log_player_divider"
+				next = "log_leftside_divider"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideMainParticipant.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Owner_Culture:', Localize('global_culture_ids_var')))]"
 			}			
 
-			#--------Crusader Conflicts Player Army---------
+			#--------Crusader Conflicts Left-Side-Army---------
 
 			#Console Command Divider
 			state = {
-				name = "log_player_divider"
+				name = "log_leftside_divider"
 				duration = 0.01
-				next = "log_player_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Player Army---------'))]"
+				next = "log_leftside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Left-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_player_culture"
+				name = "log_leftside_culture"
 				duration = 0.01
-				next = "log_player_martial_skill"
+				next = "log_leftside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetLeftSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 			
 
 			state = {
-				name = "log_player_martial_skill"
+				name = "log_leftside_martial_skill"
 				duration = 0.01
-				next = "log_player_prowess_skill"
+				next = "log_leftside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_player_prowess_skill"
+				name = "log_leftside_prowess_skill"
 				duration = 0.01
-				next = "log_player_rank"
+				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_player_rank"
+				name = "log_leftside_rank"
 				duration = 0.01
 				next = "player_knight_count"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
@@ -2183,53 +2183,53 @@ window = {
 			state = {
 				name = "player_knight_count"
 				duration = 0.01
-				next = "log_player_knight_effectiveness"
+				next = "log_leftside_knight_effectiveness"
 				on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetLeftKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_player_knight_effectiveness"
+				name = "log_leftside_knight_effectiveness"
 				duration = 0.01
-				next = "log_enemy_divider"
+				next = "log_rightside_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetLeftSideMainParticipant.GetKnightEffectivenessBreakdown))]"
 			}
 
-			#--------Crusader Conflicts Enemy Army---------
+			#--------Crusader Conflicts Right-Side-Army---------
 			state = {
-				name = "log_enemy_divider"
+				name = "log_rightside_divider"
 				duration = 0.01
-				next = "log_enemy_culture"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Enemy Army---------'))]"
+				next = "log_rightside_culture"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('---------', 'Right-Side-Army---------'))]"
 			}
 
 			state = {
-				name = "log_enemy_culture"
+				name = "log_rightside_culture"
 				duration = 0.01
-				next = "log_enemy_martial_skill"
+				next = "log_rightside_martial_skill"
 				on_start = "[GetScriptedGui('ids_string_variable').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope('ids_string_variable',CombatWindow.GetRightSideCommander.MakeScope).End)]"
 				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Commander_Culture:', Localize('global_culture_ids_var')))]"
 			}
 
 			state = {
-				name = "log_enemy_martial_skill"
+				name = "log_rightside_martial_skill"
 				duration = 0.01
-				next = "log_enemy_prowess_skill"
+				next = "log_rightside_prowess_skill"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightSideCommander.GetCommanderAdvantageDesc)]"
 
 			}
 
 			state = {
-				name = "log_enemy_prowess_skill"
+				name = "log_rightside_prowess_skill"
 				duration = 0.01
-				next = "log_enemy_rank"
+				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
 				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
 
 			}
 
 			state = {
-				name = "log_enemy_rank"
+				name = "log_rightside_rank"
 				duration = 0.01
 				next = "enemy_knight_count"
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"
@@ -2240,12 +2240,12 @@ window = {
 			state = {
 				name = "enemy_knight_count"
 				duration = 0.01
-				next = "log_enemy_knight_effectiveness"
+				next = "log_rightside_knight_effectiveness"
 				on_finish = "[ExecuteConsoleCommand(CombatWindow.GetRightKnightBreakdown)]"
 			}
 
 			state = {
-				name = "log_enemy_knight_effectiveness"
+				name = "log_rightside_knight_effectiveness"
 				duration = 0.01
 				next = "log_completed_divider"
 				on_finish = "[ExecuteConsoleCommand(Select_CString(StringIsEmpty(CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown), 'x', CombatWindow.GetRightSideMainParticipant.GetKnightEffectivenessBreakdown))]"
