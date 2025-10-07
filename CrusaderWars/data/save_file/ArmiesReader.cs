@@ -67,10 +67,7 @@ namespace CrusaderWars.data.save_file
                         if (string.IsNullOrWhiteSpace(block)) continue;
                         var armyIdMatch = Regex.Match(block, @"\t\t(\d+)={");
                         var commanderIdMatch = Regex.Match(block, @"commander=(\d+)");
-                        if (armyIdMatch.Success && commanderIdMatch.Success)
-                        {
-                            armyToCommanderMap[armyIdMatch.Groups[1].Value] = commanderIdMatch.Groups[1].Value;
-                        }
+                        if (armyIdMatch.Success && commanderIdMatch.Success)armyToCommanderMap[armyIdMatch.Groups[1].Value] = commanderIdMatch.Groups[1].Value;
                     }
                 }
                 catch (Exception ex)
@@ -91,6 +88,7 @@ namespace CrusaderWars.data.save_file
 
                         // Modified regex to robustly handle whitespace
                         string armyID = Regex.Match(block, @"^\s*(\d+)={").Groups[1].Value;
+                        string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
 
                         if (!armyToCommanderMap.TryGetValue(armyID, out var commanderID))
                         {
@@ -98,8 +96,12 @@ namespace CrusaderWars.data.save_file
                         }
 
                         DataSearchSides? currentArmySide = null;
-                        if (attackerCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.LeftSide;
-                        else if (defenderCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.RightSide;
+                        // if (attackerCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.LeftSide;
+                        // else if (defenderCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.RightSide;
+                        // Original logic:
+                        // DataSearchSides? currentArmySide = null;
+                        if (attackerCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.LeftSide;
+                        else if (defenderCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.RightSide;
                         else continue;
 
                         if (besiegerSide == null)
