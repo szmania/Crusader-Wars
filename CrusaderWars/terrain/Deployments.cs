@@ -261,6 +261,10 @@ namespace CrusaderWars.terrain
             return Directions.GetOppositeDirection(direction);
         }
 
+        public static string? beta_GetReinforcementDeployment(string direction, int total_soldiers)
+        {
+            return Directions.SetDirection(direction, total_soldiers);
+        }
     }
 
     class DeploymentArea

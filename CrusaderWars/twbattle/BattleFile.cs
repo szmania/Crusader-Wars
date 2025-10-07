@@ -82,7 +82,7 @@ namespace CrusaderWars
                 {
                     // Player is defender, enemy is attacker
                     foreach (var army in attacker_armies) { army.IsEnemy(true); }
-                    foreach (var army in defender_armies) { army.IsPlayer(true); }
+                    foreach (var army in defender_armies) { army.IsEnemy(true); }
                 }
             }
         }
@@ -675,23 +675,32 @@ namespace CrusaderWars
             else
                 SetEnemyFaction(army);
 
-            // Only set deployment area and add deployables for non-reinforcement armies
-            if (!isReinforcement)
+            // Set deployment area and unit positions
+            string deploymentDirection;
+
+            if (isReinforcement)
             {
+                // This logic applies to any reinforcement army (currently only in sieges)
+                deploymentDirection = Deployments.GetOppositeDirection(Deployments.beta_GeDirection("attacker"));
+                
+                // Only add a deployment area for reinforcements in a siege battle, as requested.
+                if (twbattle.BattleState.IsSiegeBattle)
+                {
+                    string? reinforcementDeployment = Deployments.beta_GetReinforcementDeployment(deploymentDirection, total_soldiers);
+                    if (reinforcementDeployment != null)
+                    {
+                        File.AppendAllText(battlePath, reinforcementDeployment);
+                    }
+                }
+            }
+            else // Not a reinforcement army
+            {
+                deploymentDirection = Deployments.beta_GeDirection(army.CombatSide);
                 SetDeploymentArea(army.CombatSide);
                 AddDeployablesDefenses(army);
             }
-            
-            //Set unit positions values
-            if (isReinforcement)
-            {
-                string arrivalDirection = Deployments.GetOppositeDirection(Deployments.beta_GeDirection("attacker"));
-                SetPositions(total_soldiers, arrivalDirection, army.IsReinforcementArmy());
-            }
-            else
-            {
-                SetPositions(total_soldiers, Deployments.beta_GeDirection(army.CombatSide), army.IsReinforcementArmy());
-            }
+
+            SetPositions(total_soldiers, deploymentDirection, army.IsReinforcementArmy());
             
             //Write all player army units
             UnitsFile.BETA_ConvertandAddArmyUnits(army);
