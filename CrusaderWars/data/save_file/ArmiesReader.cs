@@ -52,9 +52,36 @@ namespace CrusaderWars.data.save_file
                 var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id).Append(CK3LogData.LeftSide.GetCommander().id));
                 var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
 
+                // Pre-parse Armies.txt to find all merged sub-armies
+                var mergedSubArmyIDs = new HashSet<string>();
+                try
+                {
+                    string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
+                    string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
+                    foreach (var block in armyBlocks)
+                    {
+                        if (string.IsNullOrWhiteSpace(block)) continue;
+                        var mergedArmiesMatch = Regex.Match(block, @"merged_armies={\s*([\d\s]+)\s*}");
+                        if (mergedArmiesMatch.Success)
+                        {
+                            var ids = mergedArmiesMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                            foreach (var id in ids)
+                            {
+                                mergedSubArmyIDs.Add(id);
+                            }
+                        }
+                    }
+                    Program.Logger.Debug($"Identified {mergedSubArmyIDs.Count} merged sub-armies.");
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error pre-parsing Armies.txt for merged armies: {ex.Message}");
+                }
+
+
                 DataSearchSides? besiegerSide = null;
-                var besiegerForce = new List<Army>();
-                var reliefForce = new List<Army>(); // New list for relief forces
+                var potentialBesiegerArmyIDs = new List<string>();
+                var potentialReliefArmyIDs = new List<string>();
 
                 // Pre-parse Armies.txt to map army IDs to commander IDs
                 var armyToCommanderMap = new Dictionary<string, string>();
@@ -76,7 +103,7 @@ namespace CrusaderWars.data.save_file
                     throw new Exception("Could not map armies to commanders, cannot identify siege participants.", ex);
                 }
 
-                // 1. Find all mobile forces at the location and categorize them
+                // 1. Find all mobile forces at the location and categorize their IDs
                 try
                 {
                     string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
@@ -96,10 +123,6 @@ namespace CrusaderWars.data.save_file
                         }
 
                         DataSearchSides? currentArmySide = null;
-                        // if (attackerCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.LeftSide;
-                        // else if (defenderCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.RightSide;
-                        // Original logic:
-                        // DataSearchSides? currentArmySide = null;
                         if (attackerCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.LeftSide;
                         else if (defenderCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.RightSide;
                         else continue;
@@ -110,20 +133,14 @@ namespace CrusaderWars.data.save_file
                             Program.Logger.Debug($"Besieger side identified as: {besiegerSide}. This side owns the mobile armies.");
                         }
 
-                        // Categorize armies into besiegerForce or reliefForce
-                        if (currentArmySide == besiegerSide && !besiegerForce.Any(a => a.ID == armyID))
+                        // Categorize army IDs into potential besiegers or relief forces
+                        if (currentArmySide == besiegerSide)
                         {
-                            string combatSide = "attacker"; // Besiegers are always attackers in Attila
-                            Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
-                            besiegerForce.Add(army);
-                            Program.Logger.Debug($"Found besieger army {armyID} (commander {commanderID}).");
+                            if (!potentialBesiegerArmyIDs.Contains(armyID)) potentialBesiegerArmyIDs.Add(armyID);
                         }
-                        else if (currentArmySide != besiegerSide && !reliefForce.Any(a => a.ID == armyID))
+                        else
                         {
-                            string combatSide = "defender"; // Relief forces are defenders in Attila
-                            Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
-                            reliefForce.Add(army);
-                            Program.Logger.Debug($"Found relief army {armyID} (commander {commanderID}).");
+                            if (!potentialReliefArmyIDs.Contains(armyID)) potentialReliefArmyIDs.Add(armyID);
                         }
                     }
                 }
@@ -132,23 +149,39 @@ namespace CrusaderWars.data.save_file
                     Program.Logger.Debug($"Error reading besieger armies from Units.txt: {ex.Message}");
                 }
 
+                // 2. Filter out merged sub-armies to get only top-level commanders
+                var topLevelBesiegerIDs = potentialBesiegerArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
+                var topLevelReliefIDs = potentialReliefArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
+
+                Program.Logger.Debug($"Found {potentialBesiegerArmyIDs.Count} potential besieger armies, filtered to {topLevelBesiegerIDs.Count} top-level armies.");
+                Program.Logger.Debug($"Found {potentialReliefArmyIDs.Count} potential relief armies, filtered to {topLevelReliefIDs.Count} top-level armies.");
+
+                // 3. Create Army objects for the top-level armies
+                var besiegerForce = new List<Army>();
+                foreach (var armyID in topLevelBesiegerIDs)
+                {
+                    string combatSide = "attacker"; // Besiegers are always attackers in Attila
+                    Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
+                    besiegerForce.Add(army);
+                    Program.Logger.Debug($"Created top-level besieger army object for ID {armyID}.");
+                }
+
+                var reliefForce = new List<Army>();
+                foreach (var armyID in topLevelReliefIDs)
+                {
+                    string combatSide = "defender"; // Relief forces are defenders in Attila
+                    Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
+                    reliefForce.Add(army);
+                    Program.Logger.Debug($"Created top-level relief army object for ID {armyID}.");
+                }
+
+
                 // Flag relief forces as reinforcements
                 foreach (var army in reliefForce)
                 {
                     army.SetAsReinforcement(true);
                     Program.Logger.Debug($"Army {army.ID} flagged as reinforcement.");
                 }
-
-                // Identify the main besieger army after all besiegerForce armies are collected
-                // DELETED: This block is removed as per instructions.
-                // string mainBesiegerCommanderId = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
-                // var mainBesiegerArmy = besiegerForce.FirstOrDefault(a => a.CommanderID == mainBesiegerCommanderId);
-                // if (mainBesiegerArmy != null)
-                // {
-                //     mainBesiegerArmy.isMainArmy = true;
-                //     Program.Logger.Debug($"Main besieger army identified: {mainBesiegerArmy.ID}");
-                // }
-
 
                 // 2. Generate the garrison force
                 Army? garrisonArmy = null;
