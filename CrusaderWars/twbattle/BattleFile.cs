@@ -646,11 +646,11 @@ namespace CrusaderWars
             if (isReinforcement)
             {
                 string arrivalDirection = Deployments.GetOppositeDirection(Deployments.beta_GeDirection("attacker"));
-                SetPositions(total_soldiers, arrivalDirection);
+                SetPositions(total_soldiers, arrivalDirection, army.IsReinforcementArmy());
             }
             else
             {
-                SetPositions(total_soldiers, Deployments.beta_GeDirection(army.CombatSide));
+                SetPositions(total_soldiers, Deployments.beta_GeDirection(army.CombatSide), army.IsReinforcementArmy());
             }
             
             //Write all player army units
@@ -832,10 +832,10 @@ namespace CrusaderWars
 
         static string? Rotation;
 
-        public static void SetPositions(int total_soldiers, string direction)
+        public static void SetPositions(int total_soldiers, string direction, bool isReinforcement)
         {
 
-            UnitsDeploymentsPosition UnitsPosition = new UnitsDeploymentsPosition(direction, ModOptions.DeploymentsZones(), total_soldiers) ;
+            UnitsDeploymentsPosition UnitsPosition = new UnitsDeploymentsPosition(direction, ModOptions.DeploymentsZones(), total_soldiers, isReinforcement) ;
 
             if (UnitsPosition.Direction == "N")
             {

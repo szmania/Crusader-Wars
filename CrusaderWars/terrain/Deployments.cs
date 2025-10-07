@@ -555,7 +555,7 @@ namespace CrusaderWars.terrain
         /// <param name="direction"></param>
         /// <param name="option_map_size"></param>
         /// <param name="total_soldiers"></param>
-        public UnitsDeploymentsPosition(string direction, string option_map_size, int total_soldiers) 
+        public UnitsDeploymentsPosition(string direction, string option_map_size, int total_soldiers, bool isReinforcement = false) 
         {
             Direction = direction;
             MapSize = option_map_size;
@@ -569,7 +569,13 @@ namespace CrusaderWars.terrain
                     BattleMap(option_map_size, total_soldiers);
                     UnitsPositionament();
                 }
-                else // Defender starts at the center of the settlement.
+                // Defender reinforcement (relief army) also starts at the edge.
+                else if (isReinforcement)
+                {
+                    BattleMap(option_map_size, total_soldiers);
+                    UnitsPositionament();
+                }
+                else // Defender (garrison) starts at the center of the settlement.
                 {
                     // Use the pre-calculated meter coordinates.
                     float.TryParse(Deployments.GetSiegeCenterX(), NumberStyles.Any, CultureInfo.InvariantCulture, out float x_float);
