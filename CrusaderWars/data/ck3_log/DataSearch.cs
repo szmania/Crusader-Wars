@@ -283,10 +283,10 @@ namespace CrusaderWars
             
 
             /*---------------------------------------------
-             * ::::::::::::::Player Army:::::::::::::::::::
+             * ::::::::::::::Left-Side-Army:::::::::::::::::::
              ---------------------------------------------*/
 
-            string PlayerArmy = Regex.Match(log, @"---------Player Army---------([\s\S]*?)---------Enemy Army---------").Groups[1].Value;
+            string PlayerArmy = Regex.Match(log, @"---------Left-Side-Army---------([\s\S]*?)---------Right-Side-Army---------").Groups[1].Value;
 
 
             /*---------------------------------------------
@@ -303,10 +303,10 @@ namespace CrusaderWars
 
 
             /*---------------------------------------------
-             * ::::::::::::::::Enemy Army::::::::::::::::::
+             * ::::::::::::::::Right-Side-Army::::::::::::::::::
              ---------------------------------------------*/
 
-            string EnemyArmy = Regex.Match(log, @"---------Enemy Army---------([\s\S]*?)---------Completed---------").Groups[1].Value;
+            string EnemyArmy = Regex.Match(log, @"---------Right-Side-Army---------([\s\S]*?)---------Completed---------").Groups[1].Value;
 
             /*---------------------------------------------
              * ::::::::::Enemy Commander System:::::::::::
@@ -506,7 +506,7 @@ namespace CrusaderWars
             if (twbattle.BattleState.IsSiegeBattle)
             {
                 // New, specific logic for siege battles
-                string text = Regex.Match(log, @"([\s\S]*?)---------Player Army---------").Groups[1].Value;
+                string text = Regex.Match(log, @"([\s\S]*?)---------Left-Side-Army---------").Groups[1].Value;
                 MatchCollection found_armies = Regex.Matches(text, @"TOOLTIP:LANDED_TITLE.+L (.+)");
 
                 if (found_armies.Count >= 2)
@@ -531,7 +531,7 @@ namespace CrusaderWars
             else
             {
                 // Original logic for field battles, with minor improvements
-                string text = Regex.Match(log, "(Log[\\s\\S]*?)---------Player Army---------[\\s\\S]*?").Groups[1].Value;
+                string text = Regex.Match(log, "(Log[\\s\\S]*?)---------Left-Side-Army---------[\\s\\S]*?").Groups[1].Value;
                 MatchCollection found_armies = Regex.Matches(text, "L (.+)");
 
                 if (found_armies.Count >= 2) // Corrected condition
