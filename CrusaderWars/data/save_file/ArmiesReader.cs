@@ -123,8 +123,8 @@ namespace CrusaderWars.data.save_file
                         }
 
                         DataSearchSides? currentArmySide = null;
-                        if (attackerCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.LeftSide;
-                        else if (defenderCharIDs.Contains(ownerID)) currentArmySide = DataSearchSides.RightSide;
+                        if (attackerCharIDs.Contains(ownerID) || attackerCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.LeftSide;
+                        else if (defenderCharIDs.Contains(ownerID) || defenderCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.RightSide;
                         else continue;
 
                         if (besiegerSide == null)
