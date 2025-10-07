@@ -114,7 +114,7 @@ namespace CrusaderWars.data.save_file
                         if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
 
                         // Modified regex to robustly handle whitespace
-                        string armyID = Regex.Match(block, @"^\s*(\d+)={").Groups[1].Value;
+                        string armyID = Regex.Match(block, @"^\t(\d+)={").Groups[1].Value;
                         string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
 
                         if (!armyToCommanderMap.TryGetValue(armyID, out var commanderID))

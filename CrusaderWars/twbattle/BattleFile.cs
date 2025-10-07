@@ -1173,7 +1173,7 @@ namespace CrusaderWars
                 }
                 else // Defender specific conditions for siege
                 {
-                    victoryConditions.AppendLine("<starting_tickets>100</starting_tickets>");
+                    victoryConditions.AppendLine("<starting_tickets>150</starting_tickets>");
 
                     // Rout position for defender (opposite side of attacker's deployment)
                     string attackerDeploymentDirection = Deployments.beta_GeDirection("attacker");
