@@ -93,7 +93,10 @@ namespace CrusaderWars
             //  Merge armies until there are only one      
             //----------------------------------------------
             ArmiesControl.MergeIntoOneArmy(temp_attacker_armies);
-            ArmiesControl.MergeIntoOneArmy(temp_defender_armies);
+            if (!twbattle.BattleState.IsSiegeBattle)
+            {
+                ArmiesControl.MergeIntoOneArmy(temp_defender_armies);
+            }
 
             // WRITE DECLARATIONS
             DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies);
@@ -111,8 +114,18 @@ namespace CrusaderWars
             }
             else if (player_army.CombatSide == "defender")
             {
-                //#### WRITE HUMAN PLAYER ARMY
-                WriteArmy(temp_defender_armies[0], total_soldiers, temp_defender_armies[0].IsReinforcementArmy(), "stark", siegeEngines);
+                if (twbattle.BattleState.IsSiegeBattle)
+                {
+                    foreach(var army in temp_defender_armies)
+                    {
+                        WriteArmy(army, total_soldiers, army.IsReinforcementArmy(), "stark", siegeEngines);
+                    }
+                }
+                else
+                {
+                    //#### WRITE HUMAN PLAYER ARMY
+                    WriteArmy(temp_defender_armies[0], total_soldiers, temp_defender_armies[0].IsReinforcementArmy(), "stark", siegeEngines);
+                }
             }
 
             //Write essential data
@@ -129,8 +142,18 @@ namespace CrusaderWars
             }
             else if (enemy_main_army.CombatSide == "defender")
             {
-                //#### WRITE HUMAN PLAYER ARMY
-                WriteArmy(temp_defender_armies[0], total_soldiers, temp_defender_armies[0].IsReinforcementArmy(), "bolton", siegeEngines);
+                if (twbattle.BattleState.IsSiegeBattle)
+                {
+                    foreach (var army in temp_defender_armies)
+                    {
+                        WriteArmy(army, total_soldiers, army.IsReinforcementArmy(), "bolton", siegeEngines);
+                    }
+                }
+                else
+                {
+                    //#### WRITE HUMAN PLAYER ARMY
+                    WriteArmy(temp_defender_armies[0], total_soldiers, temp_defender_armies[0].IsReinforcementArmy(), "bolton", siegeEngines);
+                }
             }
 
             //Write essential data
@@ -294,7 +317,6 @@ namespace CrusaderWars
             WriteArmy(enemy_main_army, total_soldiers, enemy_main_army.IsReinforcementArmy(), "bolton", siegeEngines);
 
             //#### WRITE ENEMY ALLIED ARMIES
-            Program.Logger.Debug("Writing AI allied armies for enemy's side...");
             if (enemy_main_army.CombatSide == "attacker")
             {
                 if (enemy_main_army != null) temp_attacker_armies.Remove(enemy_main_army);
@@ -1169,7 +1191,6 @@ namespace CrusaderWars
                     string attackerDeploymentDirection = Deployments.beta_GeDirection("attacker");
                     (string routX, string routY) = GetRoutPositionCoordinates(attackerDeploymentDirection);
                     victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
-                    victoryConditions.AppendLine("<deploys_first></deploys_first>");
                 }
                 else // Defender specific conditions for siege
                 {
@@ -1180,6 +1201,11 @@ namespace CrusaderWars
                     string defenderRoutDirection = Deployments.GetOppositeDirection(attackerDeploymentDirection);
                     (string routX, string routY) = GetRoutPositionCoordinates(defenderRoutDirection);
                     victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
+                }
+
+                if (army.IsPlayer())
+                {
+                    victoryConditions.AppendLine("<deploys_first></deploys_first>");
                 }
             }
             else // Not a siege battle (field battle)
