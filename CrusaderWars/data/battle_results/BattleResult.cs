@@ -2018,6 +2018,34 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
+            // Find the original besieger's character ID from the Sieges.txt file
+            string originalBesiegerID = "";
+            if (File.Exists(siegesFilePath) && !string.IsNullOrEmpty(SiegeID))
+            {
+                try
+                {
+                    var allLines = File.ReadAllLines(siegesFilePath);
+                    bool inTargetBlock = false;
+                    foreach (var line in allLines)
+                    {
+                        if (line.Trim() == $"{SiegeID}={{") inTargetBlock = true;
+                        if (!inTargetBlock) continue;
+                        if (line.Trim().StartsWith("attacker="))
+                        {
+                            originalBesiegerID = Regex.Match(line, @"attacker=(\d+)").Groups[1].Value;
+                            Program.Logger.Debug($"Found original besieger ID: {originalBesiegerID} for SiegeID: {SiegeID}");
+                            break;
+                        }
+                        if (line.Trim() == "}") break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading original besieger from Sieges.txt: {ex.Message}");
+                }
+            }
+
+
             // 1. Calculate Breach Increment
             int breachIncrement = 0;
             if (File.Exists(path_log_attila))
@@ -2090,9 +2118,25 @@ namespace CrusaderWars.data.battle_results
                 }
                 else if (inTargetSiegeBlock && trimmedLine.StartsWith("progress="))
                 {
-                    if (attackerLost)
+                    // The commander of the side that acts as the attacker in the Attila battle is always CK3LogData.LeftSide
+                    string attilaAttackerCommanderID = CK3LogData.LeftSide.GetCommander().id;
+                    bool siegeWonByOriginalBesieger = !attackerLost && !string.IsNullOrEmpty(originalBesiegerID) && (originalBesiegerID == attilaAttackerCommanderID);
+
+                    if (siegeWonByOriginalBesieger)
                     {
-                        // --- NEW LOGIC FOR ATTACKER DEFEAT ---
+                        // Attacker won AND they were the original besieger. Siege is over.
+                        int fortLevel = twbattle.Sieges.GetFortLevel();
+                        double newProgress = 100 + (fortLevel * 75);
+                        Program.Logger.Debug(
+                            $"Original besieger won. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
+                        updatedContent.AppendLine(
+                            $"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                    }
+                    else
+                    {
+                        // EITHER: The Attila attacker lost.
+                        // OR: The Attila attacker won, but they were the sallying defender (not the original besieger).
+                        // In both cases, calculate progress based on garrison casualties.
                         int initialGarrisonSize = twbattle.Sieges.GetGarrisonSize();
                         int finalGarrisonSize = defender_armies.Where(a => a.IsGarrison()).Sum(a => a.GetTotalSoldiers());
 
@@ -2107,7 +2151,7 @@ namespace CrusaderWars.data.battle_results
                         }
 
                         Program.Logger.Debug(
-                            $"Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
+                            $"Siege not won by besieger. Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
 
                         if (casualtyPercentage > 0)
                         {
@@ -2133,17 +2177,6 @@ namespace CrusaderWars.data.battle_results
                             Program.Logger.Debug("No garrison casualties. Siege progress remains unchanged.");
                             updatedContent.AppendLine(line); // Append original line
                         }
-                        // --- END NEW LOGIC ---
-                    }
-                    else // Attacker won
-                    {
-                        // Attacker won: set progress to 100%
-                        int fortLevel = twbattle.Sieges.GetFortLevel();
-                        double newProgress = 100 + (fortLevel * 75);
-                        Program.Logger.Debug(
-                            $"Attacker won. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
-                        updatedContent.AppendLine(
-                            $"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
                     }
                 }
                 else if (inTargetSiegeBlock && trimmedLine.StartsWith("breach=")) // NEW BLOCK: Update breach value
