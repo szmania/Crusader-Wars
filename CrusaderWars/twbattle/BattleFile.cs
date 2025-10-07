@@ -760,7 +760,7 @@ namespace CrusaderWars
 
         private static void OpenReinforcementArmy()
         {
-            string PR_OpenArmy = "<reinforcement_army>\n\n";
+            string PR_OpenArmy = "<army>\n\n";
             File.AppendAllText(battlePath, PR_OpenArmy);
         }
 
@@ -1237,7 +1237,7 @@ namespace CrusaderWars
         }
         private static void CloseReinforcementArmy()
         {
-            string PR_CloseArmy = "</reinforcement_army>\n\n";
+            string PR_CloseArmy = "</army>\n\n";
 
             File.AppendAllText(battlePath, PR_CloseArmy);
 
