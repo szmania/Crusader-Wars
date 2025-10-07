@@ -1,4 +1,4 @@
-﻿using CrusaderWars.terrain;
+using CrusaderWars.terrain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,6 +88,25 @@ namespace CrusaderWars.twbattle
             }
 
             return main_army;
+        }
+
+        internal static void MergeSiegeDefendersForCombinedArmyTag(List<Army> defender_armies)
+        {
+            if (defender_armies.Count <= 1) return;
+
+            var baseArmy = defender_armies.FirstOrDefault(a => a.IsGarrison()) ?? defender_armies[0];
+
+            defender_armies.Remove(baseArmy);
+            defender_armies.Insert(0, baseArmy);
+
+            var otherArmies = defender_armies.Skip(1).ToList();
+            foreach (var army in otherArmies)
+            {
+                baseArmy.AddMergedArmy(army);
+                army.isMainArmy = false; 
+            }
+
+            defender_armies.RemoveRange(1, defender_armies.Count - 1);
         }
     }
 }

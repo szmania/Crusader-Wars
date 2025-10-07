@@ -97,6 +97,10 @@ namespace CrusaderWars
             {
                 ArmiesControl.MergeIntoOneArmy(temp_defender_armies);
             }
+            else
+            {
+                ArmiesControl.MergeSiegeDefendersForCombinedArmyTag(temp_defender_armies);
+            }
 
             // WRITE DECLARATIONS
             DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies);
@@ -114,17 +118,9 @@ namespace CrusaderWars
             }
             else if (player_army.CombatSide == "defender")
             {
-                if (twbattle.BattleState.IsSiegeBattle)
+                foreach(var army in temp_defender_armies)
                 {
-                    foreach(var army in temp_defender_armies)
-                    {
-                        WriteArmy(army, total_soldiers, army.IsReinforcementArmy(), "stark", siegeEngines);
-                    }
-                }
-                else
-                {
-                    //#### WRITE HUMAN PLAYER ARMY
-                    WriteArmy(temp_defender_armies[0], total_soldiers, temp_defender_armies[0].IsReinforcementArmy(), "stark", siegeEngines);
+                    WriteArmy(army, total_soldiers, army.IsReinforcementArmy(), "stark", siegeEngines);
                 }
             }
 
@@ -142,17 +138,9 @@ namespace CrusaderWars
             }
             else if (enemy_main_army.CombatSide == "defender")
             {
-                if (twbattle.BattleState.IsSiegeBattle)
+                foreach (var army in temp_defender_armies)
                 {
-                    foreach (var army in temp_defender_armies)
-                    {
-                        WriteArmy(army, total_soldiers, army.IsReinforcementArmy(), "bolton", siegeEngines);
-                    }
-                }
-                else
-                {
-                    //#### WRITE HUMAN PLAYER ARMY
-                    WriteArmy(temp_defender_armies[0], total_soldiers, temp_defender_armies[0].IsReinforcementArmy(), "bolton", siegeEngines);
+                    WriteArmy(army, total_soldiers, army.IsReinforcementArmy(), "bolton", siegeEngines);
                 }
             }
 
@@ -231,6 +219,11 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug($"Merging friendly defender armies into enemy's main army ({enemy_main_army.ID}).");
                 enemy_main_army = ArmiesControl.MergeFriendlies(temp_defender_armies, enemy_main_army);
+            }
+
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                ArmiesControl.MergeSiegeDefendersForCombinedArmyTag(temp_defender_armies);
             }
 
             //----------------------------------------------
@@ -359,7 +352,10 @@ namespace CrusaderWars
             {
                 isUserAlly = false;
                 ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
-                ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
+                if(!twbattle.BattleState.IsSiegeBattle)
+                {
+                    ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
+                }
             }
             else
             {
@@ -384,7 +380,10 @@ namespace CrusaderWars
                 }
 
                 ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
-                ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
+                if(!twbattle.BattleState.IsSiegeBattle)
+                {
+                    ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
+                }
             }
             
 
@@ -709,6 +708,23 @@ namespace CrusaderWars
             if (army.CombatSide == "attacker" && siegeEngines != null && siegeEngines.Any())
             {
                 AddAssaultEquipment(siegeEngines);
+            }
+
+            // Process merged armies (for combined siege defender scenarios)
+            if (army.MergedArmies.Any())
+            {
+                foreach (var mergedArmy in army.MergedArmies)
+                {
+                    if (mergedArmy.IsReinforcementArmy())
+                    {
+                        // Set position for reinforcement units to spawn at the map edge
+                        string deploymentDirectionForMerged = Deployments.GetOppositeDirection(Deployments.beta_GeDirection("attacker"));
+                        SetPositions(total_soldiers, deploymentDirectionForMerged, true);
+                        
+                        // Write the units for this merged reinforcement army
+                        UnitsFile.BETA_ConvertandAddArmyUnits(mergedArmy);
+                    }
+                }
             }
 
             //Write essential data
