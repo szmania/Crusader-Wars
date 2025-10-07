@@ -614,6 +614,24 @@ namespace CrusaderWars
         private static void WriteArmy(Army army, int total_soldiers, bool isReinforcement, string x, Dictionary<string, int> siegeEngines)
         {
             Program.Logger.Debug($"Writing army {army.ID} to battle file. Side: {army.CombatSide}, Alliance: {x}, IsReinforcement: {isReinforcement}");
+            
+            // Determine player and enemy realm names dynamically
+            string playerRealmName;
+            string enemyRealmName;
+            string playerCharId = DataSearch.Player_Character.GetID();
+
+            // The player is on LeftSide if their character ID matches the main participant or commander of LeftSide.
+            if (CK3LogData.LeftSide.GetMainParticipant().id == playerCharId || CK3LogData.LeftSide.GetCommander().id == playerCharId)
+            {
+                playerRealmName = CK3LogData.LeftSide.GetRealmName();
+                enemyRealmName = CK3LogData.RightSide.GetRealmName();
+            }
+            else // Otherwise, the player is on RightSide
+            {
+                playerRealmName = CK3LogData.RightSide.GetRealmName();
+                enemyRealmName = CK3LogData.LeftSide.GetRealmName();
+            }
+
             //Write essential data
             if (isReinforcement)
                 OpenReinforcementArmy();
@@ -622,9 +640,9 @@ namespace CrusaderWars
 
             //Write army faction name
             if(army.IsPlayer() && army.isMainArmy)
-                AddArmyName(CK3LogData.LeftSide.GetRealmName());
+                AddArmyName(playerRealmName);
             else if(army.IsEnemy() && army.isMainArmy)
-                AddArmyName(CK3LogData.RightSide.GetRealmName());     
+                AddArmyName(enemyRealmName);     
             else
                 AddArmyName("Allied Army");
 
