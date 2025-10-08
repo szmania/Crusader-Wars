@@ -83,7 +83,6 @@ namespace CrusaderWars.data.battle_results
                 BattleResult.CombatID = battleID;
                 Player_Combat = sb.ToString();
                 Program.Logger.Debug("Combat ID - " + battleID);
-                File.WriteAllText(Writter.DataFilesPaths.Combats_Path(), Player_Combat);
             }
             catch (Exception ex)
             {
@@ -94,86 +93,54 @@ namespace CrusaderWars.data.battle_results
 
         }
 
+        public static void GetResultIDFromCombat()
+        {
+            Program.Logger.Debug("Getting Result ID from Player_Combat data...");
+            if (string.IsNullOrEmpty(Player_Combat))
+            {
+                Program.Logger.Debug("Player_Combat is null or empty. Cannot get Result ID.");
+                return;
+            }
+
+            Match resultMatch = Regex.Match(Player_Combat, @"combat_result=(\d+)");
+            if (resultMatch.Success)
+            {
+                ResultID = resultMatch.Groups[1].Value;
+                Program.Logger.Debug($"Found direct link: CombatID {CombatID} -> ResultID {ResultID}");
+            }
+            else
+            {
+                Program.Logger.Debug($"Could not find 'combat_result' link in Player_Combat block for CombatID {CombatID}.");
+            }
+        }
+
         public static void GetPlayerCombatResult()
         {
-            Program.Logger.Debug("Getting player combat result...");
+            Program.Logger.Debug($"Getting player combat result using direct ResultID: {ResultID}");
+            if (string.IsNullOrEmpty(ResultID))
+            {
+                Program.Logger.Debug("ResultID is null or empty. Cannot get combat result. This may be expected for sieges not yet fought.");
+                return;
+            }
+
             try
             {
-                string battle_id = "";
                 StringBuilder f = new StringBuilder();
                 using (StreamReader sr = new StreamReader(@".\data\save_file_data\BattleResults.txt"))
                 {
-                    if (twbattle.BattleState.IsSiegeBattle && SiegeID != null)
-                    {
-                        Program.Logger.Debug($"Searching for siege battle result using SiegeID: {SiegeID}");
-                        string? current_result_block_id = null;
-                        while (!sr.EndOfStream)
-                        {
-                            string? line = sr.ReadLine();
-                            if (line == null) break;
-
-                            Match idMatch = Regex.Match(line, @"\t\t(\d+)={");
-                            if (idMatch.Success)
-                            {
-                                current_result_block_id = idMatch.Groups[1].Value;
-                            }
-                            else if (line.Trim() == $"siege={SiegeID}") // Trim for safety
-                            {
-                                battle_id = current_result_block_id ?? ""; // Use the last captured ID
-                                Program.Logger.Debug(
-                                    $"Found siege battle result block ID: {battle_id} for SiegeID: {SiegeID}");
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Program.Logger.Debug($"Searching for field battle result using ProvinceID: {ProvinceID}");
-                        while (!sr.EndOfStream)
-                        {
-                            string? line = sr.ReadLine();
-                            if (line == null) break;
-                            if (Regex.IsMatch(line, @"\t\t\d+={"))
-                            {
-                                battle_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
-                            }
-                            else if (line.Trim() == $"\t\t\tlocation={ProvinceID}")
-                            {
-                                Program.Logger.Debug(
-                                    $"Found field battle result block ID: {battle_id} for ProvinceID: {ProvinceID}");
-                                break;
-                            }
-                        }
-                    }
-
-                    sr.BaseStream.Position = 0;
-                    sr.DiscardBufferedData();
-
                     bool isSearchStarted = false;
-                    while (!sr.EndOfStream)
+                    string? line;
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        string? line = sr.ReadLine();
-                        if (line == null) break;
-                        if (line == $"\t\t{battle_id}={{")
+                        if (line == $"\t\t{ResultID}={{")
                         {
                             f.AppendLine(line);
                             isSearchStarted = true;
                         }
-                        else if (isSearchStarted && line.Contains("\t\t\tstart_date="))
-                        {
-                            f.AppendLine(line);
-                            Match date = Regex.Match(line, @"(?<year>\d+).(?<month>\d+).(?<day>\d+)");
-                            string year = date.Groups["year"].Value,
-                                month = date.Groups["month"].Value,
-                                day = date.Groups["day"].Value;
-                            //FirstDay_Date = new twbattle.Date(Int32.Parse(year), Int32.Parse(month), Int32.Parse(day));
-
-                        }
                         else if (isSearchStarted && line == "\t\t}")
                         {
                             f.AppendLine(line);
-                            isSearchStarted = false;
-                            break;
+                            break; // Found the end of our target block
                         }
                         else if (isSearchStarted)
                         {
@@ -181,19 +148,14 @@ namespace CrusaderWars.data.battle_results
                         }
                     }
                 }
-
-                BattleResult.ResultID = battle_id;
-                Program.Logger.Debug("ResultID - " + battle_id);
-                File.WriteAllText(@".\data\save_file_data\BattleResults.txt", f.ToString());
-                Program.Logger.Debug("All combat results were read successfully");
+                // This line is the bug. It overwrites the whole file. We are deleting it.
+                // File.WriteAllText(@".\data\save_file_data\BattleResults.txt", f.ToString());
+                Program.Logger.Debug($"Successfully read combat result block for ResultID {ResultID} without modifying the source file.");
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error reading all combat results: {ex.Message}");
+                Program.Logger.Debug($"Error reading combat result for ResultID {ResultID}: {ex.Message}");
             }
-
-
-
         }
 
         public static void GetPlayerSiege()
