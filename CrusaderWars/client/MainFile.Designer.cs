@@ -421,9 +421,9 @@
 
         #endregion
 
-        private System.Windows.Forms.Button ExecuteButton;
+        internal System.Windows.Forms.Button ExecuteButton;
         private System.Windows.Forms.Button btt_debug;
-        private System.Windows.Forms.Label infoLabel;
+        internal System.Windows.Forms.Label infoLabel;
         private System.Windows.Forms.Button SettingsBtn;
         private System.Windows.Forms.ToolTip InformationToolTip;
         private System.Windows.Forms.Button viewLogsLink;
@@ -432,7 +432,7 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.FlowLayoutPanel MainPanelLayout;
         private System.Windows.Forms.FlowLayoutPanel ButtonsContainerPanel;
-        private System.Windows.Forms.Button ContinueBattleButton;
+        internal System.Windows.Forms.Button ContinueBattleButton;
         private System.Windows.Forms.TableLayoutPanel BottomPanelLayout;
         private System.Windows.Forms.FlowLayoutPanel BottomLeftFlowPanel;
         private System.Windows.Forms.FlowLayoutPanel BottomRightFlowPanel;
