@@ -83,7 +83,7 @@ namespace CrusaderWars.data.battle_results
                 BattleResult.CombatID = battleID;
                 Player_Combat = sb.ToString();
                 Program.Logger.Debug("Combat ID - " + battleID);
-                File.WriteAllText(Writter.DataFilesPaths.Combats_Path(), Player_Combat);
+                // DELETED: File.WriteAllText(Writter.DataFilesPaths.Combats_Path(), Player_Combat);
             }
             catch (Exception ex)
             {
@@ -1256,12 +1256,10 @@ namespace CrusaderWars.data.battle_results
         }
 
 
-        public static void EditCombatFile(List<Army> attacker_armies, List<Army> defender_armies,
-            string player_armies_combat_side, string enemy_armies_combat_side, string path_attila_log)
+        public static void EditCombatFile(List<Army> attacker_armies, List<Army> defender_armies, string player_armies_combat_side, string enemy_armies_combat_side, string path_attila_log)
         {
             Program.Logger.Debug("Editing Combat file...");
             string winner = GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
-            SetWinner(winner);
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Combats_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Combats_Path()))
@@ -1270,26 +1268,57 @@ namespace CrusaderWars.data.battle_results
 
                 bool isAttacker = false;
                 bool isDefender = false;
+                bool inPlayerCombatBlock = false;
                 string army_regiment_id = "";
 
                 string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    if (line == "\t\t\tattacker={")
+                    // Check if we are entering the player's combat block
+                    if (!inPlayerCombatBlock && line.Trim() == $"{CombatID}={{")
+                    {
+                        inPlayerCombatBlock = true;
+                    }
+                    else if (inPlayerCombatBlock && line.Trim() == "}")
+                    {
+                        inPlayerCombatBlock = false;
+                    }
+
+                    if (line.Trim() == "attacker={")
                     {
                         isAttacker = true;
                         isDefender = false;
-                        Program.Logger.Debug("Processing attacker data in Combat file.");
                     }
-
-                    else if (line == "\t\t\tdefender={")
+                    else if (line.Trim() == "defender={")
                     {
                         isDefender = true;
                         isAttacker = false;
-                        Program.Logger.Debug("Processing defender data in Combat file.");
-
                     }
 
+                    // --- Apply modifications ---
+
+                    // 1. Set Winner, Phase, and Days (only within the player's combat block)
+                    if (inPlayerCombatBlock)
+                    {
+                        if (line.Trim().StartsWith("base_combat_width="))
+                        {
+                            streamWriter.WriteLine(line);
+                            streamWriter.WriteLine($"\t\t\twinning_side={winner}");
+                            continue;
+                        }
+                        if (line.Trim().StartsWith("phase="))
+                        {
+                            streamWriter.WriteLine(line.Replace("main_phase", "pursuit").Replace("early", "pursuit"));
+                            continue;
+                        }
+                        if (line.Trim().StartsWith("days="))
+                        {
+                            streamWriter.WriteLine("\t\t\tdays=3\n\t\t\twiped=no");
+                            continue;
+                        }
+                    }
+
+                    // 2. Update Soldier Counts (existing logic)
                     if (isAttacker)
                     {
                         if (line.Contains("\t\t\t\t\t\tregiment="))
@@ -1305,11 +1334,6 @@ namespace CrusaderWars.data.battle_results
                             Program.Logger.Debug($"Attacker: Regiment {army_regiment_id} current={currentNum}");
                             continue;
                         }
-                        else if (line.Contains("\t\t\t\t\t\tsoft_casualties="))
-                        {
-                            streamWriter.WriteLine(line);
-                            continue;
-                        }
                         else if (line.Contains("\t\t\t\ttotal_fighting_men="))
                         {
                             int totalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
@@ -1318,15 +1342,6 @@ namespace CrusaderWars.data.battle_results
                             Program.Logger.Debug($"Attacker: total_fighting_men={totalFightingMen}");
                             continue;
                         }
-                        else if (line.Contains("\t\t\t\total_levy_men="))
-                        {
-                            int totalLevyMen = GetArmiesTotalLevyMen(attacker_armies);
-                            string edited_line = "\t\t\t\ttotal_levy_men=" + totalLevyMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: total_levy_men={totalLevyMen}");
-                            continue;
-                        }
-
                     }
                     else if (isDefender)
                     {
@@ -1343,11 +1358,6 @@ namespace CrusaderWars.data.battle_results
                             Program.Logger.Debug($"Defender: Regiment {army_regiment_id} current={currentNum}");
                             continue;
                         }
-                        else if (line.Contains("\t\t\t\t\t\tsoft_casualties="))
-                        {
-                            streamWriter.WriteLine(line);
-                            continue;
-                        }
                         else if (line.Contains("\t\t\t\ttotal_fighting_men="))
                         {
                             int totalFightingMen = GetArmiesTotalFightingMen(defender_armies);
@@ -1356,21 +1366,11 @@ namespace CrusaderWars.data.battle_results
                             Program.Logger.Debug($"Defender: total_fighting_men={totalFightingMen}");
                             continue;
                         }
-                        else if (line.Contains("\t\t\t\total_levy_men="))
-                        {
-                            int totalLevyMen = GetArmiesTotalLevyMen(defender_armies);
-                            string edited_line = "\t\t\t\ttotal_levy_men=" + totalLevyMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: total_levy_men={totalLevyMen}");
-                            continue;
-                        }
                     }
 
                     streamWriter.WriteLine(line);
                 }
             }
-
-            Program.Logger.Debug("Finished editing Combat file.");
         }
 
         static int GetArmiesTotalFightingMen(List<Army> armies)
@@ -1498,44 +1498,7 @@ namespace CrusaderWars.data.battle_results
             return winner;
         }
 
-        static void SetWinner(string winner)
-        {
-            Program.Logger.Debug($"Setting battle winner to: {winner}");
-            try
-            {
-                if (winner == "attacker")
-                {
-                    IsAttackerVictorious = true;
-                    Program.Logger.Debug("Battle winner is attacker. IsAttackerVictorious = true.");
-                }
-                else
-                {
-                    IsAttackerVictorious = false;
-                    Program.Logger.Debug("Battle winner is defender. IsAttackerVictorious = false.");
-                }
-
-                //Set pursuit phase
-                Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(phase=)\w+", "$1" + "pursuit");
-
-                //Set last day of phase
-                Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(days=\d+)", "days=3\n\t\t\twiped=no");
-
-                //Set winner
-                Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(base_combat_width=\d+)",
-                    "$1\n\t\t\twinning_side=" + winner);
-
-                Player_Combat = Player_Combat?.Replace("\r", "");
-
-                File.WriteAllText(Writter.DataFilesPaths.Combats_Path(), Player_Combat);
-
-                Program.Logger.Debug("Winner of battle set successfully");
-            }
-            catch (Exception ex)
-            {
-                Program.Logger.Debug($"Error setting winner of battle: {ex.Message}");
-            }
-
-        }
+        // DELETED: SetWinner method removed as per instructions.
 
         static int ConvertMenToMachines(int men)
         {
