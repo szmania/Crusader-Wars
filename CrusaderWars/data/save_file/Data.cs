@@ -233,7 +233,7 @@ namespace CrusaderWars
 
                 if(Start_CombatsFound && !End_CombatsFound)
                 {
-                    if (line == "pending_character_interactions={") 
+                    if (line == "}") 
                     {
                         Program.Logger.Debug("Found end of combats block.");
                         Program.Logger.Debug($"Writing {Data.SB_Combats.Length} characters to Combats.txt");
@@ -280,7 +280,7 @@ namespace CrusaderWars
 
                 if (Start_BattleResultsFound && !End_BattleResultsFound)
                 {
-                    if (line == "\tcombats={")
+                    if (line == "}")
                     {
                         Program.Logger.Debug("Found end of combat_results block.");
                         Program.Logger.Debug($"Writing {Data.SB_CombatResults.Length} characters to BattleResults.txt");

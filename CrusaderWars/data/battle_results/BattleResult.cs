@@ -184,7 +184,7 @@ namespace CrusaderWars.data.battle_results
 
                 BattleResult.ResultID = battle_id;
                 Program.Logger.Debug("ResultID - " + battle_id);
-                File.WriteAllText(@".\data\save_file_data\BattleResults.txt", f.ToString());
+                // DELETED: File.WriteAllText(@".\data\save_file_data\BattleResults.txt", f.ToString());
                 Program.Logger.Debug("All combat results were read successfully");
             }
             catch (Exception ex)

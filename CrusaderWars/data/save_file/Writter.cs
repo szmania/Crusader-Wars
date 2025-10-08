@@ -23,8 +23,7 @@ namespace CrusaderWars.data.save_file
             Sieges_NeedsSkiping = false;
 
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
-            bool resultsFound = false;
-            bool combatsFound = false;
+            // Removed resultsFound and combatsFound boolean variables.
 
             //string tempFilePath = Directory.GetCurrentDirectory() + "\\CrusaderWars_Battle.ck3";
             string tempFilePath = @".\data\save_file_data\gamestate";
@@ -53,19 +52,17 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         NeedSkiping = false;
                     }
-                    else if (CombatResults_NeedsSkiping && line == "\t\t}")
+                    else if (CombatResults_NeedsSkiping && line == "}") // Changed from "\t\t}" to "}"
                     {
                         Program.Logger.Debug("Finished skipping CombatResults block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         CombatResults_NeedsSkiping = false;
-                        resultsFound = false;
                     }
-                    else if (Combats_NeedsSkiping && line == "\t\t}")
+                    else if (Combats_NeedsSkiping && line == "}") // Changed from "\t\t}" to "}"
                     {
                         Program.Logger.Debug("Finished skipping Combats block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Combats_NeedsSkiping = false;
-                        combatsFound = false;
                     }
                     // Corrected condition to match the top-level closing brace for the entire sieges block
                     else if (Sieges_NeedsSkiping && line == "}")
@@ -104,14 +101,6 @@ namespace CrusaderWars.data.save_file
                     //Combat Result START
                     else if (line == "\tcombat_results={")
                     {
-                        resultsFound = true;
-                        streamWriter.WriteLine(line);
-                        continue;
-                    }
-
-                    //Combat Result
-                    else if (line == $"\t\t{BattleResult.ResultID}={{" && resultsFound && !CombatResults_NeedsSkiping)
-                    {
                         Program.Logger.Debug("Writing modified CombatResults block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.CombatResults_Path(), FileType.CombatResults);
                         Program.Logger.Debug("EDITED BATTLE RESULTS SENT!");
@@ -120,12 +109,6 @@ namespace CrusaderWars.data.save_file
                     
                     //Combat START
                     else if (line == "\tcombats={")
-                    {
-                        combatsFound = true;
-                        streamWriter.WriteLine(line);
-                    }
-                    //Combat
-                    else if (line == $"\t\t{BattleResult.CombatID}={{" && combatsFound && !Combats_NeedsSkiping)
                     {
                         Program.Logger.Debug("Writing modified Combats block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Combats_Path(), FileType.Combats);
@@ -204,15 +187,9 @@ namespace CrusaderWars.data.save_file
                 {
                     string? l = sr.ReadLine();
                     if (l is null) break;
-                    switch(fileType)
-                    {
-                        // Removed FileType.Sieges from this case, as it now writes the entire block including its closing brace.
-                        case FileType.Combats:
-                        case FileType.CombatResults:
-                            if (l == "\t\t}") continue;
-                            break;
-                    }
-                    
+                    // Removed the switch statement as it's no longer needed.
+                    // The closing brace for CombatResults and Combats is now handled by the extraction logic
+                    // and should be included in the temporary file.
                     sb.AppendLine(l);
                 }
             }
