@@ -772,17 +772,18 @@ namespace CrusaderWars
 
                 Label messageLabel = new Label();
                 messageLabel.Text = 
-                    "AGOT Playthrough Update!\n\n" +
-                    "• The AGOT playthrough now requires the 'Lord of the Tides' submod, which adds House Velaryon.\n" +
-                    "• Download it here: https://www.moddb.com/downloads/lord-of-the-tides-v04\n" +
+                    "New Required Mod for Medieval Playthroughs!\n\n" +
+                    "• The High, Late, and Renaissance medieval playthroughs now require the 'Medieval Kingdoms 1212AD - Custom cities beta' mod.\n" +
+                    "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
+                    "----------------------------------------------------------\n\n" +
+                    "New Supported CK3 Mods!\n\n" +
+                    "• Added support for 'Bookmarks+'\n" +
+                    "  Link: https://steamcommunity.com/sharedfiles/filedetails/?id=2933252806\n\n" +
+                    "• Added support for 'More Bookmarks+'\n" +
+                    "  Link: https://steamcommunity.com/workshop/filedetails/?id=2216670956\n" +
                     "----------------------------------------------------------\n\n" +
                     "Sieges Added!\n\n" +
-                    "• Siege battles can be fought and won in all your favorite playthroughs!.\n" +
-                    "----------------------------------------------------------\n\n" +
-                    "New Playthroughs Added!\n\n" +
-                    "• A Game of Thrones (AGOT) playthrough is now available.\n" +
-                    "• The Lord of the Rings (LOTR) playthrough is now fully supported.\n\n" +
-                    "----------------------------------------------------------\n\n";
+                    "• Siege battles can be fought and won in all your favorite playthroughs!.\n";
                 messageLabel.Location = new Point(10, 10);
                 messageLabel.AutoSize = true;
                 messageLabel.MaximumSize = new Size(notificationForm.ClientSize.Width - 20, 0);
