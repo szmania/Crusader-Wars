@@ -114,17 +114,19 @@ namespace CrusaderWars.data.save_file
                         if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
 
                         // Modified regex to robustly handle whitespace
-                        string armyID = Regex.Match(block, @"^\t(\d+)={").Groups[1].Value;
+                        Match armyIdMatch = Regex.Match(block, @"army=(\d+)");
+                        if (!armyIdMatch.Success)
+                        {
+                            continue; // This block in Units.txt is not a standard army, so skip it.
+                        }
+                        string armyID = armyIdMatch.Groups[1].Value;
                         string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
 
-                        if (!armyToCommanderMap.TryGetValue(armyID, out var commanderID))
-                        {
-                            continue; // This army has no commander, so skip it
-                        }
+                        armyToCommanderMap.TryGetValue(armyID, out var commanderID);
 
                         DataSearchSides? currentArmySide = null;
-                        if (attackerCharIDs.Contains(ownerID) || attackerCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.LeftSide;
-                        else if (defenderCharIDs.Contains(ownerID) || defenderCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.RightSide;
+                        if (attackerCharIDs.Contains(ownerID) || (commanderID != null && attackerCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.LeftSide;
+                        else if (defenderCharIDs.Contains(ownerID) || (commanderID != null && defenderCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.RightSide;
                         else continue;
 
                         if (besiegerSide == null)
