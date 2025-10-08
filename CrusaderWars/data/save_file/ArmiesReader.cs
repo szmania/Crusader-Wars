@@ -1032,9 +1032,6 @@ namespace CrusaderWars.data.save_file
             var left_side_armies = GetSideArmies("left", attacker_armies, defender_armies);
             var right_side_armies = GetSideArmies("right", attacker_armies, defender_armies);
 
-            
-
-
             var KnightsList = new List<Knight>();
             Program.Logger.Debug("Creating knights for left side armies...");
             if(left_side_armies != null)
