@@ -288,9 +288,9 @@ namespace CrusaderWars
                     if (line == "}")
                     {
                         Program.Logger.Debug("Found end of combat_results block.");
-                        Program.Logger.Debug($"Writing {Data.SB_CombatResults.Length} characters to BattleResults.txt");
+                        Program.Logger.Debug($"Writing {Data.SB_CombatResults.Length} characters to CombatResults.txt");
                         //Write CombatResults Data to txt file
-                        File.WriteAllText(@".\data\save_file_data\BattleResults.txt", Data.SB_CombatResults.ToString());
+                        File.WriteAllText(@".\data\save_file_data\CombatResults.txt", Data.SB_CombatResults.ToString());
                         Data.SB_CombatResults = new StringBuilder();
                         GC.Collect();
 

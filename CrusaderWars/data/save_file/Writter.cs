@@ -210,7 +210,7 @@ namespace CrusaderWars.data.save_file
 
         public struct DataFilesPaths
         {
-            public static string CombatResults_Path() { return @".\data\save_file_data\BattleResults.txt"; }
+            public static string CombatResults_Path() { return @".\data\save_file_data\CombatResults.txt"; }
             public static string Combats_Path() { return @".\data\save_file_data\Combats.txt"; }
             public static string Regiments_Path() { return @".\data\save_file_data\Regiments.txt"; }
             public static string ArmyRegiments_Path() { return @".\data\save_file_data\ArmyRegiments.txt"; }
@@ -230,7 +230,7 @@ namespace CrusaderWars.data.save_file
 
         public struct DataTEMPFilesPaths
         {
-            public static string CombatResults_Path() { return @".\data\save_file_data\temp\BattleResults.txt"; }
+            public static string CombatResults_Path() { return @".\data\save_file_data\temp\CombatResults.txt"; }
             public static string Combats_Path() { return @".\data\save_file_data\temp\Combats.txt"; }
             public static string Regiments_Path() { return @".\data\save_file_data\temp\Regiments.txt"; }
             public static string ArmyRegiments_Path() { return @".\data\save_file_data\temp\ArmyRegiments.txt"; }
