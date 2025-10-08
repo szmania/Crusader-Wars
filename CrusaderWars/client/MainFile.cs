@@ -1449,9 +1449,8 @@ namespace CrusaderWars
                     DataSearch.FindSiegeCombatID();
                     if (!twbattle.BattleState.IsSiegeBattle)
                     {
-                        BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
-                        BattleResult.GetResultIDFromCombat();
                         BattleResult.GetPlayerCombatResult();
+                        BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
                     }
                 }
                 catch(Exception ex)
@@ -2210,9 +2209,8 @@ namespace CrusaderWars
                 DataSearch.FindSiegeCombatID();
                 if (!twbattle.BattleState.IsSiegeBattle)
                 {
-                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
-                    BattleResult.GetResultIDFromCombat();
                     BattleResult.GetPlayerCombatResult();
+                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
                 }
                 var armies = ArmiesReader.ReadBattleArmies();
                 attacker_armies = armies.attacker;
