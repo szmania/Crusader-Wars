@@ -74,6 +74,11 @@ namespace CrusaderWars
             EnemyCommanderAccolade = ("","","");
 
             BattleResult.SiegeID = null; // Reset SiegeID
+            BattleResult.Player_Combat = null; // Reset Player_Combat
+            BattleResult.Original_Player_Combat = null; // Reset Original_Player_Combat
+            BattleResult.Player_CombatResult = null; // Reset Player_CombatResult
+            BattleResult.Original_Player_CombatResult = null; // Reset Original_Player_CombatResult
+
 
             // Reset extraction flags
             SearchKeys.HasTraitsExtracted = false;

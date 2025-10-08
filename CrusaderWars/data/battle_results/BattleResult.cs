@@ -24,6 +24,10 @@ namespace CrusaderWars.data.battle_results
         public static bool IsAttackerVictorious { get; set; } = false;
         //public static twbattle.Date FirstDay_Date { get; set; }
 
+        public static string? Original_Player_Combat;
+        public static string? Player_CombatResult;
+        public static string? Original_Player_CombatResult;
+
 
         //Combats
         public static string? Player_Combat;
@@ -82,8 +86,8 @@ namespace CrusaderWars.data.battle_results
 
                 BattleResult.CombatID = battleID;
                 Player_Combat = sb.ToString();
+                Original_Player_Combat = sb.ToString();
                 Program.Logger.Debug("Combat ID - " + battleID);
-                File.WriteAllText(Writter.DataFilesPaths.Combats_Path(), Player_Combat);
             }
             catch (Exception ex)
             {
@@ -183,8 +187,9 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 BattleResult.ResultID = battle_id;
+                Player_CombatResult = f.ToString();
+                Original_Player_CombatResult = f.ToString();
                 Program.Logger.Debug("ResultID - " + battle_id);
-                File.WriteAllText(@".\data\save_file_data\BattleResults.txt", f.ToString());
                 Program.Logger.Debug("All combat results were read successfully");
             }
             catch (Exception ex)
@@ -931,9 +936,17 @@ namespace CrusaderWars.data.battle_results
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
+
+            // The original line-by-line logic is stateful and complex to convert to Regex.
+            // We will keep it, but ensure it reads from the full, uncorrupted file and writes to the temp file.
+            // The bug was the file being overwritten before this method was called. By removing the overwrites,
+            // this method will now function correctly. No changes to its internal logic are needed.
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.CombatResults_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.CombatResults_Path()))
             {
+                // PASTE THE ENTIRE ORIGINAL CONTENT OF EditCombatResultsFile's `using` block here.
+                // The logic inside is correct, it was the input file that was wrong.
+                // For clarity, I am pasting it below.
                 streamWriter.NewLine = "\n";
 
                 bool isAttacker = false;
@@ -954,13 +967,11 @@ namespace CrusaderWars.data.battle_results
                         isDefender = false;
                         Program.Logger.Debug("Processing attacker results in CombatResults file.");
                     }
-
                     else if (line == "\t\t\tdefender={")
                     {
                         isDefender = true;
                         isAttacker = false;
                         Program.Logger.Debug("Processing defender results in CombatResults file.");
-
                     }
 
                     if (isAttacker)
@@ -981,7 +992,6 @@ namespace CrusaderWars.data.battle_results
                         }
                         else if (line.Contains("\t\t\t\t\t\tknight="))
                         {
-                            //4294967295
                             string id = Regex.Match(line, @"\d+").Value;
                             if (id == "4294967295" && !isMAA)
                             {
@@ -990,9 +1000,8 @@ namespace CrusaderWars.data.battle_results
                             }
                             else if (id == "4294967295" && isMAA)
                             {
-                                isMAA = true; // Already set, but good for clarity
-                                string logMessage = string.Format("Attacker: Detected Men-at-Arms regiment (ID: {0}).",
-                                    id);
+                                isMAA = true;
+                                string logMessage = string.Format("Attacker: Detected Men-at-Arms regiment (ID: {0}).", id);
                                 Program.Logger.Debug(logMessage);
                             }
                             else
@@ -1001,7 +1010,6 @@ namespace CrusaderWars.data.battle_results
                                 knightID = id;
                                 Program.Logger.Debug($"Attacker: Detected Knight (ID: {knightID}).");
                             }
-
                         }
                         else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                         {
@@ -1015,13 +1023,12 @@ namespace CrusaderWars.data.battle_results
                                     main_kills += results.GetKillsAmountOfMainPhase(regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} main_kills={main_kills}");
                             continue;
                         }
-                        else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills=")) // <-- KNIGHTS MAIN KILLS
+                        else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                         {
                             int main_kills = 0;
                             foreach (Army army in attacker_armies)
@@ -1034,11 +1041,10 @@ namespace CrusaderWars.data.battle_results
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
-                                        break; // Found the knight, no need to check other armies
+                                        break;
                                     }
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: Knight {knightID} main_kills={main_kills}");
@@ -1056,7 +1062,6 @@ namespace CrusaderWars.data.battle_results
                                     pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} pursuit_kills={pursuit_kills}");
@@ -1071,11 +1076,9 @@ namespace CrusaderWars.data.battle_results
                                 var results = army.UnitsResults;
                                 if (results != null)
                                 {
-                                    main_losses +=
-                                        results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                    main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} main_losses={main_losses}");
@@ -1090,11 +1093,9 @@ namespace CrusaderWars.data.battle_results
                                 var results = army.UnitsResults;
                                 if (results != null)
                                 {
-                                    pursuit_losses +=
-                                        results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                    pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} pursuit_losses_maa={pursuit_losses}");
@@ -1127,7 +1128,6 @@ namespace CrusaderWars.data.battle_results
                         }
                         else if (line.Contains("\t\t\t\t\t\tknight="))
                         {
-                            //4294967295
                             string id = Regex.Match(line, @"\d+").Value;
                             if (id == "4294967295" && !isMAA)
                             {
@@ -1153,13 +1153,12 @@ namespace CrusaderWars.data.battle_results
                                     main_kills += results.GetKillsAmountOfMainPhase(regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} main_kills={main_kills}");
                             continue;
                         }
-                        else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills=")) // <-- KNIGHTS MAIN KILLS
+                        else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                         {
                             int main_kills = 0;
                             foreach (Army army in defender_armies)
@@ -1172,11 +1171,10 @@ namespace CrusaderWars.data.battle_results
                                     if (knight != null)
                                     {
                                         main_kills = knight.GetKills();
-                                        break; // Found the knight, no need to check other armies
+                                        break;
                                     }
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: Knight {knightID} main_kills={main_kills}");
@@ -1194,7 +1192,6 @@ namespace CrusaderWars.data.battle_results
                                     pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} pursuit_kills={pursuit_kills}");
@@ -1209,11 +1206,9 @@ namespace CrusaderWars.data.battle_results
                                 var results = army.UnitsResults;
                                 if (results != null)
                                 {
-                                    main_losses +=
-                                        results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                    main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} main_losses={main_losses}");
@@ -1228,11 +1223,9 @@ namespace CrusaderWars.data.battle_results
                                 var results = army.UnitsResults;
                                 if (results != null)
                                 {
-                                    pursuit_losses +=
-                                        results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                    pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
-
                             string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} pursuit_losses_maa={pursuit_losses}");
@@ -1247,129 +1240,55 @@ namespace CrusaderWars.data.battle_results
                             Program.Logger.Debug("Defender: End of regiment block.");
                         }
                     }
-
                     streamWriter.WriteLine(line);
                 }
             }
-
             Program.Logger.Debug("Finished editing Combat Results file.");
         }
 
 
-        public static void EditCombatFile(List<Army> attacker_armies, List<Army> defender_armies,
-            string player_armies_combat_side, string enemy_armies_combat_side, string path_attila_log)
+        public static void EditCombatFile(List<Army> attacker_armies, List<Army> defender_armies, string player_armies_combat_side, string enemy_armies_combat_side, string path_attila_log)
         {
-            Program.Logger.Debug("Editing Combat file...");
+            Program.Logger.Debug("Editing Combat file using block replacement...");
+
+            if (string.IsNullOrEmpty(Player_Combat) || string.IsNullOrEmpty(Original_Player_Combat))
+            {
+                Program.Logger.Debug("No player combat block found. Copying original Combats.txt to temp.");
+                File.Copy(Writter.DataFilesPaths.Combats_Path(), Writter.DataTEMPFilesPaths.Combats_Path(), true);
+                return;
+            }
+
+            // 1. Set winner (modifies Player_Combat in memory)
             string winner = GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
             SetWinner(winner);
 
-            using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Combats_Path()))
-            using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Combats_Path()))
+            // 2. Apply casualty updates to the Player_Combat string
+            int attackerTotalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
+            Player_Combat = Regex.Replace(Player_Combat, @"(attacker={[\s\S]*?total_fighting_men=)\d+", $"$1{attackerTotalFightingMen}");
+            int attackerTotalLevyMen = GetArmiesTotalLevyMen(attacker_armies);
+            Player_Combat = Regex.Replace(Player_Combat, @"(attacker={[\s\S]*?total_levy_men=)\d+", $"$1{attackerTotalLevyMen}");
+
+            int defenderTotalFightingMen = GetArmiesTotalFightingMen(defender_armies);
+            Player_Combat = Regex.Replace(Player_Combat, @"(defender={[\s\S]*?total_fighting_men=)\d+", $"$1{defenderTotalFightingMen}");
+            int defenderTotalLevyMen = GetArmiesTotalLevyMen(defender_armies);
+            Player_Combat = Regex.Replace(Player_Combat, @"(defender={[\s\S]*?total_levy_men=)\d+", $"$1{defenderTotalLevyMen}");
+
+            var all_armies = attacker_armies.Concat(defender_armies);
+            foreach(var army in all_armies)
             {
-                streamWriter.NewLine = "\n";
-
-                bool isAttacker = false;
-                bool isDefender = false;
-                string army_regiment_id = "";
-
-                string? line;
-                while ((line = streamReader.ReadLine()) != null)
+                if(army.ArmyRegiments == null) continue;
+                foreach(var armyRegiment in army.ArmyRegiments)
                 {
-                    if (line == "\t\t\tattacker={")
-                    {
-                        isAttacker = true;
-                        isDefender = false;
-                        Program.Logger.Debug("Processing attacker data in Combat file.");
-                    }
-
-                    else if (line == "\t\t\tdefender={")
-                    {
-                        isDefender = true;
-                        isAttacker = false;
-                        Program.Logger.Debug("Processing defender data in Combat file.");
-
-                    }
-
-                    if (isAttacker)
-                    {
-                        if (line.Contains("\t\t\t\t\t\tregiment="))
-                        {
-                            army_regiment_id = Regex.Match(line, @"\d+").Value;
-                        }
-                        else if (line.Contains("\t\t\t\t\t\tcurrent="))
-                        {
-                            var armyRegAttacker = SearchArmyRegiment(attacker_armies, army_regiment_id);
-                            string currentNum = armyRegAttacker != null ? armyRegAttacker.CurrentNum.ToString() : "0";
-                            string edited_line = "\t\t\t\t\t\tcurrent=" + currentNum;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: Regiment {army_regiment_id} current={currentNum}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\t\t\tsoft_casualties="))
-                        {
-                            streamWriter.WriteLine(line);
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\ttotal_fighting_men="))
-                        {
-                            int totalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
-                            string edited_line = "\t\t\t\ttotal_fighting_men=" + totalFightingMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: total_fighting_men={totalFightingMen}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\total_levy_men="))
-                        {
-                            int totalLevyMen = GetArmiesTotalLevyMen(attacker_armies);
-                            string edited_line = "\t\t\t\ttotal_levy_men=" + totalLevyMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: total_levy_men={totalLevyMen}");
-                            continue;
-                        }
-
-                    }
-                    else if (isDefender)
-                    {
-                        if (line.Contains("\t\t\t\t\t\tregiment="))
-                        {
-                            army_regiment_id = Regex.Match(line, @"\d+").Value;
-                        }
-                        else if (line.Contains("\t\t\t\t\t\tcurrent="))
-                        {
-                            var armyRegDefender = SearchArmyRegiment(defender_armies, army_regiment_id);
-                            string currentNum = armyRegDefender != null ? armyRegDefender.CurrentNum.ToString() : "0";
-                            string edited_line = "\t\t\t\t\t\tcurrent=" + currentNum;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: Regiment {army_regiment_id} current={currentNum}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\t\t\tsoft_casualties="))
-                        {
-                            streamWriter.WriteLine(line);
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\ttotal_fighting_men="))
-                        {
-                            int totalFightingMen = GetArmiesTotalFightingMen(defender_armies);
-                            string edited_line = "\t\t\t\ttotal_fighting_men=" + totalFightingMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: total_fighting_men={totalFightingMen}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\total_levy_men="))
-                        {
-                            int totalLevyMen = GetArmiesTotalLevyMen(defender_armies);
-                            string edited_line = "\t\t\t\ttotal_levy_men=" + totalLevyMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: total_levy_men={totalLevyMen}");
-                            continue;
-                        }
-                    }
-
-                    streamWriter.WriteLine(line);
+                    if(armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
+                    string currentNum = armyRegiment.CurrentNum.ToString();
+                    Player_Combat = Regex.Replace(Player_Combat, $@"(regiment={armyRegiment.ID}[\s\S]*?current=)\d+", $"$1{currentNum}");
                 }
             }
 
+            // 3. Perform block replacement
+            string fullContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+            string updatedContent = fullContent.Replace(Original_Player_Combat, Player_Combat);
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Combats_Path(), updatedContent);
             Program.Logger.Debug("Finished editing Combat file.");
         }
 
@@ -1525,8 +1444,6 @@ namespace CrusaderWars.data.battle_results
                     "$1\n\t\t\twinning_side=" + winner);
 
                 Player_Combat = Player_Combat?.Replace("\r", "");
-
-                File.WriteAllText(Writter.DataFilesPaths.Combats_Path(), Player_Combat);
 
                 Program.Logger.Debug("Winner of battle set successfully");
             }

@@ -985,7 +985,7 @@ namespace CrusaderWars
         public static void AddGeneralUnit(CommanderSystem Commander, string troopType, string unitScript, int experience, string direction)
         {
             if (Position == null)
-            {
+                {
                 Program.Logger.Debug("CRITICAL: BattleFile.Position was null when trying to add a unit. Aborting unit addition.");
                 return;
             }
