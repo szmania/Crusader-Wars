@@ -980,7 +980,7 @@ namespace CrusaderWars.data.save_file
             }
             else if (right_side != null && left_side == null)
             {
-                right_side = (right_side == attacker_armies) ? defender_armies : attacker_armies;
+                left_side = (right_side == attacker_armies) ? defender_armies : attacker_armies; // Corrected line
             }
 
             if (side == "left")

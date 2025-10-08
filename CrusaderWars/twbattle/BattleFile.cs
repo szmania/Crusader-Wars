@@ -82,7 +82,7 @@ namespace CrusaderWars
                 {
                     // Player is defender, enemy is attacker
                     foreach (var army in attacker_armies) { army.IsEnemy(true); }
-                    foreach (var army in defender_armies) { army.IsEnemy(true); }
+                    foreach (var army in defender_armies) { army.IsPlayer(true); } // Corrected line
                 }
             }
         }
