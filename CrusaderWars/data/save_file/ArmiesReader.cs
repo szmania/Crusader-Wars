@@ -117,13 +117,14 @@ namespace CrusaderWars.data.save_file
                         string armyID = Regex.Match(block, @"^\t(\d+)={").Groups[1].Value;
                         string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
 
-                        // MODIFIED: Do not skip if commander is not found. commanderID will be null if not found.
-                        armyToCommanderMap.TryGetValue(armyID, out var commanderID);
+                        if (!armyToCommanderMap.TryGetValue(armyID, out var commanderID))
+                        {
+                            continue; // This army has no commander, so skip it
+                        }
 
                         DataSearchSides? currentArmySide = null;
-                        // MODIFIED: Make allegiance check null-safe for commanderID
-                        if (attackerCharIDs.Contains(ownerID) || (commanderID != null && attackerCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.LeftSide;
-                        else if (defenderCharIDs.Contains(ownerID) || (commanderID != null && defenderCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.RightSide;
+                        if (attackerCharIDs.Contains(ownerID) || attackerCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.LeftSide;
+                        else if (defenderCharIDs.Contains(ownerID) || defenderCharIDs.Contains(commanderID)) currentArmySide = DataSearchSides.RightSide;
                         else continue;
 
                         if (besiegerSide == null)
