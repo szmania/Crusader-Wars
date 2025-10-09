@@ -499,13 +499,36 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Editing Living.txt file...");
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
 
-                    //  EDIT COMBATS FILE
-                    Program.Logger.Debug("Editing Combats.txt file...");
-                    BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
+                    if (!twbattle.BattleState.IsSiegeBattle)
+                    {
+                        // Field Battle: Edit files as normal
+                        Program.Logger.Debug("Field battle detected. Editing combat files...");
+                        //  EDIT COMBATS FILE
+                        BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
+                        //  EDIT COMBATS RESULTS FILE
+                        BattleResult.EditCombatResultsFile(attacker_armies, defender_armies);
+                    }
+                    else
+                    {
+                        // Siege Battle: Skip editing and copy original files to temp to prevent corruption
+                        Program.Logger.Debug("Siege battle detected. Skipping modification of Combats.txt and CombatResults.txt.");
 
-                    //  EDIT COMBATS RESULTS FILE
-                    Program.Logger.Debug("Editing CombatResults.txt file...");
-                    BattleResult.EditCombatResultsFile(attacker_armies, defender_armies);
+                        string combatsSourcePath = CrusaderWars.data.save_file.Writter.DataFilesPaths.Combats_Path();
+                        string combatsDestPath = CrusaderWars.data.save_file.Writter.DataTEMPFilesPaths.Combats_Path();
+                        if (File.Exists(combatsSourcePath))
+                        {
+                            File.Copy(combatsSourcePath, combatsDestPath, true);
+                            Program.Logger.Debug("Copied original Combats.txt to temp folder.");
+                        }
+
+                        string combatResultsSourcePath = CrusaderWars.data.save_file.Writter.DataFilesPaths.CombatResults_Path();
+                        string combatResultsDestPath = CrusaderWars.data.save_file.Writter.DataTEMPFilesPaths.CombatResults_Path();
+                        if (File.Exists(combatResultsSourcePath))
+                        {
+                            File.Copy(combatResultsSourcePath, combatResultsDestPath, true);
+                            Program.Logger.Debug("Copied original CombatResults.txt to temp folder.");
+                        }
+                    }
 
                     //  EDIT REGIMENTS FILE
                     Program.Logger.Debug("Editing Regiments.txt file...");
