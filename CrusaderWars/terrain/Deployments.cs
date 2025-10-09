@@ -330,9 +330,9 @@ namespace CrusaderWars.terrain
             // If it's a siege, use larger distances to push attackers to the map edge
             if (BattleState.IsSiegeBattle)
             {
-                mediumDist = "600.00";
-                bigDist = "900.00";
-                hugeDist = "1250.00";
+                mediumDist = "675.00";
+                bigDist = "975.00";
+                hugeDist = "1325.00";
             }
 
             X = "0.00"; // Initialize X and Y to avoid CS8618
