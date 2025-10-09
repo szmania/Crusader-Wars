@@ -179,23 +179,16 @@ namespace CrusaderWars.data.save_file
 
         static void WriteDataToSaveFile(StreamWriter streamWriter, string data_file_path, FileType fileType)
         {
-            Program.Logger.Debug($"Reading content from {data_file_path} to write into save file stream.");
-            StringBuilder sb = new StringBuilder();
-            using (StreamReader sr = new StreamReader(data_file_path))
-            {
-                while (true)
-                {
-                    string? l = sr.ReadLine();
-                    if (l is null) break;
-                    // Removed the switch statement as it's no longer needed.
-                    // The closing brace for CombatResults and Combats is now handled by the extraction logic
-                    // and should be included in the temporary file.
-                    sb.AppendLine(l);
-                }
-            }
+            Program.Logger.Debug($"Reading entire content from {data_file_path} to write into save file stream.");
+            
+            // Read the entire content of the temporary file
+            string fileContent = File.ReadAllText(data_file_path);
+            
+            // Write the content directly to the stream.
+            // Using Write instead of WriteLine prevents adding an extra newline.
+            streamWriter.Write(fileContent);
 
-            Program.Logger.Debug($"Writing {sb.Length} characters of {fileType} data to save file stream.");
-            streamWriter.WriteLine(sb.ToString());
+            Program.Logger.Debug($"Wrote {fileContent.Length} characters of {fileType} data to save file stream.");
         }
 
         enum FileType
