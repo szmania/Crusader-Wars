@@ -573,7 +573,7 @@ namespace CrusaderWars.twbattle
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
                         Program.Logger.Debug("Editing Sieges.txt file...");
-                        BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, defender_armies);
+                        BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, attacker_armies, defender_armies);
                     }
                     else
                     {
