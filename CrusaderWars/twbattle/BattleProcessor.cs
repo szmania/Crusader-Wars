@@ -504,7 +504,7 @@ namespace CrusaderWars.twbattle
                     BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
 
                     //  EDIT COMBATS RESULTS FILE
-                    Program.Logger.Debug("Editing BattleResults.txt file...");
+                    Program.Logger.Debug("Editing CombatResults.txt file...");
                     BattleResult.EditCombatResultsFile(attacker_armies, defender_armies);
 
                     //  EDIT REGIMENTS FILE
