@@ -105,7 +105,7 @@ namespace CrusaderWars.data.battle_results
             {
                 string battle_id = "";
                 StringBuilder f = new StringBuilder();
-                using (StreamReader sr = new StreamReader(@".\data\save_file_data\BattleResults.txt"))
+                using (StreamReader sr = new StreamReader(@".\data\save_file_data\CombatResults.txt"))
                 {
                     if (twbattle.BattleState.IsSiegeBattle && SiegeID != null)
                     {
@@ -1115,7 +1115,7 @@ namespace CrusaderWars.data.battle_results
                         if (line.Contains("\t\t\t\tsurviving_soldiers="))
                         {
                             int totalFightingMen = GetArmiesTotalFightingMen(defender_armies);
-                            string edited_line = "\t\t\t\t\tsurviving_soldiers=" + totalFightingMen;
+                            string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: surviving_soldiers={totalFightingMen}");
                             continue;
