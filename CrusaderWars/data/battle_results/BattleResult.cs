@@ -937,6 +937,8 @@ namespace CrusaderWars.data.battle_results
         {
             Program.Logger.Debug("Editing Combat Results file...");
 
+            bool inPlayerCombatResultBlock = false; // NEW: State flag to track if we are in the player's block
+
             // The original line-by-line logic is stateful and complex to convert to Regex.
             // We will keep it, but ensure it reads from the full, uncorrupted file and writes to the temp file.
             // The bug was the file being overwritten before this method was called. By removing the overwrites,
@@ -961,338 +963,377 @@ namespace CrusaderWars.data.battle_results
                 string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    if (line == "\t\t\tattacker={")
+                    // 1. Check if we should START processing the player's block
+                    if (!inPlayerCombatResultBlock)
                     {
-                        isAttacker = true;
-                        isDefender = false;
-                        currentParticipantId = null; // Reset participant for new block
-                        currentArmy = null; // Reset army for new block
-                        Program.Logger.Debug("Processing attacker results in CombatResults file.");
+                        Match blockStartMatch = Regex.Match(line, @"^\t\t(\d+)={");
+                        if (blockStartMatch.Success && blockStartMatch.Groups[1].Value == BattleResult.ResultID)
+                        {
+                            inPlayerCombatResultBlock = true;
+                            Program.Logger.Debug($"Entering player combat result block ID: {BattleResult.ResultID}");
+                        }
                     }
-                    else if (line == "\t\t\tdefender={")
-                    {
-                        isDefender = true;
-                        isAttacker = false;
-                        currentParticipantId = null; // Reset participant for new block
-                        currentArmy = null; // Reset army for new block
-                        Program.Logger.Debug("Processing defender results in CombatResults file.");
-                    }
-                    else if ((isAttacker || isDefender) && line.Contains("\t\t\t\tmain_participant="))
-                    {
-                        currentParticipantId = Regex.Match(line, @"\d+").Groups[0].Value;
-                        List<Army> targetArmies = isAttacker ? attacker_armies : defender_armies;
 
-                        // Try to find the army where this character is the main commander
-                        currentArmy = targetArmies.FirstOrDefault(a => a.CommanderID == currentParticipantId);
-
-                        // If not found, check if it's a commander of a merged army within one of the main armies
-                        if (currentArmy == null)
-                        {
-                            foreach (var mainArmy in targetArmies)
-                            {
-                                if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.CommanderID == currentParticipantId))
-                                {
-                                    currentArmy = mainArmy; // The main army is the one we're interested in for reporting
-                                    break;
-                                }
-                            }
-                        }
-                        Program.Logger.Debug($"Detected main_participant: {currentParticipantId}. Current Army found: {currentArmy?.ID ?? "None"}");
-                    }
-                    else if (isAttacker)
+                    // 2. If we are inside the player's block, apply the modification logic
+                    if (inPlayerCombatResultBlock)
                     {
-                        if (line.Contains("\t\t\t\tsurviving_soldiers="))
+                        // 2a. Check if we should STOP processing (end of block)
+                        if (line == "\t\t}")
                         {
-                            int totalFightingMen = 0;
-                            if (currentArmy != null)
-                            {
-                                totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
-                                string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
-                                streamWriter.WriteLine(edited_line);
-                                Program.Logger.Debug($"Attacker (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
-                            }
-                            else
-                            {
-                                Program.Logger.Debug($"WARNING: Attacker: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
-                                streamWriter.WriteLine(line); // Write original line if currentArmy is null
-                            }
-                            continue;
+                            inPlayerCombatResultBlock = false;
+                            Program.Logger.Debug($"Exiting player combat result block ID: {BattleResult.ResultID}");
+                            
+                            // Reset all state variables to prevent them from affecting other parts of the file
+                            isAttacker = false;
+                            isDefender = false;
+                            isMAA = false;
+                            isKnight = false;
+                            regimentType = "";
+                            knightID = "";
+                            currentParticipantId = null;
+                            currentArmy = null;
                         }
-                        else if (line.Contains("\t\t\t\t\t\ttype="))
+                        // 2b. If not the end of the block, run the original modification logic
+                        else
                         {
-                            isMAA = true;
-                            regimentType = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
-                            Program.Logger.Debug($"Attacker: Detected Men-at-Arms regiment type: {regimentType}");
-                        }
-                        else if (line.Contains("\t\t\t\t\t\tknight="))
-                        {
-                            string id = Regex.Match(line, @"\d+").Value;
-                            if (id == "4294967295" && !isMAA)
+                            if (line == "\t\t\tattacker={")
                             {
-                                regimentType = "Levy";
-                                Program.Logger.Debug($"Attacker: Detected Levy regiment (ID: {id}).");
+                                isAttacker = true;
+                                isDefender = false;
+                                currentParticipantId = null; // Reset participant for new block
+                                currentArmy = null; // Reset army for new block
+                                Program.Logger.Debug("Processing attacker results in CombatResults file.");
                             }
-                            else if (id == "4294967295" && isMAA)
+                            else if (line == "\t\t\tdefender={")
                             {
-                                isMAA = true;
-                                string logMessage = string.Format("Attacker: Detected Men-at-Arms regiment (ID: {0}).", id);
-                                Program.Logger.Debug(logMessage);
+                                isDefender = true;
+                                isAttacker = false;
+                                currentParticipantId = null; // Reset participant for new block
+                                currentArmy = null; // Reset army for new block
+                                Program.Logger.Debug("Processing defender results in CombatResults file.");
                             }
-                            else
+                            else if ((isAttacker || isDefender) && line.Contains("\t\t\t\tmain_participant="))
                             {
-                                isKnight = true;
-                                knightID = id;
-                                Program.Logger.Debug($"Attacker: Detected Knight (ID: {knightID}).");
-                            }
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
-                        {
-                            int main_kills = 0;
-                            foreach (Army army in attacker_armies)
-                            {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
+                                currentParticipantId = Regex.Match(line, @"\d+").Groups[0].Value;
+                                List<Army> targetArmies = isAttacker ? attacker_armies : defender_armies;
+
+                                // Try to find the army where this character is the main commander
+                                currentArmy = targetArmies.FirstOrDefault(a => a.CommanderID == currentParticipantId);
+
+                                // If not found, check if it's a commander of a merged army within one of the main armies
+                                if (currentArmy == null)
                                 {
-                                    main_kills += results.GetKillsAmountOfMainPhase(regimentType);
-                                }
-                            }
-                            string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: {regimentType} main_kills={main_kills}");
-                            continue;
-                        }
-                        else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
-                        {
-                            int main_kills = 0;
-                            foreach (Army army in attacker_armies)
-                            {
-                                if (army == null) continue;
-                                var knightsList = army.Knights?.GetKnightsList();
-                                if (knightsList != null)
-                                {
-                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
-                                    if (knight != null)
+                                    foreach (var mainArmy in targetArmies)
                                     {
-                                        main_kills = knight.GetKills();
-                                        break;
+                                        if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.CommanderID == currentParticipantId))
+                                        {
+                                            currentArmy = mainArmy; // The main army is the one we're interested in for reporting
+                                            break;
+                                        }
                                     }
                                 }
+                                Program.Logger.Debug($"Detected main_participant: {currentParticipantId}. Current Army found: {currentArmy?.ID ?? "None"}");
                             }
-                            string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: Knight {knightID} main_kills={main_kills}");
-                            continue;
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
-                        {
-                            int pursuit_kills = 0;
-                            foreach (Army army in attacker_armies)
+                            else if (isAttacker)
                             {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
+                                if (line.Contains("\t\t\t\tsurviving_soldiers="))
                                 {
-                                    pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
-                                }
-                            }
-                            string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: {regimentType} pursuit_kills={pursuit_kills}");
-                            continue;
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
-                        {
-                            int main_losses = 0;
-                            foreach (Army army in attacker_armies)
-                            {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
-                                {
-                                    main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
-                                }
-                            }
-                            string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: {regimentType} main_losses={main_losses}");
-                            continue;
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
-                        {
-                            int pursuit_losses = 0;
-                            foreach (Army army in attacker_armies)
-                            {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
-                                {
-                                    pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
-                                }
-                            }
-                            string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: {regimentType} pursuit_losses_maa={pursuit_losses}");
-                            continue;
-                        }
-                        else if (line == "\t\t\t\t\t}")
-                        {
-                            isKnight = false;
-                            isMAA = false;
-                            knightID = "";
-                            regimentType = "";
-                            Program.Logger.Debug("Attacker: End of regiment block.");
-                        }
-                    }
-                    else if (isDefender)
-                    {
-                        if (line.Contains("\t\t\t\tsurviving_soldiers="))
-                        {
-                            int totalFightingMen = 0;
-                            if (currentArmy != null)
-                            {
-                                totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
-                                string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
-                                streamWriter.WriteLine(edited_line);
-                                Program.Logger.Debug($"Defender (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
-                            }
-                            else
-                            {
-                                Program.Logger.Debug($"WARNING: Defender: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
-                                streamWriter.WriteLine(line); // Write original line if currentArmy is null
-                            }
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\t\t\ttype="))
-                        {
-                            isMAA = true;
-                            regimentType = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
-                            Program.Logger.Debug($"Defender: Detected regiment type: {regimentType}");
-                        }
-                        else if (line.Contains("\t\t\t\t\t\tknight="))
-                        {
-                            string id = Regex.Match(line, @"\d+").Value;
-                            if (id == "4294967295" && !isMAA)
-                            {
-                                regimentType = "Levy";
-                                Program.Logger.Debug($"Defender: Detected Levy regiment (ID: {id}).");
-                            }
-                            else
-                            {
-                                isKnight = true;
-                                knightID = id;
-                                Program.Logger.Debug($"Defender: Detected Knight (ID: {knightID}).");
-                            }
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
-                        {
-                            int main_kills = 0;
-                            foreach (Army army in defender_armies)
-                            {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
-                                {
-                                    main_kills += results.GetKillsAmountOfMainPhase(regimentType);
-                                }
-                            }
-                            string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: {regimentType} main_kills={main_kills}");
-                            continue;
-                        }
-                        else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
-                        {
-                            int main_kills = 0;
-                            foreach (Army army in defender_armies)
-                            {
-                                if (army == null) continue;
-                                var knightsList = army.Knights?.GetKnightsList();
-                                if (knightsList != null)
-                                {
-                                    var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
-                                    if (knight != null)
+                                    int totalFightingMen = 0;
+                                    if (currentArmy != null)
                                     {
-                                        main_kills = knight.GetKills();
-                                        break;
+                                        totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
+                                        string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
+                                        streamWriter.WriteLine(edited_line);
+                                        Program.Logger.Debug($"Attacker (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
+                                    }
+                                    else
+                                    {
+                                        Program.Logger.Debug($"WARNING: Attacker: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
+                                        streamWriter.WriteLine(line); // Write original line if currentArmy is null
+                                    }
+                                    continue;
+                                }
+                                else if (line.Contains("\t\t\t\t\t\ttype="))
+                                {
+                                    isMAA = true;
+                                    regimentType = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
+                                    Program.Logger.Debug($"Attacker: Detected Men-at-Arms regiment type: {regimentType}");
+                                }
+                                else if (line.Contains("\t\t\t\t\t\tknight="))
+                                {
+                                    string id = Regex.Match(line, @"\d+").Value;
+                                    if (id == "4294967295" && !isMAA)
+                                    {
+                                        regimentType = "Levy";
+                                        Program.Logger.Debug($"Attacker: Detected Levy regiment (ID: {id}).");
+                                    }
+                                    else if (id == "4294967295" && isMAA)
+                                    {
+                                        isMAA = true;
+                                        string logMessage = string.Format("Attacker: Detected Men-at-Arms regiment (ID: {0}).", id);
+                                        Program.Logger.Debug(logMessage);
+                                    }
+                                    else
+                                    {
+                                        isKnight = true;
+                                        knightID = id;
+                                        Program.Logger.Debug($"Attacker: Detected Knight (ID: {knightID}).");
                                     }
                                 }
-                            }
-                            string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: Knight {knightID} main_kills={main_kills}");
-                            continue;
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
-                        {
-                            int pursuit_kills = 0;
-                            foreach (Army army in defender_armies)
-                            {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
-                                    pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                    int main_kills = 0;
+                                    foreach (Army army in attacker_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Attacker: {regimentType} main_kills={main_kills}");
+                                    continue;
+                                }
+                                else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
+                                {
+                                    int main_kills = 0;
+                                    foreach (Army army in attacker_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var knightsList = army.Knights?.GetKnightsList();
+                                        if (knightsList != null)
+                                        {
+                                            var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
+                                            if (knight != null)
+                                            {
+                                                main_kills = knight.GetKills();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Attacker: Knight {knightID} main_kills={main_kills}");
+                                    continue;
+                                }
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
+                                {
+                                    int pursuit_kills = 0;
+                                    foreach (Army army in attacker_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Attacker: {regimentType} pursuit_kills={pursuit_kills}");
+                                    continue;
+                                }
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
+                                {
+                                    int main_losses = 0;
+                                    foreach (Army army in attacker_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Attacker: {regimentType} main_losses={main_losses}");
+                                    continue;
+                                }
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
+                                {
+                                    int pursuit_losses = 0;
+                                    foreach (Army army in attacker_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Attacker: {regimentType} pursuit_losses_maa={pursuit_losses}");
+                                    continue;
+                                }
+                                else if (line == "\t\t\t\t\t}")
+                                {
+                                    isKnight = false;
+                                    isMAA = false;
+                                    knightID = "";
+                                    regimentType = "";
+                                    Program.Logger.Debug("Attacker: End of regiment block.");
                                 }
                             }
-                            string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: {regimentType} pursuit_kills={pursuit_kills}");
-                            continue;
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
-                        {
-                            int main_losses = 0;
-                            foreach (Army army in defender_armies)
+                            else if (isDefender)
                             {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
+                                if (line.Contains("\t\t\t\tsurviving_soldiers="))
                                 {
-                                    main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                    int totalFightingMen = 0;
+                                    if (currentArmy != null)
+                                    {
+                                        totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
+                                        string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
+                                        streamWriter.WriteLine(edited_line);
+                                        Program.Logger.Debug($"Defender (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
+                                    }
+                                    else
+                                    {
+                                        Program.Logger.Debug($"WARNING: Defender: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
+                                        streamWriter.WriteLine(line); // Write original line if currentArmy is null
+                                    }
+                                    continue;
+                                }
+                                else if (line.Contains("\t\t\t\t\t\ttype="))
+                                {
+                                    isMAA = true;
+                                    regimentType = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
+                                    Program.Logger.Debug($"Defender: Detected regiment type: {regimentType}");
+                                }
+                                else if (line.Contains("\t\t\t\t\t\tknight="))
+                                {
+                                    string id = Regex.Match(line, @"\d+").Value;
+                                    if (id == "4294967295" && !isMAA)
+                                    {
+                                        regimentType = "Levy";
+                                        Program.Logger.Debug($"Defender: Detected Levy regiment (ID: {id}).");
+                                    }
+                                    else
+                                    {
+                                        isKnight = true;
+                                        knightID = id;
+                                        Program.Logger.Debug($"Defender: Detected Knight (ID: {knightID}).");
+                                    }
+                                }
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
+                                {
+                                    int main_kills = 0;
+                                    foreach (Army army in defender_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Defender: {regimentType} main_kills={main_kills}");
+                                    continue;
+                                }
+                                else if (isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
+                                {
+                                    int main_kills = 0;
+                                    foreach (Army army in defender_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var knightsList = army.Knights?.GetKnightsList();
+                                        if (knightsList != null)
+                                        {
+                                            var knight = knightsList.FirstOrDefault(k => k != null && k.GetID() == knightID);
+                                            if (knight != null)
+                                            {
+                                                main_kills = knight.GetKills();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Defender: Knight {knightID} main_kills={main_kills}");
+                                    continue;
+                                }
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
+                                {
+                                    int pursuit_kills = 0;
+                                    foreach (Army army in defender_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Defender: {regimentType} pursuit_kills={pursuit_kills}");
+                                    continue;
+                                }
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
+                                {
+                                    int main_losses = 0;
+                                    foreach (Army army in defender_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Defender: {regimentType} main_losses={main_losses}");
+                                    continue;
+                                }
+                                else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
+                                {
+                                    int pursuit_losses = 0;
+                                    foreach (Army army in defender_armies)
+                                    {
+                                        if (army == null) continue;
+                                        var results = army.UnitsResults;
+                                        if (results != null)
+                                        {
+                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                        }
+                                    }
+                                    string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Defender: {regimentType} pursuit_losses_maa={pursuit_losses}");
+                                    continue;
+                                }
+                                else if (line == "\t\t\t\t\t}")
+                                {
+                                    isKnight = false;
+                                    isMAA = false;
+                                    knightID = "";
+                                    regimentType = "";
+                                    Program.Logger.Debug("Defender: End of regiment block.");
                                 }
                             }
-                            string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: {regimentType} main_losses={main_losses}");
-                            continue;
-                        }
-                        else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
-                        {
-                            int pursuit_losses = 0;
-                            foreach (Army army in defender_armies)
+                            else if (line == "\t\t\t}") // End of an attacker or defender block
                             {
-                                if (army == null) continue;
-                                var results = army.UnitsResults;
-                                if (results != null)
-                                {
-                                    pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
-                                }
+                                isAttacker = false;
+                                isDefender = false;
+                                currentParticipantId = null;
+                                currentArmy = null;
+                                Program.Logger.Debug("Resetting participant state at end of alliance block.");
+                                streamWriter.WriteLine(line); // Write the closing brace
+                                continue; // Continue to next line, preventing default write
                             }
-                            string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: {regimentType} pursuit_losses_maa={pursuit_losses}");
-                            continue;
-                        }
-                        else if (line == "\t\t\t\t\t}")
-                        {
-                            isKnight = false;
-                            isMAA = false;
-                            knightID = "";
-                            regimentType = "";
-                            Program.Logger.Debug("Defender: End of regiment block.");
+                            streamWriter.WriteLine(line);
+                            continue; // Ensure the line is not written again by the outer block
                         }
                     }
-                    else if (line == "\t\t\t}") // End of an attacker or defender block
-                    {
-                        isAttacker = false;
-                        isDefender = false;
-                        currentParticipantId = null;
-                        currentArmy = null;
-                        Program.Logger.Debug("Resetting participant state at end of alliance block.");
-                        streamWriter.WriteLine(line); // Write the closing brace
-                        continue; // Continue to next line, preventing default write
-                    }
+
+                    // 3. Write the line (either original or from a non-player block)
                     streamWriter.WriteLine(line);
                 }
             }
