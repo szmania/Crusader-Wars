@@ -485,6 +485,66 @@ namespace CrusaderWars.data.battle_results
                     }
                 }
 
+                // NEW LOGIC: Update ArmyRegiment and its child Regiments for garrisons
+                var garrisonArmyRegiment = army.ArmyRegiments.FirstOrDefault(ar => ar.Type == RegimentType.Garrison);
+                if (garrisonArmyRegiment == null)
+                {
+                    Program.Logger.Debug($"WARNING: Garrison army {army.ID} does not have an ArmyRegiment of type Garrison. Cannot update its soldiers.");
+                    return; // Exit if no garrison ArmyRegiment found
+                }
+
+                int originalGarrisonArmyRegimentTotal = garrisonArmyRegiment.CurrentNum;
+                int newGarrisonArmyRegimentTotal = army.Units.Sum(u => u.GetSoldiers());
+
+                garrisonArmyRegiment.SetCurrentNum(newGarrisonArmyRegimentTotal.ToString());
+                Program.Logger.Debug($"Garrison ArmyRegiment {garrisonArmyRegiment.ID}: Total soldiers updated from {originalGarrisonArmyRegimentTotal} to {newGarrisonArmyRegimentTotal}.");
+
+                // Update child Regiment objects proportionally
+                int currentTotalFromChildRegiments = garrisonArmyRegiment.Regiments
+                    .Where(r => !string.IsNullOrEmpty(r.CurrentNum))
+                    .Sum(r => Int32.Parse(r.CurrentNum));
+
+                if (currentTotalFromChildRegiments == 0)
+                {
+                    if (newGarrisonArmyRegimentTotal > 0 && garrisonArmyRegiment.Regiments.Any())
+                    {
+                        garrisonArmyRegiment.Regiments.First().SetSoldiers(newGarrisonArmyRegimentTotal.ToString());
+                        Program.Logger.Debug($"Garrison ArmyRegiment {garrisonArmyRegiment.ID}: No initial child regiments, assigned all {newGarrisonArmyRegimentTotal} soldiers to the first child regiment.");
+                    }
+                }
+                else
+                {
+                    int soldiersDistributed = 0;
+                    var originalChildRegimentCounts = garrisonArmyRegiment.Regiments
+                        .ToDictionary(r => r, r => string.IsNullOrEmpty(r.CurrentNum) ? 0 : Int32.Parse(r.CurrentNum));
+
+                    foreach (var regiment in garrisonArmyRegiment.Regiments)
+                    {
+                        int originalRegimentSoldiers = originalChildRegimentCounts[regiment];
+                        if (originalRegimentSoldiers == 0) continue;
+
+                        double proportion = (double)originalRegimentSoldiers / currentTotalFromChildRegiments;
+                        int newRegimentSoldiers = (int)Math.Round(newGarrisonArmyRegimentTotal * proportion, MidpointRounding.AwayFromZero);
+                        regiment.SetSoldiers(newRegimentSoldiers.ToString());
+                        soldiersDistributed += newRegimentSoldiers;
+                        Program.Logger.Debug($"  Child Regiment {regiment.ID}: Original {originalRegimentSoldiers}, New {newRegimentSoldiers} (Proportion: {proportion:P2}).");
+                    }
+
+                    // Adjust for any rounding differences
+                    int difference = newGarrisonArmyRegimentTotal - soldiersDistributed;
+                    if (difference != 0)
+                    {
+                        var largestRegiment = garrisonArmyRegiment.Regiments
+                            .OrderByDescending(r => string.IsNullOrEmpty(r.CurrentNum) ? 0 : Int32.Parse(r.CurrentNum))
+                            .FirstOrDefault();
+                        if (largestRegiment != null)
+                        {
+                            int currentSoldiers = Int32.Parse(largestRegiment.CurrentNum);
+                            largestRegiment.SetSoldiers((currentSoldiers + difference).ToString());
+                            Program.Logger.Debug($"Adjusted largest child regiment {largestRegiment.ID} by {difference} due to rounding. New count: {Int32.Parse(largestRegiment.CurrentNum)}.");
+                        }
+                    }
+                }
                 return; // Exit after processing garrison
             }
 
