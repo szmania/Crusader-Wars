@@ -357,7 +357,7 @@ namespace CrusaderWars.data.battle_results
             using (StreamReader reader = new StreamReader(path_attila_log))
             {
                 string? line;
-                while ((line = reader.ReadLine()) != null && !reader.EndOfStream)
+                while ((line = reader.ReadLine()) != null)
                 {
                     if (line == "-----REMAINING SOLDIERS-----!!")
                     {
