@@ -809,6 +809,9 @@ namespace CrusaderWars
 
                 if (Start_SiegesFound && !End_SiegesFound)
                 {
+                    // Move AppendLine to the beginning of the block
+                    Data.SB_Sieges.AppendLine(line);
+
                     // The plan specifies "the closing brace } at the same nesting level".
                     // For top-level blocks like "units={", "counties={", "culture_manager={", "mercenary_company_manager={",
                     // the end condition is a simple "}".
@@ -820,10 +823,8 @@ namespace CrusaderWars
                         Data.SB_Sieges = new StringBuilder();
                         GC.Collect();
                         End_SiegesFound = true;
-                        return;
+                        // Removed: return;
                     }
-
-                    Data.SB_Sieges.AppendLine(line);
                 }
 
                 if (End_SiegesFound)
