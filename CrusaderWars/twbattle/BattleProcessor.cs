@@ -454,6 +454,10 @@ namespace CrusaderWars.twbattle
                             }
                         }
                     }
+                    // Calculate total initial soldiers for each side
+                    int initialTotalAttackerSoldiers = originalAttackerSizes.Values.Sum();
+                    int initialTotalDefenderSoldiers = originalDefenderSizes.Values.Sum();
+
                     // --- END: Capture pre-battle state ---
                     int originalTotalAttackerSoldiers = attacker_armies.Sum(a => a.GetTotalSoldiers());
 
@@ -506,7 +510,7 @@ namespace CrusaderWars.twbattle
                         //  EDIT COMBATS FILE
                         BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
                         //  EDIT COMBATS RESULTS FILE
-                        BattleResult.EditCombatResultsFile(attacker_armies, defender_armies);
+                        BattleResult.EditCombatResultsFile(attacker_armies, defender_armies, initialTotalAttackerSoldiers, initialTotalDefenderSoldiers);
                     }
                     else
                     {

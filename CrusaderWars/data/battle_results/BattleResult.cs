@@ -933,7 +933,7 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug("Finished editing Living file.");
         }
 
-        public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
+        public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies, int initialTotalAttackerSoldiers, int initialTotalDefenderSoldiers)
         {
             Program.Logger.Debug("Editing Combat Results file...");
 
@@ -976,7 +976,14 @@ namespace CrusaderWars.data.battle_results
 
                     if (isAttacker)
                     {
-                        if (line.Contains("\t\t\t\tsurviving_soldiers="))
+                        if (line.Contains("\t\t\t\tinital_soldiers=")) // Corrected typo "inital" to "initial" if it was intended, but keeping "inital" as per original file structure.
+                        {
+                            string edited_line = "\t\t\t\tinital_soldiers=" + initialTotalAttackerSoldiers;
+                            streamWriter.WriteLine(edited_line);
+                            Program.Logger.Debug($"Attacker: inital_soldiers={initialTotalAttackerSoldiers}");
+                            continue;
+                        }
+                        else if (line.Contains("\t\t\t\tsurviving_soldiers="))
                         {
                             int totalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
                             string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
@@ -1023,6 +1030,8 @@ namespace CrusaderWars.data.battle_results
                                     main_kills += results.GetKillsAmountOfMainPhase(regimentType);
                                 }
                             }
+                            // Ensure main_kills is not negative
+                            main_kills = Math.Max(0, main_kills);
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} main_kills={main_kills}");
@@ -1045,6 +1054,8 @@ namespace CrusaderWars.data.battle_results
                                     }
                                 }
                             }
+                            // Ensure main_kills is not negative
+                            main_kills = Math.Max(0, main_kills);
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: Knight {knightID} main_kills={main_kills}");
@@ -1062,6 +1073,8 @@ namespace CrusaderWars.data.battle_results
                                     pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
                                 }
                             }
+                            // Ensure pursuit_kills is not negative
+                            pursuit_kills = Math.Max(0, pursuit_kills);
                             string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} pursuit_kills={pursuit_kills}");
@@ -1079,6 +1092,8 @@ namespace CrusaderWars.data.battle_results
                                     main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
+                            // Ensure main_losses is not negative
+                            main_losses = Math.Max(0, main_losses);
                             string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} main_losses={main_losses}");
@@ -1096,6 +1111,8 @@ namespace CrusaderWars.data.battle_results
                                     pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
+                            // Ensure pursuit_losses is not negative
+                            pursuit_losses = Math.Max(0, pursuit_losses);
                             string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Attacker: {regimentType} pursuit_losses_maa={pursuit_losses}");
@@ -1112,7 +1129,14 @@ namespace CrusaderWars.data.battle_results
                     }
                     else if (isDefender)
                     {
-                        if (line.Contains("\t\t\t\tsurviving_soldiers="))
+                        if (line.Contains("\t\t\t\tinital_soldiers=")) // Corrected typo "inital" to "initial" if it was intended, but keeping "inital" as per original file structure.
+                        {
+                            string edited_line = "\t\t\t\tinital_soldiers=" + initialTotalDefenderSoldiers;
+                            streamWriter.WriteLine(edited_line);
+                            Program.Logger.Debug($"Defender: inital_soldiers={initialTotalDefenderSoldiers}");
+                            continue;
+                        }
+                        else if (line.Contains("\t\t\t\tsurviving_soldiers="))
                         {
                             int totalFightingMen = GetArmiesTotalFightingMen(defender_armies);
                             string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
@@ -1153,6 +1177,8 @@ namespace CrusaderWars.data.battle_results
                                     main_kills += results.GetKillsAmountOfMainPhase(regimentType);
                                 }
                             }
+                            // Ensure main_kills is not negative
+                            main_kills = Math.Max(0, main_kills);
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} main_kills={main_kills}");
@@ -1175,6 +1201,8 @@ namespace CrusaderWars.data.battle_results
                                     }
                                 }
                             }
+                            // Ensure main_kills is not negative
+                            main_kills = Math.Max(0, main_kills);
                             string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: Knight {knightID} main_kills={main_kills}");
@@ -1192,6 +1220,8 @@ namespace CrusaderWars.data.battle_results
                                     pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
                                 }
                             }
+                            // Ensure pursuit_kills is not negative
+                            pursuit_kills = Math.Max(0, pursuit_kills);
                             string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} pursuit_kills={pursuit_kills}");
@@ -1209,6 +1239,8 @@ namespace CrusaderWars.data.battle_results
                                     main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
+                            // Ensure main_losses is not negative
+                            main_losses = Math.Max(0, main_losses);
                             string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} main_losses={main_losses}");
@@ -1226,6 +1258,8 @@ namespace CrusaderWars.data.battle_results
                                     pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
                                 }
                             }
+                            // Ensure pursuit_losses is not negative
+                            pursuit_losses = Math.Max(0, pursuit_losses);
                             string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
                             streamWriter.WriteLine(edited_line);
                             Program.Logger.Debug($"Defender: {regimentType} pursuit_losses_maa={pursuit_losses}");
