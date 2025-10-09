@@ -43,6 +43,11 @@ namespace CrusaderWars.twbattle
             Program.Logger.Debug($"RIGHT SIDE ({right_side[0].CombatSide}) TOTAL SOLDIERS: {right_side_total}");
             Program.Logger.Debug($"*************************************************************************");
 
+            BattleState.HasReliefArmy = attacker_armies.Any(a => a.IsReinforcementArmy()) || defender_armies.Any(a => a.IsReinforcementArmy());
+            if (BattleState.HasReliefArmy)
+            {
+                Program.Logger.Debug("Relief army detected for this siege battle. Combat files will be updated.");
+            }
 
             if (regenerateAndRestart)
             {
@@ -499,19 +504,23 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Editing Living.txt file...");
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
 
-                    if (!twbattle.BattleState.IsSiegeBattle)
+                    if (!twbattle.BattleState.IsSiegeBattle || (twbattle.BattleState.IsSiegeBattle && twbattle.BattleState.HasReliefArmy))
                     {
-                        // Field Battle: Edit files as normal
-                        Program.Logger.Debug("Field battle detected. Editing combat files...");
+                        // Field Battle OR Siege with Relief Army: Edit files as normal
+                        Program.Logger.Debug("Field battle or siege with relief army detected. Editing combat files...");
+                        
+                        var mobile_attacker_armies = attacker_armies.Where(a => !a.IsGarrison()).ToList();
+                        var mobile_defender_armies = defender_armies.Where(a => !a.IsGarrison()).ToList();
+
                         //  EDIT COMBATS FILE
-                        BattleResult.EditCombatFile(attacker_armies, defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
+                        BattleResult.EditCombatFile(mobile_attacker_armies, mobile_defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
                         //  EDIT COMBATS RESULTS FILE
-                        BattleResult.EditCombatResultsFile(attacker_armies, defender_armies);
+                        BattleResult.EditCombatResultsFile(mobile_attacker_armies, mobile_defender_armies);
                     }
                     else
                     {
-                        // Siege Battle: Skip editing and copy original files to temp to prevent corruption
-                        Program.Logger.Debug("Siege battle detected. Skipping modification of Combats.txt and CombatResults.txt.");
+                        // Standard Siege Battle (no relief army): Skip editing and copy original files to temp to prevent corruption
+                        Program.Logger.Debug("Standard siege battle (no relief army) detected. Skipping modification of Combats.txt and CombatResults.txt.");
 
                         string combatsSourcePath = CrusaderWars.data.save_file.Writter.DataFilesPaths.Combats_Path();
                         string combatsDestPath = CrusaderWars.data.save_file.Writter.DataTEMPFilesPaths.Combats_Path();

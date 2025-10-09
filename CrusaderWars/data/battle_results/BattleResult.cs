@@ -107,7 +107,7 @@ namespace CrusaderWars.data.battle_results
                 StringBuilder f = new StringBuilder();
                 using (StreamReader sr = new StreamReader(@".\data\save_file_data\CombatResults.txt"))
                 {
-                    if (twbattle.BattleState.IsSiegeBattle && SiegeID != null)
+                    if (twbattle.BattleState.IsSiegeBattle && !twbattle.BattleState.HasReliefArmy && SiegeID != null)
                     {
                         Program.Logger.Debug($"Searching for siege battle result using SiegeID: {SiegeID}");
                         string? current_result_block_id = null;

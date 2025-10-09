@@ -9,6 +9,7 @@ namespace CrusaderWars.twbattle
         private static string StateFile => Path.Combine(StateFolder, "battle_state.txt");
         private static string LogSnippetFile => Path.Combine(StateFolder, "battle_log_snippet.txt");
         public static bool IsSiegeBattle { get; set; }
+        public static bool HasReliefArmy { get; set; }
 
         static BattleState()
         {
@@ -43,6 +44,7 @@ namespace CrusaderWars.twbattle
         {
             Program.Logger.Debug("Clearing battle state...");
             IsSiegeBattle = false;
+            HasReliefArmy = false;
             if (System.IO.File.Exists(StateFile))
             {
                 Program.Logger.Debug($"Deleting battle state file: '{StateFile}'");
