@@ -484,67 +484,6 @@ namespace CrusaderWars.data.battle_results
                             $"Garrison Unit Report: Type '{unit.GetAttilaUnitKey()}', Culture: {unit.GetCulture()}: Soldiers changed from {originalSoldiers} to {remainingSoldiers}.");
                     }
                 }
-
-                // NEW LOGIC: Update ArmyRegiment and its child Regiments for garrisons
-                var garrisonArmyRegiment = army.ArmyRegiments.FirstOrDefault(ar => ar.Type == RegimentType.Garrison);
-                if (garrisonArmyRegiment == null)
-                {
-                    Program.Logger.Debug($"WARNING: Garrison army {army.ID} does not have an ArmyRegiment of type Garrison. Cannot update its soldiers.");
-                    return; // Exit if no garrison ArmyRegiment found
-                }
-
-                int originalGarrisonArmyRegimentTotal = garrisonArmyRegiment.CurrentNum;
-                int newGarrisonArmyRegimentTotal = army.Units.Sum(u => u.GetSoldiers());
-
-                garrisonArmyRegiment.SetCurrentNum(newGarrisonArmyRegimentTotal.ToString());
-                Program.Logger.Debug($"Garrison ArmyRegiment {garrisonArmyRegiment.ID}: Total soldiers updated from {originalGarrisonArmyRegimentTotal} to {newGarrisonArmyRegimentTotal}.");
-
-                // Update child Regiment objects proportionally
-                int currentTotalFromChildRegiments = garrisonArmyRegiment.Regiments
-                    .Where(r => !string.IsNullOrEmpty(r.CurrentNum))
-                    .Sum(r => Int32.Parse(r.CurrentNum));
-
-                if (currentTotalFromChildRegiments == 0)
-                {
-                    if (newGarrisonArmyRegimentTotal > 0 && garrisonArmyRegiment.Regiments.Any())
-                    {
-                        garrisonArmyRegiment.Regiments.First().SetSoldiers(newGarrisonArmyRegimentTotal.ToString());
-                        Program.Logger.Debug($"Garrison ArmyRegiment {garrisonArmyRegiment.ID}: No initial child regiments, assigned all {newGarrisonArmyRegimentTotal} soldiers to the first child regiment.");
-                    }
-                }
-                else
-                {
-                    int soldiersDistributed = 0;
-                    var originalChildRegimentCounts = garrisonArmyRegiment.Regiments
-                        .ToDictionary(r => r, r => string.IsNullOrEmpty(r.CurrentNum) ? 0 : Int32.Parse(r.CurrentNum));
-
-                    foreach (var regiment in garrisonArmyRegiment.Regiments)
-                    {
-                        int originalRegimentSoldiers = originalChildRegimentCounts[regiment];
-                        if (originalRegimentSoldiers == 0) continue;
-
-                        double proportion = (double)originalRegimentSoldiers / currentTotalFromChildRegiments;
-                        int newRegimentSoldiers = (int)Math.Round(newGarrisonArmyRegimentTotal * proportion, MidpointRounding.AwayFromZero);
-                        regiment.SetSoldiers(newRegimentSoldiers.ToString());
-                        soldiersDistributed += newRegimentSoldiers;
-                        Program.Logger.Debug($"  Child Regiment {regiment.ID}: Original {originalRegimentSoldiers}, New {newRegimentSoldiers} (Proportion: {proportion:P2}).");
-                    }
-
-                    // Adjust for any rounding differences
-                    int difference = newGarrisonArmyRegimentTotal - soldiersDistributed;
-                    if (difference != 0)
-                    {
-                        var largestRegiment = garrisonArmyRegiment.Regiments
-                            .OrderByDescending(r => string.IsNullOrEmpty(r.CurrentNum) ? 0 : Int32.Parse(r.CurrentNum))
-                            .FirstOrDefault();
-                        if (largestRegiment != null)
-                        {
-                            int currentSoldiers = Int32.Parse(largestRegiment.CurrentNum);
-                            largestRegiment.SetSoldiers((currentSoldiers + difference).ToString());
-                            Program.Logger.Debug($"Adjusted largest child regiment {largestRegiment.ID} by {difference} due to rounding. New count: {Int32.Parse(largestRegiment.CurrentNum)}.");
-                        }
-                    }
-                }
                 return; // Exit after processing garrison
             }
 
@@ -1246,7 +1185,7 @@ namespace CrusaderWars.data.battle_results
                                     int totalFightingMen = 0;
                                     if (currentArmy != null)
                                     {
-                                        totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
+                                        totalFightingMen = currentArmy.GetTotalSoldiers(); // Use the updated GetTotalSoldiers
                                         string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
                                         streamWriter.WriteLine(edited_line);
                                         Program.Logger.Debug($"Defender (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
@@ -1485,10 +1424,8 @@ namespace CrusaderWars.data.battle_results
 
         static int GetArmiesTotalFightingMen(List<Army> armies)
         {
-            int total = armies.Where(army => army != null && army.ArmyRegiments != null)
-                .SelectMany(army => army.ArmyRegiments)
-                .Where(armyRegiment => armyRegiment != null)
-                .Sum(armyRegiment => armyRegiment.CurrentNum);
+            int total = armies.Where(army => army != null)
+                .Sum(army => army.GetTotalSoldiers()); // Use the updated GetTotalSoldiers
 
             string logMessage = string.Format("Calculated total fighting men for armies: {0}", total);
             Program.Logger.Debug(logMessage);
@@ -1500,9 +1437,17 @@ namespace CrusaderWars.data.battle_results
             int total = 0;
             foreach (Army army in armies)
             {
-                if (army.ArmyRegiments == null) continue;
-                total += army.ArmyRegiments.Where(y => y != null && y.Type == RegimentType.Levy).Sum(x => x.CurrentNum);
-
+                if (army.IsGarrison())
+                {
+                    // For garrisons, levies are part of the Units list
+                    total += army.Units.Where(u => u != null && u.GetRegimentType() == RegimentType.Levy).Sum(u => u.GetSoldiers());
+                }
+                else
+                {
+                    // For field armies, levies are part of ArmyRegiments
+                    if (army.ArmyRegiments == null) continue;
+                    total += army.ArmyRegiments.Where(y => y != null && y.Type == RegimentType.Levy).Sum(x => x.CurrentNum);
+                }
             }
 
             Program.Logger.Debug($"Calculated total levy men for armies: {total}");

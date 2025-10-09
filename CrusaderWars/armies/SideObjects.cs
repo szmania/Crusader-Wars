@@ -109,8 +109,16 @@ namespace CrusaderWars
 
         public int GetTotalSoldiers()
         {
-            if (ArmyRegiments == null) return 0;
-            return ArmyRegiments.Sum(ar => ar.CurrentNum);
+            if (IsGarrisonArmy)
+            {
+                if (Units == null) return 0;
+                return Units.Sum(u => u.GetSoldiers());
+            }
+            else
+            {
+                if (ArmyRegiments == null) return 0;
+                return ArmyRegiments.Sum(ar => ar.CurrentNum);
+            }
         }
 
         public void ScaleUnits(int ratio)
