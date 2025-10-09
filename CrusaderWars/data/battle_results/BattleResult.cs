@@ -1284,9 +1284,9 @@ namespace CrusaderWars.data.battle_results
             // 3. Apply casualty updates to the ISOLATED blocks
             // --- Attacker modifications ---
             int attackerTotalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
-            modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, @"(total_fighting_men=)[\d\.]+", $"$1{attackerTotalFightingMen}");
+            modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, @"(total_fighting_men=)[\d\.]+", $"${{1}}{attackerTotalFightingMen}");
             int attackerTotalLevyMen = GetArmiesTotalLevyMen(attacker_armies);
-            modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, @"(total_levy_men=)[\d\.]+", $"$1{attackerTotalLevyMen}");
+            modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, @"(total_levy_men=)[\d\.]+", $"${{1}}{attackerTotalLevyMen}");
 
             foreach (var army in attacker_armies)
             {
@@ -1296,15 +1296,15 @@ namespace CrusaderWars.data.battle_results
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
                     // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
-                    modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, $@"(regiment={armyRegiment.ID}[\s\S]*?current=)[\d\.]+", $"$1{currentNum}");
+                    modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
 
             // --- Defender modifications ---
             int defenderTotalFightingMen = GetArmiesTotalFightingMen(defender_armies);
-            modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, @"(total_fighting_men=)[\d\.]+", $"$1{defenderTotalFightingMen}");
+            modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, @"(total_fighting_men=)[\d\.]+", $"${{1}}{defenderTotalFightingMen}");
             int defenderTotalLevyMen = GetArmiesTotalLevyMen(defender_armies);
-            modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, @"(total_levy_men=)[\d\.]+", $"$1{defenderTotalLevyMen}");
+            modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, @"(total_levy_men=)[\d\.]+", $"${{1}}{defenderTotalLevyMen}");
 
             foreach (var army in defender_armies)
             {
@@ -1314,7 +1314,7 @@ namespace CrusaderWars.data.battle_results
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
                     // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
-                    modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, $@"(regiment={armyRegiment.ID}[\s\S]*?current=)[\d\.]+", $"$1{currentNum}");
+                    modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
 
