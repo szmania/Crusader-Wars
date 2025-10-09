@@ -52,13 +52,13 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         NeedSkiping = false;
                     }
-                    else if (CombatResults_NeedsSkiping && line == "}") // Changed from "\t\t}" to "}"
+                    else if (CombatResults_NeedsSkiping && line == "\t}") // Modified: Match specific indentation
                     {
                         Program.Logger.Debug("Finished skipping CombatResults block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         CombatResults_NeedsSkiping = false;
                     }
-                    else if (Combats_NeedsSkiping && line == "}") // Changed from "\t\t}" to "}"
+                    else if (Combats_NeedsSkiping && line == "\t}") // Modified: Match specific indentation
                     {
                         Program.Logger.Debug("Finished skipping Combats block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
