@@ -98,6 +98,75 @@ namespace CrusaderWars.data.battle_results
 
         }
 
+        public static void ReadCombatBlockByProvinceID()
+        {
+            Program.Logger.Debug($"Searching for combat block using ProvinceID: {ProvinceID}");
+            try
+            {
+                string battle_id = "";
+                StringBuilder sb = new StringBuilder();
+                using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Combats_Path()))
+                {
+                    // First pass to find the battle_id
+                    while (!sr.EndOfStream)
+                    {
+                        string? line = sr.ReadLine();
+                        if (line == null) break;
+                        if (Regex.IsMatch(line, @"^\t\t\d+={"))
+                        {
+                            battle_id = Regex.Match(line, @"^\t\t(\d+)={").Groups[1].Value;
+                        }
+                        else if (line.Trim() == $"province={ProvinceID}")
+                        {
+                            Program.Logger.Debug($"Found combat block ID: {battle_id} for ProvinceID: {ProvinceID}");
+                            break;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(battle_id))
+                    {
+                        Program.Logger.Debug($"Could not find a combat block for ProvinceID: {ProvinceID}");
+                        return;
+                    }
+
+                    // Second pass to read the block content
+                    sr.BaseStream.Position = 0;
+                    sr.DiscardBufferedData();
+
+                    bool isSearchStarted = false;
+                    while (!sr.EndOfStream)
+                    {
+                        string? line = sr.ReadLine();
+                        if (line == null) break;
+
+                        if (!isSearchStarted && line == $"\t\t{battle_id}={{")
+                        {
+                            sb.AppendLine(line);
+                            isSearchStarted = true;
+                        }
+                        else if (isSearchStarted && line == "\t\t}")
+                        {
+                            sb.AppendLine(line);
+                            break;
+                        }
+                        else if (isSearchStarted)
+                        {
+                            sb.AppendLine(line);
+                        }
+                    }
+                }
+
+                BattleResult.CombatID = battle_id;
+                Player_Combat = sb.ToString();
+                Original_Player_Combat = sb.ToString();
+                Program.Logger.Debug($"Combat block for ID {battle_id} read successfully.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading combat block by province ID: {ex.Message}");
+            }
+        }
+
         public static void GetPlayerCombatResult()
         {
             Program.Logger.Debug("Getting player combat result...");

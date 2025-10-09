@@ -47,6 +47,12 @@ namespace CrusaderWars.twbattle
             if (BattleState.HasReliefArmy)
             {
                 Program.Logger.Debug("Relief army detected for this siege battle. Combat files will be updated.");
+                // NEW LOGIC: If Player_Combat is empty for a relief army siege, load it by province ID
+                if (string.IsNullOrEmpty(BattleResult.Player_Combat))
+                {
+                    Program.Logger.Debug("Player_Combat is empty for a relief army siege. Searching for combat block by province ID.");
+                    BattleResult.ReadCombatBlockByProvinceID();
+                }
             }
 
             if (regenerateAndRestart)
