@@ -933,7 +933,7 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug("Finished editing Living file.");
         }
 
-        public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies, int initialTotalAttackerSoldiers, int initialTotalDefenderSoldiers)
+        public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
 
@@ -944,9 +944,6 @@ namespace CrusaderWars.data.battle_results
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.CombatResults_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.CombatResults_Path()))
             {
-                // PASTE THE ENTIRE ORIGINAL CONTENT OF EditCombatResultsFile's `using` block here.
-                // The logic inside is correct, it was the input file that was wrong.
-                // For clarity, I am pasting it below.
                 streamWriter.NewLine = "\n";
 
                 bool isAttacker = false;
@@ -958,6 +955,9 @@ namespace CrusaderWars.data.battle_results
                 string? regimentType = ""; // Changed to nullable
                 string knightID = "";
 
+                string? currentParticipantId = null;
+                Army? currentArmy = null;
+
                 string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
@@ -965,30 +965,57 @@ namespace CrusaderWars.data.battle_results
                     {
                         isAttacker = true;
                         isDefender = false;
+                        currentParticipantId = null; // Reset participant for new block
+                        currentArmy = null; // Reset army for new block
                         Program.Logger.Debug("Processing attacker results in CombatResults file.");
                     }
                     else if (line == "\t\t\tdefender={")
                     {
                         isDefender = true;
                         isAttacker = false;
+                        currentParticipantId = null; // Reset participant for new block
+                        currentArmy = null; // Reset army for new block
                         Program.Logger.Debug("Processing defender results in CombatResults file.");
                     }
-
-                    if (isAttacker)
+                    else if ((isAttacker || isDefender) && line.Contains("\t\t\t\tmain_participant="))
                     {
-                        if (line.Contains("\t\t\t\tinital_soldiers=")) // Corrected typo "inital" to "initial" if it was intended, but keeping "inital" as per original file structure.
+                        currentParticipantId = Regex.Match(line, @"\d+").Groups[0].Value;
+                        List<Army> targetArmies = isAttacker ? attacker_armies : defender_armies;
+
+                        // Try to find the army where this character is the main commander
+                        currentArmy = targetArmies.FirstOrDefault(a => a.CommanderID == currentParticipantId);
+
+                        // If not found, check if it's a commander of a merged army within one of the main armies
+                        if (currentArmy == null)
                         {
-                            string edited_line = "\t\t\t\tinital_soldiers=" + initialTotalAttackerSoldiers;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: inital_soldiers={initialTotalAttackerSoldiers}");
-                            continue;
+                            foreach (var mainArmy in targetArmies)
+                            {
+                                if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.CommanderID == currentParticipantId))
+                                {
+                                    currentArmy = mainArmy; // The main army is the one we're interested in for reporting
+                                    break;
+                                }
+                            }
                         }
-                        else if (line.Contains("\t\t\t\tsurviving_soldiers="))
+                        Program.Logger.Debug($"Detected main_participant: {currentParticipantId}. Current Army found: {currentArmy?.ID ?? "None"}");
+                    }
+                    else if (isAttacker)
+                    {
+                        if (line.Contains("\t\t\t\tsurviving_soldiers="))
                         {
-                            int totalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
-                            string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Attacker: surviving_soldiers={totalFightingMen}");
+                            int totalFightingMen = 0;
+                            if (currentArmy != null)
+                            {
+                                totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
+                                string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
+                                streamWriter.WriteLine(edited_line);
+                                Program.Logger.Debug($"Attacker (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"WARNING: Attacker: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
+                                streamWriter.WriteLine(line); // Write original line if currentArmy is null
+                            }
                             continue;
                         }
                         else if (line.Contains("\t\t\t\t\t\ttype="))
@@ -1119,19 +1146,21 @@ namespace CrusaderWars.data.battle_results
                     }
                     else if (isDefender)
                     {
-                        if (line.Contains("\t\t\t\tinital_soldiers=")) // Corrected typo "inital" to "initial" if it was intended, but keeping "inital" as per original file structure.
+                        if (line.Contains("\t\t\t\tsurviving_soldiers="))
                         {
-                            string edited_line = "\t\t\t\tinital_soldiers=" + initialTotalDefenderSoldiers;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: inital_soldiers={initialTotalDefenderSoldiers}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\t\tsurviving_soldiers="))
-                        {
-                            int totalFightingMen = GetArmiesTotalFightingMen(defender_armies);
-                            string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
-                            streamWriter.WriteLine(edited_line);
-                            Program.Logger.Debug($"Defender: surviving_soldiers={totalFightingMen}");
+                            int totalFightingMen = 0;
+                            if (currentArmy != null)
+                            {
+                                totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
+                                string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
+                                streamWriter.WriteLine(edited_line);
+                                Program.Logger.Debug($"Defender (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"WARNING: Defender: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
+                                streamWriter.WriteLine(line); // Write original line if currentArmy is null
+                            }
                             continue;
                         }
                         else if (line.Contains("\t\t\t\t\t\ttype="))
@@ -1253,6 +1282,16 @@ namespace CrusaderWars.data.battle_results
                             regimentType = "";
                             Program.Logger.Debug("Defender: End of regiment block.");
                         }
+                    }
+                    else if (line == "\t\t\t}") // End of an attacker or defender block
+                    {
+                        isAttacker = false;
+                        isDefender = false;
+                        currentParticipantId = null;
+                        currentArmy = null;
+                        Program.Logger.Debug("Resetting participant state at end of alliance block.");
+                        streamWriter.WriteLine(line); // Write the closing brace
+                        continue; // Continue to next line, preventing default write
                     }
                     streamWriter.WriteLine(line);
                 }
