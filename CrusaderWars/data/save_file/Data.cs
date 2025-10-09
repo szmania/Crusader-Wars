@@ -238,6 +238,7 @@ namespace CrusaderWars
 
                 if(Start_CombatsFound && !End_CombatsFound)
                 {
+                    Data.SB_Combats.AppendLine(line); // Moved to the beginning of the block
                     if (line == "\t}") // Modified: Match specific indentation
                     {
                         Program.Logger.Debug("Found end of combats block.");
@@ -250,9 +251,6 @@ namespace CrusaderWars
                         End_CombatsFound = true; 
                         // Removed: return;
                     }
-
-                    Data.SB_Combats.AppendLine(line);
-
                 }
 
                 if(End_CombatsFound)
@@ -285,6 +283,7 @@ namespace CrusaderWars
 
                 if (Start_BattleResultsFound && !End_BattleResultsFound)
                 {
+                    Data.SB_CombatResults.AppendLine(line); // Moved to the beginning of the block
                     if (line == "\t}") // Modified: Match specific indentation
                     {
                         Program.Logger.Debug("Found end of combat_results block.");
@@ -297,9 +296,6 @@ namespace CrusaderWars
                         End_BattleResultsFound = true;
                         // Removed: return;
                     }
-
-                    Data.SB_CombatResults.AppendLine(line);
-
                 }
 
                 if (End_BattleResultsFound)
