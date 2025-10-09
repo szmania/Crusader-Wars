@@ -2209,7 +2209,7 @@ namespace CrusaderWars.data.battle_results
                 }
                 else if (inTargetSiegeBlock && trimmedLine.StartsWith("progress="))
                 {
-                    bool isSallyOut = attacker_armies.Any(a => a.IsGarrison());
+                    bool isSallyOut = attacker_armies.Concat(defender_armies).Any(a => a.IsGarrison() && a.IsPlayer());
                     bool siegeWonByBesieger = !isSallyOut && IsAttackerVictorious;
 
                     if (siegeWonByBesieger)
@@ -2246,7 +2246,8 @@ namespace CrusaderWars.data.battle_results
 
                         string outcomeLog;
                         if (isSallyOut) {
-                            outcomeLog = IsAttackerVictorious ? "Garrison won sally-out." : "Besieger won sally-out.";
+                            // In a sally-out, the garrison is the attacker. We know the player is the garrison.
+                            outcomeLog = IsAttackerVictorious ? "Player (garrison) won sally-out." : "Besieger won against player's sally-out.";
                         } else {
                             outcomeLog = "Besieger lost assault.";
                         }
