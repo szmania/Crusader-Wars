@@ -1258,37 +1258,74 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
-            // 1. Set winner (modifies Player_Combat in memory)
+            // 1. Set winner and phase changes on the main Player_Combat string
             string winner = GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
-            SetWinner(winner);
+            SetWinner(winner); // This modifies Player_Combat in memory
 
-            // 2. Apply casualty updates to the Player_Combat string
-            int attackerTotalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
-            Player_Combat = Regex.Replace(Player_Combat, @"(attacker={[\s\S]*?total_fighting_men=)\d+", $"$1{attackerTotalFightingMen}");
-            int attackerTotalLevyMen = GetArmiesTotalLevyMen(attacker_armies);
-            Player_Combat = Regex.Replace(Player_Combat, @"(attacker={[\s\S]*?total_levy_men=)\d+", $"$1{attackerTotalLevyMen}");
+            // 2. Isolate Attacker and Defender blocks to prevent regex cross-contamination
+            Match attackerMatch = Regex.Match(Player_Combat, @"(attacker={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
+            Match defenderMatch = Regex.Match(Player_Combat, @"(defender={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
 
-            int defenderTotalFightingMen = GetArmiesTotalFightingMen(defender_armies);
-            Player_Combat = Regex.Replace(Player_Combat, @"(defender={[\s\S]*?total_fighting_men=)\d+", $"$1{defenderTotalFightingMen}");
-            int defenderTotalLevyMen = GetArmiesTotalLevyMen(defender_armies);
-            Player_Combat = Regex.Replace(Player_Combat, @"(defender={[\s\S]*?total_levy_men=)\d+", $"$1{defenderTotalLevyMen}");
-
-            var all_armies = attacker_armies.Concat(defender_armies);
-            foreach(var army in all_armies)
+            if (!attackerMatch.Success || !defenderMatch.Success)
             {
-                if(army.ArmyRegiments == null) continue;
-                foreach(var armyRegiment in army.ArmyRegiments)
+                Program.Logger.Debug("CRITICAL: Could not isolate attacker or defender block from Player_Combat. Aborting modification.");
+                // Fallback: write the partially modified (winner only) combat block to temp
+                string fullContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+                string updatedContent = fullContent.Replace(Original_Player_Combat, Player_Combat);
+                File.WriteAllText(Writter.DataTEMPFilesPaths.Combats_Path(), updatedContent);
+                return;
+            }
+
+            string originalAttackerBlock = attackerMatch.Value;
+            string originalDefenderBlock = defenderMatch.Value;
+            string modifiedAttackerBlock = originalAttackerBlock;
+            string modifiedDefenderBlock = originalDefenderBlock;
+
+            // 3. Apply casualty updates to the ISOLATED blocks
+            // --- Attacker modifications ---
+            int attackerTotalFightingMen = GetArmiesTotalFightingMen(attacker_armies);
+            modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, @"(total_fighting_men=)[\d\.]+", $"$1{attackerTotalFightingMen}");
+            int attackerTotalLevyMen = GetArmiesTotalLevyMen(attacker_armies);
+            modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, @"(total_levy_men=)[\d\.]+", $"$1{attackerTotalLevyMen}");
+
+            foreach (var army in attacker_armies)
+            {
+                if (army.ArmyRegiments == null) continue;
+                foreach (var armyRegiment in army.ArmyRegiments)
                 {
-                    if(armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
+                    if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
-                    Player_Combat = Regex.Replace(Player_Combat, $@"(regiment={armyRegiment.ID}[\s\S]*?current=)\d+", $"$1{currentNum}");
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, $@"(regiment={armyRegiment.ID}[\s\S]*?current=)[\d\.]+", $"$1{currentNum}");
                 }
             }
 
-            // 3. Perform block replacement
-            string fullContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
-            string updatedContent = fullContent.Replace(Original_Player_Combat, Player_Combat);
-            File.WriteAllText(Writter.DataTEMPFilesPaths.Combats_Path(), updatedContent);
+            // --- Defender modifications ---
+            int defenderTotalFightingMen = GetArmiesTotalFightingMen(defender_armies);
+            modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, @"(total_fighting_men=)[\d\.]+", $"$1{defenderTotalFightingMen}");
+            int defenderTotalLevyMen = GetArmiesTotalLevyMen(defender_armies);
+            modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, @"(total_levy_men=)[\d\.]+", $"$1{defenderTotalLevyMen}");
+
+            foreach (var army in defender_armies)
+            {
+                if (army.ArmyRegiments == null) continue;
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
+                    string currentNum = armyRegiment.CurrentNum.ToString();
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, $@"(regiment={armyRegiment.ID}[\s\S]*?current=)[\d\.]+", $"$1{currentNum}");
+                }
+            }
+
+            // 4. Replace the original blocks in Player_Combat with the modified ones
+            Player_Combat = Player_Combat.Replace(originalAttackerBlock, modifiedAttackerBlock);
+            Player_Combat = Player_Combat.Replace(originalDefenderBlock, modifiedDefenderBlock);
+
+            // 5. Perform final block replacement into the full Combats.txt content
+            string fullFileContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+            string updatedFileContent = fullFileContent.Replace(Original_Player_Combat, Player_Combat);
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Combats_Path(), updatedFileContent);
             Program.Logger.Debug("Finished editing Combat file.");
         }
 
