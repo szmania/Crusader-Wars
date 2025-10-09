@@ -57,12 +57,14 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("Finished skipping CombatResults block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         CombatResults_NeedsSkiping = false;
+                        continue; // Added to prevent writing the closing brace
                     }
                     else if (Combats_NeedsSkiping && line == "\t}") // Modified: Match specific indentation
                     {
                         Program.Logger.Debug("Finished skipping Combats block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Combats_NeedsSkiping = false;
+                        continue; // Added to prevent writing the closing brace
                     }
                     // Corrected condition to match the top-level closing brace for the entire sieges block
                     else if (Sieges_NeedsSkiping && line == "}")
@@ -70,6 +72,7 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("Finished skipping Sieges block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Sieges_NeedsSkiping = false;
+                        continue; // Added to prevent writing the closing brace
                         // siegesFound = false; // No longer needed
                     }
                     else if (NeedSkiping && line == "\tarmy_regiments={")

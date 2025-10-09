@@ -127,9 +127,8 @@ namespace CrusaderWars
             else
             {
                 int main_kills = Kills_MainPhase.Where(y => y.Type == type).Sum(x => Int32.Parse(x.Kills));
-                kills = main_kills;
                 int pursuit_kills = Kills_PursuitPhase.Where(y => y.Type == type).Sum(x => Int32.Parse(x.Kills));
-                int difference = pursuit_kills - main_kills;
+                int difference = Math.Abs(pursuit_kills - main_kills);
                 kills = difference;
             }
             return kills;
@@ -148,8 +147,8 @@ namespace CrusaderWars
                 return 0;
             else
             {
-                deaths = army_reports.Where(y => y.GetTypeName() == type)
-                                     .Sum(x => (x.GetStarting() - x.GetAliveAfterPursuit()) - (x.GetStarting() - x.GetAliveBeforePursuit()));
+                deaths = Math.Abs(army_reports.Where(y => y.GetTypeName() == type)
+                                     .Sum(x => (x.GetStarting() - x.GetAliveAfterPursuit()) - (x.GetStarting() - x.GetAliveBeforePursuit())));
             }
                 
 
