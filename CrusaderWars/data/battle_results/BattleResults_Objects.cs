@@ -137,7 +137,7 @@ namespace CrusaderWars
         public int GetDeathAmountOfMainPhase(List<UnitCasualitiesReport> army_reports, string type)
         {
             int deaths = 0;
-            deaths = army_reports.Where(y => y.GetTypeName() == type).Sum(x => x.GetStarting() - x.GetAliveBeforePursuit());
+            deaths = Math.Abs(army_reports.Where(y => y.GetTypeName() == type).Sum(x => x.GetStarting() - x.GetAliveBeforePursuit()));
             return deaths;
         }
         public int GetDeathAmountOfPursuitPhase(List<UnitCasualitiesReport> army_reports, string type)

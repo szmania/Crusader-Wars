@@ -687,7 +687,7 @@ namespace CrusaderWars.data.battle_results
                     continue; // Skip this group if culture is unexpectedly null
                 }
 
-                int starting = matchingUnit.GetSoldiers();
+                int starting = matchingUnit.GetOriginalSoldiers();
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties

@@ -80,6 +80,7 @@ namespace CrusaderWars.data.save_file
         Owner? Owner {  get; set; }
         bool IsMercenaryBool { get; set; }
         int Soldiers { get; set; }
+        private int OriginalSoldiers { get; set; }
         string AttilaKey { get; set; }
         string AttilaFaction { get; set; }
         int Max { get; set; }
@@ -93,6 +94,7 @@ namespace CrusaderWars.data.save_file
             Name = regiment_name;
             UnitCulture = culture_obj;
             Soldiers = soldiers;
+            OriginalSoldiers = soldiers;
             Type = type;
             AttilaKey = string.Empty; // Initialize
             AttilaFaction = string.Empty; // Initialize
@@ -106,6 +108,7 @@ namespace CrusaderWars.data.save_file
             Name = regiment_name;
             UnitCulture = culture_obj;
             Soldiers = soldiers;
+            OriginalSoldiers = soldiers;
             Type = type;
             IsMercenaryBool = is_merc;
             AttilaKey = string.Empty; // Initialize
@@ -119,6 +122,7 @@ namespace CrusaderWars.data.save_file
             Name = regiment_name;
             UnitCulture = culture_obj;
             Soldiers = soldiers;
+            OriginalSoldiers = soldiers;
             Type = type;
             IsMercenaryBool = is_merc;
             Owner = owner;
@@ -167,6 +171,7 @@ namespace CrusaderWars.data.save_file
             return UnitCulture.GetHeritageName(); 
         }
         public int GetSoldiers() { return Soldiers; }
+        public int GetOriginalSoldiers() { return OriginalSoldiers; }
         public bool IsMerc() { return IsMercenaryBool; }
         public RegimentType GetRegimentType() { return Type; }
         public string GetLocName() { return LocName; }
