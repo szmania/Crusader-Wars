@@ -50,7 +50,7 @@ namespace CrusaderWars
             {
                 // New logic for siege battles
                 string player_character_id = DataSearch.Player_Character.GetID();
-                bool playerIsDefender = defender_armies.Any(army => army.Owner?.GetID() == player_character_id);
+                bool playerIsDefender = !attacker_armies.Any(army => army.Owner?.GetID() == player_character_id);
 
                 if (playerIsDefender)
                 {
@@ -642,16 +642,43 @@ namespace CrusaderWars
             string playerCharId = DataSearch.Player_Character.GetID();
 
             // The player is on LeftSide if their character ID matches the main participant or commander of LeftSide.
-            if (CK3LogData.LeftSide.GetMainParticipant().id == playerCharId || CK3LogData.LeftSide.GetCommander().id == playerCharId)
+            // This logic needs to be consistent with how playerIsDefender is determined in SetArmiesSides.
+            // If playerIsDefender is true, then the player is on the defender_armies side.
+            // If playerIsDefender is false, then the player is on the attacker_armies side.
+            // The CK3LogData.LeftSide/RightSide refers to the log's perspective, which might be swapped for besieged player.
+            // We need to use the `army.IsPlayer()` and `army.IsEnemy()` flags set by `SetArmiesSides` for consistency.
+
+            if (army.IsPlayer())
             {
-                playerRealmName = CK3LogData.LeftSide.GetRealmName();
-                enemyRealmName = CK3LogData.RightSide.GetRealmName();
+                // If this army is a player army, its realm name is the player's realm name.
+                // The enemy realm name is the other side's realm name from the log.
+                if (CK3LogData.LeftSide.GetMainParticipant().id == playerCharId || CK3LogData.LeftSide.GetCommander().id == playerCharId)
+                {
+                    playerRealmName = CK3LogData.LeftSide.GetRealmName();
+                    enemyRealmName = CK3LogData.RightSide.GetRealmName();
+                }
+                else
+                {
+                    playerRealmName = CK3LogData.RightSide.GetRealmName();
+                    enemyRealmName = CK3LogData.LeftSide.GetRealmName();
+                }
             }
-            else // Otherwise, the player is on RightSide
+            else // This is an enemy army
             {
-                playerRealmName = CK3LogData.RightSide.GetRealmName();
-                enemyRealmName = CK3LogData.LeftSide.GetRealmName();
+                // If this army is an enemy army, its realm name is the enemy's realm name.
+                // The player realm name is the player's realm name from the log.
+                if (CK3LogData.LeftSide.GetMainParticipant().id == playerCharId || CK3LogData.LeftSide.GetCommander().id == playerCharId)
+                {
+                    playerRealmName = CK3LogData.LeftSide.GetRealmName();
+                    enemyRealmName = CK3LogData.RightSide.GetRealmName();
+                }
+                else
+                {
+                    playerRealmName = CK3LogData.RightSide.GetRealmName();
+                    enemyRealmName = CK3LogData.LeftSide.GetRealmName();
+                }
             }
+
 
             //Write essential data
             if (isReinforcement)
