@@ -194,20 +194,20 @@ namespace CrusaderWars.terrain
             switch (mapSize)
             {
                 case "Medium":
-                    width = "750";
-                    height = "750";
+                    width = "900";
+                    height = "900";
                     break;
                 case "Big":
-                    width = "1100";
-                    height = "1100";
+                    width = "1300";
+                    height = "1300";
                     break;
                 case "Huge":
-                    width = "1500";
-                    height = "1500";
+                    width = "1750";
+                    height = "1750";
                     break;
                 default: // Fallback to original size if map size is unexpected
-                    width = "250";
-                    height = "250";
+                    width = "300";
+                    height = "300";
                     break;
             }
 
