@@ -50,7 +50,11 @@ namespace CrusaderWars
             {
                 // New logic for siege battles
                 string player_character_id = DataSearch.Player_Character.GetID();
-                bool playerIsDefender = !attacker_armies.Any(army => army.Owner?.GetID() == player_character_id);
+                // In the CK3 log, the RightSide always represents the initial besieged force.
+                // If the player is besieged, the mod swaps them to the RightSide.
+                // Therefore, the player is the defender in the Attila battle if their ID is on the RightSide of the log.
+                bool playerIsDefender = CK3LogData.RightSide.GetMainParticipant().id == player_character_id ||
+                                        CK3LogData.RightSide.GetCommander().id == player_character_id;
 
                 if (playerIsDefender)
                 {
@@ -1241,8 +1245,8 @@ namespace CrusaderWars
 
                     // Rout position for attacker (same side as deployment)
                     string attackerDeploymentDirection = Deployments.beta_GeDirection("attacker");
-                    (string routX, string routY) = GetRoutPositionCoordinates(attackerDeploymentDirection);
-                    victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
+                    (string routX, string stringY) = GetRoutPositionCoordinates(attackerDeploymentDirection);
+                    victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{stringY}\"/>");
                 }
                 else // Defender specific conditions for siege
                 {
