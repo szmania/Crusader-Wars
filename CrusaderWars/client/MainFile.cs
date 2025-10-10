@@ -772,6 +772,16 @@ namespace CrusaderWars
 
                 Label messageLabel = new Label();
                 messageLabel.Text = 
+                    "New Required Mod for Medieval Playthroughs!\n\n" +
+                    "• The High, Late, and Renaissance medieval playthroughs now require the 'Medieval Kingdoms 1212AD - Custom cities beta' mod.\n" +
+                    "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
+                    "----------------------------------------------------------\n\n" +
+                    "New Supported CK3 Mods!\n\n" +
+                    "• Added support for 'Bookmarks+'\n" +
+                    "  Link: https://steamcommunity.com/sharedfiles/filedetails/?id=2933252806\n\n" +
+                    "• Added support for 'More Bookmarks+'\n" +
+                    "  Link: https://steamcommunity.com/workshop/filedetails/?id=2216670956\n" +
+                    "----------------------------------------------------------\n\n" +
                     "Sieges Added!\n\n" +
                     "• Siege battles can be fought and won in all your favorite playthroughs!.\n";
                 messageLabel.Location = new Point(10, 10);
