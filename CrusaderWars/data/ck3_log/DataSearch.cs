@@ -255,7 +255,7 @@ namespace CrusaderWars
              ---------------------------------------------*/
 
             //Search player ID
-            string left_side_commander_id = Regex.Match(log, @"PlayerID:(\d+)").Groups[1].Value;
+            string left_side_commander_id = Regex.Match(log, @"LeftSide_ID:(\d+)").Groups[1].Value;
             string left_side_commander_culture_id = "";
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -268,7 +268,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Left side commander: ID={left_side_commander_id}, CultureID={left_side_commander_culture_id}");
 
             //Search enemy ID
-            string right_side_commander_id = Regex.Match(log, @"EnemyID:(\d+)").Groups[1].Value;
+            string right_side_commander_id = Regex.Match(log, @"RightSide_ID:(\d+)").Groups[1].Value;
             string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(.+)\n").Groups[1].Value;
             Program.Logger.Debug($"Right side commander: ID={right_side_commander_id}, CultureID={right_side_commander_culture_id}");
 
@@ -469,12 +469,12 @@ namespace CrusaderWars
             if(side is DataSearchSides.LeftSide) { 
                 pattern = @"PlayerProwess:(?<Num>\d+)";
                 rank = Int32.Parse(Regex.Match(log, @"PlayerRank:(?<Name>.+)").Groups["Name"].Value);
-                name = Regex.Match(log, @"PlayerName:(?<Name>.+)").Groups["Name"].Value;
+                name = Regex.Match(log, @"LeftSide_Name:(?<Name>.+)").Groups["Name"].Value;
             }
             else if (side is DataSearchSides.RightSide) { 
                 pattern = @"EnemyProwess:(?<Num>\d+)"; 
                 rank = Int32.Parse(Regex.Match(log, @"EnemyRank:(?<Name>.+)").Groups["Name"].Value);
-                name = Regex.Match(log, @"EnemyName:(?<Name>.+)").Groups["Name"].Value;
+                name = Regex.Match(log, @"RightSide_Name:(?<Name>.+)").Groups["Name"].Value;
             }
 
             Match prowess_match = Regex.Match(army_data, pattern);

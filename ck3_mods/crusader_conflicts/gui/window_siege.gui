@@ -939,7 +939,7 @@ window = {
                             duration = 0.01
                             next = "log_rightside_commander_id"
                             on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_ID:', Localize('player_id')))]"
                         }
 						
                         state = {	
@@ -947,7 +947,7 @@ window = {
                             duration = 0.01
                             next = "log_player_commander_name"
                             on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_ID:', Localize('enemy_id')))]"
                         }
                         
 						state = {	
@@ -955,7 +955,7 @@ window = {
 							duration = 0.01
 							next = "log_defender_commander_name"
 							on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
+							on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Name:', Localize('player_name')))]"			
 						}
 
 						state = {	
@@ -963,7 +963,7 @@ window = {
 							duration = 0.01
 							next = "print_special_building"
 							on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
+							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Name:', Localize('enemy_name')))]"			
 						}
 
 						state = {	
@@ -1308,7 +1308,7 @@ window = {
                             duration = 0.01
                             next = "log_rightside_commander_id"
                             on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_ID:', Localize('player_id')))]"
                         }
                         
                         state = {	
@@ -1316,7 +1316,7 @@ window = {
                             duration = 0.01
                             next = "log_player_commander_name"
                             on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_ID:', Localize('enemy_id')))]"
                         }
                         
                         state = {	
@@ -1324,7 +1324,7 @@ window = {
                             duration = 0.01
                             next = "log_defender_commander_name"
                             on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Name:', Localize('player_name')))]"			
                         }
 
                         state = {	
@@ -1332,7 +1332,7 @@ window = {
                             duration = 0.01
                             next = "print_special_building"
                             on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Name:', Localize('enemy_name')))]"			
                         }
 
                         state = {	
@@ -1677,7 +1677,7 @@ window = {
                             duration = 0.01
                             next = "log_rightside_commander_id"
                             on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_ID:', Localize('player_id')))]"
                         }
                         
                         state = {	
@@ -1685,7 +1685,7 @@ window = {
                             duration = 0.01
                             next = "log_player_commander_name"
                             on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_ID:', Localize('enemy_id')))]"
                         }
                         
                         state = {	
@@ -1693,7 +1693,7 @@ window = {
                             duration = 0.01
                             next = "log_defender_commander_name"
                             on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Name:', Localize('player_name')))]"			
                         }
 
                         state = {	
@@ -1701,7 +1701,7 @@ window = {
                             duration = 0.01
                             next = "print_special_building"
                             on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Name:', Localize('enemy_name')))]"			
                         }
 
                         state = {	
@@ -2046,7 +2046,7 @@ window = {
                             duration = 0.01
                             next = "log_rightside_commander_id"
                             on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerID:', Localize('player_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_ID:', Localize('player_id')))]"
                         }
                         
                         state = {	
@@ -2054,7 +2054,7 @@ window = {
                             duration = 0.01
                             next = "log_player_commander_name"
                             on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyID:', Localize('enemy_id')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_ID:', Localize('enemy_id')))]"
                         }
                         
                         state = {	
@@ -2062,7 +2062,7 @@ window = {
                             duration = 0.01
                             next = "log_defender_commander_name"
                             on_start = "[GetScriptedGui('left_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_name',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerName:', Localize('player_name')))]"			
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Name:', Localize('player_name')))]"			
                         }
 
                         state = {	
@@ -2070,7 +2070,7 @@ window = {
                             duration = 0.01
                             next = "print_special_building"
                             on_start = "[GetScriptedGui('right_name').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_name',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyName:', Localize('enemy_name')))]"			
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Name:', Localize('enemy_name')))]"			
                         }
 
                         state = {	

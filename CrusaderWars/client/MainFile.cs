@@ -27,7 +27,6 @@ using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 namespace CrusaderWars
 {
-    
     public partial class HomePage : Form
     {
         private LoadingScreen? loadingScreen;
