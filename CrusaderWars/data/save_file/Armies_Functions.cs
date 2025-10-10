@@ -148,6 +148,7 @@ namespace CrusaderWars.data.save_file
             string heritage_name = "";
             var found_cultures = new List<(string culture_id, string culture_name, string heritage_name)>();
 
+            int bracketCount = 0;
             int lineNum = 0; // Initialize line counter
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Cultures_Path()))
             {
@@ -164,10 +165,13 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug($"  [L:{lineNum}] Found CultureID: {culture_id}");
 
                         isSearchStared = true;
+                        bracketCount = 1;
                     }
-
-                    if (isSearchStared)
+                    else if (isSearchStared)
                     {
+                        bracketCount += line.Count(c => c == '{');
+                        bracketCount -= line.Count(c => c == '}');
+
                         // If we haven't found the culture name yet, search for it on this line.
                         if (string.IsNullOrEmpty(culture_name) && line.Contains("name="))
                         {
@@ -194,7 +198,7 @@ namespace CrusaderWars.data.save_file
                         }
 
                         // Check for the end of the culture block.
-                        if (Regex.IsMatch(line, @"^\t\t}"))
+                        if (bracketCount <= 0)
                         {
                             if (!string.IsNullOrEmpty(culture_id) && !string.IsNullOrEmpty(culture_name) && !string.IsNullOrEmpty(heritage_name))
                             {
@@ -207,6 +211,7 @@ namespace CrusaderWars.data.save_file
                                 Program.Logger.Debug($"[L:{lineNum}] WARNING: Reached end of culture block for ID={culture_id} but could not find name ('{culture_name}') or heritage ('{heritage_name}'). This culture will be skipped.");
                             }
                             isSearchStared = false;
+                            bracketCount = 0;
                             culture_id = ""; culture_name = ""; heritage_name = "";
                         }
                     }
