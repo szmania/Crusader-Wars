@@ -22,12 +22,14 @@ namespace CrusaderWars.unit_mapper
     {
         public string Faction { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
+        public List<string> ProvinceNames { get; set; } = new List<string>();
         public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
     internal class UniqueSettlementMap
     {
         public string BattleType { get; set; } = string.Empty;
+        public List<string> ProvinceNames { get; set; } = new List<string>();
         public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
@@ -91,7 +93,7 @@ namespace CrusaderWars.unit_mapper
                     return "LATE MEDIEVAL";
                 case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
                     return "RENAISSANCE";
-                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
+                case "OfficialCC_TheFallenEagle_AgeOfJustinain":
                     return "DARK AGES";
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
                 case "OfficialCC_TheFallenEagle_FireforgedEmpires":
@@ -162,8 +164,8 @@ namespace CrusaderWars.unit_mapper
             }
 
             // Sort both lists alphabetically
-            priorityFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
-            otherFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
+            priorityFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparer.OrdinalIgnoreCase));
+            otherFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparer.OrdinalIgnoreCase));
 
             // Combine the lists
             priorityFiles.AddRange(otherFiles);
@@ -240,6 +242,11 @@ namespace CrusaderWars.unit_mapper
                                         Faction = settlementNode.Attributes?["faction"]?.Value ?? string.Empty,
                                         BattleType = settlementNode.Attributes?["battle_type"]?.Value ?? string.Empty
                                     };
+                                    string provinceNamesAttr = settlementNode.Attributes?["province_names"]?.Value;
+                                    if (!string.IsNullOrEmpty(provinceNamesAttr))
+                                    {
+                                        settlementMap.ProvinceNames.AddRange(provinceNamesAttr.Split(',').Select(p => p.Trim()));
+                                    }
 
                                     foreach (XmlElement variantNode in settlementNode.ChildNodes)
                                     {
@@ -274,6 +281,11 @@ namespace CrusaderWars.unit_mapper
                                     {
                                         BattleType = settlementUniqueNode.Attributes?["battle_type"]?.Value ?? string.Empty
                                     };
+                                    string provinceNamesAttr = settlementUniqueNode.Attributes?["province_names"]?.Value;
+                                    if (!string.IsNullOrEmpty(provinceNamesAttr))
+                                    {
+                                        uniqueSettlementMap.ProvinceNames.AddRange(provinceNamesAttr.Split(',').Select(p => p.Trim()));
+                                    }
 
                                     foreach (XmlElement variantNode in settlementUniqueNode.ChildNodes)
                                     {
@@ -1427,13 +1439,29 @@ namespace CrusaderWars.unit_mapper
                 return cachedMap;
             }
 
-            // Priority 1: Search for a Unique Map
-            if (Terrains?.UniqueSettlementMaps != null && Terrains.UniqueSettlementMaps.Any())
+            // Priority 1: Unique Map by province_names attribute
+            if (Terrains?.UniqueSettlementMaps != null)
             {
-                Program.Logger.Debug("Searching for unique settlement map...");
+                var uniqueMapByProvName = Terrains.UniqueSettlementMaps
+                    .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.ProvinceNames.Contains(provinceName, StringComparer.OrdinalIgnoreCase));
+                
+                if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
+                {
+                    Program.Logger.Debug($"Found unique settlement map by 'province_names' attribute for Province '{provinceName}'.");
+                    int deterministicIndex = GetDeterministicIndex(provinceName, uniqueMapByProvName.Variants.Count);
+                    var selectedVariant = uniqueMapByProvName.Variants[deterministicIndex];
+                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y);
+                    return (selectedVariant.X, selectedVariant.Y);
+                }
+            }
+
+            // Priority 2: Unique Map by Variant key (existing logic)
+            if (Terrains?.UniqueSettlementMaps != null)
+            {
                 var matchingUniqueMaps = Terrains.UniqueSettlementMaps
-                                                 .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
-                                                 .ToList();
+                                         .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                         .ToList();
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
@@ -1445,72 +1473,70 @@ namespace CrusaderWars.unit_mapper
                         return (uniqueMatch.X, uniqueMatch.Y);
                     }
                 }
-                Program.Logger.Debug($"No unique settlement map variant found matching province '{provinceName}' for battle type '{battleType}'.");
-            }
-            else
-            {
-                Program.Logger.Debug("No unique settlement maps loaded in TerrainsUM.");
             }
 
-            // Priority 2: Search for a Generic Faction Map (with Default fallback)
-            if (Terrains?.SettlementMaps != null && Terrains.SettlementMaps.Any())
+            // Priority 3: Generic Map by province_names attribute (Specific Faction then Default)
+            if (Terrains?.SettlementMaps != null)
             {
-                Program.Logger.Debug("Searching for generic faction settlement map...");
+                var genericMapByProvName = Terrains.SettlementMaps
+                    .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.ProvinceNames.Contains(provinceName, StringComparer.OrdinalIgnoreCase));
+                
+                if (genericMapByProvName == null)
+                {
+                    genericMapByProvName = Terrains.SettlementMaps
+                        .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                               sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                               sm.ProvinceNames.Contains(provinceName, StringComparer.OrdinalIgnoreCase));
+                }
 
-                // First, try to find maps for the specific faction
+                if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
+                {
+                    Program.Logger.Debug($"Found generic settlement map for Faction '{genericMapByProvName.Faction}' by 'province_names' attribute for Province '{provinceName}'.");
+                    int deterministicIndex = GetDeterministicIndex(provinceName, genericMapByProvName.Variants.Count);
+                    var selectedVariant = genericMapByProvName.Variants[deterministicIndex];
+                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y);
+                    return (selectedVariant.X, selectedVariant.Y);
+                }
+            }
+
+            // Priority 4 & 5: Generic Map by faction (existing logic, excluding those with province_names)
+            if (Terrains?.SettlementMaps != null)
+            {
                 var matchingGenericMaps = Terrains.SettlementMaps
-                                                  .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                                               sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
-                                                  .ToList();
+                                          .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                       !sm.ProvinceNames.Any())
+                                          .ToList();
+                string usedFactionForLog = faction;
 
-                string usedFactionForLog = faction; // Keep track of which faction was actually used for logging
-
-                // If no maps found for the specific faction, try "Default"
                 if (!matchingGenericMaps.Any())
                 {
-                    Program.Logger.Debug($"No generic settlement map found for specific Faction: '{faction}'. Attempting fallback to 'Default' faction.");
                     matchingGenericMaps = Terrains.SettlementMaps
-                                                      .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
-                                                      .ToList();
-                    if (matchingGenericMaps.Any())
-                    {
-                        usedFactionForLog = "Default";
-                        Program.Logger.Debug($"Found generic settlement map for 'Default' faction.");
-                    }
+                                          .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                       !sm.ProvinceNames.Any())
+                                          .ToList();
+                    usedFactionForLog = "Default";
                 }
 
                 if (matchingGenericMaps.Any())
                 {
-                    // Aggregate all variants from all matching generic maps into a single list
                     var allGenericVariants = matchingGenericMaps.SelectMany(sm => sm.Variants).ToList();
-
                     if (allGenericVariants.Any())
                     {
-                        // Use a hash of the province name for deterministic selection
                         int deterministicIndex = GetDeterministicIndex(provinceName, allGenericVariants.Count);
                         var selectedVariant = allGenericVariants[deterministicIndex];
                         Program.Logger.Debug($"Deterministically selected settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
                         _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y);
                         return (selectedVariant.X, selectedVariant.Y);
                     }
-                    else
-                    {
-                        Program.Logger.Debug($"No variants found for generic settlement map Faction: '{usedFactionForLog}', BattleType: '{battleType}'.");
-                    }
                 }
-                else
-                {
-                    Program.Logger.Debug($"No generic settlement map found for Faction: '{usedFactionForLog}', BattleType: '{battleType}'.");
-                }
-            }
-            else
-            {
-                Program.Logger.Debug("No generic settlement maps loaded in TerrainsUM.");
             }
 
             // Final Fallback
-            Program.Logger.Debug($"No suitable settlement map variant (unique or generic) found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
+            Program.Logger.Debug($"No suitable settlement map variant found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
             return null;
         }
 
