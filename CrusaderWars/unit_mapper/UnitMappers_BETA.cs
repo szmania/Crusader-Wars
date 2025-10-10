@@ -1444,7 +1444,7 @@ namespace CrusaderWars.unit_mapper
             {
                 var uniqueMapByProvName = Terrains.UniqueSettlementMaps
                     .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                           sm.ProvinceNames.Contains(provinceName, StringComparer.OrdinalIgnoreCase));
+                                           sm.ProvinceNames.Any(p => provinceName.Contains(p, StringComparison.OrdinalIgnoreCase)));
                 
                 if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
                 {
@@ -1481,14 +1481,14 @@ namespace CrusaderWars.unit_mapper
                 var genericMapByProvName = Terrains.SettlementMaps
                     .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
                                            sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                           sm.ProvinceNames.Contains(provinceName, StringComparer.OrdinalIgnoreCase));
+                                           sm.ProvinceNames.Any(p => provinceName.Contains(p, StringComparison.OrdinalIgnoreCase)));
                 
                 if (genericMapByProvName == null)
                 {
                     genericMapByProvName = Terrains.SettlementMaps
                         .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
                                                sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                               sm.ProvinceNames.Contains(provinceName, StringComparer.OrdinalIgnoreCase));
+                                               sm.ProvinceNames.Any(p => provinceName.Contains(p, StringComparison.OrdinalIgnoreCase)));
                 }
 
                 if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
