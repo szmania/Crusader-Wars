@@ -1444,7 +1444,7 @@ namespace CrusaderWars.unit_mapper
             {
                 var uniqueMapByProvName = Terrains.UniqueSettlementMaps
                     .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                           sm.ProvinceNames.Any(p => provinceName.Contains(p, StringComparison.OrdinalIgnoreCase)));
+                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
                 
                 if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
                 {
@@ -1465,7 +1465,7 @@ namespace CrusaderWars.unit_mapper
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => v.Key.Contains(provinceName, StringComparison.OrdinalIgnoreCase));
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => v.Key.IndexOf(provinceName, StringComparison.OrdinalIgnoreCase) >= 0);
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
@@ -1481,14 +1481,14 @@ namespace CrusaderWars.unit_mapper
                 var genericMapByProvName = Terrains.SettlementMaps
                     .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
                                            sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                           sm.ProvinceNames.Any(p => provinceName.Contains(p, StringComparison.OrdinalIgnoreCase)));
+                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
                 
                 if (genericMapByProvName == null)
                 {
                     genericMapByProvName = Terrains.SettlementMaps
                         .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
                                                sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                               sm.ProvinceNames.Any(p => provinceName.Contains(p, StringComparison.OrdinalIgnoreCase)));
+                                               sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
                 }
 
                 if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
@@ -1542,7 +1542,7 @@ namespace CrusaderWars.unit_mapper
 
         public static void SetMapperImage()
         {
-            string destination_path = Directory.GetCurrentDirectory() + @"\data\battle Files\campaign_maps\main_attila_map\main_attila_map.png";
+            string destination_path = Directory.GetCurrentDirectory() + @"\data\battle files\campaign_maps\main_attila_map\main_attila_map.png";
             try
             {
                 if (LoadedUnitMapper_FolderPath == null)
