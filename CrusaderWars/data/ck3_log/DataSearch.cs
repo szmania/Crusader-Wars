@@ -643,7 +643,7 @@ namespace CrusaderWars
 
         static string SearchForWinter(string content)
         {
-            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\S]*?)LeftSide_ID").Groups[1].Value;
+            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)LeftSide_ID").Groups[1].Value;
 
             string[] AllWinter = new string[] {"Mild", "Normal", "Harsh" ,
                                               "suave", "normal", "duro" ,
