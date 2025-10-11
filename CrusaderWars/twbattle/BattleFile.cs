@@ -54,7 +54,8 @@ namespace CrusaderWars
                 // If the player is besieged, the mod swaps them to the RightSide.
                 // Therefore, the player is the defender in the Attila battle if their ID is on the RightSide of the log.
                 bool playerIsDefender = CK3LogData.RightSide.GetMainParticipant().id == player_character_id ||
-                                        CK3LogData.RightSide.GetCommander().id == player_character_id;
+                                        CK3LogData.RightSide.GetCommander().id == player_character_id ||
+                                        CK3LogData.RightSide.CheckIfHasKnight(player_character_id);
 
                 if (playerIsDefender)
                 {

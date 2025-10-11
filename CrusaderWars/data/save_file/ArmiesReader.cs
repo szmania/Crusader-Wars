@@ -91,7 +91,7 @@ namespace CrusaderWars.data.save_file
                 }
 
 
-                DataSearchSides? besiegerSide = null;
+                DataSearchSides besiegerSide = DataSearchSides.LeftSide; // Besiegers are always LeftSide in the log
                 var potentialBesiegerArmyIDs = new List<string>();
                 var potentialReliefArmyIDs = new List<string>();
 
@@ -140,12 +140,6 @@ namespace CrusaderWars.data.save_file
                         if (attackerCharIDs.Contains(ownerID) || (commanderID != null && attackerCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.LeftSide;
                         else if (defenderCharIDs.Contains(ownerID) || (commanderID != null && defenderCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.RightSide;
                         else continue;
-
-                        if (besiegerSide == null)
-                        {
-                            besiegerSide = currentArmySide;
-                            Program.Logger.Debug($"Besieger side identified as: {besiegerSide}. This side owns the mobile armies.");
-                        }
 
                         // Categorize army IDs into potential besiegers or relief forces
                         if (currentArmySide == besiegerSide)
