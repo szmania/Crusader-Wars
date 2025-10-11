@@ -613,11 +613,10 @@ namespace CrusaderWars
                 UniqueMaps.ReadSpecialBuilding(building_key);
             }
         }
-
-
+        
         static string SearchForTerrain(string content)
         {
-            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)PlayerID").Groups[1].Value;
+            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)LeftSide_ID").Groups[1].Value;
             terrain_data = HomePage.RemoveASCII(terrain_data);
 
             string region_data = Regex.Match(terrain_data, @"Region:(.+)").Groups[1].Value;
@@ -644,7 +643,7 @@ namespace CrusaderWars
 
         static string SearchForWinter(string content)
         {
-            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)PlayerID").Groups[1].Value;
+            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)LeftSide_ID").Groups[1].Value;
 
             string[] AllWinter = new string[] {"Mild", "Normal", "Harsh" ,
                                               "suave", "normal", "duro" ,
