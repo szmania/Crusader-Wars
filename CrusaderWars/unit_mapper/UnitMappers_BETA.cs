@@ -164,8 +164,8 @@ namespace CrusaderWars.unit_mapper
             }
 
             // Sort both lists alphabetically
-            priorityFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparer.OrdinalIgnoreCase));
-            otherFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparer.OrdinalIgnoreCase));
+            priorityFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
+            otherFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
 
             // Combine the lists
             priorityFiles.AddRange(otherFiles);
