@@ -622,7 +622,7 @@ namespace CrusaderWars
             string region_data = Regex.Match(terrain_data, @"Region:(.+)").Groups[1].Value;
             TerrainGenerator.SetRegion(region_data);
 
-            string terrain = Regex.Match(terrain_data, @"TOOLTIP:TERRAIN(.+) L").Groups[1].Value;
+            string terrain = Regex.Match(terrain_data, @"TOOLTIP:TERRAIN,?(?<terrain>\w+)\s+L;?").Groups["terrain"].Value;
             return terrain;
         }
 
@@ -643,7 +643,7 @@ namespace CrusaderWars
 
         static string SearchForWinter(string content)
         {
-            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)LeftSide_ID").Groups[1].Value;
+            string terrain_data = Regex.Match(content, "---------Completed---------([\\s\S]*?)LeftSide_ID").Groups[1].Value;
 
             string[] AllWinter = new string[] {"Mild", "Normal", "Harsh" ,
                                               "suave", "normal", "duro" ,
