@@ -50,13 +50,34 @@ namespace CrusaderWars
             {
                 // New logic for siege battles
                 string player_character_id = DataSearch.Player_Character.GetID();
-                // In the CK3 log, the RightSide always represents the initial besieged force.
-                // If the player is besieged, the mod swaps them to the RightSide.
-                // Therefore, the player is the defender in the Attila battle if their ID is on the RightSide of the log.
-                bool playerIsDefender = CK3LogData.RightSide.GetMainParticipant().id == player_character_id ||
-                                        CK3LogData.RightSide.GetCommander().id == player_character_id ||
-                                        CK3LogData.RightSide.CheckIfHasKnight(player_character_id) || 
-                                        !attacker_armies.Any(army => army.Owner?.GetID() == player_character_id);
+
+                bool playerIsOnLeftSide = CK3LogData.LeftSide.GetMainParticipant().id == player_character_id ||
+                                          CK3LogData.LeftSide.GetCommander().id == player_character_id ||
+                                          CK3LogData.LeftSide.CheckIfHasKnight(player_character_id);
+
+                bool playerIsOnRightSide = CK3LogData.RightSide.GetMainParticipant().id == player_character_id ||
+                                           CK3LogData.RightSide.GetCommander().id == player_character_id ||
+                                           CK3LogData.RightSide.CheckIfHasKnight(player_character_id);
+
+                bool playerIsDefender;
+
+                if (playerIsOnLeftSide)
+                {
+                    playerIsDefender = false; // Player is on the left side, thus attacking
+                    Program.Logger.Debug("Siege battle: Player identified on LeftSide (Attacker).");
+                }
+                else if (playerIsOnRightSide)
+                {
+                    playerIsDefender = true; // Player is on the right side, thus defending
+                    Program.Logger.Debug("Siege battle: Player identified on RightSide (Defender).");
+                }
+                else
+                {
+                    // Fallback: If player character is not explicitly found on either side,
+                    // assume they are defending if their army is not among the attackers.
+                    playerIsDefender = !attacker_armies.Any(army => army.Owner?.GetID() == player_character_id);
+                    Program.Logger.Debug($"Siege battle: Player side not explicitly found in log. Using fallback: playerIsDefender = {playerIsDefender}.");
+                }
 
                 if (playerIsDefender)
                 {
