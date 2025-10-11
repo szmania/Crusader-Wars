@@ -183,18 +183,18 @@ namespace CrusaderWars.mod_manager
                 if (verificationResult.MismatchedFiles.Any())
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("The required TW:Attila mod files for this playthrough have different versions than expected.");
-                    sb.AppendLine("This could cause instability and unit mapping issues.");
+                    sb.AppendLine("One or more required Total War: Attila mod files for this playthrough have different versions than expected.");
+                    sb.AppendLine("This could mean the mod is outdated, or it has been updated by the mod author and may still be compatible.");
                     sb.AppendLine("\nMismatched files:");
                     foreach (var (fileName, _) in verificationResult.MismatchedFiles)
                     {
                         sb.AppendLine($"- {fileName}");
                     }
                     sb.AppendLine("\nPlease ensure you have the latest versions of these mods from the Steam Workshop.");
-                    sb.AppendLine("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j");
-                    sb.AppendLine("\nAre you sure you want to continue?");
+                    sb.AppendLine("If your mods are up-to-date and you still see this warning, please report it to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j so we can update our compatibility check.");
+                    sb.AppendLine("\nDo you want to activate this playthrough anyway?");
 
-                    var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: Mod Version Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                     if (dialogResult == DialogResult.No)
                     {
