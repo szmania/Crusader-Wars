@@ -126,31 +126,44 @@ namespace CrusaderWars.sieges
                 return newUnits; // Return empty list
             }
 
-            // 2. Calculate soldiers for each unit type and handle rounding
-            var soldiersPerType = new Dictionary<(string unit_key, string name), int>();
-            int totalAllocated = 0;
+            // 2. Calculate initial allocation and fractional parts using Largest Remainder Method
+            var unitCalculations = new List<(string unit_key, string name, double exactSoldiers, int allocatedSoldiers, double fractionalPart)>();
+            int currentTotalAllocated = 0;
 
             foreach (var garrisonUnit in garrisonComposition)
             {
-                int soldiersForThisType = (int)Math.Round(garrisonSize * (garrisonUnit.porcentage / totalPercentage));
-                soldiersPerType[(garrisonUnit.unit_key, garrisonUnit.name)] = soldiersForThisType;
-                totalAllocated += soldiersForThisType;
+                double exactSoldiers = garrisonSize * (garrisonUnit.porcentage / totalPercentage);
+                int allocatedSoldiers = (int)Math.Floor(exactSoldiers); // Take the floor
+                double fractionalPart = exactSoldiers - allocatedSoldiers;
+
+                unitCalculations.Add((garrisonUnit.unit_key, garrisonUnit.name, exactSoldiers, allocatedSoldiers, fractionalPart));
+                currentTotalAllocated += allocatedSoldiers;
             }
 
-            // 3. Adjust for any rounding errors by adding/subtracting the difference to the largest group
-            int roundingDifference = garrisonSize - totalAllocated;
-            if (roundingDifference != 0 && soldiersPerType.Any())
+            // 3. Distribute the remainder using the Largest Remainder Method
+            int remainder = garrisonSize - currentTotalAllocated;
+            if (remainder > 0)
             {
-                var largestGroup = soldiersPerType.OrderByDescending(kvp => kvp.Value).First();
-                soldiersPerType[largestGroup.Key] += roundingDifference;
+                // Sort by fractional part in descending order
+                var sortedUnitCalculations = unitCalculations.OrderByDescending(uc => uc.fractionalPart).ToList();
+
+                for (int i = 0; i < remainder; i++)
+                {
+                    // Add 1 soldier to the unit with the largest fractional part
+                    // Use modulo to cycle through if remainder is larger than the number of unit types
+                    int indexToAdjust = i % sortedUnitCalculations.Count;
+                    var itemToAdjust = sortedUnitCalculations[indexToAdjust];
+                    sortedUnitCalculations[indexToAdjust] = (itemToAdjust.unit_key, itemToAdjust.name, itemToAdjust.exactSoldiers, itemToAdjust.allocatedSoldiers + 1, itemToAdjust.fractionalPart);
+                }
+                unitCalculations = sortedUnitCalculations; // Update the main list with the adjusted values
             }
 
             // 4. Create the actual Unit objects for each unit type
-            foreach (var kvp in soldiersPerType)
+            foreach (var uc in unitCalculations)
             {
-                var unit_key = kvp.Key.unit_key;
-                var name = kvp.Key.name; // This name is like "Garrison_25"
-                var soldiers = kvp.Value;
+                var unit_key = uc.unit_key;
+                var name = uc.name; // This name is like "Garrison_25"
+                var soldiers = uc.allocatedSoldiers; // Allocated soldiers
 
                 if (soldiers > 0)
                 {
