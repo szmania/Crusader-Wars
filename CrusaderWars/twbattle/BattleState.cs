@@ -52,6 +52,9 @@ namespace CrusaderWars.twbattle
             }
             if (System.IO.File.Exists(LogSnippetFile))
             {
+                string backupLogSnippetFile = LogSnippetFile + ".bak";
+                Program.Logger.Debug($"Backing up battle log snippet to: '{backupLogSnippetFile}'");
+                System.IO.File.Copy(LogSnippetFile, backupLogSnippetFile, true);
                 Program.Logger.Debug($"Deleting battle log snippet file: '{LogSnippetFile}'");
                 System.IO.File.Delete(LogSnippetFile);
             }
