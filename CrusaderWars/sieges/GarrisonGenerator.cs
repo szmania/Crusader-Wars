@@ -158,16 +158,25 @@ namespace CrusaderWars.sieges
                 unitCalculations = sortedUnitCalculations; // Update the main list with the adjusted values
             }
 
-            // 4. Create the actual Unit objects for each unit type
-            foreach (var uc in unitCalculations)
+            // 4. Group by unit_key and sum soldiers, then create the actual Unit objects
+            var groupedUnits = unitCalculations
+                .GroupBy(uc => uc.unit_key)
+                .Select(g => new
+                {
+                    UnitKey = g.Key,
+                    TotalSoldiers = g.Sum(uc => uc.allocatedSoldiers),
+                    OriginalName = g.First().name // Keep one original name for logging if needed
+                })
+                .ToList();
+
+            foreach (var groupedUc in groupedUnits)
             {
-                var unit_key = uc.unit_key;
-                var name = uc.name; // This name is like "Garrison_25"
-                var soldiers = uc.allocatedSoldiers; // Allocated soldiers
+                var unit_key = groupedUc.UnitKey;
+                var soldiers = groupedUc.TotalSoldiers;
 
                 if (soldiers > 0)
                 {
-                    Program.Logger.Debug($"Allocating {soldiers} soldiers to distributed garrison unit '{unit_key}' (original name: {name})");
+                    Program.Logger.Debug($"Allocating {soldiers} soldiers to distributed garrison unit '{unit_key}' (merged from multiple definitions)");
                     // Create the Unit, which represents the soldiers in Attila.
                     // Use "Garrison" as the generic name for these distributed units.
                     var unit = new Unit("Garrison", soldiers, garrisonCulture, RegimentType.Garrison);
