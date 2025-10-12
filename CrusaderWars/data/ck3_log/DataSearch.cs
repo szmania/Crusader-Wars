@@ -467,13 +467,13 @@ namespace CrusaderWars
 
             string pattern = @"";
             if(side is DataSearchSides.LeftSide) { 
-                pattern = @"PlayerProwess:(?<Num>\d+)";
-                rank = Int32.Parse(Regex.Match(log, @"PlayerRank:(?<Name>.+)").Groups["Name"].Value);
+                pattern = @"LeftSide_Prowess:(?<Num>\d+)";
+                rank = Int32.Parse(Regex.Match(log, @"LeftSide_Rank:(?<Name>.+)").Groups["Name"].Value);
                 name = Regex.Match(log, @"LeftSide_Name:(?<Name>.+)").Groups["Name"].Value;
             }
             else if (side is DataSearchSides.RightSide) { 
-                pattern = @"EnemyProwess:(?<Num>\d+)"; 
-                rank = Int32.Parse(Regex.Match(log, @"EnemyRank:(?<Name>.+)").Groups["Name"].Value);
+                pattern = @"RightSide_Prowess:(?<Num>\d+)"; 
+                rank = Int32.Parse(Regex.Match(log, @"RightSide_Rank:(?<Name>.+)").Groups["Name"].Value);
                 name = Regex.Match(log, @"RightSide_Name:(?<Name>.+)").Groups["Name"].Value;
             }
 
