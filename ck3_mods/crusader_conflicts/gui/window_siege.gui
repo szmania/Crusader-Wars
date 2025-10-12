@@ -645,7 +645,7 @@ window = {
 						size = { 50 50 }
 						#alpha = .60
 						#visible = yes
-			            visible = "[And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
+			            visible = "[And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress)), GetVariableSystem.HasValue('cw_op_control', 'control1'))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
                         #visible = yes
                         #enabled = "[And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress))]"
                         
@@ -773,7 +773,7 @@ window = {
 							name = "log_leftside_prowess_skill"
 							duration = 0.01
 							next = "log_player_rank"
-							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('attacker_prowess')))]"
 
 						}
 
@@ -782,7 +782,7 @@ window = {
 							duration = 0.01
 							next = "log_leftside_knight_count"
 							on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
 						}
 						
 						state = {
@@ -826,7 +826,7 @@ window = {
 							duration = 0.01
 							next = "log_rightside_rank"
 							on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-							on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
 						}
 
 						state = {
@@ -834,7 +834,7 @@ window = {
 							duration = 0.01
 							next = "log_garrison"		
 							on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
-							on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+							on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
 						}
 						state = {
 							name = "log_garrison"
@@ -1142,7 +1142,7 @@ window = {
                             name = "log_leftside_prowess_skill"
                             duration = 0.01
                             next = "log_player_rank"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('attacker_prowess')))]"
 
                         }
 
@@ -1151,7 +1151,7 @@ window = {
                             duration = 0.01
                             next = "log_leftside_knight_count"
                             on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
                         }
                         
                         state = {
@@ -1195,7 +1195,7 @@ window = {
                             duration = 0.01
                             next = "log_rightside_rank"
                             on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
                         }
 
                         state = {
@@ -1203,7 +1203,7 @@ window = {
                             duration = 0.01
                             next = "log_garrison"		
                             on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
                         }
                         state = {
                             name = "log_garrison"
@@ -1511,7 +1511,7 @@ window = {
                             name = "log_leftside_prowess_skill"
                             duration = 0.01
                             next = "log_player_rank"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('attacker_prowess')))]"
 
                         }
 
@@ -1520,7 +1520,7 @@ window = {
                             duration = 0.01
                             next = "log_leftside_knight_count"
                             on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
                         }
                         
                         state = {
@@ -1564,7 +1564,7 @@ window = {
                             duration = 0.01
                             next = "log_rightside_rank"
                             on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
                         }
 
                         state = {
@@ -1572,7 +1572,7 @@ window = {
                             duration = 0.01
                             next = "log_garrison"		
                             on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
                         }
                         state = {
                             name = "log_garrison"
@@ -1880,7 +1880,7 @@ window = {
                             name = "log_leftside_prowess_skill"
                             duration = 0.01
                             next = "log_player_rank"
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('attacker_prowess')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('attacker_prowess')))]"
 
                         }
 
@@ -1889,7 +1889,7 @@ window = {
                             duration = 0.01
                             next = "log_leftside_knight_count"
                             on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
                         }
                         
                         state = {
@@ -1933,7 +1933,7 @@ window = {
                             duration = 0.01
                             next = "log_rightside_rank"
                             on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"								
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
                         }
 
                         state = {
@@ -1941,7 +1941,7 @@ window = {
                             duration = 0.01
                             next = "log_garrison"		
                             on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',SiegeWindow.GetSiege.GetProvince.GetController.MakeScope).End)]"													
-                            on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+                            on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
                         }
                         state = {
                             name = "log_garrison"

@@ -1180,7 +1180,7 @@ window = {
 				duration = 0.01
 				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('player_prowess')))]"
 
 			}
 
@@ -1189,7 +1189,7 @@ window = {
 				duration = 0.01
 				next = "player_knight_count"
 				on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
 
 			}
 
@@ -1236,7 +1236,7 @@ window = {
 				duration = 0.01
 				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
 
 			}
 
@@ -1245,7 +1245,7 @@ window = {
 				duration = 0.01
 				next = "enemy_knight_count"		
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"													
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
 
 			}			
 
@@ -1510,7 +1510,7 @@ window = {
 				duration = 0.01
 				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('player_prowess')))]"
 
 			}
 
@@ -1519,7 +1519,7 @@ window = {
 				duration = 0.01
 				next = "player_knight_count"
 				on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
 
 			}
 
@@ -1566,7 +1566,7 @@ window = {
 				duration = 0.01
 				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
 
 			}
 
@@ -1575,7 +1575,7 @@ window = {
 				duration = 0.01
 				next = "enemy_knight_count"		
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"													
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
 
 			}			
 
@@ -1839,7 +1839,7 @@ window = {
 				duration = 0.01
 				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('player_prowess')))]"
 
 			}
 
@@ -1848,7 +1848,7 @@ window = {
 				duration = 0.01
 				next = "player_knight_count"
 				on_start = "[GetScriptedGui('left_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_commander',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
 
 			}
 
@@ -1895,7 +1895,7 @@ window = {
 				duration = 0.01
 				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
 
 			}
 
@@ -1904,7 +1904,7 @@ window = {
 				duration = 0.01
 				next = "enemy_knight_count"			
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"												
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
 
 			}			
 
@@ -2168,7 +2168,7 @@ window = {
 				duration = 0.01
 				next = "log_leftside_rank"
 				on_start = "[GetScriptedGui('left_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('left_prowess',CombatWindow.GetLeftSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerProwess:', Localize('player_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Prowess:', Localize('player_prowess')))]"
 
 			}
 
@@ -2176,7 +2176,7 @@ window = {
 				name = "log_leftside_rank"
 				duration = 0.01
 				next = "player_knight_count"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('PlayerRank:', Localize('player_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('LeftSide_Rank:', Localize('player_rank')))]"
 
 			}
 
@@ -2224,7 +2224,7 @@ window = {
 				duration = 0.01
 				next = "log_rightside_rank"
 				on_start = "[GetScriptedGui('right_prowess').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_prowess',CombatWindow.GetRightSideCommander.MakeScope).End)]"								
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyProwess:', Localize('enemy_prowess')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Prowess:', Localize('enemy_prowess')))]"
 
 			}
 
@@ -2233,7 +2233,7 @@ window = {
 				duration = 0.01
 				next = "enemy_knight_count"
 				on_start = "[GetScriptedGui('right_commander').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('right_commander',CombatWindow.GetRightSideCommander.MakeScope).End)]"
-				on_finish = "[ExecuteConsoleCommand(Concatenate('EnemyRank:', Localize('enemy_rank')))]"
+				on_finish = "[ExecuteConsoleCommand(Concatenate('RightSide_Rank:', Localize('enemy_rank')))]"
 
 			}			
 
