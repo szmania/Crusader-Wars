@@ -231,24 +231,21 @@ namespace CrusaderWars
             Program.Logger.Debug("Modifiers searched and set for both sides.");
 
             /*---------------------------------------------
-             * ::::::::::::::Main Participants::::::::::::::
-             ---------------------------------------------*/
-            string left_side_mainparticipant_id = Regex.Match(log, @"LeftSide_Owner_ID:(.+)\n").Groups[1].Value;
-            string left_side_mainparticipant_culture_id = Regex.Match(log, @"LeftSide_Owner_Culture:(.+)\n").Groups[1].Value;
-            CK3LogData.LeftSide.SetMainParticipant((left_side_mainparticipant_id, left_side_mainparticipant_culture_id));
-            Program.Logger.Debug($"Left side main participant: ID={left_side_mainparticipant_id}, CultureID={left_side_mainparticipant_culture_id}");
-
-            string right_side_mainparticipant_id = Regex.Match(log, @"RightSide_Owner_ID:(.+)\n").Groups[1].Value;
-            string right_side_mainparticipant_culture_id = Regex.Match(log, @"RightSide_Owner_Culture:(.+)\n").Groups[1].Value;
-            CK3LogData.RightSide.SetMainParticipant((right_side_mainparticipant_id, right_side_mainparticipant_culture_id));
-            Program.Logger.Debug($"Right side main participant: ID={right_side_mainparticipant_id}, CultureID={right_side_mainparticipant_culture_id}");
-            /*---------------------------------------------
              * ::::::::::::::Player Character::::::::::::::
              ---------------------------------------------*/
             string player_culture_id = Regex.Match(log, @"PlayerCharacter_Culture:(.+)\n").Groups[1].Value;
             string playerID = Regex.Match(log, @"PlayerCharacter_ID:(.+)\n").Groups[1].Value;
             Player_Character = new PlayerChar(playerID, player_culture_id);
             Program.Logger.Debug($"Player character: ID={playerID}, CultureID={player_culture_id}");
+
+            /*---------------------------------------------
+             * ::::::::::::::Main Participants::::::::::::::
+             ---------------------------------------------*/
+            string left_side_mainparticipant_id = Regex.Match(log, @"LeftSide_Owner_ID:(.+)\n").Groups[1].Value;
+            string left_side_mainparticipant_culture_id = Regex.Match(log, @"LeftSide_Owner_Culture:(.+)\n").Groups[1].Value;
+
+            string right_side_mainparticipant_id = Regex.Match(log, @"RightSide_Owner_ID:(.+)\n").Groups[1].Value;
+            string right_side_mainparticipant_culture_id = Regex.Match(log, @"RightSide_Owner_Culture:(.+)\n").Groups[1].Value;
 
             /*---------------------------------------------
              * ::::::::::::Commanders ID's:::::::::::::::::
@@ -265,11 +262,65 @@ namespace CrusaderWars
             {
                 left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:(\d+)").Groups[1].Value;
             }
-            Program.Logger.Debug($"Left side commander: ID={left_side_commander_id}, CultureID={left_side_commander_culture_id}");
 
             //Search enemy ID
             string right_side_commander_id = Regex.Match(log, @"RightSide_ID:(\d+)").Groups[1].Value;
             string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(.+)\n").Groups[1].Value;
+
+            // --- NEW CORRECTION LOGIC for invalid log data ---
+            if (left_side_mainparticipant_id == "4294967295" && !string.IsNullOrEmpty(left_side_commander_id))
+            {
+                Program.Logger.Debug("Invalid LeftSide_Owner_ID detected. Correcting with LeftSide_ID.");
+                left_side_mainparticipant_id = left_side_commander_id;
+
+                if (left_side_mainparticipant_culture_id == "4294967295")
+                {
+                    Program.Logger.Debug("Invalid LeftSide_Owner_Culture detected. Looking up culture for commander ID.");
+                    string corrected_culture_id = CrusaderWars.data.save_file.Armies_Functions.GetCharacterCultureID(left_side_commander_id);
+                    if (!string.IsNullOrEmpty(corrected_culture_id))
+                    {
+                        left_side_mainparticipant_culture_id = corrected_culture_id;
+                        left_side_commander_culture_id = corrected_culture_id; // Also correct the commander's culture
+                        Program.Logger.Debug($"Found and applied corrected culture ID: {corrected_culture_id}");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"WARNING: Could not find culture for commander {left_side_commander_id}. Culture will remain invalid.");
+                    }
+                }
+            }
+            // Safeguard for right side
+            if (right_side_mainparticipant_id == "4294967295" && !string.IsNullOrEmpty(right_side_commander_id))
+            {
+                Program.Logger.Debug("Invalid RightSide_Owner_ID detected. Correcting with RightSide_ID.");
+                right_side_mainparticipant_id = right_side_commander_id;
+
+                if (right_side_mainparticipant_culture_id == "4294967295")
+                {
+                    Program.Logger.Debug("Invalid RightSide_Owner_Culture detected. Looking up culture for commander ID.");
+                    string corrected_culture_id = CrusaderWars.data.save_file.Armies_Functions.GetCharacterCultureID(right_side_commander_id);
+                    if (!string.IsNullOrEmpty(corrected_culture_id))
+                    {
+                        right_side_mainparticipant_culture_id = corrected_culture_id;
+                        right_side_commander_culture_id = corrected_culture_id; // Also correct the commander's culture
+                        Program.Logger.Debug($"Found and applied corrected culture ID: {corrected_culture_id}");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"WARNING: Could not find culture for commander {right_side_commander_id}. Culture will remain invalid.");
+                    }
+                }
+            }
+            // --- END NEW LOGIC ---
+
+            CK3LogData.LeftSide.SetMainParticipant((left_side_mainparticipant_id, left_side_mainparticipant_culture_id));
+            Program.Logger.Debug($"Left side main participant: ID={left_side_mainparticipant_id}, CultureID={left_side_mainparticipant_culture_id}");
+
+            CK3LogData.RightSide.SetMainParticipant((right_side_mainparticipant_id, right_side_mainparticipant_culture_id));
+            Program.Logger.Debug($"Right side main participant: ID={right_side_mainparticipant_id}, CultureID={right_side_mainparticipant_culture_id}");
+
+            Program.Logger.Debug($"Left side commander: ID={left_side_commander_id}, CultureID={left_side_commander_culture_id}");
+
             Program.Logger.Debug($"Right side commander: ID={right_side_commander_id}, CultureID={right_side_commander_culture_id}");
 
             /*---------------------------------------------
