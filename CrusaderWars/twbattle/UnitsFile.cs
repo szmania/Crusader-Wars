@@ -316,8 +316,8 @@ namespace CrusaderWars
     
                         Program.Logger.Debug($"Processing levies for faction '{factionName}' with a total of {total_faction_levy_soldiers} soldiers.");
     
-                        var levy_porcentages = UnitMappers_BETA.GetFactionLevies(factionName);
-                        BETA_LevyComposition(merged_levy_unit, army, levy_porcentages, army_xp);
+                        var (levy_porcentages, factionUsed) = UnitMappers_BETA.GetFactionLevies(factionName);
+                        BETA_LevyComposition(merged_levy_unit, army, levy_porcentages, army_xp, factionUsed);
                     }
                 }
 
@@ -381,7 +381,7 @@ namespace CrusaderWars
         }
 
 
-        static void BETA_LevyComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_levy_porcentages, int army_xp)
+        static void BETA_LevyComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_levy_porcentages, int army_xp, string factionUsed)
         {
             if (faction_levy_porcentages == null || faction_levy_porcentages.Count < 1)
             {
@@ -418,7 +418,7 @@ namespace CrusaderWars
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 
-                string logLine = $"    - Levy Attila Unit: {random.unit_key}, Soldiers: {Levies_Data.UnitSoldiers} (1x unit of {Levies_Data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                string logLine = $"    - Levy Attila Unit: {random.unit_key}, Soldiers: {Levies_Data.UnitSoldiers} (1x unit of {Levies_Data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {factionUsed}";
                 BattleLog.AddLevyLog(army.ID, logLine);
 
                 i++;
@@ -459,7 +459,7 @@ namespace CrusaderWars
                 assignedSoldiers += result;
 
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
-                string logLine = $"    - Levy Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                string logLine = $"    - Levy Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {factionUsed}";
                 BattleLog.AddLevyLog(army.ID, logLine);
 
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";

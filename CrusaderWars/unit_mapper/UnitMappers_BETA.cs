@@ -482,7 +482,7 @@ namespace CrusaderWars.unit_mapper
 
             if (LoadedUnitMapper_FolderPath == null)
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get unit max.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get unit max.");
                 return 0; // Or throw an exception
             }
 
@@ -621,7 +621,7 @@ namespace CrusaderWars.unit_mapper
             Program.Logger.Debug($"Getting subculture for faction: '{attila_faction}'");
             if (LoadedUnitMapper_FolderPath == null)
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get subculture.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get subculture.");
                 return ""; // Return empty string if not found
             }
 
@@ -773,12 +773,12 @@ namespace CrusaderWars.unit_mapper
         }
 
 
-        public static List<(int porcentage, string unit_key, string name, string max)> GetFactionLevies(string attila_faction)
+        public static (List<(int porcentage, string unit_key, string name, string max)>, string) GetFactionLevies(string attila_faction)
         {
             Program.Logger.Debug($"Getting faction levies: '{attila_faction}'");
             if (LoadedUnitMapper_FolderPath == null)
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get faction levies.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get faction levies.");
                 throw new Exception("Unit mapper folder path not configured");
             }
 
@@ -818,13 +818,13 @@ namespace CrusaderWars.unit_mapper
             if (specificLevies.Any())
             {
                 Program.Logger.Debug($"Using specific levy definitions for faction '{attila_faction}'.");
-                return specificLevies;
+                return (specificLevies, attila_faction);
             }
 
             if (defaultLevies.Any())
             {
                 Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Using 'Default' faction definitions.");
-                return defaultLevies;
+                return (defaultLevies, "Default");
             }
 
 
@@ -843,7 +843,7 @@ namespace CrusaderWars.unit_mapper
             Program.Logger.Debug($"Getting faction garrison for: '{attila_faction}' at holding level: {holdingLevel}");
             if (LoadedUnitMapper_FolderPath == null)
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get faction garrison.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get faction garrison.");
                 throw new Exception("Unit mapper folder path not configured");
             }
 
@@ -934,7 +934,7 @@ namespace CrusaderWars.unit_mapper
         {
             if (LoadedUnitMapper_FolderPath == null)
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot search in titles file.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot search in titles file.");
                 return (NOT_FOUND_KEY, false);
             }
 
@@ -986,7 +986,7 @@ namespace CrusaderWars.unit_mapper
         {
             if (LoadedUnitMapper_FolderPath == null)
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot search in faction files.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot search in faction files.");
                 return (NOT_FOUND_KEY, false);
             }
 
@@ -1043,6 +1043,11 @@ namespace CrusaderWars.unit_mapper
             if (specific_unit.key != NOT_FOUND_KEY)
             {
                 return specific_unit;
+            }
+
+            if (default_unit.key != NOT_FOUND_KEY && unit.GetAttilaFaction() != "Default" && unit.GetAttilaFaction() != "DEFAULT")
+            {
+                Program.Logger.Debug($"  - INFO: Unit '{unit.GetName()}' not found in its specific faction '{unit.GetAttilaFaction()}'. Using fallback mapping from 'Default' faction.");
             }
 
             return default_unit;
@@ -1223,7 +1228,14 @@ namespace CrusaderWars.unit_mapper
                 return ProcessUnitKeyResult(unit, default_key, defaultIsSiege);
             }
 
-            Program.Logger.Debug($"  - CRITICAL: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
+            if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
+            {
+                Program.Logger.Debug($"  - INFO: No single key mapping for '{unit.GetName()}' (Type: {unit.GetRegimentType()}). This is expected as they are processed as a composition later.");
+            }
+            else
+            {
+                Program.Logger.Debug($"  - ERROR: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
+            }
             return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, false); // This will be the found key or NOT_FOUND_KEY
         }
 
@@ -1234,7 +1246,7 @@ namespace CrusaderWars.unit_mapper
 
             if (LoadedUnitMapper_FolderPath == null)
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get default unit key.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get default unit key.");
                 return (NOT_FOUND_KEY, false);
             }
 
@@ -1311,12 +1323,12 @@ namespace CrusaderWars.unit_mapper
                 Program.Logger.Debug("WARNING: HeritageName is null/empty");
             }
 
-            string heritage_faction = "";
-            string culture_faction = "";
+            (string faction, string file) heritage_mapping = ("", "");
+            (string faction, string file) culture_mapping = ("", "");
 
             if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath))
             {
-                Program.Logger.Debug("CRITICAL ERROR: LoadedUnitMapper_FolderPath is not set. Cannot get Attila faction.");
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get Attila faction.");
                 throw new Exception("Unit mapper folder path not configured");
             }
             
@@ -1329,6 +1341,8 @@ namespace CrusaderWars.unit_mapper
             {
                 if (Path.GetExtension(xml_file) == ".xml")
                 {
+                    string currentFile = Path.GetFileName(xml_file);
+                    Program.Logger.Debug($"Scanning cultures file: {currentFile}");
                     XmlDocument CulturesFile = new XmlDocument();
                     CulturesFile.Load(xml_file);
 
@@ -1344,8 +1358,8 @@ namespace CrusaderWars.unit_mapper
                             string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
                             if (!string.IsNullOrEmpty(found_heritage_faction))
                             {
-                                heritage_faction = found_heritage_faction;
-                                Program.Logger.Debug($"Matched heritage: {HeritageName}->faction:{heritage_faction}");
+                                heritage_mapping = (found_heritage_faction, currentFile);
+                                Program.Logger.Debug($"  - Found heritage mapping: {HeritageName} -> {heritage_mapping.faction}");
                             }
 
                             foreach(XmlNode culture in heritage.ChildNodes)
@@ -1358,8 +1372,8 @@ namespace CrusaderWars.unit_mapper
                                     string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
                                     if (!string.IsNullOrEmpty(found_culture_faction))
                                     {
-                                        culture_faction = found_culture_faction;
-                                        Program.Logger.Debug($"Matched culture: {CultureName}->faction:{culture_faction}");
+                                        culture_mapping = (found_culture_faction, currentFile);
+                                        Program.Logger.Debug($"  - Found culture mapping: {CultureName} -> {culture_mapping.faction}");
                                     }
                                 }
                             }
@@ -1369,13 +1383,15 @@ namespace CrusaderWars.unit_mapper
             }
 
             string faction = "";
-            if (!string.IsNullOrEmpty(culture_faction))
+            if (!string.IsNullOrEmpty(culture_mapping.faction))
             {
-                faction = culture_faction;
+                faction = culture_mapping.faction;
+                Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using specific culture mapping from '{culture_mapping.file}'.");
             }
-            else if (!string.IsNullOrEmpty(heritage_faction))
+            else if (!string.IsNullOrEmpty(heritage_mapping.faction))
             {
-                faction = heritage_faction;
+                faction = heritage_mapping.faction;
+                Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using heritage mapping from '{heritage_mapping.file}' (no specific culture match).");
             }
 
             if (string.IsNullOrEmpty(faction))
@@ -1404,6 +1420,7 @@ namespace CrusaderWars.unit_mapper
                                         faction = heritage.Attributes["faction"]!.Value;
                                         if (!string.IsNullOrEmpty(faction))
                                         {
+                                            Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using fallback 'Default/Default' mapping from '{Path.GetFileName(xml_file)}'.");
                                             break;
                                         }
                                     }
@@ -1418,11 +1435,11 @@ namespace CrusaderWars.unit_mapper
 
             if (string.IsNullOrEmpty(faction))
             {
-                Program.Logger.Debug($"Faction not found for Culture '{CultureName}', Heritage '{HeritageName}' and fallback to Default/Default failed.");
+                Program.Logger.Debug($"ERROR: Faction not found for Culture '{CultureName}', Heritage '{HeritageName}'. All fallbacks failed.");
             }
             else
             {
-                Program.Logger.Debug($"Found faction '{faction}' for Culture '{CultureName}', Heritage '{HeritageName}'.");
+                Program.Logger.Debug($"Final faction for '{CultureName}/{HeritageName}' is '{faction}'.");
             }
 
             return faction;
