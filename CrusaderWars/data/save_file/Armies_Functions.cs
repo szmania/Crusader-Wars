@@ -95,7 +95,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Finished populating regiments with cultures.");
         }
 
-        static string GetCharacterCultureID(string character_id)
+        internal static string GetCharacterCultureID(string character_id)
         {
             Program.Logger.Debug($"Getting culture ID for character '{character_id}'...");
             bool isSearchStarted = false;
