@@ -785,46 +785,37 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            List<(int porcentage, string unit_key, string name, string max)> specificLevies = new List<(int porcentage, string unit_key, string name, string max)>();
-            List<(int porcentage, string unit_key, string name, string max)> defaultLevies = new List<(int porcentage, string unit_key, string name, string max)>();
+            files_paths.Reverse(); // Search from last-loaded to first
 
+            // Priority 1: Search for specific faction levies in reverse file order
             foreach (var xml_file in files_paths)
             {
-                if (Path.GetExtension(xml_file) == ".xml")
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
+
+                var foundSpecific = Levies(FactionsFile, attila_faction);
+                if (foundSpecific.Any())
                 {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue;
-
-                    // Check for specific faction levies and overwrite if found
-                    var foundSpecific = Levies(FactionsFile, attila_faction);
-                    if (foundSpecific.Any())
-                    {
-                        specificLevies = foundSpecific;
-                        Program.Logger.Debug($"Found/overwrote specific levy definitions for faction '{attila_faction}' from file '{Path.GetFileName(xml_file)}'.");
-                    }
-
-                    // Check for default faction levies and overwrite if found
-                    var foundDefault = Levies(FactionsFile, "Default");
-                    if (foundDefault.Any())
-                    {
-                        defaultLevies = foundDefault;
-                        Program.Logger.Debug($"Found/overwrote default levy definitions from file '{Path.GetFileName(xml_file)}'.");
-                    }
+                    Program.Logger.Debug($"Found specific levy definitions for faction '{attila_faction}' in file '{Path.GetFileName(xml_file)}'. Using this definition.");
+                    return (foundSpecific, attila_faction);
                 }
             }
 
-            // Prioritize specific levies over default ones
-            if (specificLevies.Any())
+            // Priority 2: If not found, search for default faction levies in reverse file order
+            Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Searching for 'Default' faction definitions.");
+            foreach (var xml_file in files_paths.ToList()) // Create a copy to iterate again
             {
-                Program.Logger.Debug($"Using specific levy definitions for faction '{attila_faction}'.");
-                return (specificLevies, attila_faction);
-            }
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
 
-            if (defaultLevies.Any())
-            {
-                Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Using 'Default' faction definitions.");
-                return (defaultLevies, "Default");
+                var foundDefault = Levies(FactionsFile, "Default");
+                if (foundDefault.Any())
+                {
+                    Program.Logger.Debug($"Found 'Default' levy definitions in file '{Path.GetFileName(xml_file)}'. Using this definition as fallback.");
+                    return (foundDefault, "Default");
+                }
             }
 
 
@@ -993,64 +984,51 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
 
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false) ;
             //Garrison units also skip this, as their keys are set directly
             if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"
 
-            (string key, bool isSiege) specific_unit = (NOT_FOUND_KEY, false);
-            (string key, bool isSiege) default_unit = (NOT_FOUND_KEY, false);
+            // Priority 1: Search for a specific faction mapping in reverse file order
             foreach (var xml_file in files_paths)
             {
-                if (Path.GetExtension(xml_file) == ".xml")
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{unit.GetAttilaFaction()}']");
+
+                if (factionNode != null)
                 {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue; // Added null check
-
-                    //MAA|COMMANDER|KNIGHT
-                    foreach (XmlNode element in FactionsFile.DocumentElement.ChildNodes)
+                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit);
+                    if (foundKey != NOT_FOUND_KEY)
                     {
-                        if (element is XmlComment) continue;
-                        if (element is XmlElement)
-                        {
-                            string faction = element.Attributes?["name"]?.Value ?? string.Empty;
-
-                            //Store Default unit key first
-                            if (faction == "Default" || faction == "DEFAULT")
-                            {
-                                var (foundKey, foundIsSiege) = FindUnitKeyInFaction(element, unit);
-                                if (foundKey != NOT_FOUND_KEY)
-                                {
-                                    default_unit = (foundKey, foundIsSiege); // Overwrite default key
-                                }
-                            }
-                            //Then stores culture specific unit key
-                            else if (faction == unit.GetAttilaFaction())
-                            {
-                                var (foundKey, foundIsSiege) = FindUnitKeyInFaction(element, unit);
-                                if (foundKey != NOT_FOUND_KEY)
-                                {
-                                    specific_unit = (foundKey, foundIsSiege); // Overwrite specific key
-                                }
-                            }
-                        }
+                        Program.Logger.Debug($"  - INFO: Found mapping for unit '{unit.GetName()}' in faction '{unit.GetAttilaFaction()}' from file '{Path.GetFileName(xml_file)}'.");
+                        return (foundKey, foundIsSiege);
                     }
                 }
             }
 
-            if (specific_unit.key != NOT_FOUND_KEY)
+            // Priority 2: If no specific mapping found, search for a default mapping in reverse file order
+            Program.Logger.Debug($"  - INFO: Unit '{unit.GetName()}' not found in its specific faction '{unit.GetAttilaFaction()}'. Searching for fallback mapping in 'Default' faction.");
+            foreach (var xml_file in files_paths)
             {
-                return specific_unit;
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='Default' or @name='DEFAULT']");
+
+                if (factionNode != null)
+                {
+                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit);
+                    if (foundKey != NOT_FOUND_KEY)
+                    {
+                        Program.Logger.Debug($"  - INFO: Found 'Default' fallback mapping for unit '{unit.GetName()}' from file '{Path.GetFileName(xml_file)}'.");
+                        return (foundKey, foundIsSiege);
+                    }
+                }
             }
 
-            if (default_unit.key != NOT_FOUND_KEY && unit.GetAttilaFaction() != "Default" && unit.GetAttilaFaction() != "DEFAULT")
-            {
-                Program.Logger.Debug($"  - INFO: Unit '{unit.GetName()}' not found in its specific faction '{unit.GetAttilaFaction()}'. Using fallback mapping from 'Default' faction.");
-            }
-
-            return default_unit;
+            return (NOT_FOUND_KEY, false);
         }
 
         static (string, bool) FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
