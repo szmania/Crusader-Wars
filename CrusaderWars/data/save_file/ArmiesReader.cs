@@ -1544,45 +1544,51 @@ namespace CrusaderWars.data.save_file
 
         private static void ReadArmiesUnits()
         {
-            bool isSearchStarted = false;
-            Army? army = null;
+            bool isInsideBlock = false;
+            string armyId = "";
+            string ownerId = "";
 
             using (StreamReader SR = new StreamReader(Writter.DataFilesPaths.Units_Path()))
             {
                 string? line;
-                while((line = SR.ReadLine()) != null)
+                while ((line = SR.ReadLine()) != null)
                 {
-
-                    if (Regex.IsMatch(line, @"\t\d+={") && !isSearchStarted)
+                    if (Regex.IsMatch(line, @"\t\d+={") && !isInsideBlock)
                     {
-                        string id = Regex.Match(line, @"\t(\d+)={").Groups[1].Value;
-                        var searchingData = Armies_Functions.SearchUnit(id, attacker_armies);
-                        if(searchingData.searchHasStarted)
+                        isInsideBlock = true;
+                        armyId = "";
+                        ownerId = "";
+                    }
+                    else if (isInsideBlock)
+                    {
+                        if (line.Contains("\t\towner="))
                         {
-                            isSearchStarted = true;
-                            army = searchingData.army;
+                            ownerId = Regex.Match(line, @"\d+").Value;
                         }
-                        else
+                        else if (line.Contains("\t\tarmy="))
                         {
-                            searchingData = Armies_Functions.SearchUnit(id, defender_armies);
-                            if(searchingData.searchHasStarted)
+                            armyId = Regex.Match(line, @"\d+").Value;
+                        }
+                        else if (line == "\t}")
+                        {
+                            if (!string.IsNullOrEmpty(armyId) && !string.IsNullOrEmpty(ownerId))
                             {
-                                isSearchStarted = true;
-                                army= searchingData.army;
+                                var (searchHasStarted, army) = Armies_Functions.SearchUnit(armyId, attacker_armies);
+                                if (!searchHasStarted)
+                                {
+                                    (searchHasStarted, army) = Armies_Functions.SearchUnit(armyId, defender_armies);
+                                }
+
+                                if (searchHasStarted && army != null)
+                                {
+                                    army.SetOwner(ownerId);
+                                }
                             }
+                            isInsideBlock = false;
+                            armyId = "";
+                            ownerId = "";
                         }
                     }
-                    else if(isSearchStarted && line.Contains("\t\towner="))
-                    {
-                        string id = Regex.Match(line, @"\d+").Value;
-                        army?.SetOwner(id);
-
-                    }
-                    else if (isSearchStarted && line == "\t}")
-                    {
-                        isSearchStarted = false;
-                    }
-
                 }
             }
         }
