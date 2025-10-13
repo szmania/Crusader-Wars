@@ -79,7 +79,9 @@ namespace CrusaderWars.data.save_file
             File.WriteAllText(Writter.DataFilesPaths.Accolades(), "");
 
             //Clear Sieges File
-            File.WriteAllText(@".\data\save_file_data\Sieges.txt", "");
+            File.WriteAllText(Writter.DataFilesPaths.Sieges_Path(), "");
+            //Clear Sieges TEMP File
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Sieges_Path(), "");
             Program.Logger.Debug("Finished clearing all temporary save file data.");
         }
 
