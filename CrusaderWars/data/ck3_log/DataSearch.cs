@@ -196,6 +196,9 @@ namespace CrusaderWars
             string attackerArmyComposition = Regex.Match(log, @"---------Attacker Army---------([\s\S]*?)Attacker Martial:").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Attacker Army Composition for siege.");
             twbattle.Sieges.SetAttackerArmyComposition(attackerArmyComposition);
+
+            // Calculate the holding level after all siege data is parsed.
+            twbattle.Sieges.CalculateAndSetHoldingLevel();
         }
 
         public static void Search(string log)
