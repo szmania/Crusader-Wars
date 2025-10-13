@@ -563,6 +563,8 @@ namespace CrusaderWars.data.save_file
                     }
                 }
 
+                int initialLevyTotal = units.Where(u => u.GetRegimentType() == RegimentType.Levy).Sum(u => u.GetSoldiers());
+                Program.Logger.Debug($"Initial total levy soldiers for army {army.ID} before organization: {initialLevyTotal}");
 
                 // Separate character units from regular units to prevent merging
                 var characterUnits = units.Where(u => u.GetRegimentType() == RegimentType.Commander || u.GetRegimentType() == RegimentType.Knight).ToList();
