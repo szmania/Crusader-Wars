@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
 using CrusaderWars.data.battle_results;
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars
 {
@@ -72,6 +73,11 @@ namespace CrusaderWars
             EnemyCommanderAccoladeID = "";
             PlayerCommanderAccolade = ("","","");
             EnemyCommanderAccolade = ("","","");
+
+            Province_Buildings.Clear();
+            twbattle.BattleState.IsSiegeBattle = false;
+            twbattle.BattleState.HasReliefArmy = false;
+            UnitMappers_BETA.ClearProvinceMapCache();
 
             BattleResult.SiegeID = null; // Reset SiegeID
             BattleResult.Player_Combat = null; // Reset Player_Combat
