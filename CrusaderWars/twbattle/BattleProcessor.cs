@@ -23,7 +23,13 @@ namespace CrusaderWars.twbattle
 {
     public static class BattleProcessor
     {
-        public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true)
+        private class AutofixState
+        {
+            public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
+            public int NextKeyIndexToReplace { get; set; } = 0;
+        }
+
+        public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
         {
             UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
@@ -442,8 +448,114 @@ namespace CrusaderWars.twbattle
                 // Check if Attila process is still running
                 if (Process.GetProcessesByName("Attila").Length == 0)
                 {
-                    Program.Logger.Debug("Attila process not found while waiting for battle to end. Assuming crash or user exit.");
-                    return false; // Indicate abnormal termination. The caller will handle the UI reset.
+                    Program.Logger.Debug("Attila process not found. Checking if it was a crash.");
+
+                    // If battle ended normally, it's not a crash.
+                    if (BattleResult.HasBattleEnded(attilaLogPath))
+                    {
+                        Program.Logger.Debug("Battle log indicates a normal exit. Proceeding with results.");
+                        battleEnded = true;
+                        continue; // Continue to the result processing part of the loop
+                    }
+
+                    Program.Logger.Debug("Attila process terminated without a complete battle log. Presumed crash.");
+
+                    // Autofix logic starts here
+                    if (autofixState == null) // First crash
+                    {
+                        Program.Logger.Debug("First crash detected. Prompting user for autofix.");
+                        DialogResult userResponse = DialogResult.No;
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            userResponse = MessageBox.Show(form,
+                                "It appears Total War: Attila has crashed or was closed prematurely. This is often caused by an incompatible custom unit.\n\nWould you like to attempt an automatic fix?\n\nThe application will try to replace one potentially problematic unit type at a time with a safe default and restart the battle.",
+                                "Crusader Conflicts: Attila Crash Detected",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question);
+                        });
+
+                        if (userResponse == DialogResult.No)
+                        {
+                            Program.Logger.Debug("User declined autofix. Aborting battle.");
+                            return false; // User cancelled
+                        }
+
+                        Program.Logger.Debug("User accepted autofix. Initializing autofix process.");
+                        autofixState = new AutofixState();
+
+                        var allUnits = attacker_armies.SelectMany(a => a.Units).Concat(defender_armies.SelectMany(a => a.Units));
+                        autofixState.ProblematicUnitKeys = allUnits
+                            .Where(u => u.GetRegimentType() == RegimentType.MenAtArms || u.GetRegimentType() == RegimentType.Levy || u.GetRegimentType() == RegimentType.Garrison)
+                            .Select(u => u.GetAttilaUnitKey())
+                            .Where(key => !string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
+                            .Distinct()
+                            .ToList();
+
+                        if (!autofixState.ProblematicUnitKeys.Any())
+                        {
+                            Program.Logger.Debug("Autofix initiated, but no potentially problematic custom units were found to replace.");
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                MessageBox.Show(form,
+                                    "The autofix process could not find any replaceable custom units in the armies.\n\nThe crash may be caused by something else (e.g., a game bug, outdated drivers, or a corrupted installation).\n\nThe battle will be aborted.",
+                                    "Crusader Conflicts: Autofix Failed",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                            });
+                            return false;
+                        }
+                        Program.Logger.Debug($"Found {autofixState.ProblematicUnitKeys.Count} unique unit keys to test: {string.Join(", ", autofixState.ProblematicUnitKeys)}");
+                    }
+                    else // Subsequent crash
+                    {
+                        Program.Logger.Debug("Subsequent crash during autofix process. Continuing automatically.");
+                    }
+
+                    // Common Autofix Logic
+                    if (autofixState.NextKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
+                    {
+                        Program.Logger.Debug("Autofix failed. All problematic units have been replaced, but Attila continues to crash.");
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            MessageBox.Show(form,
+                                "The automatic fix failed. All potentially problematic units were replaced, but the game still crashed.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
+                                "Crusader Conflicts: Autofix Failed",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                        });
+                        return false;
+                    }
+
+                    string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextKeyIndexToReplace];
+                    Program.Logger.Debug($"Autofix attempt {autofixState.NextKeyIndexToReplace + 1}/{autofixState.ProblematicUnitKeys.Count}: Replacing unit key '{keyToReplace}'.");
+
+                    var allArmies = attacker_armies.Concat(defender_armies);
+                    foreach (var army in allArmies)
+                    {
+                        foreach (var unit in army.Units)
+                        {
+                            if (unit.GetAttilaUnitKey() == keyToReplace)
+                            {
+                                var (defaultKey, isSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
+                                if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                                {
+                                    Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{defaultKey}'.");
+                                    unit.SetUnitKey(defaultKey);
+                                    unit.SetIsSiege(isSiege); // Also update siege status
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"  - WARNING: Could not find a default unit for type {unit.GetRegimentType()} to replace '{keyToReplace}'. The unit may be dropped.");
+                                }
+                            }
+                        }
+                    }
+
+                    autofixState.NextKeyIndexToReplace++;
+
+                    Program.Logger.Debug("Relaunching battle with modified unit composition.");
+                    // Recursive call to restart the battle process
+                    return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
                 }
 
                 battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
