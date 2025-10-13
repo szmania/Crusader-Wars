@@ -418,7 +418,7 @@ namespace CrusaderWars.data.save_file
             {
                 if (unit.GetRegimentType() == RegimentType.Levy && unit.GetName() != "Levy" && unit.GetName() != "Garrison") continue; // Skip placeholder levies and garrisons
 
-                Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', IsMercenary='{unit.IsMerc()}'");
+                Program.Logger.Debug($"Attempting to get AttilaKey for Unit: Name='{unit.GetName()}', CK3 Type='{unit.GetRegimentType()}', Culture='{unit.GetCulture()}', Heritage='{unit.GetHeritage()}', Attila Faction: '{unit.GetAttilaFaction()}', IsMercenary='{unit.IsMerc()}'");
                 var (key, isSiege) = UnitMappers_BETA.GetUnitKey(unit);
                 unit.SetIsSiege(isSiege);
 
