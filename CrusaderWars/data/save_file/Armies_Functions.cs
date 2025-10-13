@@ -424,19 +424,28 @@ namespace CrusaderWars.data.save_file
 
                 if (key == UnitMappers_BETA.NOT_FOUND_KEY)
                 {
-                    Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' ({unit.GetCulture()}). Attempting to find a default fallback.");
-                    var (fallbackKey, fallbackIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
-                    unit.SetIsSiege(fallbackIsSiege);
-
-                    if (fallbackKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                    if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
                     {
-                        Program.Logger.Debug($"Using default fallback unit key '{fallbackKey}' for unit '{unit.GetName()}'.");
-                        unit.SetUnitKey(fallbackKey);
+                        // This is expected for Levies and Garrisons, as they are handled by composition later.
+                        // We set an empty key, and they will be processed in BETA_AddArmyUnits.
+                        unit.SetUnitKey(string.Empty);
                     }
                     else
                     {
-                        Program.Logger.Debug($"WARNING: No default fallback unit key found for type '{unit.GetRegimentType()}'. Unit '{unit.GetName()}' will be dropped.");
-                        unit.SetUnitKey(string.Empty); 
+                        Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' (Culture: {unit.GetCulture()}, Attila Faction: {unit.GetAttilaFaction()}). Attempting to find a default fallback.");
+                        var (fallbackKey, fallbackIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
+                        unit.SetIsSiege(fallbackIsSiege);
+
+                        if (fallbackKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                        {
+                            Program.Logger.Debug($"Using default fallback unit key '{fallbackKey}' for unit '{unit.GetName()}'.");
+                            unit.SetUnitKey(fallbackKey);
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"WARNING: No default fallback unit key found for type '{unit.GetRegimentType()}'. Unit '{unit.GetName()}' will be dropped.");
+                            unit.SetUnitKey(string.Empty);
+                        }
                     }
                 }
                 else
