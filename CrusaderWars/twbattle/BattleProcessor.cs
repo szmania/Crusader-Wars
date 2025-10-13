@@ -15,6 +15,7 @@ using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.mod_manager;
 using CrusaderWars.sieges;
+using CrusaderWars.terrain;
 using CrusaderWars.unit_mapper;
 using static CrusaderWars.HomePage; // To access nested static classes like Games, ProcessCommands
 
@@ -103,6 +104,36 @@ namespace CrusaderWars.twbattle
                     foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
 
                     BattleLog.Reset();
+                    // Add battle log header
+                    try
+                    {
+                        var header = new StringBuilder();
+                        header.AppendLine();
+                        header.AppendLine("=========================================================================");
+                        header.AppendLine($"BATTLE LOG ENTRY: {DateTime.Now}");
+                        header.AppendLine("=========================================================================");
+
+                        string battleYear = Date.Year.ToString();
+                        string leftRealm = CK3LogData.LeftSide.GetRealmName();
+                        string rightRealm = CK3LogData.RightSide.GetRealmName();
+                        string battleType = BattleState.IsSiegeBattle ? "Siege Battle" : "Field Battle";
+                        string province = BattleResult.ProvinceName ?? "Unknown Province";
+                        string terrain = TerrainGenerator.TerrainType ?? "Unknown Terrain";
+
+                        header.AppendLine($"Year: {battleYear}");
+                        header.AppendLine($"Battle Type: {battleType}");
+                        header.AppendLine($"Location: {province} ({terrain})");
+                        header.AppendLine($"Belligerents: {leftRealm} (Attackers in log) vs. {rightRealm} (Defenders in log)");
+                        header.AppendLine($"Initial Strength: {left_side_total} vs. {right_side_total}");
+                        header.AppendLine("-------------------------------------------------------------------------");
+                        header.AppendLine("--- PRE-BATTLE ARMY COMPOSITION (Scaled for Attila) ---");
+                        header.AppendLine("-------------------------------------------------------------------------");
+                        File.AppendAllText(@".\data\battle.log", header.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Failed to write battle log header: {ex.Message}");
+                    }
                     //Create Battle
                     Program.Logger.Debug("Creating battle file...");
                     BattleFile.BETA_CreateBattle(attacker_armies, defender_armies);
@@ -591,6 +622,21 @@ namespace CrusaderWars.twbattle
                     //  WRITE TO CK3 SAVE FILE
                     Program.Logger.Debug("Writing results to gamestate file...");
                     BattleResult.SendToSaveFile(form.path_editedSave);
+
+                    // Add battle log footer
+                    try
+                    {
+                        var footer = new StringBuilder();
+                        footer.AppendLine("-------------------------------------------------------------------------");
+                        footer.AppendLine("--- BATTLE COMPLETE ---");
+                        footer.AppendLine("=========================================================================");
+                        footer.AppendLine();
+                        File.AppendAllText(@".\data\battle.log", footer.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Failed to write battle log footer: {ex.Message}");
+                    }
 
                     //  COMPRESS CK3 SAVE FILE AND SEND TO CK3 SAVE FILE FOLDER
                     Program.Logger.Debug("Compressing new save file...");
