@@ -1460,7 +1460,7 @@ namespace CrusaderWars.unit_mapper
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => v.Key.IndexOf(provinceName, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
