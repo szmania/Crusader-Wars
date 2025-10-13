@@ -330,9 +330,9 @@ namespace CrusaderWars.terrain
             // If it's a siege, use larger distances to push attackers to the map edge
             if (BattleState.IsSiegeBattle)
             {
-                mediumDist = "675.00";
-                bigDist = "975.00";
-                hugeDist = "1325.00";
+                mediumDist = "625.00";
+                bigDist = "925.00";
+                hugeDist = "1275.00";
             }
 
             X = "0.00"; // Initialize X and Y to avoid CS8618
@@ -457,15 +457,15 @@ namespace CrusaderWars.terrain
                 switch (MapSize)
                 {
                     case "Medium":
-                        Width = "1500";
+                        Width = "1400";
                         Height = "150";
                         break;
                     case "Big":
-                        Width = "2200";
+                        Width = "2100";
                         Height = "250";
                         break;
                     case "Huge":
-                        Width = "3000";
+                        Width = "2900";
                         Height = "350";
                         break;
                     default:
@@ -502,15 +502,15 @@ namespace CrusaderWars.terrain
                 {
                     case "Medium":
                         Width = "150";
-                        Height = "1500";
+                        Height = "1400";
                         break;
                     case "Big":
                         Width = "250";
-                        Height = "2200";
+                        Height = "2100";
                         break;
                     case "Huge":
                         Width = "350";
-                        Height = "3000";
+                        Height = "2900";
                         break;
                     default:
                         throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
