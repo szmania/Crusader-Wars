@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using CrusaderWars.armies;
 using CrusaderWars.data.save_file;
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars
 {
@@ -178,22 +179,24 @@ namespace CrusaderWars
 
             if(Commander != null)
             {
-                sb.AppendLine($"## GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()}");
-                Program.Logger.Debug($"GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()}");
+                string commanderFaction = UnitMappers_BETA.GetAttilaFaction(Commander.GetCultureName(), Commander.GetHeritageName());
+                sb.AppendLine($"## GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()} | Faction: {commanderFaction}");
+                Program.Logger.Debug($"GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()} | Faction: {commanderFaction}");
             }
             if (Knights?.GetKnightsList() != null)
             {
                 foreach (var knight in Knights.GetKnightsList())
                 {
+                    string knightFaction = UnitMappers_BETA.GetAttilaFaction(knight.GetCultureName(), knight.GetHeritageName());
                     if(knight.IsAccolade())
                     {
-                        sb.AppendLine($"## ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
-                        Program.Logger.Debug($"ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
+                        sb.AppendLine($"## ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
+                        Program.Logger.Debug($"ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
                     }
                     else
                     {
-                        sb.AppendLine($"## KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
-                        Program.Logger.Debug($"KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()}");
+                        sb.AppendLine($"## KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
+                        Program.Logger.Debug($"KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
                     }
                 }
             }
@@ -203,11 +206,11 @@ namespace CrusaderWars
                 string heritage = unit?.GetObjCulture()?.GetHeritageName() ?? "NULL_HERITAGE";
                 
                 sb.AppendLine($"## {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | " +
-                    $"Culture: {culture} | Heritage: {heritage} | " +
+                    $"Culture: {culture} | Heritage: {heritage} | Faction: {unit.GetAttilaFaction()} | " +
                     $"Key: {unit.GetAttilaUnitKey()}");
                 
                 Program.Logger.Debug($"{unit.GetName()} | Soldiers: {unit.GetSoldiers()} | " +
-                    $"Culture: {culture} | Heritage: {heritage} | " +
+                    $"Culture: {culture} | Heritage: {heritage} | Faction: {unit.GetAttilaFaction()} | " +
                     $"Key: {unit.GetAttilaUnitKey()}");
             }
             Program.Logger.Debug("");

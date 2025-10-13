@@ -230,6 +230,7 @@ namespace CrusaderWars
             //    GARRISON     #
             //                 #
             //##################
+            var newGarrisonUnits = new List<Unit>();
             var garrison_units = army.Units.Where(item => item.GetRegimentType() == RegimentType.Garrison).ToList();
             if (garrison_units.Any())
             {
@@ -268,7 +269,7 @@ namespace CrusaderWars
 
                     int holdingLevel = twbattle.Sieges.GetHoldingLevel();
                     var garrison_porcentages = UnitMappers_BETA.GetFactionGarrison(factionName, holdingLevel);
-                    BETA_GarrisonComposition(merged_garrison_unit, army, garrison_porcentages, army_xp);
+                    newGarrisonUnits.AddRange(BETA_GarrisonComposition(merged_garrison_unit, army, garrison_porcentages, army_xp));
                 }
             }
 
@@ -278,6 +279,7 @@ namespace CrusaderWars
                 //                 #
                 //##################
     
+                var newLevyUnits = new List<Unit>();
                 var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy).ToList();
                 if (levies_units.Any())
                 {
@@ -317,9 +319,14 @@ namespace CrusaderWars
                         Program.Logger.Debug($"Processing levies for faction '{factionName}' with a total of {total_faction_levy_soldiers} soldiers.");
     
                         var (levy_porcentages, factionUsed) = UnitMappers_BETA.GetFactionLevies(factionName);
-                        BETA_LevyComposition(merged_levy_unit, army, levy_porcentages, army_xp, factionUsed);
+                        newLevyUnits.AddRange(BETA_LevyComposition(merged_levy_unit, army, levy_porcentages, army_xp, factionUsed));
                     }
                 }
+
+            // Remove old placeholder units and add new composed units for logging
+            army.Units.RemoveAll(u => u.GetRegimentType() == RegimentType.Garrison || u.GetRegimentType() == RegimentType.Levy);
+            army.Units.AddRange(newGarrisonUnits);
+            army.Units.AddRange(newLevyUnits);
 
             //##################
             //                 #
@@ -381,12 +388,13 @@ namespace CrusaderWars
         }
 
 
-        static void BETA_LevyComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_levy_porcentages, int army_xp, string factionUsed)
+        static List<Unit> BETA_LevyComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_levy_porcentages, int army_xp, string factionUsed)
         {
+            var composedUnits = new List<Unit>();
             if (faction_levy_porcentages == null || faction_levy_porcentages.Count < 1)
             {
                 Program.Logger.Debug("ERROR - LEVIES WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
-                return;
+                return composedUnits;
             }
 
             // NEW: Filter out Men-At-Arms units from the levy pool
@@ -418,11 +426,16 @@ namespace CrusaderWars
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 
+                var newUnit = new Unit("Levy", unit.GetSoldiers(), unit.GetObjCulture(), RegimentType.Levy, unit.IsMerc(), army.Owner);
+                newUnit.SetUnitKey(random.unit_key);
+                newUnit.SetAttilaFaction(unit.GetAttilaFaction());
+                composedUnits.Add(newUnit);
+                
                 string logLine = $"    - Levy Attila Unit: {random.unit_key}, Soldiers: {Levies_Data.UnitSoldiers} (1x unit of {Levies_Data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {factionUsed}";
                 BattleLog.AddLevyLog(army.ID, logLine);
 
                 i++;
-                return;
+                return composedUnits;
             }
 
 
@@ -434,7 +447,7 @@ namespace CrusaderWars
             if (totalPercentageSum <= 0)
             {
                 Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): WARNING: Total percentage sum for levies is 0 or less for faction '{unit.GetAttilaFaction()}'. No levy units will be generated.");
-                return;
+                return composedUnits;
             }
 
             int assignedSoldiers = 0;
@@ -459,6 +472,19 @@ namespace CrusaderWars
                 assignedSoldiers += result;
 
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
+
+                for (int j = 0; j < levy_type_data.UnitNum; j++)
+                {
+                    int soldiers = levy_type_data.UnitSoldiers;
+                    if (j == 0) soldiers += levy_type_data.SoldiersRest;
+                    if (soldiers <= 0) continue;
+
+                    var newUnit = new Unit("Levy", soldiers, unit.GetObjCulture(), RegimentType.Levy, unit.IsMerc(), army.Owner);
+                    newUnit.SetUnitKey(porcentageData.unit_key);
+                    newUnit.SetAttilaFaction(unit.GetAttilaFaction());
+                    composedUnits.Add(newUnit);
+                }
+
                 string logLine = $"    - Levy Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {factionUsed}";
                 BattleLog.AddLevyLog(army.ID, logLine);
 
@@ -466,14 +492,16 @@ namespace CrusaderWars
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
+            return composedUnits;
         }
 
-        static void BETA_GarrisonComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_garrison_porcentages, int army_xp)
+        static List<Unit> BETA_GarrisonComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_garrison_porcentages, int army_xp)
         {
+            var composedUnits = new List<Unit>();
             if (faction_garrison_porcentages == null || faction_garrison_porcentages.Count < 1)
             {
                 Program.Logger.Debug("ERROR - GARRISON WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
-                return;
+                return composedUnits;
             }
 
             // Removed: MAA filtering logic is not needed for garrisons.
@@ -484,7 +512,7 @@ namespace CrusaderWars
             if (totalPercentageSum <= 0)
             {
                 Program.Logger.Debug($"  BETA_GarrisonComposition ({army.CombatSide}): WARNING: Total percentage sum for garrisons is 0 or less for faction '{unit.GetAttilaFaction()}'. No garrison units will be generated.");
-                return;
+                return composedUnits;
             }
 
             int assignedSoldiers = 0;
@@ -509,6 +537,19 @@ namespace CrusaderWars
                 assignedSoldiers += result;
 
                 var garrison_type_data = RetriveCalculatedUnits(result, unit.GetMax());
+
+                for (int j = 0; j < garrison_type_data.UnitNum; j++)
+                {
+                    int soldiers = garrison_type_data.UnitSoldiers;
+                    if (j == 0) soldiers += garrison_type_data.SoldiersRest;
+                    if (soldiers <= 0) continue;
+
+                    var newUnit = new Unit("Garrison", soldiers, unit.GetObjCulture(), RegimentType.Garrison, unit.IsMerc(), army.Owner);
+                    newUnit.SetUnitKey(porcentageData.unit_key);
+                    newUnit.SetAttilaFaction(unit.GetAttilaFaction());
+                    composedUnits.Add(newUnit);
+                }
+
                 string logLine = $"    - Garrison Attila Unit: {porcentageData.unit_key}, Soldiers: {result} ({garrison_type_data.UnitNum}x units of {garrison_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
                 BattleLog.AddLevyLog(army.ID, logLine); // Keep AddLevyLog as per instruction, only text changed
 
@@ -516,6 +557,7 @@ namespace CrusaderWars
                 BattleFile.AddUnit(porcentageData.unit_key, garrison_type_data.UnitSoldiers, garrison_type_data.UnitNum, garrison_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
+            return composedUnits;
         }
 
     }
