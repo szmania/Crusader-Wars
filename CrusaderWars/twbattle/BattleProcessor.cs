@@ -27,8 +27,6 @@ namespace CrusaderWars.twbattle
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
-            public int NextDeploymentFixLevel { get; set; } = 1; // Starts at 1, max 5
-            public bool IsNextFixUnitReplacement { get; set; } = true;
             public int FailureCount { get; set; } = 0;
         }
 
@@ -475,7 +473,7 @@ namespace CrusaderWars.twbattle
                         form.Invoke((MethodInvoker)delegate
                         {
                             userResponse = MessageBox.Show(form,
-                                "It appears Total War: Attila has crashed or was closed prematurely. This is often caused by an incompatible custom unit or a problematic map deployment.\n\nWould you like to attempt an automatic fix?\n\nThe application will alternate between replacing one potentially problematic unit type at a time with a safe default, and adjusting the battle map size/layout, then restart the battle.",
+                                "It appears Total War: Attila has crashed or was closed prematurely. This is often caused by an incompatible custom unit.\n\nWould you like to attempt an automatic fix?\n\nThe application will replace one potentially problematic unit type at a time with a safe default, then restart the battle.",
                                 "Crusader Conflicts: Attila Crash Detected",
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question);
@@ -544,16 +542,14 @@ namespace CrusaderWars.twbattle
 
                     // Common Autofix Logic
                     bool canDoUnitFix = autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count;
-                    const int maxDeploymentFixLevel = 3;
-                    bool canDoDeploymentFix = autofixState.NextDeploymentFixLevel <= maxDeploymentFixLevel;
 
-                    if (!canDoUnitFix && !canDoDeploymentFix)
+                    if (!canDoUnitFix)
                     {
-                        Program.Logger.Debug("Autofix failed. All problematic units have been replaced and deployment variations tried, but Attila continues to crash.");
+                        Program.Logger.Debug("Autofix failed. All problematic units have been replaced, but Attila continues to crash.");
                         form.Invoke((MethodInvoker)delegate
                         {
                             MessageBox.Show(form,
-                                "The automatic fix failed. All potentially problematic units were replaced and all deployment variations were tried, but the game still crashed.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
+                                "The automatic fix failed. All potentially problematic units were replaced, but the game still crashed.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
                                 "Crusader Conflicts: Autofix Failed",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
@@ -568,61 +564,34 @@ namespace CrusaderWars.twbattle
                         form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
                     });
 
-                    // Decide which fix to apply. Prioritize deployment on its turn, otherwise do unit fix.
-                    // Once deployment fixes are exhausted, this will only do unit fixes.
-                    bool shouldApplyDeploymentFix = canDoDeploymentFix && !autofixState.IsNextFixUnitReplacement;
+                    // Apply unit fix
+                    string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
+                    fixDescription = $"replacing unit key '{keyToReplace}'";
+                    Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
 
-                    if (shouldApplyDeploymentFix)
+                    var allArmies = attacker_armies.Concat(defender_armies);
+                    foreach (var army in allArmies)
                     {
-                        // Apply deployment fix
-                        bool rotate = false;
-                        string? size = null;
-                        switch (autofixState.NextDeploymentFixLevel)
+                        foreach (var unit in army.Units)
                         {
-                            case 1: size = "Big"; rotate = false; break;
-                            case 2: size = "Medium"; rotate = false; break;
-                            case 3: size = null; rotate = true; break; // Use default size, but rotate
-                        }
-                        fixDescription = $"changing deployment (Size: {size ?? "Default"}, Rotate: {rotate})";
-                        Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
-                        BattleState.AutofixDeploymentSizeOverride = size;
-                        BattleState.AutofixDeploymentRotationOverride = rotate;
-
-                        autofixState.NextDeploymentFixLevel++;
-                        autofixState.IsNextFixUnitReplacement = true;
-                    }
-                    else if (canDoUnitFix)
-                    {
-                        // Apply unit fix
-                        string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-                        fixDescription = $"replacing unit key '{keyToReplace}'";
-                        Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
-
-                        var allArmies = attacker_armies.Concat(defender_armies);
-                        foreach (var army in allArmies)
-                        {
-                            foreach (var unit in army.Units)
+                            if (unit.GetAttilaUnitKey() == keyToReplace)
                             {
-                                if (unit.GetAttilaUnitKey() == keyToReplace)
+                                var (defaultKey, isSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit);
+                                if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                 {
-                                    var (defaultKey, isSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit);
-                                    if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                    {
-                                        Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{defaultKey}'.");
-                                        unit.SetUnitKey(defaultKey);
-                                        unit.SetIsSiege(isSiege);
-                                    }
-                                    else
-                                    {
-                                        Program.Logger.Debug($"  - WARNING: Could not find a default unit for type {unit.GetRegimentType()} to replace '{keyToReplace}'. The unit may be dropped.");
-                                    }
+                                    Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{defaultKey}'.");
+                                    unit.SetUnitKey(defaultKey);
+                                    unit.SetIsSiege(isSiege);
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"  - WARNING: Could not find a default unit for type {unit.GetRegimentType()} to replace '{keyToReplace}'. The unit may be dropped.");
                                 }
                             }
                         }
-                        autofixState.NextUnitKeyIndexToReplace++;
-                        autofixState.IsNextFixUnitReplacement = false;
                     }
-
+                    autofixState.NextUnitKeyIndexToReplace++;
+                    
                     Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
                     // Recursive call to restart the battle process
                     return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
