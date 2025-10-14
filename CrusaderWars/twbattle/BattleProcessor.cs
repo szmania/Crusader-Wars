@@ -29,6 +29,7 @@ namespace CrusaderWars.twbattle
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int NextDeploymentFixLevel { get; set; } = 1; // Starts at 1, max 5
             public bool IsNextFixUnitReplacement { get; set; } = true;
+            public int FailureCount { get; set; } = 0;
         }
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
@@ -488,6 +489,7 @@ namespace CrusaderWars.twbattle
 
                         Program.Logger.Debug("User accepted autofix. Initializing autofix process.");
                         autofixState = new AutofixState();
+                        autofixState.FailureCount = 1;
 
                         var allUnits = attacker_armies.SelectMany(a => a.Units).Concat(defender_armies.SelectMany(a => a.Units));
                         autofixState.ProblematicUnitKeys = allUnits
@@ -515,11 +517,34 @@ namespace CrusaderWars.twbattle
                     else // Subsequent crash
                     {
                         Program.Logger.Debug("Subsequent crash during autofix process. Continuing automatically.");
+                        autofixState.FailureCount++;
+                    }
+
+                    // After every 4th failure, ask the user if they want to continue.
+                    if (autofixState.FailureCount > 1 && autofixState.FailureCount % 4 == 0)
+                    {
+                        Program.Logger.Debug($"Autofix has failed {autofixState.FailureCount} times. Prompting user to continue.");
+                        DialogResult userResponse = DialogResult.No;
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            userResponse = MessageBox.Show(form,
+                                $"The automatic fix has failed {autofixState.FailureCount} times. Would you like to continue trying?",
+                                "Crusader Conflicts: Continue Autofix?",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question);
+                        });
+
+                        if (userResponse == DialogResult.No)
+                        {
+                            Program.Logger.Debug("User declined to continue autofix. Aborting battle.");
+                            return false; // User cancelled
+                        }
+                        Program.Logger.Debug("User chose to continue autofix.");
                     }
 
                     // Common Autofix Logic
                     bool canDoUnitFix = autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count;
-                    const int maxDeploymentFixLevel = 5;
+                    const int maxDeploymentFixLevel = 3;
                     bool canDoDeploymentFix = autofixState.NextDeploymentFixLevel <= maxDeploymentFixLevel;
 
                     if (!canDoUnitFix && !canDoDeploymentFix)
@@ -537,39 +562,17 @@ namespace CrusaderWars.twbattle
                     }
 
                     string fixDescription = "";
-
-                    if (autofixState.IsNextFixUnitReplacement && canDoUnitFix)
+                    form.Invoke((MethodInvoker)delegate
                     {
-                        // Apply unit fix
-                        string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-                        fixDescription = $"replacing unit key '{keyToReplace}'";
-                        Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
+                        form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                        form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                    });
 
-                        var allArmies = attacker_armies.Concat(defender_armies);
-                        foreach (var army in allArmies)
-                        {
-                            foreach (var unit in army.Units)
-                            {
-                                if (unit.GetAttilaUnitKey() == keyToReplace)
-                                {
-                                    var (defaultKey, isSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit);
-                                    if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                    {
-                                        Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{defaultKey}'.");
-                                        unit.SetUnitKey(defaultKey);
-                                        unit.SetIsSiege(isSiege);
-                                    }
-                                    else
-                                    {
-                                        Program.Logger.Debug($"  - WARNING: Could not find a default unit for type {unit.GetRegimentType()} to replace '{keyToReplace}'. The unit may be dropped.");
-                                    }
-                                }
-                            }
-                        }
-                        autofixState.NextUnitKeyIndexToReplace++;
-                        autofixState.IsNextFixUnitReplacement = false;
-                    }
-                    else if (canDoDeploymentFix)
+                    // Decide which fix to apply. Prioritize deployment on its turn, otherwise do unit fix.
+                    // Once deployment fixes are exhausted, this will only do unit fixes.
+                    bool shouldApplyDeploymentFix = canDoDeploymentFix && !autofixState.IsNextFixUnitReplacement;
+
+                    if (shouldApplyDeploymentFix)
                     {
                         // Apply deployment fix
                         bool rotate = false;
@@ -579,8 +582,6 @@ namespace CrusaderWars.twbattle
                             case 1: size = "Big"; rotate = false; break;
                             case 2: size = "Medium"; rotate = false; break;
                             case 3: size = null; rotate = true; break; // Use default size, but rotate
-                            case 4: size = "Big"; rotate = true; break;
-                            case 5: size = "Medium"; rotate = true; break;
                         }
                         fixDescription = $"changing deployment (Size: {size ?? "Default"}, Rotate: {rotate})";
                         Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
@@ -590,11 +591,11 @@ namespace CrusaderWars.twbattle
                         autofixState.NextDeploymentFixLevel++;
                         autofixState.IsNextFixUnitReplacement = true;
                     }
-                    else // Fallback to unit fix if deployment fixes are exhausted
+                    else if (canDoUnitFix)
                     {
                         // Apply unit fix
                         string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-                        fixDescription = $"replacing unit key '{keyToReplace}' (deployment fixes exhausted)";
+                        fixDescription = $"replacing unit key '{keyToReplace}'";
                         Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
 
                         var allArmies = attacker_armies.Concat(defender_armies);
