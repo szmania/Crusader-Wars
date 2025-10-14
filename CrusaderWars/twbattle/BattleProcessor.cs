@@ -514,19 +514,13 @@ namespace CrusaderWars.twbattle
                     }
                     else // Subsequent crash
                     {
-                        Program.Logger.Debug("Subsequent crash during autofix process. Continuing automatically.");
                         autofixState.FailureCount++;
-                    }
-
-                    // After every 4th failure, ask the user if they want to continue.
-                    if (autofixState.FailureCount > 1 && autofixState.FailureCount % 4 == 0)
-                    {
-                        Program.Logger.Debug($"Autofix has failed {autofixState.FailureCount} times. Prompting user to continue.");
+                        Program.Logger.Debug($"Subsequent crash detected. Autofix has now failed {autofixState.FailureCount - 1} time(s). Prompting user to continue.");
                         DialogResult userResponse = DialogResult.No;
                         form.Invoke((MethodInvoker)delegate
                         {
                             userResponse = MessageBox.Show(form,
-                                $"The automatic fix has failed {autofixState.FailureCount} times. Would you like to continue trying?",
+                                $"The automatic fix has failed {autofixState.FailureCount - 1} time(s). Would you like to continue trying?",
                                 "Crusader Conflicts: Continue Autofix?",
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question);
