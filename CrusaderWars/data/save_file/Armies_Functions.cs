@@ -433,7 +433,7 @@ namespace CrusaderWars.data.save_file
                     else
                     {
                         Program.Logger.Debug($"Unit key not found for '{unit.GetName()}' (Culture: {unit.GetCulture()}, Attila Faction: {unit.GetAttilaFaction()}). Attempting to find a default fallback.");
-                        var (fallbackKey, fallbackIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
+                        var (fallbackKey, fallbackIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit);
                         unit.SetIsSiege(fallbackIsSiege);
 
                         if (fallbackKey != UnitMappers_BETA.NOT_FOUND_KEY)
