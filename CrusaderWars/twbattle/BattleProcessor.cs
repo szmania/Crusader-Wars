@@ -585,7 +585,7 @@ namespace CrusaderWars.twbattle
                     form.Invoke((MethodInvoker)delegate
                     {
                         MessageBox.Show(form,
-                            $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try to replace the potentially problematic unit '{keyToReplace}' with {replacementKeyInfo} and restart the battle.\n\nPlease note this information if you plan to report a bug.",
+                            $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try to replace the potentially problematic unit '{keyToReplace}' with {replacementKeyInfo} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:\nhttps://discord.gg/eFZTprHh3j",
                             "Crusader Conflicts: Applying Autofix",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Information);
