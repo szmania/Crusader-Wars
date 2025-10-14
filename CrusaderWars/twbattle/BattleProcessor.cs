@@ -520,7 +520,7 @@ namespace CrusaderWars.twbattle
                         form.Invoke((MethodInvoker)delegate
                         {
                             userResponse = MessageBox.Show(form,
-                                $"The automatic fix has failed {autofixState.FailureCount - 1} time(s). Would you like to continue trying?",
+                                $"The automatic fix has failed {autofixState.FailureCount} time(s). Would you like to continue trying?",
                                 "Crusader Conflicts: Continue Autofix?",
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question);
