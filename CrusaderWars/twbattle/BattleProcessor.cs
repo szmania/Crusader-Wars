@@ -551,7 +551,7 @@ namespace CrusaderWars.twbattle
                         return false;
                     }
 
-                    string fixDescription = "";
+                    string fixDescription;
                     form.Invoke((MethodInvoker)delegate
                     {
                         form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
@@ -564,10 +564,34 @@ namespace CrusaderWars.twbattle
 
                     // Apply unit fix to the fresh lists
                     string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-                    fixDescription = $"replacing unit key '{keyToReplace}'";
+                    var allArmies = fresh_attackers.Concat(fresh_defenders);
+
+                    // Find a representative unit to determine the replacement key for the message
+                    var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
+                    string replacementKeyInfo = "a safe default unit"; // Fallback message
+                    if (representativeUnit != null)
+                    {
+                        var (defaultKey, _) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit);
+                        if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                        {
+                            replacementKeyInfo = $"'{defaultKey}'";
+                        }
+                    }
+
+                    fixDescription = $"replacing unit key '{keyToReplace}' with {replacementKeyInfo}";
                     Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
 
-                    var allArmies = fresh_attackers.Concat(fresh_defenders);
+                    // NEW: Inform the user about the specific fix being applied.
+                    form.Invoke((MethodInvoker)delegate
+                    {
+                        MessageBox.Show(form,
+                            $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try to replace the potentially problematic unit '{keyToReplace}' with {replacementKeyInfo} and restart the battle.\n\nPlease note this information if you plan to report a bug.",
+                            "Crusader Conflicts: Applying Autofix",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    });
+
+
                     foreach (var army in allArmies)
                     {
                         foreach (var unit in army.Units)
