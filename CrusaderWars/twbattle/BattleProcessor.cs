@@ -558,12 +558,16 @@ namespace CrusaderWars.twbattle
                         form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
                     });
 
-                    // Apply unit fix
+                    // Reread the armies from the save data to get a clean state before applying the fix.
+                    Program.Logger.Debug("Rereading army data to get a clean state for autofix...");
+                    var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
+
+                    // Apply unit fix to the fresh lists
                     string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
                     fixDescription = $"replacing unit key '{keyToReplace}'";
                     Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
 
-                    var allArmies = attacker_armies.Concat(defender_armies);
+                    var allArmies = fresh_attackers.Concat(fresh_defenders);
                     foreach (var army in allArmies)
                     {
                         foreach (var unit in army.Units)
@@ -588,7 +592,7 @@ namespace CrusaderWars.twbattle
                     
                     Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
                     // Recursive call to restart the battle process
-                    return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
+                    return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
                 }
 
                 battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
