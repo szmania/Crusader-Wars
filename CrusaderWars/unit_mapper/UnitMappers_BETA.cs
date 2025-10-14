@@ -1031,6 +1031,39 @@ namespace CrusaderWars.unit_mapper
             return (NOT_FOUND_KEY, false);
         }
 
+        private static string SelectRankedUnitKey(List<(int rank, string key)> candidates, int requiredRank)
+        {
+            if (!candidates.Any()) return NOT_FOUND_KEY;
+
+            // Find all candidates at or below the required rank
+            var suitableCandidates = candidates.Where(t => t.rank <= requiredRank).ToList();
+
+            List<(int rank, string key)> finalSelectionPool;
+
+            if (suitableCandidates.Any())
+            {
+                // Find the best rank among the suitable candidates
+                int bestRank = suitableCandidates.Max(t => t.rank);
+                finalSelectionPool = suitableCandidates.Where(t => t.rank == bestRank).ToList();
+            }
+            else
+            {
+                // Fallback: No suitable rank found, so use the lowest available rank overall
+                int lowestRank = candidates.Min(t => t.rank);
+                finalSelectionPool = candidates.Where(t => t.rank == lowestRank).ToList();
+            }
+
+            // Randomly select one candidate from the final pool
+            if (finalSelectionPool.Any())
+            {
+                int index = _random.Next(finalSelectionPool.Count);
+                return finalSelectionPool[index].key;
+            }
+
+            return NOT_FOUND_KEY;
+        }
+
+
         static (string, bool) FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
         {
             if (unit.GetRegimentType() == RegimentType.Commander)
@@ -1057,29 +1090,10 @@ namespace CrusaderWars.unit_mapper
                     if (unit.CharacterRank >= 4) requiredRank = 3; // King or Emperor gets rank 3 general
                     else if (unit.CharacterRank == 3) requiredRank = 2; // Duke gets rank 2 general
 
-                    // Find all candidates at or below the required rank
-                    var suitableCandidates = generalRanks.Where(t => t.rank <= requiredRank).ToList();
-
-                    List<(int rank, string key)> finalSelectionPool;
-
-                    if (suitableCandidates.Any())
+                    string selectedKey = SelectRankedUnitKey(generalRanks, requiredRank);
+                    if (selectedKey != NOT_FOUND_KEY)
                     {
-                        // Find the best rank among the suitable candidates
-                        int bestRank = suitableCandidates.Max(t => t.rank);
-                        finalSelectionPool = suitableCandidates.Where(t => t.rank == bestRank).ToList();
-                    }
-                    else
-                    {
-                        // Fallback: No suitable rank found, so use the lowest available rank overall
-                        int lowestRank = generalRanks.Min(t => t.rank);
-                        finalSelectionPool = generalRanks.Where(t => t.rank == lowestRank).ToList();
-                    }
-
-                    // Randomly select one candidate from the final pool
-                    if (finalSelectionPool.Any())
-                    {
-                        int index = _random.Next(finalSelectionPool.Count);
-                        return (finalSelectionPool[index].key, false);
+                        return (selectedKey, false);
                     }
                 }
             }
@@ -1104,25 +1118,10 @@ namespace CrusaderWars.unit_mapper
                 {
                     int requiredRank = unit.CharacterRank; // Directly use the 1-3 rank from Prowess
 
-                    var suitableCandidates = knightRanks.Where(t => t.rank <= requiredRank).ToList();
-                    List<(int rank, string key)> finalSelectionPool;
-
-                    if (suitableCandidates.Any())
+                    string selectedKey = SelectRankedUnitKey(knightRanks, requiredRank);
+                    if (selectedKey != NOT_FOUND_KEY)
                     {
-                        int bestRank = suitableCandidates.Max(t => t.rank);
-                        finalSelectionPool = suitableCandidates.Where(t => t.rank == bestRank).ToList();
-                    }
-                    else
-                    {
-                        int lowestRank = knightRanks.Min(t => t.rank);
-                        finalSelectionPool = knightRanks.Where(t => t.rank == lowestRank).ToList();
-                    }
-
-                    // Randomly select one candidate from the final pool
-                    if (finalSelectionPool.Any())
-                    {
-                        int index = _random.Next(finalSelectionPool.Count);
-                        return (finalSelectionPool[index].key, false);
+                        return (selectedKey, false);
                     }
                 }
             }
@@ -1199,7 +1198,7 @@ namespace CrusaderWars.unit_mapper
             }
 
             // Fallback to default unit if no specific mapping is found
-            var (default_key, defaultIsSiege) = GetDefaultUnitKey(unit.GetRegimentType());
+            var (default_key, defaultIsSiege) = GetDefaultUnitKey(unit);
             if (default_key != NOT_FOUND_KEY)
             {
                 Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
@@ -1217,76 +1216,161 @@ namespace CrusaderWars.unit_mapper
             return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, false); // This will be the found key or NOT_FOUND_KEY
         }
 
-        public static (string, bool) GetDefaultUnitKey(RegimentType type)
+        private static string GetUnitMaxCategory(Unit unit)
         {
-            if (type == RegimentType.Levy) return (NOT_FOUND_KEY, false); // Levies are handled separately
-            if (type == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Garrison units are handled separately // Changed from `if (type == RegimentType.Levy && type == RegimentType.MenAtArms)`
+            if (LoadedUnitMapper_FolderPath == null) return "INFANTRY";
 
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Prioritize submods over base mappers
+
+            string? maxCategory = null;
+
+            foreach (var xml_file in files_paths)
+            {
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
+
+                // Search for the specific unit type in any faction to determine its category
+                XmlNode? unitNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{unit.GetName()}']");
+                if (unitNode?.Attributes?["max"]?.Value is string foundCategory)
+                {
+                    maxCategory = foundCategory.ToUpper();
+                    break; // Found it, no need to search more files
+                }
+            }
+
+            switch (maxCategory)
+            {
+                case "INFANTRY":
+                case "RANGED":
+                case "CAVALRY":
+                    return maxCategory;
+                default:
+                    Program.Logger.Debug($"Could not determine max category for MAA unit '{unit.GetName()}'. Defaulting to INFANTRY.");
+                    return "INFANTRY"; // Fallback
+            }
+        }
+
+        public static (string, bool) GetDefaultUnitKey(Unit unitToReplace)
+        {
             if (LoadedUnitMapper_FolderPath == null)
             {
                 Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get default unit key.");
                 return (NOT_FOUND_KEY, false);
             }
 
-            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            if (!Directory.Exists(factions_folder_path)) return (NOT_FOUND_KEY, false);
+            string factionsFolderPath = Path.Combine(LoadedUnitMapper_FolderPath, "Factions");
+            if (!Directory.Exists(factionsFolderPath)) return (NOT_FOUND_KEY, false);
 
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            string found_key = NOT_FOUND_KEY;
+            var filesPaths = GetSortedFilePaths(factionsFolderPath, priorityFilePattern);
 
-            foreach (var xml_file in files_paths)
+            XmlNode? defaultFactionNode = null;
+            foreach (var xmlFile in filesPaths)
             {
-                if (Path.GetExtension(xml_file) == ".xml")
+                XmlDocument factionsFile = new XmlDocument();
+                factionsFile.Load(xmlFile);
+                XmlNode? currentNode = factionsFile.SelectSingleNode("/Factions/Faction[@name='Default' or @name='DEFAULT']");
+                if (currentNode != null)
                 {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue; // Added null check
-
-                    foreach (XmlNode element in FactionsFile.DocumentElement.ChildNodes)
-                    {
-                        if (element is XmlComment) continue;
-                        
-                        var nameAttr = element.Attributes?["name"];
-                        if (nameAttr == null) continue;
-                        string faction = nameAttr.Value;
-
-                        if (faction == "Default" || faction == "DEFAULT")
-                        {
-                            // Found the default faction, now find a suitable unit and overwrite if found
-                            foreach (XmlNode node in element.ChildNodes)
-                            {
-                                if (node is XmlComment) continue;
-
-                                string? current_key = node.Attributes?["key"]?.Value;
-                                if (current_key == null) continue;
-                                
-                                if (type == RegimentType.Commander && node.Name == "General")
-                                {
-                                    found_key = current_key;
-                                }
-                                else if (type == RegimentType.Knight && node.Name == "Knights")
-                                {
-                                    found_key = current_key;
-                                }
-                                else if (type == RegimentType.MenAtArms && node.Name == "MenAtArm")
-                                {
-                                    // Overwrite with the last MAA unit found as a generic fallback
-                                    found_key = current_key;
-                                }
-                                else if (node.Name == "Garrison") // Default garrison unit
-                                {
-                                    // This is a generic fallback for garrison if no specific one is found.
-                                    // The actual garrison units are determined by GetFactionGarrison.
-                                    // This might be used if a unit is somehow created as "Garrison" but without a specific key.
-                                    found_key = current_key;
-                                }
-                            }
-                        }
-                    }
+                    defaultFactionNode = currentNode;
                 }
             }
-            return (found_key, false); // Return last found key, default to not siege weapon
+
+            if (defaultFactionNode == null)
+            {
+                Program.Logger.Debug("Error: Could not find a 'Default' faction in any unit mapper file.");
+                return (NOT_FOUND_KEY, false);
+            }
+
+            switch (unitToReplace.GetRegimentType())
+            {
+                case RegimentType.Commander:
+                    var generalRanks = new List<(int rank, string key)>();
+                    foreach (XmlNode generalNode in defaultFactionNode.SelectNodes("General"))
+                    {
+                        string? key = generalNode.Attributes?["key"]?.Value;
+                        if (string.IsNullOrEmpty(key)) continue;
+                        int rank = 1;
+                        if (generalNode.Attributes?["rank"]?.Value is string rankAttr && int.TryParse(rankAttr, out int parsedRank))
+                        {
+                            rank = parsedRank;
+                        }
+                        generalRanks.Add((rank, key));
+                    }
+                    int requiredGeneralRank = (unitToReplace.CharacterRank >= 4) ? 3 : (unitToReplace.CharacterRank == 3) ? 2 : 1;
+                    return (SelectRankedUnitKey(generalRanks, requiredGeneralRank), false);
+
+                case RegimentType.Knight:
+                    var knightRanks = new List<(int rank, string key)>();
+                    foreach (XmlNode knightNode in defaultFactionNode.SelectNodes("Knights"))
+                    {
+                        string? key = knightNode.Attributes?["key"]?.Value;
+                        if (string.IsNullOrEmpty(key)) continue;
+                        int rank = 1;
+                        if (knightNode.Attributes?["rank"]?.Value is string rankAttr && int.TryParse(rankAttr, out int parsedRank))
+                        {
+                            rank = parsedRank;
+                        }
+                        knightRanks.Add((rank, key));
+                    }
+                    return (SelectRankedUnitKey(knightRanks, unitToReplace.CharacterRank), false);
+
+                case RegimentType.MenAtArms:
+                    string category = GetUnitMaxCategory(unitToReplace);
+                    var candidates = new List<string>();
+                    var fallbackCandidates = new List<string>();
+                    foreach (XmlNode maaNode in defaultFactionNode.SelectNodes("MenAtArm"))
+                    {
+                        string? key = maaNode.Attributes?["key"]?.Value;
+                        if (string.IsNullOrEmpty(key)) continue;
+                        fallbackCandidates.Add(key);
+                        if (maaNode.Attributes?["max"]?.Value?.ToUpper() == category)
+                        {
+                            candidates.Add(key);
+                        }
+                    }
+                    if (candidates.Any()) return (candidates[_random.Next(candidates.Count)], false);
+                    if (fallbackCandidates.Any()) return (fallbackCandidates[_random.Next(fallbackCandidates.Count)], false);
+                    break;
+
+                case RegimentType.Garrison:
+                    int holdingLevel = twbattle.BattleState.IsSiegeBattle ? twbattle.Sieges.GetHoldingLevel() : 1;
+                    var allGarrisons = new List<(string key, int level)>();
+                    foreach (XmlNode garrisonNode in defaultFactionNode.SelectNodes("Garrison"))
+                    {
+                        string? key = garrisonNode.Attributes?["key"]?.Value;
+                        if (string.IsNullOrEmpty(key)) continue;
+                        int level = 1;
+                        if (garrisonNode.Attributes?["level"]?.Value is string levelStr && int.TryParse(levelStr, out int parsedLevel))
+                        {
+                            level = parsedLevel;
+                        }
+                        allGarrisons.Add((key, level));
+                    }
+                    if (allGarrisons.Any())
+                    {
+                        var suitableGarrisons = allGarrisons.Where(g => g.level <= holdingLevel).ToList();
+                        List<(string key, int level)> finalSelectionPool = suitableGarrisons.Any()
+                            ? suitableGarrisons.Where(g => g.level == suitableGarrisons.Max(s => s.level)).ToList()
+                            : allGarrisons.Where(g => g.level == allGarrisons.Min(s => s.level)).ToList();
+                        if (finalSelectionPool.Any()) return (finalSelectionPool[_random.Next(finalSelectionPool.Count)].key, false);
+                    }
+                    break;
+
+                case RegimentType.Levy:
+                    var levyKeys = defaultFactionNode.SelectNodes("Levies")?.Cast<XmlNode>()
+                        .Select(node => node.Attributes?["key"]?.Value)
+                        .Where(key => !string.IsNullOrEmpty(key))
+                        .ToList();
+                    if (levyKeys != null && levyKeys.Any()) return (levyKeys[_random.Next(levyKeys.Count)], false);
+                    break;
+            }
+
+            return (NOT_FOUND_KEY, false);
         }
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)

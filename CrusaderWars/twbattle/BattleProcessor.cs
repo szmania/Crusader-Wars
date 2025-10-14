@@ -536,7 +536,7 @@ namespace CrusaderWars.twbattle
                         {
                             if (unit.GetAttilaUnitKey() == keyToReplace)
                             {
-                                var (defaultKey, isSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit.GetRegimentType());
+                                var (defaultKey, isSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit);
                                 if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                 {
                                     Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{defaultKey}'.");
