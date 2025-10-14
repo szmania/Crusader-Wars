@@ -23,7 +23,7 @@ namespace CrusaderWars.twbattle
 {
     public static class BattleProcessor
     {
-        internal class AutofixState
+        public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
