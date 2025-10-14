@@ -180,8 +180,8 @@ namespace CrusaderWars
             if(Commander != null)
             {
                 string commanderFaction = UnitMappers_BETA.GetAttilaFaction(Commander.GetCultureName(), Commander.GetHeritageName());
-                sb.AppendLine($"## GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()} | Faction: {commanderFaction}");
-                Program.Logger.Debug($"GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()} | Faction: {commanderFaction}");
+                sb.AppendLine($"## GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()} | Attila Faction: {commanderFaction}");
+                Program.Logger.Debug($"GENERAL | Name: {Commander.Name} | Soldiers: {Commander.GetUnitSoldiers()} | NobleRank: {Commander.Rank} | ArmyXP: +{Commander.GetUnitsExperience()} | Culture: {Commander.GetCultureName()} | Heritage: {Commander.GetHeritageName()} | Attila Faction: {commanderFaction}");
             }
             if (Knights?.GetKnightsList() != null)
             {
@@ -190,13 +190,13 @@ namespace CrusaderWars
                     string knightFaction = UnitMappers_BETA.GetAttilaFaction(knight.GetCultureName(), knight.GetHeritageName());
                     if(knight.IsAccolade())
                     {
-                        sb.AppendLine($"## ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
-                        Program.Logger.Debug($"ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
+                        sb.AppendLine($"## ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Attila Faction: {knightFaction}");
+                        Program.Logger.Debug($"ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Attila Faction: {knightFaction}");
                     }
                     else
                     {
-                        sb.AppendLine($"## KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
-                        Program.Logger.Debug($"KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Faction: {knightFaction}");
+                        sb.AppendLine($"## KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Attila Faction: {knightFaction}");
+                        Program.Logger.Debug($"KNIGHT | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Attila Faction: {knightFaction}");
                     }
                 }
             }
@@ -206,12 +206,12 @@ namespace CrusaderWars
                 string heritage = unit?.GetObjCulture()?.GetHeritageName() ?? "NULL_HERITAGE";
                 
                 sb.AppendLine($"## {unit.GetName()} | Soldiers: {unit.GetSoldiers()} | " +
-                    $"Culture: {culture} | Heritage: {heritage} | Faction: {unit.GetAttilaFaction()} | " +
-                    $"Key: {unit.GetAttilaUnitKey()}");
+                    $"Culture: {culture} | Heritage: {heritage} | Attila Faction: {unit.GetAttilaFaction()} | " +
+                    $"Attila unit Key: {unit.GetAttilaUnitKey()}");
                 
                 Program.Logger.Debug($"{unit.GetName()} | Soldiers: {unit.GetSoldiers()} | " +
-                    $"Culture: {culture} | Heritage: {heritage} | Faction: {unit.GetAttilaFaction()} | " +
-                    $"Key: {unit.GetAttilaUnitKey()}");
+                    $"Culture: {culture} | Heritage: {heritage} | Attila Faction: {unit.GetAttilaFaction()} | " +
+                    $"Attila unit Key: {unit.GetAttilaUnitKey()}");
             }
             Program.Logger.Debug("");
             sb.AppendLine();
