@@ -10,6 +10,8 @@ namespace CrusaderWars.twbattle
         private static string LogSnippetFile => Path.Combine(StateFolder, "battle_log_snippet.txt");
         public static bool IsSiegeBattle { get; set; }
         public static bool HasReliefArmy { get; set; }
+        public static string? AutofixDeploymentSizeOverride { get; set; } = null;
+        public static bool? AutofixDeploymentRotationOverride { get; set; } = null;
 
         static BattleState()
         {
@@ -40,11 +42,19 @@ namespace CrusaderWars.twbattle
             }
         }
 
+        public static void ClearAutofixOverrides()
+        {
+            Program.Logger.Debug("Clearing autofix deployment overrides.");
+            AutofixDeploymentSizeOverride = null;
+            AutofixDeploymentRotationOverride = null;
+        }
+
         public static void ClearBattleState()
         {
             Program.Logger.Debug("Clearing battle state...");
             IsSiegeBattle = false;
             HasReliefArmy = false;
+            ClearAutofixOverrides(); // Reset autofix overrides
             if (System.IO.File.Exists(StateFile))
             {
                 Program.Logger.Debug($"Deleting battle state file: '{StateFile}'");

@@ -134,6 +134,7 @@ namespace CrusaderWars.terrain
         static string? attacker_deployment, defender_deployment = "";
         public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, bool shouldRotateDeployment)
         {
+            bool useRotatedDeployment = BattleState.AutofixDeploymentRotationOverride ?? shouldRotateDeployment;
             Random random = new Random();
             //All directions battle maps
             if (battle_map.attacker_dir[0] == "All")
@@ -150,7 +151,7 @@ namespace CrusaderWars.terrain
             //Defined directions battle maps
             else
             {
-                if(shouldRotateDeployment)
+                if(useRotatedDeployment)
                 {
                     int defender_index = random.Next(0, 2);
                     defender_direction = battle_map.attacker_dir[defender_index];
@@ -177,7 +178,7 @@ namespace CrusaderWars.terrain
 
             // Determine map size to scale defender deployment area appropriately
             string mapSize;
-            string optionMapSize = ModOptions.DeploymentsZones();
+            string optionMapSize = BattleState.AutofixDeploymentSizeOverride ?? ModOptions.DeploymentsZones();
             if (optionMapSize == "Dynamic")
             {
                 int holdingLevel = Sieges.GetHoldingLevel();
@@ -287,8 +288,9 @@ namespace CrusaderWars.terrain
 
         public DeploymentArea(string direction, string option_map_size, int total_soldiers)
         {
+            string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
 
-            if (option_map_size == "Dynamic")
+            if (map_size_source == "Dynamic")
             {
                 if (BattleState.IsSiegeBattle)
                 {
@@ -319,7 +321,7 @@ namespace CrusaderWars.terrain
             }
             else
             {
-                MapSize = option_map_size;
+                MapSize = map_size_source;
             }
 
             // Define base distances for field battles
@@ -669,7 +671,8 @@ namespace CrusaderWars.terrain
 
         private void BattleMap(string option_map_size, int total_soldiers)
         {
-            if(option_map_size == "Dynamic")
+            string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
+            if(map_size_source == "Dynamic")
             {
                 if (BattleState.IsSiegeBattle)
                 {
@@ -700,7 +703,7 @@ namespace CrusaderWars.terrain
             }
             else
             {
-                MapSize = option_map_size;
+                MapSize = map_size_source;
             }
         }
 
