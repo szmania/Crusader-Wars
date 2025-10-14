@@ -36,6 +36,21 @@ namespace CrusaderWars.twbattle
             {
                 BattleState.ClearAutofixOverrides();
             }
+            else 
+            {
+                // This is a recursive call for an autofix.
+                // The Unit lists within the armies are stale from the previous failed attempt and may contain modifications.
+                // Clear them to ensure they are fully regenerated from the base CK3 army data (Regiments).
+                Program.Logger.Debug("Autofix in progress. Clearing stale unit data before regenerating battle.");
+                foreach (var army in attacker_armies)
+                {
+                    army.Units?.Clear();
+                }
+                foreach (var army in defender_armies)
+                {
+                    army.Units?.Clear();
+                }
+            }
             UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
@@ -491,7 +506,7 @@ namespace CrusaderWars.twbattle
 
                         var allUnits = attacker_armies.SelectMany(a => a.Units).Concat(defender_armies.SelectMany(a => a.Units));
                         autofixState.ProblematicUnitKeys = allUnits
-                            .Where(u => u.GetRegimentType() == RegimentType.MenAtArms) // MODIFIED LINE
+                            .Where(u => u.GetRegimentType() == RegimentType.MenAtArms || u.GetRegimentType() == RegimentType.Levy || u.GetRegimentType() == RegimentType.Garrison)
                             .Select(u => u.GetAttilaUnitKey())
                             .Where(key => !string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             .Distinct()
