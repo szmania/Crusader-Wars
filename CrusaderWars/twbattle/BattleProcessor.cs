@@ -23,6 +23,7 @@ namespace CrusaderWars.twbattle
 {
     public static class BattleProcessor
     {
+        private static readonly Random _random = new Random();
         public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
@@ -495,6 +496,7 @@ namespace CrusaderWars.twbattle
                             .Select(u => u.GetAttilaUnitKey())
                             .Where(key => !string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             .Distinct()
+                            .OrderBy(key => _random.Next())
                             .ToList();
 
                         if (!autofixState.ProblematicUnitKeys.Any())
