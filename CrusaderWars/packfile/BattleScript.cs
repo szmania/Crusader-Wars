@@ -134,10 +134,27 @@ function kills()
             File.AppendAllText(filePath, close);
         }
 
-        public static void AddSiegeEvents()
+        //Add
+        public static void EraseScript(bool isSiege)
         {
-            Program.Logger.Debug("Adding siege event listeners to script...");
-            string siegeEventsScript = @"
+            Program.Logger.Debug("Erasing and resetting battle script to default.");
+
+            string siegeLogic = "";
+            string victoryLogic;
+
+            if (isSiege)
+            {
+                siegeLogic = @"
+local settlement_captured = false;
+
+function settlement_captured_func()
+  bm:out(""SETTLEMENT_CAPTURED"");
+  dev.log(""SETTLEMENT_CAPTURED"");
+  settlement_captured = true;
+end;
+
+scripting.AddEventCallBack(""GarrisonResidenceCaptured"", settlement_captured_func);
+
 local walls_attacked = false;
 
 function building_destroyed()
@@ -158,15 +175,35 @@ end;
 
 scripting.AddEventCallBack(""BattleUnitAttacksWalls"", walls_attacked_func);
 ";
-            File.AppendAllText(filePath, siegeEventsScript);
-            Program.Logger.Debug("Siege event listeners added.");
-        }
+                victoryLogic = @"
+	if is_routing_or_dead(Alliance_Stark) then	
+		bm:out(""Player has lost, army is routing"");
+        dev.log(""Defeat"")
+	elseif is_routing_or_dead(Alliance_Bolton) then
+		bm:out(""Player has won !"");
+		dev.log(""Victory"")
+    elseif settlement_captured and PLAYER_IS_ATTACKER then
+        bm:out(""Player has won !"");
+        dev.log(""Victory"")
+    elseif settlement_captured and not PLAYER_IS_ATTACKER then
+        bm:out(""Player has lost, army is routing"");
+        dev.log(""Defeat"")
+	end;";
+            }
+            else
+            {
+                victoryLogic = @"
+	if is_routing_or_dead(Alliance_Stark) then	
+		bm:out(""Player has lost, army is routing"");
+        dev.log(""Defeat"")
+	elseif is_routing_or_dead(Alliance_Bolton) then
+		bm:out(""Player has won !"");
+		dev.log(""Victory"")
+	end;";
+            }
 
-        //Add
-        public static void EraseScript()
-        {
-            Program.Logger.Debug("Erasing and resetting battle script to default.");
-            string original = @"
+
+            string original = $@"
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
 --
@@ -239,22 +276,14 @@ function EndBattle(context)
 
 end;
 scripting.AddEventCallBack(""ComponentLClickUp"", EndBattle);
-
+{siegeLogic}
 
 
 --Crusader Conflicts Get Winner
 function file_debug()
 
 	bm:callback(function() bm:end_battle() end, 1000);
-
-	if is_routing_or_dead(Alliance_Stark) then	
-		bm:out(""Player has lost, army is routing"");
-        dev.log(""Defeat"")
-	elseif is_routing_or_dead(Alliance_Bolton) then
-		bm:out(""Player has won !"");
-		dev.log(""Victory"")
-	end;
-
+{victoryLogic}
     
 	remaining_soldiers();
 	kills();

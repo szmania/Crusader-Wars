@@ -98,7 +98,7 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Clearing previous battle files before regeneration...");
                     BattleFile.ClearFile();
                     DeclarationsFile.Erase();
-                    BattleScript.EraseScript();
+                    BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
                     Data.units_scripts.Clear();
                     BattleResult.ClearAttilaLog();
                     UnitsCardsNames.RemoveFiles();
@@ -194,13 +194,6 @@ namespace CrusaderWars.twbattle
 
                     //Close Script
                     BattleScript.CloseScript();
-
-                    // NEW: Add siege event listeners if it's a siege battle
-                    if (twbattle.BattleState.IsSiegeBattle)
-                    {
-                        Program.Logger.Debug("Adding siege event listeners to script...");
-                        BattleScript.AddSiegeEvents();
-                    }
 
                     Program.Logger.Debug("--- FINAL ATTACKER ARMY COMPOSITION FOR ATTILA ---");
                     foreach (var army in attacker_armies)
@@ -394,7 +387,7 @@ namespace CrusaderWars.twbattle
             {
                 DataSearch.ClearLogFile();
                 DeclarationsFile.Erase();
-                BattleScript.EraseScript();
+                BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
                 BattleResult.ClearAttilaLog();
 
                 form.CloseLoadingScreen();

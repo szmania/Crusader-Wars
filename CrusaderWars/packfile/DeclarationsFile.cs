@@ -98,6 +98,17 @@ namespace CrusaderWars
                 alliances_ += t;
             }
 
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                var playerArmy = stark_armies.FirstOrDefault();
+                if (playerArmy != null)
+                {
+                    bool isAttacker = playerArmy.CombatSide == "attacker";
+                    string declaration = $"\nPLAYER_IS_ATTACKER = {isAttacker.ToString().ToLower()}\n";
+                    alliances_ += declaration;
+                }
+            }
+
             File.AppendAllText(filePath, alliances_ + "\n\n");
         }
 
@@ -125,6 +136,17 @@ namespace CrusaderWars
             {
                 string t = $"Bolton_Army{i} = Alliance_Bolton:armies():item({i});\r\n";
                 alliances_ += t;
+            }
+
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                var playerArmy = stark_armies.FirstOrDefault();
+                if (playerArmy != null)
+                {
+                    bool isAttacker = playerArmy.CombatSide == "attacker";
+                    string declaration = $"\nPLAYER_IS_ATTACKER = {isAttacker.ToString().ToLower()}\n";
+                    alliances_ += declaration;
+                }
             }
 
             File.AppendAllText(filePath, alliances_ + "\n\n");
