@@ -492,7 +492,6 @@ namespace CrusaderWars.twbattle
 
                         var allUnits = attacker_armies.SelectMany(a => a.Units).Concat(defender_armies.SelectMany(a => a.Units));
                         autofixState.ProblematicUnitKeys = allUnits
-                            .Where(u => u.GetRegimentType() == RegimentType.MenAtArms || u.GetRegimentType() == RegimentType.Levy || u.GetRegimentType() == RegimentType.Garrison)
                             .Select(u => u.GetAttilaUnitKey())
                             .Where(key => !string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             .Distinct()
