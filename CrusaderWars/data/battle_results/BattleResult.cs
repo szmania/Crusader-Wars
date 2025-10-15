@@ -2140,13 +2140,48 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
-            // 1. Calculate Breach Increment
+            // 1. Calculate Breach Increment and check for settlement capture from the LATEST battle log
             int breachIncrement = 0;
+            bool settlementCaptured = false;
             if (File.Exists(path_log_attila))
             {
                 string attilaLogContent = File.ReadAllText(path_log_attila);
-                int wallsAttackedCount = Regex.Matches(attilaLogContent, "WALLS_ATTACKED").Count;
-                int wallsDestroyedCount = Regex.Matches(attilaLogContent, "WALLS_DESTROYED").Count;
+                
+                // Normalize line endings for consistent searching
+                attilaLogContent = attilaLogContent.Replace("\r\n", "\n");
+
+                // Isolate the log for the last battle to avoid reading old data
+                string relevantLogSection;
+                const string battleReportHeader =
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------\n" +
+                    "--\n" +
+                    "--\t                    CRUSADER CONFLICTS               \n" +
+                    "--\n" +
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------";
+                
+                int lastHeaderIndex = attilaLogContent.LastIndexOf(battleReportHeader);
+
+                if (lastHeaderIndex != -1)
+                {
+                    relevantLogSection = attilaLogContent.Substring(lastHeaderIndex);
+                    Program.Logger.Debug("Isolated final battle report section from Attila log for siege analysis.");
+                }
+                else
+                {
+                    relevantLogSection = attilaLogContent; // Fallback to entire log if header not found
+                    Program.Logger.Debug("Battle report header not found. Analyzing entire Attila log content for siege analysis.");
+                }
+
+                settlementCaptured = relevantLogSection.Contains("SETTLEMENT_CAPTURED");
+                if (settlementCaptured)
+                {
+                    Program.Logger.Debug("Attila log: SETTLEMENT_CAPTURED event found in last battle report.");
+                }
+
+                int wallsAttackedCount = Regex.Matches(relevantLogSection, "WALLS_ATTACKED").Count;
+                int wallsDestroyedCount = Regex.Matches(relevantLogSection, "WALLS_DESTROYED").Count;
 
                 if (wallsDestroyedCount > 1)
                 {
@@ -2172,7 +2207,7 @@ namespace CrusaderWars.data.battle_results
             }
             else
             {
-                Program.Logger.Debug($"Attila log file not found at {path_log_attila}. Cannot calculate breach increment.");
+                Program.Logger.Debug($"Attila log file not found at {path_log_attila}. Cannot calculate breach increment or check for capture.");
             }
 
 
@@ -2209,73 +2244,85 @@ namespace CrusaderWars.data.battle_results
                 }
                 else if (inTargetSiegeBlock && trimmedLine.StartsWith("progress="))
                 {
-                    bool isSallyOut = attacker_armies.Concat(defender_armies).Any(a => a.IsGarrison() && a.IsPlayer());
-                    bool siegeWonByBesieger = !isSallyOut && IsAttackerVictorious;
-
-                    if (siegeWonByBesieger)
+                    if (settlementCaptured)
                     {
-                        // Attacker won a standard assault: set progress to 100%
+                        // Settlement was captured, siege is won by besieger.
                         int fortLevel = twbattle.Sieges.GetFortLevel();
                         double newProgress = 100 + (fortLevel * 75);
-                        Program.Logger.Debug(
-                            $"Attacker won standard assault. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
-                        updatedContent.AppendLine(
-                            $"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                        Program.Logger.Debug($"Settlement captured. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
+                        updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
                     }
                     else
                     {
-                        // All other outcomes: calculate progress based on garrison casualties.
-                        // This includes:
-                        // - Besieger loses a standard assault.
-                        // - Besieger wins a sally-out (garrison loses).
-                        // - Besieger loses a sally-out (garrison wins).
+                        // Settlement not captured, use existing logic based on routing or casualties.
+                        bool isSallyOut = attacker_armies.Concat(defender_armies).Any(a => a.IsGarrison() && a.IsPlayer());
+                        bool siegeWonByBesieger = !isSallyOut && IsAttackerVictorious;
 
-                        int initialGarrisonSize = twbattle.Sieges.GetGarrisonSize();
-                        var garrisonArmies = attacker_armies.Where(a => a.IsGarrison()).Concat(defender_armies.Where(a => a.IsGarrison()));
-                        int finalGarrisonSize = garrisonArmies.Sum(a => a.GetTotalSoldiers());
-
-                        double casualtyPercentage = 0;
-                        if (initialGarrisonSize > 0)
+                        if (siegeWonByBesieger)
                         {
-                            int casualties = initialGarrisonSize - finalGarrisonSize;
-                            if (casualties > 0)
-                            {
-                                casualtyPercentage = (double)casualties / initialGarrisonSize;
-                            }
-                        }
-
-                        string outcomeLog;
-                        if (isSallyOut) {
-                            // In a sally-out, the garrison is the attacker. We know the player is the garrison.
-                            outcomeLog = IsAttackerVictorious ? "Player (garrison) won sally-out." : "Besieger won against player's sally-out.";
-                        } else {
-                            outcomeLog = "Besieger lost assault.";
-                        }
-                        Program.Logger.Debug($"{outcomeLog} Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
-
-                        if (casualtyPercentage > 0)
-                        {
+                            // Attacker won a standard assault by routing defender: set progress to 100%
                             int fortLevel = twbattle.Sieges.GetFortLevel();
-                            double totalRequiredProgress = 100 + (fortLevel * 75);
-                            double currentProgress = twbattle.Sieges.GetSiegeProgress();
-                            double remainingProgress = totalRequiredProgress - currentProgress;
-
-                            if (remainingProgress < 0) remainingProgress = 0;
-
-                            double progressToAdd = casualtyPercentage * remainingProgress;
-                            double newProgress = currentProgress + progressToAdd;
-
+                            double newProgress = 100 + (fortLevel * 75);
                             Program.Logger.Debug(
-                                $"Adding {progressToAdd:F2} to siege progress. New progress: {newProgress:F2}");
-
-                            // Append the new progress line, preserving indentation
+                                $"Attacker won standard assault by routing defender. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
                             updatedContent.AppendLine(
                                 $"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
                         }
                         else
                         {
-                            Program.Logger.Debug("No garrison casualties. Siege progress remains unchanged.");
-                            updatedContent.AppendLine(line); // Append original line
+                            // All other outcomes: calculate progress based on garrison casualties.
+                            // This includes:
+                            // - Besieger loses a standard assault.
+                            // - Besieger wins a sally-out (garrison loses).
+                            // - Besieger loses a sally-out (garrison wins).
+
+                            int initialGarrisonSize = twbattle.Sieges.GetGarrisonSize();
+                            var garrisonArmies = attacker_armies.Where(a => a.IsGarrison()).Concat(defender_armies.Where(a => a.IsGarrison()));
+                            int finalGarrisonSize = garrisonArmies.Sum(a => a.GetTotalSoldiers());
+
+                            double casualtyPercentage = 0;
+                            if (initialGarrisonSize > 0)
+                            {
+                                int casualties = initialGarrisonSize - finalGarrisonSize;
+                                if (casualties > 0)
+                                {
+                                    casualtyPercentage = (double)casualties / initialGarrisonSize;
+                                }
+                            }
+
+                            string outcomeLog;
+                            if (isSallyOut) {
+                                // In a sally-out, the garrison is the attacker. We know the player is the garrison.
+                                outcomeLog = IsAttackerVictorious ? "Player (garrison) won sally-out." : "Besieger won against player's sally-out.";
+                            } else {
+                                outcomeLog = "Besieger lost assault.";
+                            }
+                            Program.Logger.Debug($"{outcomeLog} Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
+
+                            if (casualtyPercentage > 0)
+                            {
+                                int fortLevel = twbattle.Sieges.GetFortLevel();
+                                double totalRequiredProgress = 100 + (fortLevel * 75);
+                                double currentProgress = twbattle.Sieges.GetSiegeProgress();
+                                double remainingProgress = totalRequiredProgress - currentProgress;
+
+                                if (remainingProgress < 0) remainingProgress = 0;
+
+                                double progressToAdd = casualtyPercentage * remainingProgress;
+                                double newProgress = currentProgress + progressToAdd;
+
+                                Program.Logger.Debug(
+                                    $"Adding {progressToAdd:F2} to siege progress. New progress: {newProgress:F2}");
+
+                                // Append the new progress line, preserving indentation
+                                updatedContent.AppendLine(
+                                    $"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                            }
+                            else
+                            {
+                                Program.Logger.Debug("No garrison casualties. Siege progress remains unchanged.");
+                                updatedContent.AppendLine(line); // Append original line
+                            }
                         }
                     }
                 }
