@@ -537,98 +537,88 @@ namespace CrusaderWars.twbattle
                     }
 
                     // Common Autofix Logic
-                    bool canDoUnitFix = autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count;
-
-                    if (!canDoUnitFix)
+                    while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
                     {
-                        Program.Logger.Debug("Autofix failed. All problematic units have been replaced, but Attila continues to crash.");
+                        string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
+                        Program.Logger.Debug($"Attempting to find replacement for unit key: {keyToReplace}");
+
+                        // Reread the armies from the save data to get a clean state before applying the fix.
+                        Program.Logger.Debug("Rereading army data to get a clean state for autofix...");
+                        var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
+                        var allArmies = fresh_attackers.Concat(fresh_defenders);
+
+                        // Find a representative unit to determine the replacement key
+                        var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
+
+                        string replacementKey = UnitMappers_BETA.NOT_FOUND_KEY;
+                        bool replacementIsSiege = false;
+                        if (representativeUnit != null)
+                        {
+                            (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
+                        }
+
+                        // If we couldn't find a replacement, skip this unit and try the next one.
+                        if (replacementKey == UnitMappers_BETA.NOT_FOUND_KEY)
+                        {
+                            Program.Logger.Debug($"Autofix SKIPPED for key '{keyToReplace}': Could not find a suitable *different* default replacement unit. This may be the only default unit of its type. Trying next unit...");
+                            autofixState.NextUnitKeyIndexToReplace++;
+                            continue; // Move to the next unit in the list
+                        }
+
+                        // If we found a replacement, apply the fix and relaunch the battle.
+                        string fixDescription;
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                            form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                        });
+
+                        string replacementKeyInfo = $"'{replacementKey}'";
+                        fixDescription = $"replacing unit key '{keyToReplace}' with {replacementKeyInfo}";
+                        Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
+
+                        // Inform the user about the specific fix being applied.
                         form.Invoke((MethodInvoker)delegate
                         {
                             MessageBox.Show(form,
-                                "The automatic fix failed. All potentially problematic units were replaced, but the game still crashed.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
-                                "Crusader Conflicts: Autofix Failed",
+                                $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try to replace the potentially problematic unit '{keyToReplace}' with {replacementKeyInfo} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:\nhttps://discord.gg/eFZTprHh3j",
+                                "Crusader Conflicts: Applying Autofix",
                                 MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                                MessageBoxIcon.Information);
                         });
-                        return false;
-                    }
 
-                    string fixDescription;
-                    form.Invoke((MethodInvoker)delegate
-                    {
-                        form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
-                        form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                    });
-
-                    // Reread the armies from the save data to get a clean state before applying the fix.
-                    Program.Logger.Debug("Rereading army data to get a clean state for autofix...");
-                    var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
-
-                    // Apply unit fix to the fresh lists
-                    string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-                    var allArmies = fresh_attackers.Concat(fresh_defenders);
-
-                    // Find a representative unit to determine the replacement key
-                    var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
-
-                    // NEW: Determine the replacement key ONCE and ensure it's not the same as the key being replaced.
-                    string replacementKey = UnitMappers_BETA.NOT_FOUND_KEY;
-                    bool replacementIsSiege = false;
-                    if (representativeUnit != null)
-                    {
-                        (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
-                    }
-
-                    // If we couldn't find a replacement, we can't proceed with this fix. This happens if the problematic unit
-                    // is the *only* default unit available for its type.
-                    if (replacementKey == UnitMappers_BETA.NOT_FOUND_KEY)
-                    {
-                        Program.Logger.Debug($"Autofix failed for key '{keyToReplace}': Could not find a suitable *different* default replacement unit. This may be the only default unit of its type.");
-                        form.Invoke((MethodInvoker)delegate
+                        // Apply the fix using the pre-determined replacement key
+                        foreach (var army in allArmies)
                         {
-                            MessageBox.Show(form,
-                                $"The autofix process failed for the unit '{keyToReplace}'.\n\nThere are no alternative default units to replace it with in your unit mapper.\n\nThe battle will be aborted.",
-                                "Crusader Conflicts: Autofix Failed",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
-                        });
-                        return false; // Abort the battle
+                            foreach (var unit in army.Units)
+                            {
+                                if (unit.GetAttilaUnitKey() == keyToReplace)
+                                {
+                                    Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{replacementKey}'.");
+                                    unit.SetUnitKey(replacementKey);
+                                    unit.SetIsSiege(replacementIsSiege);
+                                }
+                            }
+                        }
+
+                        autofixState.NextUnitKeyIndexToReplace++;
+
+                        Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
+                        // Recursive call to restart the battle process with the modified armies
+                        return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
                     }
 
-
-                    string replacementKeyInfo = $"'{replacementKey}'";
-                    fixDescription = $"replacing unit key '{keyToReplace}' with {replacementKeyInfo}";
-                    Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
-
-                    // Inform the user about the specific fix being applied.
+                    // If the loop completes, it means we've tried all units and either couldn't find replacements or the game kept crashing.
+                    Program.Logger.Debug("Autofix failed. All problematic units have been checked, but Attila continues to crash or no replacements could be found.");
                     form.Invoke((MethodInvoker)delegate
                     {
                         MessageBox.Show(form,
-                            $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try to replace the potentially problematic unit '{keyToReplace}' with {replacementKeyInfo} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:\nhttps://discord.gg/eFZTprHh3j",
-                            "Crusader Conflicts: Applying Autofix",
+                            "The automatic fix failed. All potentially problematic units were checked, but either the game still crashed or no suitable replacements could be found.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
+                            "Crusader Conflicts: Autofix Failed",
                             MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                            MessageBoxIcon.Error);
                     });
-
-                    // Apply the fix using the pre-determined replacement key
-                    foreach (var army in allArmies)
-                    {
-                        foreach (var unit in army.Units)
-                        {
-                            if (unit.GetAttilaUnitKey() == keyToReplace)
-                            {
-                                Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{replacementKey}'.");
-                                unit.SetUnitKey(replacementKey);
-                                unit.SetIsSiege(replacementIsSiege);
-                            }
-                        }
-                    }
-
-                    autofixState.NextUnitKeyIndexToReplace++;
-
-                    Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                    // Recursive call to restart the battle process with the modified armies
-                    return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
+                    return false;
                 }
 
                 battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
