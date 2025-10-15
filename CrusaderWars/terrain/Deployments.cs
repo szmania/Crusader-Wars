@@ -332,9 +332,15 @@ namespace CrusaderWars.terrain
             // If it's a siege, use larger distances to push attackers to the map edge
             if (BattleState.IsSiegeBattle)
             {
-                mediumDist = "625.00";
-                bigDist = "925.00";
-                hugeDist = "1275.00";
+                // The new distances are calculated to place the attacker deployment zone adjacent to the defender's,
+                // plus a small gap, preventing overlap and reducing the chance of being placed off-map.
+                // Calculation: DefenderRadius + Gap + AttackerHalfDepth
+                // Medium: 450 + 50 + 75 = 575
+                // Big:    650 + 50 + 125 = 825
+                // Huge:   875 + 50 + 175 = 1100
+                mediumDist = "575.00";
+                bigDist = "825.00";
+                hugeDist = "1100.00";
             }
 
             X = "0.00"; // Initialize X and Y to avoid CS8618
