@@ -551,9 +551,8 @@ namespace CrusaderWars.twbattle
                         string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
                         Program.Logger.Debug($"--- Autofix: Starting process for problematic key: {keyToReplace} ---");
 
-                        // Reread armies for a clean state
-                        var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
-                        var allArmies = fresh_attackers.Concat(fresh_defenders);
+                        // Use the existing armies that caused the crash to make cumulative changes.
+                        var allArmies = attacker_armies.Concat(defender_armies);
                         var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
 
                         if (representativeUnit == null)
@@ -639,7 +638,8 @@ namespace CrusaderWars.twbattle
                             }
 
                             Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                            return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
+                            // Pass the cumulatively modified armies to the next battle attempt.
+                            return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
                         }
                         // If no replacement was found in this attempt, the loop will continue and try the next heritage faction, or default, or the next key.
                     }
