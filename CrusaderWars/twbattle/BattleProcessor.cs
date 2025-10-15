@@ -24,6 +24,8 @@ namespace CrusaderWars.twbattle
     public static class BattleProcessor
     {
         private static readonly Random _random = new Random();
+        private static Dictionary<string, (string replacementKey, bool isSiege)> _autofixReplacements = new Dictionary<string, (string, bool)>();
+
         public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
@@ -39,6 +41,7 @@ namespace CrusaderWars.twbattle
         {
             if (autofixState == null)
             {
+                _autofixReplacements.Clear(); // Clear fixes for a new battle
                 BattleState.ClearAutofixOverrides();
             }
             UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
@@ -551,8 +554,9 @@ namespace CrusaderWars.twbattle
                         string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
                         Program.Logger.Debug($"--- Autofix: Starting process for problematic key: {keyToReplace} ---");
 
-                        // Use the existing armies that caused the crash to make cumulative changes.
-                        var allArmies = attacker_armies.Concat(defender_armies);
+                        // Reread armies for a clean state, which also regenerates garrisons correctly.
+                        var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
+                        var allArmies = fresh_attackers.Concat(defender_armies);
                         var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
 
                         if (representativeUnit == null)
@@ -631,15 +635,26 @@ namespace CrusaderWars.twbattle
                                     MessageBoxIcon.Information);
                             });
 
-                            foreach (var unit in allArmies.SelectMany(a => a.Units).Where(u => u.GetAttilaUnitKey() == keyToReplace))
+                            // Store the new fix.
+                            _autofixReplacements[keyToReplace] = (replacementKey, replacementIsSiege);
+                            Program.Logger.Debug($"Stored fix: Replace '{keyToReplace}' with '{replacementKey}'. Total fixes: {_autofixReplacements.Count}");
+
+                            // Apply all cumulative fixes to the fresh armies.
+                            foreach (var fix in _autofixReplacements)
                             {
-                                unit.SetUnitKey(replacementKey);
-                                unit.SetIsSiege(replacementIsSiege);
+                                string originalKey = fix.Key;
+                                (string newKey, bool newIsSiege) = fix.Value;
+                                Program.Logger.Debug($"Applying cumulative fix: Replacing all instances of '{originalKey}' with '{newKey}'.");
+                                foreach (var unit in allArmies.SelectMany(a => a.Units).Where(u => u.GetAttilaUnitKey() == originalKey))
+                                {
+                                    unit.SetUnitKey(newKey);
+                                    unit.SetIsSiege(newIsSiege);
+                                }
                             }
 
                             Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                            // Pass the cumulatively modified armies to the next battle attempt.
-                            return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
+                            // Pass the fresh, cumulatively modified armies to the next battle attempt.
+                            return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
                         }
                         // If no replacement was found in this attempt, the loop will continue and try the next heritage faction, or default, or the next key.
                     }
