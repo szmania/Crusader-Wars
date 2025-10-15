@@ -568,22 +568,39 @@ namespace CrusaderWars.twbattle
                     string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
                     var allArmies = fresh_attackers.Concat(fresh_defenders);
 
-                    // Find a representative unit to determine the replacement key for the message
+                    // Find a representative unit to determine the replacement key
                     var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
-                    string replacementKeyInfo = "a safe default unit"; // Fallback message
+
+                    // NEW: Determine the replacement key ONCE and ensure it's not the same as the key being replaced.
+                    string replacementKey = UnitMappers_BETA.NOT_FOUND_KEY;
+                    bool replacementIsSiege = false;
                     if (representativeUnit != null)
                     {
-                        var (defaultKey, _) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit);
-                        if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                        {
-                            replacementKeyInfo = $"'{defaultKey}'";
-                        }
+                        (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
                     }
 
+                    // If we couldn't find a replacement, we can't proceed with this fix. This happens if the problematic unit
+                    // is the *only* default unit available for its type.
+                    if (replacementKey == UnitMappers_BETA.NOT_FOUND_KEY)
+                    {
+                        Program.Logger.Debug($"Autofix failed for key '{keyToReplace}': Could not find a suitable *different* default replacement unit. This may be the only default unit of its type.");
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            MessageBox.Show(form,
+                                $"The autofix process failed for the unit '{keyToReplace}'.\n\nThere are no alternative default units to replace it with in your unit mapper.\n\nThe battle will be aborted.",
+                                "Crusader Conflicts: Autofix Failed",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                        });
+                        return false; // Abort the battle
+                    }
+
+
+                    string replacementKeyInfo = $"'{replacementKey}'";
                     fixDescription = $"replacing unit key '{keyToReplace}' with {replacementKeyInfo}";
                     Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
 
-                    // NEW: Inform the user about the specific fix being applied.
+                    // Inform the user about the specific fix being applied.
                     form.Invoke((MethodInvoker)delegate
                     {
                         MessageBox.Show(form,
@@ -593,31 +610,24 @@ namespace CrusaderWars.twbattle
                             MessageBoxIcon.Information);
                     });
 
-
+                    // Apply the fix using the pre-determined replacement key
                     foreach (var army in allArmies)
                     {
                         foreach (var unit in army.Units)
                         {
                             if (unit.GetAttilaUnitKey() == keyToReplace)
                             {
-                                var (defaultKey, isSiege) = UnitMappers_BETA.GetDefaultUnitKey(unit);
-                                if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                {
-                                    Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{defaultKey}'.");
-                                    unit.SetUnitKey(defaultKey);
-                                    unit.SetIsSiege(isSiege);
-                                }
-                                else
-                                {
-                                    Program.Logger.Debug($"  - WARNING: Could not find a default unit for type {unit.GetRegimentType()} to replace '{keyToReplace}'. The unit may be dropped.");
-                                }
+                                Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{replacementKey}'.");
+                                unit.SetUnitKey(replacementKey);
+                                unit.SetIsSiege(replacementIsSiege);
                             }
                         }
                     }
+
                     autofixState.NextUnitKeyIndexToReplace++;
-                    
+
                     Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                    // Recursive call to restart the battle process
+                    // Recursive call to restart the battle process with the modified armies
                     return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
                 }
 

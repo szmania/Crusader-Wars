@@ -1031,9 +1031,20 @@ namespace CrusaderWars.unit_mapper
             return (NOT_FOUND_KEY, false);
         }
 
-        private static string SelectRankedUnitKey(List<(int rank, string key)> candidates, int requiredRank)
+        private static string SelectRankedUnitKey(List<(int rank, string key)> candidates, int requiredRank, string? keyToExclude = null)
         {
             if (!candidates.Any()) return NOT_FOUND_KEY;
+
+            // NEW: Exclude the problematic key if provided
+            if (!string.IsNullOrEmpty(keyToExclude))
+            {
+                candidates = candidates.Where(c => c.key != keyToExclude).ToList();
+                if (!candidates.Any())
+                {
+                    Program.Logger.Debug($"SelectRankedUnitKey: All candidates were excluded (key: {keyToExclude}).");
+                    return NOT_FOUND_KEY; // All candidates were the one to be excluded
+                }
+            }
 
             // Find all candidates at or below the required rank
             var suitableCandidates = candidates.Where(t => t.rank <= requiredRank).ToList();
@@ -1254,7 +1265,7 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
-        public static (string, bool) GetDefaultUnitKey(Unit unitToReplace)
+        public static (string, bool) GetDefaultUnitKey(Unit unitToReplace, string? keyToExclude = null)
         {
             if (LoadedUnitMapper_FolderPath == null)
             {
@@ -1302,7 +1313,7 @@ namespace CrusaderWars.unit_mapper
                         generalRanks.Add((rank, key));
                     }
                     int requiredGeneralRank = (unitToReplace.CharacterRank >= 4) ? 3 : (unitToReplace.CharacterRank == 3) ? 2 : 1;
-                    return (SelectRankedUnitKey(generalRanks, requiredGeneralRank), false);
+                    return (SelectRankedUnitKey(generalRanks, requiredGeneralRank, keyToExclude), false);
 
                 case RegimentType.Knight:
                     var knightRanks = new List<(int rank, string key)>();
@@ -1317,7 +1328,7 @@ namespace CrusaderWars.unit_mapper
                         }
                         knightRanks.Add((rank, key));
                     }
-                    return (SelectRankedUnitKey(knightRanks, unitToReplace.CharacterRank), false);
+                    return (SelectRankedUnitKey(knightRanks, unitToReplace.CharacterRank, keyToExclude), false);
 
                 case RegimentType.MenAtArms:
                     string category = GetUnitMaxCategory(unitToReplace);
@@ -1326,7 +1337,7 @@ namespace CrusaderWars.unit_mapper
                     foreach (XmlNode maaNode in defaultFactionNode.SelectNodes("MenAtArm"))
                     {
                         string? key = maaNode.Attributes?["key"]?.Value;
-                        if (string.IsNullOrEmpty(key)) continue;
+                        if (string.IsNullOrEmpty(key) || key == keyToExclude) continue;
                         fallbackCandidates.Add(key);
                         if (maaNode.Attributes?["max"]?.Value?.ToUpper() == category)
                         {
@@ -1343,7 +1354,7 @@ namespace CrusaderWars.unit_mapper
                     foreach (XmlNode garrisonNode in defaultFactionNode.SelectNodes("Garrison"))
                     {
                         string? key = garrisonNode.Attributes?["key"]?.Value;
-                        if (string.IsNullOrEmpty(key)) continue;
+                        if (string.IsNullOrEmpty(key) || key == keyToExclude) continue;
                         int level = 1;
                         if (garrisonNode.Attributes?["level"]?.Value is string levelStr && int.TryParse(levelStr, out int parsedLevel))
                         {
@@ -1364,7 +1375,7 @@ namespace CrusaderWars.unit_mapper
                 case RegimentType.Levy:
                     var levyKeys = defaultFactionNode.SelectNodes("Levies")?.Cast<XmlNode>()
                         .Select(node => node.Attributes?["key"]?.Value)
-                        .Where(key => !string.IsNullOrEmpty(key))
+                        .Where(key => !string.IsNullOrEmpty(key) && key != keyToExclude)
                         .ToList();
                     if (levyKeys != null && levyKeys.Any()) return (levyKeys[_random.Next(levyKeys.Count)], false);
                     break;
