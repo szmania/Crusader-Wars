@@ -962,7 +962,7 @@ namespace CrusaderWars.unit_mapper
                         {
                             foreach (XmlNode node in element.ChildNodes)
                             {
-                                unit_data = FindUnitKeyInFaction(element, unit);
+                                unit_data = FindUnitKeyInFaction(element, unit, null);
                                 return unit_data;
                             }
                         }
@@ -1000,7 +1000,7 @@ namespace CrusaderWars.unit_mapper
 
                 if (factionNode != null)
                 {
-                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit);
+                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit, null);
                     if (foundKey != NOT_FOUND_KEY)
                     {
                         Program.Logger.Debug($"  - INFO: Found mapping for unit '{unit.GetName()}' in faction '{unit.GetAttilaFaction()}' from file '{Path.GetFileName(xml_file)}'.");
@@ -1019,7 +1019,7 @@ namespace CrusaderWars.unit_mapper
 
                 if (factionNode != null)
                 {
-                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit);
+                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit, null);
                     if (foundKey != NOT_FOUND_KEY)
                     {
                         Program.Logger.Debug($"  - INFO: Found 'Default' fallback mapping for unit '{unit.GetName()}' from file '{Path.GetFileName(xml_file)}'.");
@@ -1075,7 +1075,7 @@ namespace CrusaderWars.unit_mapper
         }
 
 
-        static (string, bool) FindUnitKeyInFaction(XmlNode factionElement, Unit unit)
+        static (string, bool) FindUnitKeyInFaction(XmlNode factionElement, Unit unit, string? keyToExclude = null)
         {
             if (unit.GetRegimentType() == RegimentType.Commander)
             {
@@ -1101,7 +1101,7 @@ namespace CrusaderWars.unit_mapper
                     if (unit.CharacterRank >= 4) requiredRank = 3; // King or Emperor gets rank 3 general
                     else if (unit.CharacterRank == 3) requiredRank = 2; // Duke gets rank 2 general
 
-                    string selectedKey = SelectRankedUnitKey(generalRanks, requiredRank);
+                    string selectedKey = SelectRankedUnitKey(generalRanks, requiredRank, keyToExclude);
                     if (selectedKey != NOT_FOUND_KEY)
                     {
                         return (selectedKey, false);
@@ -1129,7 +1129,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     int requiredRank = unit.CharacterRank; // Directly use the 1-3 rank from Prowess
 
-                    string selectedKey = SelectRankedUnitKey(knightRanks, requiredRank);
+                    string selectedKey = SelectRankedUnitKey(knightRanks, requiredRank, keyToExclude);
                     if (selectedKey != NOT_FOUND_KEY)
                     {
                         return (selectedKey, false);
@@ -1153,6 +1153,7 @@ namespace CrusaderWars.unit_mapper
                             if (node?.Attributes?["key"] != null)
                             {
                                 string? unit_key = node.Attributes["key"]?.Value;
+                                if (unit_key == keyToExclude) continue;
                                 bool isSiege = node.Attributes?["siege"]?.Value == "true";
                                 if (unit_key != null) return (unit_key, isSiege);
                             }
@@ -1382,6 +1383,68 @@ namespace CrusaderWars.unit_mapper
             }
 
             return (NOT_FOUND_KEY, false);
+        }
+
+        public static (string, bool) GetReplacementUnitKeyFromFaction(Unit unitToReplace, string targetFaction, string? keyToExclude = null)
+        {
+            if (LoadedUnitMapper_FolderPath == null)
+            {
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get replacement unit key.");
+                return (NOT_FOUND_KEY, false);
+            }
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Prioritize sub-mods
+
+            foreach (var xml_file in files_paths)
+            {
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{targetFaction}']");
+
+                if (factionNode != null)
+                {
+                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unitToReplace, keyToExclude);
+                    if (foundKey != NOT_FOUND_KEY)
+                    {
+                        return (foundKey, foundIsSiege);
+                    }
+                }
+            }
+
+            return (NOT_FOUND_KEY, false);
+        }
+
+        public static List<string> GetFactionsByHeritage(string heritageName)
+        {
+            var factions = new HashSet<string>();
+            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath) || string.IsNullOrEmpty(heritageName))
+            {
+                return new List<string>();
+            }
+
+            string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
+
+            foreach (var xml_file in files_paths)
+            {
+                XmlDocument CulturesFile = new XmlDocument();
+                CulturesFile.Load(xml_file);
+                if (CulturesFile.DocumentElement == null) continue;
+
+                foreach (XmlNode heritageNode in CulturesFile.DocumentElement.SelectNodes($"Heritage[@name='{heritageName}']"))
+                {
+                    if (heritageNode.Attributes?["faction"]?.Value is string heritageFaction && !string.IsNullOrEmpty(heritageFaction)) factions.Add(heritageFaction);
+                    foreach (XmlNode cultureNode in heritageNode.SelectNodes("Culture"))
+                    {
+                        if (cultureNode.Attributes?["faction"]?.Value is string cultureFaction && !string.IsNullOrEmpty(cultureFaction)) factions.Add(cultureFaction);
+                    }
+                }
+            }
+            return factions.ToList();
         }
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)

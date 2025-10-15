@@ -28,6 +28,10 @@ namespace CrusaderWars.twbattle
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
+
+            // State for the current unit being fixed
+            public List<string>? HeritageReplacementFactions { get; set; } // List of unique factions from the same heritage to try as replacements.
+            public int NextHeritageFactionIndex { get; set; } = 0; // Index for the above list.
             public int FailureCount { get; set; } = 0;
         }
 
@@ -536,78 +540,111 @@ namespace CrusaderWars.twbattle
                     }
 
                     // Common Autofix Logic
-                    while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
+                    while (true) // Loop until we find a fix to apply, or run out of all options.
                     {
-                        string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-                        Program.Logger.Debug($"Attempting to find replacement for unit key: {keyToReplace}");
+                        if (autofixState.NextUnitKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
+                        {
+                            // We've tried to fix all problematic keys. Break the loop to show the final failure message.
+                            break;
+                        }
 
-                        // Reread the armies from the save data to get a clean state before applying the fix.
-                        Program.Logger.Debug("Rereading army data to get a clean state for autofix...");
+                        string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
+                        Program.Logger.Debug($"--- Autofix: Starting process for problematic key: {keyToReplace} ---");
+
+                        // Reread armies for a clean state
                         var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
                         var allArmies = fresh_attackers.Concat(fresh_defenders);
-
-                        // Find a representative unit to determine the replacement key
                         var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
+
+                        if (representativeUnit == null)
+                        {
+                            Program.Logger.Debug($"Could not find a representative unit for key '{keyToReplace}'. Skipping to next key.");
+                            autofixState.NextUnitKeyIndexToReplace++;
+                            autofixState.HeritageReplacementFactions = null; // Reset for next key
+                            autofixState.NextHeritageFactionIndex = 0;
+                            continue;
+                        }
+
+                        // Initialize heritage faction search if it's the first time for this key
+                        if (autofixState.HeritageReplacementFactions == null)
+                        {
+                            string heritage = representativeUnit.GetHeritage();
+                            string originalFaction = representativeUnit.GetAttilaFaction();
+                            Program.Logger.Debug($"Finding heritage factions for heritage '{heritage}', excluding original faction '{originalFaction}'.");
+
+                            var heritageFactions = unit_mapper.UnitMappers_BETA.GetFactionsByHeritage(heritage);
+                            autofixState.HeritageReplacementFactions = heritageFactions
+                                .Where(f => f != originalFaction && f != "Default" && f != "DEFAULT")
+                                .Distinct()
+                                .ToList();
+
+                            autofixState.NextHeritageFactionIndex = 0;
+                            Program.Logger.Debug($"Found {autofixState.HeritageReplacementFactions.Count} alternative heritage factions to try.");
+                        }
 
                         string replacementKey = UnitMappers_BETA.NOT_FOUND_KEY;
                         bool replacementIsSiege = false;
-                        if (representativeUnit != null)
-                        {
-                            (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
-                        }
+                        string fixDescription = "";
 
-                        // If we couldn't find a replacement, skip this unit and try the next one.
-                        if (replacementKey == UnitMappers_BETA.NOT_FOUND_KEY)
+                        // Stage 1: Try heritage factions
+                        if (autofixState.HeritageReplacementFactions != null && autofixState.NextHeritageFactionIndex < autofixState.HeritageReplacementFactions.Count)
                         {
-                            Program.Logger.Debug($"Autofix SKIPPED for key '{keyToReplace}': Could not find a suitable *different* default replacement unit. This may be the only default unit of its type. Trying next unit...");
-                            autofixState.NextUnitKeyIndexToReplace++;
-                            continue; // Move to the next unit in the list
-                        }
+                            string replacementFaction = autofixState.HeritageReplacementFactions[autofixState.NextHeritageFactionIndex];
+                            Program.Logger.Debug($"Attempting heritage replacement using faction: '{replacementFaction}'");
 
-                        // If we found a replacement, apply the fix and relaunch the battle.
-                        string fixDescription;
-                        form.Invoke((MethodInvoker)delegate
-                        {
-                            form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
-                            form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                        });
+                            (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetReplacementUnitKeyFromFaction(representativeUnit, replacementFaction, keyToReplace);
 
-                        string replacementKeyInfo = $"'{replacementKey}'";
-                        fixDescription = $"replacing unit key '{keyToReplace}' with {replacementKeyInfo}";
-                        Program.Logger.Debug($"Autofix attempt: {fixDescription}.");
+                            autofixState.NextHeritageFactionIndex++; // Move to next faction for the next attempt
 
-                        // Inform the user about the specific fix being applied.
-                        form.Invoke((MethodInvoker)delegate
-                        {
-                            MessageBox.Show(form,
-                                $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try to replace the potentially problematic unit '{keyToReplace}' with {replacementKeyInfo} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:\nhttps://discord.gg/eFZTprHh3j",
-                                "Crusader Conflicts: Applying Autofix",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
-                        });
-
-                        // Apply the fix using the pre-determined replacement key
-                        foreach (var army in allArmies)
-                        {
-                            foreach (var unit in army.Units)
+                            if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
                             {
-                                if (unit.GetAttilaUnitKey() == keyToReplace)
-                                {
-                                    Program.Logger.Debug($"  - In army {army.ID}, replacing unit '{unit.GetName()}' key '{keyToReplace}' with default '{replacementKey}'.");
-                                    unit.SetUnitKey(replacementKey);
-                                    unit.SetIsSiege(replacementIsSiege);
-                                }
+                                fixDescription = $"replacing unit key '{keyToReplace}' with a unit from heritage faction '{replacementFaction}' ('{replacementKey}')";
                             }
                         }
+                        // Stage 2: If no heritage replacement was found, try default
+                        else
+                        {
+                            Program.Logger.Debug($"Heritage replacements exhausted or failed. Trying 'Default' faction replacement.");
+                            (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
 
-                        autofixState.NextUnitKeyIndexToReplace++;
+                            if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                            {
+                                fixDescription = $"replacing unit key '{keyToReplace}' with default unit '{replacementKey}'";
+                            }
 
-                        Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                        // Recursive call to restart the battle process with the modified armies
-                        return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
+                            // We've tried all options for this key, so prepare to move to the next one on the next crash.
+                            autofixState.NextUnitKeyIndexToReplace++;
+                            autofixState.HeritageReplacementFactions = null;
+                            autofixState.NextHeritageFactionIndex = 0;
+                        }
+
+                        // If we found a replacement (from either stage), apply it and relaunch.
+                        if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                        {
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                MessageBox.Show(form,
+                                    $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:\nhttps://discord.gg/eFZTprHh3j",
+                                    "Crusader Conflicts: Applying Autofix",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+                            });
+
+                            foreach (var unit in allArmies.SelectMany(a => a.Units).Where(u => u.GetAttilaUnitKey() == keyToReplace))
+                            {
+                                unit.SetUnitKey(replacementKey);
+                                unit.SetIsSiege(replacementIsSiege);
+                            }
+
+                            Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
+                            return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
+                        }
+                        // If no replacement was found in this attempt, the loop will continue and try the next heritage faction, or default, or the next key.
                     }
 
-                    // If the loop completes, it means we've tried all units and either couldn't find replacements or the game kept crashing.
+                    // If the loop completes, it means all options are exhausted.
                     Program.Logger.Debug("Autofix failed. All problematic units have been checked, but Attila continues to crash or no replacements could be found.");
                     form.Invoke((MethodInvoker)delegate
                     {
