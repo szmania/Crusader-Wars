@@ -99,6 +99,7 @@ namespace CrusaderWars.twbattle
                     BattleFile.ClearFile();
                     DeclarationsFile.Erase();
                     BattleScript.EraseScript();
+                    Data.units_scripts.Clear();
                     BattleResult.ClearAttilaLog();
                     UnitsCardsNames.RemoveFiles();
                     Program.Logger.Debug("Previous battle files cleared.");
