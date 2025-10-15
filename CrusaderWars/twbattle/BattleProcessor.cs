@@ -556,7 +556,7 @@ namespace CrusaderWars.twbattle
 
                         // Reread armies for a clean state, which also regenerates garrisons correctly.
                         var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
-                        var allArmies = fresh_attackers.Concat(defender_armies);
+                        var allArmies = fresh_attackers.Concat(fresh_defenders);
                         var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
 
                         if (representativeUnit == null)
