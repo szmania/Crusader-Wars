@@ -611,21 +611,23 @@ namespace CrusaderWars.data.battle_results
                     if (isSiegeType)
                     {
                         // Logic for siege units (machines)
+                        int finalMachineCount;
+                        if(unitReport.GetAliveAfterPursuit() != -1)
+                        {
+                            finalMachineCount = unitReport.GetAliveAfterPursuit();
+                        }
+                        else
+                        {
+                            finalMachineCount = unitReport.GetAliveBeforePursuit();
+                        }
+
                         int originalMachines = Int32.Parse(regiment.CurrentNum);
-                        int startingMen;
-                        if (originalMachines <= 0) startingMen = 0;
-                        else if (originalMachines == 1) startingMen = 3;
-                        else startingMen = (originalMachines * 4) - 2;
+                        // Cap the final count at the original number to prevent negative casualties from scaling artifacts.
+                        int cappedFinalMachineCount = Math.Min(originalMachines, finalMachineCount);
 
-                        int menKilledInThisRegiment = Math.Min(killed, startingMen);
-                        int remainingMen = startingMen - menKilledInThisRegiment;
-                        int remainingMachines = ConvertMenToMachines(remainingMen);
-
-                        regiment.SetSoldiers(remainingMachines.ToString());
-                        unitReport.SetKilled(killed -
-                                             menKilledInThisRegiment); // Update report with remaining casualties
+                        regiment.SetSoldiers(cappedFinalMachineCount.ToString());
                         Program.Logger.Debug(
-                            $"Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Machines changed from {originalMachines} to {remainingMachines} (Men: {startingMen} -> {remainingMen}). Killed: {menKilledInThisRegiment}.");
+                            $"Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Machines changed from {originalMachines} to {cappedFinalMachineCount}. (Reported from Attila: {finalMachineCount})");
                     }
                     else
                     {
