@@ -103,8 +103,9 @@ namespace CrusaderWars
                 var playerArmy = stark_armies.FirstOrDefault();
                 if (playerArmy != null)
                 {
-                    bool isAttacker = playerArmy.CombatSide == "attacker";
-                    string declaration = $"\nPLAYER_IS_ATTACKER = {isAttacker.ToString().ToLower()}\n";
+                    // The player's side is the strategic attacker (besieger) if it contains no garrison armies.
+                    bool playerIsStrategicAttacker = !stark_armies.Any(a => a.IsGarrison());
+                    string declaration = $"\nPLAYER_IS_ATTACKER = {playerIsStrategicAttacker.ToString().ToLower()}\n";
                     alliances_ += declaration;
                 }
             }
@@ -143,8 +144,9 @@ namespace CrusaderWars
                 var playerArmy = stark_armies.FirstOrDefault();
                 if (playerArmy != null)
                 {
-                    bool isAttacker = playerArmy.CombatSide == "attacker";
-                    string declaration = $"\nPLAYER_IS_ATTACKER = {isAttacker.ToString().ToLower()}\n";
+                    // The player's side is the strategic attacker (besieger) if it contains no garrison armies.
+                    bool playerIsStrategicAttacker = !stark_armies.Any(a => a.IsGarrison());
+                    string declaration = $"\nPLAYER_IS_ATTACKER = {playerIsStrategicAttacker.ToString().ToLower()}\n";
                     alliances_ += declaration;
                 }
             }

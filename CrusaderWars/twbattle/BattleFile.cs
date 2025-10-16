@@ -748,8 +748,15 @@ namespace CrusaderWars
             }
             else // Not a reinforcement army
             {
-                deploymentDirection = Deployments.beta_GeDirection(army.CombatSide);
-                SetDeploymentArea(army.CombatSide);
+                string strategic_side = army.CombatSide;
+                if (twbattle.BattleState.IsSiegeBattle)
+                {
+                    // In a siege, deployment is based on strategic role (besieger vs. besieged).
+                    // A garrison army always deploys inside the settlement (strategic defender).
+                    strategic_side = army.IsGarrison() ? "defender" : "attacker";
+                }
+                deploymentDirection = Deployments.beta_GeDirection(strategic_side);
+                SetDeploymentArea(strategic_side);
                 AddDeployablesDefenses(army);
             }
 
@@ -1259,9 +1266,13 @@ namespace CrusaderWars
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
-                if (army.CombatSide == "attacker")
+                // In a siege, victory conditions are based on the strategic role (besieger vs. besieged),
+                // not the tactical role (attacker/defender in the sally-out).
+                string strategic_side = army.IsGarrison() ? "defender" : "attacker";
+
+                if (strategic_side == "attacker")
                 {
-                    // Attacker specific conditions for siege
+                    // Attacker (besieger) specific conditions for siege
                     victoryConditions.AppendLine("<victory_condition>");
                     victoryConditions.AppendLine("<capture_settlement></capture_settlement>");
                     victoryConditions.AppendLine("</victory_condition>");
@@ -1271,7 +1282,7 @@ namespace CrusaderWars
                     (string routX, string stringY) = GetRoutPositionCoordinates(attackerDeploymentDirection);
                     victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{stringY}\"/>");
                 }
-                else // Defender specific conditions for siege
+                else // Defender (besieged) specific conditions for siege
                 {
                     victoryConditions.AppendLine("<starting_tickets>150</starting_tickets>");
 
