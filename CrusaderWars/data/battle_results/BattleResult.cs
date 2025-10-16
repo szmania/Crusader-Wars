@@ -1966,7 +1966,7 @@ namespace CrusaderWars.data.battle_results
 
         public static bool HasBattleEnded(string path_attila_log)
         {
-            Program.Logger.Debug($"Checking if battle has ended in log file: {path_attila_log}");
+            Program.Logger.Debug($"Checking if \"Battle has finished\" in log file: {path_attila_log}");
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(logFile))
             {
