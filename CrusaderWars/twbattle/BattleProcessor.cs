@@ -617,7 +617,7 @@ namespace CrusaderWars.twbattle
 
                         if (!twbattle.BattleState.IsSiegeBattle && deploymentFailureCount == 1)
                         {
-                            fixDescription = "rotating the army deployment orientation";
+                            fixDescription = "switching deployment from North/South to East/West (or vice-versa)";
                             BattleState.AutofixDeploymentRotationOverride = true;
                             isSizeOrDeploymentFix = true;
                         }
