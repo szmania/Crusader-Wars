@@ -37,6 +37,7 @@ namespace CrusaderWars.twbattle
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
             public bool KeepMapSizeHuge { get; set; } = false;
+            public bool KeepTryingAutomatically { get; set; } = false;
         }
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
@@ -478,11 +479,7 @@ namespace CrusaderWars.twbattle
                         DialogResult userResponse = DialogResult.No;
                         form.Invoke((MethodInvoker)delegate
                         {
-                            userResponse = MessageBox.Show(form,
-                                "It appears Total War: Attila has crashed or was closed prematurely. This is often caused by an incompatible custom unit.\n\nWould you like to attempt an automatic fix?\n\nThe application will replace one potentially problematic unit type at a time with a safe default, then restart the battle.",
-                                "Crusader Conflicts: Attila Crash Detected",
-                                MessageBoxButtons.YesNo,
-                                MessageBoxIcon.Question);
+                            userResponse = ShowAutofixPrompt(form);
                         });
 
                         if (userResponse == DialogResult.No)
@@ -494,6 +491,11 @@ namespace CrusaderWars.twbattle
                         Program.Logger.Debug("User accepted autofix. Initializing autofix process.");
                         autofixState = new AutofixState();
                         autofixState.FailureCount = 1;
+                        if (userResponse == DialogResult.Retry) // "Yes (Don't Ask Again)"
+                        {
+                            autofixState.KeepTryingAutomatically = true;
+                            Program.Logger.Debug("Autofix mode set to 'Keep Trying Automatically'.");
+                        }
 
                         var allUnits = attacker_armies.SelectMany(a => a.Units).Concat(defender_armies.SelectMany(a => a.Units));
                         autofixState.ProblematicUnitKeys = allUnits
@@ -521,23 +523,26 @@ namespace CrusaderWars.twbattle
                     else // Subsequent crash
                     {
                         autofixState.FailureCount++;
-                        Program.Logger.Debug($"Subsequent crash detected. Autofix has now failed {autofixState.FailureCount - 1} time(s). Prompting user to continue.");
-                        DialogResult userResponse = DialogResult.No;
-                        form.Invoke((MethodInvoker)delegate
+                        Program.Logger.Debug($"Subsequent crash detected. Autofix has now failed {autofixState.FailureCount - 1} time(s).");
+                        if (!autofixState.KeepTryingAutomatically)
                         {
-                            userResponse = MessageBox.Show(form,
-                                $"The automatic fix has failed {autofixState.FailureCount - 1} time(s). Would you like to continue trying?",
-                                "Crusader Conflicts: Continue Autofix?",
-                                MessageBoxButtons.YesNo,
-                                MessageBoxIcon.Question);
-                        });
+                            DialogResult userResponse = DialogResult.No;
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                userResponse = MessageBox.Show(form,
+                                    $"The automatic fix has failed {autofixState.FailureCount - 1} time(s). Would you like to continue trying?",
+                                    "Crusader Conflicts: Continue Autofix?",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Question);
+                            });
 
-                        if (userResponse == DialogResult.No)
-                        {
-                            Program.Logger.Debug("User declined to continue autofix. Aborting battle.");
-                            return false; // User cancelled
+                            if (userResponse == DialogResult.No)
+                            {
+                                Program.Logger.Debug("User declined to continue autofix. Aborting battle.");
+                                return false; // User cancelled
+                            }
                         }
-                        Program.Logger.Debug("User chose to continue autofix.");
+                        Program.Logger.Debug("User chose to continue autofix (or it was automatic).");
                     }
 
                     // Common Autofix Logic
@@ -630,14 +635,26 @@ namespace CrusaderWars.twbattle
                     if (isSizeOrDeploymentFix)
                     {
                         autofixState.LastAppliedFixDescription = fixDescription;
-                        form.Invoke((MethodInvoker)delegate
+                        if (!autofixState.KeepTryingAutomatically)
                         {
-                            form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
-                            form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                            string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
-                            string discordUrl = "https://discord.gg/eFZTprHh3j";
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl);
-                        });
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl);
+                            });
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Automatically applying fix #{autofixState.FailureCount}: {fixDescription}. Skipping user prompt.");
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                            });
+                        }
 
                         Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
                         var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
@@ -727,14 +744,26 @@ namespace CrusaderWars.twbattle
                         if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
                         {
                             autofixState.LastAppliedFixDescription = fixDescription;
-                            form.Invoke((MethodInvoker)delegate
+                            if (!autofixState.KeepTryingAutomatically)
                             {
-                                form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
-                                form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                                string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
-                                string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, keyToReplace, replacementKey);
-                            });
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                    form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                    string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                    string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, keyToReplace, replacementKey);
+                                });
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"Automatically applying fix #{autofixState.FailureCount}: {fixDescription}. Skipping user prompt.");
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                    form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                });
+                            }
 
                             // Store the new fix.
                             _autofixReplacements[keyToReplace] = (replacementKey, replacementIsSiege);
@@ -1029,6 +1058,45 @@ namespace CrusaderWars.twbattle
             BattleState.ClearBattleState();
 
             return true; // Success
+        }
+
+        private static DialogResult ShowAutofixPrompt(IWin32Window owner)
+        {
+            using (Form prompt = new Form())
+            {
+                prompt.Width = 500;
+                prompt.Height = 220;
+                prompt.Text = "Crusader Conflicts: Attila Crash Detected";
+                prompt.StartPosition = FormStartPosition.CenterParent;
+                prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
+                prompt.MaximizeBox = false;
+                prompt.MinimizeBox = false;
+
+                Label textLabel = new Label() { 
+                    Left = 20, 
+                    Top = 20, 
+                    Width = 460, 
+                    Height = 80, 
+                    Text = "It appears Total War: Attila has crashed or was closed prematurely. This is often caused by an incompatible custom unit.\n\nWould you like to attempt an automatic fix?\n\nThe application will replace one potentially problematic unit type at a time with a safe default, then restart the battle." 
+                };
+
+                Button btnYesKeepTrying = new Button() { Text = "Yes (Don't Ask Again)", Left = 30, Width = 150, Top = 130, DialogResult = DialogResult.Retry };
+                Button btnYesOnce = new Button() { Text = "Yes", Left = 200, Width = 100, Top = 130, DialogResult = DialogResult.Yes };
+                Button btnNo = new Button() { Text = "No", Left = 320, Width = 100, Top = 130, DialogResult = DialogResult.No };
+
+                btnYesKeepTrying.Click += (sender, e) => { prompt.Close(); };
+                btnYesOnce.Click += (sender, e) => { prompt.Close(); };
+                btnNo.Click += (sender, e) => { prompt.Close(); };
+
+                prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(btnYesKeepTrying);
+                prompt.Controls.Add(btnYesOnce);
+                prompt.Controls.Add(btnNo);
+                prompt.AcceptButton = btnYesKeepTrying; // Default button
+                prompt.CancelButton = btnNo;
+
+                return prompt.ShowDialog(owner);
+            }
         }
 
         private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, params string[] boldWords)
