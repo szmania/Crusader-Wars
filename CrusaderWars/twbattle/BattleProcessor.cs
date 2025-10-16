@@ -35,6 +35,7 @@ namespace CrusaderWars.twbattle
             public List<string>? HeritageReplacementFactions { get; set; } // List of unique factions from the same heritage to try as replacements.
             public int NextHeritageFactionIndex { get; set; } = 0; // Index for the above list.
             public int FailureCount { get; set; } = 0;
+            public string LastAppliedFixDescription { get; set; } = "";
         }
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
@@ -524,7 +525,7 @@ namespace CrusaderWars.twbattle
                         form.Invoke((MethodInvoker)delegate
                         {
                             userResponse = MessageBox.Show(form,
-                                $"The automatic fix has failed {autofixState.FailureCount} time(s). Would you like to continue trying?",
+                                $"The automatic fix has failed {autofixState.FailureCount - 1} time(s). Would you like to continue trying?",
                                 "Crusader Conflicts: Continue Autofix?",
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question);
@@ -538,28 +539,89 @@ namespace CrusaderWars.twbattle
                         Program.Logger.Debug("User chose to continue autofix.");
                     }
 
-                    // Common Autofix Logic - STAGE 1: Deployment Fixes
+                    // Common Autofix Logic
                     BattleState.ClearAutofixOverrides();
                     string fixDescription = "";
-                    bool isDeploymentFix = false;
+                    bool isSizeOrDeploymentFix = false;
 
-                    if (!twbattle.BattleState.IsSiegeBattle && autofixState.FailureCount == 1)
+                    // --- Determine Original Map Size (before any overrides) ---
+                    string originalMapSize;
+                    string option_map_size = ModOptions.DeploymentsZones();
+                    if (option_map_size == "Dynamic")
                     {
-                        fixDescription = "rotating the army deployment orientation";
-                        BattleState.AutofixDeploymentRotationOverride = true;
-                        isDeploymentFix = true;
+                        // Reread armies to get original soldier counts for dynamic calculation
+                        var (fresh_attackers_for_size, fresh_defenders_for_size) = ArmiesReader.ReadBattleArmies();
+                        int total_soldiers = fresh_attackers_for_size.Sum(a => a.GetTotalSoldiers()) + fresh_defenders_for_size.Sum(a => a.GetTotalSoldiers());
+
+                        if (twbattle.BattleState.IsSiegeBattle)
+                        {
+                            int holdingLevel = Sieges.GetHoldingLevel();
+                            if (holdingLevel <= 2) { originalMapSize = "Medium"; }
+                            else if (holdingLevel <= 4) { originalMapSize = "Big"; }
+                            else { originalMapSize = "Huge"; }
+                        }
+                        else // Field battle
+                        {
+                            if (total_soldiers <= 5000) { originalMapSize = "Medium"; }
+                            else if (total_soldiers > 5000 && total_soldiers < 20000) { originalMapSize = "Big"; }
+                            else if (total_soldiers >= 20000) { originalMapSize = "Huge"; }
+                            else { originalMapSize = "Medium"; }
+                        }
                     }
-                    else if (twbattle.BattleState.IsSiegeBattle && autofixState.FailureCount >= 1 && autofixState.FailureCount <= 4)
+                    else
                     {
-                        string[] directions = { "N", "S", "E", "W" };
-                        string direction = directions[autofixState.FailureCount - 1];
-                        fixDescription = $"setting the besieger's attack direction to '{direction}'";
-                        BattleState.AutofixAttackerDirectionOverride = direction;
-                        isDeploymentFix = true;
+                        originalMapSize = option_map_size;
+                    }
+                    Program.Logger.Debug($"Autofix: Original map size determined as '{originalMapSize}'.");
+
+                    // --- STAGE 1: Map Size Fixes ---
+                    if (autofixState.FailureCount == 1 && originalMapSize == "Medium")
+                    {
+                        fixDescription = "increasing the battle map size to 'Big'";
+                        BattleState.AutofixDeploymentSizeOverride = "Big";
+                        isSizeOrDeploymentFix = true;
+                    }
+                    else if (autofixState.FailureCount == 1 && originalMapSize == "Big")
+                    {
+                        fixDescription = "increasing the battle map size to 'Huge'";
+                        BattleState.AutofixDeploymentSizeOverride = "Huge";
+                        isSizeOrDeploymentFix = true;
+                    }
+                    else if (autofixState.FailureCount == 2 && originalMapSize == "Medium")
+                    {
+                        fixDescription = "increasing the battle map size to 'Huge'";
+                        BattleState.AutofixDeploymentSizeOverride = "Huge";
+                        isSizeOrDeploymentFix = true;
+                    }
+                    else
+                    {
+                        // --- STAGE 2: Deployment Fixes ---
+                        int deploymentFixOffset = 0;
+                        if (originalMapSize == "Medium") deploymentFixOffset = 2;
+                        else if (originalMapSize == "Big") deploymentFixOffset = 1;
+
+                        int deploymentFailureCount = autofixState.FailureCount - deploymentFixOffset;
+
+                        if (!twbattle.BattleState.IsSiegeBattle && deploymentFailureCount == 1)
+                        {
+                            fixDescription = "rotating the army deployment orientation";
+                            BattleState.AutofixDeploymentRotationOverride = true;
+                            isSizeOrDeploymentFix = true;
+                        }
+                        else if (twbattle.BattleState.IsSiegeBattle && deploymentFailureCount >= 1 && deploymentFailureCount <= 4)
+                        {
+                            string[] directions = { "N", "S", "E", "W" };
+                            string direction = directions[deploymentFailureCount - 1];
+                            fixDescription = $"setting the besieger's attack direction to '{direction}'";
+                            BattleState.AutofixAttackerDirectionOverride = direction;
+                            isSizeOrDeploymentFix = true;
+                        }
                     }
 
-                    if (isDeploymentFix)
+
+                    if (isSizeOrDeploymentFix)
                     {
+                        autofixState.LastAppliedFixDescription = fixDescription;
                         form.Invoke((MethodInvoker)delegate
                         {
                             form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
@@ -574,7 +636,7 @@ namespace CrusaderWars.twbattle
                         return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
                     }
 
-                    // Common Autofix Logic
+                    // --- STAGE 3: Unit Replacements ---
                     while (true) // Loop until we find a fix to apply, or run out of all options.
                     {
                         if (autofixState.NextUnitKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
@@ -656,6 +718,7 @@ namespace CrusaderWars.twbattle
                         // If we found a replacement (from either stage), apply it and relaunch.
                         if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
                         {
+                            autofixState.LastAppliedFixDescription = fixDescription;
                             form.Invoke((MethodInvoker)delegate
                             {
                                 form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
@@ -901,14 +964,13 @@ namespace CrusaderWars.twbattle
                     SaveFile.Finish();
 
                     // Show successful autofix message if applicable
-                    if (_autofixReplacements.Any())
+                    if (autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription))
                     {
-                        string lastProblematicUnit = _autofixReplacements.Last().Key;
-                        string messageText = $"The battle was successful after an automatic fix.\n\nThe last problematic unit replaced was {lastProblematicUnit}.\n\nPlease report this unit on the Crusader Conflicts Discord server so it can be fixed in future updates.";
+                        string messageText = $"The battle was successful after an automatic fix.\n\nThe fix that worked was: {autofixState.LastAppliedFixDescription}.\n\nPlease report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         string discordUrl = "https://discord.gg/eFZTprHh3j";
 
                         form.Invoke((MethodInvoker)delegate {
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl, lastProblematicUnit);
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl, autofixState.LastAppliedFixDescription);
                         });
                     }
 
