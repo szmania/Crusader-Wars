@@ -1972,26 +1972,12 @@ namespace CrusaderWars.data.battle_results
             {
                 string str = reader.ReadToEnd();
 
-                // Normalize line endings for consistent searching
-                str = str.Replace("\r\n", "\n");
-
-                // Define the multi-line header for a battle report
-                const string battleHeader =
-                    "--------------------------------------------------------\n" +
-                    "--------------------------------------------------------\n" +
-                    "--\n" +
-                    "--\t                    CRUSADER CONFLICTS               \n" +
-                    "--\n" +
-                    "--------------------------------------------------------\n" +
-                    "--------------------------------------------------------";
-
-                // Check if the battle has finished and a report has been printed
-                // We look for the end marker of the report, which implies the battle has finished and results are logged.
-                // The "Battle has finished" line might appear before the full report is written.
-                // The "PRINT ENDED" marker is a more reliable indicator that the report is complete.
-                if (str.Contains(battleHeader) && str.Contains("-----PRINT ENDED-----!!"))
+                // The "Battle has finished" line indicates the user clicked "End Battle" or "Dismiss Results".
+                // The "-----PRINT ENDED-----!!" line indicates the results script has finished running.
+                // Both must be present for a valid, complete battle log.
+                if (str.Contains("Battle has finished") && str.Contains("-----PRINT ENDED-----!!"))
                 {
-                    Program.Logger.Debug("Battle has finished and report is present in log.");
+                    Program.Logger.Debug("Battle has finished and report is present in log (user action and script completion detected).");
                     return true;
                 }
 
