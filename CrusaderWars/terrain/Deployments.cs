@@ -195,8 +195,8 @@ namespace CrusaderWars.terrain
             switch (mapSize)
             {
                 case "Medium":
-                    width = "1000";
-                    height = "1000";
+                    width = "1100";
+                    height = "1100";
                     break;
                 case "Big":
                     width = "1300";
@@ -390,7 +390,7 @@ namespace CrusaderWars.terrain
 
                 switch (defender_map_size)
                 {
-                    case "Medium": defender_radius = 1000f / 2f; break; // 500
+                    case "Medium": defender_radius = 1100f / 2f; break; // 550
                     case "Big": defender_radius = 1300f / 2f; break; // 650
                     case "Huge": defender_radius = 1750f / 2f; break; // 875
                     default: defender_radius = 450f; break; // Fallback
