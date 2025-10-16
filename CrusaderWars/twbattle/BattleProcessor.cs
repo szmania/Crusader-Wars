@@ -24,7 +24,7 @@ namespace CrusaderWars.twbattle
     public static class BattleProcessor
     {
         private static readonly Random _random = new Random();
-        private static Dictionary<string, (string replacementKey, bool isSiege)> _autofixReplacements = new Dictionary<string, (string, bool)>();
+        public static Dictionary<string, (string replacementKey, bool isSiege)> AutofixReplacements { get; private set; } = new Dictionary<string, (string, bool)>();
 
         public class AutofixState
         {
@@ -44,7 +44,7 @@ namespace CrusaderWars.twbattle
         {
             if (autofixState == null)
             {
-                _autofixReplacements.Clear(); // Clear fixes for a new battle
+                AutofixReplacements.Clear(); // Clear fixes for a new battle
                 BattleState.ClearAutofixOverrides();
             }
             UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
@@ -497,13 +497,103 @@ namespace CrusaderWars.twbattle
                             Program.Logger.Debug("Autofix mode set to 'Keep Trying Automatically'.");
                         }
 
-                        var allUnits = attacker_armies.SelectMany(a => a.Units).Concat(defender_armies.SelectMany(a => a.Units));
-                        autofixState.ProblematicUnitKeys = allUnits
-                            .Select(u => u.GetAttilaUnitKey())
+                        // Build a comprehensive list of all possible custom unit keys in the battle
+                        var (fresh_attackers_for_keys, fresh_defenders_for_keys) = ArmiesReader.ReadBattleArmies();
+                        var allArmiesForKeys = fresh_attackers_for_keys.Concat(fresh_defenders_for_keys);
+                        var allUnitKeys = new HashSet<string>();
+                        var allFactions = new HashSet<string>();
+
+                        foreach (var army in allArmiesForKeys)
+                        {
+                            if (army.Owner == null) continue;
+
+                            // Get faction from commander
+                            if (army.Commander != null)
+                            {
+                                var commander = army.Commander;
+                                Unit temp_commander_unit = new Unit("General", commander.GetUnitSoldiers(), commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
+                                string faction = UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName());
+                                temp_commander_unit.SetAttilaFaction(faction);
+                                allFactions.Add(faction);
+                                var (commanderKey, _) = UnitMappers_BETA.GetUnitKey(temp_commander_unit);
+                                if (!string.IsNullOrEmpty(commanderKey) && commanderKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                                {
+                                    allUnitKeys.Add(commanderKey);
+                                }
+                            }
+
+                            // Get faction from knights
+                            if (army.Knights != null && army.Knights.GetKnightsList()?.Count > 0)
+                            {
+                                Unit temp_knights_unit;
+                                if (army.Knights.GetMajorCulture() != null)
+                                    temp_knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Knights.GetMajorCulture(), RegimentType.Knight, false, army.Owner);
+                                else
+                                    temp_knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Owner.GetCulture(), RegimentType.Knight, false, army.Owner);
+
+                                string faction = UnitMappers_BETA.GetAttilaFaction(temp_knights_unit.GetCulture(), temp_knights_unit.GetHeritage());
+                                temp_knights_unit.SetAttilaFaction(faction);
+                                allFactions.Add(faction);
+                                var (knightKey, _) = UnitMappers_BETA.GetUnitKey(temp_knights_unit);
+                                if (!string.IsNullOrEmpty(knightKey) && knightKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                                {
+                                    allUnitKeys.Add(knightKey);
+                                }
+                            }
+
+                            // Get factions and keys from all other units (MAA, Levy/Garrison placeholders)
+                            foreach (var unit in army.Units)
+                            {
+                                string faction = unit.GetAttilaFaction();
+                                if (!string.IsNullOrEmpty(faction) && faction != UnitMappers_BETA.NOT_FOUND_KEY)
+                                {
+                                    allFactions.Add(faction);
+                                }
+
+                                // Only MAA have a direct, replaceable unit key at this stage
+                                if (unit.GetRegimentType() == RegimentType.MenAtArms)
+                                {
+                                    string maaKey = unit.GetAttilaUnitKey();
+                                    if (!string.IsNullOrEmpty(maaKey) && maaKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                                    {
+                                        allUnitKeys.Add(maaKey);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Now, for every faction we found, add all their possible levy and garrison units to the list
+                        foreach (var faction in allFactions)
+                        {
+                            var (levy_porcentages, _) = UnitMappers_BETA.GetFactionLevies(faction);
+                            if (levy_porcentages != null)
+                            {
+                                foreach (var levyData in levy_porcentages)
+                                {
+                                    allUnitKeys.Add(levyData.unit_key);
+                                }
+                            }
+
+                            // Garrisons depend on holding level, so we check all levels
+                            for (int level = 1; level <= 20; level++)
+                            {
+                                var garrison_porcentages = UnitMappers_BETA.GetFactionGarrison(faction, level);
+                                if (garrison_porcentages != null)
+                                {
+                                    foreach (var garrisonData in garrison_porcentages)
+                                    {
+                                        allUnitKeys.Add(garrisonData.unit_key);
+                                    }
+                                }
+                            }
+                        }
+
+                        autofixState.ProblematicUnitKeys = allUnitKeys
                             .Where(key => !string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             .Distinct()
                             .OrderBy(key => _random.Next())
                             .ToList();
+
 
                         if (!autofixState.ProblematicUnitKeys.Any())
                         {
@@ -766,16 +856,19 @@ namespace CrusaderWars.twbattle
                             }
 
                             // Store the new fix.
-                            _autofixReplacements[keyToReplace] = (replacementKey, replacementIsSiege);
-                            Program.Logger.Debug($"Stored fix: Replace '{keyToReplace}' with '{replacementKey}'. Total fixes: {_autofixReplacements.Count}");
+                            AutofixReplacements[keyToReplace] = (replacementKey, replacementIsSiege);
+                            Program.Logger.Debug($"Stored fix: Replace '{keyToReplace}' with '{replacementKey}'. Total fixes: {AutofixReplacements.Count}");
 
                             // Apply all cumulative fixes to the fresh armies.
-                            foreach (var fix in _autofixReplacements)
+                            var allFreshArmies = fresh_attackers.Concat(fresh_defenders);
+                            foreach (var fix in AutofixReplacements)
                             {
                                 string originalKey = fix.Key;
                                 (string newKey, bool newIsSiege) = fix.Value;
                                 Program.Logger.Debug($"Applying cumulative fix: Replacing all instances of '{originalKey}' with '{newKey}'.");
-                                foreach (var unit in allArmies.SelectMany(a => a.Units).Where(u => u.GetAttilaUnitKey() == originalKey))
+                                // This only affects MAA units. Commander/Knight/Levy/Garrison units are handled
+                                // during their generation in UnitsFile.cs by checking the AutofixReplacements dictionary.
+                                foreach (var unit in allFreshArmies.SelectMany(a => a.Units).Where(u => u.GetAttilaUnitKey() == originalKey))
                                 {
                                     unit.SetUnitKey(newKey);
                                     unit.SetIsSiege(newIsSiege);

@@ -144,6 +144,15 @@ namespace CrusaderWars
                 Unit commander_unit = new Unit("General", commander_soldiers, commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName()));
                 var (commanderKey, isSiege) = UnitMappers_BETA.GetUnitKey(commander_unit);
+
+                // Check for autofix replacement
+                if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(commanderKey, out var replacement))
+                {
+                    Program.Logger.Debug($"Autofix: Applying commander unit replacement for '{commanderKey}' with '{replacement.replacementKey}'.");
+                    commanderKey = replacement.replacementKey;
+                    isSiege = replacement.isSiege;
+                }
+
                 commander_unit.SetUnitKey(commanderKey);
                 commander_unit.SetIsSiege(isSiege);
 
@@ -181,6 +190,15 @@ namespace CrusaderWars
 
                 knights_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(knights_unit.GetCulture(), knights_unit.GetHeritage()));
                 var (knightKey, isSiegeKnight) = UnitMappers_BETA.GetUnitKey(knights_unit);
+
+                // Check for autofix replacement
+                if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(knightKey, out var replacement))
+                {
+                    Program.Logger.Debug($"Autofix: Applying knight unit replacement for '{knightKey}' with '{replacement.replacementKey}'.");
+                    knightKey = replacement.replacementKey;
+                    isSiegeKnight = replacement.isSiege;
+                }
+
                 knights_unit.SetUnitKey(knightKey);
                 knights_unit.SetIsSiege(isSiegeKnight);
                 
@@ -397,6 +415,22 @@ namespace CrusaderWars
                 return composedUnits;
             }
 
+            // Apply autofix replacements to the levy template list
+            var corrected_levy_porcentages = new List<(int porcentage, string unit_key, string name, string max)>();
+            foreach (var levyData in faction_levy_porcentages)
+            {
+                if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(levyData.unit_key, out var replacement))
+                {
+                    Program.Logger.Debug($"Autofix: Applying levy template replacement for '{levyData.unit_key}' with '{replacement.replacementKey}'.");
+                    corrected_levy_porcentages.Add((levyData.porcentage, replacement.replacementKey, levyData.name, levyData.max));
+                }
+                else
+                {
+                    corrected_levy_porcentages.Add(levyData);
+                }
+            }
+            faction_levy_porcentages = corrected_levy_porcentages; // Use the corrected list from now on.
+
             // NEW: Filter out Men-At-Arms units from the levy pool
             var filtered_levy_porcentages = faction_levy_porcentages
                                                 .Where(data => !data.unit_key.Contains("_MAA_"))
@@ -504,7 +538,21 @@ namespace CrusaderWars
                 return composedUnits;
             }
 
-            // Removed: MAA filtering logic is not needed for garrisons.
+            // Apply autofix replacements to the garrison template list
+            var corrected_garrison_porcentages = new List<(int porcentage, string unit_key, string name, string max)>();
+            foreach (var garrisonData in faction_garrison_porcentages)
+            {
+                if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(garrisonData.unit_key, out var replacement))
+                {
+                    Program.Logger.Debug($"Autofix: Applying garrison template replacement for '{garrisonData.unit_key}' with '{replacement.replacementKey}'.");
+                    corrected_garrison_porcentages.Add((garrisonData.porcentage, replacement.replacementKey, garrisonData.name, garrisonData.max));
+                }
+                else
+                {
+                    corrected_garrison_porcentages.Add(garrisonData);
+                }
+            }
+            faction_garrison_porcentages = corrected_garrison_porcentages; // Use the corrected list from now on.
 
             int garrisonSoldiers = unit.GetSoldiers();
 
