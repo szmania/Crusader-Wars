@@ -538,6 +538,42 @@ namespace CrusaderWars.twbattle
                         Program.Logger.Debug("User chose to continue autofix.");
                     }
 
+                    // Common Autofix Logic - STAGE 1: Deployment Fixes
+                    BattleState.ClearAutofixOverrides();
+                    string fixDescription = "";
+                    bool isDeploymentFix = false;
+
+                    if (!twbattle.BattleState.IsSiegeBattle && autofixState.FailureCount == 1)
+                    {
+                        fixDescription = "rotating the army deployment orientation";
+                        BattleState.AutofixDeploymentRotationOverride = true;
+                        isDeploymentFix = true;
+                    }
+                    else if (twbattle.BattleState.IsSiegeBattle && autofixState.FailureCount >= 1 && autofixState.FailureCount <= 4)
+                    {
+                        string[] directions = { "N", "S", "E", "W" };
+                        string direction = directions[autofixState.FailureCount - 1];
+                        fixDescription = $"setting the besieger's attack direction to '{direction}'";
+                        BattleState.AutofixAttackerDirectionOverride = direction;
+                        isDeploymentFix = true;
+                    }
+
+                    if (isDeploymentFix)
+                    {
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                            form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                            string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                            string discordUrl = "https://discord.gg/eFZTprHh3j";
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl);
+                        });
+
+                        Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
+                        var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
+                        return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
+                    }
+
                     // Common Autofix Logic
                     while (true) // Loop until we find a fix to apply, or run out of all options.
                     {
@@ -583,7 +619,7 @@ namespace CrusaderWars.twbattle
 
                         string replacementKey = UnitMappers_BETA.NOT_FOUND_KEY;
                         bool replacementIsSiege = false;
-                        string fixDescription = "";
+                        fixDescription = "";
 
                         // Stage 1: Try heritage factions
                         if (autofixState.HeritageReplacementFactions != null && autofixState.NextHeritageFactionIndex < autofixState.HeritageReplacementFactions.Count)

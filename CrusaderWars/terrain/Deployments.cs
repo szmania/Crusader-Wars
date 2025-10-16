@@ -223,10 +223,18 @@ namespace CrusaderWars.terrain
 
             // Attacker gets a random direction from the edges of the map.
             Random random = new Random();
-            string[] coords = { "N", "S", "E", "W" };
-            int index = random.Next(0, 4);
-            attacker_direction = coords[index];
-
+            if (BattleState.AutofixAttackerDirectionOverride != null)
+            {
+                attacker_direction = BattleState.AutofixAttackerDirectionOverride;
+                Program.Logger.Debug($"Autofix override: Attacker direction set to '{attacker_direction}'.");
+            }
+            else
+            {
+                string[] coords = { "N", "S", "E", "W" };
+                int index = random.Next(0, 4);
+                attacker_direction = coords[index];
+            }
+            
             // Use existing logic to place the attacker at the map edge.
             attacker_deployment = Directions.SetDirection(attacker_direction, total_soldiers);
         }
