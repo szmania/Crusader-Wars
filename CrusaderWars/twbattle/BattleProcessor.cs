@@ -36,6 +36,7 @@ namespace CrusaderWars.twbattle
             public int NextHeritageFactionIndex { get; set; } = 0; // Index for the above list.
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
+            public bool KeepMapSizeHuge { get; set; } = false;
         }
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
@@ -541,6 +542,11 @@ namespace CrusaderWars.twbattle
 
                     // Common Autofix Logic
                     BattleState.ClearAutofixOverrides();
+                    if (autofixState.KeepMapSizeHuge)
+                    {
+                        BattleState.AutofixDeploymentSizeOverride = "Huge";
+                        Program.Logger.Debug("Autofix: Persisting 'Huge' map size from previous fix.");
+                    }
                     string fixDescription = "";
                     bool isSizeOrDeploymentFix = false;
 
@@ -586,12 +592,14 @@ namespace CrusaderWars.twbattle
                         fixDescription = "increasing the battle map size to 'Huge'";
                         BattleState.AutofixDeploymentSizeOverride = "Huge";
                         isSizeOrDeploymentFix = true;
+                        autofixState.KeepMapSizeHuge = true;
                     }
                     else if (autofixState.FailureCount == 2 && originalMapSize == "Medium")
                     {
                         fixDescription = "increasing the battle map size to 'Huge'";
                         BattleState.AutofixDeploymentSizeOverride = "Huge";
                         isSizeOrDeploymentFix = true;
+                        autofixState.KeepMapSizeHuge = true;
                     }
                     else
                     {
