@@ -1972,10 +1972,24 @@ namespace CrusaderWars.data.battle_results
             {
                 string str = reader.ReadToEnd();
 
+                // Normalize line endings for consistent searching
+                str = str.Replace("\r\n", "\n");
+
+                // Define the multi-line header for a battle report
+                const string battleHeader =
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------\n" +
+                    "--\n" +
+                    "--\t                    CRUSADER CONFLICTS               \n" +
+                    "--\n" +
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------";
+
+                
                 // The "Battle has finished" line indicates the user clicked "End Battle" or "Dismiss Results".
                 // The "-----PRINT ENDED-----!!" line indicates the results script has finished running.
                 // Both must be present for a valid, complete battle log.
-                if (str.Contains("Battle has finished") && str.Contains("-----PRINT ENDED-----!!"))
+                if (str.Contains(battleHeader) && str.Contains("Battle has finished") && str.Contains("-----PRINT ENDED-----!!"))
                 {
                     Program.Logger.Debug("Battle has finished and report is present in log (user action and script completion detected).");
                     return true;
