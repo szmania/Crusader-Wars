@@ -473,16 +473,16 @@ namespace CrusaderWars.terrain
                 switch (MapSize)
                 {
                     case "Medium":
-                        Width = "1400";
-                        Height = "150";
+                        Width = "1600";
+                        Height = "175";
                         break;
                     case "Big":
-                        Width = "2100";
-                        Height = "250";
+                        Width = "2400";
+                        Height = "275";
                         break;
                     case "Huge":
-                        Width = "2900";
-                        Height = "350";
+                        Width = "3200";
+                        Height = "375";
                         break;
                     default:
                         throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
@@ -517,16 +517,16 @@ namespace CrusaderWars.terrain
                 switch (MapSize)
                 {
                     case "Medium":
-                        Width = "150";
-                        Height = "1400";
+                        Width = "175";
+                        Height = "1600";
                         break;
                     case "Big":
-                        Width = "250";
-                        Height = "2100";
+                        Width = "275";
+                        Height = "2400";
                         break;
                     case "Huge":
-                        Width = "350";
-                        Height = "2900";
+                        Width = "375";
+                        Height = "3200";
                         break;
                     default:
                         throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
