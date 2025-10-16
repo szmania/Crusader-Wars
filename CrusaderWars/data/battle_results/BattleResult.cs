@@ -2127,6 +2127,11 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
+            // Determine winner here since EditCombatFile might be skipped for standard sieges
+            string winner = GetAttilaWinner(path_log_attila, attacker_side, defender_side);
+            IsAttackerVictorious = (winner == "attacker");
+            Program.Logger.Debug($"Siege battle winner determined: {winner}. IsAttackerVictorious set to: {IsAttackerVictorious}");
+
             if (string.IsNullOrEmpty(SiegeID))
             {
                 Program.Logger.Debug("SiegeID is null or empty. Cannot edit Sieges.txt.");
