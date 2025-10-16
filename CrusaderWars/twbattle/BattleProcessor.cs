@@ -172,12 +172,14 @@ namespace CrusaderWars.twbattle
                             sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
                         }
                         sb.AppendLine();
-                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j");
+                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team on our Discord server.");
                         sb.AppendLine();
                         sb.AppendLine("The battle will proceed without these units.");
 
                         form.Invoke((System.Windows.Forms.MethodInvoker)delegate {
-                            MessageBox.Show(form, sb.ToString(), "Crusader Conflicts: Unit Mapping Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            string messageText = sb.ToString();
+                            string discordUrl = "https://discord.gg/eFZTprHh3j";
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, discordUrl);
                         });
                     }
 
@@ -622,11 +624,9 @@ namespace CrusaderWars.twbattle
                             {
                                 form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
                                 form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                                MessageBox.Show(form,
-                                    $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:\nhttps://discord.gg/eFZTprHh3j",
-                                    "Crusader Conflicts: Applying Autofix",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
+                                string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl);
                             });
 
                             // Store the new fix.
@@ -864,6 +864,18 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Finalizing save file...");
                     SaveFile.Finish();
 
+                    // Show successful autofix message if applicable
+                    if (_autofixReplacements.Any())
+                    {
+                        string lastProblematicUnit = _autofixReplacements.Last().Key;
+                        string messageText = $"The battle was successful after an automatic fix.\n\nThe last problematic unit replaced was '{lastProblematicUnit}'.\n\nPlease report this unit on the Crusader Conflicts Discord server so it can be fixed in future updates.";
+                        string discordUrl = "https://discord.gg/eFZTprHh3j";
+
+                        form.Invoke((MethodInvoker)delegate {
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl);
+                        });
+                    }
+
                     //  OPEN CK3 WITH BATTLE RESULTS
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -911,6 +923,64 @@ namespace CrusaderWars.twbattle
             BattleState.ClearBattleState();
 
             return true; // Success
+        }
+
+        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl)
+        {
+            using (Form prompt = new Form())
+            {
+                prompt.Width = 550;
+                prompt.Height = 250;
+                prompt.Text = title;
+                prompt.StartPosition = FormStartPosition.CenterParent;
+                prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
+                prompt.MaximizeBox = false;
+                prompt.MinimizeBox = false;
+
+                Label textLabel = new Label()
+                {
+                    Left = 20,
+                    Top = 20,
+                    Width = 500,
+                    Height = 120,
+                    Text = text
+                };
+
+                LinkLabel linkLabel = new LinkLabel()
+                {
+                    Left = 20,
+                    Top = 140,
+                    Width = 500,
+                    Text = linkText,
+                    AutoSize = true
+                };
+                linkLabel.LinkClicked += (sender, e) => {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(linkUrl) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Could not open link: {ex.Message}");
+                    }
+                };
+
+                Button confirmation = new Button()
+                {
+                    Text = "OK",
+                    Left = 225,
+                    Width = 100,
+                    Top = 180,
+                    DialogResult = DialogResult.OK
+                };
+
+                prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(linkLabel);
+                prompt.Controls.Add(confirmation);
+                prompt.AcceptButton = confirmation;
+
+                prompt.ShowDialog(owner);
+            }
         }
     }
 }
