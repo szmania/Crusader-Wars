@@ -1492,7 +1492,7 @@ namespace CrusaderWars.unit_mapper
                         if(heritage_name == HeritageName)
                         {
                             string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            if (!string.IsNullOrEmpty(found_heritage_faction))
+                            if (string.IsNullOrEmpty(heritage_mapping.faction) && !string.IsNullOrEmpty(found_heritage_faction))
                             {
                                 heritage_mapping = (found_heritage_faction, currentFile);
                                 Program.Logger.Debug($"  - Found heritage mapping: {HeritageName} -> {heritage_mapping.faction}");
@@ -1506,7 +1506,7 @@ namespace CrusaderWars.unit_mapper
                                 if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
                                 {
                                     string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
-                                    if (!string.IsNullOrEmpty(found_culture_faction))
+                                    if (string.IsNullOrEmpty(culture_mapping.faction) && !string.IsNullOrEmpty(found_culture_faction))
                                     {
                                         culture_mapping = (found_culture_faction, currentFile);
                                         Program.Logger.Debug($"  - Found culture mapping: {CultureName} -> {culture_mapping.faction}");

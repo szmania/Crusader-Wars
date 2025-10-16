@@ -1966,7 +1966,7 @@ namespace CrusaderWars.data.battle_results
 
         public static bool HasBattleEnded(string path_attila_log)
         {
-            Program.Logger.Debug($"Checking if \"Battle has finished\" in log file: {path_attila_log}");
+            Program.Logger.Debug($"Checking if battle has ended in log file: {path_attila_log}");
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(logFile))
             {
@@ -2262,8 +2262,8 @@ namespace CrusaderWars.data.battle_results
                     else
                     {
                         // Settlement not captured, use existing logic based on routing or casualties.
-                        bool isSallyOut = attacker_armies.Concat(defender_armies).Any(a => a.IsGarrison() && a.IsPlayer());
-                        bool siegeWonByBesieger = !isSallyOut && IsAttackerVictorious;
+                        bool isPlayerBesieged = attacker_armies.Concat(defender_armies).Any(a => a.IsGarrison() && a.IsPlayer());
+                        bool siegeWonByBesieger = !isPlayerBesieged && IsAttackerVictorious;
 
                         if (siegeWonByBesieger)
                         {
@@ -2297,8 +2297,8 @@ namespace CrusaderWars.data.battle_results
                                 }
                             }
 
-                            string outcomeLog;
-                            if (isSallyOut) {
+                            string outcomeLog = "";
+                            if (isPlayerBesieged) {
                                 // In a sally-out, the garrison is the attacker. We know the player is the garrison.
                                 outcomeLog = IsAttackerVictorious ? "Player (garrison) won sally-out." : "Besieger won against player's sally-out.";
                             } else {
