@@ -144,11 +144,11 @@ namespace CrusaderWars.client
                         }
                         else if (total_soldiers < 20000)
                         {
-                            return "2200";
+                            return "2000";
                         }
                         else // total_soldiers >= 20000
                         {
-                            return "2500";
+                            return "2000";
                         }
                     }
                     else // Field battle
