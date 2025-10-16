@@ -626,7 +626,7 @@ namespace CrusaderWars.twbattle
                                 form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
                                 string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
                                 string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl);
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, keyToReplace, replacementKey);
                             });
 
                             // Store the new fix.
@@ -868,11 +868,11 @@ namespace CrusaderWars.twbattle
                     if (_autofixReplacements.Any())
                     {
                         string lastProblematicUnit = _autofixReplacements.Last().Key;
-                        string messageText = $"The battle was successful after an automatic fix.\n\nThe last problematic unit replaced was '{lastProblematicUnit}'.\n\nPlease report this unit on the Crusader Conflicts Discord server so it can be fixed in future updates.";
+                        string messageText = $"The battle was successful after an automatic fix.\n\nThe last problematic unit replaced was {lastProblematicUnit}.\n\nPlease report this unit on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         string discordUrl = "https://discord.gg/eFZTprHh3j";
 
                         form.Invoke((MethodInvoker)delegate {
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl);
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl, lastProblematicUnit);
                         });
                     }
 
@@ -925,7 +925,7 @@ namespace CrusaderWars.twbattle
             return true; // Success
         }
 
-        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl)
+        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, params string[] boldWords)
         {
             using (Form prompt = new Form())
             {
@@ -937,14 +937,44 @@ namespace CrusaderWars.twbattle
                 prompt.MaximizeBox = false;
                 prompt.MinimizeBox = false;
 
-                Label textLabel = new Label()
+                RichTextBox richTextLabel = new RichTextBox()
                 {
                     Left = 20,
                     Top = 20,
                     Width = 500,
                     Height = 120,
-                    Text = text
+                    Text = text,
+                    BorderStyle = BorderStyle.None,
+                    ReadOnly = true,
+                    BackColor = System.Drawing.SystemColors.Control,
+                    DetectUrls = false
                 };
+
+                if (boldWords != null)
+                {
+                    foreach (string word in boldWords)
+                    {
+                        if (!string.IsNullOrEmpty(word))
+                        {
+                            int startIndex = 0;
+                            while (startIndex < richTextLabel.TextLength)
+                            {
+                                int wordStartIndex = richTextLabel.Find(word, startIndex, RichTextBoxFinds.None);
+                                if (wordStartIndex != -1)
+                                {
+                                    richTextLabel.SelectionStart = wordStartIndex;
+                                    richTextLabel.SelectionLength = word.Length;
+                                    richTextLabel.SelectionFont = new System.Drawing.Font(richTextLabel.Font, System.Drawing.FontStyle.Bold);
+                                    startIndex = wordStartIndex + word.Length;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 LinkLabel linkLabel = new LinkLabel()
                 {
@@ -974,7 +1004,7 @@ namespace CrusaderWars.twbattle
                     DialogResult = DialogResult.OK
                 };
 
-                prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(richTextLabel);
                 prompt.Controls.Add(linkLabel);
                 prompt.Controls.Add(confirmation);
                 prompt.AcceptButton = confirmation;
