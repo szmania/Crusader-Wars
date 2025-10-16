@@ -26,7 +26,7 @@ namespace CrusaderWars
             StartingSoldiers = startingSoldiers;
             RemainingSoldiersBeforePursuit = remaingSoldiers;
             RemainingSoldiersAfterPursuit = -1;
-            Killed = StartingSoldiers - RemainingSoldiersBeforePursuit; 
+            Killed = Math.Max(0, StartingSoldiers - RemainingSoldiersBeforePursuit); 
         }
         public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit)
         {
@@ -36,7 +36,7 @@ namespace CrusaderWars
             StartingSoldiers = startingSoldiers;
             RemainingSoldiersBeforePursuit = remaingSoldiersMain;
             RemainingSoldiersAfterPursuit = remaingSoldiersPursuit;
-            Killed = StartingSoldiers - RemainingSoldiersAfterPursuit;
+            Killed = Math.Max(0, StartingSoldiers - RemainingSoldiersAfterPursuit);
         }
 
         public void PrintReport()
@@ -137,7 +137,7 @@ namespace CrusaderWars
         public int GetDeathAmountOfMainPhase(List<UnitCasualitiesReport> army_reports, string type)
         {
             int deaths = 0;
-            deaths = Math.Abs(army_reports.Where(y => y.GetTypeName() == type).Sum(x => x.GetStarting() - x.GetAliveBeforePursuit()));
+            deaths = army_reports.Where(y => y.GetTypeName() == type).Sum(x => Math.Max(0, x.GetStarting() - x.GetAliveBeforePursuit()));
             return deaths;
         }
         public int GetDeathAmountOfPursuitPhase(List<UnitCasualitiesReport> army_reports, string type)
@@ -147,8 +147,8 @@ namespace CrusaderWars
                 return 0;
             else
             {
-                deaths = Math.Abs(army_reports.Where(y => y.GetTypeName() == type)
-                                     .Sum(x => (x.GetStarting() - x.GetAliveAfterPursuit()) - (x.GetStarting() - x.GetAliveBeforePursuit())));
+                deaths = army_reports.Where(y => y.GetTypeName() == type)
+                                     .Sum(x => Math.Max(0, x.GetAliveBeforePursuit() - x.GetAliveAfterPursuit()));
             }
                 
 
