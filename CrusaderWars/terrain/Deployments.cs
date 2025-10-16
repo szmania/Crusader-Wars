@@ -279,7 +279,7 @@ namespace CrusaderWars.terrain
     class DeploymentArea
     {
         //CENTER POSITIONS
-        public string X {  get; private set; }
+        public string X { get; private set; }
         public string Y { get; private set; }
 
         //AREA DIAMETER
@@ -296,8 +296,8 @@ namespace CrusaderWars.terrain
 
         public DeploymentArea(string direction, string option_map_size, int total_soldiers)
         {
+            // Determine MapSize category ("Medium", "Big", "Huge")
             string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
-
             if (map_size_source == "Dynamic")
             {
                 if (BattleState.IsSiegeBattle)
@@ -309,22 +309,10 @@ namespace CrusaderWars.terrain
                 }
                 else // Field battle
                 {
-                    if (total_soldiers <= 5000)
-                    {
-                        MapSize = "Medium";
-                    }
-                    else if (total_soldiers > 5000 && total_soldiers < 20000)
-                    {
-                        MapSize = "Big";
-                    }
-                    else if (total_soldiers >= 20000)
-                    {
-                        MapSize = "Huge";
-                    }
-                    else
-                    {
-                        MapSize = "Medium"; // Default to medium if total_soldiers is outside expected range
-                    }
+                    if (total_soldiers <= 5000) { MapSize = "Medium"; }
+                    else if (total_soldiers > 5000 && total_soldiers < 20000) { MapSize = "Big"; }
+                    else if (total_soldiers >= 20000) { MapSize = "Huge"; }
+                    else { MapSize = "Medium"; }
                 }
             }
             else
@@ -332,224 +320,93 @@ namespace CrusaderWars.terrain
                 MapSize = map_size_source;
             }
 
-            // Define base distances for field battles
-            string mediumDist = "300.00";
-            string bigDist = "450.00";
-            string hugeDist = "700.00";
+            // Determine playable area boundary
+            string map_dimension_str = ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle);
+            float map_dimension = float.Parse(map_dimension_str, CultureInfo.InvariantCulture);
+            float playable_boundary = map_dimension / 2f;
+            float buffer = 50f;
 
-            // If it's a siege, use larger distances to push attackers to the map edge
-            if (BattleState.IsSiegeBattle)
+            // Determine deployment zone dimensions and position
+            float centerX, centerY, width, height;
+
+            if (direction == "N" || direction == "S")
             {
-                // The new distances are calculated to place the attacker deployment zone adjacent to the defender's,
-                // plus a small gap, preventing overlap and reducing the chance of being placed off-map.
-                // Calculation: DefenderRadius + Gap + AttackerHalfDepth
-                // Medium: 450 + 50 + 75 = 575
-                // Big:    650 + 50 + 125 = 825
-                // Huge:   875 + 50 + 175 = 1100
-                mediumDist = "575.00";
-                bigDist = "825.00";
-                hugeDist = "1100.00";
-            }
-
-            X = "0.00"; // Initialize X and Y to avoid CS8618
-            Y = "0.00";
-            Width = "0";
-            Height = "0";
-
-            if (direction == "N")
-            {
-                switch (MapSize)
+                // Horizontal deployment (along top or bottom edge)
+                width = (playable_boundary - buffer) * 2f;
+                height = GetDeploymentDepth(playable_boundary, buffer);
+                centerX = 0f;
+                centerY = playable_boundary - buffer - (height / 2f);
+                if (direction == "S")
                 {
-                    case "Medium":
-                        X = "0.00";
-                        Y = mediumDist;
-                        HorizontalSize();
-                        break;
-                    case "Big":
-                        X = "0.00";
-                        Y = bigDist;
-                        HorizontalSize();
-                        break;
-                    case "Huge":
-                        X = "0.00";
-                        Y = hugeDist;
-                        HorizontalSize();
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
+                    centerY = -centerY;
                 }
             }
-            else if (direction == "S")
+            else // "E" or "W"
             {
-                switch (MapSize)
+                // Vertical deployment (along left or right edge)
+                height = (playable_boundary - buffer) * 2f;
+                width = GetDeploymentDepth(playable_boundary, buffer);
+                centerY = 0f;
+                centerX = playable_boundary - buffer - (width / 2f);
+                if (direction == "W")
                 {
-                    case "Medium":
-                        X = "0.00";
-                        Y = "-" + mediumDist;
-                        HorizontalSize();
-                        break;
-                    case "Big":
-                        X = "0.00";
-                        Y = "-" + bigDist;
-                        HorizontalSize();
-                        break;
-                    case "Huge":
-                        X = "0.00";
-                        Y = "-" + hugeDist;
-                        HorizontalSize();
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
+                    centerX = -centerX;
                 }
-            }
-            else if (direction == "W")
-            {
-                switch (MapSize)
-                {
-                    case "Medium":
-                        X = "-" + mediumDist;
-                        Y = "0.00";
-                        VerticalSize();
-                        break;
-                    case "Big":
-                        X = "-" + bigDist;
-                        Y = "0.00";
-                        VerticalSize();
-                        break;
-                    case "Huge":
-                        X = "-" + hugeDist;
-                        Y = "0.00";
-                        VerticalSize();
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
-                }
-            }
-            else if (direction == "E")
-            {
-                switch (MapSize)
-                {
-                    case "Medium":
-                        X = mediumDist;
-                        Y = "0.00";
-                        VerticalSize();
-                        break;
-                    case "Big":
-                        X = bigDist;
-                        Y = "0.00";
-                        VerticalSize();
-                        break;
-                    case "Huge":
-                        X = hugeDist;
-                        Y = "0.00";
-                        VerticalSize(); // Added this line
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for direction '{direction}'.");
-                }
-            }
-            else
-            {
-                throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
             }
 
-            float centerX = float.Parse(this.X, CultureInfo.InvariantCulture);
-            float centerY = float.Parse(this.Y, CultureInfo.InvariantCulture);
-            float halfWidth = float.Parse(this.Width, CultureInfo.InvariantCulture) / 2f;
-            float halfHeight = float.Parse(this.Height, CultureInfo.InvariantCulture) / 2f;
+            // Assign final string values
+            this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
+            this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
+            this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
+            this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
 
-            this.MinX = centerX - halfWidth;
-            this.MaxX = centerX + halfWidth;
-            this.MinY = centerY - halfHeight;
-            this.MaxY = centerY + halfHeight;
+            // Set Min/Max for unit placement clamping
+            this.MinX = centerX - (width / 2f);
+            this.MaxX = centerX + (width / 2f);
+            this.MinY = centerY - (height / 2f);
+            this.MaxY = centerY + (height / 2f);
         }
 
-
-
-        private void HorizontalSize()
+        private float GetDeploymentDepth(float playable_boundary, float buffer)
         {
             if (BattleState.IsSiegeBattle)
             {
-                switch (MapSize)
+                // For siege attacker, depth is the space between defender zone and map edge.
+                float defender_radius = 0;
+                // We need to determine the defender's deployment size to calculate the radius.
+                string defender_map_size;
+                string optionMapSize = BattleState.AutofixDeploymentSizeOverride ?? ModOptions.DeploymentsZones();
+                if (optionMapSize == "Dynamic")
                 {
-                    case "Medium":
-                        Width = "1600";
-                        Height = "175";
-                        break;
-                    case "Big":
-                        Width = "2400";
-                        Height = "275";
-                        break;
-                    case "Huge":
-                        Width = "3200";
-                        Height = "375";
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
+                    int holdingLevel = Sieges.GetHoldingLevel();
+                    if (holdingLevel <= 2) { defender_map_size = "Medium"; }
+                    else if (holdingLevel <= 4) { defender_map_size = "Big"; }
+                    else { defender_map_size = "Huge"; }
                 }
+                else
+                {
+                    defender_map_size = optionMapSize;
+                }
+
+                switch (defender_map_size)
+                {
+                    case "Medium": defender_radius = 900f / 2f; break; // 450
+                    case "Big": defender_radius = 1300f / 2f; break; // 650
+                    case "Huge": defender_radius = 1750f / 2f; break; // 875
+                    default: defender_radius = 450f; break; // Fallback
+                }
+                
+                float depth = playable_boundary - defender_radius - buffer;
+                return depth < 100f ? 100f : depth; // ensure minimum depth
             }
             else // Field battle
             {
                 switch (MapSize)
                 {
-                    case "Medium":
-                        Width = "1000";
-                        Height = "200";
-                        break;
-                    case "Big":
-                        Width = "1600";
-                        Height = "400";
-                        break;
-                    case "Huge":
-                        Width = "2200";
-                        Height = "600";
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for field battle.");
-                }
-            }
-        }
-
-        private void VerticalSize()
-        {
-            if (BattleState.IsSiegeBattle)
-            {
-                switch (MapSize)
-                {
-                    case "Medium":
-                        Width = "175";
-                        Height = "1600";
-                        break;
-                    case "Big":
-                        Width = "275";
-                        Height = "2400";
-                        break;
-                    case "Huge":
-                        Width = "375";
-                        Height = "3200";
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for siege battle.");
-                }
-            }
-            else // Field battle
-            {
-                switch (MapSize)
-                {
-                    case "Medium":
-                        Width = "200";
-                        Height = "1000";
-                        break;
-                    case "Big":
-                        Width = "400";
-                        Height = "1600";
-                        break;
-                    case "Huge":
-                        Width = "600";
-                        Height = "2200";
-                        break;
-                    default:
-                        throw new ArgumentException($"Invalid MapSize '{MapSize}' for field battle.");
+                    case "Medium": return 200f;
+                    case "Big": return 300f;
+                    case "Huge": return 400f;
+                    default: return 250f;
                 }
             }
         }
