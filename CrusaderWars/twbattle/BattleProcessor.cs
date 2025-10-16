@@ -636,7 +636,7 @@ namespace CrusaderWars.twbattle
                             form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
                             string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
                             string discordUrl = "https://discord.gg/eFZTprHh3j";
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl);
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl);
                         });
 
                         Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");

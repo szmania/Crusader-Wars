@@ -12,6 +12,7 @@ namespace CrusaderWars.twbattle
         public static bool HasReliefArmy { get; set; }
         public static string? AutofixDeploymentSizeOverride { get; set; } = null;
         public static bool? AutofixDeploymentRotationOverride { get; set; } = null;
+        public static string? AutofixAttackerDirectionOverride { get; set; } = null;
 
         static BattleState()
         {
@@ -47,6 +48,7 @@ namespace CrusaderWars.twbattle
             Program.Logger.Debug("Clearing autofix deployment overrides.");
             AutofixDeploymentSizeOverride = null;
             AutofixDeploymentRotationOverride = null;
+            AutofixAttackerDirectionOverride = null;
         }
 
         public static void ClearBattleState()
