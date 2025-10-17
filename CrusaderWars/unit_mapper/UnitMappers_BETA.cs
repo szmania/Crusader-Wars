@@ -131,7 +131,23 @@ namespace CrusaderWars.unit_mapper
                 int hashAsInt = BitConverter.ToInt32(hashBytes, 0);
 
                 // 4. Use the absolute value and the modulo operator to get a valid index.
-                return Math.Abs(hashAsInt % listCount);
+                int baseIndex = Math.Abs(hashAsInt % listCount);
+
+                int offset = twbattle.BattleState.AutofixMapVariantOffset;
+                if (offset > 0)
+                {
+                    if (listCount <= 1) return baseIndex; // Cannot find an alternative if there's only one option
+
+                    var alternativeIndices = Enumerable.Range(0, listCount).ToList();
+                    alternativeIndices.Remove(baseIndex);
+
+                    int newIndexInAlternatives = (offset - 1) % alternativeIndices.Count;
+                    return alternativeIndices[newIndexInAlternatives];
+                }
+                else
+                {
+                    return baseIndex;
+                }
             }
         }
 
@@ -1585,7 +1601,16 @@ namespace CrusaderWars.unit_mapper
         {
             Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
 
+            bool forceGeneric = twbattle.BattleState.AutofixForceGenericMap;
+            if (forceGeneric)
+            {
+                Program.Logger.Debug("Autofix: Forcing use of generic settlement map.");
+            }
+
             string cacheKey = $"{provinceName}_{battleType}";
+            if (twbattle.BattleState.AutofixMapVariantOffset > 0) cacheKey += $"_offset{twbattle.BattleState.AutofixMapVariantOffset}";
+            if (forceGeneric) cacheKey += "_forcegeneric";
+
             if (_provinceMapCache.TryGetValue(cacheKey, out var cachedMap))
             {
                 Program.Logger.Debug($"Found cached settlement map for '{cacheKey}'. Coordinates: ({cachedMap.X}, {cachedMap.Y})");
@@ -1593,7 +1618,7 @@ namespace CrusaderWars.unit_mapper
             }
 
             // Priority 1: Unique Map by province_names attribute
-            if (Terrains?.UniqueSettlementMaps != null)
+            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
             {
                 var uniqueMapByProvName = Terrains.UniqueSettlementMaps
                     .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
@@ -1610,7 +1635,7 @@ namespace CrusaderWars.unit_mapper
             }
 
             // Priority 2: Unique Map by Variant key (existing logic)
-            if (Terrains?.UniqueSettlementMaps != null)
+            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
             {
                 var matchingUniqueMaps = Terrains.UniqueSettlementMaps
                                          .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
@@ -1691,6 +1716,95 @@ namespace CrusaderWars.unit_mapper
             // Final Fallback
             Program.Logger.Debug($"No suitable settlement map variant found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
             return null;
+        }
+
+        public static string GetSettlementMapDescription(string faction, string battleType, string provinceName)
+        {
+            if (Terrains == null) return "Unknown Map";
+
+            // This method replicates the logic of GetSettlementMap to find the *original* map, ignoring autofix overrides.
+
+            // Local function to get the original deterministic index without autofix offsets.
+            int GetOriginalDeterministicIndex(string input, int listCount)
+            {
+                if (listCount <= 0) return 0;
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                    byte[] hashBytes = sha256.ComputeHash(inputBytes);
+                    int hashAsInt = BitConverter.ToInt32(hashBytes, 0);
+                    return Math.Abs(hashAsInt % listCount);
+                }
+            }
+
+            // Priority 1 & 2: Unique Maps
+            var uniqueMapByProvName = Terrains.UniqueSettlementMaps
+                .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
+            {
+                int index = GetOriginalDeterministicIndex(provinceName, uniqueMapByProvName.Variants.Count);
+                return $"Unique Map ('{uniqueMapByProvName.Variants[index].Key}')";
+            }
+
+            var matchingUniqueMaps = Terrains.UniqueSettlementMaps
+                                     .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                     .ToList();
+            foreach (var uniqueMap in matchingUniqueMaps)
+            {
+                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (uniqueMatch != null)
+                {
+                    return $"Unique Map ('{uniqueMatch.Key}')";
+                }
+            }
+
+            // Priority 3: Generic Map by province_names
+            var genericMapByProvName = Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
+            {
+                int index = GetOriginalDeterministicIndex(provinceName, genericMapByProvName.Variants.Count);
+                return $"Generic Map ('{genericMapByProvName.Variants[index].Key}')";
+            }
+
+            var defaultGenericMapByProvName = Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (defaultGenericMapByProvName != null && defaultGenericMapByProvName.Variants.Any())
+            {
+                int index = GetOriginalDeterministicIndex(provinceName, defaultGenericMapByProvName.Variants.Count);
+                return $"Generic Map ('{defaultGenericMapByProvName.Variants[index].Key}')";
+            }
+
+            // Priority 4 & 5: Generic Map by faction
+            var matchingGenericMaps = Terrains.SettlementMaps
+                                      .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                   !sm.ProvinceNames.Any())
+                                      .ToList();
+            if (!matchingGenericMaps.Any())
+            {
+                matchingGenericMaps = Terrains.SettlementMaps
+                                      .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                   !sm.ProvinceNames.Any())
+                                      .ToList();
+            }
+            if (matchingGenericMaps.Any())
+            {
+                var allGenericVariants = matchingGenericMaps.SelectMany(sm => sm.Variants).ToList();
+                if (allGenericVariants.Any())
+                {
+                    int index = GetOriginalDeterministicIndex(provinceName, allGenericVariants.Count);
+                    return $"Generic Map ('{allGenericVariants[index].Key}')";
+                }
+            }
+
+            return "Unknown Map";
         }
 
         public static void SetMapperImage()

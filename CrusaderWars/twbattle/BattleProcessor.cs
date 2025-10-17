@@ -37,6 +37,9 @@ namespace CrusaderWars.twbattle
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
             public bool KeepMapSizeHuge { get; set; } = false;
+            public int MapVariantOffset { get; set; } = 0;
+            public bool HasTriedSwitchingToGeneric { get; set; } = false;
+            public string OriginalMapDescription { get; set; } = "";
             public bool KeepTryingAutomatically { get; set; } = false;
         }
 
@@ -842,7 +845,7 @@ namespace CrusaderWars.twbattle
                                     form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
                                     string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
                                     string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, keyToReplace, replacementKey);
+                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, keyToReplace, replacementKey);
                                 });
                             }
                             else
@@ -881,13 +884,72 @@ namespace CrusaderWars.twbattle
                         }
                         // If no replacement was found in this attempt, the loop will continue and try the next heritage faction, or default, or the next key.
                     }
+                    
+                    // --- STAGE 4: Map Variant Fixes ---
+                    if (twbattle.BattleState.IsSiegeBattle)
+                    {
+                        Program.Logger.Debug("--- Autofix: Starting Stage 4: Map Variant Fixes ---");
+                        var (fresh_attackers_map, fresh_defenders_map) = ArmiesReader.ReadBattleArmies();
+                        string defenderAttilaFaction = UnitMappers_BETA.GetAttilaFaction(twbattle.Sieges.GetGarrisonCulture(), twbattle.Sieges.GetGarrisonHeritage());
+                        string siegeBattleType = (twbattle.Sieges.GetHoldingLevel() > 1) ? "settlement_standard" : "settlement_unfortified";
+                        string provinceName = BattleResult.ProvinceName ?? "";
 
-                    // If the loop completes, it means all options are exhausted.
-                    Program.Logger.Debug("Autofix failed. All problematic units have been checked, but Attila continues to crash or no replacements could be found.");
+                        if (string.IsNullOrEmpty(autofixState.OriginalMapDescription))
+                        {
+                            autofixState.OriginalMapDescription = UnitMappers_BETA.GetSettlementMapDescription(defenderAttilaFaction, siegeBattleType, provinceName);
+                            Program.Logger.Debug($"Autofix: Captured original map description: {autofixState.OriginalMapDescription}");
+                        }
+
+                        var (isUnique, variantCount) = IsUsingUniqueMapAndGetVariantCount(defenderAttilaFaction, siegeBattleType, provinceName);
+                        fixDescription = "";
+
+                        if (isUnique && !autofixState.HasTriedSwitchingToGeneric)
+                        {
+                            fixDescription = $"switching from a unique settlement map to a generic one for faction '{defenderAttilaFaction}'";
+                            BattleState.AutofixForceGenericMap = true;
+                            autofixState.HasTriedSwitchingToGeneric = true;
+                        }
+                        else if (variantCount > 1 && autofixState.MapVariantOffset < variantCount - 1)
+                        {
+                            autofixState.MapVariantOffset++;
+                            BattleState.AutofixMapVariantOffset = autofixState.MapVariantOffset;
+                            fixDescription = $"switching to a different map variant (attempt {autofixState.MapVariantOffset} of {variantCount - 1})";
+                        }
+
+                        if (!string.IsNullOrEmpty(fixDescription))
+                        {
+                            autofixState.LastAppliedFixDescription = fixDescription;
+                            if (!autofixState.KeepTryingAutomatically)
+                            {
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                    form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                    string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                    string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
+                                });
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"Automatically applying fix #{autofixState.FailureCount}: {fixDescription}. Skipping user prompt.");
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                    form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                });
+                            }
+
+                            Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
+                            return await ProcessBattle(form, fresh_attackers_map, fresh_defenders_map, token, true, autofixState);
+                        }
+                    }
+
+                    Program.Logger.Debug("Autofix failed. All stages including map switching have been attempted.");
                     form.Invoke((MethodInvoker)delegate
                     {
                         MessageBox.Show(form,
-                            "The automatic fix failed. All potentially problematic units were checked, but either the game still crashed or no suitable replacements could be found.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
+                            "The automatic fix failed. All potentially problematic units and map variants were checked, but the game still crashed.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
                             "Crusader Conflicts: Autofix Failed",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
@@ -1096,11 +1158,18 @@ namespace CrusaderWars.twbattle
                     // Show successful autofix message if applicable
                     if (autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription))
                     {
-                        string messageText = $"The battle was successful after an automatic fix.\n\nThe fix that worked was: {autofixState.LastAppliedFixDescription}.\n\nPlease report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
+                        string messageText = $"The battle was successful after an automatic fix.\n\nThe fix that worked was: {autofixState.LastAppliedFixDescription}.\n\n";
+                        string originalMapInfo = "";
+                        if (!string.IsNullOrEmpty(autofixState.OriginalMapDescription))
+                        {
+                            messageText += $"The original map ({autofixState.OriginalMapDescription}) is likely buggy. ";
+                            originalMapInfo = autofixState.OriginalMapDescription;
+                        }
+                        messageText += "Please report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         string discordUrl = "https://discord.gg/eFZTprHh3j";
 
                         form.Invoke((MethodInvoker)delegate {
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl, autofixState.LastAppliedFixDescription);
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, autofixState.LastAppliedFixDescription, originalMapInfo);
                         });
                     }
 
@@ -1279,5 +1348,72 @@ namespace CrusaderWars.twbattle
                 prompt.ShowDialog(owner);
             }
         }
+        private static (bool isUnique, int variantCount) IsUsingUniqueMapAndGetVariantCount(string faction, string battleType, string provinceName)
+        {
+            if (UnitMappers_BETA.Terrains == null) return (false, 0);
+
+            // Check for unique map match first (mirrors GetSettlementMap logic)
+            var uniqueMapByProvName = UnitMappers_BETA.Terrains.UniqueSettlementMaps
+                .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
+            {
+                return (true, uniqueMapByProvName.Variants.Count);
+            }
+
+            var matchingUniqueMaps = UnitMappers_BETA.Terrains.UniqueSettlementMaps
+                                     .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                     .ToList();
+            foreach (var uniqueMap in matchingUniqueMaps)
+            {
+                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (uniqueMatch != null)
+                {
+                    return (true, uniqueMap.Variants.Count);
+                }
+            }
+
+            // If no unique map, check for generic map and get its variant count
+            var genericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
+            {
+                return (false, genericMapByProvName.Variants.Count);
+            }
+
+            var defaultGenericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (defaultGenericMapByProvName != null && defaultGenericMapByProvName.Variants.Any())
+            {
+                return (false, defaultGenericMapByProvName.Variants.Count);
+            }
+
+            var matchingGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
+                                      .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                   !sm.ProvinceNames.Any())
+                                      .ToList();
+            if (matchingGenericMaps.Any())
+            {
+                return (false, matchingGenericMaps.SelectMany(sm => sm.Variants).Count());
+            }
+
+            var matchingDefaultGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
+                                              .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                           !sm.ProvinceNames.Any())
+                                              .ToList();
+            if (matchingDefaultGenericMaps.Any())
+            {
+                return (false, matchingDefaultGenericMaps.SelectMany(sm => sm.Variants).Count());
+            }
+
+            return (false, 0);
+        }
+
     }
 }
