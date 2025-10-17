@@ -491,8 +491,8 @@ namespace CrusaderWars.twbattle
                     if (autofixState == null) // First crash
                     {
                         Program.Logger.Debug("First crash detected. Prompting user for autofix.");
-                        DialogResult userResponse;
-                        AutofixState.AutofixStrategy? chosenStrategy;
+                        DialogResult userResponse = DialogResult.No;
+                        AutofixState.AutofixStrategy? chosenStrategy = null;
 
                         form.Invoke((MethodInvoker)delegate
                         {
