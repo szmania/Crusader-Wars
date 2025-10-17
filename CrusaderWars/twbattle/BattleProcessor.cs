@@ -515,8 +515,16 @@ namespace CrusaderWars.twbattle
                         }
 
                         // Set up strategy order
+                        var visualOrder = new List<AutofixState.AutofixStrategy>
+                        {
+                            AutofixState.AutofixStrategy.Units,
+                            AutofixState.AutofixStrategy.MapSize,
+                            AutofixState.AutofixStrategy.Deployment,
+                            AutofixState.AutofixStrategy.MapVariant
+                        };
+
                         autofixState.StrategyOrder.Add(chosenStrategy.Value);
-                        foreach (AutofixState.AutofixStrategy strategy in Enum.GetValues(typeof(AutofixState.AutofixStrategy)))
+                        foreach (var strategy in visualOrder)
                         {
                             if (strategy != chosenStrategy.Value)
                             {
@@ -1353,14 +1361,14 @@ namespace CrusaderWars.twbattle
                     Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe selected strategy will be attempted first. If it fails, the other strategies will be tried automatically.\n\nPlease select which automatic fix strategy to try first:" 
                 };
 
-                RadioButton rbMapSize = new RadioButton() { Text = "Change Map Size", Left = 30, Top = 100, Checked = true, AutoSize = true };
-                Label lblMapSize = new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Left = 50, Top = 120, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
+                RadioButton rbUnits = new RadioButton() { Text = "Change Units", Left = 30, Top = 100, Checked = true, AutoSize = true };
+                Label lblUnits = new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Left = 50, Top = 120, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
 
-                RadioButton rbDeployment = new RadioButton() { Text = "Change Deployment", Left = 30, Top = 145, AutoSize = true };
-                Label lblDeployment = new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Left = 50, Top = 165, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
+                RadioButton rbMapSize = new RadioButton() { Text = "Change Map Size", Left = 30, Top = 155, AutoSize = true };
+                Label lblMapSize = new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Left = 50, Top = 175, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
 
-                RadioButton rbUnits = new RadioButton() { Text = "Change Units", Left = 30, Top = 200, AutoSize = true };
-                Label lblUnits = new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Left = 50, Top = 220, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
+                RadioButton rbDeployment = new RadioButton() { Text = "Change Deployment", Left = 30, Top = 200, AutoSize = true };
+                Label lblDeployment = new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Left = 50, Top = 220, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
 
                 RadioButton rbMapVariant = new RadioButton() { Text = "Change Map", Left = 30, Top = 255, AutoSize = true };
                 Label lblMapVariant = new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Left = 50, Top = 275, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
@@ -1374,12 +1382,12 @@ namespace CrusaderWars.twbattle
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
 
                 prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(rbUnits);
+                prompt.Controls.Add(lblUnits);
                 prompt.Controls.Add(rbMapSize);
                 prompt.Controls.Add(lblMapSize);
                 prompt.Controls.Add(rbDeployment);
                 prompt.Controls.Add(lblDeployment);
-                prompt.Controls.Add(rbUnits);
-                prompt.Controls.Add(lblUnits);
                 prompt.Controls.Add(rbMapVariant);
                 prompt.Controls.Add(lblMapVariant);
                 prompt.Controls.Add(btnStartKeepTrying);
@@ -1393,9 +1401,9 @@ namespace CrusaderWars.twbattle
                 AutofixState.AutofixStrategy? selectedStrategy = null;
                 if (dialogResult == DialogResult.Yes || dialogResult == DialogResult.Retry)
                 {
-                    if (rbMapSize.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
+                    if (rbUnits.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
+                    else if (rbMapSize.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
                     else if (rbDeployment.Checked) selectedStrategy = AutofixState.AutofixStrategy.Deployment;
-                    else if (rbUnits.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
                     else if (rbMapVariant.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapVariant;
                 }
 
