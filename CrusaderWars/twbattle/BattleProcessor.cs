@@ -1341,7 +1341,7 @@ namespace CrusaderWars.twbattle
             using (Form prompt = new Form())
             {
                 prompt.Width = 500;
-                prompt.Height = 340;
+                prompt.Height = 380;
                 prompt.Text = "Crusader Conflicts: Attila Crash Detected";
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -1349,26 +1349,26 @@ namespace CrusaderWars.twbattle
                 prompt.MinimizeBox = false;
 
                 Label textLabel = new Label() { 
-                    Left = 20, Top = 20, Width = 460, Height = 50, 
-                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nPlease select an automatic fix strategy to try first:" 
+                    Left = 20, Top = 20, Width = 460, Height = 70, 
+                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe selected strategy will be attempted first. If it fails, the other strategies will be tried automatically.\n\nPlease select which automatic fix strategy to try first:" 
                 };
 
-                RadioButton rbMapSize = new RadioButton() { Text = "Change Map Size", Left = 30, Top = 80, Checked = true, AutoSize = true };
-                Label lblMapSize = new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Left = 50, Top = 100, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
+                RadioButton rbMapSize = new RadioButton() { Text = "Change Map Size", Left = 30, Top = 100, Checked = true, AutoSize = true };
+                Label lblMapSize = new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Left = 50, Top = 120, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
 
-                RadioButton rbDeployment = new RadioButton() { Text = "Change Deployment", Left = 30, Top = 125, AutoSize = true };
-                Label lblDeployment = new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Left = 50, Top = 145, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
+                RadioButton rbDeployment = new RadioButton() { Text = "Change Deployment", Left = 30, Top = 145, AutoSize = true };
+                Label lblDeployment = new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Left = 50, Top = 165, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
 
-                RadioButton rbUnits = new RadioButton() { Text = "Change Units", Left = 30, Top = 180, AutoSize = true };
-                Label lblUnits = new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Left = 50, Top = 200, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
+                RadioButton rbUnits = new RadioButton() { Text = "Change Units", Left = 30, Top = 200, AutoSize = true };
+                Label lblUnits = new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Left = 50, Top = 220, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
 
-                RadioButton rbMapVariant = new RadioButton() { Text = "Change Map", Left = 30, Top = 235, AutoSize = true };
-                Label lblMapVariant = new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Left = 50, Top = 255, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
+                RadioButton rbMapVariant = new RadioButton() { Text = "Change Map", Left = 30, Top = 255, AutoSize = true };
+                Label lblMapVariant = new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Left = 50, Top = 275, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
 
 
-                Button btnStartKeepTrying = new Button() { Text = "Start (Don't Ask Again)", Left = 30, Width = 150, Top = 280, DialogResult = DialogResult.Retry };
-                Button btnStart = new Button() { Text = "Start Autofix", Left = 200, Width = 100, Top = 280, DialogResult = DialogResult.Yes };
-                Button btnCancel = new Button() { Text = "Cancel", Left = 320, Width = 100, Top = 280, DialogResult = DialogResult.No };
+                Button btnStartKeepTrying = new Button() { Text = "Start (Don't Ask Again)", Left = 30, Width = 150, Top = 310, DialogResult = DialogResult.Retry };
+                Button btnStart = new Button() { Text = "Start Autofix", Left = 200, Width = 100, Top = 310, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 320, Width = 100, Top = 310, DialogResult = DialogResult.No };
 
                 btnStartKeepTrying.Click += (sender, e) => { prompt.Close(); };
                 btnStart.Click += (sender, e) => { prompt.Close(); };
