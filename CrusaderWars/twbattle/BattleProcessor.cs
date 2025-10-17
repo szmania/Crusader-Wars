@@ -40,6 +40,7 @@ namespace CrusaderWars.twbattle
             public int MapVariantOffset { get; set; } = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
+            public string OriginalFieldMapDescription { get; set; } = "";
             public bool KeepTryingAutomatically { get; set; } = false;
         }
 
@@ -888,7 +889,7 @@ namespace CrusaderWars.twbattle
                     // --- STAGE 4: Map Variant Fixes ---
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
-                        Program.Logger.Debug("--- Autofix: Starting Stage 4: Map Variant Fixes ---");
+                        Program.Logger.Debug("--- Autofix: Starting Stage 4: Siege Map Variant Fixes ---");
                         var (fresh_attackers_map, fresh_defenders_map) = ArmiesReader.ReadBattleArmies();
                         string defenderAttilaFaction = UnitMappers_BETA.GetAttilaFaction(twbattle.Sieges.GetGarrisonCulture(), twbattle.Sieges.GetGarrisonHeritage());
                         string siegeBattleType = (twbattle.Sieges.GetHoldingLevel() > 1) ? "settlement_standard" : "settlement_unfortified";
@@ -914,6 +915,57 @@ namespace CrusaderWars.twbattle
                             autofixState.MapVariantOffset++;
                             BattleState.AutofixMapVariantOffset = autofixState.MapVariantOffset;
                             fixDescription = $"switching to a different map variant (attempt {autofixState.MapVariantOffset} of {variantCount - 1})";
+                        }
+
+                        if (!string.IsNullOrEmpty(fixDescription))
+                        {
+                            autofixState.LastAppliedFixDescription = fixDescription;
+                            if (!autofixState.KeepTryingAutomatically)
+                            {
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                    form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                    string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                    string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
+                                });
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"Automatically applying fix #{autofixState.FailureCount}: {fixDescription}. Skipping user prompt.");
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                    form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                                });
+                            }
+
+                            Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
+                            return await ProcessBattle(form, fresh_attackers_map, fresh_defenders_map, token, true, autofixState);
+                        }
+                    }
+                    else // Field Battle
+                    {
+                        Program.Logger.Debug("--- Autofix: Starting Stage 4: Field Battle Map Variant Fixes ---");
+                        var (fresh_attackers_map, fresh_defenders_map) = ArmiesReader.ReadBattleArmies();
+                        string terrainType = TerrainGenerator.TerrainType;
+                        string provinceName = BattleResult.ProvinceName ?? "";
+
+                        if (string.IsNullOrEmpty(autofixState.OriginalFieldMapDescription))
+                        {
+                            autofixState.OriginalFieldMapDescription = CrusaderWars.terrain.Lands.GetFieldBattleMapDescription(terrainType, provinceName);
+                            Program.Logger.Debug($"Autofix: Captured original field map description: {autofixState.OriginalFieldMapDescription}");
+                        }
+
+                        int variantCount = CrusaderWars.terrain.Lands.GetFieldBattleVariantCount(terrainType);
+                        fixDescription = "";
+
+                        if (variantCount > 1 && autofixState.MapVariantOffset < variantCount - 1)
+                        {
+                            autofixState.MapVariantOffset++;
+                            BattleState.AutofixMapVariantOffset = autofixState.MapVariantOffset;
+                            fixDescription = $"switching to a different field map variant (attempt {autofixState.MapVariantOffset} of {variantCount - 1}) for terrain '{terrainType}'";
                         }
 
                         if (!string.IsNullOrEmpty(fixDescription))
@@ -1164,6 +1216,11 @@ namespace CrusaderWars.twbattle
                         {
                             messageText += $"The original map ({autofixState.OriginalMapDescription}) is likely buggy. ";
                             originalMapInfo = autofixState.OriginalMapDescription;
+                        }
+                        else if (!string.IsNullOrEmpty(autofixState.OriginalFieldMapDescription))
+                        {
+                            messageText += $"The original map ({autofixState.OriginalFieldMapDescription}) is likely buggy. ";
+                            originalMapInfo = autofixState.OriginalFieldMapDescription;
                         }
                         messageText += "Please report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         string discordUrl = "https://discord.gg/eFZTprHh3j";

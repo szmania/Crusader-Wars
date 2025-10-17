@@ -109,7 +109,7 @@ namespace CrusaderWars
             if(isRiver) 
             {
                 Program.Logger.Debug($"Getting river battle map for terrain: {TerrainType}");
-                var battlemap = Lands.GetBattleMap(TerrainType);
+                var battlemap = Lands.GetBattleMap(TerrainType, data.battle_results.BattleResult.ProvinceName ?? "");
                 //ClearData();
                 return battlemap;
             }
@@ -119,7 +119,7 @@ namespace CrusaderWars
             if (isLand) 
             {
                 Program.Logger.Debug($"Getting land battle map for terrain: {TerrainType}");
-                var battlemap = Lands.GetBattleMap(TerrainType);
+                var battlemap = Lands.GetBattleMap(TerrainType, data.battle_results.BattleResult.ProvinceName ?? "");
                 //ClearData();
                 return battlemap;
             }
