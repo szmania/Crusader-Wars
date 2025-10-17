@@ -10,8 +10,14 @@ namespace CrusaderWars.terrain
 {
     internal static class UniqueMaps
     {
+        private static readonly Random _random = new Random();
         static (string X, string Y, string[] attPositions, string[] defPositions) FoundMap;
         static string[] all = { "All", "All" };
+
+        public static void Clear()
+        {
+            FoundMap = default;
+        }
 
         struct BattleMaps
         {
@@ -44,8 +50,6 @@ namespace CrusaderWars.terrain
                 {
                     if (building == map.building)
                     {
-                        Random random = new Random();
-                        int index = random.Next(0, 3);
                         x = map.x;
                         y = map.y;
                         FoundMap = (x, y, all, all);
@@ -95,8 +99,7 @@ namespace CrusaderWars.terrain
                             Program.Logger.Debug($"Selected Hadrian's Wall Forest variant: ({x}, {y})");
                             break;
                         default:
-                            Random random = new Random();
-                            int index = random.Next(0, 3);
+                            int index = _random.Next(0, 3);
                             x = BattleMaps.HadrianWalls[index].X;
                             y = BattleMaps.HadrianWalls[index].Y;
                             FoundMap = (x, y, BattleMaps.HadrianWalls[index].attPositions, BattleMaps.HadrianWalls[index].defPositions);

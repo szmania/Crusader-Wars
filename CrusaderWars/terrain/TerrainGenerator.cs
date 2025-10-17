@@ -74,12 +74,13 @@ namespace CrusaderWars
                     return;
             }
         }
-        static void ClearData()
+        public static void Clear()
         {
             TerrainType = String.Empty;
             isRiver = false;
             isStrait = false;
             isUnique = false;
+            UniqueMaps.Clear();
         }
 
 
@@ -92,7 +93,6 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug("Getting unique battle map.");
                 var battlemap = UniqueMaps.GetBattleMap();
-                //ClearData();
                 return battlemap;
             }
 
@@ -101,7 +101,6 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug($"Getting strait battle map for terrain: {TerrainType}");
                 var battlemap = Straits.GetBattleMap(Region ,TerrainType);
-                //ClearData();
                 return battlemap;   
             }
 
@@ -110,7 +109,6 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug($"Getting river battle map for terrain: {TerrainType}");
                 var battlemap = Lands.GetBattleMap(TerrainType, data.battle_results.BattleResult.ProvinceName ?? "");
-                //ClearData();
                 return battlemap;
             }
 
@@ -120,7 +118,6 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug($"Getting land battle map for terrain: {TerrainType}");
                 var battlemap = Lands.GetBattleMap(TerrainType, data.battle_results.BattleResult.ProvinceName ?? "");
-                //ClearData();
                 return battlemap;
             }
 

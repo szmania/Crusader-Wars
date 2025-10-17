@@ -15,6 +15,7 @@ namespace CrusaderWars.terrain
 {
     public static class Deployments
     {
+        private static readonly Random _random = new Random();
 
         //Radius
         static string ROTATION_0º = "0.00";
@@ -135,12 +136,11 @@ namespace CrusaderWars.terrain
         public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, bool shouldRotateDeployment)
         {
             bool useRotatedDeployment = BattleState.AutofixDeploymentRotationOverride ?? shouldRotateDeployment;
-            Random random = new Random();
             //All directions battle maps
             if (battle_map.attacker_dir[0] == "All")
             {
                 string[] coords = { "N", "S", "E", "W" };
-                int index = random.Next(0, 4);
+                int index = _random.Next(0, 4);
                 attacker_direction = coords[index];
                 defender_direction = Directions.GetOppositeDirection(attacker_direction);
                 attacker_deployment =  Directions.SetDirection(attacker_direction, total_soldiers);
@@ -153,7 +153,7 @@ namespace CrusaderWars.terrain
             {
                 if(useRotatedDeployment)
                 {
-                    int defender_index = random.Next(0, 2);
+                    int defender_index = _random.Next(0, 2);
                     defender_direction = battle_map.attacker_dir[defender_index];
                     attacker_direction = Directions.GetOppositeDirection(defender_direction);
                     defender_deployment = Directions.SetDirection(defender_direction, total_soldiers);
@@ -161,7 +161,7 @@ namespace CrusaderWars.terrain
                 }
                 else
                 {
-                    int defender_index = random.Next(0, 2);
+                    int defender_index = _random.Next(0, 2);
                     defender_direction = battle_map.defender_dir[defender_index];
                     attacker_direction = Directions.GetOppositeDirection(defender_direction);
                     defender_deployment = Directions.SetDirection(defender_direction, total_soldiers);
@@ -222,7 +222,6 @@ namespace CrusaderWars.terrain
                                   "</deployment_area>\n\n";
 
             // Attacker gets a random direction from the edges of the map.
-            Random random = new Random();
             if (BattleState.AutofixAttackerDirectionOverride != null)
             {
                 attacker_direction = BattleState.AutofixAttackerDirectionOverride;
@@ -231,7 +230,7 @@ namespace CrusaderWars.terrain
             else
             {
                 string[] coords = { "N", "S", "E", "W" };
-                int index = random.Next(0, 4);
+                int index = _random.Next(0, 4);
                 attacker_direction = coords[index];
                 BattleState.OriginalSiegeAttackerDirection = attacker_direction; // Store the initial direction
                 Program.Logger.Debug($"Initial siege attacker direction set to '{attacker_direction}'.");

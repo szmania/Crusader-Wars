@@ -14,6 +14,7 @@ namespace CrusaderWars
 {
     public static class UnitsFile
     {
+        private static readonly Random _random = new Random();
         public static int MAX_LEVIES_UNIT_NUMBER = ModOptions.GetLevyMax();
         public static int MAX_CAVALRY_UNIT_NUMBER = ModOptions.GetCavalryMax();
         public static int MAX_INFANTRY_UNIT_NUMBER = ModOptions.GetInfantryMax();
@@ -455,8 +456,7 @@ namespace CrusaderWars
             //  select random levy type
             if (unit.GetSoldiers() <= unit.GetMax())
             {
-                Random r = new Random();
-                var random = faction_levy_porcentages[r.Next(faction_levy_porcentages.Count)]; // Fixed: r.Next(count - 1) to r.Next(count)
+                var random = faction_levy_porcentages[_random.Next(faction_levy_porcentages.Count)];
                 string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 

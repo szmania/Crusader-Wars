@@ -62,6 +62,7 @@ namespace CrusaderWars.twbattle
                 AutofixReplacements.Clear(); // Clear fixes for a new battle
                 BattleState.ClearAutofixOverrides();
             }
+            TerrainGenerator.Clear();
             UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
