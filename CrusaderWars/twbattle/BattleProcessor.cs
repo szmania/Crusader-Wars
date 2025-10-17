@@ -715,13 +715,27 @@ namespace CrusaderWars.twbattle
                             BattleState.AutofixDeploymentRotationOverride = true;
                             isSizeOrDeploymentFix = true;
                         }
-                        else if (twbattle.BattleState.IsSiegeBattle && deploymentFailureCount >= 1 && deploymentFailureCount <= 4)
+                        else if (twbattle.BattleState.IsSiegeBattle && deploymentFailureCount >= 1 && deploymentFailureCount <= 3) // Only 3 attempts now
                         {
-                            string[] directions = { "N", "S", "E", "W" };
-                            string direction = directions[deploymentFailureCount - 1];
-                            fixDescription = $"setting the besieger's attack direction to '{direction}'";
-                            BattleState.AutofixAttackerDirectionOverride = direction;
-                            isSizeOrDeploymentFix = true;
+                            string[] allDirections = { "N", "S", "E", "W" };
+                            string originalDirection = BattleState.OriginalSiegeAttackerDirection;
+
+                            if (string.IsNullOrEmpty(originalDirection))
+                            {
+                                Program.Logger.Debug("Autofix Error: Original siege attacker direction was not recorded. Cannot attempt direction-based fixes.");
+                            }
+                            else
+                            {
+                                // Create a list of directions to try, excluding the original one.
+                                var directionsToTry = allDirections.Where(d => d != originalDirection).ToList();
+                                
+                                // The deploymentFailureCount will be 1, 2, or 3. We use it as an index into our new list.
+                                string direction = directionsToTry[deploymentFailureCount - 1];
+                                
+                                fixDescription = $"setting the besieger's attack direction to '{direction}' (original was '{originalDirection}')";
+                                BattleState.AutofixAttackerDirectionOverride = direction;
+                                isSizeOrDeploymentFix = true;
+                            }
                         }
                     }
 

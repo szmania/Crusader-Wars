@@ -233,6 +233,8 @@ namespace CrusaderWars.terrain
                 string[] coords = { "N", "S", "E", "W" };
                 int index = random.Next(0, 4);
                 attacker_direction = coords[index];
+                BattleState.OriginalSiegeAttackerDirection = attacker_direction; // Store the initial direction
+                Program.Logger.Debug($"Initial siege attacker direction set to '{attacker_direction}'.");
             }
             
             // Use existing logic to place the attacker at the map edge.
