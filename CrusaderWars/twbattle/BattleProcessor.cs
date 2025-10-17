@@ -672,7 +672,6 @@ namespace CrusaderWars.twbattle
                     }
 
                     // Common Autofix Logic
-                    BattleState.ClearAutofixOverrides();
                     string fixDescription = "";
 
                     // --- Determine Original Map Size (before any overrides) ---
@@ -1214,18 +1213,18 @@ namespace CrusaderWars.twbattle
             }
             else // Siege battle
             {
-                if (autofixState.SiegeDirectionFixAttempts < 3)
+                string[] allDirections = { "N", "S", "E", "W" };
+                string originalDirection = BattleState.OriginalSiegeAttackerDirection;
+
+                if (string.IsNullOrEmpty(originalDirection))
                 {
-                    string[] allDirections = { "N", "S", "E", "W" };
-                    string originalDirection = BattleState.OriginalSiegeAttackerDirection;
+                    Program.Logger.Debug("Autofix Error: Original siege attacker direction was not recorded. Cannot attempt direction-based fixes.");
+                    return (false, "");
+                }
 
-                    if (string.IsNullOrEmpty(originalDirection))
-                    {
-                        Program.Logger.Debug("Autofix Error: Original siege attacker direction was not recorded. Cannot attempt direction-based fixes.");
-                        return (false, "");
-                    }
-
-                    var directionsToTry = allDirections.Where(d => d != originalDirection).ToList();
+                var directionsToTry = allDirections.Where(d => d != originalDirection).ToList();
+                if (autofixState.SiegeDirectionFixAttempts < directionsToTry.Count)
+                {
                     string direction = directionsToTry[autofixState.SiegeDirectionFixAttempts];
 
                     autofixState.SiegeDirectionFixAttempts++;
