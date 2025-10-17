@@ -759,13 +759,14 @@ namespace CrusaderWars.unit_mapper
                     Program.Logger.Debug($"WARNING: Missing or invalid 'percentage' attribute for garrison in faction '{attila_faction}'. Defaulting to 0.");
                 }
 
-                if (garrison_node.Attributes?["key"]?.Value is string keyStr)
+                if (garrison_node.Attributes?["key"]?.Value is string keyStr && !string.IsNullOrEmpty(keyStr))
                 {
                     key = keyStr;
                 }
                 else
                 {
-                    Program.Logger.Debug($"WARNING: Missing 'key' attribute for garrison in faction '{attila_faction}'. Defaulting to empty string.");
+                    Program.Logger.Debug($"WARNING: Missing or empty 'key' attribute for a garrison entry in faction '{attila_faction}'. This entry will be skipped.");
+                    continue;
                 }
 
                 if (garrison_node.Attributes?["level"]?.Value is string levelStr && Int32.TryParse(levelStr, out int parsedLevel))
@@ -839,7 +840,7 @@ namespace CrusaderWars.unit_mapper
             throw new Exception($"Unit Mapper Error: Could not find any levy definitions for faction '{attila_faction}' or for the 'Default' faction. Please check your unit mapper configuration.");
         }
 
-        public static List<(int percentage, string unit_key, string name, string max)> GetFactionGarrison(string attila_faction, int holdingLevel)
+        public static List<(int percentage, string unit_key, string name, string max)> GetFactionGarrison(string attila_faction, int holdingLevel) // refactored
         {
             if (!twbattle.BattleState.IsSiegeBattle)
             {
@@ -857,31 +858,42 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            
-            List<(int percentage, string unit_key, string name, string max, int level)> allGarrisonDefinitions = new List<(int percentage, string unit_key, string name, string max, int level)>();
+            files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
 
+            List<(int percentage, string unit_key, string name, string max, int level)> garrisonDefinitions = new List<(int percentage, string unit_key, string name, string max, int level)>();
+
+            // Priority 1: Search for specific faction garrisons in reverse file order
             foreach (var xml_file in files_paths)
             {
-                if (Path.GetExtension(xml_file) == ".xml")
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
+
+                var foundSpecific = Garrison(FactionsFile, attila_faction);
+                if (foundSpecific.Any())
+                {
+                    Program.Logger.Debug($"Found specific garrison definitions for faction '{attila_faction}' in file '{Path.GetFileName(xml_file)}'. Using this definition.");
+                    garrisonDefinitions = foundSpecific;
+                    break; // Found the highest priority definition, stop searching
+                }
+            }
+
+            // Priority 2: If not found, search for default faction garrisons in reverse file order
+            if (!garrisonDefinitions.Any())
+            {
+                Program.Logger.Debug($"No specific garrison definitions found for faction '{attila_faction}'. Searching for 'Default' faction definitions.");
+                foreach (var xml_file in files_paths)
                 {
                     XmlDocument FactionsFile = new XmlDocument();
                     FactionsFile.Load(xml_file);
                     if (FactionsFile.DocumentElement == null) continue;
 
-                    // Collect specific faction garrisons
-                    var foundSpecific = Garrison(FactionsFile, attila_faction);
-                    if (foundSpecific.Any())
-                    {
-                        allGarrisonDefinitions.AddRange(foundSpecific);
-                        Program.Logger.Debug($"Found specific garrison definitions for faction '{attila_faction}' from file '{Path.GetFileName(xml_file)}'.");
-                    }
-
-                    // Collect default faction garrisons
                     var foundDefault = Garrison(FactionsFile, "Default");
                     if (foundDefault.Any())
                     {
-                        allGarrisonDefinitions.AddRange(foundDefault);
-                        Program.Logger.Debug($"Found default garrison definitions from file '{Path.GetFileName(xml_file)}'.");
+                        Program.Logger.Debug($"Found 'Default' garrison definitions in file '{Path.GetFileName(xml_file)}'. Using this definition as fallback.");
+                        garrisonDefinitions = foundDefault;
+                        break; // Found the highest priority definition, stop searching
                     }
                 }
             }
@@ -889,32 +901,26 @@ namespace CrusaderWars.unit_mapper
             List<(int percentage, string unit_key, string name, string max)> finalGarrisonComposition;
 
             // Attempt to find garrisons at or below the current holding level
-            var suitableGarrisons = allGarrisonDefinitions.Where(g => g.level <= holdingLevel).ToList();
+            var suitableGarrisons = garrisonDefinitions.Where(g => g.level <= holdingLevel).ToList();
 
             if (suitableGarrisons.Any())
             {
                 // If suitable garrisons are found, use the highest level among them
                 int highestAvailableLevel = suitableGarrisons.Max(g => g.level);
                 Program.Logger.Debug($"Found suitable garrisons. Using highest available level: {highestAvailableLevel}");
-                finalGarrisonComposition = suitableGarrisons
-                                            .Where(g => g.level == highestAvailableLevel)
-                                            .Select(g => (g.percentage, g.unit_key, g.name, g.max))
-                                            .ToList();
+                finalGarrisonComposition = suitableGarrisons.Where(g => g.level == highestAvailableLevel).Select(g => (g.percentage, g.unit_key, g.name, g.max)).ToList();
             }
             else
             {
                 // Fallback: No garrisons at or below the holding level, so use the lowest level available
-                if (!allGarrisonDefinitions.Any())
+                if (!garrisonDefinitions.Any())
                 {
                     throw new Exception($"Unit Mapper Error: No garrison definitions found at all for faction '{attila_faction}'.");
                 }
 
-                int lowestAvailableLevel = allGarrisonDefinitions.Min(g => g.level);
+                int lowestAvailableLevel = garrisonDefinitions.Min(g => g.level);
                 Program.Logger.Debug($"No garrisons found at or below holding level {holdingLevel}. Falling back to lowest available level: {lowestAvailableLevel}");
-                finalGarrisonComposition = allGarrisonDefinitions
-                                            .Where(g => g.level == lowestAvailableLevel)
-                                            .Select(g => (g.percentage, g.unit_key, g.name, g.max))
-                                            .ToList();
+                finalGarrisonComposition = garrisonDefinitions.Where(g => g.level == lowestAvailableLevel).Select(g => (g.percentage, g.unit_key, g.name, g.max)).ToList();
             }
 
             if (!finalGarrisonComposition.Any())
