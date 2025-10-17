@@ -13,6 +13,9 @@ namespace CrusaderWars.twbattle
         public static string? AutofixDeploymentSizeOverride { get; set; } = null;
         public static bool? AutofixDeploymentRotationOverride { get; set; } = null;
         public static string? AutofixAttackerDirectionOverride { get; set; } = null;
+        public static string? OriginalSiegeAttackerDirection { get; set; } = null;
+        public static bool AutofixForceGenericMap { get; set; } = false;
+        public static int AutofixMapVariantOffset { get; set; } = 0;
 
         static BattleState()
         {
@@ -49,6 +52,9 @@ namespace CrusaderWars.twbattle
             AutofixDeploymentSizeOverride = null;
             AutofixDeploymentRotationOverride = null;
             AutofixAttackerDirectionOverride = null;
+            OriginalSiegeAttackerDirection = null;
+            AutofixForceGenericMap = false;
+            AutofixMapVariantOffset = 0;
         }
 
         public static void ClearBattleState()
