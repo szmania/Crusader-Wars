@@ -1364,8 +1364,7 @@ namespace CrusaderWars.twbattle
 
                 RadioButton rbMapVariant = new RadioButton() { Text = "Change Map", Left = 30, Top = 255, AutoSize = true };
                 Label lblMapVariant = new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Left = 50, Top = 275, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
-
-
+                
                 Button btnStartKeepTrying = new Button() { Text = "Start (Don't Ask Again)", Left = 30, Width = 150, Top = 310, DialogResult = DialogResult.Retry };
                 Button btnStart = new Button() { Text = "Start Autofix", Left = 200, Width = 100, Top = 310, DialogResult = DialogResult.Yes };
                 Button btnCancel = new Button() { Text = "Cancel", Left = 320, Width = 100, Top = 310, DialogResult = DialogResult.No };
