@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Xml;
 using CrusaderWars.client;
 using CrusaderWars.data.save_file;
+using CrusaderWars.twbattle;
 
 namespace CrusaderWars.unit_mapper
 {
@@ -133,7 +134,7 @@ namespace CrusaderWars.unit_mapper
                 // 4. Use the absolute value and the modulo operator to get a valid index.
                 int baseIndex = Math.Abs(hashAsInt % listCount);
 
-                int offset = twbattle.BattleState.AutofixMapVariantOffset;
+                int offset = BattleState.AutofixMapVariantOffset;
                 if (offset > 0)
                 {
                     if (listCount <= 1) return baseIndex; // Cannot find an alternative if there's only one option
@@ -325,7 +326,7 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
-                        else if (twbattle.BattleState.IsSiegeBattle && Element.Name == "Siege_Engines")
+                        else if (BattleState.IsSiegeBattle && Element.Name == "Siege_Engines")
                         {
                             foreach (XmlElement siegeEngineNode in Element.ChildNodes)
                             {
@@ -842,7 +843,7 @@ namespace CrusaderWars.unit_mapper
 
         public static List<(int percentage, string unit_key, string name, string max)> GetFactionGarrison(string attila_faction, int holdingLevel) // refactored
         {
-            if (!twbattle.BattleState.IsSiegeBattle)
+            if (!BattleState.IsSiegeBattle)
             {
                 Program.Logger.Debug("GetFactionGarrison called for a non-siege battle. Returning empty list as a safeguard.");
                 return new List<(int, string, string, string)>();
@@ -1372,7 +1373,7 @@ namespace CrusaderWars.unit_mapper
                     break;
 
                 case RegimentType.Garrison:
-                    int holdingLevel = twbattle.BattleState.IsSiegeBattle ? twbattle.Sieges.GetHoldingLevel() : 1;
+                    int holdingLevel = BattleState.IsSiegeBattle ? Sieges.GetHoldingLevel() : 1;
                     var allGarrisons = new List<(string key, int level)>();
                     foreach (XmlNode garrisonNode in defaultFactionNode.SelectNodes("Garrison"))
                     {
@@ -1607,14 +1608,14 @@ namespace CrusaderWars.unit_mapper
         {
             Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
 
-            bool forceGeneric = twbattle.BattleState.AutofixForceGenericMap;
+            bool forceGeneric = BattleState.AutofixForceGenericMap;
             if (forceGeneric)
             {
                 Program.Logger.Debug("Autofix: Forcing use of generic settlement map.");
             }
 
             string cacheKey = $"{provinceName}_{battleType}";
-            if (twbattle.BattleState.AutofixMapVariantOffset > 0) cacheKey += $"_offset{twbattle.BattleState.AutofixMapVariantOffset}";
+            if (BattleState.AutofixMapVariantOffset > 0) cacheKey += $"_offset{BattleState.AutofixMapVariantOffset}";
             if (forceGeneric) cacheKey += "_forcegeneric";
 
             if (_provinceMapCache.TryGetValue(cacheKey, out var cachedMap))
