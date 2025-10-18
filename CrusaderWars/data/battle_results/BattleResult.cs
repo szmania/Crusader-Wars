@@ -9,6 +9,7 @@ using static CrusaderWars.data.save_file.Writter;
 using CrusaderWars.twbattle; // Added for BattleFile access
 using System.Globalization; // Added for CultureInfo
 using CrusaderWars.armies; // Added for List<Army>
+using CrusaderWars.unit_mapper;
 
 
 namespace CrusaderWars.data.battle_results
@@ -777,7 +778,41 @@ namespace CrusaderWars.data.battle_results
                     continue; // Skip this group if culture is unexpectedly null
                 }
 
-                int starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
+                int starting;
+                var firstUnit = matchingUnits.First();
+                
+                int effectiveNumGuns = firstUnit.GetNumGuns();
+                if (firstUnit.IsSiegeEnginePerUnit() && effectiveNumGuns <= 0)
+                {
+                    effectiveNumGuns = 1;
+                }
+
+                if (firstUnit.IsSiege() && effectiveNumGuns > 0)
+                {
+                    // New logic for multi-gun siege units
+                    int totalCk3Machines = matchingUnits.Sum(u => u.GetOriginalSoldiers());
+                    int numGunsPerUnit = effectiveNumGuns;
+                    int numAttilaUnits = (int)Math.Ceiling((double)totalCk3Machines / numGunsPerUnit);
+                    
+                    int totalMen = 0;
+                    for (int j = 0; j < numAttilaUnits; j++)
+                    {
+                        int machinesForThisUnit = (j == numAttilaUnits - 1)
+                            ? totalCk3Machines - (numGunsPerUnit * (numAttilaUnits - 1))
+                            : numGunsPerUnit;
+                        totalMen += UnitMappers_BETA.ConvertMachinesToMen(machinesForThisUnit);
+                    }
+                    starting = totalMen;
+                }
+                else if (firstUnit.IsSiege()) // Old logic for single-entry siege units
+                {
+                    starting = UnitMappers_BETA.ConvertMachinesToMen(matchingUnits.Sum(u => u.GetOriginalSoldiers()));
+                }
+                else // Not a siege unit
+                {
+                    starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
+                }
+
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties

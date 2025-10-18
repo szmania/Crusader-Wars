@@ -368,42 +368,74 @@ namespace CrusaderWars
 
                 Program.Logger.Debug($"  Processing MAA unit: Name={unit.GetName()}, Soldiers={unit.GetSoldiers()}, Culture={unit.GetCulture()}");
 
-                int soldiersForAttila = unit.GetSoldiers();
-                if (unit.IsSiege())
+                // NEW LOGIC FOR SIEGE UNITS
+                int effectiveNumGuns = unit.GetNumGuns();
+                if (unit.IsSiegeEnginePerUnit() && effectiveNumGuns <= 0)
                 {
-                    soldiersForAttila = UnitMappers_BETA.ConvertMachinesToMen(unit.GetSoldiers());
-                    Program.Logger.Debug($"  - Unit '{unit.GetName()}' is a siege unit. Converting {unit.GetSoldiers()} machines to {soldiersForAttila} soldiers for Attila.");
+                    effectiveNumGuns = 1;
                 }
 
-                var MAA_Data = RetriveCalculatedUnits(soldiersForAttila, unit.GetMax());
-
-                if (unit.GetObjCulture() == null)
+                if (unit.IsSiege() && effectiveNumGuns > 0)
                 {
-                    var unitOwner = unit.GetOwner();
-                    if (unitOwner != null)
+                    int totalCk3Machines = unit.GetSoldiers();
+                    int numGunsPerUnit = effectiveNumGuns;
+                    int numAttilaUnits = (int)Math.Ceiling((double)totalCk3Machines / numGunsPerUnit);
+
+                    Program.Logger.Debug($"  - Unit '{unit.GetName()}' is a multi-gun siege unit. CK3 Machines: {totalCk3Machines}, NumGuns/Unit: {numGunsPerUnit}. Creating {numAttilaUnits} Attila units.");
+
+                    for (int j = 0; j < numAttilaUnits; j++)
                     {
-                        unit.ChangeCulture(unitOwner.GetCulture());
+                        // The last unit gets the remainder of machines
+                        int machinesForThisUnit = (j == numAttilaUnits - 1)
+                            ? totalCk3Machines - (numGunsPerUnit * (numAttilaUnits - 1))
+                            : numGunsPerUnit;
+                        
+                        int soldiersForThisUnit = UnitMappers_BETA.ConvertMachinesToMen(machinesForThisUnit);
+
+                        // Use a sub-counter 'j' to ensure unique script names for each created unit
+                        string unit_script_name = $"{i}_{j}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                        BattleFile.AddUnit(attilaUnitKey, soldiersForThisUnit, 1, 0, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                     }
+                }
+                else // OLD LOGIC for non-siege units and siege units without num_guns
+                {
+                    int soldiersForAttila = unit.GetSoldiers();
+                    if (unit.IsSiege())
+                    {
+                        soldiersForAttila = UnitMappers_BETA.ConvertMachinesToMen(unit.GetSoldiers());
+                        Program.Logger.Debug($"  - Unit '{unit.GetName()}' is a single-entry siege unit. Converting {unit.GetSoldiers()} machines to {soldiersForAttila} soldiers for Attila.");
+                    }
+
+                    var MAA_Data = RetriveCalculatedUnits(soldiersForAttila, unit.GetMax());
+
+                    if (unit.GetObjCulture() == null)
+                    {
+                        var unitOwner = unit.GetOwner();
+                        if (unitOwner != null)
+                        {
+                            unit.ChangeCulture(unitOwner.GetCulture());
+                        }
+                        else
+                        {
+                            unit.ChangeCulture(army.Owner.GetCulture());
+                        }
+                    }
+
+                    //If is retinue maa, increase 2xp.
+                    if (unitName.Contains("accolade"))
+                    {
+                        string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                        int accolade_xp = army_xp + 2;
+                        if (accolade_xp < 0) accolade_xp = 0;
+                        if (accolade_xp > 9) accolade_xp = 9;
+                        BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                    }
+                    //If is normal maa
                     else
                     {
-                        unit.ChangeCulture(army.Owner.GetCulture());
+                        string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                        BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                     }
-                }
-
-                //If is retinue maa, increase 2xp.
-                if (unitName.Contains("accolade"))
-                {
-                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                    int accolade_xp = army_xp + 2;
-                    if (accolade_xp < 0) accolade_xp = 0;
-                    if (accolade_xp > 9) accolade_xp = 9;
-                    BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
-                }
-                //If is normal maa
-                else
-                {
-                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                    BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 }
                 i++;
 
