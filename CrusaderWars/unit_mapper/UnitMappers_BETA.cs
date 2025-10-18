@@ -17,6 +17,7 @@ namespace CrusaderWars.unit_mapper
         public string Key { get; set; } = string.Empty;
         public string X { get; set; } = string.Empty;
         public string Y { get; set; } = string.Empty;
+        public List<string>? BesiegerOrientations { get; set; }
     }
 
     internal class SettlementMap
@@ -77,7 +78,7 @@ namespace CrusaderWars.unit_mapper
         public static string? ActivePlaythroughTag { get; private set; }
         public const string NOT_FOUND_KEY = "not_found";
         private static readonly Random _random = new Random();
-        private static Dictionary<string, (string X, string Y)> _provinceMapCache = new Dictionary<string, (string X, string Y)>();
+        private static Dictionary<string, (string X, string Y, List<string>? orientations)> _provinceMapCache = new Dictionary<string, (string X, string Y, List<string>? orientations)>();
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
@@ -275,6 +276,12 @@ namespace CrusaderWars.unit_mapper
                                                 // Removed IsUnique property parsing
                                             };
 
+                                            string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
+                                            if (!string.IsNullOrEmpty(orientationsAttr))
+                                            {
+                                                settlementVariant.BesiegerOrientations = orientationsAttr.Split(',').Select(o => o.Trim()).ToList();
+                                            }
+
                                             XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
                                             if (mapNode != null)
                                             {
@@ -312,6 +319,12 @@ namespace CrusaderWars.unit_mapper
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty
                                             };
+
+                                            string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
+                                            if (!string.IsNullOrEmpty(orientationsAttr))
+                                            {
+                                                settlementVariant.BesiegerOrientations = orientationsAttr.Split(',').Select(o => o.Trim()).ToList();
+                                            }
 
                                             XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
                                             if (mapNode != null)
@@ -1604,7 +1617,7 @@ namespace CrusaderWars.unit_mapper
             return faction;
         }
 
-        public static (string X, string Y)? GetSettlementMap(string faction, string battleType, string provinceName)
+        public static (string X, string Y, List<string>? orientations)? GetSettlementMap(string faction, string battleType, string provinceName)
         {
             Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
 
@@ -1636,8 +1649,8 @@ namespace CrusaderWars.unit_mapper
                     Program.Logger.Debug($"Found unique settlement map by 'province_names' attribute for Province '{provinceName}'.");
                     int deterministicIndex = GetDeterministicIndex(provinceName, uniqueMapByProvName.Variants.Count);
                     var selectedVariant = uniqueMapByProvName.Variants[deterministicIndex];
-                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y);
-                    return (selectedVariant.X, selectedVariant.Y);
+                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+                    return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                 }
             }
 
@@ -1654,8 +1667,8 @@ namespace CrusaderWars.unit_mapper
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
-                        _provinceMapCache[cacheKey] = (uniqueMatch.X, uniqueMatch.Y);
-                        return (uniqueMatch.X, uniqueMatch.Y);
+                        _provinceMapCache[cacheKey] = (uniqueMatch.X, uniqueMatch.Y, uniqueMatch.BesiegerOrientations);
+                        return (uniqueMatch.X, uniqueMatch.Y, uniqueMatch.BesiegerOrientations);
                     }
                 }
             }
@@ -1681,8 +1694,8 @@ namespace CrusaderWars.unit_mapper
                     Program.Logger.Debug($"Found generic settlement map for Faction '{genericMapByProvName.Faction}' by 'province_names' attribute for Province '{provinceName}'.");
                     int deterministicIndex = GetDeterministicIndex(provinceName, genericMapByProvName.Variants.Count);
                     var selectedVariant = genericMapByProvName.Variants[deterministicIndex];
-                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y);
-                    return (selectedVariant.X, selectedVariant.Y);
+                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+                    return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                 }
             }
 
@@ -1714,8 +1727,8 @@ namespace CrusaderWars.unit_mapper
                         int deterministicIndex = GetDeterministicIndex(provinceName, allGenericVariants.Count);
                         var selectedVariant = allGenericVariants[deterministicIndex];
                         Program.Logger.Debug($"Deterministically selected settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
-                        _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y);
-                        return (selectedVariant.X, selectedVariant.Y);
+                        _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+                        return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                     }
                 }
             }

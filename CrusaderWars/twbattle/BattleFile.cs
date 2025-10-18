@@ -566,6 +566,7 @@ namespace CrusaderWars
             //  BATTLE MAP
             (string X, string Y, string[] attPositions, string[] defPositions) battleMap = ("", "", new string[0], new string[0]); // Initialize as mutable tuple
             Dictionary<string, int> siegeEngines = new Dictionary<string, int>(); // Initialize siegeEngines
+            List<string>? besiegerOrientations = null;
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -592,6 +593,7 @@ namespace CrusaderWars
                 {
                     battleMap.X = customSettlementMap.Value.X;
                     battleMap.Y = customSettlementMap.Value.Y;
+                    besiegerOrientations = customSettlementMap.Value.orientations;
                     battleMap.attPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
                     battleMap.defPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
                     Program.Logger.Debug($"Custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}', Province '{provinceName}': ({battleMap.X}, {battleMap.Y})");
@@ -602,7 +604,7 @@ namespace CrusaderWars
                     battleMap = TerrainGenerator.GetBattleMap(); // Fallback to existing logic
                 }
                 Program.Logger.Debug("Setting up siege-specific deployment...");
-                Deployments.beta_SetSiegeDeployment(battleMap, total_soldiers);
+                Deployments.beta_SetSiegeDeployment(battleMap, total_soldiers, besiegerOrientations);
 
                 // Generate siege engines for the attacker
                 siegeEngines = SiegeEngineGenerator.Generate(attacker_armies); // Pass attacker_armies

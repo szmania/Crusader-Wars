@@ -171,7 +171,7 @@ namespace CrusaderWars.terrain
 
         }
 
-        public static void beta_SetSiegeDeployment((string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, int total_soldiers)
+        public static void beta_SetSiegeDeployment((string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, int total_soldiers, List<string>? besiegerOrientations)
         {
             siege_center_x = battle_map.x;
             siege_center_y = battle_map.y;
@@ -229,8 +229,18 @@ namespace CrusaderWars.terrain
             }
             else
             {
-                string[] coords = { "N", "S", "E", "W" };
-                int index = _random.Next(0, 4);
+                string[] coords;
+                if (besiegerOrientations != null && besiegerOrientations.Any())
+                {
+                    Program.Logger.Debug($"Using map-defined besieger orientations: [{string.Join(", ", besiegerOrientations)}]");
+                    coords = besiegerOrientations.ToArray();
+                }
+                else
+                {
+                    Program.Logger.Debug("No map-defined besieger orientations. Using all directions.");
+                    coords = new string[] { "N", "S", "E", "W" };
+                }
+                int index = _random.Next(0, coords.Length);
                 attacker_direction = coords[index];
                 BattleState.OriginalSiegeAttackerDirection = attacker_direction; // Store the initial direction
                 Program.Logger.Debug($"Initial siege attacker direction set to '{attacker_direction}'.");
