@@ -1136,15 +1136,15 @@ namespace CrusaderWars.data.battle_results
                                 currentParticipantId = Regex.Match(line, @"\d+").Groups[0].Value;
                                 List<Army> targetArmies = isAttacker ? attacker_armies : defender_armies;
 
-                                // Try to find the army where this character is the main commander
-                                currentArmy = targetArmies.FirstOrDefault(a => a.CommanderID == currentParticipantId);
+                                // The main_participant is the owner of the army/regiments in this block.
+                                currentArmy = targetArmies.FirstOrDefault(a => a.Owner?.ID == currentParticipantId);
 
-                                // If not found, check if it's a commander of a merged army within one of the main armies
+                                // If not found, check if it's an owner of a merged army within one of the main armies
                                 if (currentArmy == null)
                                 {
                                     foreach (var mainArmy in targetArmies)
                                     {
-                                        if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.CommanderID == currentParticipantId))
+                                        if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Owner?.ID == currentParticipantId))
                                         {
                                             currentArmy = mainArmy; // The main army is the one we're interested in for reporting
                                             break;
@@ -1305,7 +1305,7 @@ namespace CrusaderWars.data.battle_results
                                     int totalFightingMen = 0;
                                     if (currentArmy != null)
                                     {
-                                        totalFightingMen = currentArmy.GetTotalSoldiers(); // Use the updated GetTotalSoldiers
+                                        totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
                                         string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
                                         streamWriter.WriteLine(edited_line);
                                         Program.Logger.Debug($"Defender (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
