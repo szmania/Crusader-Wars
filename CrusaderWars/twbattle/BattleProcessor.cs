@@ -250,12 +250,26 @@ namespace CrusaderWars.twbattle
                                     }
                                     else
                                     {
-                                        string rankInfo = "";
-                                        if (unit.GetRegimentType() == RegimentType.Commander || unit.GetRegimentType() == RegimentType.Knight)
+                                        if (unit.GetRegimentType() == RegimentType.Commander)
                                         {
-                                            rankInfo = $", Rank: {unit.CharacterRank}";
+                                            // Only log the main commander, which is represented by the "General" unit.
+                                            if (unit.GetName() == "General")
+                                            {
+                                                string commanderName = army.Commander?.Name ?? "Unknown Commander";
+                                                string rankInfo = $", Rank: {unit.CharacterRank}";
+                                                Program.Logger.Debug($"  - CK3 Unit: General ({commanderName}), Type: Commander, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                            }
+                                            // Implicitly skip logging other commander-type units that might be in the list.
                                         }
-                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                        else // Not a commander
+                                        {
+                                            string rankInfo = "";
+                                            if (unit.GetRegimentType() == RegimentType.Knight)
+                                            {
+                                                rankInfo = $", Rank: {unit.CharacterRank}";
+                                            }
+                                            Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                        }
                                     }
                                 }
                             }
@@ -311,12 +325,26 @@ namespace CrusaderWars.twbattle
                                     }
                                     else
                                     {
-                                        string rankInfo = "";
-                                        if (unit.GetRegimentType() == RegimentType.Commander || unit.GetRegimentType() == RegimentType.Knight)
+                                        if (unit.GetRegimentType() == RegimentType.Commander)
                                         {
-                                            rankInfo = $", Rank: {unit.CharacterRank}";
+                                            // Only log the main commander, which is represented by the "General" unit.
+                                            if (unit.GetName() == "General")
+                                            {
+                                                string commanderName = army.Commander?.Name ?? "Unknown Commander";
+                                                string rankInfo = $", Rank: {unit.CharacterRank}";
+                                                Program.Logger.Debug($"  - CK3 Unit: General ({commanderName}), Type: Commander, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                            }
+                                            // Implicitly skip logging other commander-type units that might be in the list.
                                         }
-                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                        else // Not a commander
+                                        {
+                                            string rankInfo = "";
+                                            if (unit.GetRegimentType() == RegimentType.Knight)
+                                            {
+                                                rankInfo = $", Rank: {unit.CharacterRank}";
+                                            }
+                                            Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                        }
                                     }
                                 }
                             }
