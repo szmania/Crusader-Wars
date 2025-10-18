@@ -23,12 +23,18 @@ namespace CrusaderWars
         public static CommanderTraits? PlayerCommanderTraits;
         public static CommanderTraits? EnemyCommanderTraits;
 
+        private static int attackerSiegeUnitsCount = 0;
+        private static int defenderSiegeUnitsCount = 0;
+        private const int MAX_SIEGE_UNITS_PER_SIDE = 20;
+
         private static HashSet<string> processedArmyIDs = new HashSet<string>();
 
         public static void ResetProcessedArmies()
         {
             processedArmyIDs.Clear();
-            Program.Logger.Debug($"Cleared processed armies list.");
+            attackerSiegeUnitsCount = 0;
+            defenderSiegeUnitsCount = 0;
+            Program.Logger.Debug($"Cleared processed armies list and siege unit counters.");
         }
 
         public static (int UnitSoldiers, int UnitNum, int SoldiersRest) RetriveCalculatedUnits(int soldiers, int unit_limit)
@@ -381,13 +387,29 @@ namespace CrusaderWars
                     int numGunsPerUnit = effectiveNumGuns;
                     int numAttilaUnits = (int)Math.Ceiling((double)totalCk3Machines / numGunsPerUnit);
 
-                    Program.Logger.Debug($"  - Unit '{unit.GetName()}' is a multi-gun siege unit. CK3 Machines: {totalCk3Machines}, NumGuns/Unit: {numGunsPerUnit}. Creating {numAttilaUnits} Attila units.");
+                    // NEW: Check against the cap
+                    ref int currentSiegeCount = ref (army.CombatSide == "attacker" ? ref attackerSiegeUnitsCount : ref defenderSiegeUnitsCount);
+                    int remainingSlots = MAX_SIEGE_UNITS_PER_SIDE - currentSiegeCount;
 
-                    for (int j = 0; j < numAttilaUnits; j++)
+                    if (remainingSlots <= 0)
+                    {
+                        Program.Logger.Debug($"  - Unit '{unit.GetName()}' skipped. Siege unit limit of {MAX_SIEGE_UNITS_PER_SIDE} reached for {army.CombatSide} side.");
+                        continue; // Skip this whole CK3 unit
+                    }
+
+                    int unitsToCreate = Math.Min(numAttilaUnits, remainingSlots);
+                    if (unitsToCreate < numAttilaUnits)
+                    {
+                        Program.Logger.Debug($"  - Unit '{unit.GetName()}' creation capped from {numAttilaUnits} to {unitsToCreate} due to siege unit limit.");
+                    }
+
+                    Program.Logger.Debug($"  - Unit '{unit.GetName()}' is a multi-gun siege unit. CK3 Machines: {totalCk3Machines}, NumGuns/Unit: {numGunsPerUnit}. Creating {unitsToCreate} Attila units.");
+
+                    for (int j = 0; j < unitsToCreate; j++)
                     {
                         // The last unit gets the remainder of machines
-                        int machinesForThisUnit = (j == numAttilaUnits - 1)
-                            ? totalCk3Machines - (numGunsPerUnit * (numAttilaUnits - 1))
+                        int machinesForThisUnit = (j == unitsToCreate - 1)
+                            ? totalCk3Machines - (numGunsPerUnit * (unitsToCreate - 1))
                             : numGunsPerUnit;
                         
                         int soldiersForThisUnit = UnitMappers_BETA.ConvertMachinesToMen(machinesForThisUnit);
@@ -395,18 +417,42 @@ namespace CrusaderWars
                         // Use a sub-counter 'j' to ensure unique script names for each created unit
                         string unit_script_name = $"{i}_{j}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                         BattleFile.AddUnit(attilaUnitKey, soldiersForThisUnit, 1, 0, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                        currentSiegeCount++;
                     }
                 }
                 else // OLD LOGIC for non-siege units and siege units without num_guns
                 {
                     int soldiersForAttila = unit.GetSoldiers();
+                    var MAA_Data = (UnitSoldiers: 0, UnitNum: 0, SoldiersRest: 0);
+
                     if (unit.IsSiege())
                     {
                         soldiersForAttila = UnitMappers_BETA.ConvertMachinesToMen(unit.GetSoldiers());
                         Program.Logger.Debug($"  - Unit '{unit.GetName()}' is a single-entry siege unit. Converting {unit.GetSoldiers()} machines to {soldiersForAttila} soldiers for Attila.");
                     }
 
-                    var MAA_Data = RetriveCalculatedUnits(soldiersForAttila, unit.GetMax());
+                    MAA_Data = RetriveCalculatedUnits(soldiersForAttila, unit.GetMax());
+
+                    if (unit.IsSiege())
+                    {
+                        // NEW: Check against the cap
+                        ref int currentSiegeCount = ref (army.CombatSide == "attacker" ? ref attackerSiegeUnitsCount : ref defenderSiegeUnitsCount);
+                        int remainingSlots = MAX_SIEGE_UNITS_PER_SIDE - currentSiegeCount;
+
+                        if (remainingSlots <= 0)
+                        {
+                            Program.Logger.Debug($"  - Unit '{unit.GetName()}' skipped. Siege unit limit of {MAX_SIEGE_UNITS_PER_SIDE} reached for {army.CombatSide} side.");
+                            continue; // Skip this whole CK3 unit
+                        }
+
+                        int unitsToCreate = Math.Min(MAA_Data.UnitNum, remainingSlots);
+                        if (unitsToCreate < MAA_Data.UnitNum)
+                        {
+                            Program.Logger.Debug($"  - Unit '{unit.GetName()}' creation capped from {MAA_Data.UnitNum} to {unitsToCreate} due to siege unit limit.");
+                        }
+                        MAA_Data.UnitNum = unitsToCreate;
+                        currentSiegeCount += unitsToCreate;
+                    }
 
                     if (unit.GetObjCulture() == null)
                     {
