@@ -1179,19 +1179,20 @@ namespace CrusaderWars.data.battle_results
                             {
                                 if (line.Contains("\t\t\t\tsurviving_soldiers="))
                                 {
-                                    int totalFightingMen = 0;
-                                    if (currentArmy != null)
+                                    int totalFightingMen;
+                                    if (twbattle.BattleState.IsSiegeBattle)
                                     {
-                                        totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
-                                        string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
-                                        streamWriter.WriteLine(edited_line);
-                                        Program.Logger.Debug($"Attacker (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
+                                        // For sieges, sum only mobile armies (attackers are the besiegers).
+                                        totalFightingMen = attacker_armies.Where(a => !a.IsGarrison()).Sum(a => a.ArmyRegiments.Sum(ar => ar.CurrentNum));
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"WARNING: Attacker: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
-                                        streamWriter.WriteLine(line); // Write original line if currentArmy is null
+                                        // For field battles, sum all armies.
+                                        totalFightingMen = attacker_armies.Sum(a => a.ArmyRegiments.Sum(ar => ar.CurrentNum));
                                     }
+                                    string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Attacker side: surviving_soldiers={totalFightingMen}");
                                     continue;
                                 }
                                 else if (line.Contains("\t\t\t\t\t\ttype="))
@@ -1324,19 +1325,20 @@ namespace CrusaderWars.data.battle_results
                             {
                                 if (line.Contains("\t\t\t\tsurviving_soldiers="))
                                 {
-                                    int totalFightingMen = 0;
-                                    if (currentArmy != null)
+                                    int totalFightingMen;
+                                    if (twbattle.BattleState.IsSiegeBattle)
                                     {
-                                        totalFightingMen = currentArmy.ArmyRegiments.Sum(ar => ar.CurrentNum);
-                                        string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
-                                        streamWriter.WriteLine(edited_line);
-                                        Program.Logger.Debug($"Defender (Army {currentArmy.ID}): surviving_soldiers={totalFightingMen}");
+                                        // For sieges, sum only mobile armies (defenders can be garrison + relief).
+                                        totalFightingMen = defender_armies.Where(a => !a.IsGarrison()).Sum(a => a.ArmyRegiments.Sum(ar => ar.CurrentNum));
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"WARNING: Defender: Could not find currentArmy for surviving_soldiers. Writing original line: {line}");
-                                        streamWriter.WriteLine(line); // Write original line if currentArmy is null
+                                        // For field battles, sum all armies.
+                                        totalFightingMen = defender_armies.Sum(a => a.ArmyRegiments.Sum(ar => ar.CurrentNum));
                                     }
+                                    string edited_line = "\t\t\t\tsurviving_soldiers=" + totalFightingMen;
+                                    streamWriter.WriteLine(edited_line);
+                                    Program.Logger.Debug($"Defender side: surviving_soldiers={totalFightingMen}");
                                     continue;
                                 }
                                 else if (line.Contains("\t\t\t\t\t\ttype="))
