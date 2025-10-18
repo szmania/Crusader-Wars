@@ -628,9 +628,36 @@ namespace CrusaderWars.data.battle_results
                         {
                             // New logic for per-unit siege engines (e.g., trebuchets)
                             int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                            // Each machine is one unit with 3 men.
-                            // We assume 3 men per machine for this calculation.
-                            finalMachineCount = (int)Math.Round(finalMenCount / 3.0, MidpointRounding.AwayFromZero);
+                            int originalMachines = Int32.Parse(regiment.CurrentNum);
+
+                            if (originalMachines > 0)
+                            {
+                                // Calculate how many Attila units were created for these machines.
+                                // This is based on the starting number of men in the report.
+                                // We assume 3 men per Attila unit for siege_engine_per_unit types.
+                                int startingMen = unitReport.GetStarting();
+                                double attilaUnitsCreated = startingMen / 3.0;
+
+                                if (attilaUnitsCreated > 0)
+                                {
+                                    // Calculate how many machines each Attila unit represented.
+                                    double machinesPerAttilaUnit = (double)originalMachines / attilaUnitsCreated;
+
+                                    // Calculate how many Attila units survived.
+                                    double attilaUnitsSurvived = (double)finalMenCount / 3.0;
+
+                                    // Scale back to find the number of surviving machines.
+                                    finalMachineCount = (int)Math.Round(attilaUnitsSurvived * machinesPerAttilaUnit, MidpointRounding.AwayFromZero);
+                                }
+                                else
+                                {
+                                    finalMachineCount = 0; // No units were created, so none can survive.
+                                }
+                            }
+                            else
+                            {
+                                finalMachineCount = 0; // No machines to begin with.
+                            }
                         }
                         else
                         {
