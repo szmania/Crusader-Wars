@@ -88,6 +88,7 @@ namespace CrusaderWars.data.save_file
         public int CharacterRank { get; private set; }
         private bool IsSiegeWeapon { get; set; }
         private bool IsSiegeEnginePerUnitBool { get; set; }
+        private int NumGuns { get; set; }
 
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
@@ -103,6 +104,7 @@ namespace CrusaderWars.data.save_file
             CharacterRank = 0;
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
+            NumGuns = 1;
         }
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
@@ -119,6 +121,7 @@ namespace CrusaderWars.data.save_file
             CharacterRank = 0;
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
+            NumGuns = 1;
         }
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
         {
@@ -135,6 +138,7 @@ namespace CrusaderWars.data.save_file
             CharacterRank = 0;
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
+            NumGuns = 1;
         }
 
 
@@ -151,6 +155,7 @@ namespace CrusaderWars.data.save_file
         public void SetCharacterRank(int rank) { CharacterRank = rank; }
         public void SetIsSiege(bool isSiege) { IsSiegeWeapon = isSiege; }
         public void SetIsSiegeEnginePerUnit(bool isPerUnit) { IsSiegeEnginePerUnitBool = isPerUnit; }
+        public void SetNumGuns(int numGuns) { NumGuns = numGuns; }
 
 
         public int GetMax() { return Max; }
@@ -182,6 +187,7 @@ namespace CrusaderWars.data.save_file
         public string GetLocName() { return LocName; }
         public bool IsSiege() { return IsSiegeWeapon; }
         public bool IsSiegeEnginePerUnit() { return IsSiegeEnginePerUnitBool; }
+        public int GetNumGuns() { return NumGuns; }
 
     }
 

@@ -1191,11 +1191,17 @@ namespace CrusaderWars.unit_mapper
                                 string? unit_key = node.Attributes["key"]?.Value;
                                 if (unit_key == keyToExclude) continue;
                                 bool isSiege = node.Attributes?["siege"]?.Value == "true";
-                                bool siegeEnginePerUnit = node.Attributes?["siege_engine_per_unit"]?.Value == "true";
-                                if (isSiege && siegeEnginePerUnit)
+                                if (isSiege)
                                 {
-                                    // This requires adding SetIsSiegeEnginePerUnit(bool) to the Unit class.
-                                    unit.SetIsSiegeEnginePerUnit(true);
+                                    bool siegeEnginePerUnit = node.Attributes?["siege_engine_per_unit"]?.Value == "true";
+                                    if (siegeEnginePerUnit)
+                                    {
+                                        unit.SetIsSiegeEnginePerUnit(true);
+                                    }
+                                    if (node.Attributes?["num_guns"]?.Value is string numGunsStr && int.TryParse(numGunsStr, out int numGuns) && numGuns > 0)
+                                    {
+                                        unit.SetNumGuns(numGuns);
+                                    }
                                 }
                                 if (unit_key != null) return (unit_key, isSiege);
                             }

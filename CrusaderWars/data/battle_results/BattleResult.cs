@@ -620,56 +620,27 @@ namespace CrusaderWars.data.battle_results
 
                     if (isSiegeType)
                     {
-                        // Logic for siege units (machines)
+                        // NEW LOGIC: Proportional casualties for all siege weapon types
                         int finalMachineCount = 0;
                         int originalMachines = Int32.Parse(regiment.CurrentNum);
 
-                        // This requires adding IsSiegeEnginePerUnit() to the Unit class.
-                        if (correspondingUnit != null && correspondingUnit.IsSiegeEnginePerUnit())
+                        if (correspondingUnit != null && unitReport.GetStarting() > 0)
                         {
-                            // New logic for per-unit siege engines (e.g., trebuchets)
                             int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
+                            int startingMen = unitReport.GetStarting();
 
-                            if (originalMachines > 0)
+                            double survivalRate = (double)finalMenCount / startingMen;
+                            if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate))
                             {
-                                // Calculate how many Attila units were created for these machines.
-                                // This is based on the starting number of men in the report.
-                                // We assume 3 men per Attila unit for siege_engine_per_unit types.
-                                int startingMen = unitReport.GetStarting();
-                                double attilaUnitsCreated = startingMen / 3.0;
-
-                                if (attilaUnitsCreated > 0)
-                                {
-                                    // Calculate how many machines each Attila unit represented.
-                                    double machinesPerAttilaUnit = (double)originalMachines / attilaUnitsCreated;
-
-                                    // Calculate how many Attila units survived.
-                                    double attilaUnitsSurvived = (double)finalMenCount / 3.0;
-
-                                    // Scale back to find the number of surviving machines.
-                                    finalMachineCount = (int)Math.Round(attilaUnitsSurvived * machinesPerAttilaUnit, MidpointRounding.AwayFromZero);
-                                }
-                                else
-                                {
-                                    finalMachineCount = 0; // No units were created, so none can survive.
-                                }
+                                survivalRate = 0;
                             }
-                            else
-                            {
-                                finalMachineCount = 0; // No machines to begin with.
-                            }
+
+                            finalMachineCount = (int)Math.Round(originalMachines * survivalRate);
                         }
                         else
                         {
-                            // Original logic for grouped siege engines (e.g., onagers)
-                            if (unitReport.GetAliveAfterPursuit() != -1)
-                            {
-                                finalMachineCount = ConvertMenToMachines(unitReport.GetAliveAfterPursuit());
-                            }
-                            else
-                            {
-                                finalMachineCount = ConvertMenToMachines(unitReport.GetAliveBeforePursuit());
-                            }
+                            // Fallback or if unit had 0 men to begin with
+                            finalMachineCount = 0;
                         }
 
                         // Cap the final count at the original number to prevent negative casualties from scaling artifacts.
@@ -677,7 +648,7 @@ namespace CrusaderWars.data.battle_results
 
                         regiment.SetSoldiers(cappedFinalMachineCount.ToString());
                         Program.Logger.Debug(
-                            $"Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Machines changed from {originalMachines} to {cappedFinalMachineCount}. (Reported from Attila: {finalMachineCount})");
+                            $"Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Machines changed from {originalMachines} to {cappedFinalMachineCount}.");
                     }
                     else
                     {
