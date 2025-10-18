@@ -1131,27 +1131,49 @@ namespace CrusaderWars.data.battle_results
                                 currentArmy = null; // Reset army for new block
                                 Program.Logger.Debug("Processing defender results in CombatResults file.");
                             }
-                            else if ((isAttacker || isDefender) && line.Contains("\t\t\t\tmain_participant="))
+                            else if ((isAttacker || isDefender) && (line.Contains("\t\t\t\tmain_participant=") || line.Contains("\t\t\t\tcommander=")))
                             {
                                 currentParticipantId = Regex.Match(line, @"\d+").Groups[0].Value;
                                 List<Army> targetArmies = isAttacker ? attacker_armies : defender_armies;
 
-                                // The main_participant is the owner of the army/regiments in this block.
-                                currentArmy = targetArmies.FirstOrDefault(a => a.Owner?.ID == currentParticipantId);
-
-                                // If not found, check if it's an owner of a merged army within one of the main armies
-                                if (currentArmy == null)
+                                if (line.Contains("main_participant"))
                                 {
-                                    foreach (var mainArmy in targetArmies)
+                                    // The main_participant is the owner of the army/regiments in this block.
+                                    currentArmy = targetArmies.FirstOrDefault(a => a.Owner?.ID == currentParticipantId);
+
+                                    // If not found, check if it's an owner of a merged army within one of the main armies
+                                    if (currentArmy == null)
                                     {
-                                        if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Owner?.ID == currentParticipantId))
+                                        foreach (var mainArmy in targetArmies)
                                         {
-                                            currentArmy = mainArmy; // The main army is the one we're interested in for reporting
-                                            break;
+                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Owner?.ID == currentParticipantId))
+                                            {
+                                                currentArmy = mainArmy; // The main army is the one we're interested in for reporting
+                                                break;
+                                            }
                                         }
                                     }
+                                    Program.Logger.Debug($"Detected main_participant: {currentParticipantId}. Current Army found: {currentArmy?.ID ?? "None"}");
                                 }
-                                Program.Logger.Debug($"Detected main_participant: {currentParticipantId}. Current Army found: {currentArmy?.ID ?? "None"}");
+                                else // It's a commander line
+                                {
+                                    // The commander is the commander of the army/regiments in this block.
+                                    currentArmy = targetArmies.FirstOrDefault(a => a.Commander?.ID == currentParticipantId);
+
+                                    // If not found, check if it's a commander of a merged army within one of the main armies
+                                    if (currentArmy == null)
+                                    {
+                                        foreach (var mainArmy in targetArmies)
+                                        {
+                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Commander?.ID == currentParticipantId))
+                                            {
+                                                currentArmy = mainArmy; // The main army is the one we're interested in for reporting
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    Program.Logger.Debug($"Detected commander: {currentParticipantId}. Current Army found: {currentArmy?.ID ?? "None"}");
+                                }
                             }
                             else if (isAttacker)
                             {
