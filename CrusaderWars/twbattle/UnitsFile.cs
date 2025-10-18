@@ -368,7 +368,14 @@ namespace CrusaderWars
 
                 Program.Logger.Debug($"  Processing MAA unit: Name={unit.GetName()}, Soldiers={unit.GetSoldiers()}, Culture={unit.GetCulture()}");
 
-                var MAA_Data = RetriveCalculatedUnits(unit.GetSoldiers(), unit.GetMax());
+                int soldiersForAttila = unit.GetSoldiers();
+                if (unit.IsSiege())
+                {
+                    soldiersForAttila = UnitMappers_BETA.ConvertMachinesToMen(unit.GetSoldiers());
+                    Program.Logger.Debug($"  - Unit '{unit.GetName()}' is a siege unit. Converting {unit.GetSoldiers()} machines to {soldiersForAttila} soldiers for Attila.");
+                }
+
+                var MAA_Data = RetriveCalculatedUnits(soldiersForAttila, unit.GetMax());
 
                 if (unit.GetObjCulture() == null)
                 {
