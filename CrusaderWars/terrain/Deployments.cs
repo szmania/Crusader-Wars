@@ -176,41 +176,9 @@ namespace CrusaderWars.terrain
             siege_center_x = "0.00";
             siege_center_y = "0.00";
 
-            // Determine map size to scale defender deployment area appropriately
-            string mapSize;
-            string optionMapSize = BattleState.AutofixDeploymentSizeOverride ?? ModOptions.DeploymentsZones();
-            if (optionMapSize == "Dynamic")
-            {
-                int holdingLevel = Sieges.GetHoldingLevel();
-                if (holdingLevel <= 2) { mapSize = "Medium"; }
-                else if (holdingLevel <= 4) { mapSize = "Big"; }
-                else { mapSize = "Huge"; }
-            }
-            else
-            {
-                mapSize = optionMapSize;
-            }
-
-            string width, height;
-            switch (mapSize)
-            {
-                case "Medium":
-                    width = "1150";
-                    height = "1150";
-                    break;
-                case "Big":
-                    width = "1300";
-                    height = "1300";
-                    break;
-                case "Huge":
-                    width = "1750";
-                    height = "1750";
-                    break;
-                default: // Fallback to original size if map size is unexpected
-                    width = "300";
-                    height = "300";
-                    break;
-            }
+            // Defender deployment area is now a fixed size for all sieges.
+            string width = "1800";
+            string height = "1800";
 
             // Defender is at the center of the settlement.
             defender_direction = "S"; // Default direction, provides a forward-facing orientation.
@@ -383,32 +351,11 @@ namespace CrusaderWars.terrain
             if (BattleState.IsSiegeBattle)
             {
                 // For siege attacker, depth is the space between defender zone and map edge.
-                float defender_radius = 0;
-                // We need to determine the defender's deployment size to calculate the radius.
-                string defender_map_size;
-                string optionMapSize = BattleState.AutofixDeploymentSizeOverride ?? ModOptions.DeploymentsZones();
-                if (optionMapSize == "Dynamic")
-                {
-                    int holdingLevel = Sieges.GetHoldingLevel();
-                    if (holdingLevel <= 2) { defender_map_size = "Medium"; }
-                    else if (holdingLevel <= 4) { defender_map_size = "Big"; }
-                    else { defender_map_size = "Huge"; }
-                }
-                else
-                {
-                    defender_map_size = optionMapSize;
-                }
-
-                switch (defender_map_size)
-                {
-                    case "Medium": defender_radius = 1150f / 2f; break; // 575
-                    case "Big": defender_radius = 1300f / 2f; break; // 650
-                    case "Huge": defender_radius = 1750f / 2f; break; // 875
-                    default: defender_radius = 450f; break; // Fallback
-                }
+                // Defender deployment is a fixed 1800x1800, so its radius is 900.
+                float defender_radius = 900f;
                 
                 float depth = playable_boundary - defender_radius - buffer;
-                return depth < 100f ? 100f : depth; // ensure minimum depth
+                return depth < 50f ? 50f : depth; // ensure minimum depth
             }
             else // Field battle
             {

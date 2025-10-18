@@ -133,38 +133,22 @@ namespace CrusaderWars.client
 
         public static string SetMapSize(int total_soldiers, bool isSiege)
         {
+            if (isSiege) return "2000";
+
             switch (optionsValuesCollection["BattleMapsSize"])
             {
                 case "Dynamic":
-                    if (isSiege)
+                    if (total_soldiers <= 5000)
                     {
-                        if (total_soldiers <= 5000)
-                        {
-                            return "1800";
-                        }
-                        else if (total_soldiers < 20000)
-                        {
-                            return "2000";
-                        }
-                        else // total_soldiers >= 20000
-                        {
-                            return "2000";
-                        }
+                        return "1000";
                     }
-                    else // Field battle
+                    else if (total_soldiers > 5000 && total_soldiers < 20000)
                     {
-                        if (total_soldiers <= 5000)
-                        {
-                            return "1000";
-                        }
-                        else if (total_soldiers > 5000 && total_soldiers < 20000)
-                        {
-                            return "1500";
-                        }
-                        else if (total_soldiers >= 20000)
-                        {
-                            return "2000";
-                        }
+                        return "1500";
+                    }
+                    else if (total_soldiers >= 20000)
+                    {
+                        return "2000";
                     }
                     break;
                 case "Medium":
