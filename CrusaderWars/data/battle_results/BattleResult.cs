@@ -1139,14 +1139,14 @@ namespace CrusaderWars.data.battle_results
                                 if (line.Contains("main_participant"))
                                 {
                                     // The main_participant is the owner of the army/regiments in this block.
-                                    currentArmy = targetArmies.FirstOrDefault(a => a.Owner?.ID == currentParticipantId);
+                                    currentArmy = targetArmies.FirstOrDefault(a => a.Owner?.GetID() == currentParticipantId);
 
                                     // If not found, check if it's an owner of a merged army within one of the main armies
                                     if (currentArmy == null)
                                     {
                                         foreach (var mainArmy in targetArmies)
                                         {
-                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Owner?.ID == currentParticipantId))
+                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Owner?.GetID() == currentParticipantId))
                                             {
                                                 currentArmy = mainArmy; // The main army is the one we're interested in for reporting
                                                 break;
