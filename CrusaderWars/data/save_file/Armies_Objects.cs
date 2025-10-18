@@ -87,6 +87,7 @@ namespace CrusaderWars.data.save_file
         string LocName { get; set; }
         public int CharacterRank { get; private set; }
         private bool IsSiegeWeapon { get; set; }
+        private bool IsSiegeEnginePerUnitBool { get; set; }
 
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
@@ -101,6 +102,7 @@ namespace CrusaderWars.data.save_file
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
             IsSiegeWeapon = false;
+            IsSiegeEnginePerUnitBool = false;
         }
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
@@ -116,6 +118,7 @@ namespace CrusaderWars.data.save_file
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
             IsSiegeWeapon = false;
+            IsSiegeEnginePerUnitBool = false;
         }
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
         {
@@ -131,6 +134,7 @@ namespace CrusaderWars.data.save_file
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
             IsSiegeWeapon = false;
+            IsSiegeEnginePerUnitBool = false;
         }
 
 
@@ -146,6 +150,7 @@ namespace CrusaderWars.data.save_file
         public void ChangeCulture(Culture culture) { UnitCulture = culture; }
         public void SetCharacterRank(int rank) { CharacterRank = rank; }
         public void SetIsSiege(bool isSiege) { IsSiegeWeapon = isSiege; }
+        public void SetIsSiegeEnginePerUnit(bool isPerUnit) { IsSiegeEnginePerUnitBool = isPerUnit; }
 
 
         public int GetMax() { return Max; }
@@ -176,6 +181,7 @@ namespace CrusaderWars.data.save_file
         public RegimentType GetRegimentType() { return Type; }
         public string GetLocName() { return LocName; }
         public bool IsSiege() { return IsSiegeWeapon; }
+        public bool IsSiegeEnginePerUnit() { return IsSiegeEnginePerUnitBool; }
 
     }
 
