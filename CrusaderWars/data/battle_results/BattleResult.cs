@@ -597,9 +597,19 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (regiment.Culture is null) continue; // skip siege maa
 
+                    string unitTypeNameToFind;
+                    if (armyRegiment.Type == RegimentType.Levy)
+                    {
+                        unitTypeNameToFind = "Levy";
+                    }
+                    else
+                    {
+                        unitTypeNameToFind = armyRegiment.MAA_Name;
+                    }
+
                     var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
                         x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null &&
-                        x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == armyRegiment.MAA_Name);
+                        x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == unitTypeNameToFind);
                     if (unitReport == null)
                         continue;
 
@@ -614,11 +624,11 @@ namespace CrusaderWars.data.battle_results
                         int finalMachineCount;
                         if(unitReport.GetAliveAfterPursuit() != -1)
                         {
-                            finalMachineCount = unitReport.GetAliveAfterPursuit();
+                            finalMachineCount = ConvertMenToMachines(unitReport.GetAliveAfterPursuit());
                         }
                         else
                         {
-                            finalMachineCount = unitReport.GetAliveBeforePursuit();
+                            finalMachineCount = ConvertMenToMachines(unitReport.GetAliveBeforePursuit());
                         }
 
                         int originalMachines = Int32.Parse(regiment.CurrentNum);
