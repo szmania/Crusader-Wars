@@ -594,6 +594,7 @@ namespace CrusaderWars
                     battleMap.X = customSettlementMap.Value.X;
                     battleMap.Y = customSettlementMap.Value.Y;
                     besiegerOrientations = customSettlementMap.Value.orientations;
+                    BattleState.SiegeBesiegerOrientations = besiegerOrientations;
                     battleMap.attPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
                     battleMap.defPositions = new string[] { "All", "All" }; // Default for custom maps if not specified
                     Program.Logger.Debug($"Custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}', Province '{provinceName}': ({battleMap.X}, {battleMap.Y})");
@@ -602,6 +603,7 @@ namespace CrusaderWars
                 {
                     Program.Logger.Debug($"No custom settlement map found for Faction '{defenderAttilaFaction}', BattleType '{siegeBattleType}', Province '{provinceName}'. Falling back to TerrainGenerator.GetBattleMap().");
                     battleMap = TerrainGenerator.GetBattleMap(); // Fallback to existing logic
+                    BattleState.SiegeBesiegerOrientations = null;
                 }
                 Program.Logger.Debug("Setting up siege-specific deployment...");
                 Deployments.beta_SetSiegeDeployment(battleMap, total_soldiers, besiegerOrientations);

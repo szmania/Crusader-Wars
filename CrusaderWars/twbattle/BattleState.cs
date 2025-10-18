@@ -1,5 +1,5 @@
 using System.IO;
-
+using System.Collections.Generic; // Added for List<string>
 
 namespace CrusaderWars.twbattle
 {
@@ -14,6 +14,7 @@ namespace CrusaderWars.twbattle
         public static bool? AutofixDeploymentRotationOverride { get; set; } = null;
         public static string? AutofixAttackerDirectionOverride { get; set; } = null;
         public static string? OriginalSiegeAttackerDirection { get; set; } = null;
+        public static List<string>? SiegeBesiegerOrientations { get; set; } = null;
         public static bool AutofixForceGenericMap { get; set; } = false;
         public static int AutofixMapVariantOffset { get; set; } = 0;
 
@@ -53,6 +54,7 @@ namespace CrusaderWars.twbattle
             AutofixDeploymentRotationOverride = null;
             AutofixAttackerDirectionOverride = null;
             OriginalSiegeAttackerDirection = null;
+            SiegeBesiegerOrientations = null;
             AutofixForceGenericMap = false;
             AutofixMapVariantOffset = 0;
         }
