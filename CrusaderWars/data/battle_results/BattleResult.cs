@@ -210,7 +210,7 @@ namespace CrusaderWars.data.battle_results
                             {
                                 battle_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
                             }
-                            else if (line.Trim() == $"\t\t\tlocation={ProvinceID}")
+                            else if (line.Trim() == $"location={ProvinceID}")
                             {
                                 Program.Logger.Debug(
                                     $"Found field battle result block ID: {battle_id} for ProvinceID: {ProvinceID}");
