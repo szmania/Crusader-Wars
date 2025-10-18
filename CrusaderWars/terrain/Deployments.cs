@@ -173,8 +173,8 @@ namespace CrusaderWars.terrain
 
         public static void beta_SetSiegeDeployment((string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, int total_soldiers, List<string>? besiegerOrientations)
         {
-            siege_center_x = battle_map.x;
-            siege_center_y = battle_map.y;
+            siege_center_x = "0.00";
+            siege_center_y = "0.00";
 
             // Determine map size to scale defender deployment area appropriately
             string mapSize;
