@@ -1132,4 +1132,438 @@ namespace CrusaderWars.twbattle
                     //  OPEN CK3 WITH BATTLE RESULTS
                     if (ModOptions.CloseCK3DuringBattle())
                     {
-                        Games.Model API Response Error. Please retry the previous request
+                        Games.LoadBattleResults();
+                    }
+                    else
+                    {
+                        ProcessCommands.ResumeProcess();
+                    }
+
+                    form.Text = "Crusader Conflicts (Battle Complete)";
+                    form.battleJustCompleted = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
+                MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                await Games.CloseTotalWarAttilaProcess();
+                if (ModOptions.CloseCK3DuringBattle())
+                    {
+                        Games.StartCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.ResumeProcess();
+                    }
+                form.infoLabel.Text = "Waiting for CK3 battle...";
+                form.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
+
+                //Data Clear
+                Data.Reset();
+                return true; // Continue
+            }
+
+
+            await Task.Delay(10);
+
+            Program.Logger.Debug("Resetting unit sizes for next battle.");
+            ArmyProportions.ResetUnitSizes();
+            GC.Collect();
+
+            // Clear battle state after successful completion
+            BattleState.ClearBattleState();
+
+            return true; // Success
+        }
+
+        private static (bool, string) TryMapSizeFix(AutofixState autofixState, string originalMapSize)
+        {
+            autofixState.MapSizeFixAttempts++;
+
+            if (originalMapSize == "Medium" && autofixState.MapSizeFixAttempts == 1)
+            {
+                BattleState.AutofixDeploymentSizeOverride = "Big";
+                return (true, "increasing the battle map size to 'Big'");
+            }
+            if (originalMapSize == "Medium" && autofixState.MapSizeFixAttempts == 2)
+            {
+                BattleState.AutofixDeploymentSizeOverride = "Huge";
+                return (true, "increasing the battle map size to 'Huge'");
+            }
+            if (originalMapSize == "Big" && autofixState.MapSizeFixAttempts == 1)
+            {
+                BattleState.AutofixDeploymentSizeOverride = "Huge";
+                return (true, "increasing the battle map size to 'Huge'");
+            }
+
+            return (false, ""); // No more fixes of this type
+        }
+
+        private static (bool, string) TryDeploymentFix(AutofixState autofixState)
+        {
+            if (!twbattle.BattleState.IsSiegeBattle) // Field battle
+            {
+                if (!autofixState.DeploymentRotationTried)
+                {
+                    autofixState.DeploymentRotationTried = true;
+                    BattleState.AutofixDeploymentRotationOverride = true;
+                    return (true, "switching deployment from North/South to East/West (or vice-versa)");
+                }
+            }
+            else // Siege battle
+            {
+                string[] allDirections = { "N", "S", "E", "W" };
+                string originalDirection = BattleState.OriginalSiegeAttackerDirection;
+
+                if (string.IsNullOrEmpty(originalDirection))
+                {
+                    Program.Logger.Debug("Autofix Error: Original siege attacker direction was not recorded. Cannot attempt direction-based fixes.");
+                    return (false, "");
+                }
+
+                var directionsToTry = allDirections.Where(d => d != originalDirection).ToList();
+                if (autofixState.SiegeDirectionFixAttempts < directionsToTry.Count)
+                {
+                    string direction = directionsToTry[autofixState.SiegeDirectionFixAttempts];
+
+                    autofixState.SiegeDirectionFixAttempts++;
+                    BattleState.AutofixAttackerDirectionOverride = direction;
+                    return (true, $"setting the besieger's attack direction to '{direction}' (original was '{originalDirection}')");
+                }
+            }
+            return (false, "");
+        }
+
+        private static (bool, string) TryUnitFix(AutofixState autofixState, HomePage form)
+        {
+            // This method encapsulates the complex logic of replacing units one by one.
+            // It will return true only when a new replacement is found and applied.
+            // It manages its own internal state via the autofixState object.
+
+            while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
+            {
+                string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
+                Program.Logger.Debug($"--- Autofix: Starting unit replacement process for key: {keyToReplace} ---");
+
+                var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
+                var allArmies = fresh_attackers.Concat(fresh_defenders);
+                var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
+
+                if (representativeUnit == null)
+                {
+                    Program.Logger.Debug($"Could not find a representative unit for key '{keyToReplace}'. Skipping to next key.");
+                    autofixState.NextUnitKeyIndexToReplace++;
+                    autofixState.HeritageReplacementFactions = null;
+                    autofixState.NextHeritageFactionIndex = 0;
+                    continue;
+                }
+
+                if (autofixState.HeritageReplacementFactions == null)
+                {
+                    string heritage = representativeUnit.GetHeritage();
+                    string originalFaction = representativeUnit.GetAttilaFaction();
+                    var heritageFactions = unit_mapper.UnitMappers_BETA.GetFactionsByHeritage(heritage);
+                    autofixState.HeritageReplacementFactions = heritageFactions
+                        .Where(f => f != originalFaction && f != "Default" && f != "DEFAULT")
+                        .Distinct().ToList();
+                    autofixState.NextHeritageFactionIndex = 0;
+                }
+
+                string replacementKey = UnitMappers_BETA.NOT_FOUND_KEY;
+                bool replacementIsSiege = false;
+                string fixDescription = "";
+
+                if (autofixState.NextHeritageFactionIndex < autofixState.HeritageReplacementFactions.Count)
+                {
+                    string replacementFaction = autofixState.HeritageReplacementFactions[autofixState.NextHeritageFactionIndex];
+                    (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetReplacementUnitKeyFromFaction(representativeUnit, replacementFaction, keyToReplace);
+                    autofixState.NextHeritageFactionIndex++;
+                    if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                    {
+                        fixDescription = $"replacing unit key '{keyToReplace}' with a unit from heritage faction '{replacementFaction}' ('{replacementKey}')";
+                    }
+                }
+                else
+                {
+                    (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
+                    autofixState.NextUnitKeyIndexToReplace++;
+                    autofixState.HeritageReplacementFactions = null;
+                    autofixState.NextHeritageFactionIndex = 0;
+                    if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                    {
+                        fixDescription = $"replacing unit key '{keyToReplace}' with default unit '{replacementKey}'";
+                    }
+                }
+
+                if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                {
+                    AutofixReplacements[keyToReplace] = (replacementKey, replacementIsSiege);
+                    return (true, fixDescription);
+                }
+            }
+
+            return (false, ""); // No more unit fixes possible
+        }
+
+        private static (bool, string) TryMapVariantFix(AutofixState autofixState)
+        {
+            if (twbattle.BattleState.IsSiegeBattle)
+            {
+                string defenderAttilaFaction = UnitMappers_BETA.GetAttilaFaction(twbattle.Sieges.GetGarrisonCulture(), twbattle.Sieges.GetGarrisonHeritage());
+                string siegeBattleType = (twbattle.Sieges.GetHoldingLevel() > 1) ? "settlement_standard" : "settlement_unfortified";
+                string provinceName = BattleResult.ProvinceName ?? "";
+                var (isUnique, variantCount) = IsUsingUniqueMapAndGetVariantCount(defenderAttilaFaction, siegeBattleType, provinceName);
+
+                if (isUnique && !autofixState.HasTriedSwitchingToGeneric)
+                {
+                    BattleState.AutofixForceGenericMap = true;
+                    autofixState.HasTriedSwitchingToGeneric = true;
+                    return (true, $"switching from a unique settlement map to a generic one for faction '{defenderAttilaFaction}'");
+                }
+                else if (variantCount > 1 && autofixState.MapVariantOffset < variantCount - 1)
+                {
+                    autofixState.MapVariantOffset++;
+                    BattleState.AutofixMapVariantOffset = autofixState.MapVariantOffset;
+                    return (true, $"switching to a different map variant (attempt {autofixState.MapVariantOffset} of {variantCount - 1})");
+                }
+            }
+            else // Field Battle
+            {
+                string terrainType = TerrainGenerator.TerrainType;
+                int variantCount = CrusaderWars.terrain.Lands.GetFieldBattleVariantCount(terrainType);
+                if (variantCount > 1 && autofixState.MapVariantOffset < variantCount - 1)
+                {
+                    autofixState.MapVariantOffset++;
+                    BattleState.AutofixMapVariantOffset = autofixState.MapVariantOffset;
+                    return (true, $"switching to a different field map variant (attempt {autofixState.MapVariantOffset} of {variantCount - 1}) for terrain '{terrainType}'");
+                }
+            }
+
+            return (false, "");
+        }
+
+        private static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner)
+        {
+            using (Form prompt = new Form())
+            {
+                prompt.Width = 500;
+                prompt.Height = 380;
+                prompt.Text = "Crusader Conflicts: Attila Crash Detected";
+                prompt.StartPosition = FormStartPosition.CenterParent;
+                prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
+                prompt.MaximizeBox = false;
+                prompt.MinimizeBox = false;
+
+                Label textLabel = new Label() { 
+                    Left = 20, Top = 20, Width = 460, Height = 70, 
+                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe selected strategy will be attempted first. If it fails, the other strategies will be tried automatically.\n\nPlease select which automatic fix strategy to try first:" 
+                };
+
+                RadioButton rbUnits = new RadioButton() { Text = "Change Units", Left = 30, Top = 100, Checked = true, AutoSize = true };
+                Label lblUnits = new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Left = 50, Top = 120, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
+
+                RadioButton rbMapSize = new RadioButton() { Text = "Change Map Size", Left = 30, Top = 155, AutoSize = true };
+                Label lblMapSize = new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Left = 50, Top = 175, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
+
+                RadioButton rbDeployment = new RadioButton() { Text = "Change Deployment", Left = 30, Top = 200, AutoSize = true };
+                Label lblDeployment = new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Left = 50, Top = 220, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
+
+                RadioButton rbMapVariant = new RadioButton() { Text = "Change Map", Left = 30, Top = 255, AutoSize = true };
+                Label lblMapVariant = new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Left = 50, Top = 275, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
+                
+                Button btnStartKeepTrying = new Button() { Text = "Start (Don't Ask Again)", Left = 30, Width = 150, Top = 310, DialogResult = DialogResult.Retry };
+                Button btnStart = new Button() { Text = "Start Autofix", Left = 200, Width = 100, Top = 310, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 320, Width = 100, Top = 310, DialogResult = DialogResult.No };
+
+                btnStartKeepTrying.Click += (sender, e) => { prompt.Close(); };
+                btnStart.Click += (sender, e) => { prompt.Close(); };
+                btnCancel.Click += (sender, e) => { prompt.Close(); };
+
+                prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(rbUnits);
+                prompt.Controls.Add(lblUnits);
+                prompt.Controls.Add(rbMapSize);
+                prompt.Controls.Add(lblMapSize);
+                prompt.Controls.Add(rbDeployment);
+                prompt.Controls.Add(lblDeployment);
+                prompt.Controls.Add(rbMapVariant);
+                prompt.Controls.Add(lblMapVariant);
+                prompt.Controls.Add(btnStartKeepTrying);
+                prompt.Controls.Add(btnStart);
+                prompt.Controls.Add(btnCancel);
+                prompt.AcceptButton = btnStart;
+                prompt.CancelButton = btnCancel;
+
+                var dialogResult = prompt.ShowDialog(owner);
+
+                AutofixState.AutofixStrategy? selectedStrategy = null;
+                if (dialogResult == DialogResult.Yes || dialogResult == DialogResult.Retry)
+                {
+                    if (rbUnits.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
+                    else if (rbMapSize.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
+                    else if (rbDeployment.Checked) selectedStrategy = AutofixState.AutofixStrategy.Deployment;
+                    else if (rbMapVariant.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapVariant;
+                }
+
+                return (dialogResult, selectedStrategy);
+            }
+        }
+
+        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, params string[] boldWords)
+        {
+            using (Form prompt = new Form())
+            {
+                prompt.Width = 550;
+                prompt.Height = 250;
+                prompt.Text = title;
+                prompt.StartPosition = FormStartPosition.CenterParent;
+                prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
+                prompt.MaximizeBox = false;
+                prompt.MinimizeBox = false;
+
+                RichTextBox richTextLabel = new RichTextBox()
+                {
+                    Left = 20,
+                    Top = 20,
+                    Width = 500,
+                    Height = 120,
+                    Text = text,
+                    BorderStyle = BorderStyle.None,
+                    ReadOnly = true,
+                    BackColor = System.Drawing.SystemColors.Control,
+                    DetectUrls = false
+                };
+
+                if (boldWords != null)
+                {
+                    foreach (string word in boldWords)
+                    {
+                        if (!string.IsNullOrEmpty(word))
+                        {
+                            int startIndex = 0;
+                            while (startIndex < richTextLabel.TextLength)
+                            {
+                                int wordStartIndex = richTextLabel.Find(word, startIndex, RichTextBoxFinds.None);
+                                if (wordStartIndex != -1)
+                                {
+                                    richTextLabel.SelectionStart = wordStartIndex;
+                                    richTextLabel.SelectionLength = word.Length;
+                                    richTextLabel.SelectionFont = new System.Drawing.Font(richTextLabel.Font, System.Drawing.FontStyle.Bold);
+                                    startIndex = wordStartIndex + word.Length;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                LinkLabel linkLabel = new LinkLabel()
+                {
+                    Left = 20,
+                    Top = 140,
+                    Width = 500,
+                    Text = linkText,
+                    AutoSize = true
+                };
+                linkLabel.LinkClicked += (sender, e) => {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(linkUrl) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Could not open link: {ex.Message}");
+                    }
+                };
+
+                Button confirmation = new Button()
+                {
+                    Text = "OK",
+                    Left = 225,
+                    Width = 100,
+                    Top = 180,
+                    DialogResult = DialogResult.OK
+                };
+
+                prompt.Controls.Add(richTextLabel);
+                prompt.Controls.Add(linkLabel);
+                prompt.Controls.Add(confirmation);
+                prompt.AcceptButton = confirmation;
+
+                prompt.ShowDialog(owner);
+            }
+        }
+        private static (bool isUnique, int variantCount) IsUsingUniqueMapAndGetVariantCount(string faction, string battleType, string provinceName)
+        {
+            if (UnitMappers_BETA.Terrains == null) return (false, 0);
+
+            // Check for unique map match first (mirrors GetSettlementMap logic)
+            var uniqueMapByProvName = UnitMappers_BETA.Terrains.UniqueSettlementMaps
+                .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
+            {
+                return (true, uniqueMapByProvName.Variants.Count);
+            }
+
+            var matchingUniqueMaps = UnitMappers_BETA.Terrains.UniqueSettlementMaps
+                                     .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                     .ToList();
+            foreach (var uniqueMap in matchingUniqueMaps)
+            {
+                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (uniqueMatch != null)
+                {
+                    return (true, uniqueMap.Variants.Count);
+                }
+            }
+
+            // If no unique map, check for generic map and get its variant count
+            var genericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
+            {
+                return (false, genericMapByProvName.Variants.Count);
+            }
+
+            var defaultGenericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (defaultGenericMapByProvName != null && defaultGenericMapByProvName.Variants.Any())
+            {
+                return (false, defaultGenericMapByProvName.Variants.Count);
+            }
+
+            var matchingGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
+                                      .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                   !sm.ProvinceNames.Any())
+                                      .ToList();
+            if (matchingGenericMaps.Any())
+            {
+                return (false, matchingGenericMaps.SelectMany(sm => sm.Variants).Count());
+            }
+
+            var matchingDefaultGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
+                                              .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                           !sm.ProvinceNames.Any())
+                                              .ToList();
+            if (matchingDefaultGenericMaps.Any())
+            {
+                return (false, matchingDefaultGenericMaps.SelectMany(sm => sm.Variants).Count());
+            }
+
+            return (false, 0);
+        }
+
+    }
+}
