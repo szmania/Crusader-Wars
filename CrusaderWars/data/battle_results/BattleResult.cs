@@ -1131,7 +1131,7 @@ namespace CrusaderWars.data.battle_results
                                 currentArmy = null; // Reset army for new block
                                 Program.Logger.Debug("Processing defender results in CombatResults file.");
                             }
-                            else if ((isAttacker || isDefender) && (line.Contains("\t\t\t\tmain_participant=") || line.Contains("\t\t\t\tcommander=")))
+                            else if ((isAttacker || isDefender) && (line.Contains("\t\t\tmain_participant=") || line.Contains("\t\t\tcommander=")))
                             {
                                 currentParticipantId = Regex.Match(line, @"\d+").Groups[0].Value;
                                 List<Army> targetArmies = isAttacker ? attacker_armies : defender_armies;
