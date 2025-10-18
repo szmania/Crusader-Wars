@@ -621,14 +621,14 @@ namespace CrusaderWars.data.battle_results
                     if (isSiegeType)
                     {
                         // Logic for siege units (machines)
-                        int finalMachineCount;
+                        int finalMachineCount = 0;
+                        int originalMachines = Int32.Parse(regiment.CurrentNum);
 
                         // This requires adding IsSiegeEnginePerUnit() to the Unit class.
                         if (correspondingUnit != null && correspondingUnit.IsSiegeEnginePerUnit())
                         {
                             // New logic for per-unit siege engines (e.g., trebuchets)
                             int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                            int originalMachines = Int32.Parse(regiment.CurrentNum);
 
                             if (originalMachines > 0)
                             {
@@ -672,7 +672,6 @@ namespace CrusaderWars.data.battle_results
                             }
                         }
 
-                        int originalMachines = Int32.Parse(regiment.CurrentNum);
                         // Cap the final count at the original number to prevent negative casualties from scaling artifacts.
                         int cappedFinalMachineCount = Math.Min(originalMachines, finalMachineCount);
 
