@@ -1191,6 +1191,12 @@ namespace CrusaderWars.unit_mapper
                                 string? unit_key = node.Attributes["key"]?.Value;
                                 if (unit_key == keyToExclude) continue;
                                 bool isSiege = node.Attributes?["siege"]?.Value == "true";
+                                bool siegeEnginePerUnit = node.Attributes?["siege_engine_per_unit"]?.Value == "true";
+                                if (isSiege && siegeEnginePerUnit)
+                                {
+                                    // This requires adding SetIsSiegeEnginePerUnit(bool) to the Unit class.
+                                    unit.SetIsSiegeEnginePerUnit(true);
+                                }
                                 if (unit_key != null) return (unit_key, isSiege);
                             }
                         }
@@ -1201,7 +1207,7 @@ namespace CrusaderWars.unit_mapper
             return (NOT_FOUND_KEY, false);
         }
 
-        private static int CalculateAttilaSiegeUnitSoldiers(int ck3SiegeWeaponCount)
+        public static int ConvertMachinesToMen(int ck3SiegeWeaponCount)
         {
             // This formula calculates the minimum number of soldiers required to produce
             // the target number of siege engines, based on Attila's rounding logic
@@ -1214,13 +1220,8 @@ namespace CrusaderWars.unit_mapper
         private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)
         {
             unit.SetIsSiege(isSiege);
-            if (isSiege)
-            {
-                int machineCount = unit.GetSoldiers();
-                int attilaSoldiers = CalculateAttilaSiegeUnitSoldiers(machineCount);
-                unit.SetSoldiers(attilaSoldiers);
-                Program.Logger.Debug($"  - SIEGE UNIT: Converted '{unit.GetName()}' from {machineCount} machines to {attilaSoldiers} soldiers.");
-            }
+            // Soldier conversion logic is now handled by the caller (in UnitsFile.cs)
+            // to support both single- and multi-engine units.
             return (key, isSiege);
         }
 

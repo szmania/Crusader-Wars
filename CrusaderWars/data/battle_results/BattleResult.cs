@@ -622,13 +622,27 @@ namespace CrusaderWars.data.battle_results
                     {
                         // Logic for siege units (machines)
                         int finalMachineCount;
-                        if(unitReport.GetAliveAfterPursuit() != -1)
+
+                        // This requires adding IsSiegeEnginePerUnit() to the Unit class.
+                        if (correspondingUnit != null && correspondingUnit.IsSiegeEnginePerUnit())
                         {
-                            finalMachineCount = ConvertMenToMachines(unitReport.GetAliveAfterPursuit());
+                            // New logic for per-unit siege engines (e.g., trebuchets)
+                            int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
+                            // Each machine is one unit with 3 men.
+                            // We assume 3 men per machine for this calculation.
+                            finalMachineCount = (int)Math.Round(finalMenCount / 3.0, MidpointRounding.AwayFromZero);
                         }
                         else
                         {
-                            finalMachineCount = ConvertMenToMachines(unitReport.GetAliveBeforePursuit());
+                            // Original logic for grouped siege engines (e.g., onagers)
+                            if (unitReport.GetAliveAfterPursuit() != -1)
+                            {
+                                finalMachineCount = ConvertMenToMachines(unitReport.GetAliveAfterPursuit());
+                            }
+                            else
+                            {
+                                finalMachineCount = ConvertMenToMachines(unitReport.GetAliveBeforePursuit());
+                            }
                         }
 
                         int originalMachines = Int32.Parse(regiment.CurrentNum);
@@ -739,23 +753,22 @@ namespace CrusaderWars.data.battle_results
                     continue;
                 }
 
-                // Safely get the unit, then its culture. If unit is null, culture will be null.
-                // The warning CS8600 is because GetObjCulture() is called on a potentially null result of FirstOrDefault().
-                var matchingUnit = army.Units.Where(x => x != null).FirstOrDefault(x =>
+                // Safely get the unit(s), then its culture.
+                var matchingUnits = army.Units.Where(x => x != null &&
                     x.GetRegimentType() == unitType &&
                     x.GetObjCulture()?.ID == group.Key.CultureID &&
                     ((unitType == RegimentType.Garrison && x.GetAttilaUnitKey() == type) ||
                      (unitType != RegimentType.Garrison && x.GetName() == type))
                 );
 
-                if (matchingUnit == null)
+                if (!matchingUnits.Any())
                 {
                     Program.Logger.Debug(
                         $"Warning: Could not find matching unit for type '{type}' and culture ID '{group.Key.CultureID}' in army {army.ID}. Skipping report for this unit group.");
                     continue;
                 }
 
-                Culture? culture = matchingUnit.GetObjCulture(); // CHANGE THIS LINE: Add '?' to make Culture nullable
+                Culture? culture = matchingUnits.First().GetObjCulture();
 
                 // If culture is null at this point, it means either no matching unit was found,
                 // or the matching unit itself had a null culture object.
@@ -767,7 +780,7 @@ namespace CrusaderWars.data.battle_results
                     continue; // Skip this group if culture is unexpectedly null
                 }
 
-                int starting = matchingUnit.GetOriginalSoldiers();
+                int starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
