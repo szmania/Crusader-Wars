@@ -1220,6 +1220,7 @@ namespace CrusaderWars.unit_mapper
             // (round(soldiers / 4.0) = engines).
             if (ck3SiegeWeaponCount <= 0) return 0;
             if (ck3SiegeWeaponCount == 1) return 3; // Special case for 1 engine, minimum crew is 3.
+            if (ck3SiegeWeaponCount == 2) return 7; // Special case for 2 engine
             return (ck3SiegeWeaponCount * 4) - 2;
         }
 
