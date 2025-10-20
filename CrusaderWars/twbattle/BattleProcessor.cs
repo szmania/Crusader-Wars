@@ -1271,13 +1271,14 @@ namespace CrusaderWars.twbattle
             // It will return true only when a new replacement is found and applied.
             // It manages its own internal state via the autofixState object.
 
+            var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
+            var allArmies = fresh_attackers.Concat(fresh_defenders);
+
             while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
             {
                 string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
                 Program.Logger.Debug($"--- Autofix: Starting unit replacement process for key: {keyToReplace} ---");
 
-                var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
-                var allArmies = fresh_attackers.Concat(fresh_defenders);
                 var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
 
                 if (representativeUnit == null)
