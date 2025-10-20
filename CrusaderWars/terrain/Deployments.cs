@@ -310,7 +310,7 @@ namespace CrusaderWars.terrain
 
             if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
             {
-                float inter_zone_buffer = 50f; // Space between defender and attacker zones
+                float inter_zone_buffer = 100f; // Space between defender and attacker zones
                 float map_edge_buffer = 50f;   // Space between attacker zone and map edge
 
                 string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1650";
