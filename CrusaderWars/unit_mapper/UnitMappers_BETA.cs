@@ -1654,6 +1654,7 @@ namespace CrusaderWars.unit_mapper
         {
             BattleStateBridge.Clear(); // Clear any previous overrides at the start of a new map search.
 
+            // Set defaults first
             if (battleType == "settlement_standard")
             {
                 BattleStateBridge.BesiegedDeploymentWidth = "1600";
@@ -1683,6 +1684,9 @@ namespace CrusaderWars.unit_mapper
                 return cachedMap;
             }
 
+            SettlementVariant? selectedVariant = null;
+            string usedFactionForLog = faction; // For logging
+
             // Priority 1: Unique Map by province_names attribute
             if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
             {
@@ -1694,14 +1698,12 @@ namespace CrusaderWars.unit_mapper
                 {
                     Program.Logger.Debug($"Found unique settlement map by 'province_names' attribute for Province '{provinceName}'.");
                     int deterministicIndex = GetDeterministicIndex(provinceName, uniqueMapByProvName.Variants.Count);
-                    var selectedVariant = uniqueMapByProvName.Variants[deterministicIndex];
-                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
-                    return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+                    selectedVariant = uniqueMapByProvName.Variants[deterministicIndex];
                 }
             }
 
             // Priority 2: Unique Map by Variant key (existing logic)
-            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
+            if (selectedVariant == null && !forceGeneric && Terrains?.UniqueSettlementMaps != null)
             {
                 var matchingUniqueMaps = Terrains.UniqueSettlementMaps
                                          .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
@@ -1712,15 +1714,15 @@ namespace CrusaderWars.unit_mapper
                     var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
                     if (uniqueMatch != null)
                     {
-                        Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
-                        _provinceMapCache[cacheKey] = (uniqueMatch.X, uniqueMatch.Y, uniqueMatch.BesiegerOrientations);
-                        return (uniqueMatch.X, uniqueMatch.Y, uniqueMatch.BesiegerOrientations);
+                        Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'.");
+                        selectedVariant = uniqueMatch;
+                        break;
                     }
                 }
             }
 
             // Priority 3: Generic Map by province_names attribute (Specific Faction then Default)
-            if (Terrains?.SettlementMaps != null)
+            if (selectedVariant == null && Terrains?.SettlementMaps != null)
             {
                 var genericMapByProvName = Terrains.SettlementMaps
                     .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
@@ -1739,21 +1741,18 @@ namespace CrusaderWars.unit_mapper
                 {
                     Program.Logger.Debug($"Found generic settlement map for Faction '{genericMapByProvName.Faction}' by 'province_names' attribute for Province '{provinceName}'.");
                     int deterministicIndex = GetDeterministicIndex(provinceName, genericMapByProvName.Variants.Count);
-                    var selectedVariant = genericMapByProvName.Variants[deterministicIndex];
-                    _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
-                    return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+                    selectedVariant = genericMapByProvName.Variants[deterministicIndex];
                 }
             }
 
             // Priority 4 & 5: Generic Map by faction (existing logic, excluding those with province_names)
-            if (Terrains?.SettlementMaps != null)
+            if (selectedVariant == null && Terrains?.SettlementMaps != null)
             {
                 var matchingGenericMaps = Terrains.SettlementMaps
                                           .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
                                                        sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
                                                        !sm.ProvinceNames.Any())
                                           .ToList();
-                string usedFactionForLog = faction;
 
                 if (!matchingGenericMaps.Any())
                 {
@@ -1771,17 +1770,36 @@ namespace CrusaderWars.unit_mapper
                     if (allGenericVariants.Any())
                     {
                         int deterministicIndex = GetDeterministicIndex(provinceName, allGenericVariants.Count);
-                        var selectedVariant = allGenericVariants[deterministicIndex];
-                        Program.Logger.Debug($"Deterministically selected settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
-                        _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
-                        return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+                        selectedVariant = allGenericVariants[deterministicIndex];
+                        Program.Logger.Debug($"Deterministically selected settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'.");
                     }
                 }
             }
 
-            // Final Fallback
-            Program.Logger.Debug($"No suitable settlement map variant found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
-            return null;
+            // If a variant was found by any method, apply overrides and return it
+            if (selectedVariant != null)
+            {
+                if (!string.IsNullOrEmpty(selectedVariant.BesiegerDeploymentZoneWidth))
+                {
+                    BattleStateBridge.BesiegedDeploymentWidth = selectedVariant.BesiegerDeploymentZoneWidth;
+                    Program.Logger.Debug($"Overriding besieged deployment width to: {selectedVariant.BesiegerDeploymentZoneWidth}");
+                }
+                if (!string.IsNullOrEmpty(selectedVariant.BesiegerDeploymentZoneHeight))
+                {
+                    BattleStateBridge.BesiegedDeploymentHeight = selectedVariant.BesiegerDeploymentZoneHeight;
+                    Program.Logger.Debug($"Overriding besieged deployment height to: {selectedVariant.BesiegerDeploymentZoneHeight}");
+                }
+
+                Program.Logger.Debug($"Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+                _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+                return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
+            }
+            else
+            {
+                // Final Fallback
+                Program.Logger.Debug($"No suitable settlement map variant found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
+                return null;
+            }
         }
 
         public static string GetSettlementMapDescription(string faction, string battleType, string provinceName)
