@@ -177,8 +177,8 @@ namespace CrusaderWars.terrain
             siege_center_y = "0.00";
 
             // Defender deployment area is now a fixed size for all sieges.
-            string width = "1700";
-            string height = "1700";
+            string width = "1650";
+            string height = "1650";
 
             // Defender is at the center of the settlement.
             defender_direction = "S"; // Default direction, provides a forward-facing orientation.
@@ -303,7 +303,7 @@ namespace CrusaderWars.terrain
             string map_dimension_str = ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle);
             float map_dimension = float.Parse(map_dimension_str, CultureInfo.InvariantCulture);
             float playable_boundary = map_dimension / 2f;
-            float buffer = 100f;
+            float buffer = 200f;
 
             // Determine deployment zone dimensions and position
             float centerX, centerY, width, height;
@@ -351,8 +351,8 @@ namespace CrusaderWars.terrain
             if (BattleState.IsSiegeBattle)
             {
                 // For siege attacker, depth is the space between defender zone and map edge.
-                // Defender deployment is a fixed 1700x1700, so its radius is 850.
-                float defender_radius = 850f;
+                // Defender deployment is a fixed 1650x1650, so its radius is 825.
+                float defender_radius = 825f;
                 
                 float depth = playable_boundary - defender_radius - buffer;
                 return depth < 50f ? 50f : depth; // ensure minimum depth
@@ -489,7 +489,7 @@ namespace CrusaderWars.terrain
                 newY += ySpacing;
             }
 
-            float clampedY = Math.Clamp(newY, _deploymentArea.MinY, _deploymentArea.MaxY);
+            float clampedY = Math.Clamp(clampedY, _deploymentArea.MinY, _deploymentArea.MaxY);
             if (clampedY != newY)
             {
                 Program.Logger.Debug($"WARNING: Unit Y coordinate ({newY}) exceeded deployment boundary. Clamped to {clampedY}. Army may be too large for the deployment zone.");
