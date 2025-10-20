@@ -619,7 +619,12 @@ namespace CrusaderWars.twbattle
                                 // Only MAA have a direct, replaceable unit key at this stage
                                 if (unit.GetRegimentType() == RegimentType.MenAtArms)
                                 {
-                                    string maaKey = unit.GetAttilaUnitKey();
+                                    // Resolve the unit key for the MAA to add it to the list of suspects.
+                                    // The faction needs to be set on the unit object first for GetUnitKey to work.
+                                    string maa_faction = UnitMappers_BETA.GetAttilaFaction(unit.GetCulture(), unit.GetHeritage());
+                                    unit.SetAttilaFaction(maa_faction);
+                                    allFactions.Add(maa_faction); // Ensure faction is added if not already present
+                                    var (maaKey, _) = UnitMappers_BETA.GetUnitKey(unit);
                                     if (!string.IsNullOrEmpty(maaKey) && maaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
                                         allUnitKeys.Add(maaKey);
@@ -750,7 +755,7 @@ namespace CrusaderWars.twbattle
                                 (fixApplied, fixDescription) = TryDeploymentFix(autofixState);
                                 break;
                             case AutofixState.AutofixStrategy.Units:
-                                (fixApplied, fixDescription) = TryUnitFix(autofixState, form);
+                                (fixApplied, fixDescription) = TryUnitFix(autofixState, form, attacker_armies, defender_armies);
                                 break;
                             case AutofixState.AutofixStrategy.MapVariant:
                                 (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
@@ -1269,14 +1274,13 @@ namespace CrusaderWars.twbattle
             return (false, "");
         }
 
-        private static (bool, string) TryUnitFix(AutofixState autofixState, HomePage form)
+        private static (bool, string) TryUnitFix(AutofixState autofixState, HomePage form, List<Army> attacker_armies, List<Army> defender_armies)
         {
             // This method encapsulates the complex logic of replacing units one by one.
             // It will return true only when a new replacement is found and applied.
             // It manages its own internal state via the autofixState object.
 
-            var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
-            var allArmies = fresh_attackers.Concat(fresh_defenders);
+            var allArmies = attacker_armies.Concat(defender_armies);
 
             while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
             {
