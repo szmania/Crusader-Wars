@@ -1243,6 +1243,14 @@ namespace CrusaderWars.unit_mapper
 
         private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)
         {
+            // Check if the determined key has an autofix replacement.
+            if (key != NOT_FOUND_KEY && BattleProcessor.AutofixReplacements.TryGetValue(key, out var replacement))
+            {
+                Program.Logger.Debug($"Autofix: Applying replacement for unit key '{key}' with '{replacement.replacementKey}'.");
+                unit.SetIsSiege(replacement.isSiege);
+                return (replacement.replacementKey, replacement.isSiege);
+            }
+
             unit.SetIsSiege(isSiege);
             // Soldier conversion logic is now handled by the caller (in UnitsFile.cs)
             // to support both single- and multi-engine units.
