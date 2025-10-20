@@ -526,7 +526,7 @@ namespace CrusaderWars.twbattle
 
                         form.Invoke((MethodInvoker)delegate
                         {
-                            (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form);
+                            (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form, twbattle.BattleState.IsSiegeBattle);
                         });
 
                         if (userResponse == DialogResult.No || chosenStrategy == null)
@@ -552,6 +552,11 @@ namespace CrusaderWars.twbattle
                             AutofixState.AutofixStrategy.Deployment,
                             AutofixState.AutofixStrategy.MapVariant
                         };
+
+                        if (BattleState.IsSiegeBattle)
+                        {
+                            visualOrder.Remove(AutofixState.AutofixStrategy.MapSize);
+                        }
 
                         autofixState.StrategyOrder.Add(chosenStrategy.Value);
                         foreach (var strategy in visualOrder)
@@ -1373,7 +1378,7 @@ namespace CrusaderWars.twbattle
             return (false, "");
         }
 
-        private static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner)
+        private static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, bool isSiegeBattle)
         {
             using (Form prompt = new Form())
             {
@@ -1405,6 +1410,22 @@ namespace CrusaderWars.twbattle
                 Button btnStartKeepTrying = new Button() { Text = "Start (Don't Ask Again)", Left = 30, Width = 150, Top = 310, DialogResult = DialogResult.Retry };
                 Button btnStart = new Button() { Text = "Start Autofix", Left = 200, Width = 100, Top = 310, DialogResult = DialogResult.Yes };
                 Button btnCancel = new Button() { Text = "Cancel", Left = 320, Width = 100, Top = 310, DialogResult = DialogResult.No };
+
+                if (isSiegeBattle)
+                {
+                    prompt.Height -= 45;
+                    rbMapSize.Visible = false;
+                    lblMapSize.Visible = false;
+
+                    // Shift subsequent controls up
+                    rbDeployment.Top -= 45;
+                    lblDeployment.Top -= 45;
+                    rbMapVariant.Top -= 45;
+                    lblMapVariant.Top -= 45;
+                    btnStartKeepTrying.Top -= 45;
+                    btnStart.Top -= 45;
+                    btnCancel.Top -= 45;
+                }
 
                 btnStartKeepTrying.Click += (sender, e) => { prompt.Close(); };
                 btnStart.Click += (sender, e) => { prompt.Close(); };
