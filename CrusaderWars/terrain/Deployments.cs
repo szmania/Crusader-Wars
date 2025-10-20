@@ -489,7 +489,7 @@ namespace CrusaderWars.terrain
                 newY += ySpacing;
             }
 
-            float clampedY = Math.Clamp(clampedY, _deploymentArea.MinY, _deploymentArea.MaxY);
+            float clampedY = Math.Clamp(newY, _deploymentArea.MinY, _deploymentArea.MaxY);
             if (clampedY != newY)
             {
                 Program.Logger.Debug($"WARNING: Unit Y coordinate ({newY}) exceeded deployment boundary. Clamped to {clampedY}. Army may be too large for the deployment zone.");
