@@ -545,7 +545,7 @@ namespace CrusaderWars.twbattle
                         }
 
                         // Set up strategy order
-                        var visualOrder = new List<AutofixState.AutofixStrategy>
+                        var allStrategies = new List<AutofixState.AutofixStrategy>
                         {
                             AutofixState.AutofixStrategy.Units,
                             AutofixState.AutofixStrategy.MapSize,
@@ -555,17 +555,12 @@ namespace CrusaderWars.twbattle
 
                         if (BattleState.IsSiegeBattle)
                         {
-                            visualOrder.Remove(AutofixState.AutofixStrategy.MapSize);
+                            allStrategies.Remove(AutofixState.AutofixStrategy.MapSize);
                         }
 
                         autofixState.StrategyOrder.Add(chosenStrategy.Value);
-                        foreach (var strategy in visualOrder)
-                        {
-                            if (strategy != chosenStrategy.Value)
-                            {
-                                autofixState.StrategyOrder.Add(strategy);
-                            }
-                        }
+                        allStrategies.Remove(chosenStrategy.Value);
+                        autofixState.StrategyOrder.AddRange(allStrategies);
                         Program.Logger.Debug($"Autofix strategy order set to: {string.Join(", ", autofixState.StrategyOrder)}");
 
                         // Build a comprehensive list of all possible custom unit keys in the battle
