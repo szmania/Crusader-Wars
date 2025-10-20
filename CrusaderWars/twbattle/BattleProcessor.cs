@@ -60,6 +60,7 @@ namespace CrusaderWars.twbattle
             if (autofixState == null)
             {
                 AutofixReplacements.Clear(); // Clear fixes for a new battle
+                BattleStateBridge.Clear();
                 BattleState.ClearAutofixOverrides();
             }
             TerrainGenerator.Clear();

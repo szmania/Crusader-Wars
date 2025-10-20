@@ -12,12 +12,25 @@ using CrusaderWars.twbattle;
 
 namespace CrusaderWars.unit_mapper
 {
+    public static class BattleStateBridge
+    {
+        public static string? BesiegedDeploymentWidth { get; set; }
+        public static string? BesiegedDeploymentHeight { get; set; }
+
+        public static void Clear()
+        {
+            BesiegedDeploymentWidth = null;
+            BesiegedDeploymentHeight = null;
+        }
+    }
     internal class SettlementVariant
     {
         public string Key { get; set; } = string.Empty;
         public string X { get; set; } = string.Empty;
         public string Y { get; set; } = string.Empty;
         public List<string>? BesiegerOrientations { get; set; }
+        public string? BesiegerDeploymentZoneWidth { get; set; }
+        public string? BesiegerDeploymentZoneHeight { get; set; }
     }
 
     internal class SettlementMap
@@ -273,6 +286,8 @@ namespace CrusaderWars.unit_mapper
                                             var settlementVariant = new SettlementVariant
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
+                                                BesiegerDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
+                                                BesiegerDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
                                                 // Removed IsUnique property parsing
                                             };
 
@@ -317,7 +332,9 @@ namespace CrusaderWars.unit_mapper
                                         {
                                             var settlementVariant = new SettlementVariant
                                             {
-                                                Key = variantNode.Attributes?["key"]?.Value ?? string.Empty
+                                                Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
+                                                BesiegerDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
+                                                BesiegerDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
                                             };
 
                                             string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
@@ -1627,6 +1644,8 @@ namespace CrusaderWars.unit_mapper
 
         public static (string X, string Y, List<string>? orientations)? GetSettlementMap(string faction, string battleType, string provinceName)
         {
+            BattleStateBridge.Clear(); // Clear any previous overrides at the start of a new map search.
+
             Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
 
             bool forceGeneric = BattleState.AutofixForceGenericMap;
@@ -1657,6 +1676,8 @@ namespace CrusaderWars.unit_mapper
                     Program.Logger.Debug($"Found unique settlement map by 'province_names' attribute for Province '{provinceName}'.");
                     int deterministicIndex = GetDeterministicIndex(provinceName, uniqueMapByProvName.Variants.Count);
                     var selectedVariant = uniqueMapByProvName.Variants[deterministicIndex];
+                    BattleStateBridge.BesiegedDeploymentWidth = selectedVariant.BesiegerDeploymentZoneWidth;
+                    BattleStateBridge.BesiegedDeploymentHeight = selectedVariant.BesiegerDeploymentZoneHeight;
                     _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                     return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                 }
@@ -1675,6 +1696,8 @@ namespace CrusaderWars.unit_mapper
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'. Coordinates: ({uniqueMatch.X}, {uniqueMatch.Y})");
+                        BattleStateBridge.BesiegedDeploymentWidth = uniqueMatch.BesiegerDeploymentZoneWidth;
+                        BattleStateBridge.BesiegedDeploymentHeight = uniqueMatch.BesiegerDeploymentZoneHeight;
                         _provinceMapCache[cacheKey] = (uniqueMatch.X, uniqueMatch.Y, uniqueMatch.BesiegerOrientations);
                         return (uniqueMatch.X, uniqueMatch.Y, uniqueMatch.BesiegerOrientations);
                     }
@@ -1702,6 +1725,8 @@ namespace CrusaderWars.unit_mapper
                     Program.Logger.Debug($"Found generic settlement map for Faction '{genericMapByProvName.Faction}' by 'province_names' attribute for Province '{provinceName}'.");
                     int deterministicIndex = GetDeterministicIndex(provinceName, genericMapByProvName.Variants.Count);
                     var selectedVariant = genericMapByProvName.Variants[deterministicIndex];
+                    BattleStateBridge.BesiegedDeploymentWidth = selectedVariant.BesiegerDeploymentZoneWidth;
+                    BattleStateBridge.BesiegedDeploymentHeight = selectedVariant.BesiegerDeploymentZoneHeight;
                     _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                     return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                 }
@@ -1735,6 +1760,8 @@ namespace CrusaderWars.unit_mapper
                         int deterministicIndex = GetDeterministicIndex(provinceName, allGenericVariants.Count);
                         var selectedVariant = allGenericVariants[deterministicIndex];
                         Program.Logger.Debug($"Deterministically selected settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'. Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
+                        BattleStateBridge.BesiegedDeploymentWidth = selectedVariant.BesiegerDeploymentZoneWidth;
+                        BattleStateBridge.BesiegedDeploymentHeight = selectedVariant.BesiegerDeploymentZoneHeight;
                         _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                         return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
                     }

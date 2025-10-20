@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CrusaderWars.client;
 using CrusaderWars.twbattle;
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars.terrain
 {
@@ -177,8 +178,8 @@ namespace CrusaderWars.terrain
             siege_center_y = "0.00";
 
             // Defender deployment area is now a fixed size for all sieges.
-            string width = "1650";
-            string height = "1650";
+            string width = BattleStateBridge.BesiegedDeploymentWidth ?? "1650";
+            string height = BattleStateBridge.BesiegedDeploymentHeight ?? "1650";
 
             // Defender is at the center of the settlement.
             defender_direction = "S"; // Default direction, provides a forward-facing orientation.
@@ -351,8 +352,9 @@ namespace CrusaderWars.terrain
             if (BattleState.IsSiegeBattle)
             {
                 // For siege attacker, depth is the space between defender zone and map edge.
-                // Defender deployment is a fixed 1650x1650, so its radius is 825.
-                float defender_radius = 825f;
+                string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1650";
+                float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float width);
+                float defender_radius = width / 2f;
                 
                 float depth = playable_boundary - defender_radius - buffer;
                 return depth < 50f ? 50f : depth; // ensure minimum depth
