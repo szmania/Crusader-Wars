@@ -1402,20 +1402,23 @@ namespace CrusaderWars.unit_mapper
 
                 case RegimentType.MenAtArms:
                     string category = GetUnitMaxCategory(unitToReplace);
-                    var candidates = new List<string>();
-                    var fallbackCandidates = new List<string>();
+                    var candidates = new List<(string key, bool isSiege)>();
+                    var fallbackCandidates = new List<(string key, bool isSiege)>();
                     foreach (XmlNode maaNode in defaultFactionNode.SelectNodes("MenAtArm"))
                     {
                         string? key = maaNode.Attributes?["key"]?.Value;
                         if (string.IsNullOrEmpty(key) || key == keyToExclude) continue;
-                        fallbackCandidates.Add(key);
+
+                        bool isSiege = maaNode.Attributes?["siege"]?.Value == "true";
+
+                        fallbackCandidates.Add((key, isSiege));
                         if (maaNode.Attributes?["max"]?.Value?.ToUpper() == category)
                         {
-                            candidates.Add(key);
+                            candidates.Add((key, isSiege));
                         }
                     }
-                    if (candidates.Any()) return (candidates[_random.Next(candidates.Count)], false);
-                    if (fallbackCandidates.Any()) return (fallbackCandidates[_random.Next(fallbackCandidates.Count)], false);
+                    if (candidates.Any()) return candidates[_random.Next(candidates.Count)];
+                    if (fallbackCandidates.Any()) return fallbackCandidates[_random.Next(fallbackCandidates.Count)];
                     break;
 
                 case RegimentType.Garrison:

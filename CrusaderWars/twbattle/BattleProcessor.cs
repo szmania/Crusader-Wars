@@ -773,6 +773,10 @@ namespace CrusaderWars.twbattle
                             {
                                 form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
                                 form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                            });
+
+                            form.Invoke((MethodInvoker)delegate
+                            {
                                 string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
                                 string discordUrl = "https://discord.gg/eFZTprHh3j";
                                 ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
