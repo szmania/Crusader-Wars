@@ -308,18 +308,24 @@ namespace CrusaderWars.terrain
             // Determine deployment zone dimensions and position
             float centerX, centerY, width, height;
 
-            if (BattleState.IsSiegeBattle)
+            if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
             {
-                float inter_zone_buffer = 200f;
-                float map_edge_buffer = 50f;
+                float inter_zone_buffer = 50f; // Space between defender and attacker zones
+                float map_edge_buffer = 50f;   // Space between attacker zone and map edge
+
+                string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1650";
+                float.TryParse(defender_width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float defender_width_val);
+                float defender_radius = defender_width_val / 2f;
+
+                float attacker_depth = playable_boundary - defender_radius - inter_zone_buffer - map_edge_buffer;
+                if (attacker_depth < 50f) attacker_depth = 50f;
 
                 if (direction == "N" || direction == "S")
                 {
-                    // Horizontal deployment (along top or bottom edge)
                     width = (playable_boundary - map_edge_buffer) * 2f;
-                    height = GetDeploymentDepth(playable_boundary, inter_zone_buffer);
+                    height = attacker_depth;
                     centerX = 0f;
-                    centerY = playable_boundary - inter_zone_buffer - (height / 2f);
+                    centerY = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
                     if (direction == "S")
                     {
                         centerY = -centerY;
@@ -327,18 +333,17 @@ namespace CrusaderWars.terrain
                 }
                 else // "E" or "W"
                 {
-                    // Vertical deployment (along left or right edge)
                     height = (playable_boundary - map_edge_buffer) * 2f;
-                    width = GetDeploymentDepth(playable_boundary, inter_zone_buffer);
+                    width = attacker_depth;
                     centerY = 0f;
-                    centerX = playable_boundary - inter_zone_buffer - (width / 2f);
+                    centerX = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
                     if (direction == "W")
                     {
                         centerX = -centerX;
                     }
                 }
             }
-            else // Field battle
+            else // Field Battle
             {
                 float buffer = 200f;
                 if (direction == "N" || direction == "S")
