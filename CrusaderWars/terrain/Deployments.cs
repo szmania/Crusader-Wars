@@ -304,35 +304,69 @@ namespace CrusaderWars.terrain
             string map_dimension_str = ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle);
             float map_dimension = float.Parse(map_dimension_str, CultureInfo.InvariantCulture);
             float playable_boundary = map_dimension / 2f;
-            float buffer = 200f;
 
             // Determine deployment zone dimensions and position
             float centerX, centerY, width, height;
 
-            if (direction == "N" || direction == "S")
+            if (BattleState.IsSiegeBattle)
             {
-                // Horizontal deployment (along top or bottom edge)
-                width = (playable_boundary - buffer) * 2f;
-                height = GetDeploymentDepth(playable_boundary, buffer);
-                centerX = 0f;
-                centerY = playable_boundary - buffer - (height / 2f);
-                if (direction == "S")
+                float inter_zone_buffer = 200f;
+                float map_edge_buffer = 50f;
+
+                if (direction == "N" || direction == "S")
                 {
-                    centerY = -centerY;
+                    // Horizontal deployment (along top or bottom edge)
+                    width = (playable_boundary - map_edge_buffer) * 2f;
+                    height = GetDeploymentDepth(playable_boundary, inter_zone_buffer);
+                    centerX = 0f;
+                    centerY = playable_boundary - inter_zone_buffer - (height / 2f);
+                    if (direction == "S")
+                    {
+                        centerY = -centerY;
+                    }
+                }
+                else // "E" or "W"
+                {
+                    // Vertical deployment (along left or right edge)
+                    height = (playable_boundary - map_edge_buffer) * 2f;
+                    width = GetDeploymentDepth(playable_boundary, inter_zone_buffer);
+                    centerY = 0f;
+                    centerX = playable_boundary - inter_zone_buffer - (width / 2f);
+                    if (direction == "W")
+                    {
+                        centerX = -centerX;
+                    }
                 }
             }
-            else // "E" or "W"
+            else // Field battle
             {
-                // Vertical deployment (along left or right edge)
-                height = (playable_boundary - buffer) * 2f;
-                width = GetDeploymentDepth(playable_boundary, buffer);
-                centerY = 0f;
-                centerX = playable_boundary - buffer - (width / 2f);
-                if (direction == "W")
+                float buffer = 200f;
+                if (direction == "N" || direction == "S")
                 {
-                    centerX = -centerX;
+                    // Horizontal deployment (along top or bottom edge)
+                    width = (playable_boundary - buffer) * 2f;
+                    height = GetDeploymentDepth(playable_boundary, buffer);
+                    centerX = 0f;
+                    centerY = playable_boundary - buffer - (height / 2f);
+                    if (direction == "S")
+                    {
+                        centerY = -centerY;
+                    }
+                }
+                else // "E" or "W"
+                {
+                    // Vertical deployment (along left or right edge)
+                    height = (playable_boundary - buffer) * 2f;
+                    width = GetDeploymentDepth(playable_boundary, buffer);
+                    centerY = 0f;
+                    centerX = playable_boundary - buffer - (width / 2f);
+                    if (direction == "W")
+                    {
+                        centerX = -centerX;
+                    }
                 }
             }
+
 
             // Assign final string values
             this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
