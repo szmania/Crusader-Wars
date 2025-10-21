@@ -178,8 +178,8 @@ namespace CrusaderWars.terrain
             siege_center_y = "0.00";
 
             // Defender deployment area is now a fixed size for all sieges.
-            string width = BattleStateBridge.BesiegedDeploymentWidth ?? "1650";
-            string height = BattleStateBridge.BesiegedDeploymentHeight ?? "1650";
+            string width = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
+            string height = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
 
             // Defender is at the center of the settlement.
             defender_direction = "S"; // Default direction, provides a forward-facing orientation.
@@ -310,10 +310,10 @@ namespace CrusaderWars.terrain
 
             if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
             {
-                float inter_zone_buffer = 100f; // Space between defender and attacker zones
+                float inter_zone_buffer = 125f; // Space between defender and attacker zones
                 float map_edge_buffer = 50f;   // Space between attacker zone and map edge
 
-                string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1650";
+                string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
                 float.TryParse(defender_width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float defender_width_val);
                 float defender_radius = defender_width_val / 2f;
 
@@ -345,7 +345,7 @@ namespace CrusaderWars.terrain
             }
             else // Field Battle
             {
-                float buffer = 200f;
+                float buffer = 100f;
                 if (direction == "N" || direction == "S")
                 {
                     // Horizontal deployment (along top or bottom edge)
@@ -391,7 +391,7 @@ namespace CrusaderWars.terrain
             if (BattleState.IsSiegeBattle)
             {
                 // For siege attacker, depth is the space between defender zone and map edge.
-                string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1650";
+                string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
                 float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float width);
                 float defender_radius = width / 2f;
                 
