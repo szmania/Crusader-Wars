@@ -774,7 +774,7 @@ namespace CrusaderWars.twbattle
                         // To do that, we first reset their `Units` list, which is the main state added during processing.
                         foreach (var army in attacker_armies.Concat(defender_armies))
                         {
-                            army.Units = null;
+                            army.Units?.Clear();
                         }
 
                         // Pass the now-reset original armies to the next run.
