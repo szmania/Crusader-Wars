@@ -563,9 +563,11 @@ namespace CrusaderWars.twbattle
                         autofixState.StrategyOrder.AddRange(allStrategies);
                         Program.Logger.Debug($"Autofix strategy order set to: {string.Join(", ", autofixState.StrategyOrder)}");
 
-                        // Build a comprehensive list of all possible custom unit keys in the battle
-                        var (fresh_attackers_for_keys, fresh_defenders_for_keys) = ArmiesReader.ReadBattleArmies();
-                        var allArmiesForKeys = fresh_attackers_for_keys.Concat(fresh_defenders_for_keys);
+                        // Build a comprehensive list of all possible custom unit keys in the battle.
+                        // Use the existing army lists from the failed battle, as their .Units property is populated.
+                        // Re-reading from the save file would result in an empty .Units list, causing the autofixer
+                        // to miss Men-at-Arms and other potential culprits.
+                        var allArmiesForKeys = attacker_armies.Concat(defender_armies);
                         var allUnitKeys = new HashSet<string>();
                         var allFactions = new HashSet<string>();
 
