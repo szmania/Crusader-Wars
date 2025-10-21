@@ -541,8 +541,8 @@ namespace CrusaderWars.twbattle
 
                         Program.Logger.Debug($"User chose autofix strategy: {chosenStrategy.Value}. Initializing autofix process.");
                         autofixState = new AutofixState();
-                        autofixState.OriginalAttackerArmies = attacker_armies;
-                        autofixState.OriginalDefenderArmies = defender_armies;
+                        autofixState.OriginalAttackerArmies = new List<Army>(attacker_armies);
+                        autofixState.OriginalDefenderArmies = new List<Army>(defender_armies);
                         autofixState.FailureCount = 1;
                         if (userResponse == DialogResult.Retry) // "Yes (Don't Ask Again)"
                         {
@@ -1127,8 +1127,7 @@ namespace CrusaderWars.twbattle
             // It will return true only when a new replacement is found and applied.
             // It manages its own internal state via the autofixState object.
 
-            var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
-            var allArmies = fresh_attackers.Concat(fresh_defenders);
+            var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies);
             
             while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
             {
