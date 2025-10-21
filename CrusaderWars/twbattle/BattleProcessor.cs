@@ -579,63 +579,25 @@ namespace CrusaderWars.twbattle
 
                         foreach (var army in allArmiesForKeys)
                         {
-                            if (army.Owner == null) continue;
-
-                            // Get faction from commander
-                            if (army.Commander != null)
-                            {
-                                var commander = army.Commander;
-                                Unit temp_commander_unit = new Unit("General", commander.GetUnitSoldiers(), commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
-                                string faction = UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName());
-                                temp_commander_unit.SetAttilaFaction(faction);
-                                allFactions.Add(faction);
-                                var (commanderKey, _) = UnitMappers_BETA.GetUnitKey(temp_commander_unit);
-                                if (!string.IsNullOrEmpty(commanderKey) && commanderKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                {
-                                    allUnitKeys.Add(commanderKey);
-                                }
-                            }
-
-                            // Get faction from knights
-                            if (army.Knights != null && army.Knights.GetKnightsList()?.Count > 0)
-                            {
-                                Unit temp_knights_unit;
-                                if (army.Knights.GetMajorCulture() != null)
-                                    temp_knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Knights.GetMajorCulture(), RegimentType.Knight, false, army.Owner);
-                                else
-                                    temp_knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Owner.GetCulture(), RegimentType.Knight, false, army.Owner);
-
-                                string faction = UnitMappers_BETA.GetAttilaFaction(temp_knights_unit.GetCulture(), temp_knights_unit.GetHeritage());
-                                temp_knights_unit.SetAttilaFaction(faction);
-                                allFactions.Add(faction);
-                                var (knightKey, _) = UnitMappers_BETA.GetUnitKey(temp_knights_unit);
-                                if (!string.IsNullOrEmpty(knightKey) && knightKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                {
-                                    allUnitKeys.Add(knightKey);
-                                }
-                            }
-
-                            // Get factions and keys from all other units (MAA, Levy/Garrison placeholders)
+                            if (army.Units == null) continue;
                             foreach (var unit in army.Units)
                             {
+                                // Collect all factions present in the battle to later get all possible levy/garrison units
                                 string faction = unit.GetAttilaFaction();
                                 if (!string.IsNullOrEmpty(faction) && faction != UnitMappers_BETA.NOT_FOUND_KEY)
                                 {
                                     allFactions.Add(faction);
                                 }
 
-                                // Only MAA have a direct, replaceable unit key at this stage
-                                if (unit.GetRegimentType() == RegimentType.MenAtArms)
+                                // Collect keys from units that have a specific key assigned.
+                                // Levy/Garrison placeholders do not have a specific key.
+                                var unitType = unit.GetRegimentType();
+                                if (unitType == RegimentType.Commander || unitType == RegimentType.Knight || unitType == RegimentType.MenAtArms)
                                 {
-                                    // Resolve the unit key for the MAA to add it to the list of suspects.
-                                    // The faction needs to be set on the unit object first for GetUnitKey to work.
-                                    string maa_faction = UnitMappers_BETA.GetAttilaFaction(unit.GetCulture(), unit.GetHeritage());
-                                    unit.SetAttilaFaction(maa_faction);
-                                    allFactions.Add(maa_faction); // Ensure faction is added if not already present
-                                    var (maaKey, _) = UnitMappers_BETA.GetUnitKey(unit);
-                                    if (!string.IsNullOrEmpty(maaKey) && maaKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                                    string key = unit.GetAttilaUnitKey();
+                                    if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        allUnitKeys.Add(maaKey);
+                                        allUnitKeys.Add(key);
                                     }
                                 }
                             }
@@ -1167,11 +1129,24 @@ namespace CrusaderWars.twbattle
 
                 if (representativeUnit == null)
                 {
-                    Program.Logger.Debug($"Could not find a representative unit for key '{keyToReplace}'. Skipping to next key.");
-                    autofixState.NextUnitKeyIndexToReplace++;
-                    autofixState.HeritageReplacementFactions = null;
-                    autofixState.NextHeritageFactionIndex = 0;
-                    continue;
+                    // Fallback for Levies/Garrisons which don't have a key on their placeholder unit.
+                    // We find the first placeholder to act as a representative for culture/heritage.
+                    // This is an approximation but should be sufficient to find a replacement.
+                    representativeUnit = allArmies.SelectMany(a => a.Units)
+                                                  .FirstOrDefault(u => u.GetRegimentType() == RegimentType.Levy || u.GetRegimentType() == RegimentType.Garrison);
+
+                    if (representativeUnit == null)
+                    {
+                        Program.Logger.Debug($"Could not find a representative unit for key '{keyToReplace}', not even a levy/garrison placeholder. Skipping to next key.");
+                        autofixState.NextUnitKeyIndexToReplace++;
+                        autofixState.HeritageReplacementFactions = null;
+                        autofixState.NextHeritageFactionIndex = 0;
+                        continue;
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Could not find a direct match for key '{keyToReplace}'. Using a levy/garrison placeholder as a representative unit.");
+                    }
                 }
 
                 if (autofixState.HeritageReplacementFactions == null)
