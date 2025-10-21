@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars.mod_manager
 {
@@ -83,8 +84,21 @@ namespace CrusaderWars.mod_manager
                         {
                             foreach(XmlNode modNode in ModsFile.DocumentElement.ChildNodes)
                             {
-                                ModsPaths.FirstOrDefault(x => x.GetName() == modNode.InnerText)?.IsRequiredMod(true);
-                                //ModsPaths.RemoveAll(x => x.GetName() == modNode.InnerText);
+                                // Also mark submod packs as "required" so they are hidden from the optional list
+                                if (modNode.Name == "Mod")
+                                {
+                                    ModsPaths.FirstOrDefault(x => x.GetName() == modNode.InnerText)?.IsRequiredMod(true);
+                                }
+                                else if (modNode.Name == "Submod")
+                                {
+                                    foreach(XmlNode submod_modNode in modNode.ChildNodes)
+                                    {
+                                        if(submod_modNode.Name == "Mod")
+                                        {
+                                            ModsPaths.FirstOrDefault(x => x.GetName() == submod_modNode.InnerText)?.IsRequiredMod(true);
+                                        }
+                                    }
+                                }
                             }                        
                         }
                     }
@@ -163,7 +177,7 @@ namespace CrusaderWars.mod_manager
                                        .ToList();
 
             // Optional mods are those enabled by the user AND NOT required by the current playthrough
-            var optionalMods = ModsPaths.Where(x => x.IsEnabled() && !x.IsLoadingModRequiredMod())
+            var optionalMods = ModsPaths.Where(x => x.IsEnabled() && !x.IsRequiredMod())
                                        .ToList();
 
             using (FileStream modsFile = File.Open(userMods_path, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
@@ -195,7 +209,37 @@ namespace CrusaderWars.mod_manager
                     writeModEntry(mod, "Optional");
                 }
 
-                // 3. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
+                // 3. Active Submod packs
+                if (UnitMappers_BETA.ActivePlaythroughTag != null)
+                {
+                    var activeSubmodTags = SubmodManager.GetActiveSubmodsForPlaythrough(UnitMappers_BETA.ActivePlaythroughTag);
+                    if (activeSubmodTags.Any() && UnitMappers_BETA.AvailableSubmods.Any())
+                    {
+                        // Filter to get active submods, preserving the original order from Mods.xml
+                        var activeSubmodsInOrder = UnitMappers_BETA.AvailableSubmods
+                            .Where(s => activeSubmodTags.Contains(s.Tag))
+                            .ToList();
+                        
+                        foreach (var submod in activeSubmodsInOrder)
+                        {
+                            foreach (var submodPack in submod.Mods)
+                            {
+                                var modObject = ModsPaths.FirstOrDefault(m => m.GetName() == submodPack.FileName);
+                                if (modObject != null)
+                                {
+                                    writeModEntry(modObject, "Submod");
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"  - WARNING: Active submod pack '{submodPack.FileName}' for submod '{submod.Tag}' not found in installed mods list.");
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                // 4. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
                 foreach (var mod in requiredMods)
                 {
                     writeModEntry(mod, "Required");

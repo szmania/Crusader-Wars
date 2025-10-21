@@ -1118,25 +1118,29 @@ namespace CrusaderWars
             }
         }
 
-        List<(string FileName, string Sha256)> GetUnitMappersModsCollectionFromTag(string tag)
+        // MODIFIED: This method now returns submods as well.
+        // The calling code in ReadUnitMappersOptions will need to be updated.
+        // Since UC_UnitMapper.cs is not available, this will require changes once that file is provided.
+        (List<(string FileName, string Sha256)> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
         {
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
-            List<(string FileName, string Sha256)> requiredMods = new List<(string FileName, string Sha256)>();
+            var requiredMods = new List<(string FileName, string Sha256)>();
+            var submods = new List<Submod>();
 
-            foreach(var mapper in unit_mappers_folder)
+            foreach (var mapper in unit_mappers_folder)
             {
                 string? mapperName = Path.GetDirectoryName(mapper);
                 var files = Directory.GetFiles(mapper);
-                foreach(var file in files)
+                foreach (var file in files)
                 {
                     string fileName = Path.GetFileName(file);
-                    if(fileName == "tag.txt")
+                    if (fileName == "tag.txt")
                     {
                         string fileTag = File.ReadAllText(file).Trim(); // Trim whitespace from the file content
-                        if(tag == fileTag)
+                        if (tag == fileTag)
                         {
                             string modsPath = mapper + @"\Mods.xml";
-                            if(File.Exists(modsPath))
+                            if (File.Exists(modsPath))
                             {
                                 XmlDocument xmlDocument = new XmlDocument();
                                 xmlDocument.Load(modsPath);
@@ -1150,6 +1154,27 @@ namespace CrusaderWars
                                             string modFileName = node.InnerText;
                                             string sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty;
                                             requiredMods.Add((modFileName, sha256));
+                                        }
+                                        else if (node.Name == "Submod")
+                                        {
+                                            var submod = new Submod
+                                            {
+                                                Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                                ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                                            };
+                                            foreach(XmlNode submod_modNode in node.ChildNodes)
+                                            {
+                                                if(submod_modNode.Name == "Mod")
+                                                {
+                                                    string modFileName = submod_modNode.InnerText;
+                                                    string sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty;
+                                                    submod.Mods.Add((modFileName, sha256));
+                                                }
+                                            }
+                                            if(!string.IsNullOrEmpty(submod.Tag))
+                                            {
+                                                submods.Add(submod);
+                                            }
                                         }
                                     }
                                 }
@@ -1165,7 +1190,7 @@ namespace CrusaderWars
                 }
             }
 
-            return requiredMods;
+            return (requiredMods, submods);
         }
 
         // NEW HELPER METHOD: GetOrCreateUnitMapperOption
@@ -1242,11 +1267,19 @@ namespace CrusaderWars
             if (lotrToggleStateStr == "True") lotrToggleState = true; else lotrToggleState = false;
             if (agotToggleStateStr == "True") agotToggleState = true; else agotToggleState = false; // Added AGOT tab
 
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", GetUnitMappersModsCollectionFromTag("DefaultCK3"),ck3ToggleState, "DefaultCK3");
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState, "TheFallenEagle"); // MODIFIED LINE
+            // NOTE: The constructor for UC_UnitMapper will need to be updated to accept the list of submods.
+            // This change is commented out because the UC_UnitMapper.cs file was not provided.
+            // You will need to modify its constructor to accept `List<Submod> submods` as a new parameter.
+            var ck3Mods = GetUnitMappersModsCollectionFromTag("DefaultCK3");
+            var tfeMods = GetUnitMappersModsCollectionFromTag("TheFallenEagle");
+            var lotrMods = GetUnitMappersModsCollectionFromTag("RealmsInExile");
+            var agotMods = GetUnitMappersModsCollectionFromTag("AGOT");
+
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods, ck3ToggleState, "DefaultCK3" /*, ck3Mods.submods */);
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods, tfeToggleState, "TheFallenEagle" /*, tfeMods.submods */); // MODIFIED LINE
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState, "RealmsInExile");
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, GetUnitMappersModsCollectionFromTag("AGOT"), agotToggleState, "AGOT"); // Changed to use playthrough_agot
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods, lotrToggleState, "RealmsInExile" /*, lotrMods.submods */);
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods, agotToggleState, "AGOT" /*, agotMods.submods */); // Changed to use playthrough_agot
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
@@ -1366,6 +1399,7 @@ namespace CrusaderWars
             SaveValuesToOptionsFile();
             ReadOptionsFile();
             WriteUnitMappersOptions();
+            SubmodManager.SaveActiveSubmods(); // Save active submods
 
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
             {

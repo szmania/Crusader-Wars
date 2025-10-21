@@ -355,7 +355,8 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
-            Options.ReadGamePaths();    
+            Options.ReadGamePaths();
+            SubmodManager.LoadActiveSubmods();
 
             // Set locations programmatically
             btt_debug.Location = new Point(273, 16);
