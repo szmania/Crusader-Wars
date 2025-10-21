@@ -12,6 +12,13 @@ using CrusaderWars.twbattle;
 
 namespace CrusaderWars.unit_mapper
 {
+    public class Submod
+    {
+        public string Tag { get; set; } = string.Empty;
+        public string ScreenName { get; set; } = string.Empty;
+        public List<(string FileName, string Sha256)> Mods { get; set; } = new List<(string, string)>();
+    }
+
     public static class BattleStateBridge
     {
         public static string? BesiegedDeploymentWidth { get; set; }
@@ -86,6 +93,7 @@ namespace CrusaderWars.unit_mapper
          * House files reader for AGOT
          ----------------------------------------------------------------*/
 
+        public static List<Submod> AvailableSubmods { get; private set; } = new List<Submod>();
         public static TerrainsUM? Terrains { get;private set; }  
         static string? LoadedUnitMapper_FolderPath { get; set; }
         public static string? ActivePlaythroughTag { get; private set; }
@@ -397,6 +405,7 @@ namespace CrusaderWars.unit_mapper
         public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag)
         {
             ActivePlaythroughTag = tag;
+            AvailableSubmods.Clear();
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             List<string> requiredMods = new List<string>();
 
@@ -464,6 +473,27 @@ namespace CrusaderWars.unit_mapper
                                                     if (node.Name == "Mod")
                                                     {
                                                         requiredMods.Add(node.InnerText);
+                                                    }
+                                                    else if (node.Name == "Submod")
+                                                    {
+                                                        var submod = new Submod
+                                                        {
+                                                            Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                                            ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                                                        };
+                                                        foreach (XmlNode submod_modNode in node.ChildNodes)
+                                                        {
+                                                            if (submod_modNode.Name == "Mod")
+                                                            {
+                                                                string modFileName = submod_modNode.InnerText;
+                                                                string sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty;
+                                                                submod.Mods.Add((modFileName, sha256));
+                                                            }
+                                                        }
+                                                        if (!string.IsNullOrEmpty(submod.Tag))
+                                                        {
+                                                            AvailableSubmods.Add(submod);
+                                                        }
                                                     }
                                                 }
                                             }
