@@ -719,12 +719,9 @@ namespace CrusaderWars.twbattle
                             ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
                         });
 
-                        Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                        foreach (var army in attacker_armies.Concat(defender_armies))
-                        {
-                            army.Units?.Clear();
-                        }
-                        return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
+                        Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}). Re-reading army data from save files to apply changes.");
+                        var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
+                        return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
                     }
                     else
                     {
