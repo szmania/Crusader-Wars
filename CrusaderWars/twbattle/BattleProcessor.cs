@@ -53,6 +53,10 @@ namespace CrusaderWars.twbattle
             public string? OriginalMapSize { get; set; }
             public bool DeploymentRotationTried { get; set; } = false;
             public int SiegeDirectionFixAttempts { get; set; } = 0;
+
+            // Golden copy of armies for unit replacement strategy
+            public List<Army> OriginalAttackerArmies { get; set; } = new List<Army>();
+            public List<Army> OriginalDefenderArmies { get; set; } = new List<Army>();
         }
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
@@ -537,6 +541,8 @@ namespace CrusaderWars.twbattle
 
                         Program.Logger.Debug($"User chose autofix strategy: {chosenStrategy.Value}. Initializing autofix process.");
                         autofixState = new AutofixState();
+                        autofixState.OriginalAttackerArmies = attacker_armies;
+                        autofixState.OriginalDefenderArmies = defender_armies;
                         autofixState.FailureCount = 1;
                         if (userResponse == DialogResult.Retry) // "Yes (Don't Ask Again)"
                         {
@@ -757,7 +763,7 @@ namespace CrusaderWars.twbattle
                                 (fixApplied, fixDescription) = TryDeploymentFix(autofixState);
                                 break;
                             case AutofixState.AutofixStrategy.Units:
-                                (fixApplied, fixDescription) = TryUnitFix(autofixState, form, attacker_armies, defender_armies);
+                                (fixApplied, fixDescription) = TryUnitFix(autofixState, form);
                                 break;
                             case AutofixState.AutofixStrategy.MapVariant:
                                 (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
@@ -1144,13 +1150,13 @@ namespace CrusaderWars.twbattle
             return (false, "");
         }
 
-        private static (bool, string) TryUnitFix(AutofixState autofixState, HomePage form, List<Army> attacker_armies, List<Army> defender_armies)
+        private static (bool, string) TryUnitFix(AutofixState autofixState, HomePage form)
         {
             // This method encapsulates the complex logic of replacing units one by one.
             // It will return true only when a new replacement is found and applied.
             // It manages its own internal state via the autofixState object.
 
-            var allArmies = attacker_armies.Concat(defender_armies);
+            var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies);
 
             while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
             {
