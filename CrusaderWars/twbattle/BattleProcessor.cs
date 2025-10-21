@@ -30,23 +30,18 @@ namespace CrusaderWars.twbattle
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
-
-            // State for the current unit being fixed
-            public List<string>? HeritageReplacementFactions { get; set; } // List of unique factions from the same heritage to try as replacements.
-            public int NextHeritageFactionIndex { get; set; } = 0; // Index for the above list.
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
-            public bool KeepMapSizeHuge { get; set; } = false;
             public int MapVariantOffset { get; set; } = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
             public string OriginalFieldMapDescription { get; set; } = "";
-            public bool KeepTryingAutomatically { get; set; } = false;
 
             // New properties for strategy-based autofix
             public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant }
-            public List<AutofixStrategy> StrategyOrder { get; set; } = new List<AutofixStrategy>();
-            public int CurrentStrategyIndex { get; set; } = 0;
+            public AutofixStrategy? CurrentStrategy { get; set; } = null;
+            public HashSet<AutofixStrategy> TriedStrategies { get; set; } = new HashSet<AutofixStrategy>();
+
 
             // State for individual strategies
             public int MapSizeFixAttempts { get; set; } = 0;
@@ -521,58 +516,15 @@ namespace CrusaderWars.twbattle
 
                     Program.Logger.Debug("Attila process terminated without a complete battle log. Presumed crash.");
 
-                    // Autofix logic starts here
+                    // --- Autofix Logic ---
                     if (autofixState == null) // First crash
                     {
-                        Program.Logger.Debug("First crash detected. Prompting user for autofix.");
-                        DialogResult userResponse = DialogResult.No;
-                        AutofixState.AutofixStrategy? chosenStrategy = null;
-
-                        form.Invoke((MethodInvoker)delegate
-                        {
-                            (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form, twbattle.BattleState.IsSiegeBattle);
-                        });
-
-                        if (userResponse == DialogResult.No || chosenStrategy == null)
-                        {
-                            Program.Logger.Debug("User declined autofix. Aborting battle.");
-                            return false; // User cancelled
-                        }
-
-                        Program.Logger.Debug($"User chose autofix strategy: {chosenStrategy.Value}. Initializing autofix process.");
+                        Program.Logger.Debug("First crash detected. Initializing autofix state.");
                         autofixState = new AutofixState();
                         autofixState.OriginalAttackerArmies = new List<Army>(attacker_armies);
                         autofixState.OriginalDefenderArmies = new List<Army>(defender_armies);
-                        autofixState.FailureCount = 1;
-                        if (userResponse == DialogResult.Retry) // "Yes (Don't Ask Again)"
-                        {
-                            autofixState.KeepTryingAutomatically = true;
-                            Program.Logger.Debug("Autofix mode set to 'Keep Trying Automatically'.");
-                        }
-
-                        // Set up strategy order
-                        var allStrategies = new List<AutofixState.AutofixStrategy>
-                        {
-                            AutofixState.AutofixStrategy.Units,
-                            AutofixState.AutofixStrategy.MapSize,
-                            AutofixState.AutofixStrategy.Deployment,
-                            AutofixState.AutofixStrategy.MapVariant
-                        };
-
-                        if (BattleState.IsSiegeBattle)
-                        {
-                            allStrategies.Remove(AutofixState.AutofixStrategy.MapSize);
-                        }
-
-                        autofixState.StrategyOrder.Add(chosenStrategy.Value);
-                        allStrategies.Remove(chosenStrategy.Value);
-                        autofixState.StrategyOrder.AddRange(allStrategies);
-                        Program.Logger.Debug($"Autofix strategy order set to: {string.Join(", ", autofixState.StrategyOrder)}");
 
                         // Build a comprehensive list of all possible custom unit keys in the battle.
-                        // Use the existing army lists from the failed battle, as their .Units property is populated.
-                        // Re-reading from the save file would result in an empty .Units list, causing the autofixer
-                        // to miss Men-at-Arms and other potential culprits.
                         var allArmiesForKeys = attacker_armies.Concat(defender_armies);
                         var allUnitKeys = new HashSet<string>();
                         var allFactions = new HashSet<string>();
@@ -582,15 +534,11 @@ namespace CrusaderWars.twbattle
                             if (army.Units == null) continue;
                             foreach (var unit in army.Units)
                             {
-                                // Collect all factions present in the battle to later get all possible levy/garrison units
                                 string faction = unit.GetAttilaFaction();
                                 if (!string.IsNullOrEmpty(faction) && faction != UnitMappers_BETA.NOT_FOUND_KEY)
                                 {
                                     allFactions.Add(faction);
                                 }
-
-                                // Collect keys from units that have a specific key assigned.
-                                // Levy/Garrison placeholders do not have a specific key.
                                 var unitType = unit.GetRegimentType();
                                 if (unitType == RegimentType.Commander || unitType == RegimentType.Knight || unitType == RegimentType.MenAtArms)
                                 {
@@ -602,8 +550,6 @@ namespace CrusaderWars.twbattle
                                 }
                             }
                         }
-
-                        // Now, for every faction we found, add all their possible levy and garrison units to the list
                         foreach (var faction in allFactions)
                         {
                             var (levy_porcentages, _) = UnitMappers_BETA.GetFactionLevies(faction);
@@ -614,8 +560,6 @@ namespace CrusaderWars.twbattle
                                     allUnitKeys.Add(levyData.unit_key);
                                 }
                             }
-
-                            // Garrisons depend on holding level, so we check all levels
                             for (int level = 1; level <= 20; level++)
                             {
                                 var garrison_porcentages = UnitMappers_BETA.GetFactionGarrison(faction, level);
@@ -635,7 +579,6 @@ namespace CrusaderWars.twbattle
                             .OrderBy(key => _random.Next())
                             .ToList();
 
-
                         if (!autofixState.ProblematicUnitKeys.Any())
                         {
                             Program.Logger.Debug("Autofix initiated, but no potentially problematic custom units were found to replace.");
@@ -651,40 +594,73 @@ namespace CrusaderWars.twbattle
                         }
                         Program.Logger.Debug($"Found {autofixState.ProblematicUnitKeys.Count} unique unit keys to test: {string.Join(", ", autofixState.ProblematicUnitKeys)}");
                     }
-                    else // Subsequent crash
+
+                    autofixState.FailureCount++;
+                    Program.Logger.Debug($"Crash detected. Failure count: {autofixState.FailureCount}.");
+
+                    // --- Main Autofix Control Flow ---
+
+                    // 1. If no strategy is active, get one from the user.
+                    if (autofixState.CurrentStrategy == null)
                     {
-                        autofixState.FailureCount++;
-                        Program.Logger.Debug($"Subsequent crash detected. Autofix has now failed {autofixState.FailureCount - 1} time(s).");
-                        if (!autofixState.KeepTryingAutomatically)
+                        Program.Logger.Debug("No active autofix strategy. Prompting user.");
+
+                        var allStrategies = new List<AutofixState.AutofixStrategy>
                         {
-                            DialogResult userResponse = DialogResult.No;
+                            AutofixState.AutofixStrategy.Units,
+                            AutofixState.AutofixStrategy.MapSize,
+                            AutofixState.AutofixStrategy.Deployment,
+                            AutofixState.AutofixStrategy.MapVariant
+                        };
+
+                        if (BattleState.IsSiegeBattle)
+                        {
+                            allStrategies.Remove(AutofixState.AutofixStrategy.MapSize);
+                        }
+
+                        var availableStrategies = allStrategies.Except(autofixState.TriedStrategies).ToList();
+
+                        if (!availableStrategies.Any())
+                        {
+                            Program.Logger.Debug("Autofix failed. All strategies have been attempted.");
                             form.Invoke((MethodInvoker)delegate
                             {
-                                userResponse = MessageBox.Show(form,
-                                    $"The automatic fix has failed {autofixState.FailureCount - 1} time(s). Would you like to continue trying?",
-                                    "Crusader Conflicts: Continue Autofix?",
-                                    MessageBoxButtons.YesNo,
-                                    MessageBoxIcon.Question);
+                                MessageBox.Show(form,
+                                    "The automatic fix failed. All available strategies were tried, but the game still crashed.\n\nThe battle will be aborted.",
+                                    "Crusader Conflicts: Autofix Failed",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
                             });
-
-                            if (userResponse == DialogResult.No)
-                            {
-                                Program.Logger.Debug("User declined to continue autofix. Aborting battle.");
-                                return false; // User cancelled
-                            }
+                            return false; // All strategies exhausted
                         }
-                        Program.Logger.Debug("User chose to continue autofix (or it was automatic).");
+
+                        DialogResult userResponse = DialogResult.No;
+                        AutofixState.AutofixStrategy? chosenStrategy = null;
+
+                        form.Invoke((MethodInvoker)delegate
+                        {
+                            (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form, availableStrategies);
+                        });
+
+                        if (userResponse == DialogResult.No || chosenStrategy == null)
+                        {
+                            Program.Logger.Debug("User declined autofix. Aborting battle.");
+                            return false; // User cancelled
+                        }
+
+                        autofixState.CurrentStrategy = chosenStrategy;
+                        Program.Logger.Debug($"User chose autofix strategy: {chosenStrategy.Value}.");
                     }
 
-                    // Common Autofix Logic
+                    // 2. A strategy is active. Try to apply a fix.
+                    bool fixApplied = false;
                     string fixDescription = "";
 
-                    // --- Determine Original Map Size (before any overrides) ---
+                    // --- Determine Original Map Size (needed for MapSize fix) ---
                     string originalMapSize;
                     string option_map_size = ModOptions.DeploymentsZones();
                     if (option_map_size == "Dynamic")
                     {
-                        // Reread armies to get original soldier counts for dynamic calculation
                         var (fresh_attackers_for_size, fresh_defenders_for_size) = ArmiesReader.ReadBattleArmies();
                         int total_soldiers = fresh_attackers_for_size.Sum(a => a.GetTotalSoldiers()) + fresh_defenders_for_size.Sum(a => a.GetTotalSoldiers());
 
@@ -709,88 +685,57 @@ namespace CrusaderWars.twbattle
                     }
                     Program.Logger.Debug($"Autofix: Original map size determined as '{originalMapSize}'.");
 
-                    bool fixApplied = false;
 
-                    while (!fixApplied && autofixState.CurrentStrategyIndex < autofixState.StrategyOrder.Count)
+                    switch (autofixState.CurrentStrategy)
                     {
-                        var currentStrategy = autofixState.StrategyOrder[autofixState.CurrentStrategyIndex];
-                        Program.Logger.Debug($"--- Autofix: Attempting strategy: {currentStrategy} ---");
-
-                        switch (currentStrategy)
-                        {
-                            case AutofixState.AutofixStrategy.MapSize:
-                                (fixApplied, fixDescription) = TryMapSizeFix(autofixState, originalMapSize);
-                                break;
-                            case AutofixState.AutofixStrategy.Deployment:
-                                (fixApplied, fixDescription) = TryDeploymentFix(autofixState);
-                                break;
-                            case AutofixState.AutofixStrategy.Units:
-                                (fixApplied, fixDescription) = TryUnitFix(autofixState, form);
-                                break;
-                            case AutofixState.AutofixStrategy.MapVariant:
-                                (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
-                                break;
-                        }
-
-                        if (!fixApplied)
-                        {
-                            Program.Logger.Debug($"--- Autofix: Strategy {currentStrategy} exhausted or not applicable. Moving to next strategy. ---");
-                            autofixState.CurrentStrategyIndex++;
-                        }
+                        case AutofixState.AutofixStrategy.MapSize:
+                            (fixApplied, fixDescription) = TryMapSizeFix(autofixState, originalMapSize);
+                            break;
+                        case AutofixState.AutofixStrategy.Deployment:
+                            (fixApplied, fixDescription) = TryDeploymentFix(autofixState);
+                            break;
+                        case AutofixState.AutofixStrategy.Units:
+                            (fixApplied, fixDescription) = TryUnitFix(autofixState, form);
+                            break;
+                        case AutofixState.AutofixStrategy.MapVariant:
+                            (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
+                            break;
                     }
 
+                    // 3. Handle the result of the fix attempt.
                     if (fixApplied)
                     {
                         autofixState.LastAppliedFixDescription = fixDescription;
-                        if (!autofixState.KeepTryingAutomatically)
+                        form.Invoke((MethodInvoker)delegate
                         {
-                            form.Invoke((MethodInvoker)delegate
-                            {
-                                form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
-                                form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                            });
+                            form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                            form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                        });
 
-                            form.Invoke((MethodInvoker)delegate
-                            {
-                                string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
-                                string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
-                            });
-                        }
-                        else
+                        form.Invoke((MethodInvoker)delegate
                         {
-                            Program.Logger.Debug($"Automatically applying fix #{autofixState.FailureCount}: {fixDescription}. Skipping user prompt.");
-                            form.Invoke((MethodInvoker)delegate
-                            {
-                                form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
-                                form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                            });
-                        }
+                            string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                            string discordUrl = "https://discord.gg/eFZTprHh3j";
+                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
+                        });
 
                         Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                        // The armies that caused the crash are still in the local `attacker_armies` and `defender_armies` variables.
-                        // We must re-process these same armies with the new autofix settings, rather than re-reading from the save file,
-                        // to ensure the context of the crash is maintained.
-                        // To do that, we first reset their `Units` list, which is the main state added during processing.
                         foreach (var army in attacker_armies.Concat(defender_armies))
                         {
                             army.Units?.Clear();
                         }
-
-                        // Pass the now-reset original armies to the next run.
                         return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
                     }
-
-                    Program.Logger.Debug("Autofix failed. All stages including map switching have been attempted.");
-                    form.Invoke((MethodInvoker)delegate
+                    else
                     {
-                        MessageBox.Show(form,
-                            "The automatic fix failed. All potentially problematic units and map variants were checked, but the game still crashed.\n\nThe crash may be caused by a more fundamental issue.\n\nThe battle will be aborted.",
-                            "Crusader Conflicts: Autofix Failed",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
-                    });
-                    return false;
+                        // The current strategy is exhausted.
+                        Program.Logger.Debug($"--- Autofix: Strategy {autofixState.CurrentStrategy} exhausted. ---");
+                        autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
+                        autofixState.CurrentStrategy = null;
+                        // The `while(battleEnded == false)` loop will continue. Since the process is still dead,
+                        // it will re-enter this entire `if` block on the next iteration.
+                        // Because `CurrentStrategy` is now null, it will re-prompt the user.
+                    }
                 }
 
                 battleEnded = BattleResult.HasBattleEnded(attilaLogPath);
@@ -1123,86 +1068,64 @@ namespace CrusaderWars.twbattle
 
         private static (bool, string) TryUnitFix(AutofixState autofixState, HomePage form)
         {
-            // This method encapsulates the complex logic of replacing units one by one.
-            // It will return true only when a new replacement is found and applied.
-            // It manages its own internal state via the autofixState object.
-
             var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies);
-            
+
             while (autofixState.NextUnitKeyIndexToReplace < autofixState.ProblematicUnitKeys.Count)
             {
                 string keyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-                Program.Logger.Debug($"--- Autofix: Starting unit replacement process for key: {keyToReplace} ---");
-                
-                var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
+                Program.Logger.Debug($"--- Autofix: Attempting to replace unit key: {keyToReplace} ---");
 
+                // Find a representative unit to determine its properties (type, culture, heritage, etc.)
+                var representativeUnit = allArmies.SelectMany(a => a.Units).FirstOrDefault(u => u.GetAttilaUnitKey() == keyToReplace);
                 if (representativeUnit == null)
                 {
                     // Fallback for Levies/Garrisons which don't have a key on their placeholder unit.
-                    // We find the first placeholder to act as a representative for culture/heritage.
-                    // This is an approximation but should be sufficient to find a replacement.
                     representativeUnit = allArmies.SelectMany(a => a.Units)
                                                   .FirstOrDefault(u => u.GetRegimentType() == RegimentType.Levy || u.GetRegimentType() == RegimentType.Garrison);
-
                     if (representativeUnit == null)
                     {
-                        Program.Logger.Debug($"Could not find a representative unit for key '{keyToReplace}', not even a levy/garrison placeholder. Skipping to next key.");
+                        Program.Logger.Debug($"Could not find a representative unit for key '{keyToReplace}'. Skipping to next key.");
                         autofixState.NextUnitKeyIndexToReplace++;
-                        autofixState.HeritageReplacementFactions = null;
-                        autofixState.NextHeritageFactionIndex = 0;
                         continue;
                     }
-                    else
-                    {
-                        Program.Logger.Debug($"Could not find a direct match for key '{keyToReplace}'. Using a levy/garrison placeholder as a representative unit.");
-                    }
                 }
 
-                if (autofixState.HeritageReplacementFactions == null)
-                {
-                    string heritage = representativeUnit.GetHeritage();
-                    string originalFaction = representativeUnit.GetAttilaFaction();
-                    var heritageFactions = unit_mapper.UnitMappers_BETA.GetFactionsByHeritage(heritage);
-                    autofixState.HeritageReplacementFactions = heritageFactions
-                        .Where(f => f != originalFaction && f != "Default" && f != "DEFAULT")
-                        .Distinct().ToList();
-                    autofixState.NextHeritageFactionIndex = 0;
-                }
+                // 1. Try to find a replacement from a faction within the same heritage.
+                string heritage = representativeUnit.GetHeritage();
+                string originalFaction = representativeUnit.GetAttilaFaction();
+                var heritageFactions = unit_mapper.UnitMappers_BETA.GetFactionsByHeritage(heritage)
+                    .Where(f => f != originalFaction && f != "Default" && f != "DEFAULT")
+                    .Distinct().ToList();
 
-                string replacementKey = UnitMappers_BETA.NOT_FOUND_KEY;
-                bool replacementIsSiege = false;
-                string fixDescription = "";
-
-                if (autofixState.NextHeritageFactionIndex < autofixState.HeritageReplacementFactions.Count)
+                foreach (var replacementFaction in heritageFactions)
                 {
-                    string replacementFaction = autofixState.HeritageReplacementFactions[autofixState.NextHeritageFactionIndex];
-                    (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetReplacementUnitKeyFromFaction(representativeUnit, replacementFaction, keyToReplace);
-                    autofixState.NextHeritageFactionIndex++;
+                    var (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetReplacementUnitKeyFromFaction(representativeUnit, replacementFaction, keyToReplace);
                     if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
                     {
-                        fixDescription = $"replacing unit key '{keyToReplace}' with a unit from heritage faction '{replacementFaction}' ('{replacementKey}')";
-                    }
-                }
-                else
-                {
-                    (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
-                    autofixState.NextUnitKeyIndexToReplace++;
-                    autofixState.HeritageReplacementFactions = null;
-                    autofixState.NextHeritageFactionIndex = 0;
-                    if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                    {
-                        fixDescription = $"replacing unit key '{keyToReplace}' with default unit '{replacementKey}'";
+                        string fixDescription = $"replacing unit key '{keyToReplace}' with a unit from heritage faction '{replacementFaction}' ('{replacementKey}')";
+                        AutofixReplacements[keyToReplace] = (replacementKey, replacementIsSiege);
+                        autofixState.NextUnitKeyIndexToReplace++; // Move to the next unit for the *next* crash
+                        return (true, fixDescription);
                     }
                 }
 
-                if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                // 2. If no heritage replacement found, fall back to a default unit.
+                var (defaultKey, defaultIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
+                if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
                 {
-                    AutofixReplacements[keyToReplace] = (replacementKey, replacementIsSiege);
+                    string fixDescription = $"replacing unit key '{keyToReplace}' with default unit '{defaultKey}'";
+                    AutofixReplacements[keyToReplace] = (defaultKey, defaultIsSiege);
+                    autofixState.NextUnitKeyIndexToReplace++; // Move to the next unit for the *next* crash
                     return (true, fixDescription);
                 }
+
+                // 3. If no replacement found at all for this key, log it and move to the next.
+                Program.Logger.Debug($"--- Autofix: Could not find any valid replacement for unit key '{keyToReplace}'. ---");
+                autofixState.NextUnitKeyIndexToReplace++;
             }
 
-            return (false, ""); // No more unit fixes possible
+            // If the loop completes, all problematic units have been tried without success.
+            return (false, "");
         }
 
         private static (bool, string) TryMapVariantFix(AutofixState autofixState)
@@ -1242,12 +1165,11 @@ namespace CrusaderWars.twbattle
             return (false, "");
         }
 
-        private static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, bool isSiegeBattle)
+        private static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies)
         {
             using (Form prompt = new Form())
             {
                 prompt.Width = 500;
-                prompt.Height = 380;
                 prompt.Text = "Crusader Conflicts: Attila Crash Detected";
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -1256,55 +1178,49 @@ namespace CrusaderWars.twbattle
 
                 Label textLabel = new Label() { 
                     Left = 20, Top = 20, Width = 460, Height = 70, 
-                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe selected strategy will be attempted first. If it fails, the other strategies will be tried automatically.\n\nPlease select which automatic fix strategy to try first:" 
+                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:" 
+                };
+                prompt.Controls.Add(textLabel);
+
+                var allStrategyControls = new Dictionary<AutofixState.AutofixStrategy, (RadioButton rb, Label lbl)>
+                {
+                    { AutofixState.AutofixStrategy.Units, (new RadioButton() { Text = "Change Units", AutoSize = true }, new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.MapSize, (new RadioButton() { Text = "Change Map Size", AutoSize = true }, new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
-                RadioButton rbUnits = new RadioButton() { Text = "Change Units", Left = 30, Top = 100, Checked = true, AutoSize = true };
-                Label lblUnits = new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Left = 50, Top = 120, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
-
-                RadioButton rbMapSize = new RadioButton() { Text = "Change Map Size", Left = 30, Top = 155, AutoSize = true };
-                Label lblMapSize = new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Left = 50, Top = 175, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
-
-                RadioButton rbDeployment = new RadioButton() { Text = "Change Deployment", Left = 30, Top = 200, AutoSize = true };
-                Label lblDeployment = new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Left = 50, Top = 220, Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray };
-
-                RadioButton rbMapVariant = new RadioButton() { Text = "Change Map", Left = 30, Top = 255, AutoSize = true };
-                Label lblMapVariant = new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Left = 50, Top = 275, AutoSize = true, ForeColor = System.Drawing.Color.Gray };
-                
-                Button btnStartKeepTrying = new Button() { Text = "Start (Don't Ask Again)", Left = 30, Width = 150, Top = 310, DialogResult = DialogResult.Retry };
-                Button btnStart = new Button() { Text = "Start Autofix", Left = 200, Width = 100, Top = 310, DialogResult = DialogResult.Yes };
-                Button btnCancel = new Button() { Text = "Cancel", Left = 320, Width = 100, Top = 310, DialogResult = DialogResult.No };
-
-                if (isSiegeBattle)
+                int currentTop = 100;
+                bool first = true;
+                foreach (var strategy in availableStrategies)
                 {
-                    prompt.Height -= 45;
-                    rbMapSize.Visible = false;
-                    lblMapSize.Visible = false;
+                    if (allStrategyControls.TryGetValue(strategy, out var controls))
+                    {
+                        controls.rb.Left = 30;
+                        controls.rb.Top = currentTop;
+                        if (first)
+                        {
+                            controls.rb.Checked = true;
+                            first = false;
+                        }
+                        prompt.Controls.Add(controls.rb);
 
-                    // Shift subsequent controls up
-                    rbDeployment.Top -= 45;
-                    lblDeployment.Top -= 45;
-                    rbMapVariant.Top -= 45;
-                    lblMapVariant.Top -= 45;
-                    btnStartKeepTrying.Top -= 45;
-                    btnStart.Top -= 45;
-                    btnCancel.Top -= 45;
+                        controls.lbl.Left = 50;
+                        controls.lbl.Top = currentTop + 20;
+                        prompt.Controls.Add(controls.lbl);
+
+                        currentTop += 55;
+                    }
                 }
+                
+                Button btnStart = new Button() { Text = "Start Autofix", Left = 150, Width = 100, Top = currentTop + 10, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 270, Width = 100, Top = currentTop + 10, DialogResult = DialogResult.No };
 
-                btnStartKeepTrying.Click += (sender, e) => { prompt.Close(); };
+                prompt.Height = currentTop + 80;
+
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
 
-                prompt.Controls.Add(textLabel);
-                prompt.Controls.Add(rbUnits);
-                prompt.Controls.Add(lblUnits);
-                prompt.Controls.Add(rbMapSize);
-                prompt.Controls.Add(lblMapSize);
-                prompt.Controls.Add(rbDeployment);
-                prompt.Controls.Add(lblDeployment);
-                prompt.Controls.Add(rbMapVariant);
-                prompt.Controls.Add(lblMapVariant);
-                prompt.Controls.Add(btnStartKeepTrying);
                 prompt.Controls.Add(btnStart);
                 prompt.Controls.Add(btnCancel);
                 prompt.AcceptButton = btnStart;
@@ -1313,12 +1229,16 @@ namespace CrusaderWars.twbattle
                 var dialogResult = prompt.ShowDialog(owner);
 
                 AutofixState.AutofixStrategy? selectedStrategy = null;
-                if (dialogResult == DialogResult.Yes || dialogResult == DialogResult.Retry)
+                if (dialogResult == DialogResult.Yes)
                 {
-                    if (rbUnits.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
-                    else if (rbMapSize.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
-                    else if (rbDeployment.Checked) selectedStrategy = AutofixState.AutofixStrategy.Deployment;
-                    else if (rbMapVariant.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapVariant;
+                    foreach (var strategy in availableStrategies)
+                    {
+                        if (allStrategyControls[strategy].rb.Checked)
+                        {
+                            selectedStrategy = strategy;
+                            break;
+                        }
+                    }
                 }
 
                 return (dialogResult, selectedStrategy);
