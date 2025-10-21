@@ -768,8 +768,17 @@ namespace CrusaderWars.twbattle
                         }
 
                         Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}).");
-                        var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
-                        return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
+                        // The armies that caused the crash are still in the local `attacker_armies` and `defender_armies` variables.
+                        // We must re-process these same armies with the new autofix settings, rather than re-reading from the save file,
+                        // to ensure the context of the crash is maintained.
+                        // To do that, we first reset their `Units` list, which is the main state added during processing.
+                        foreach (var army in attacker_armies.Concat(defender_armies))
+                        {
+                            army.Units = null;
+                        }
+
+                        // Pass the now-reset original armies to the next run.
+                        return await ProcessBattle(form, attacker_armies, defender_armies, token, true, autofixState);
                     }
 
                     Program.Logger.Debug("Autofix failed. All stages including map switching have been attempted.");
