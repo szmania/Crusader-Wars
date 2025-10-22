@@ -174,63 +174,15 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
-        private static List<string> FilterFilesByActiveSubmods(List<string> filePaths)
-        {
-            if (string.IsNullOrEmpty(ActivePlaythroughTag))
-            {
-                return filePaths; // No playthrough active, no filtering
-            }
-
-            var activeSubmods = CrusaderWars.mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(ActivePlaythroughTag);
-            var filteredFiles = new List<string>();
-
-            foreach (var filePath in filePaths)
-            {
-                try
-                {
-                    // Use XmlReader for performance, only need the root element and its attribute.
-                    using (var reader = XmlReader.Create(filePath))
-                    {
-                        reader.MoveToContent();
-                        string? submodTag = reader.GetAttribute("submod_tag");
-
-                        if (string.IsNullOrEmpty(submodTag))
-                        {
-                            // File does not have a submod tag, always include it.
-                            filteredFiles.Add(filePath);
-                        }
-                        else if (activeSubmods.Contains(submodTag))
-                        {
-                            // File has a submod tag and it's active, include it.
-                            filteredFiles.Add(filePath);
-                        }
-                        else
-                        {
-                            // File has a submod tag but it's not active, skip it.
-                            Program.Logger.Debug($"Skipping file '{Path.GetFileName(filePath)}' because its submod_tag '{submodTag}' is not active.");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Error reading XML file '{Path.GetFileName(filePath)}' for submod filtering. Skipping. Error: {ex.Message}");
-                }
-            }
-
-            return filteredFiles;
-        }
-
         private static List<string> GetSortedFilePaths(string directoryPath, string priorityFilePattern)
         {
             var allFiles = Directory.GetFiles(directoryPath, "*.xml").ToList();
-
-            if (string.IsNullOrEmpty(priorityFilePattern))
-            {
-                // If no pattern, just sort alphabetically
-                return allFiles.OrderBy(f => Path.GetFileName(f), StringComparer.OrdinalIgnoreCase).ToList();
-            }
+            var activeSubmods = string.IsNullOrEmpty(ActivePlaythroughTag)
+                ? new List<string>()
+                : CrusaderWars.mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(ActivePlaythroughTag);
 
             var priorityFiles = new List<string>();
+            var submodFiles = new List<string>();
             var otherFiles = new List<string>();
 
             // Simple wildcard matching for '*' at the end
@@ -238,21 +190,51 @@ namespace CrusaderWars.unit_mapper
 
             foreach (var file in allFiles)
             {
-                if (Path.GetFileName(file).StartsWith(patternStart, StringComparison.OrdinalIgnoreCase))
+                string fileName = Path.GetFileName(file);
+
+                if (!string.IsNullOrEmpty(patternStart) && fileName.StartsWith(patternStart, StringComparison.OrdinalIgnoreCase))
                 {
                     priorityFiles.Add(file);
+                    continue;
                 }
-                else
+
+                try
                 {
-                    otherFiles.Add(file);
+                    using (var reader = XmlReader.Create(file))
+                    {
+                        reader.MoveToContent();
+                        string? submodTag = reader.GetAttribute("submod_tag");
+
+                        if (string.IsNullOrEmpty(submodTag))
+                        {
+                            // File does not have a submod tag, it's a regular file.
+                            otherFiles.Add(file);
+                        }
+                        else if (activeSubmods.Contains(submodTag))
+                        {
+                            // File has an active submod tag.
+                            submodFiles.Add(file);
+                        }
+                        else
+                        {
+                            // File has an inactive submod tag, so we skip it.
+                            Program.Logger.Debug($"Skipping file '{fileName}' because its submod_tag '{submodTag}' is not active.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading XML file '{fileName}' for sorting/filtering. Skipping. Error: {ex.Message}");
                 }
             }
 
-            // Sort both lists alphabetically
+            // Sort all lists alphabetically
             priorityFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
+            submodFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
             otherFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
 
             // Combine the lists
+            priorityFiles.AddRange(submodFiles);
             priorityFiles.AddRange(otherFiles);
             return priorityFiles;
         }
@@ -612,7 +594,6 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
 
             int max = 0;
             foreach (var xml_file in files_paths)
@@ -752,7 +733,6 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
 
             string specific_subculture = "";
             string default_subculture = "";
@@ -911,7 +891,6 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
             files_paths.Reverse(); // Search from last-loaded to first
 
             // Priority 1: Search for specific faction levies in reverse file order
@@ -968,7 +947,6 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
             files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
 
             List<(int percentage, string unit_key, string name, string max, int level)> garrisonDefinitions = new List<(int percentage, string unit_key, string name, string max, int level)>();
@@ -1117,7 +1095,6 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
             files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
 
             //LEVIES skip
@@ -1429,7 +1406,6 @@ namespace CrusaderWars.unit_mapper
 
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var filesPaths = GetSortedFilePaths(factionsFolderPath, priorityFilePattern);
-            filesPaths = FilterFilesByActiveSubmods(filesPaths);
 
             XmlNode? defaultFactionNode = null;
             foreach (var xmlFile in filesPaths)
@@ -1550,7 +1526,6 @@ namespace CrusaderWars.unit_mapper
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
             files_paths.Reverse(); // Prioritize sub-mods
 
             foreach (var xml_file in files_paths)
@@ -1583,7 +1558,6 @@ namespace CrusaderWars.unit_mapper
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
 
             foreach (var xml_file in files_paths)
             {
@@ -1629,7 +1603,6 @@ namespace CrusaderWars.unit_mapper
 
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
-            files_paths = FilterFilesByActiveSubmods(files_paths);
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
