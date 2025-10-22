@@ -62,7 +62,6 @@ namespace CrusaderWars.twbattle
                 BattleStateBridge.Clear();
                 BattleState.ClearAutofixOverrides();
             }
-            TerrainGenerator.Clear();
             UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             var right_side = ArmiesReader.GetSideArmies("right", attacker_armies, defender_armies);
@@ -1001,6 +1000,7 @@ namespace CrusaderWars.twbattle
 
             // Clear battle state after successful completion
             BattleState.ClearBattleState();
+            TerrainGenerator.Clear(); // Moved from start of method to clear state AFTER battle is processed.
 
             return true; // Success
         }
