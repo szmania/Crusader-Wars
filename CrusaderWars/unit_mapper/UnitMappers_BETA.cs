@@ -1665,8 +1665,8 @@ namespace CrusaderWars.unit_mapper
             }
             else if (battleType == "settlement_unfortified")
             {
-                BattleStateBridge.BesiegedDeploymentWidth = "1400";
-                BattleStateBridge.BesiegedDeploymentHeight = "1400";
+                BattleStateBridge.BesiegedDeploymentWidth = "1350";
+                BattleStateBridge.BesiegedDeploymentHeight = "1350";
             }
 
             Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
