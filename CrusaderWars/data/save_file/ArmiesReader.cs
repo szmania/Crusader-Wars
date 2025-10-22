@@ -34,35 +34,35 @@ namespace CrusaderWars.data.save_file
             if (twbattle.BattleState.IsSiegeBattle)
             {
                 // Determine the player's actual side, accounting for the log swap when the player is besieged.
-                // DataSearchSides playerSide;
-                // If the player is not the owner or commander of the RightSide (the initial defenders in the log),
-                // then they must be on the LeftSide. This covers both player-as-attacker and player-as-defender (log-swapped) scenarios.
-                // if (CK3LogData.RightSide.GetMainParticipant().id != DataSearch.Player_Character.GetID() &&
-                //     CK3LogData.RightSide.GetCommander().id != DataSearch.Player_Character.GetID())
-                // {
-                //     playerSide = DataSearchSides.LeftSide;
-                //     Program.Logger.Debug("Player is not on RightSide in the log, so assigning to LeftSide.");
-                // }
-                // else
-                // {
-                //     playerSide = DataSearchSides.RightSide;
-                //     Program.Logger.Debug("Player is on RightSide in the log.");
-                // }
+                DataSearchSides playerSide;
+                // If the player is the main participant or commander of the LeftSide (the besiegers in the log),
+                // they are on the attacking side. Otherwise, they must be involved with the RightSide (besieged).
+                if (CK3LogData.LeftSide.GetMainParticipant().id == DataSearch.Player_Character.GetID() ||
+                    CK3LogData.LeftSide.GetCommander().id == DataSearch.Player_Character.GetID())
+                {
+                    playerSide = DataSearchSides.LeftSide;
+                    Program.Logger.Debug("Player is on LeftSide in the log.");
+                }
+                else
+                {
+                    playerSide = DataSearchSides.RightSide;
+                    Program.Logger.Debug("Player is not on LeftSide in the log, so assigning to RightSide.");
+                }
 
                 // Create sets of character IDs for quick lookup
                 var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id).Append(CK3LogData.LeftSide.GetCommander().id));
                 var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
                 // Also include the player's own character ID in the appropriate set to correctly identify armies they own but don't command.
-                // if (playerSide == DataSearchSides.LeftSide)
-                // {
-                //     attackerCharIDs.Add(DataSearch.Player_Character.GetID());
-                //     Program.Logger.Debug($"Player is on LeftSide, adding Player ID {DataSearch.Player_Character.GetID()} to attacker character set.");
-                // }
-                // else
-                // {
-                //     defenderCharIDs.Add(DataSearch.Player_Character.GetID());
-                //     Program.Logger.Debug($"Player is on RightSide, adding Player ID {DataSearch.Player_Character.GetID()} to defender character set.");
-                // }
+                if (playerSide == DataSearchSides.LeftSide)
+                {
+                    attackerCharIDs.Add(DataSearch.Player_Character.GetID());
+                    Program.Logger.Debug($"Player is on LeftSide, adding Player ID {DataSearch.Player_Character.GetID()} to attacker character set.");
+                }
+                else
+                {
+                    defenderCharIDs.Add(DataSearch.Player_Character.GetID());
+                    Program.Logger.Debug($"Player is on RightSide, adding Player ID {DataSearch.Player_Character.GetID()} to defender character set.");
+                }
 
                 // Pre-parse Armies.txt to find all merged sub-armies
                 var mergedSubArmyIDs = new HashSet<string>();
