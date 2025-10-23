@@ -254,8 +254,9 @@ namespace CrusaderWars.unit_mapper
                 : CrusaderWars.mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(ActivePlaythroughTag);
 
             var priorityFiles = new List<string>();
-            var submodFiles = new List<string>();
             var otherFiles = new List<string>();
+            var submodFiles = new List<string>();
+            var addonFiles = new List<string>(); // New list for add-ons
 
             // Simple wildcard matching for '*' at the end
             string patternStart = priorityFilePattern.TrimEnd('*');
@@ -275,22 +276,35 @@ namespace CrusaderWars.unit_mapper
                     using (var reader = XmlReader.Create(file))
                     {
                         reader.MoveToContent();
+                        string? addonForTag = reader.GetAttribute("submod_addon_for");
                         string? submodTag = reader.GetAttribute("submod_tag");
 
-                        if (string.IsNullOrEmpty(submodTag))
+                        if (!string.IsNullOrEmpty(addonForTag) && activeSubmods.Contains(addonForTag))
                         {
-                            // File does not have a submod tag, it's a regular file.
-                            otherFiles.Add(file);
+                            // File is an add-on for an active sub-mod.
+                            addonFiles.Add(file);
                         }
-                        else if (activeSubmods.Contains(submodTag))
+                        else if (!string.IsNullOrEmpty(submodTag) && activeSubmods.Contains(submodTag))
                         {
-                            // File has an active submod tag.
+                            // File is a main file for an active sub-mod.
                             submodFiles.Add(file);
+                        }
+                        else if (string.IsNullOrEmpty(addonForTag) && string.IsNullOrEmpty(submodTag))
+                        {
+                            // File has no sub-mod tags, it's an "Other" file.
+                            otherFiles.Add(file);
                         }
                         else
                         {
-                            // File has an inactive submod tag, so we skip it.
-                            Program.Logger.Debug($"Skipping file '{fileName}' because its submod_tag '{submodTag}' is not active.");
+                            // File has a tag for an inactive sub-mod, so we skip it.
+                            if (!string.IsNullOrEmpty(addonForTag))
+                            {
+                                Program.Logger.Debug($"Skipping file '{fileName}' because its submod_addon_for tag '{addonForTag}' is not active.");
+                            }
+                            if (!string.IsNullOrEmpty(submodTag))
+                            {
+                                Program.Logger.Debug($"Skipping file '{fileName}' because its submod_tag '{submodTag}' is not active.");
+                            }
                         }
                     }
                 }
@@ -302,13 +316,18 @@ namespace CrusaderWars.unit_mapper
 
             // Sort all lists alphabetically
             priorityFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
-            submodFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
             otherFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
+            submodFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
+            addonFiles.Sort((a, b) => String.Compare(Path.GetFileName(a), Path.GetFileName(b), StringComparison.OrdinalIgnoreCase));
 
-            // Combine the lists
-            priorityFiles.AddRange(submodFiles);
-            priorityFiles.AddRange(otherFiles);
-            return priorityFiles;
+            // Combine the lists in the new specified order
+            var combinedList = new List<string>();
+            combinedList.AddRange(priorityFiles);
+            combinedList.AddRange(otherFiles);
+            combinedList.AddRange(submodFiles);
+            combinedList.AddRange(addonFiles);
+            
+            return combinedList;
         }
 
         private static void ReadTerrainsFile()
