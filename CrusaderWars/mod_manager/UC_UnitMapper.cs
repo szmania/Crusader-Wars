@@ -26,6 +26,8 @@ namespace CrusaderWars.mod_manager
         private readonly List<Submod> _availableSubmods;
         private readonly string _playthroughTag;
 
+        public string GetPlaythroughTag() { return _playthroughTag; }
+
         public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
         {
             InitializeComponent();

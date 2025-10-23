@@ -52,6 +52,19 @@ namespace CrusaderWars
             Btn_LOTRTab.FlatAppearance.BorderColor = Color.Black;
             Btn_AGOTTab.FlatAppearance.BorderColor = Color.Black; // Added AGOT tab
 
+            // Reset submod button borders on all playthrough tabs
+            foreach (var playthrough in new[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab })
+            {
+                if (playthrough != null)
+                {
+                    var submodButton = playthrough.Controls.Find("BtnSubmods", true).FirstOrDefault() as Button;
+                    if (submodButton != null)
+                    {
+                        submodButton.FlatAppearance.BorderSize = 0;
+                    }
+                }
+            }
+
 
             if (activePlaythrough != null)
             {
@@ -65,6 +78,18 @@ namespace CrusaderWars
                 {
                     activeButton.FlatAppearance.BorderColor = _pulseState ? Color.FromArgb(255, 215, 0) : Color.FromArgb(255, 165, 0); // Gold/Orange pulse
                     activeButton.FlatAppearance.BorderSize = 2;
+                }
+
+                // New logic for submod button pulsation
+                var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(activePlaythrough.GetPlaythroughTag());
+                if (activeSubmods.Any())
+                {
+                    var submodButton = activePlaythrough.Controls.Find("BtnSubmods", true).FirstOrDefault() as Button;
+                    if (submodButton != null && submodButton.Visible)
+                    {
+                        submodButton.FlatAppearance.BorderColor = _pulseState ? Color.FromArgb(255, 215, 0) : Color.FromArgb(255, 165, 0); // Gold/Orange pulse
+                        submodButton.FlatAppearance.BorderSize = 2;
+                    }
                 }
             }
             else
