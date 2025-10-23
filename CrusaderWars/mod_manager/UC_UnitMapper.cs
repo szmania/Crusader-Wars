@@ -172,7 +172,7 @@ namespace CrusaderWars.mod_manager
 
             try
             {
-                var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled(progress));
+                var verificationResult = await Task.Run(() => VerifyModFiles(RequiredModsList, progress));
 
                 // 1. Check for missing files (highest priority)
                 if (verificationResult.MissingFiles.Any())
@@ -265,7 +265,7 @@ namespace CrusaderWars.mod_manager
 
                 try
                 {
-                    var verificationResult = await Task.Run(() => VerifyIfAllModsAreInstalled(progress));
+                    var verificationResult = await Task.Run(() => VerifyModFiles(RequiredModsList, progress));
 
                     // 1. Check for missing files
                     if (verificationResult.MissingFiles.Any())
@@ -342,12 +342,12 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        VerificationResult VerifyIfAllModsAreInstalled(IProgress<string>? progress)
+        private VerificationResult VerifyModFiles(List<(string FileName, string Sha256)> modsToVerifyList, IProgress<string>? progress)
         {
-            Program.Logger.Debug("Verifying if all required mods are installed and match hashes...");
+            Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
-            var modsToFind = RequiredModsList.GroupBy(item => item.FileName).ToDictionary(g => g.Key, g => g.First().Sha256);
-            Program.Logger.Debug($"Required mods list: {string.Join(", ", modsToFind.Keys)}");
+            var modsToFind = modsToVerifyList.GroupBy(item => item.FileName).ToDictionary(g => g.Key, g => g.First().Sha256);
+            Program.Logger.Debug($"Mods to verify: {string.Join(", ", modsToFind.Keys)}");
 
 
             //Verify data folder
@@ -442,7 +442,7 @@ namespace CrusaderWars.mod_manager
             return result;
         }
 
-        private void BtnSubmods_Click(object sender, EventArgs e)
+        private async void BtnSubmods_Click(object sender, EventArgs e)
         {
             var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(_playthroughTag);
 
@@ -450,7 +450,82 @@ namespace CrusaderWars.mod_manager
             {
                 if (selectionForm.ShowDialog() == DialogResult.OK)
                 {
-                    SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectionForm.SelectedSubmodTags);
+                    var selectedSubmodTags = selectionForm.SelectedSubmodTags;
+                    var selectedSubmods = _availableSubmods.Where(s => selectedSubmodTags.Contains(s.Tag)).ToList();
+                    var modsToValidate = selectedSubmods.SelectMany(s => s.Mods).ToList();
+
+                    if (!modsToValidate.Any())
+                    {
+                        SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectedSubmodTags);
+                        return;
+                    }
+
+                    this.Cursor = Cursors.WaitCursor;
+                    BtnSubmods.Enabled = false;
+
+                    Form statusForm = new Form
+                    {
+                        Width = 300,
+                        Height = 100,
+                        FormBorderStyle = FormBorderStyle.FixedDialog,
+                        Text = "Verification in Progress",
+                        StartPosition = FormStartPosition.CenterParent,
+                        ControlBox = false
+                    };
+                    Label statusLabel = new Label
+                    {
+                        Text = "Validating sub-mod files...",
+                        Dock = DockStyle.Fill,
+                        TextAlign = ContentAlignment.MiddleCenter
+                    };
+                    statusForm.Controls.Add(statusLabel);
+                    statusForm.Show(this.FindForm());
+
+                    var progress = new Progress<string>(update => {
+                        statusLabel.Text = update;
+                    });
+
+                    try
+                    {
+                        var verificationResult = await Task.Run(() => VerifyModFiles(modsToValidate, progress));
+
+                        if (verificationResult.MissingFiles.Any())
+                        {
+                            string missingMods = string.Join("\n", verificationResult.MissingFiles);
+                            MessageBox.Show($"You are missing these required sub-mod files:\n{missingMods}", "Crusader Conflicts: Missing Sub-Mod Files!",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        if (verificationResult.MismatchedFiles.Any())
+                        {
+                            var sb = new StringBuilder();
+                            sb.AppendLine("One or more required sub-mod files have different versions than expected.");
+                            sb.AppendLine("This could mean the mod is outdated or has been updated by its author.");
+                            sb.AppendLine("\nMismatched files:");
+                            foreach (var (fileName, _) in verificationResult.MismatchedFiles)
+                            {
+                                sb.AppendLine($"- {fileName}");
+                            }
+                            sb.AppendLine("\nDo you want to activate these sub-mods anyway?");
+
+                            var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: Sub-Mod Version Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                            if (dialogResult == DialogResult.No)
+                            {
+                                return;
+                            }
+                        }
+
+                        SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectedSubmodTags);
+                        MessageBox.Show("Sub-mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    finally
+                    {
+                        statusForm.Close();
+                        this.Cursor = Cursors.Default;
+                        BtnSubmods.Enabled = true;
+                    }
                 }
             }
         }
