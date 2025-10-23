@@ -103,7 +103,7 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.Name = "BtnSubmods";
             this.BtnSubmods.Size = new System.Drawing.Size(160, 30);
             this.BtnSubmods.TabIndex = 4;
-            this.BtnSubmods.Text = "Optional Sub-Mods";
+            this.BtnSubmods.Text = "OPTIONAL MODS";
             this.BtnSubmods.UseVisualStyleBackColor = true;
             this.BtnSubmods.Visible = false;
             this.BtnSubmods.Click += new System.EventHandler(this.BtnSubmods_Click);

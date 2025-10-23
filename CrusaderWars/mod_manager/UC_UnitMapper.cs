@@ -522,12 +522,26 @@ namespace CrusaderWars.mod_manager
                 if (selectionForm.ShowDialog() == DialogResult.OK)
                 {
                     var selectedSubmodTags = selectionForm.SelectedSubmodTags;
+
+                    // Compare old and new selections to see if validation is needed
+                    var initialSelection = new HashSet<string>(activeSubmods);
+                    var newSelection = new HashSet<string>(selectedSubmodTags);
+
+                    if (initialSelection.SetEquals(newSelection))
+                    {
+                        Program.Logger.Debug("Sub-mod selection unchanged. Skipping validation.");
+                        return; // Nothing changed, so just exit.
+                    }
+                    Program.Logger.Debug("Sub-mod selection changed. Proceeding with validation.");
+
+
                     var selectedSubmods = _availableSubmods.Where(s => selectedSubmodTags.Contains(s.Tag)).ToList();
                     var modsToValidate = selectedSubmods.SelectMany(s => s.Mods).ToList();
 
                     if (!modsToValidate.Any())
                     {
                         SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectedSubmodTags);
+                        MessageBox.Show("Sub-mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
