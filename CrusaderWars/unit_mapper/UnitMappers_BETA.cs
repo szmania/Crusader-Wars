@@ -103,6 +103,78 @@ namespace CrusaderWars.unit_mapper
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
+        public static (List<(string FileName, string Sha256)> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
+        {
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            var requiredMods = new List<(string FileName, string Sha256)>();
+            var submods = new List<Submod>();
+
+            foreach (var mapper in unit_mappers_folder)
+            {
+                string? mapperName = Path.GetDirectoryName(mapper);
+                var files = Directory.GetFiles(mapper);
+                foreach (var file in files)
+                {
+                    string fileName = Path.GetFileName(file);
+                    if (fileName == "tag.txt")
+                    {
+                        string fileTag = File.ReadAllText(file).Trim(); // Trim whitespace from the file content
+                        if (tag == fileTag)
+                        {
+                            string modsPath = mapper + @"\Mods.xml";
+                            if (File.Exists(modsPath))
+                            {
+                                XmlDocument xmlDocument = new XmlDocument();
+                                xmlDocument.Load(modsPath);
+                                if (xmlDocument.DocumentElement != null)
+                                {
+                                    foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
+                                    {
+                                        if (node is XmlComment) continue;
+                                        if (node.Name == "Mod")
+                                        {
+                                            string modFileName = node.InnerText;
+                                            string sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty;
+                                            requiredMods.Add((modFileName, sha256));
+                                        }
+                                        else if (node.Name == "Submod")
+                                        {
+                                            var submod = new Submod
+                                            {
+                                                Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                                ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                                            };
+                                            foreach(XmlNode submod_modNode in node.ChildNodes)
+                                            {
+                                                if(submod_modNode.Name == "Mod")
+                                                {
+                                                    string modFileName = submod_modNode.InnerText;
+                                                    string sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty;
+                                                    submod.Mods.Add((modFileName, sha256));
+                                                }
+                                            }
+                                            if(!string.IsNullOrEmpty(submod.Tag))
+                                            {
+                                                submods.Add(submod);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Conflicts: Crusader Conflicts: Unit Mappers Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return (requiredMods, submods);
+        }
+
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
         public static string? GetLoadedUnitMapperString() { 
@@ -1527,467 +1599,4 @@ namespace CrusaderWars.unit_mapper
             }
 
             string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths.Reverse(); // Prioritize sub-mods
-
-            foreach (var xml_file in files_paths)
-            {
-                XmlDocument FactionsFile = new XmlDocument();
-                FactionsFile.Load(xml_file);
-                XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{targetFaction}']");
-
-                if (factionNode != null)
-                {
-                    var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unitToReplace, keyToExclude);
-                    if (foundKey != NOT_FOUND_KEY)
-                    {
-                        return (foundKey, foundIsSiege);
-                    }
-                }
-            }
-
-            return (NOT_FOUND_KEY, false);
-        }
-
-        public static List<string> GetFactionsByHeritage(string heritageName)
-        {
-            var factions = new HashSet<string>();
-            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath) || string.IsNullOrEmpty(heritageName))
-            {
-                return new List<string>();
-            }
-
-            string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
-
-            foreach (var xml_file in files_paths)
-            {
-                XmlDocument CulturesFile = new XmlDocument();
-                CulturesFile.Load(xml_file);
-                if (CulturesFile.DocumentElement == null) continue;
-
-                foreach (XmlNode heritageNode in CulturesFile.DocumentElement.SelectNodes($"Heritage[@name='{heritageName}']"))
-                {
-                    if (heritageNode.Attributes?["faction"]?.Value is string heritageFaction && !string.IsNullOrEmpty(heritageFaction)) factions.Add(heritageFaction);
-                    foreach (XmlNode cultureNode in heritageNode.SelectNodes("Culture"))
-                    {
-                        if (cultureNode.Attributes?["faction"]?.Value is string cultureFaction && !string.IsNullOrEmpty(cultureFaction)) factions.Add(cultureFaction);
-                    }
-                }
-            }
-            return factions.ToList();
-        }
-
-        public static string GetAttilaFaction(string CultureName, string HeritageName)
-        {
-            Program.Logger.Debug($"Searching faction for Culture:{CultureName}, Heritage:{HeritageName}");
-            if (string.IsNullOrEmpty(CultureName))
-            {
-                Program.Logger.Debug("WARNING: CultureName is null/empty");
-            }
-            if (string.IsNullOrEmpty(HeritageName))
-            {
-                Program.Logger.Debug("WARNING: HeritageName is null/empty");
-            }
-
-            (string faction, string file) heritage_mapping = ("", "");
-            (string faction, string file) culture_mapping = ("", "");
-
-            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath))
-            {
-                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get Attila faction.");
-                throw new Exception("Unit mapper folder path not configured");
-            }
-            
-            string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
-            Program.Logger.Debug($"Searching for Attila faction for Culture '{CultureName}', Heritage '{HeritageName}' in: {cultures_folder_path}");
-
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
-            foreach (var xml_file in files_paths)
-            {
-                if (Path.GetExtension(xml_file) == ".xml")
-                {
-                    string currentFile = Path.GetFileName(xml_file);
-                    Program.Logger.Debug($"Scanning cultures file: {currentFile}");
-                    XmlDocument CulturesFile = new XmlDocument();
-                    CulturesFile.Load(xml_file);
-
-                    if (CulturesFile.DocumentElement == null) continue; // Add null check for DocumentElement
-                    foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
-                    {
-                        if (heritage is XmlComment) continue;
-
-                        string heritage_name = heritage.Attributes?["name"]?.Value ?? string.Empty;                       
-
-                        if(heritage_name == HeritageName)
-                        {
-                            string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            if (string.IsNullOrEmpty(heritage_mapping.faction) && !string.IsNullOrEmpty(found_heritage_faction))
-                            {
-                                heritage_mapping = (found_heritage_faction, currentFile);
-                                Program.Logger.Debug($"  - Found heritage mapping: {HeritageName} -> {heritage_mapping.faction}");
-                            }
-
-                            foreach(XmlNode culture in heritage.ChildNodes)
-                            {
-                                if (culture is XmlComment) continue; 
-                                string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
-
-                                if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
-                                {
-                                    string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
-                                    if (string.IsNullOrEmpty(culture_mapping.faction) && !string.IsNullOrEmpty(found_culture_faction))
-                                    {
-                                        culture_mapping = (found_culture_faction, currentFile);
-                                        Program.Logger.Debug($"  - Found culture mapping: {CultureName} -> {culture_mapping.faction}");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            string faction = "";
-            if (!string.IsNullOrEmpty(culture_mapping.faction))
-            {
-                faction = culture_mapping.faction;
-                Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using specific culture mapping from '{culture_mapping.file}'.");
-            }
-            else if (!string.IsNullOrEmpty(heritage_mapping.faction))
-            {
-                faction = heritage_mapping.faction;
-                Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using heritage mapping from '{heritage_mapping.file}' (no specific culture match).");
-            }
-
-            if (string.IsNullOrEmpty(faction))
-            {
-                // Try fallback to Default heritage and Default culture
-                foreach (var xml_file in files_paths)
-                {
-                    if (Path.GetExtension(xml_file) == ".xml")
-                    {
-                        XmlDocument CulturesFile = new XmlDocument();
-                        CulturesFile.Load(xml_file);
-
-                        if (CulturesFile.DocumentElement == null) continue; // Add null check for DocumentElement
-                        foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
-                        {
-                            if (heritage is XmlComment) continue;
-                            string heritage_name = heritage.Attributes?["name"]?.Value ?? string.Empty;
-                            if (heritage_name == "Default")
-                            {
-                                foreach(XmlNode culture in heritage.ChildNodes)
-                                {
-                                    if (culture is XmlComment) continue;
-                                    string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
-                                    if (culture_name == "Default" && heritage.Attributes?["faction"]?.Value != null)
-                                    {
-                                        faction = heritage.Attributes["faction"]!.Value;
-                                        if (!string.IsNullOrEmpty(faction))
-                                        {
-                                            Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using fallback 'Default/Default' mapping from '{Path.GetFileName(xml_file)}'.");
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!string.IsNullOrEmpty(faction)) break;
-                            }
-                        }
-                    }
-                    if (!string.IsNullOrEmpty(faction)) break;
-                }
-            }
-
-            if (string.IsNullOrEmpty(faction))
-            {
-                Program.Logger.Debug($"ERROR: Faction not found for Culture '{CultureName}', Heritage '{HeritageName}'. All fallbacks failed.");
-            }
-            else
-            {
-                Program.Logger.Debug($"Final faction for '{CultureName}/{HeritageName}' is '{faction}'.");
-            }
-
-            return faction;
-        }
-
-        public static (string X, string Y, List<string>? orientations)? GetSettlementMap(string faction, string battleType, string provinceName)
-        {
-            BattleStateBridge.Clear(); // Clear any previous overrides at the start of a new map search.
-
-            // Set defaults first
-            if (battleType == "settlement_standard")
-            {
-                BattleStateBridge.BesiegedDeploymentWidth = "1500";
-                BattleStateBridge.BesiegedDeploymentHeight = "1500";
-            }
-            else if (battleType == "settlement_unfortified")
-            {
-                BattleStateBridge.BesiegedDeploymentWidth = "1350";
-                BattleStateBridge.BesiegedDeploymentHeight = "1350";
-            }
-
-            Program.Logger.Debug($"Attempting to get settlement map for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
-
-            bool forceGeneric = BattleState.AutofixForceGenericMap;
-            if (forceGeneric)
-            {
-                Program.Logger.Debug("Autofix: Forcing use of generic settlement map.");
-            }
-
-            string cacheKey = $"{provinceName}_{battleType}";
-            if (BattleState.AutofixMapVariantOffset > 0) cacheKey += $"_offset{BattleState.AutofixMapVariantOffset}";
-            if (forceGeneric) cacheKey += "_forcegeneric";
-
-            if (_provinceMapCache.TryGetValue(cacheKey, out var cachedMap))
-            {
-                Program.Logger.Debug($"Found cached settlement map for '{cacheKey}'. Coordinates: ({cachedMap.X}, {cachedMap.Y})");
-                return cachedMap;
-            }
-
-            SettlementVariant? selectedVariant = null;
-            string usedFactionForLog = faction; // For logging
-
-            // Priority 1: Unique Map by province_names attribute
-            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
-            {
-                var uniqueMapByProvName = Terrains.UniqueSettlementMaps
-                    .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-                
-                if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
-                {
-                    Program.Logger.Debug($"Found unique settlement map by 'province_names' attribute for Province '{provinceName}'.");
-                    int deterministicIndex = GetDeterministicIndex(provinceName, uniqueMapByProvName.Variants.Count);
-                    selectedVariant = uniqueMapByProvName.Variants[deterministicIndex];
-                }
-            }
-
-            // Priority 2: Unique Map by Variant key (existing logic)
-            if (selectedVariant == null && !forceGeneric && Terrains?.UniqueSettlementMaps != null)
-            {
-                var matchingUniqueMaps = Terrains.UniqueSettlementMaps
-                                         .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
-                                         .ToList();
-
-                foreach (var uniqueMap in matchingUniqueMaps)
-                {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
-                    if (uniqueMatch != null)
-                    {
-                        Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'.");
-                        selectedVariant = uniqueMatch;
-                        break;
-                    }
-                }
-            }
-
-            // Priority 3: Generic Map by province_names attribute (Specific Faction then Default)
-            if (selectedVariant == null && Terrains?.SettlementMaps != null)
-            {
-                var genericMapByProvName = Terrains.SettlementMaps
-                    .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-                
-                if (genericMapByProvName == null)
-                {
-                    genericMapByProvName = Terrains.SettlementMaps
-                        .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                               sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                               sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-                }
-
-                if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
-                {
-                    Program.Logger.Debug($"Found generic settlement map for Faction '{genericMapByProvName.Faction}' by 'province_names' attribute for Province '{provinceName}'.");
-                    int deterministicIndex = GetDeterministicIndex(provinceName, genericMapByProvName.Variants.Count);
-                    selectedVariant = genericMapByProvName.Variants[deterministicIndex];
-                }
-            }
-
-            // Priority 4 & 5: Generic Map by faction (existing logic, excluding those with province_names)
-            if (selectedVariant == null && Terrains?.SettlementMaps != null)
-            {
-                var matchingGenericMaps = Terrains.SettlementMaps
-                                          .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                                       !sm.ProvinceNames.Any())
-                                          .ToList();
-
-                if (!matchingGenericMaps.Any())
-                {
-                    matchingGenericMaps = Terrains.SettlementMaps
-                                          .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                                       !sm.ProvinceNames.Any())
-                                          .ToList();
-                    usedFactionForLog = "Default";
-                }
-
-                if (matchingGenericMaps.Any())
-                {
-                    var allGenericVariants = matchingGenericMaps.SelectMany(sm => sm.Variants).ToList();
-                    if (allGenericVariants.Any())
-                    {
-                        int deterministicIndex = GetDeterministicIndex(provinceName, allGenericVariants.Count);
-                        selectedVariant = allGenericVariants[deterministicIndex];
-                        Program.Logger.Debug($"Deterministically selected settlement map variant '{selectedVariant.Key}' for Faction '{usedFactionForLog}', BattleType '{battleType}'.");
-                    }
-                }
-            }
-
-            // If a variant was found by any method, apply overrides and return it
-            if (selectedVariant != null)
-            {
-                if (!string.IsNullOrEmpty(selectedVariant.BesiegerDeploymentZoneWidth))
-                {
-                    BattleStateBridge.BesiegedDeploymentWidth = selectedVariant.BesiegerDeploymentZoneWidth;
-                    Program.Logger.Debug($"Overriding besieged deployment width to: {selectedVariant.BesiegerDeploymentZoneWidth}");
-                }
-                if (!string.IsNullOrEmpty(selectedVariant.BesiegerDeploymentZoneHeight))
-                {
-                    BattleStateBridge.BesiegedDeploymentHeight = selectedVariant.BesiegerDeploymentZoneHeight;
-                    Program.Logger.Debug($"Overriding besieged deployment height to: {selectedVariant.BesiegerDeploymentZoneHeight}");
-                }
-
-                Program.Logger.Debug($"Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
-                _provinceMapCache[cacheKey] = (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
-                return (selectedVariant.X, selectedVariant.Y, selectedVariant.BesiegerOrientations);
-            }
-            else
-            {
-                // Final Fallback
-                Program.Logger.Debug($"No suitable settlement map variant found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
-                return null;
-            }
-        }
-
-        public static string GetSettlementMapDescription(string faction, string battleType, string provinceName)
-        {
-            if (Terrains == null) return "Unknown Map";
-
-            // This method replicates the logic of GetSettlementMap to find the *original* map, ignoring autofix overrides.
-
-            // Local function to get the original deterministic index without autofix offsets.
-            int GetOriginalDeterministicIndex(string input, int listCount)
-            {
-                if (listCount <= 0) return 0;
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-                    byte[] hashBytes = sha256.ComputeHash(inputBytes);
-                    int hashAsInt = BitConverter.ToInt32(hashBytes, 0);
-                    return Math.Abs(hashAsInt % listCount);
-                }
-            }
-
-            // Priority 1 & 2: Unique Maps
-            var uniqueMapByProvName = Terrains.UniqueSettlementMaps
-                .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-            if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
-            {
-                int index = GetOriginalDeterministicIndex(provinceName, uniqueMapByProvName.Variants.Count);
-                return $"Unique Map ('{uniqueMapByProvName.Variants[index].Key}')";
-            }
-
-            var matchingUniqueMaps = Terrains.UniqueSettlementMaps
-                                     .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
-                                     .ToList();
-            foreach (var uniqueMap in matchingUniqueMaps)
-            {
-                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
-                if (uniqueMatch != null)
-                {
-                    return $"Unique Map ('{uniqueMatch.Key}')";
-                }
-            }
-
-            // Priority 3: Generic Map by province_names
-            var genericMapByProvName = Terrains.SettlementMaps
-                .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-            if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
-            {
-                int index = GetOriginalDeterministicIndex(provinceName, genericMapByProvName.Variants.Count);
-                return $"Generic Map ('{genericMapByProvName.Variants[index].Key}')";
-            }
-
-            var defaultGenericMapByProvName = Terrains.SettlementMaps
-                .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-            if (defaultGenericMapByProvName != null && defaultGenericMapByProvName.Variants.Any())
-            {
-                int index = GetOriginalDeterministicIndex(provinceName, defaultGenericMapByProvName.Variants.Count);
-                return $"Generic Map ('{defaultGenericMapByProvName.Variants[index].Key}')";
-            }
-
-            // Priority 4 & 5: Generic Map by faction
-            var matchingGenericMaps = Terrains.SettlementMaps
-                                      .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                                   !sm.ProvinceNames.Any())
-                                      .ToList();
-            if (!matchingGenericMaps.Any())
-            {
-                matchingGenericMaps = Terrains.SettlementMaps
-                                      .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                                   !sm.ProvinceNames.Any())
-                                      .ToList();
-            }
-            if (matchingGenericMaps.Any())
-            {
-                var allGenericVariants = matchingGenericMaps.SelectMany(sm => sm.Variants).ToList();
-                if (allGenericVariants.Any())
-                {
-                    int index = GetOriginalDeterministicIndex(provinceName, allGenericVariants.Count);
-                    return $"Generic Map ('{allGenericVariants[index].Key}')";
-                }
-            }
-
-            return "Unknown Map";
-        }
-
-        public static void SetMapperImage()
-        {
-            string destination_path = Directory.GetCurrentDirectory() + @"\data\battle files\campaign_maps\main_attila_map\main_attila_map.png";
-            try
-            {
-                if (LoadedUnitMapper_FolderPath == null)
-                {
-                    Program.Logger.Debug("LoadedUnitMapper_FolderPath is null. Cannot set mapper image.");
-                    throw new InvalidOperationException("LoadedUnitMapper_FolderPath is not set.");
-                }
-
-                string mapperFolderPath = LoadedUnitMapper_FolderPath; // Local variable for compiler analysis
-                var image_path = Directory.GetFiles(mapperFolderPath).Where(x => x.EndsWith(".png")).FirstOrDefault();
-                
-                if (image_path != null)
-                {
-                    File.Copy(image_path, destination_path, true);
-                    return;
-                }
-                else
-                {
-                    Program.Logger.Debug($"No image found in {mapperFolderPath}. Falling back to default image.");
-                    throw new FileNotFoundException($"No .png image found in {mapperFolderPath}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Program.Logger.Debug($"Error setting mapper image: {ex.Message}. Using default image.");
-                // In case of error or no image found, use default image
-                string default_image_path = Directory.GetCurrentDirectory() + "\\settings\\main_attila_map.png";
-                File.Copy(default_image_path, destination_path, true);
-                return;
-            }
-        }
-    }
-}
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialModel API Response Error. Please retry the previous request

@@ -1144,81 +1144,6 @@ namespace CrusaderWars
             }
         }
 
-        // MODIFIED: This method now returns submods as well.
-        // The calling code in ReadUnitMappersOptions will need to be updated.
-        // Since UC_UnitMapper.cs is not available, this will require changes once that file is provided.
-        (List<(string FileName, string Sha256)> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
-        {
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
-            var requiredMods = new List<(string FileName, string Sha256)>();
-            var submods = new List<Submod>();
-
-            foreach (var mapper in unit_mappers_folder)
-            {
-                string? mapperName = Path.GetDirectoryName(mapper);
-                var files = Directory.GetFiles(mapper);
-                foreach (var file in files)
-                {
-                    string fileName = Path.GetFileName(file);
-                    if (fileName == "tag.txt")
-                    {
-                        string fileTag = File.ReadAllText(file).Trim(); // Trim whitespace from the file content
-                        if (tag == fileTag)
-                        {
-                            string modsPath = mapper + @"\Mods.xml";
-                            if (File.Exists(modsPath))
-                            {
-                                XmlDocument xmlDocument = new XmlDocument();
-                                xmlDocument.Load(modsPath);
-                                if (xmlDocument.DocumentElement != null)
-                                {
-                                    foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
-                                    {
-                                        if (node is XmlComment) continue;
-                                        if (node.Name == "Mod")
-                                        {
-                                            string modFileName = node.InnerText;
-                                            string sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty;
-                                            requiredMods.Add((modFileName, sha256));
-                                        }
-                                        else if (node.Name == "Submod")
-                                        {
-                                            var submod = new Submod
-                                            {
-                                                Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
-                                                ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
-                                            };
-                                            foreach(XmlNode submod_modNode in node.ChildNodes)
-                                            {
-                                                if(submod_modNode.Name == "Mod")
-                                                {
-                                                    string modFileName = submod_modNode.InnerText;
-                                                    string sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty;
-                                                    submod.Mods.Add((modFileName, sha256));
-                                                }
-                                            }
-                                            if(!string.IsNullOrEmpty(submod.Tag))
-                                            {
-                                                submods.Add(submod);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Conflicts: Crusader Conflicts: Unit Mappers Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return (requiredMods, submods);
-        }
-
         // NEW HELPER METHOD: GetOrCreateUnitMapperOption
         private string GetOrCreateUnitMapperOption(XmlDocument doc, string mapperName)
         {
@@ -1296,10 +1221,10 @@ namespace CrusaderWars
             // NOTE: The constructor for UC_UnitMapper will need to be updated to accept the list of submods.
             // This change is commented out because the UC_UnitMapper.cs file was not provided.
             // You will need to modify its constructor to accept `List<Submod> submods` as a new parameter.
-            var ck3Mods = GetUnitMappersModsCollectionFromTag("DefaultCK3");
-            var tfeMods = GetUnitMappersModsCollectionFromTag("TheFallenEagle");
-            var lotrMods = GetUnitMappersModsCollectionFromTag("RealmsInExile");
-            var agotMods = GetUnitMappersModsCollectionFromTag("AGOT");
+            var ck3Mods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3");
+            var tfeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle");
+            var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
+            var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
 
             CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods, ck3ToggleState, "DefaultCK3", ck3Mods.submods);
             TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods, tfeToggleState, "TheFallenEagle", tfeMods.submods);

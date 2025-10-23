@@ -49,6 +49,8 @@ namespace CrusaderWars
         private PictureBox playthroughPictureBox = null!;
         private Label playthroughTitleLabel = null!;
         private Label playthroughNameLabel = null!;
+        private Label playthroughSubmodsTitleLabel = null!;
+        private Label playthroughSubmodsListLabel = null!;
 
         // Pre-release opt-in animation fields
         private System.Windows.Forms.Timer? _preReleasePulseTimer;
@@ -556,6 +558,8 @@ namespace CrusaderWars
             playthroughPictureBox = new PictureBox();
             playthroughTitleLabel = new Label();
             playthroughNameLabel = new Label();
+            playthroughSubmodsTitleLabel = new Label();
+            playthroughSubmodsListLabel = new Label();
 
             // Panel
             playthroughPanel.SuspendLayout();
@@ -585,10 +589,28 @@ namespace CrusaderWars
             playthroughNameLabel.AutoSize = false; // Changed to false for fixed size and wrapping
             playthroughNameLabel.Size = new Size(190, 40); // Fixed size to allow two lines of text
 
+            // Submods Title Label
+            playthroughSubmodsTitleLabel.Text = "Optional Sub-Mods:";
+            playthroughSubmodsTitleLabel.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Bold | FontStyle.Underline);
+            playthroughSubmodsTitleLabel.ForeColor = Color.WhiteSmoke;
+            playthroughSubmodsTitleLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughNameLabel.Bottom + 5);
+            playthroughSubmodsTitleLabel.AutoSize = true;
+            playthroughSubmodsTitleLabel.Visible = false; // Initially hidden
+
+            // Submods List Label
+            playthroughSubmodsListLabel.Font = new Font("Microsoft Sans Serif", 8f, FontStyle.Italic);
+            playthroughSubmodsListLabel.ForeColor = Color.WhiteSmoke;
+            playthroughSubmodsListLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughSubmodsTitleLabel.Bottom + 2);
+            playthroughSubmodsListLabel.AutoSize = false; // To control size and wrapping
+            playthroughSubmodsListLabel.Size = new Size(190, 60); // Allow for multiple lines
+            playthroughSubmodsListLabel.Visible = false; // Initially hidden
+
             // Add controls
             playthroughPanel.Controls.Add(playthroughPictureBox);
             playthroughPanel.Controls.Add(playthroughTitleLabel);
             playthroughPanel.Controls.Add(playthroughNameLabel);
+            playthroughPanel.Controls.Add(playthroughSubmodsTitleLabel);
+            playthroughPanel.Controls.Add(playthroughSubmodsListLabel);
             this.Controls.Add(playthroughPanel);
             playthroughPanel.BringToFront();
             playthroughPanel.ResumeLayout(false);
@@ -711,6 +733,45 @@ namespace CrusaderWars
                 playthroughNameLabel.Text = "None Selected - Go to Mod Settings";
                 playthroughNameLabel.ForeColor = Color.FromArgb(255, 128, 128); // Soft red
                 playthroughPanel.Visible = true;
+                playthroughSubmodsTitleLabel.Visible = false;
+                playthroughSubmodsListLabel.Visible = false;
+                playthroughPanel.Size = new Size(280, 80);
+            }
+            else
+            {
+                // Handle sub-mods display
+                var activeSubmodTags = mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(activePlaythroughTag);
+                if (activeSubmodTags.Any())
+                {
+                    var allAvailableSubmods = unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag).submods;
+                    var activeSubmodScreenNames = allAvailableSubmods
+                        .Where(s => activeSubmodTags.Contains(s.Tag))
+                        .Select(s => $"• {s.ScreenName}")
+                        .ToList();
+
+                    if (activeSubmodScreenNames.Any())
+                    {
+                        playthroughSubmodsTitleLabel.Visible = true;
+                        playthroughSubmodsListLabel.Visible = true;
+                        playthroughSubmodsListLabel.Text = string.Join("\n", activeSubmodScreenNames);
+
+                        // Adjust panel size
+                        playthroughSubmodsListLabel.Size = new Size(190, 15 * activeSubmodScreenNames.Count); // Dynamic height
+                        playthroughPanel.Size = new Size(280, playthroughSubmodsListLabel.Bottom + 10);
+                    }
+                    else
+                    {
+                        playthroughSubmodsTitleLabel.Visible = false;
+                        playthroughSubmodsListLabel.Visible = false;
+                        playthroughPanel.Size = new Size(280, playthroughNameLabel.Bottom + 10);
+                    }
+                }
+                else
+                {
+                    playthroughSubmodsTitleLabel.Visible = false;
+                    playthroughSubmodsListLabel.Visible = false;
+                    playthroughPanel.Size = new Size(280, playthroughNameLabel.Bottom + 10);
+                }
             }
         }
 
