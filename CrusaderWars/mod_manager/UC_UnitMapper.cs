@@ -9,6 +9,7 @@ using System.Text; // Added for StringBuilder
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars.mod_manager
 {
@@ -22,9 +23,10 @@ namespace CrusaderWars.mod_manager
         string SteamCollectionLink {  get; set; }
         List<(string FileName, string Sha256)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
-        private string _playthroughTag; // NEW FIELD
+        private readonly List<Submod> _availableSubmods;
+        private readonly string _playthroughTag;
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256)> requiredMods, bool state, string playthroughTag) // UPDATED CONSTRUCTOR SIGNATURE
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
         {
             InitializeComponent();
 
@@ -39,7 +41,10 @@ namespace CrusaderWars.mod_manager
             SteamCollectionLink = steamCollectionLink;
             uC_Toggle1.SetState(state);
             RequiredModsList = requiredMods;
-            _playthroughTag = playthroughTag; // INITIALIZE NEW FIELD
+            _playthroughTag = playthroughTag;
+            _availableSubmods = submods;
+
+            BtnSubmods.Visible = _availableSubmods != null && _availableSubmods.Any();
         }
 
         public void SetPulsing(bool isPulsing)
@@ -437,5 +442,17 @@ namespace CrusaderWars.mod_manager
             return result;
         }
 
+        private void BtnSubmods_Click(object sender, EventArgs e)
+        {
+            var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(_playthroughTag);
+
+            using (var selectionForm = new SubmodSelectionForm(_availableSubmods, activeSubmods))
+            {
+                if (selectionForm.ShowDialog() == DialogResult.OK)
+                {
+                    SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectionForm.SelectedSubmodTags);
+                }
+            }
+        }
     }
 }

@@ -245,7 +245,8 @@ namespace CrusaderWars.unit_mapper
 
             if(LoadedUnitMapper_FolderPath == null || !Directory.Exists($@"{LoadedUnitMapper_FolderPath}\terrains")) { Terrains = null; return; }
 
-            var terrainFiles = Directory.GetFiles($@"{LoadedUnitMapper_FolderPath}\terrains");
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var terrainFiles = GetSortedFilePaths($@"{LoadedUnitMapper_FolderPath}\terrains", priorityFilePattern);
 
             try
             {
@@ -1042,7 +1043,9 @@ namespace CrusaderWars.unit_mapper
 
             string titles_folder_path = LoadedUnitMapper_FolderPath + @"\Titles";
             if (!Directory.Exists(titles_folder_path)) return (NOT_FOUND_KEY, false);
-            var files_paths = Directory.GetFiles(titles_folder_path);
+            
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(titles_folder_path, priorityFilePattern);
 
             var owner = unit.GetOwner();
             if(owner == null || owner.GetPrimaryTitleKey() == string.Empty)

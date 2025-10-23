@@ -109,6 +109,7 @@ namespace CrusaderWars
             BattleScale_Tab = new UC_BattleScaleOptions();
             CandK_Tab = new UC_CommandersAndKnightsOptions();
 
+            SubmodManager.LoadActiveSubmods();
             ReadUnitMappersOptions();
             ReadOptionsFile();
             SetOptionsUIData();
@@ -1275,11 +1276,11 @@ namespace CrusaderWars
             var lotrMods = GetUnitMappersModsCollectionFromTag("RealmsInExile");
             var agotMods = GetUnitMappersModsCollectionFromTag("AGOT");
 
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods, ck3ToggleState, "DefaultCK3" /*, ck3Mods.submods */);
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods, tfeToggleState, "TheFallenEagle" /*, tfeMods.submods */); // MODIFIED LINE
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods, ck3ToggleState, "DefaultCK3", ck3Mods.submods);
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods, tfeToggleState, "TheFallenEagle", tfeMods.submods);
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods, lotrToggleState, "RealmsInExile" /*, lotrMods.submods */);
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods, agotToggleState, "AGOT" /*, agotMods.submods */); // Changed to use playthrough_agot
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods, lotrToggleState, "RealmsInExile", lotrMods.submods);
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods, agotToggleState, "AGOT", agotMods.submods); // Changed to use playthrough_agot
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;

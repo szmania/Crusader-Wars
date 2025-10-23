@@ -34,6 +34,7 @@ namespace CrusaderWars.mod_manager
             this.BtnVerifyMods = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.uC_Toggle1 = new CrusaderWars.client.UC_Toggle();
+            this.BtnSubmods = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -48,37 +49,37 @@ namespace CrusaderWars.mod_manager
             // 
             // button1
             // 
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
+            this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.ForeColor = System.Drawing.Color.White;
             this.button1.Location = new System.Drawing.Point(290, 80);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(160, 30);
             this.button1.TabIndex = 2;
             this.button1.Text = "Required Mods";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
-            this.button1.FlatAppearance.BorderSize = 0;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // BtnVerifyMods
             // 
+            this.BtnVerifyMods.BackgroundImage = global::CrusaderWars.Properties.Resources.searchModsIcon;
+            this.BtnVerifyMods.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BtnVerifyMods.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnVerifyMods.Location = new System.Drawing.Point(400, 10);
             this.BtnVerifyMods.Name = "BtnVerifyMods";
             this.BtnVerifyMods.Size = new System.Drawing.Size(40, 35);
             this.BtnVerifyMods.TabIndex = 3;
             this.BtnVerifyMods.Text = "";
+            this.toolTip1.SetToolTip(this.BtnVerifyMods, "Verify required mods are installed");
             this.BtnVerifyMods.UseVisualStyleBackColor = true;
-            this.BtnVerifyMods.BackgroundImage = global::CrusaderWars.Properties.Resources.searchModsIcon;
-            this.BtnVerifyMods.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.BtnVerifyMods.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnVerifyMods.Click += new System.EventHandler(this.BtnVerifyMods_Click);
             // 
             // toolTip1
             // 
             this.toolTip1.ToolTipTitle = "Mod Verification";
-            this.toolTip1.SetToolTip(this.BtnVerifyMods, "Verify required mods are installed");
             // 
             // uC_Toggle1
             // 
@@ -90,10 +91,28 @@ namespace CrusaderWars.mod_manager
             this.uC_Toggle1.TabIndex = 1;
             this.uC_Toggle1.Click += new System.EventHandler(this.uC_Toggle1_Click);
             // 
+            // BtnSubmods
+            // 
+            this.BtnSubmods.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
+            this.BtnSubmods.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.BtnSubmods.FlatAppearance.BorderSize = 0;
+            this.BtnSubmods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BtnSubmods.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnSubmods.ForeColor = System.Drawing.Color.White;
+            this.BtnSubmods.Location = new System.Drawing.Point(290, 45);
+            this.BtnSubmods.Name = "BtnSubmods";
+            this.BtnSubmods.Size = new System.Drawing.Size(160, 30);
+            this.BtnSubmods.TabIndex = 4;
+            this.BtnSubmods.Text = "Sub-Mods";
+            this.BtnSubmods.UseVisualStyleBackColor = true;
+            this.BtnSubmods.Visible = false;
+            this.BtnSubmods.Click += new System.EventHandler(this.BtnSubmods_Click);
+            // 
             // UC_UnitMapper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.BtnSubmods);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.uC_Toggle1);
             this.Controls.Add(this.button1);
@@ -113,5 +132,6 @@ namespace CrusaderWars.mod_manager
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button BtnVerifyMods;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Button BtnSubmods;
     }
 }
