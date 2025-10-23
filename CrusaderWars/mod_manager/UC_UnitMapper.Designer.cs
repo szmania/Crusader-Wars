@@ -104,6 +104,8 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.Size = new System.Drawing.Size(160, 30);
             this.BtnSubmods.TabIndex = 4;
             this.BtnSubmods.Text = "OPTIONAL SUB-MODS";
+            this.toolTip1.SetToolTip(this.BtnSubmods, "Select supported optional sub-mods for Total War: Attila that add additional fac" +
+        "tions or units.");
             this.BtnSubmods.UseVisualStyleBackColor = true;
             this.BtnSubmods.Visible = false;
             this.BtnSubmods.Click += new System.EventHandler(this.BtnSubmods_Click);
