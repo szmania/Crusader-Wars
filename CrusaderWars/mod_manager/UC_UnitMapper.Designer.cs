@@ -55,9 +55,9 @@ namespace CrusaderWars.mod_manager
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(290, 90);
+            this.button1.Location = new System.Drawing.Point(280, 55);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(160, 30);
+            this.button1.Size = new System.Drawing.Size(180, 30);
             this.button1.TabIndex = 2;
             this.button1.Text = "Required Mods";
             this.button1.UseVisualStyleBackColor = true;
@@ -99,7 +99,7 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnSubmods.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnSubmods.ForeColor = System.Drawing.Color.White;
-            this.BtnSubmods.Location = new System.Drawing.Point(280, 55);
+            this.BtnSubmods.Location = new System.Drawing.Point(280, 90);
             this.BtnSubmods.Name = "BtnSubmods";
             this.BtnSubmods.Size = new System.Drawing.Size(180, 30);
             this.BtnSubmods.TabIndex = 4;

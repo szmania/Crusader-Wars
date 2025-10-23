@@ -121,7 +121,14 @@ namespace CrusaderWars.mod_manager
                     }
                 }
 
-                MessageBox.Show(modsMessage.ToString(), messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (_playthroughTag == "AGOT")
+                {
+                    ShowClickableMessageBox(modsMessage.ToString(), messageBoxTitle);
+                }
+                else
+                {
+                    MessageBox.Show(modsMessage.ToString(), messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
             else if (!string.IsNullOrEmpty(SteamCollectionLink)) // Original logic for other playthroughs
             {
@@ -229,6 +236,68 @@ namespace CrusaderWars.mod_manager
                 uC_Toggle1.Enabled = true;
                 BtnVerifyMods.Enabled = true;
                 button1.Enabled = true;
+            }
+        }
+
+        private void ShowClickableMessageBox(string text, string title)
+        {
+            using (Form form = new Form())
+            {
+                form.Text = title;
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.ClientSize = new Size(480, 250);
+                form.MaximizeBox = false;
+                form.MinimizeBox = false;
+
+                RichTextBox richTextBox = new RichTextBox
+                {
+                    Dock = DockStyle.Fill,
+                    ReadOnly = true,
+                    BorderStyle = BorderStyle.None,
+                    Text = text,
+                    DetectUrls = true,
+                    BackColor = SystemColors.Control,
+                    Font = new Font("Segoe UI", 9F),
+                    Padding = new Padding(10)
+                };
+                richTextBox.LinkClicked += (s, args) => {
+                    Process.Start(new ProcessStartInfo(args.LinkText) { UseShellExecute = true });
+                };
+
+                Button okButton = new Button
+                {
+                    Text = "OK",
+                    DialogResult = DialogResult.OK,
+                    Size = new Size(75, 25)
+                };
+
+                TableLayoutPanel panel = new TableLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 1,
+                    RowCount = 2,
+                    Padding = new Padding(0, 0, 0, 5)
+                };
+                panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+                panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+                
+                panel.Controls.Add(richTextBox, 0, 0);
+
+                FlowLayoutPanel buttonPanel = new FlowLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    FlowDirection = FlowDirection.RightToLeft,
+                    Padding = new Padding(0, 5, 10, 0)
+                };
+                buttonPanel.Controls.Add(okButton);
+                
+                panel.Controls.Add(buttonPanel, 0, 1);
+
+                form.Controls.Add(panel);
+                form.AcceptButton = okButton;
+
+                form.ShowDialog(this.FindForm());
             }
         }
 
