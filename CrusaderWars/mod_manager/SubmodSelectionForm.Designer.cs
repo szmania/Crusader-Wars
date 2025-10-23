@@ -96,7 +96,7 @@ namespace CrusaderWars.mod_manager
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Sub-Mod Selection";
+            this.Text = "Optional Playthrough Sub-Mod Selection";
             this.Load += new System.EventHandler(this.SubmodSelectionForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
