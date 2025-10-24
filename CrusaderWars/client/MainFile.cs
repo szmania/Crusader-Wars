@@ -836,7 +836,7 @@ namespace CrusaderWars
                 Label messageLabel = new Label();
                 messageLabel.Text = 
                     "Support for Optional Sub-Mods!\n\n" +
-                    "• Added support for 'Ice & Fire Total War: War for Westeros' for the AGOT Playthrough.\n" +
+                    "• Added support for 'Ice and Fire Total War: War for Westeros' for the AGOT Playthrough.\n" +
                     "• Download it here: https://www.moddb.com/mods/total-war-ice-fire-book-inspired-mod\n" +
                     "----------------------------------------------------------\n\n" +
                     "New Required Mod for Medieval Playthroughs!\n\n" +
