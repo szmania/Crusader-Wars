@@ -586,8 +586,8 @@ namespace CrusaderWars
             playthroughNameLabel.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Italic);
             playthroughNameLabel.ForeColor = Color.WhiteSmoke;
             playthroughNameLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughTitleLabel.Bottom + 5);
-            playthroughNameLabel.AutoSize = false; // Changed to false for fixed size and wrapping
-            playthroughNameLabel.Size = new Size(190, 40); // Fixed size to allow two lines of text
+            playthroughNameLabel.AutoSize = true;
+            playthroughNameLabel.MaximumSize = new Size(190, 0); // 0 for unlimited height
 
             // Submods Title Label
             playthroughSubmodsTitleLabel.Text = "Optional Sub-Mods:";
@@ -601,8 +601,8 @@ namespace CrusaderWars
             playthroughSubmodsListLabel.Font = new Font("Microsoft Sans Serif", 8f, FontStyle.Italic);
             playthroughSubmodsListLabel.ForeColor = Color.WhiteSmoke;
             playthroughSubmodsListLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughSubmodsTitleLabel.Bottom + 2);
-            playthroughSubmodsListLabel.AutoSize = false; // To control size and wrapping
-            playthroughSubmodsListLabel.Size = new Size(190, 60); // Allow for multiple lines
+            playthroughSubmodsListLabel.AutoSize = true; // To control size and wrapping
+            playthroughSubmodsListLabel.MaximumSize = new Size(190, 0); // Allow for multiple lines
             playthroughSubmodsListLabel.Visible = false; // Initially hidden
 
             // Add controls
@@ -756,7 +756,6 @@ namespace CrusaderWars
                         playthroughSubmodsListLabel.Text = string.Join("\n", activeSubmodScreenNames);
 
                         // Adjust panel size
-                        playthroughSubmodsListLabel.Size = new Size(190, 15 * activeSubmodScreenNames.Count); // Dynamic height
                         playthroughPanel.Size = new Size(280, playthroughSubmodsListLabel.Bottom + 10);
                     }
                     else
