@@ -751,7 +751,9 @@ namespace CrusaderWars
 
                     if (activeSubmodScreenNames.Any())
                     {
+                        playthroughSubmodsTitleLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughNameLabel.Bottom + 5);
                         playthroughSubmodsTitleLabel.Visible = true;
+                        playthroughSubmodsListLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughSubmodsTitleLabel.Bottom + 2);
                         playthroughSubmodsListLabel.Visible = true;
                         playthroughSubmodsListLabel.Text = string.Join("\n", activeSubmodScreenNames);
 
