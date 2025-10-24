@@ -529,10 +529,10 @@ namespace CrusaderWars.mod_manager
 
                     if (initialSelection.SetEquals(newSelection))
                     {
-                        Program.Logger.Debug("Sub-mod selection unchanged. Skipping validation.");
+                        Program.Logger.Debug("Optional sub-mod selection unchanged. Skipping validation.");
                         return; // Nothing changed, so just exit.
                     }
-                    Program.Logger.Debug("Sub-mod selection changed. Proceeding with validation.");
+                    Program.Logger.Debug("Optional sub-mod selection changed. Proceeding with validation.");
 
 
                     var selectedSubmods = _availableSubmods.Where(s => selectedSubmodTags.Contains(s.Tag)).ToList();
@@ -541,7 +541,7 @@ namespace CrusaderWars.mod_manager
                     if (!modsToValidate.Any())
                     {
                         SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectedSubmodTags);
-                        MessageBox.Show("Sub-mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Optional sub-mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
@@ -603,7 +603,7 @@ namespace CrusaderWars.mod_manager
                         }
 
                         SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectedSubmodTags);
-                        MessageBox.Show("Sub-mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Optional mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     finally
                     {
