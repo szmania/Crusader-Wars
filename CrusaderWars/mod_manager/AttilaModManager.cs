@@ -78,28 +78,37 @@ namespace CrusaderWars.mod_manager
                     string fileName = Path.GetFileName(file);
                     if(fileName == "Mods.xml")
                     {
-                        XmlDocument ModsFile = new XmlDocument();
-                        ModsFile.Load(file);
-                        if (ModsFile.DocumentElement != null) // Added null check
+                        try
                         {
-                            foreach(XmlNode modNode in ModsFile.DocumentElement.ChildNodes)
+                            XmlDocument ModsFile = new XmlDocument();
+                            ModsFile.Load(file);
+                            if (ModsFile.DocumentElement != null) // Added null check
                             {
-                                // Also mark submod packs as "required" so they are hidden from the optional list
-                                if (modNode.Name == "Mod")
+                                foreach (XmlNode modNode in ModsFile.DocumentElement.ChildNodes)
                                 {
-                                    ModsPaths.FirstOrDefault(x => x.GetName() == modNode.InnerText)?.IsRequiredMod(true);
-                                }
-                                else if (modNode.Name == "Submod")
-                                {
-                                    foreach(XmlNode submod_modNode in modNode.ChildNodes)
+                                    // Also mark submod packs as "required" so they are hidden from the optional list
+                                    if (modNode.Name == "Mod")
                                     {
-                                        if(submod_modNode.Name == "Mod")
+                                        ModsPaths.FirstOrDefault(x => x.GetName() == modNode.InnerText)?.IsRequiredMod(true);
+                                    }
+                                    else if (modNode.Name == "Submod")
+                                    {
+                                        foreach (XmlNode submod_modNode in modNode.ChildNodes)
                                         {
-                                            ModsPaths.FirstOrDefault(x => x.GetName() == submod_modNode.InnerText)?.IsRequiredMod(true);
+                                            if (submod_modNode.Name == "Mod")
+                                            {
+                                                ModsPaths.FirstOrDefault(x => x.GetName() == submod_modNode.InnerText)?.IsRequiredMod(true);
+                                            }
                                         }
                                     }
                                 }
-                            }                        
+                            }
+                        }
+                        catch (XmlException ex)
+                        {
+                            string errorMessage = $"Error parsing XML file: {file}\n\nThis file is likely corrupted or has a syntax error. Please check the file and correct it.\n\nDetails: {ex.Message}";
+                            Program.Logger.Debug($"[XML PARSE ERROR] {errorMessage}");
+                            MessageBox.Show(errorMessage, "Crusader Conflicts: XML Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
