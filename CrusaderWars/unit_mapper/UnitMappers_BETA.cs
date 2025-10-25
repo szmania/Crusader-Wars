@@ -17,6 +17,7 @@ namespace CrusaderWars.unit_mapper
         public string Tag { get; set; } = string.Empty;
         public string ScreenName { get; set; } = string.Empty;
         public List<(string FileName, string Sha256)> Mods { get; set; } = new List<(string, string)>();
+        public List<string> Replaces { get; set; } = new List<string>();
     }
 
     public static class BattleStateBridge
@@ -144,7 +145,12 @@ namespace CrusaderWars.unit_mapper
                                                 Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
                                                 ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
                                             };
-                                            foreach(XmlNode submod_modNode in node.ChildNodes)
+                                            string? replaceAttr = node.Attributes?["replace"]?.Value;
+                                            if (!string.IsNullOrEmpty(replaceAttr))
+                                            {
+                                                submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
+                                            }
+                                            foreach (XmlNode submod_modNode in node.ChildNodes)
                                             {
                                                 if(submod_modNode.Name == "Mod")
                                                 {
@@ -601,6 +607,11 @@ namespace CrusaderWars.unit_mapper
                                                             Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
                                                             ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
                                                         };
+                                                        string? replaceAttr = node.Attributes?["replace"]?.Value;
+                                                        if (!string.IsNullOrEmpty(replaceAttr))
+                                                        {
+                                                            submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
+                                                        }
                                                         foreach (XmlNode submod_modNode in node.ChildNodes)
                                                         {
                                                             if (submod_modNode.Name == "Mod")

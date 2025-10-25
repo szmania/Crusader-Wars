@@ -180,8 +180,29 @@ namespace CrusaderWars.mod_manager
             // Clear existing content
             File.WriteAllText(userMods_path, "");
 
+            // Determine which mods to exclude based on active submods with a 'replace' attribute.
+            var modsToExclude = new HashSet<string>();
+            if (UnitMappers_BETA.ActivePlaythroughTag != null)
+            {
+                var activeSubmodTags = SubmodManager.GetActiveSubmodsForPlaythrough(UnitMappers_BETA.ActivePlaythroughTag);
+                if (activeSubmodTags.Any() && UnitMappers_BETA.AvailableSubmods.Any())
+                {
+                    var activeSubmodsWithReplacements = UnitMappers_BETA.AvailableSubmods
+                        .Where(s => activeSubmodTags.Contains(s.Tag) && s.Replaces.Any());
+
+                    foreach (var submod in activeSubmodsWithReplacements)
+                    {
+                        foreach (var modToReplace in submod.Replaces)
+                        {
+                            modsToExclude.Add(modToReplace);
+                            Program.Logger.Debug($"Submod '{submod.Tag}' is active, excluding required mod '{modToReplace}'.");
+                        }
+                    }
+                }
+            }
+
             // Get ordered lists of mods
-            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod())
+            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod() && !modsToExclude.Contains(x.GetName()))
                                        .OrderBy(x => x.GetLoadOrderValue())
                                        .ToList();
 
