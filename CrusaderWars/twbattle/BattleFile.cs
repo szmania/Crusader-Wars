@@ -1123,7 +1123,7 @@ namespace CrusaderWars
 
         }
 
-        public static void AddKnightUnit(KnightSystem Knights, string troopType, string unitScript, int experience, string direction)
+        public static void AddKnightUnit(KnightSystem Knights, string troopType, string unitScript, int experience, string direction, string? knightNameToDisplay = null)
         {
             if (Position == null)
             {
@@ -1177,6 +1177,16 @@ namespace CrusaderWars
 
 
                 PR_Unit += "</unit_capabilities>\n";
+
+                // Conditionally add the general block if a name is provided
+                if (!string.IsNullOrEmpty(knightNameToDisplay))
+                {
+                    PR_Unit += "<general>\n" +
+                               $"<name>{knightNameToDisplay}</name>\n" +
+                               "<star_rating level=\"0\"/>\n" + // Knights don't have a star rating like commanders
+                               "</general>\n";
+                }
+
                 PR_Unit += "</unit>\n\n";
 
                 //Add vertical spacing between units

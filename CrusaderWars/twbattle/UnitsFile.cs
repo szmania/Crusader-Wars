@@ -226,7 +226,21 @@ namespace CrusaderWars
                         knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture()?.ID ?? "unknown"}_";
 
 
-                    BattleFile.AddKnightUnit(army.Knights, knightAttilaKey, knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide));
+                    // Determine if the knight unit should be the general
+                    string? knightNameToDisplay = null;
+                    if (army.Commander == null)
+                    {
+                        var bestKnight = army.Knights.GetKnightsList()
+                                                    .OrderByDescending(k => k.GetProwess())
+                                                    .FirstOrDefault();
+                        if (bestKnight != null)
+                        {
+                            knightNameToDisplay = bestKnight.GetName();
+                            Program.Logger.Debug($"Army {army.ID} has no commander. Promoting knight unit to general, named after '{knightNameToDisplay}'.");
+                        }
+                    }
+
+                    BattleFile.AddKnightUnit(army.Knights, knightAttilaKey, knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide), knightNameToDisplay);
                     i++;
                 }
             }

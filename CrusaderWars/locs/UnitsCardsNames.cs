@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using CrusaderWars.data.save_file;
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars.locs
 {
@@ -50,37 +51,65 @@ namespace CrusaderWars.locs
             switch (Mapper_Name)
             {
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    string[] loc_files = Directory.GetFiles(@".\data\units_cards_names\anno domini\");
-                    EditUnitCardsFiles(loc_files, unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), unitsCollection);
                     break;
                 case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
                 case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
                 case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    string[] mk1212_loc_files = Directory.GetFiles(@".\data\units_cards_names\mk1212\");
-                    EditUnitCardsFiles(mk1212_loc_files, unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("mk1212"), unitsCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_AgeOfJustinian":
-                    string[] aoj_loc_files = Directory.GetFiles(@".\data\units_cards_names\age of justinian\");
-                    EditUnitCardsFiles(aoj_loc_files, unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), unitsCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                    string[] fte_loc_files = Directory.GetFiles(@".\data\units_cards_names\fall of the eagles\");
-                    EditUnitCardsFiles(fte_loc_files, unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), unitsCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_FireforgedEmpires":
-                    string[] fe_loc_files = Directory.GetFiles(@".\data\units_cards_names\fireforged empires\");
-                    EditUnitCardsFiles(fe_loc_files, unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empires"), unitsCollection);
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    string[] lotr_loc_files = Directory.GetFiles(@".\data\units_cards_names\dawnless days\");
-                    EditUnitCardsFiles(lotr_loc_files, unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), unitsCollection);
                     break;
                 case "OfficialCC_AGOT_SevenKingdoms":
-                    string[] agot_loc_files = Directory.GetFiles(@".\data\units_cards_names\seven_kingdoms\");
-                    EditUnitCardsFiles(agot_loc_files, unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), unitsCollection);
                     break;
             }
 
+        }
+
+        private static string[] GetLocFilesForPlaythrough(string baseFolderName)
+        {
+            List<string> allLocFiles = new List<string>();
+
+            // 1. Get base files
+            string baseLocPath = @$".\data\units_cards_names\{baseFolderName}\";
+            if (Directory.Exists(baseLocPath))
+            {
+                allLocFiles.AddRange(Directory.GetFiles(baseLocPath));
+            }
+            else
+            {
+                Program.Logger.Debug($"Warning: Base localization folder not found at '{baseLocPath}'");
+            }
+
+            // 2. Get active submods
+            if (!string.IsNullOrEmpty(UnitMappers_BETA.ActivePlaythroughTag))
+            {
+                var activeSubmods = CrusaderWars.mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(UnitMappers_BETA.ActivePlaythroughTag);
+
+                // 3. Get submod files
+                foreach (var submodTag in activeSubmods)
+                {
+                    string submodLocPath = @$".\data\units_cards_names\{baseFolderName}_{submodTag}\";
+                    if (Directory.Exists(submodLocPath))
+                    {
+                        Program.Logger.Debug($"Found and adding localization files from submod folder: '{submodLocPath}'");
+                        allLocFiles.AddRange(Directory.GetFiles(submodLocPath));
+                    }
+                }
+            }
+
+            return allLocFiles.ToArray();
         }
 
         private static void EditUnitCardsFiles(string[] unit_cards_files, List<Unit> allUnits)
