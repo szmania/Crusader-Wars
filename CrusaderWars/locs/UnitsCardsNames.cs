@@ -133,11 +133,14 @@ namespace CrusaderWars.locs
                 string edited_names = "";
                 using (StreamReader reader = new StreamReader(loc_file_path))
                 {
-                    string? line = "";
-                    while (line != null && !reader.EndOfStream)
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        line = reader.ReadLine();
-                        if (line == null) continue; // Ensure line is not null before processing
+                        if (string.IsNullOrEmpty(line))
+                        {
+                            edited_names += "\n";
+                            continue;
+                        }
 
                         
                         foreach(Unit unit in allUnits)
@@ -145,39 +148,58 @@ namespace CrusaderWars.locs
                             // Line 219 - Add null check before accessing GetAttilaUnitKey()
                             if (unit?.GetAttilaUnitKey() != null && line.Contains($"land_units_onscreen_name_{unit.GetAttilaUnitKey()}\t"))
                             {
+                                string ownerNameSuffix = "";
+                                if (unit.GetOwner() != null)
+                                {
+                                    string? dynastyName = CharacterDataManager.GetCharacterDynastyName(unit.GetOwner().GetID());
+                                    if (!string.IsNullOrEmpty(dynastyName))
+                                    {
+                                        ownerNameSuffix = $" ({dynastyName})";
+                                    }
+                                }
+
+                                string newName = "";
+                                bool shouldReplace = false;
+
                                 //Commander
-                                if (unit?.GetRegimentType() == RegimentType.Commander)
+                                if (unit.GetRegimentType() == RegimentType.Commander)
                                 {
-                                    string commander_name = "Commander";
-                                    line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{commander_name}\t");
+                                    newName = $"Commander{ownerNameSuffix}";
+                                    shouldReplace = true;
                                 }
-
                                 //Knights
-                                else if (unit?.GetRegimentType() == RegimentType.Knight && unit.GetSoldiers() > 0)
+                                else if (unit.GetRegimentType() == RegimentType.Knight && unit.GetSoldiers() > 0)
                                 {
-                                    string knights_name = "Knights";
-                                    line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{knights_name}\t");
+                                    newName = $"Knights{ownerNameSuffix}";
+                                    shouldReplace = true;
                                 }
-
-
-                                //Levies
-                                else if (unit?.GetRegimentType() == RegimentType.Levy)
-                                {
-                                    /*
-                                    string levies_name = ReturnLeviesName(regiment.Type);
-                                    line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{levies_name}\t");
-                                    */
-                                    continue;
-                                }
-
                                 //Men-At-Arms
-                                else if (unit?.GetRegimentType() == RegimentType.MenAtArms)
+                                else if (unit.GetRegimentType() == RegimentType.MenAtArms)
                                 {
                                     string maaName = unit.GetLocName();
-                                    if (string.IsNullOrEmpty(maaName)) maaName = "MenAtArms";
-                                    line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\tMAA {maaName}\t");
+                                    if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
+                                    newName = $"MAA {maaName}{ownerNameSuffix}";
+                                    shouldReplace = true;
+                                }
+                                //Levies & Garrisons
+                                else if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
+                                {
+                                    if (!string.IsNullOrEmpty(ownerNameSuffix))
+                                    {
+                                        var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                        if (match.Success)
+                                        {
+                                            string originalName = match.Groups["UnitName"].Value;
+                                            newName = $"{originalName}{ownerNameSuffix}";
+                                            shouldReplace = true;
+                                        }
+                                    }
                                 }
 
+                                if (shouldReplace)
+                                {
+                                    line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{newName}\t");
+                                }
                             }
 
                         }

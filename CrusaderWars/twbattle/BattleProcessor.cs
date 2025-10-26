@@ -59,6 +59,7 @@ namespace CrusaderWars.twbattle
             if (autofixState == null)
             {
                 AutofixReplacements.Clear(); // Clear fixes for a new battle
+                CharacterDataManager.ClearCache(); // Clear dynasty name cache
                 BattleStateBridge.Clear();
                 BattleState.ClearAutofixOverrides();
             }
