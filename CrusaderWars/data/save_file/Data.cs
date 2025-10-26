@@ -799,6 +799,7 @@ namespace CrusaderWars
         private static bool Start_DynastiesFound { get; set; }
         private static bool End_DynastiesFound { get; set; }
         public static bool HasDynastiesExtracted { get; set; }
+        private static int dynastiesBraceCount = 0;
         public static void Dynasties(string line)
         {
             if (!HasDynastiesExtracted)
@@ -809,15 +810,30 @@ namespace CrusaderWars
                     {
                         Program.Logger.Debug("Found start of dynasties block.");
                         Start_DynastiesFound = true;
+                        dynastiesBraceCount = 0; // Reset before counting
                     }
                 }
 
                 if (Start_DynastiesFound && !End_DynastiesFound)
                 {
                     Data.SB_Dynasties.AppendLine(line);
-                    if (line == "}")
+
+                    // Count braces in the current line to handle multiple braces on one line
+                    foreach (char c in line)
                     {
-                        Program.Logger.Debug("Found end of dynasties block.");
+                        if (c == '{')
+                        {
+                            dynastiesBraceCount++;
+                        }
+                        else if (c == '}')
+                        {
+                            dynastiesBraceCount--;
+                        }
+                    }
+
+                    if (dynastiesBraceCount == 0 && Start_DynastiesFound)
+                    {
+                        Program.Logger.Debug("Found end of dynasties block by bracket counting.");
                         Program.Logger.Debug($"Writing {Data.SB_Dynasties.Length} characters to Dynasties.txt");
                         File.WriteAllText(@".\data\save_file_data\Dynasties.txt", Data.SB_Dynasties.ToString());
                         Data.SB_Dynasties = new StringBuilder();
@@ -831,6 +847,7 @@ namespace CrusaderWars
                     HasDynastiesExtracted = true;
                     Start_DynastiesFound = false;
                     End_DynastiesFound = false;
+                    dynastiesBraceCount = 0; // Reset for next file read
                 }
             }
         }
