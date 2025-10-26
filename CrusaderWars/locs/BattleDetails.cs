@@ -33,7 +33,7 @@ namespace CrusaderWars.locs
         private static void EditButtonVersion()
         {
             string version_path = @".\app_version.txt";
-            string version = "1.0.0"; // Default version
+            string version = "v1.0.0"; // Default version
 
             if (!File.Exists(version_path))
             {
@@ -47,7 +47,7 @@ namespace CrusaderWars.locs
             {
                 version = match.Groups[1].Value;
             }
-            // If parsing fails, 'version' remains "1.0.0"
+            // If parsing fails, 'version' remains "v1.0.0"
 
             
             string original_buttonVersion_path = @".\data\battle files\text\db\tutorial_historical_battles_uied_component_texts.loc.tsv";
@@ -64,7 +64,7 @@ namespace CrusaderWars.locs
                 {
                     if (line.Contains("uied_component_texts_localised_string_string_NewState_Text_3a000c"))
                     {
-                        string new_version = $"uied_component_texts_localised_string_string_NewState_Text_3a000c\tCrusader Conflicts V{version}\ttrue";
+                        string new_version = $"uied_component_texts_localised_string_string_NewState_Text_3a000c\tCrusader Conflicts {version}\ttrue";
                         new_data += new_version + "\n";
                         continue;
                     }
