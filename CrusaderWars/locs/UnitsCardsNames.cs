@@ -207,6 +207,10 @@ namespace CrusaderWars.locs
                                     if (match.Success)
                                     {
                                         string originalName = match.Groups["UnitName"].Value;
+                                        while (originalName.StartsWith("Levy "))
+                                        {
+                                            originalName = originalName.Substring("Levy ".Length);
+                                        }
                                         newName = $"Levy {originalName}{ownerNameSuffix}";
                                         shouldReplace = true;
                                     }
@@ -218,6 +222,10 @@ namespace CrusaderWars.locs
                                     if (match.Success)
                                     {
                                         string originalName = match.Groups["UnitName"].Value;
+                                        while (originalName.StartsWith("Garrison "))
+                                        {
+                                            originalName = originalName.Substring("Garrison ".Length);
+                                        }
                                         newName = $"Garrison {originalName}{ownerNameSuffix}";
                                         shouldReplace = true;
                                     }
