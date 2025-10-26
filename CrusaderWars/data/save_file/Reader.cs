@@ -78,6 +78,9 @@ namespace CrusaderWars.data.save_file
             //Clear Accolades File
             File.WriteAllText(Writter.DataFilesPaths.Accolades(), "");
 
+            //Clear Dynasties File
+            File.WriteAllText(Writter.DataFilesPaths.Dynasties_Path(), "");
+
             //Clear Sieges File
             File.WriteAllText(Writter.DataFilesPaths.Sieges_Path(), "");
             //Clear Sieges TEMP File
@@ -135,6 +138,7 @@ namespace CrusaderWars.data.save_file
                     SearchKeys.CourtPositions(line);
                     SearchKeys.LandedTitles(line);
                     SearchKeys.Accolades(line);
+                    SearchKeys.Dynasties(line);
                     SearchKeys.Sieges(line); // Added call to new Sieges search method
                     
                 }

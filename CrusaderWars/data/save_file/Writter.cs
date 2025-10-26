@@ -220,6 +220,7 @@ namespace CrusaderWars.data.save_file
 			public static string CourtPositions_Path() { return @".\data\save_file_data\CourtPositions.txt"; }
             public static string LandedTitles() { return @".\data\save_file_data\LandedTitles.txt"; }
             public static string Accolades() { return @".\data\save_file_data\Accolades.txt"; }
+            public static string Dynasties_Path() { return @".\data\save_file_data\Dynasties.txt"; }
             public static string Sieges_Path() { return @".\data\save_file_data\Sieges.txt"; }
 
         }
