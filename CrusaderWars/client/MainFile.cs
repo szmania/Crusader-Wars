@@ -825,7 +825,7 @@ namespace CrusaderWars
                 // Create a custom form for the notification
                 Form notificationForm = new Form();
                 notificationForm.Text = "Crusader Conflicts: Latest Updates";
-                notificationForm.ClientSize = new Size(450, 340);
+                notificationForm.ClientSize = new Size(450, 600); // Increased height for new content
                 notificationForm.FormBorderStyle = FormBorderStyle.FixedDialog;
                 notificationForm.StartPosition = FormStartPosition.CenterParent;
                 notificationForm.MaximizeBox = false;
@@ -835,6 +835,19 @@ namespace CrusaderWars
 
                 Label messageLabel = new Label();
                 messageLabel.Text = 
+                    "New Required Mods for AGOT Playthrough!\n\n" +
+                    "For a more immersive and authentic AGOT experience, the following Total War: Attila mods are now required:\n" +
+                    "• Medieval Kingdoms 1212 AD Models Pack 1.v2\n" +
+                    "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1429140619\n" +
+                    "• Medieval Kingdoms 1212 AD Models Pack 5\n" +
+                    "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1592154821\n" +
+                    "• Medieval Kingdoms 1212AD - Custom cities beta\n" +
+                    "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
+                    "----------------------------------------------------------\n\n" +
+                    "New Optional Sub-Mod for The Fallen Eagle!\n\n" +
+                    "• Added support for 'Fall of the Eagles' for the Late-Roman The Fallen Eagle playthrough.\n" +
+                    "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=434826744\n" +
+                    "----------------------------------------------------------\n\n" +
                     "Support for Optional Sub-Mods!\n\n" +
                     "• Added support for 'Ice and Fire Total War: War for Westeros' for the AGOT Playthrough.\n" +
                     "• Download it here: https://www.moddb.com/mods/total-war-ice-fire-book-inspired-mod\n" +
