@@ -49,6 +49,7 @@ namespace CrusaderWars
 		public static StringBuilder SB_CourtPositions = new StringBuilder();
         public static StringBuilder SB_LandedTitles = new StringBuilder();
         public static StringBuilder SB_Accolades = new StringBuilder();
+        public static StringBuilder SB_Dynasties = new StringBuilder();
 		public static StringBuilder SB_Traits = new StringBuilder();
         public static StringBuilder SB_Sieges = new StringBuilder(); // Added StringBuilder for Sieges
 
@@ -101,6 +102,7 @@ namespace CrusaderWars
             SearchKeys.HasCourtPositionsExtracted = false;
             SearchKeys.HasLandedTitlesExtracted = false;
             SearchKeys.HasAccoladesExtracted = false;
+            SearchKeys.HasDynastiesExtracted = false;
             SearchKeys.HasSiegesExtracted = false; // Added reset for Sieges extraction flag
         }
     }
@@ -793,6 +795,46 @@ namespace CrusaderWars
                 }
             }
         }
+
+        private static bool Start_DynastiesFound { get; set; }
+        private static bool End_DynastiesFound { get; set; }
+        public static bool HasDynastiesExtracted { get; set; }
+        public static void Dynasties(string line)
+        {
+            if (!HasDynastiesExtracted)
+            {
+                if (!Start_DynastiesFound)
+                {
+                    if (line == "\tdynasties={")
+                    {
+                        Program.Logger.Debug("Found start of dynasties block.");
+                        Start_DynastiesFound = true;
+                    }
+                }
+
+                if (Start_DynastiesFound && !End_DynastiesFound)
+                {
+                    Data.SB_Dynasties.AppendLine(line);
+                    if (line == "\t}")
+                    {
+                        Program.Logger.Debug("Found end of dynasties block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Dynasties.Length} characters to Dynasties.txt");
+                        File.WriteAllText(@".\data\save_file_data\Dynasties.txt", Data.SB_Dynasties.ToString());
+                        Data.SB_Dynasties = new StringBuilder();
+                        GC.Collect();
+                        End_DynastiesFound = true;
+                    }
+                }
+
+                if (End_DynastiesFound)
+                {
+                    HasDynastiesExtracted = true;
+                    Start_DynastiesFound = false;
+                    End_DynastiesFound = false;
+                }
+            }
+        }
+
 
         // New properties for Sieges extraction
         private static bool Start_SiegesFound { get; set; }
