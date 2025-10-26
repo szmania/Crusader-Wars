@@ -805,7 +805,7 @@ namespace CrusaderWars
             {
                 if (!Start_DynastiesFound)
                 {
-                    if (line == "\tdynasties={")
+                    if (line == "dynasties={")
                     {
                         Program.Logger.Debug("Found start of dynasties block.");
                         Start_DynastiesFound = true;
@@ -815,7 +815,7 @@ namespace CrusaderWars
                 if (Start_DynastiesFound && !End_DynastiesFound)
                 {
                     Data.SB_Dynasties.AppendLine(line);
-                    if (line == "\t}")
+                    if (line == "}")
                     {
                         Program.Logger.Debug("Found end of dynasties block.");
                         Program.Logger.Debug($"Writing {Data.SB_Dynasties.Length} characters to Dynasties.txt");
