@@ -200,18 +200,26 @@ namespace CrusaderWars.locs
                                     newName = $"MAA {maaName}{ownerNameSuffix}";
                                     shouldReplace = true;
                                 }
-                                //Levies & Garrisons
-                                else if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
+                                //Levies
+                                else if (unit.GetRegimentType() == RegimentType.Levy)
                                 {
-                                    if (!string.IsNullOrEmpty(ownerNameSuffix))
+                                    var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                    if (match.Success)
                                     {
-                                        var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
-                                        if (match.Success)
-                                        {
-                                            string originalName = match.Groups["UnitName"].Value;
-                                            newName = $"{originalName}{ownerNameSuffix}";
-                                            shouldReplace = true;
-                                        }
+                                        string originalName = match.Groups["UnitName"].Value;
+                                        newName = $"Levy {originalName}{ownerNameSuffix}";
+                                        shouldReplace = true;
+                                    }
+                                }
+                                //Garrisons
+                                else if (unit.GetRegimentType() == RegimentType.Garrison)
+                                {
+                                    var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                    if (match.Success)
+                                    {
+                                        string originalName = match.Groups["UnitName"].Value;
+                                        newName = $"Garrison {originalName}{ownerNameSuffix}";
+                                        shouldReplace = true;
                                     }
                                 }
 
