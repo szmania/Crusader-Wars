@@ -51,7 +51,7 @@ namespace CrusaderWars.data.save_file
 
                         if (inCharacterBlock)
                         {
-                            if (line.Trim().StartsWith("dynasty="))
+                            if (line.Trim().StartsWith("dynasty_house="))
                             {
                                 return Regex.Match(line, @"\d+").Value;
                             }
