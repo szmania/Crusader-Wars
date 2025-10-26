@@ -149,13 +149,32 @@ namespace CrusaderWars.locs
                             if (unit?.GetAttilaUnitKey() != null && line.Contains($"land_units_onscreen_name_{unit.GetAttilaUnitKey()}\t"))
                             {
                                 string ownerNameSuffix = "";
-                                if (unit.GetOwner() != null)
+                                if (unit.GetOwner() != null && !string.IsNullOrEmpty(unit.GetOwner().GetID()))
                                 {
-                                    string? dynastyName = CharacterDataManager.GetCharacterDynastyName(unit.GetOwner().GetID());
-                                    if (!string.IsNullOrEmpty(dynastyName))
+                                    string ownerId = unit.GetOwner().GetID();
+                                    string? displayName = null;
+
+                                    if (ownerId == DataSearch.Player_Character.GetID())
                                     {
-                                        ownerNameSuffix = $" ({dynastyName})";
+                                        displayName = Reader.GetMetaPlayerName();
                                     }
+                                    else
+                                    {
+                                        var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(ownerId);
+                                        if (!string.IsNullOrEmpty(firstName))
+                                        {
+                                            if (!string.IsNullOrEmpty(nickname))
+                                            {
+                                                displayName = $"{firstName} \"{nickname}\"";
+                                            }
+                                            else
+                                            {
+                                                displayName = firstName;
+                                            }
+                                        }
+                                    }
+                                    if (!string.IsNullOrEmpty(displayName))
+                                        ownerNameSuffix = $" ({displayName})";
                                 }
 
                                 string newName = "";

@@ -22,6 +22,36 @@ namespace CrusaderWars.data.save_file
      */
     internal static class Reader
     {
+        private static string metaPlayerName = "";
+        public static string GetMetaPlayerName() { return metaPlayerName; }
+
+        private static void ReadMetaData(string savePath)
+        {
+            Program.Logger.Debug("Reading meta_data.txt...");
+            string? unzippedSaveDir = Path.GetDirectoryName(savePath);
+            if (unzippedSaveDir != null)
+            {
+                string metaDataPath = Path.Combine(unzippedSaveDir, "meta_data.txt");
+                if (File.Exists(metaDataPath))
+                {
+                    string[] lines = File.ReadAllLines(metaDataPath);
+                    foreach (string line in lines)
+                    {
+                        if (line.Trim().StartsWith("meta_player_name="))
+                        {
+                            var match = Regex.Match(line, @"""(.+)""");
+                            if (match.Success)
+                            {
+                                metaPlayerName = match.Groups[1].Value;
+                                Program.Logger.Debug($"Found meta_player_name: {metaPlayerName}");
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            Program.Logger.Debug("meta_player_name not found in meta_data.txt.");
+        }
 
         static void ClearFilesData()
         {
@@ -95,6 +125,7 @@ namespace CrusaderWars.data.save_file
         public static void ReadFile(string savePath)
         {
             Program.Logger.Debug($"Starting to read save file: {Path.GetFullPath(savePath)}");
+            ReadMetaData(savePath);
             //Clean all data in save file data files
             Program.Logger.Debug("Clearing previous save data from temp files...");
             ClearFilesData();

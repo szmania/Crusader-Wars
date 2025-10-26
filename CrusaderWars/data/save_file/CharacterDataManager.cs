@@ -33,6 +33,62 @@ namespace CrusaderWars.data.save_file
             return dynastyName;
         }
 
+        public static (string? FirstName, string? Nickname) GetCharacterFirstNameAndNickname(string characterId)
+        {
+            if (string.IsNullOrEmpty(characterId)) return (null, null);
+
+            string? firstName = null;
+            string? nickname = null;
+            try
+            {
+                using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Living_Path()))
+                {
+                    string? line;
+                    bool inCharacterBlock = false;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (!inCharacterBlock && line.Trim() == $"{characterId}={{")
+                        {
+                            inCharacterBlock = true;
+                            continue;
+                        }
+
+                        if (inCharacterBlock)
+                        {
+                            if (line.Trim().StartsWith("first_name="))
+                            {
+                                var match = Regex.Match(line, @"""(.+)""");
+                                if (match.Success)
+                                {
+                                    firstName = match.Groups[1].Value;
+                                }
+                            }
+                            else if (line.Trim().StartsWith("nickname_text="))
+                            {
+                                var match = Regex.Match(line, @"nickname_text=""(.+)""");
+                                if (match.Success && !string.IsNullOrWhiteSpace(match.Groups[1].Value) && match.Groups[1].Value != "\"\"")
+                                {
+                                    nickname = match.Groups[1].Value;
+                                }
+                            }
+
+                            if (firstName != null && nickname != null) break; // Optimization
+
+                            if (line.Trim() == "}")
+                            {
+                                break; // End of character block
+                            }
+                        }
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                Program.Logger.Debug($"Error reading Living.txt for first name/nickname: {ex.Message}");
+            }
+            return (firstName, nickname);
+        }
+
         private static string? GetDynastyIdForCharacter(string characterId)
         {
             try
@@ -93,7 +149,12 @@ namespace CrusaderWars.data.save_file
                                 var match = Regex.Match(line, @"""(.+)""");
                                 if (match.Success)
                                 {
-                                    return match.Groups[1].Value;
+                                    string dynastyName = match.Groups[1].Value;
+                                    if (dynastyName.StartsWith("dynn_"))
+                                    {
+                                        return dynastyName.Substring(5); // Remove "dynn_" prefix
+                                    }
+                                    return dynastyName;
                                 }
                             }
                             if (line.Trim() == "}")
