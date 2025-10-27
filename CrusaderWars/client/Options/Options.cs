@@ -1226,11 +1226,11 @@ namespace CrusaderWars
             var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
             var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
 
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods);
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods);
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods);
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), agotToggleState, "AGOT", agotMods.submods); // Changed to use playthrough_agot
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList()); // Changed to use playthrough_agot
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
@@ -1337,7 +1337,8 @@ namespace CrusaderWars
                     errorMessage += "\nPlease adjust the values in the 'Cmdr/Knights' tab.";
 
                     MessageBox.Show(errorMessage, "Crusader Conflicts: Configuration Error",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
 
                     // Switch to the Cmdr/Knights tab to show the user where the error is
                     ChangeOptionsTab(CandK_Tab);
