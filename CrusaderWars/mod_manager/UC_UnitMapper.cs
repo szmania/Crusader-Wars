@@ -445,9 +445,12 @@ namespace CrusaderWars.mod_manager
                     var fileName = Path.GetFileName(file);
                     if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                     {
-                        progress?.Report($"Verifying: {fileName}");
-                        string expectedSha = modsToFind[fileName].Sha;
                         string screenName = modsToFind[fileName].ScreenName;
+                        string progressMessage = string.IsNullOrEmpty(screenName)
+                            ? $"Verifying: {fileName}"
+                            : $"Verifying: {screenName} - {fileName}";
+                        progress?.Report(progressMessage);
+                        string expectedSha = modsToFind[fileName].Sha;
                         string url = modsToFind[fileName].Url;
                         if (!string.IsNullOrEmpty(expectedSha))
                         {
@@ -492,9 +495,12 @@ namespace CrusaderWars.mod_manager
                         var fileName = Path.GetFileName(file);
                         if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                         {
-                            progress?.Report($"Verifying: {fileName}");
-                            string expectedSha = modsToFind[fileName].Sha;
                             string screenName = modsToFind[fileName].ScreenName;
+                            string progressMessage = string.IsNullOrEmpty(screenName)
+                                ? $"Verifying: {fileName}"
+                                : $"Verifying: {screenName} - {fileName}";
+                            progress?.Report(progressMessage);
+                            string expectedSha = modsToFind[fileName].Sha;
                             string url = modsToFind[fileName].Url;
                             if (!string.IsNullOrEmpty(expectedSha))
                             {
