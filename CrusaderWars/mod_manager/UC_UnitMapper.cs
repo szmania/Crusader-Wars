@@ -205,7 +205,7 @@ namespace CrusaderWars.mod_manager
                         string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                         if (!string.IsNullOrEmpty(url))
                         {
-                            line += $"\n  (Find it here: {url})";
+                            line += $"\n  {url}";
                         }
                         sb.AppendLine(line);
                     }
@@ -213,7 +213,7 @@ namespace CrusaderWars.mod_manager
                     sb.AppendLine("If your mods are up-to-date and you still see this warning, please report it to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j so we can update our compatibility check.");
                     sb.AppendLine("\nDo you want to activate this playthrough anyway?");
 
-                    var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: Mod Version Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    var dialogResult = ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: Mod Version Warning", MessageBoxButtons.YesNo);
 
                     if (dialogResult == DialogResult.No)
                     {
@@ -306,6 +306,71 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        private DialogResult ShowClickableWarningDialog(string text, string title, MessageBoxButtons buttons)
+        {
+            using (Form form = new Form())
+            {
+                form.Text = title;
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.ClientSize = new Size(500, 350);
+                form.MaximizeBox = false;
+                form.MinimizeBox = false;
+
+                RichTextBox richTextBox = new RichTextBox
+                {
+                    Dock = DockStyle.Fill,
+                    ReadOnly = true,
+                    BorderStyle = BorderStyle.None,
+                    Text = text,
+                    DetectUrls = true,
+                    BackColor = SystemColors.Control,
+                    Font = new Font("Segoe UI", 9F),
+                    Padding = new Padding(10)
+                };
+                richTextBox.LinkClicked += (s, args) => {
+                    try
+                    {
+                        if (args != null && !string.IsNullOrEmpty(args.LinkText))
+                        {
+                            Process.Start(new ProcessStartInfo(args.LinkText) { UseShellExecute = true });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error opening link: {ex.Message}");
+                        MessageBox.Show($"Could not open the link: {args?.LinkText}\n\nError: {ex.Message}", "Link Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                };
+
+                TableLayoutPanel panel = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Padding = new Padding(0, 0, 0, 5) };
+                panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+                panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+                panel.Controls.Add(richTextBox, 0, 0);
+
+                FlowLayoutPanel buttonPanel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 5, 10, 0) };
+
+                if (buttons == MessageBoxButtons.YesNo)
+                {
+                    Button noButton = new Button { Text = "No", DialogResult = DialogResult.No, Size = new Size(75, 25) };
+                    Button yesButton = new Button { Text = "Yes", DialogResult = DialogResult.Yes, Size = new Size(75, 25) };
+                    buttonPanel.Controls.Add(noButton);
+                    buttonPanel.Controls.Add(yesButton);
+                    form.AcceptButton = yesButton;
+                    form.CancelButton = noButton;
+                }
+                else // Default to OK
+                {
+                    Button okButton = new Button { Text = "OK", DialogResult = DialogResult.OK, Size = new Size(75, 25) };
+                    buttonPanel.Controls.Add(okButton);
+                    form.AcceptButton = okButton;
+                }
+                panel.Controls.Add(buttonPanel, 0, 1);
+                form.Controls.Add(panel);
+                return form.ShowDialog(this.FindForm());
+            }
+        }
+
         private async void BtnVerifyMods_Click(object sender, EventArgs e)
         {
             if (RequiredModsList != null)
@@ -362,13 +427,13 @@ namespace CrusaderWars.mod_manager
                             string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                             if (!string.IsNullOrEmpty(url))
                             {
-                                line += $"\n  (Find it here: {url})";
+                                line += $"\n  {url}";
                             }
                             sb.AppendLine(line);
                         }
                         sb.AppendLine("\nThis may cause issues. Please ensure you have the latest versions of these mods from the Steam Workshop.");
                         sb.AppendLine("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j");
-                        MessageBox.Show(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.OK);
                     }
 
                     // 3. If no missing files, show success message
@@ -616,13 +681,13 @@ namespace CrusaderWars.mod_manager
                                 string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                                 if (!string.IsNullOrEmpty(url))
                                 {
-                                    line += $"\n  (Find it here: {url})";
+                                    line += $"\n  {url}";
                                 }
                                 sb.AppendLine(line);
                             }
                             sb.AppendLine("\nDo you want to activate these sub-mods anyway?");
 
-                            var dialogResult = MessageBox.Show(sb.ToString(), "Crusader Conflicts: Sub-Mod Version Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                            var dialogResult = ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: Sub-Mod Version Warning", MessageBoxButtons.YesNo);
 
                             if (dialogResult == DialogResult.No)
                             {
