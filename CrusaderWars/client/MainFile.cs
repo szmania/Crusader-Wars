@@ -1912,10 +1912,10 @@ namespace CrusaderWars
                         Program.Logger.Debug($"Playthrough tag found: {tagName}");
                         break;
                     }
-                    
                 }
             }
-            AttilaModManager.SetLoadingRequiredMods(UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(tagName));
+            var activeSubmods = mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(tagName);
+            AttilaModManager.SetLoadingRequiredMods(UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(tagName, activeSubmods));
         }
 
 

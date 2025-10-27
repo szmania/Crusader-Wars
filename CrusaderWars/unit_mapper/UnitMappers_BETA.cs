@@ -558,7 +558,7 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
-        public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag)
+        public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods)
         {
             ActivePlaythroughTag = tag;
             AvailableSubmods.Clear();
@@ -632,6 +632,7 @@ namespace CrusaderWars.unit_mapper
                                                     }
                                                     else if (node.Name == "Submod")
                                                     {
+                                                        // This part is for populating the UI with available submods
                                                         var submod = new Submod
                                                         {
                                                             Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
@@ -659,6 +660,15 @@ namespace CrusaderWars.unit_mapper
                                                         if (!string.IsNullOrEmpty(submod.Tag))
                                                         {
                                                             AvailableSubmods.Add(submod);
+                                                        }
+
+                                                        // This part is for adding active submod files to the load order
+                                                        if (activeSubmods.Contains(submod.Tag))
+                                                        {
+                                                            foreach (var modFile in submod.Mods)
+                                                            {
+                                                                requiredMods.Add(modFile.FileName);
+                                                            }
                                                         }
                                                     }
                                                 }
