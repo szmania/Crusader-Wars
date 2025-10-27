@@ -536,7 +536,7 @@ namespace CrusaderWars.mod_manager
 
 
                     var selectedSubmods = _availableSubmods.Where(s => selectedSubmodTags.Contains(s.Tag)).ToList();
-                    var modsToValidate = selectedSubmods.SelectMany(s => s.Mods).ToList();
+                    var modsToValidate = selectedSubmods.SelectMany(s => s.Mods).Select(m => (m.FileName, m.Sha256)).ToList();
 
                     if (!modsToValidate.Any())
                     {

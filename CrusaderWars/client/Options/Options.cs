@@ -1226,11 +1226,11 @@ namespace CrusaderWars
             var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
             var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
 
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods, ck3ToggleState, "DefaultCK3", ck3Mods.submods);
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods, tfeToggleState, "TheFallenEagle", tfeMods.submods);
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods);
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods);
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods, lotrToggleState, "RealmsInExile", lotrMods.submods);
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods, agotToggleState, "AGOT", agotMods.submods); // Changed to use playthrough_agot
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods);
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods.Select(m => (m.FileName, m.Sha256)).ToList(), agotToggleState, "AGOT", agotMods.submods); // Changed to use playthrough_agot
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
