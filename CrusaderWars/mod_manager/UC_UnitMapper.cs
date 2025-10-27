@@ -427,7 +427,10 @@ namespace CrusaderWars.mod_manager
         {
             Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
-            var modsToFind = modsToVerifyList.ToDictionary(item => item.FileName, item => (Sha: item.Sha256, ScreenName: item.ScreenName, Url: item.Url));
+            var modsToFind = modsToVerifyList
+                .GroupBy(item => item.FileName)
+                .Select(group => group.First())
+                .ToDictionary(item => item.FileName, item => (Sha: item.Sha256, ScreenName: item.ScreenName, Url: item.Url));
             Program.Logger.Debug($"Mods to verify: {string.Join(", ", modsToFind.Keys)}");
 
 
