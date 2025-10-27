@@ -358,7 +358,7 @@ namespace CrusaderWars.unit_mapper
         {
             SiegeEngines.Clear(); // Clear the list to prevent duplicate data on re-read
 
-            if(LoadedUnitMapper_FolderPath == null || !Directory.Exists($@"{LoadedUnitMapper_FolderPath}\terrains")) { Terrains = null; return; }
+            if (LoadedUnitMapper_FolderPath == null || !Directory.Exists($@"{LoadedUnitMapper_FolderPath}\terrains")) { Terrains = null; return; }
 
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var terrainFiles = GetSortedFilePaths($@"{LoadedUnitMapper_FolderPath}\terrains", priorityFilePattern);
@@ -366,38 +366,33 @@ namespace CrusaderWars.unit_mapper
             try
             {
                 string attilaMap = "";
-                var historicMaps = new List<(string building, string x, string y)>();
-                var normalMaps = new List<(string terrain, string x, string y)>();
-                var settlementMaps = new List<SettlementMap>();
-                var uniqueSettlementMaps = new List<UniqueSettlementMap>(); // Declare new list for unique settlement maps
+                var historicMaps = new Dictionary<string, (string x, string y)>();
+                var normalMapsByTerrain = new Dictionary<string, List<(string x, string y)>>();
+                var settlementMapsByCompositeKey = new Dictionary<(string faction, string battleType, string provinces), SettlementMap>();
+                var uniqueSettlementMapsByCompositeKey = new Dictionary<(string battleType, string provinces), UniqueSettlementMap>();
+                var siegeEngines = new Dictionary<string, SiegeEngine>();
 
                 foreach (var file in terrainFiles)
                 {
                     XmlDocument TerrainsFile = new XmlDocument();
                     TerrainsFile.Load(file);
-                    if (TerrainsFile.DocumentElement == null) continue; // Added null check
+                    if (TerrainsFile.DocumentElement == null) continue;
 
                     foreach (XmlElement Element in TerrainsFile.DocumentElement.ChildNodes)
                     {
-                        if (Element.Name == "Attila_Map" || Element.Name == "Map") // Updated condition
+                        if (Element.Name == "Attila_Map" || Element.Name == "Map")
                         {
-                            if (Element.Name == "Map")
-                            {
-                                attilaMap = Element.Attributes?["name"]?.Value ?? string.Empty;
-                            }
-                            else
-                            {
-                                attilaMap = Element.InnerText;
-                            }
+                            attilaMap = Element.Name == "Map" ? Element.Attributes?["name"]?.Value ?? string.Empty : Element.InnerText;
                         }
                         else if (Element.Name == "Historic_Maps")
                         {
                             foreach (XmlElement historic_map in Element.ChildNodes)
                             {
                                 string building = historic_map.Attributes["ck3_building_key"]?.Value ?? string.Empty;
-                                string x = historic_map.Attributes["x"]?.Value ?? string.Empty;
-                                string y = historic_map.Attributes["y"]?.Value ?? string.Empty;
-                                historicMaps.Add((building, x, y));
+                                if (!string.IsNullOrEmpty(building))
+                                {
+                                    historicMaps[building] = (historic_map.Attributes["x"]?.Value ?? string.Empty, historic_map.Attributes["y"]?.Value ?? string.Empty);
+                                }
                             }
                         }
                         else if (Element.Name == "Normal_Maps")
@@ -405,16 +400,18 @@ namespace CrusaderWars.unit_mapper
                             foreach (XmlElement terrain_type in Element.ChildNodes)
                             {
                                 string terrain = terrain_type.Attributes["ck3_name"]?.Value ?? string.Empty;
-                                foreach (XmlElement map in terrain_type.ChildNodes)
+                                if (!string.IsNullOrEmpty(terrain))
                                 {
-                                    string x = map.Attributes["x"]?.Value ?? string.Empty;
-                                    string y = map.Attributes["y"]?.Value ?? string.Empty;
-                                    normalMaps.Add((terrain, x, y));
-
+                                    var mapsForTerrain = new List<(string x, string y)>();
+                                    foreach (XmlElement map in terrain_type.ChildNodes)
+                                    {
+                                        mapsForTerrain.Add((map.Attributes["x"]?.Value ?? string.Empty, map.Attributes["y"]?.Value ?? string.Empty));
+                                    }
+                                    normalMapsByTerrain[terrain] = mapsForTerrain;
                                 }
                             }
                         }
-                        else if (Element.Name == "Settlement_Maps") // Block for generic Settlement_Maps
+                        else if (Element.Name == "Settlement_Maps")
                         {
                             foreach (XmlElement settlementNode in Element.ChildNodes)
                             {
@@ -425,7 +422,7 @@ namespace CrusaderWars.unit_mapper
                                         Faction = settlementNode.Attributes?["faction"]?.Value ?? string.Empty,
                                         BattleType = settlementNode.Attributes?["battle_type"]?.Value ?? string.Empty
                                     };
-                                    string provinceNamesAttr = settlementNode.Attributes?["province_names"]?.Value;
+                                    string provinceNamesAttr = settlementNode.Attributes?["province_names"]?.Value ?? "";
                                     if (!string.IsNullOrEmpty(provinceNamesAttr))
                                     {
                                         settlementMap.ProvinceNames.AddRange(provinceNamesAttr.Split(',').Select(p => p.Trim()));
@@ -440,7 +437,6 @@ namespace CrusaderWars.unit_mapper
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
                                                 BesiegerDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
                                                 BesiegerDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
-                                                // Removed IsUnique property parsing
                                             };
 
                                             string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
@@ -458,11 +454,15 @@ namespace CrusaderWars.unit_mapper
                                             settlementMap.Variants.Add(settlementVariant);
                                         }
                                     }
-                                    settlementMaps.Add(settlementMap);
+                                    if (!string.IsNullOrEmpty(settlementMap.Faction) && !string.IsNullOrEmpty(settlementMap.BattleType))
+                                    {
+                                        var key = (settlementMap.Faction, settlementMap.BattleType, provinceNamesAttr);
+                                        settlementMapsByCompositeKey[key] = settlementMap;
+                                    }
                                 }
                             }
                         }
-                        else if (Element.Name == "Settlement_Maps_Unique") // New block for Unique Settlement Maps
+                        else if (Element.Name == "Settlement_Maps_Unique")
                         {
                             foreach (XmlElement settlementUniqueNode in Element.ChildNodes)
                             {
@@ -472,7 +472,7 @@ namespace CrusaderWars.unit_mapper
                                     {
                                         BattleType = settlementUniqueNode.Attributes?["battle_type"]?.Value ?? string.Empty
                                     };
-                                    string provinceNamesAttr = settlementUniqueNode.Attributes?["province_names"]?.Value;
+                                    string provinceNamesAttr = settlementUniqueNode.Attributes?["province_names"]?.Value ?? "";
                                     if (!string.IsNullOrEmpty(provinceNamesAttr))
                                     {
                                         uniqueSettlementMap.ProvinceNames.AddRange(provinceNamesAttr.Split(',').Select(p => p.Trim()));
@@ -504,7 +504,11 @@ namespace CrusaderWars.unit_mapper
                                             uniqueSettlementMap.Variants.Add(settlementVariant);
                                         }
                                     }
-                                    uniqueSettlementMaps.Add(uniqueSettlementMap);
+                                    if (!string.IsNullOrEmpty(uniqueSettlementMap.BattleType) && !string.IsNullOrEmpty(provinceNamesAttr))
+                                    {
+                                        var key = (uniqueSettlementMap.BattleType, provinceNamesAttr);
+                                        uniqueSettlementMapsByCompositeKey[key] = uniqueSettlementMap;
+                                    }
                                 }
                             }
                         }
@@ -529,21 +533,29 @@ namespace CrusaderWars.unit_mapper
                                         Program.Logger.Debug($"Warning: Missing or invalid 'siege_effort_cost' for siege engine '{siegeEngine.Key}'. Defaulting to 0.");
                                         siegeEngine.SiegeEffortCost = 0;
                                     }
-                                    SiegeEngines.Add(siegeEngine);
+                                    if (!string.IsNullOrEmpty(siegeEngine.Key))
+                                    {
+                                        siegeEngines[siegeEngine.Key] = siegeEngine;
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                Terrains = new TerrainsUM(attilaMap, historicMaps, normalMaps, settlementMaps, uniqueSettlementMaps); // Updated constructor call
+                var historicMapsList = historicMaps.Select(kvp => (kvp.Key, kvp.Value.x, kvp.Value.y)).ToList();
+                var normalMapsList = normalMapsByTerrain.SelectMany(kvp => kvp.Value.Select(map => (terrain: kvp.Key, x: map.x, y: map.y))).ToList();
+                var settlementMapsList = settlementMapsByCompositeKey.Values.ToList();
+                var uniqueSettlementMapsList = uniqueSettlementMapsByCompositeKey.Values.ToList();
+                SiegeEngines.AddRange(siegeEngines.Values);
+
+                Terrains = new TerrainsUM(attilaMap, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading {GetLoadedUnitMapperName()} terrains file: {ex.Message}", "Crusader Conflicts: Unit Mapper Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
-
         }
 
         public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag)
