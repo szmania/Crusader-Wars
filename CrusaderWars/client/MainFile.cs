@@ -746,6 +746,8 @@ namespace CrusaderWars
                     var allAvailableSubmods = unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag).submods;
                     var activeSubmodScreenNames = allAvailableSubmods
                         .Where(s => activeSubmodTags.Contains(s.Tag))
+                        .GroupBy(s => s.Tag) // Group by tag to handle duplicates
+                        .Select(g => g.First()) // Select the first submod from each group
                         .Select(s => $"• {s.ScreenName}")
                         .ToList();
 
