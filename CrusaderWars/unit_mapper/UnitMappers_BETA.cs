@@ -1176,7 +1176,7 @@ namespace CrusaderWars.unit_mapper
             //Garrison units also skip this, as their keys are set directly
             if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"
 
-            (string key, bool isSiege) unit_data = (string.Empty, false);
+            (string key, bool isSiege) unit_data = (NOT_FOUND_KEY, false);
             foreach (var xml_file in files_paths)
             {
                 if (Path.GetExtension(xml_file) == ".xml")
@@ -1194,17 +1194,17 @@ namespace CrusaderWars.unit_mapper
                         //Then stores culture specific unit key
                         if (titleKey != null && titleKey == owner.GetPrimaryTitleKey())
                         {
-                            foreach (XmlNode node in element.ChildNodes)
+                            var found_data = FindUnitKeyInFaction(element, unit, null);
+                            if (found_data.Item1 != NOT_FOUND_KEY)
                             {
-                                unit_data = FindUnitKeyInFaction(element, unit, null);
-                                return unit_data;
+                                unit_data = found_data;
                             }
                         }
                     }
                 }
             }
 
-            return (NOT_FOUND_KEY, false);
+            return unit_data;
         }
 
         static (string, bool) SearchInFactionFiles(Unit unit)
@@ -1745,10 +1745,10 @@ namespace CrusaderWars.unit_mapper
                         if(heritage_name == HeritageName)
                         {
                             string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            if (string.IsNullOrEmpty(heritage_mapping.faction) && !string.IsNullOrEmpty(found_heritage_faction))
+                            if (!string.IsNullOrEmpty(found_heritage_faction))
                             {
                                 heritage_mapping = (found_heritage_faction, currentFile);
-                                Program.Logger.Debug($"  - Found heritage mapping: {HeritageName} -> {heritage_mapping.faction}");
+                                Program.Logger.Debug($"  - Found/Updated heritage mapping: {HeritageName} -> {heritage_mapping.faction}");
                             }
 
                             foreach(XmlNode culture in heritage.ChildNodes)
@@ -1759,10 +1759,10 @@ namespace CrusaderWars.unit_mapper
                                 if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
                                 {
                                     string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
-                                    if (string.IsNullOrEmpty(culture_mapping.faction) && !string.IsNullOrEmpty(found_culture_faction))
+                                    if (!string.IsNullOrEmpty(found_culture_faction))
                                     {
                                         culture_mapping = (found_culture_faction, currentFile);
-                                        Program.Logger.Debug($"  - Found culture mapping: {CultureName} -> {culture_mapping.faction}");
+                                        Program.Logger.Debug($"  - Found/Updated culture mapping: {CultureName} -> {culture_mapping.faction}");
                                     }
                                 }
                             }
