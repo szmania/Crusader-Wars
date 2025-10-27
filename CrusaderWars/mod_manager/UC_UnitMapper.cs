@@ -21,14 +21,14 @@ namespace CrusaderWars.mod_manager
         List<UC_UnitMapper> AllControlsReferences { get; set; } = null!;
 
         string SteamCollectionLink {  get; set; }
-        List<(string FileName, string Sha256, string ScreenName)> RequiredModsList { get; set; }
+        List<(string FileName, string Sha256, string ScreenName, string Url)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
         private readonly List<Submod> _availableSubmods;
         private readonly string _playthroughTag;
 
         public string GetPlaythroughTag() { return _playthroughTag; }
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string ScreenName)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string ScreenName, string Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
         {
             InitializeComponent();
 
@@ -103,7 +103,7 @@ namespace CrusaderWars.mod_manager
 
                 if (RequiredModsList != null && RequiredModsList.Count > 0)
                 {
-                    foreach (var (mod, _, screenName) in RequiredModsList)
+                    foreach (var (mod, _, screenName, _) in RequiredModsList)
                     {
                         modsMessage.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? mod : screenName)}");
                     }
@@ -200,9 +200,14 @@ namespace CrusaderWars.mod_manager
                     sb.AppendLine("One or more required Total War: Attila mod files for this playthrough have different versions than expected.");
                     sb.AppendLine("This could mean the mod is outdated, or it has been updated by the mod author and may still be compatible.");
                     sb.AppendLine("\nMismatched files:");
-                    foreach (var (fileName, _, screenName) in verificationResult.MismatchedFiles)
+                    foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                     {
-                        sb.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}");
+                        string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
+                        if (!string.IsNullOrEmpty(url))
+                        {
+                            line += $"\n  (Find it here: {url})";
+                        }
+                        sb.AppendLine(line);
                     }
                     sb.AppendLine("\nPlease ensure you have the latest versions of these mods from the Steam Workshop.");
                     sb.AppendLine("If your mods are up-to-date and you still see this warning, please report it to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j so we can update our compatibility check.");
@@ -352,9 +357,14 @@ namespace CrusaderWars.mod_manager
                     {
                         var sb = new StringBuilder();
                         sb.AppendLine("The following required mods have a different version than expected:");
-                        foreach (var (fileName, _, screenName) in verificationResult.MismatchedFiles)
+                        foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                         {
-                            sb.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}");
+                            string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
+                            if (!string.IsNullOrEmpty(url))
+                            {
+                                line += $"\n  (Find it here: {url})";
+                            }
+                            sb.AppendLine(line);
                         }
                         sb.AppendLine("\nThis may cause issues. Please ensure you have the latest versions of these mods from the Steam Workshop.");
                         sb.AppendLine("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j");
@@ -385,7 +395,7 @@ namespace CrusaderWars.mod_manager
         internal class VerificationResult
         {
             public List<(string FileName, string ScreenName)> MissingFiles { get; } = new List<(string, string)>();
-            public List<(string FileName, string ExpectedSha, string ScreenName)> MismatchedFiles { get; } = new List<(string, string, string)>();
+            public List<(string FileName, string ExpectedSha, string ScreenName, string Url)> MismatchedFiles { get; } = new List<(string, string, string, string)>();
         }
 
         public void SetSteamLinkButtonTooltip(string text)
@@ -413,11 +423,11 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        private VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string ScreenName)> modsToVerifyList, IProgress<string>? progress)
+        private VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string ScreenName, string Url)> modsToVerifyList, IProgress<string>? progress)
         {
             Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
-            var modsToFind = modsToVerifyList.ToDictionary(item => item.FileName, item => (Sha: item.Sha256, ScreenName: item.ScreenName));
+            var modsToFind = modsToVerifyList.ToDictionary(item => item.FileName, item => (Sha: item.Sha256, ScreenName: item.ScreenName, Url: item.Url));
             Program.Logger.Debug($"Mods to verify: {string.Join(", ", modsToFind.Keys)}");
 
 
@@ -435,6 +445,7 @@ namespace CrusaderWars.mod_manager
                         progress?.Report($"Verifying: {fileName}");
                         string expectedSha = modsToFind[fileName].Sha;
                         string screenName = modsToFind[fileName].ScreenName;
+                        string url = modsToFind[fileName].Url;
                         if (!string.IsNullOrEmpty(expectedSha))
                         {
                             string actualSha = CalculateSHA256(file);
@@ -446,7 +457,7 @@ namespace CrusaderWars.mod_manager
                             else
                             {
                                 Program.Logger.Debug($"Found required mod '{fileName}' in data folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
-                                result.MismatchedFiles.Add((fileName, expectedSha, screenName));
+                                result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
                                 modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
                             }
                         }
@@ -481,6 +492,7 @@ namespace CrusaderWars.mod_manager
                             progress?.Report($"Verifying: {fileName}");
                             string expectedSha = modsToFind[fileName].Sha;
                             string screenName = modsToFind[fileName].ScreenName;
+                            string url = modsToFind[fileName].Url;
                             if (!string.IsNullOrEmpty(expectedSha))
                             {
                                 string actualSha = CalculateSHA256(file);
@@ -492,7 +504,7 @@ namespace CrusaderWars.mod_manager
                                 else
                                 {
                                     Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
-                                    result.MismatchedFiles.Add((fileName, expectedSha, screenName));
+                                    result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
                                     modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
                                 }
                             }
@@ -538,7 +550,7 @@ namespace CrusaderWars.mod_manager
 
 
                     var selectedSubmods = _availableSubmods.Where(s => selectedSubmodTags.Contains(s.Tag)).ToList();
-                    var modsToValidate = selectedSubmods.SelectMany(s => s.Mods).Select(m => (m.FileName, m.Sha256, m.ScreenName)).ToList();
+                    var modsToValidate = selectedSubmods.SelectMany(s => s.Mods).Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
 
                     if (!modsToValidate.Any())
                     {
@@ -590,9 +602,14 @@ namespace CrusaderWars.mod_manager
                             sb.AppendLine("One or more required sub-mod files have different versions than expected.");
                             sb.AppendLine("This could mean the mod is outdated or has been updated by its author.");
                             sb.AppendLine("\nMismatched files:");
-                            foreach (var (fileName, _, screenName) in verificationResult.MismatchedFiles)
+                            foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                             {
-                                sb.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}");
+                                string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
+                                if (!string.IsNullOrEmpty(url))
+                                {
+                                    line += $"\n  (Find it here: {url})";
+                                }
+                                sb.AppendLine(line);
                             }
                             sb.AppendLine("\nDo you want to activate these sub-mods anyway?");
 
