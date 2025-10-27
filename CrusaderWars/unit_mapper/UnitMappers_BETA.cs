@@ -12,11 +12,19 @@ using CrusaderWars.twbattle;
 
 namespace CrusaderWars.unit_mapper
 {
+    public class ModFile
+    {
+        public string FileName { get; set; } = string.Empty;
+        public string Sha256 { get; set; } = string.Empty;
+        public string? ScreenName { get; set; }
+        public string? Url { get; set; }
+    }
+
     public class Submod
     {
         public string Tag { get; set; } = string.Empty;
         public string ScreenName { get; set; } = string.Empty;
-        public List<(string FileName, string Sha256)> Mods { get; set; } = new List<(string, string)>();
+        public List<ModFile> Mods { get; set; } = new List<ModFile>();
         public List<string> Replaces { get; set; } = new List<string>();
     }
 
@@ -104,10 +112,10 @@ namespace CrusaderWars.unit_mapper
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
-        public static (List<(string FileName, string Sha256)> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
+        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
         {
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
-            var requiredMods = new List<(string FileName, string Sha256)>();
+            var requiredMods = new List<ModFile>();
             var submods = new List<Submod>();
 
             foreach (var mapper in unit_mappers_folder)
@@ -134,9 +142,14 @@ namespace CrusaderWars.unit_mapper
                                         if (node is XmlComment) continue;
                                         if (node.Name == "Mod")
                                         {
-                                            string modFileName = node.InnerText;
-                                            string sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty;
-                                            requiredMods.Add((modFileName, sha256));
+                                            var modFile = new ModFile
+                                            {
+                                                FileName = node.InnerText,
+                                                Sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty,
+                                                ScreenName = node.Attributes?["screen_name"]?.Value,
+                                                Url = node.Attributes?["url"]?.Value
+                                            };
+                                            requiredMods.Add(modFile);
                                         }
                                         else if (node.Name == "Submod")
                                         {
@@ -154,9 +167,14 @@ namespace CrusaderWars.unit_mapper
                                             {
                                                 if(submod_modNode.Name == "Mod")
                                                 {
-                                                    string modFileName = submod_modNode.InnerText;
-                                                    string sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty;
-                                                    submod.Mods.Add((modFileName, sha256));
+                                                    var modFile = new ModFile
+                                                    {
+                                                        FileName = submod_modNode.InnerText,
+                                                        Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
+                                                        ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
+                                                        Url = submod_modNode.Attributes?["url"]?.Value
+                                                    };
+                                                    submod.Mods.Add(modFile);
                                                 }
                                             }
                                             if(!string.IsNullOrEmpty(submod.Tag))
@@ -616,9 +634,14 @@ namespace CrusaderWars.unit_mapper
                                                         {
                                                             if (submod_modNode.Name == "Mod")
                                                             {
-                                                                string modFileName = submod_modNode.InnerText;
-                                                                string sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty;
-                                                                submod.Mods.Add((modFileName, sha256));
+                                                                var modFile = new ModFile
+                                                                {
+                                                                    FileName = submod_modNode.InnerText,
+                                                                    Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
+                                                                    ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
+                                                                    Url = submod_modNode.Attributes?["url"]?.Value
+                                                                };
+                                                                submod.Mods.Add(modFile);
                                                             }
                                                         }
                                                         if (!string.IsNullOrEmpty(submod.Tag))
