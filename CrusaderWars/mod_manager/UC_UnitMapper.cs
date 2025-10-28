@@ -186,9 +186,18 @@ namespace CrusaderWars.mod_manager
                 // 1. Check for missing files (highest priority)
                 if (verificationResult.MissingFiles.Any())
                 {
-                    string missingMods = string.Join("\n", verificationResult.MissingFiles.Select(f => $"- {(string.IsNullOrEmpty(f.ScreenName) ? f.FileName : f.ScreenName)}"));
-                    MessageBox.Show($"You are missing these required mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var sb = new StringBuilder();
+                    sb.AppendLine("You are missing these required mods:");
+                    foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                    {
+                        string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                        if (!string.IsNullOrEmpty(url))
+                        {
+                            line += $"\n  {url}";
+                        }
+                        sb.AppendLine(line);
+                    }
+                    ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Mods!");
                     uC_Toggle1.SetState(false);
                     return; // Stop here
                 }
@@ -411,9 +420,18 @@ namespace CrusaderWars.mod_manager
                     // 1. Check for missing files
                     if (verificationResult.MissingFiles.Any())
                     {
-                        string missingMods = string.Join("\n", verificationResult.MissingFiles.Select(f => $"- {(string.IsNullOrEmpty(f.ScreenName) ? f.FileName : f.ScreenName)}"));
-                        MessageBox.Show($"You are missing these mods:\n{missingMods}", "Crusader Conflicts: Missing Mods!",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        var sb = new StringBuilder();
+                        sb.AppendLine("You are missing these mods:");
+                        foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                        {
+                            string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                            if (!string.IsNullOrEmpty(url))
+                            {
+                                line += $"\n  {url}";
+                            }
+                            sb.AppendLine(line);
+                        }
+                        ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Mods!");
                         uC_Toggle1.SetState(false);
                     }
 
@@ -459,7 +477,7 @@ namespace CrusaderWars.mod_manager
 
         internal class VerificationResult
         {
-            public List<(string FileName, string ScreenName)> MissingFiles { get; } = new List<(string, string)>();
+            public List<(string FileName, string ScreenName, string Url)> MissingFiles { get; } = new List<(string, string, string)>();
             public List<(string FileName, string ExpectedSha, string ScreenName, string Url)> MismatchedFiles { get; } = new List<(string, string, string, string)>();
         }
 
@@ -593,7 +611,7 @@ namespace CrusaderWars.mod_manager
             }
 
             // Any mods remaining in modsToFind are missing from both locations.
-            result.MissingFiles.AddRange(modsToFind.Select(kvp => (kvp.Key, kvp.Value.ScreenName)));
+            result.MissingFiles.AddRange(modsToFind.Select(kvp => (kvp.Key, kvp.Value.ScreenName, kvp.Value.Url)));
 
             if (result.MissingFiles.Any()) Program.Logger.Debug($"Mods not found: {string.Join(", ", result.MissingFiles.Select(f => f.FileName))}");
             if (result.MismatchedFiles.Any()) Program.Logger.Debug($"Mismatched mods: {string.Join(", ", result.MismatchedFiles.Select(m => m.FileName))}");
@@ -664,9 +682,18 @@ namespace CrusaderWars.mod_manager
 
                         if (verificationResult.MissingFiles.Any())
                         {
-                            string missingMods = string.Join("\n", verificationResult.MissingFiles.Select(f => $"- {(string.IsNullOrEmpty(f.ScreenName) ? f.FileName : f.ScreenName)}"));
-                            MessageBox.Show($"You are missing these required sub-mod files:\n{missingMods}", "Crusader Conflicts: Missing Sub-Mod Files!",
-                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            var sb = new StringBuilder();
+                            sb.AppendLine("You are missing these required sub-mod files:");
+                            foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                            {
+                                string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                                if (!string.IsNullOrEmpty(url))
+                                {
+                                    line += $"\n  {url}";
+                                }
+                                sb.AppendLine(line);
+                            }
+                            ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Sub-Mod Files!");
                             return;
                         }
 
