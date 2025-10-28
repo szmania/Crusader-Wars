@@ -439,21 +439,21 @@ namespace CrusaderWars.terrain
 
             if (BattleState.IsSiegeBattle)
             {
-                // Attacker starts at the edge, as normal.
-                if (direction == Deployments.beta_GeDirection("attacker"))
+                // Case 1: Besieger (Attacker) - Always starts at the edge.
+                // The attacker's direction is determined randomly in beta_SetSiegeDeployment.
+                bool isBesieger = direction == Deployments.beta_GeDirection("attacker");
+
+                // Case 2: Relief Army (Defender Reinforcement) - Also starts at the edge.
+                bool isReliefArmy = isReinforcement && direction == Deployments.beta_GeDirection("defender");
+
+                if (isBesieger || isReliefArmy)
                 {
                     BattleMap(option_map_size, total_soldiers);
                     UnitsPositionament();
                 }
-                // Defender reinforcement (relief army) also starts at the edge.
-                else if (isReinforcement)
+                else // Case 3: Garrison (Defender, not reinforcement) - Starts at the center.
                 {
-                    BattleMap(option_map_size, total_soldiers);
-                    UnitsPositionament();
-                }
-                else // Defender (garrison) starts at the center of the settlement.
-                {
-                    // Use the pre-calculated meter coordinates.
+                    // Use the pre-calculated meter coordinates for the siege center.
                     float.TryParse(Deployments.GetSiegeCenterX(), NumberStyles.Any, CultureInfo.InvariantCulture, out float x_float);
                     float.TryParse(Deployments.GetSiegeCenterY(), NumberStyles.Any, CultureInfo.InvariantCulture, out float y_float);
                     X = (int)x_float;
