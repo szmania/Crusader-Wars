@@ -837,6 +837,11 @@ namespace CrusaderWars
 
                 Label messageLabel = new Label();
                 messageLabel.Text = 
+                    "New Optional Sub-Mod for Medieval Playthroughs!\n\n" +
+                    "• Added support for 'Dahan China' for the Medieval playthroughs.\n" +
+                    "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=2826656101\n" +
+                    "• And here: https://steamcommunity.com/sharedfiles/filedetails/?id=1559011232\n" +
+                    "----------------------------------------------------------\n\n" +
                     "New Required Mods for AGOT Playthrough!\n\n" +
                     "For a more immersive and authentic AGOT experience, the following Total War: Attila mods are now required:\n" +
                     "• Medieval Kingdoms 1212 AD Models Pack 1.v2\n" +
