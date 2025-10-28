@@ -837,7 +837,7 @@ namespace CrusaderWars
 
                 Label messageLabel = new Label();
                 messageLabel.Text = 
-                    "New Optional Sub-Mod for Medieval Playthroughs!\n\n" +
+                    "New Optional Sub-Mod for Medieval Playthroughs for the Far East!\n\n" +
                     "• Added support for 'Dahan China' for the Medieval playthroughs.\n" +
                     "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=2826656101\n" +
                     "• And here: https://steamcommunity.com/sharedfiles/filedetails/?id=1559011232\n" +
