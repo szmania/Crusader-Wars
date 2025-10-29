@@ -45,8 +45,8 @@ namespace CrusaderWars.unit_mapper
         public string X { get; set; } = string.Empty;
         public string Y { get; set; } = string.Empty;
         public List<string>? BesiegerOrientations { get; set; }
-        public string? BesiegerDeploymentZoneWidth { get; set; }
-        public string? BesiegerDeploymentZoneHeight { get; set; }
+        public string? BesiegedDeploymentZoneWidth { get; set; }
+        public string? BesiegedDeploymentZoneHeight { get; set; }
     }
 
     internal class SettlementMap
@@ -435,8 +435,8 @@ namespace CrusaderWars.unit_mapper
                                             var settlementVariant = new SettlementVariant
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
-                                                BesiegerDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
-                                                BesiegerDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
+                                                BesiegedDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
+                                                BesiegedDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
                                             };
 
                                             string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
@@ -485,8 +485,8 @@ namespace CrusaderWars.unit_mapper
                                             var settlementVariant = new SettlementVariant
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
-                                                BesiegerDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
-                                                BesiegerDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
+                                                BesiegedDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
+                                                BesiegedDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
                                             };
 
                                             string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
@@ -1963,15 +1963,15 @@ namespace CrusaderWars.unit_mapper
             // If a variant was found by any method, apply overrides and return it
             if (selectedVariant != null)
             {
-                if (!string.IsNullOrEmpty(selectedVariant.BesiegerDeploymentZoneWidth))
+                if (!string.IsNullOrEmpty(selectedVariant.BesiegedDeploymentZoneWidth))
                 {
-                    BattleStateBridge.BesiegedDeploymentWidth = selectedVariant.BesiegerDeploymentZoneWidth;
-                    Program.Logger.Debug($"Overriding besieged deployment width to: {selectedVariant.BesiegerDeploymentZoneWidth}");
+                    BattleStateBridge.BesiegedDeploymentWidth = selectedVariant.BesiegedDeploymentZoneWidth;
+                    Program.Logger.Debug($"Overriding besieged deployment width to: {selectedVariant.BesiegedDeploymentZoneWidth}");
                 }
-                if (!string.IsNullOrEmpty(selectedVariant.BesiegerDeploymentZoneHeight))
+                if (!string.IsNullOrEmpty(selectedVariant.BesiegedDeploymentZoneHeight))
                 {
-                    BattleStateBridge.BesiegedDeploymentHeight = selectedVariant.BesiegerDeploymentZoneHeight;
-                    Program.Logger.Debug($"Overriding besieged deployment height to: {selectedVariant.BesiegerDeploymentZoneHeight}");
+                    BattleStateBridge.BesiegedDeploymentHeight = selectedVariant.BesiegedDeploymentZoneHeight;
+                    Program.Logger.Debug($"Overriding besieged deployment height to: {selectedVariant.BesiegedDeploymentZoneHeight}");
                 }
 
                 Program.Logger.Debug($"Coordinates: ({selectedVariant.X}, {selectedVariant.Y})");
