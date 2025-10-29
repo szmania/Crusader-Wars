@@ -276,15 +276,17 @@ namespace CrusaderWars.terrain
 
         public DeploymentArea(string direction, string option_map_size, int total_soldiers, bool isGarrisonDeployment = false)
         {
+            float centerX, centerY, width, height;
+
             if (BattleState.IsSiegeBattle && isGarrisonDeployment)
             {
                 // Special case for the central garrison deployment area
-                float centerX = 0f;
-                float centerY = 0f;
+                centerX = 0f;
+                centerY = 0f;
                 string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
                 string height_str = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
-                float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float width);
-                float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float height);
+                float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out width);
+                float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out height);
 
                 this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
                 this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
@@ -328,8 +330,6 @@ namespace CrusaderWars.terrain
             float playable_boundary = map_dimension / 2f;
 
             // Determine deployment zone dimensions and position
-            float centerX, centerY, width, height;
-
             if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
             {
                 float inter_zone_buffer = 125f; // Space between defender and attacker zones

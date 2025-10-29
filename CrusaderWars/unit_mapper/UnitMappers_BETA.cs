@@ -435,8 +435,8 @@ namespace CrusaderWars.unit_mapper
                                             var settlementVariant = new SettlementVariant
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
-                                                BesiegedDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
-                                                BesiegedDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
+                                                BesiegedDeploymentZoneWidth = variantNode.Attributes?["besieged_deployment_zone_width"]?.Value,
+                                                BesiegedDeploymentZoneHeight = variantNode.Attributes?["besieged_deployment_zone_height"]?.Value
                                             };
 
                                             string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
@@ -485,8 +485,8 @@ namespace CrusaderWars.unit_mapper
                                             var settlementVariant = new SettlementVariant
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
-                                                BesiegedDeploymentZoneWidth = variantNode.Attributes?["besieger_deployment_zone_width"]?.Value,
-                                                BesiegedDeploymentZoneHeight = variantNode.Attributes?["besieger_deployment_zone_height"]?.Value
+                                                BesiegedDeploymentZoneWidth = variantNode.Attributes?["besieged_deployment_zone_width"]?.Value,
+                                                BesiegedDeploymentZoneHeight = variantNode.Attributes?["besieged_deployment_zone_height"]?.Value
                                             };
 
                                             string? orientationsAttr = variantNode.Attributes?["besieger_orientations"]?.Value;
