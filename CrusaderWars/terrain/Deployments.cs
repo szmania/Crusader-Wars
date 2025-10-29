@@ -274,8 +274,30 @@ namespace CrusaderWars.terrain
         public float MinY { get; private set; }
         public float MaxY { get; private set; }
 
-        public DeploymentArea(string direction, string option_map_size, int total_soldiers)
+        public DeploymentArea(string direction, string option_map_size, int total_soldiers, bool isGarrisonDeployment = false)
         {
+            if (BattleState.IsSiegeBattle && isGarrisonDeployment)
+            {
+                // Special case for the central garrison deployment area
+                float centerX = 0f;
+                float centerY = 0f;
+                string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
+                string height_str = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
+                float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float width);
+                float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float height);
+
+                this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
+                this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
+                this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
+                this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
+
+                this.MinX = centerX - (width / 2f);
+                this.MaxX = centerX + (width / 2f);
+                this.MinY = centerY - (height / 2f);
+                this.MaxY = centerY + (height / 2f);
+                return; // Exit early, skipping edge-of-map logic
+            }
+
             // Determine MapSize category ("Medium", "Big", "Huge")
             string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
             if (map_size_source == "Dynamic")
@@ -435,29 +457,35 @@ namespace CrusaderWars.terrain
         {
             Direction = direction;
             MapSize = option_map_size;
-            _deploymentArea = new DeploymentArea(direction, option_map_size, total_soldiers);
+
+            bool isGarrisonDeployment = false;
+            if (BattleState.IsSiegeBattle)
+            {
+                // A garrison is a defender that is NOT a reinforcement.
+                bool isDefenderSide = (direction == Deployments.beta_GeDirection("defender"));
+                if (isDefenderSide && !isReinforcement)
+                {
+                    isGarrisonDeployment = true;
+                }
+            }
+
+            _deploymentArea = new DeploymentArea(direction, option_map_size, total_soldiers, isGarrisonDeployment);
 
             if (BattleState.IsSiegeBattle)
             {
-                // Case 1: Besieger (Attacker) - Always starts at the edge.
-                // The attacker's direction is determined randomly in beta_SetSiegeDeployment.
-                bool isBesieger = direction == Deployments.beta_GeDirection("attacker");
-
-                // Case 2: Relief Army (Defender Reinforcement) - Also starts at the edge.
-                bool isReliefArmy = isReinforcement && direction == Deployments.beta_GeDirection("defender");
-
-                if (isBesieger || isReliefArmy)
+                if (isGarrisonDeployment)
                 {
-                    BattleMap(option_map_size, total_soldiers);
-                    UnitsPositionament();
-                }
-                else // Case 3: Garrison (Defender, not reinforcement) - Starts at the center.
-                {
+                    // Garrison (Defender, not reinforcement) - Starts at the center.
                     // Use the pre-calculated meter coordinates for the siege center.
                     float.TryParse(Deployments.GetSiegeCenterX(), NumberStyles.Any, CultureInfo.InvariantCulture, out float x_float);
                     float.TryParse(Deployments.GetSiegeCenterY(), NumberStyles.Any, CultureInfo.InvariantCulture, out float y_float);
                     X = (int)x_float;
                     Y = (int)y_float;
+                }
+                else // Besieger or Relief Army - Starts at the edge.
+                {
+                    BattleMap(option_map_size, total_soldiers);
+                    UnitsPositionament();
                 }
             }
             else // Field battle
