@@ -10,6 +10,7 @@
     <RootNamespace>CWUpdater</RootNamespace>
     <ProductName>Crusader Conflicts - Updater</ProductName>
     <PublisherName>Faray and Community</PublisherName>
+    <ApplicationIcon>../CrusaderWars/logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
