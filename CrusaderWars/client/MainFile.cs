@@ -825,65 +825,97 @@ namespace CrusaderWars
                 Program.Logger.Debug("Displaying update notification.");
 
                 // Create a custom form for the notification
-                Form notificationForm = new Form();
-                notificationForm.Text = "Crusader Conflicts: Latest Updates";
-                notificationForm.ClientSize = new Size(450, 600); // Increased height for new content
-                notificationForm.FormBorderStyle = FormBorderStyle.FixedDialog;
-                notificationForm.StartPosition = FormStartPosition.CenterParent;
-                notificationForm.MaximizeBox = false;
-                notificationForm.MinimizeBox = false;
-                notificationForm.ShowInTaskbar = false;
-                notificationForm.Icon = this.Icon; // Use the main form's icon
+                using (Form notificationForm = new Form())
+                {
+                    notificationForm.Text = "Crusader Conflicts: Latest Updates";
+                    notificationForm.ClientSize = new Size(550, 500);
+                    notificationForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                    notificationForm.StartPosition = FormStartPosition.CenterParent;
+                    notificationForm.MaximizeBox = false;
+                    notificationForm.MinimizeBox = false;
+                    notificationForm.ShowInTaskbar = false;
+                    notificationForm.Icon = this.Icon;
 
-                Label messageLabel = new Label();
-                messageLabel.Text = 
-                    "New Optional Sub-Mod for Medieval Playthroughs for the Far East!\n\n" +
-                    "• Added support for 'Dahan China' for the Medieval playthroughs.\n" +
-                    "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=2826656101\n" +
-                    "• And here: https://steamcommunity.com/sharedfiles/filedetails/?id=1559011232\n" +
-                    "----------------------------------------------------------\n\n" +
-                    "New Required Mods for AGOT Playthrough!\n\n" +
-                    "For a more immersive and authentic AGOT experience, the following Total War: Attila mods are now required:\n" +
-                    "• Medieval Kingdoms 1212 AD Models Pack 1.v2\n" +
-                    "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1429140619\n" +
-                    "• Medieval Kingdoms 1212 AD Models Pack 5\n" +
-                    "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1592154821\n" +
-                    "• Medieval Kingdoms 1212AD - Custom cities beta\n" +
-                    "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
-                    "----------------------------------------------------------\n\n" +
-                    "New Optional Sub-Mod for The Fallen Eagle!\n\n" +
-                    "• Added support for 'Fall of the Eagles' for the Late-Roman The Fallen Eagle playthrough.\n" +
-                    "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=434826744\n" +
-                    "----------------------------------------------------------\n\n" +
-                    "Support for Optional Sub-Mods!\n\n" +
-                    "• Added support for 'Ice and Fire Total War: War for Westeros' for the AGOT Playthrough.\n" +
-                    "• Download it here: https://www.moddb.com/mods/total-war-ice-fire-book-inspired-mod\n" +
-                    "----------------------------------------------------------\n\n" +
-                    "New Required Mod for Medieval Playthroughs!\n\n" +
-                    "• The High, Late, and Renaissance medieval playthroughs now require the 'Medieval Kingdoms 1212AD - Custom cities beta' mod.\n" +
-                    "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
-                    "----------------------------------------------------------\n\n" +
-                    "Sieges Added!\n\n" +
-                    "• Siege battles can be fought and won in all your favorite playthroughs!.\n";
-                messageLabel.Location = new Point(10, 10);
-                messageLabel.AutoSize = true;
-                messageLabel.MaximumSize = new Size(notificationForm.ClientSize.Width - 20, 0);
-                messageLabel.Font = new Font("Microsoft Sans Serif", 10f);
-                notificationForm.Controls.Add(messageLabel);
+                    Panel scrollPanel = new Panel
+                    {
+                        Dock = DockStyle.Fill,
+                        AutoScroll = true,
+                        Padding = new Padding(10),
+                        Height = notificationForm.ClientSize.Height - 50,
+                        Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+                    };
+                    notificationForm.Controls.Add(scrollPanel);
 
-                Button okButton = new Button();
-                okButton.Text = "OK";
-                okButton.DialogResult = DialogResult.OK;
-                okButton.Size = new Size(100, 30);
-                // Position the button below the label, centered horizontally.
-                okButton.Location = new Point((notificationForm.ClientSize.Width - okButton.Width) / 2, messageLabel.Bottom + 15);
-                notificationForm.Controls.Add(okButton);
+                    Label messageLabel = new Label
+                    {
+                        Text = "New Optional Sub-Mod for Medieval Playthroughs for the Far East!\n\n" +
+                               "• Added support for 'Dahan China' for the Medieval playthroughs.\n" +
+                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=2826656101\n" +
+                               "• And here: https://steamcommunity.com/sharedfiles/filedetails/?id=1559011232\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "New Required Mods for AGOT Playthrough!\n\n" +
+                               "For a more immersive and authentic AGOT experience, the following Total War: Attila mods are now required:\n" +
+                               "• Medieval Kingdoms 1212 AD Models Pack 1.v2\n" +
+                               "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1429140619\n" +
+                               "• Medieval Kingdoms 1212 AD Models Pack 5\n" +
+                               "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1592154821\n" +
+                               "• Medieval Kingdoms 1212AD - Custom cities beta\n" +
+                               "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "New Optional Sub-Mod for The Fallen Eagle!\n\n" +
+                               "• Added support for 'Fall of the Eagles' for the Late-Roman The Fallen Eagle playthrough.\n" +
+                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=434826744\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "Support for Optional Sub-Mods!\n\n" +
+                               "• Added support for 'Ice and Fire Total War: War for Westeros' for the AGOT Playthrough.\n" +
+                               "• Download it here: https://www.moddb.com/mods/total-war-ice-fire-book-inspired-mod\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "New Required Mod for Medieval Playthroughs!\n\n" +
+                               "• The High, Late, and Renaissance medieval playthroughs now require the 'Medieval Kingdoms 1212AD - Custom cities beta' mod.\n" +
+                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "Sieges Added!\n\n" +
+                               "• Siege battles can be fought and won in all your favorite playthroughs!.\n",
+                        Font = new Font("Microsoft Sans Serif", 10f),
+                        AutoSize = true,
+                        MaximumSize = new Size(scrollPanel.ClientSize.Width - 25, 0),
+                        Location = new Point(0, 0)
+                    };
+                    scrollPanel.Controls.Add(messageLabel);
 
-                // Resize the form to fit the label and the button with padding.
-                notificationForm.ClientSize = new Size(notificationForm.ClientSize.Width, okButton.Bottom + 15);
-                notificationForm.AcceptButton = okButton;
+                    LinkLabel appLink = new LinkLabel
+                    {
+                        Text = "View App Release Notes",
+                        Font = new Font("Microsoft Sans Serif", 10f),
+                        AutoSize = true,
+                        Location = new Point(0, messageLabel.Bottom + 20)
+                    };
+                    appLink.LinkClicked += (s, e) => Process.Start(new ProcessStartInfo("https://github.com/szmania/Crusader-Wars/releases/latest") { UseShellExecute = true });
+                    scrollPanel.Controls.Add(appLink);
 
-                notificationForm.ShowDialog(this);
+                    LinkLabel mappersLink = new LinkLabel
+                    {
+                        Text = "View Mappers Release Notes",
+                        Font = new Font("Microsoft Sans Serif", 10f),
+                        AutoSize = true,
+                        Location = new Point(0, appLink.Bottom + 10)
+                    };
+                    mappersLink.LinkClicked += (s, e) => Process.Start(new ProcessStartInfo("https://github.com/szmania/CC-Mappers/releases/latest") { UseShellExecute = true });
+                    scrollPanel.Controls.Add(mappersLink);
+
+                    Button okButton = new Button
+                    {
+                        Text = "OK",
+                        DialogResult = DialogResult.OK,
+                        Size = new Size(100, 30),
+                        Location = new Point((notificationForm.ClientSize.Width - 100) / 2, notificationForm.ClientSize.Height - 40),
+                        Anchor = AnchorStyles.Bottom
+                    };
+                    notificationForm.Controls.Add(okButton);
+                    notificationForm.AcceptButton = okButton;
+
+                    notificationForm.ShowDialog(this);
+                }
 
                 // Update both settings to the current versions
                 Properties.Settings.Default.LastNotifiedVersion = _appVersion.TrimStart('v');
