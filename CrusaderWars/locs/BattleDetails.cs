@@ -66,11 +66,20 @@ namespace CrusaderWars.locs
                     {
                         string new_version = $"uied_component_texts_localised_string_string_NewState_Text_3a000c\tCrusader Conflicts {version}\ttrue";
                         new_data += new_version + "\n";
-                        string new_version_2 = $"uied_component_texts_localised_string_button_txt_NewState_Text_49000c\tCrusader Conflicts {version}\ttrue";
-                        new_data += new_version_2 + "\n";
                         continue;
                     }
-
+                    if (line.Contains("uied_component_texts_localised_string_string_NewState_Text_3a000cm"))
+                    {
+                        string new_version = $"uied_component_texts_localised_string_string_NewState_Text_3a000cm\tCrusader Conflicts {version}\ttrue";
+                        new_data += new_version + "\n";
+                        continue;
+                    }
+                    if (line.Contains("uied_component_texts_localised_string_button_txt_NewState_Text_49000c"))
+                    {
+                        string new_version = $"uied_component_texts_localised_string_button_txt_NewState_Text_49000c\tCrusader Conflicts {version}\ttrue";
+                        new_data += new_version + "\n";
+                        continue;
+                    }
                     new_data += line + "\n";
                 }
 

@@ -31,6 +31,14 @@
 
 			header_pattern = {
 				layoutpolicy_horizontal = expanding
+                
+                blockoverride "header_background" {
+                    margin = { 10 10 }
+                }
+
+                blockoverride "header_pattern" {
+                    margin = { 10 10 }
+                }
 
 				blockoverride "header_text"
 				{
