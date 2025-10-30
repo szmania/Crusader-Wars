@@ -649,10 +649,21 @@ namespace CrusaderWars.mod_manager
                     var selectedSubmods = _availableSubmods.Where(s => selectedSubmodTags.Contains(s.Tag)).ToList();
                     var modsToValidate = selectedSubmods.SelectMany(s => s.Mods).Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
 
+                    Action activatePlaythroughIfNeeded = () =>
+                    {
+                        if (!GetState() && selectedSubmodTags.Any())
+                        {
+                            Program.Logger.Debug($"Playthrough '{_playthroughTag}' is not active. Activating it because submods were successfully enabled.");
+                            uC_Toggle1.SetState(true);
+                            uC_Toggle1_Click(this, EventArgs.Empty);
+                        }
+                    };
+
                     if (!modsToValidate.Any())
                     {
                         SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectedSubmodTags);
                         MessageBox.Show("Optional sub-mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        activatePlaythroughIfNeeded();
                         return;
                     }
 
@@ -729,6 +740,7 @@ namespace CrusaderWars.mod_manager
 
                         SubmodManager.SetActiveSubmodsForPlaythrough(_playthroughTag, selectedSubmodTags);
                         MessageBox.Show("Optional mod selection updated successfully.", "Crusader Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        activatePlaythroughIfNeeded();
                     }
                     finally
                     {
