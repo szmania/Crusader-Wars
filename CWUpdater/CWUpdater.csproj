@@ -10,7 +10,7 @@
     <RootNamespace>CWUpdater</RootNamespace>
     <ProductName>Crusader Conflicts - Updater</ProductName>
     <PublisherName>Faray and Community</PublisherName>
-    <ApplicationIcon>../CrusaderWars/logo.ico</ApplicationIcon>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -65,4 +65,8 @@
     <None Include="Resources\progress_orange.png" />
   </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="logo.ico" />
+    </ItemGroup>
+    
 </Project>
