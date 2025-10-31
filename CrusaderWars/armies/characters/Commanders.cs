@@ -354,11 +354,12 @@ namespace CrusaderWars
         }
         
 
-        public string Health(string traits_line)
+        public (bool isDead, string newTraits) Health(string traits_line)
         {
             if (hasFallen)
             {
                 // Get percentages from options
+                int deathChance = client.ModOptions.GetCommanderDeathChance();
                 int woundedChance = client.ModOptions.GetCommanderWoundedChance();
                 int severelyInjuredChance = client.ModOptions.GetCommanderSeverelyInjuredChance();
                 int brutallyMauledChance = client.ModOptions.GetCommanderBrutallyMauledChance();
@@ -368,7 +369,8 @@ namespace CrusaderWars
                 int disfiguredChance = client.ModOptions.GetCommanderDisfiguredChance();
 
                 // Calculate cumulative thresholds
-                int woundedThreshold = woundedChance;
+                int deathThreshold = deathChance;
+                int woundedThreshold = deathThreshold + woundedChance;
                 int severelyInjuredThreshold = woundedThreshold + severelyInjuredChance;
                 int brutallyMauledThreshold = severelyInjuredThreshold + brutallyMauledChance;
                 int maimedThreshold = brutallyMauledThreshold + maimedChance;
@@ -380,44 +382,49 @@ namespace CrusaderWars
                 var RandomNumber = Chance.Next(1, 101); // 1 to 100
 
                 // Determine which option to set based on its percentage chance
-                if (RandomNumber <= woundedThreshold)
+                if (RandomNumber <= deathThreshold)
+                {
+                    Program.Logger.Debug($"Commander {ID} has died in battle (chance: {deathChance}%).");
+                    return (true, traits_line);
+                }
+                else if (RandomNumber <= woundedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Wounded");
-                    return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Wounded().ToString());
+                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Wounded().ToString()));
                 }
                 else if (RandomNumber <= severelyInjuredThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Severely Injured");
-                    return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Severely_Injured().ToString());
+                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Severely_Injured().ToString()));
                 }
                 else if (RandomNumber <= brutallyMauledThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Brutally Mauled");
-                    return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Brutally_Mauled().ToString());
+                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Brutally_Mauled().ToString()));
                 }
                 else if (RandomNumber <= maimedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Maimed");
-                    return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Maimed().ToString());
+                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Maimed().ToString()));
                 }
                 else if (RandomNumber <= oneLeggedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got One Legged");
-                    return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Legged().ToString());
+                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Legged().ToString()));
                 }
                 else if (RandomNumber <= oneEyedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got One Eyed");
-                    return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Eyed().ToString());
+                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Eyed().ToString()));
                 }
                 else if (RandomNumber <= disfiguredThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Disfigured");
-                    return CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString());
+                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString()));
                 }
             }
 
-            return traits_line;
+            return (false, traits_line);
         }
     }
 }

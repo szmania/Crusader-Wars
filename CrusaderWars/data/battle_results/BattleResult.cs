@@ -995,30 +995,12 @@ namespace CrusaderWars.data.battle_results
                             {
                                 isCommander = true;
                                 commander = searchData.commander;
-                                if (commander != null && commander.hasFallen)
-                                {
-                                    int deathChance = client.ModOptions.GetCommanderDeathChance();
-                                    if (new Random().Next(1, 101) <= deathChance)
-                                    {
-                                        isDead = true;
-                                        Program.Logger.Debug($"Commander {commander.ID} has died in battle (chance: {deathChance}%).");
-                                    }
-                                }
                                 Program.Logger.Debug($"Found character {char_id} as Commander (Attacker).");
                             }
                             else if (searchData.isKnight)
                             {
                                 isKnight = true;
                                 knight = searchData.knight;
-                                if (knight != null && knight.HasFallen())
-                                {
-                                    int deathChance = client.ModOptions.GetKnightDeathChance();
-                                    if (new Random().Next(1, 101) <= deathChance)
-                                    {
-                                        isDead = true;
-                                        Program.Logger.Debug($"Knight {knight.GetID()} has died in battle (chance: {deathChance}%).");
-                                    }
-                                }
                                 Program.Logger.Debug($"Found character {char_id} as Knight (Attacker).");
                             }
                         }
@@ -1032,30 +1014,12 @@ namespace CrusaderWars.data.battle_results
                                 {
                                     isCommander = true;
                                     commander = searchData.commander;
-                                    if (commander != null && commander.hasFallen)
-                                    {
-                                        int deathChance = client.ModOptions.GetCommanderDeathChance();
-                                        if (new Random().Next(1, 101) <= deathChance)
-                                        {
-                                            isDead = true;
-                                            Program.Logger.Debug($"Commander {commander.ID} has died in battle (chance: {deathChance}%).");
-                                        }
-                                    }
                                     Program.Logger.Debug($"Found character {char_id} as Commander (Defender).");
                                 }
                                 else if (searchData.isKnight)
                                 {
                                     isKnight = true;
                                     knight = searchData.knight;
-                                    if (knight != null && knight.HasFallen())
-                                    {
-                                        int deathChance = client.ModOptions.GetKnightDeathChance();
-                                        if (new Random().Next(1, 101) <= deathChance)
-                                        {
-                                            isDead = true;
-                                            Program.Logger.Debug($"Knight {knight.GetID()} has died in battle (chance: {deathChance}%).");
-                                        }
-                                    }
                                     Program.Logger.Debug($"Found character {char_id} as Knight (Defender).");
                                 }
                             }
@@ -1065,18 +1029,17 @@ namespace CrusaderWars.data.battle_results
                     else if (searchStarted && line.StartsWith("\ttraits={"))
                     {
                         string edited_line = line;
-                        if (!isDead) // Only apply wounds if the character is not dead
+                        if (isCommander && commander != null && commander.hasFallen)
                         {
-                            if (isCommander && commander != null && commander.hasFallen)
-                            {
-                                edited_line = commander.Health(edited_line);
-                                Program.Logger.Debug($"Applying wounds to fallen commander {commander.ID}.");
-                            }
-                            else if (isKnight && knight != null && knight.HasFallen())
-                            {
-                                edited_line = knight.Health(edited_line);
-                                Program.Logger.Debug($"Applying wounds to knight {knight.GetID()}.");
-                            }
+                            var healthResult = commander.Health(line);
+                            isDead = healthResult.isDead;
+                            edited_line = healthResult.newTraits;
+                        }
+                        else if (isKnight && knight != null && knight.HasFallen())
+                        {
+                            var healthResult = knight.Health(line);
+                            isDead = healthResult.isDead;
+                            edited_line = healthResult.newTraits;
                         }
 
                         streamWriter.WriteLine(edited_line);
