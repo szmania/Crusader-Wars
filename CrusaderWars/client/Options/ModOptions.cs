@@ -248,8 +248,8 @@ namespace CrusaderWars.client
         public static int GetCommanderOneLeggedChance() => Int32.Parse(optionsValuesCollection["CommanderOneLeggedChance"]);
         public static int GetCommanderOneEyedChance() => Int32.Parse(optionsValuesCollection["CommanderOneEyedChance"]);
         public static int GetCommanderDisfiguredChance() => Int32.Parse(optionsValuesCollection["CommanderDisfiguredChance"]);
-        public static int GetCommanderKilledChance() => Int32.Parse(optionsValuesCollection["CommanderKilledChance"]);
-        public static int GetKnightKilledChance() => Int32.Parse(optionsValuesCollection["KnightKilledChance"]);
+        public static int GetCommanderSlainChance() => Int32.Parse(optionsValuesCollection["CommanderSlainChance"]);
+        public static int GetKnightSlainChance() => Int32.Parse(optionsValuesCollection["KnightSlainChance"]);
 
         public static int GetKnightWoundedChance() => Int32.Parse(optionsValuesCollection["KnightWoundedChance"]);
         public static int GetKnightSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection["KnightSeverelyInjuredChance"]);

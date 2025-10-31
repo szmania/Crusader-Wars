@@ -141,7 +141,7 @@ namespace CrusaderWars
             if (hasFallen)
             {
                 // Get percentages from options
-                int killedChance = client.ModOptions.GetKnightKilledChance();
+                int slainChance = client.ModOptions.GetKnightSlainChance();
                 int woundedChance = client.ModOptions.GetKnightWoundedChance();
                 int severelyInjuredChance = client.ModOptions.GetKnightSeverelyInjuredChance();
                 int brutallyMauledChance = client.ModOptions.GetKnightBrutallyMauledChance();
@@ -151,8 +151,8 @@ namespace CrusaderWars
                 int disfiguredChance = client.ModOptions.GetKnightDisfiguredChance();
 
                 // Calculate cumulative thresholds
-                int killedThreshold = killedChance;
-                int woundedThreshold = killedThreshold + woundedChance;
+                int slainThreshold = slainChance;
+                int woundedThreshold = slainThreshold + woundedChance;
                 int severelyInjuredThreshold = woundedThreshold + severelyInjuredChance;
                 int brutallyMauledThreshold = severelyInjuredThreshold + brutallyMauledChance;
                 int maimedThreshold = brutallyMauledThreshold + maimedChance;
@@ -164,9 +164,9 @@ namespace CrusaderWars
                 var RandomNumber = Chance.Next(1, 101); // 1 to 100
 
                 // Determine which option to set based on its percentage chance
-                if (RandomNumber <= killedThreshold)
+                if (RandomNumber <= slainThreshold)
                 {
-                    Program.Logger.Debug($"Knight {ID} has been killed in battle (chance: {killedChance}%).");
+                    Program.Logger.Debug($"Knight {ID} has been slain in battle (chance: {slainChance}%).");
                     return (true, traits_line);
                 }
                 else if (RandomNumber <= woundedThreshold)
