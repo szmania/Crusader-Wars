@@ -248,8 +248,32 @@ namespace CrusaderWars.client
         public static int GetCommanderOneLeggedChance() => Int32.Parse(optionsValuesCollection["CommanderOneLeggedChance"]);
         public static int GetCommanderOneEyedChance() => Int32.Parse(optionsValuesCollection["CommanderOneEyedChance"]);
         public static int GetCommanderDisfiguredChance() => Int32.Parse(optionsValuesCollection["CommanderDisfiguredChance"]);
-        public static int GetCommanderSlainChance() => Int32.Parse(optionsValuesCollection["CommanderSlainChance"]);
-        public static int GetKnightSlainChance() => Int32.Parse(optionsValuesCollection["KnightSlainChance"]);
+        public static int GetCommanderSlainChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderSlainChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            // Fallback for backward compatibility with old settings files
+            if (optionsValuesCollection.TryGetValue("CommanderKilledChance", out var oldValue) && int.TryParse(oldValue, out int oldResult))
+            {
+                return oldResult;
+            }
+            return 15; // Default value
+        }
+        public static int GetKnightSlainChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightSlainChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            // Fallback for backward compatibility with old settings files
+            if (optionsValuesCollection.TryGetValue("KnightKilledChance", out var oldValue) && int.TryParse(oldValue, out int oldResult))
+            {
+                return oldResult;
+            }
+            return 15; // Default value
+        }
 
         public static int GetKnightWoundedChance() => Int32.Parse(optionsValuesCollection["KnightWoundedChance"]);
         public static int GetKnightSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection["KnightSeverelyInjuredChance"]);
