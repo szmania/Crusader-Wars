@@ -21,13 +21,13 @@ namespace CrusaderWars.client.Options
             commanderControls = new List<NumericUpDown>
             {
                 numCommanderWounded, numCommanderSeverelyInjured, numCommanderBrutallyMauled,
-                numCommanderMaimed, numCommanderOneLegged, numCommanderOneEyed, numCommanderDisfigured, numCommanderDeath
+                numCommanderMaimed, numCommanderOneLegged, numCommanderOneEyed, numCommanderDisfigured, numCommanderKilled
             };
 
             knightControls = new List<NumericUpDown>
             {
                 numKnightWounded, numKnightSeverelyInjured, numKnightBrutallyMauled,
-                numKnightMaimed, numKnightOneLegged, numKnightOneEyed, numKnightDisfigured, numKnightDeath
+                numKnightMaimed, numKnightOneLegged, numKnightOneEyed, numKnightDisfigured, numKnightKilled
             };
 
             // Initial subscription
@@ -117,7 +117,7 @@ namespace CrusaderWars.client.Options
             numCommanderOneLegged.Value = 3;
             numCommanderOneEyed.Value = 3;
             numCommanderDisfigured.Value = 1;
-            numCommanderDeath.Value = 15;
+            numCommanderKilled.Value = 15;
 
             // Knight Defaults
             numKnightWounded.Value = 35;
@@ -127,7 +127,7 @@ namespace CrusaderWars.client.Options
             numKnightOneLegged.Value = 3;
             numKnightOneEyed.Value = 3;
             numKnightDisfigured.Value = 1;
-            numKnightDeath.Value = 15;
+            numKnightKilled.Value = 15;
 
             UpdateCommanderTotal();
             UpdateKnightTotal();
@@ -165,8 +165,8 @@ namespace CrusaderWars.client.Options
             toolTip1.SetToolTip(lblKnightOneLegged, "Chance for knight to lose a leg when fallen in battle");
             toolTip1.SetToolTip(lblKnightOneEyed, "Chance for knight to lose an eye when fallen in battle");
             toolTip1.SetToolTip(lblKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
-            toolTip1.SetToolTip(numCommanderDeath, "Chance for a commander to die when they fall in battle. This is included in the 100% total chance.");
-            toolTip1.SetToolTip(numKnightDeath, "Chance for a knight to die when they fall in battle. This is included in the 100% total chance.");
+            toolTip1.SetToolTip(numCommanderKilled, "Chance for a commander to be killed when they fall in battle. This is included in the 100% total chance.");
+            toolTip1.SetToolTip(numKnightKilled, "Chance for a knight to be killed when they fall in battle. This is included in the 100% total chance.");
             
             // Add tooltip to reset button
             toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");
@@ -216,7 +216,7 @@ namespace CrusaderWars.client.Options
             return knightControls.Sum(c => (int)c.Value);
         }
 
-        public int GetCommanderDeathChance() => (int)numCommanderDeath.Value;
-        public int GetKnightDeathChance() => (int)numKnightDeath.Value;
+        public int GetCommanderKilledChance() => (int)numCommanderKilled.Value;
+        public int GetKnightKilledChance() => (int)numKnightKilled.Value;
     }
 }

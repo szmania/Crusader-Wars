@@ -49,8 +49,8 @@ namespace CrusaderWars.client.Options
             this.numCommanderOneEyed = new System.Windows.Forms.NumericUpDown();
             this.lblCommanderDisfigured = new System.Windows.Forms.Label();
             this.numCommanderDisfigured = new System.Windows.Forms.NumericUpDown();
-            this.lblCommanderDeath = new System.Windows.Forms.Label();
-            this.numCommanderDeath = new System.Windows.Forms.NumericUpDown();
+            this.lblCommanderKilled = new System.Windows.Forms.Label();
+            this.numCommanderKilled = new System.Windows.Forms.NumericUpDown();
             this.lblCommanderTotal = new System.Windows.Forms.Label();
             this.lblKnightWounded = new System.Windows.Forms.Label();
             this.numKnightWounded = new System.Windows.Forms.NumericUpDown();
@@ -66,8 +66,8 @@ namespace CrusaderWars.client.Options
             this.numKnightOneEyed = new System.Windows.Forms.NumericUpDown();
             this.lblKnightDisfigured = new System.Windows.Forms.Label();
             this.numKnightDisfigured = new System.Windows.Forms.NumericUpDown();
-            this.lblKnightDeath = new System.Windows.Forms.Label();
-            this.numKnightDeath = new System.Windows.Forms.NumericUpDown();
+            this.lblKnightKilled = new System.Windows.Forms.Label();
+            this.numKnightKilled = new System.Windows.Forms.NumericUpDown();
             this.lblKnightTotal = new System.Windows.Forms.Label();
             this.btnReset = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -81,7 +81,7 @@ namespace CrusaderWars.client.Options
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneLegged)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneEyed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderDisfigured)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderDeath)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderKilled)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightWounded)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightSeverelyInjured)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightBrutallyMauled)).BeginInit();
@@ -89,7 +89,7 @@ namespace CrusaderWars.client.Options
             ((System.ComponentModel.ISupportInitialize)(this.numKnightOneLegged)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightOneEyed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightDisfigured)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numKnightDeath)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numKnightKilled)).BeginInit();
             this.SuspendLayout();
             // 
             // mainTableLayout
@@ -143,8 +143,8 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.Controls.Add(this.numCommanderOneEyed, 1, 6);
             this.tableCommanders.Controls.Add(this.lblCommanderDisfigured, 0, 7);
             this.tableCommanders.Controls.Add(this.numCommanderDisfigured, 1, 7);
-            this.tableCommanders.Controls.Add(this.lblCommanderDeath, 0, 8);
-            this.tableCommanders.Controls.Add(this.numCommanderDeath, 1, 8);
+            this.tableCommanders.Controls.Add(this.lblCommanderKilled, 0, 8);
+            this.tableCommanders.Controls.Add(this.numCommanderKilled, 1, 8);
             this.tableCommanders.Controls.Add(this.lblCommanderTotal, 1, 9);
             this.tableCommanders.Controls.Add(this.lblKnightWounded, 2, 1); // Moved from groupKnights
             this.tableCommanders.Controls.Add(this.numKnightWounded, 3, 1); // Moved from groupKnights
@@ -160,8 +160,8 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.Controls.Add(this.numKnightOneEyed, 3, 6); // Moved from groupKnights
             this.tableCommanders.Controls.Add(this.lblKnightDisfigured, 2, 7); // Moved from groupKnights
             this.tableCommanders.Controls.Add(this.numKnightDisfigured, 3, 7); // Moved from groupKnights
-            this.tableCommanders.Controls.Add(this.lblKnightDeath, 2, 8);
-            this.tableCommanders.Controls.Add(this.numKnightDeath, 3, 8);
+            this.tableCommanders.Controls.Add(this.lblKnightKilled, 2, 8);
+            this.tableCommanders.Controls.Add(this.numKnightKilled, 3, 8);
             this.tableCommanders.Controls.Add(this.lblKnightTotal, 3, 9); // Moved from groupKnights
             this.tableCommanders.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableCommanders.Location = new System.Drawing.Point(3, 23);
@@ -370,24 +370,24 @@ namespace CrusaderWars.client.Options
             0,
             0});
             // 
-            // lblCommanderDeath
+            // lblCommanderKilled
             // 
-            this.lblCommanderDeath.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblCommanderDeath.AutoSize = true;
-            this.lblCommanderDeath.Location = new System.Drawing.Point(3, 293);
-            this.lblCommanderDeath.Name = "lblCommanderDeath";
-            this.lblCommanderDeath.Size = new System.Drawing.Size(65, 19);
-            this.lblCommanderDeath.TabIndex = 17;
-            this.lblCommanderDeath.Text = "Death (%):";
+            this.lblCommanderKilled.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblCommanderKilled.AutoSize = true;
+            this.lblCommanderKilled.Location = new System.Drawing.Point(3, 293);
+            this.lblCommanderKilled.Name = "lblCommanderKilled";
+            this.lblCommanderKilled.Size = new System.Drawing.Size(65, 19);
+            this.lblCommanderKilled.TabIndex = 17;
+            this.lblCommanderKilled.Text = "Killed (%):";
             // 
-            // numCommanderDeath
+            // numCommanderKilled
             // 
-            this.numCommanderDeath.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderDeath.Location = new System.Drawing.Point(160, 292);
-            this.numCommanderDeath.Name = "numCommanderDeath";
-            this.numCommanderDeath.Size = new System.Drawing.Size(60, 27);
-            this.numCommanderDeath.TabIndex = 18;
-            this.numCommanderDeath.Value = new decimal(new int[] {
+            this.numCommanderKilled.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.numCommanderKilled.Location = new System.Drawing.Point(160, 292);
+            this.numCommanderKilled.Name = "numCommanderKilled";
+            this.numCommanderKilled.Size = new System.Drawing.Size(60, 27);
+            this.numCommanderKilled.TabIndex = 18;
+            this.numCommanderKilled.Value = new decimal(new int[] {
             15,
             0,
             0,
@@ -564,24 +564,24 @@ namespace CrusaderWars.client.Options
             0,
             0});
             // 
-            // lblKnightDeath
+            // lblKnightKilled
             // 
-            this.lblKnightDeath.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblKnightDeath.AutoSize = true;
-            this.lblKnightDeath.Location = new System.Drawing.Point(227, 293);
-            this.lblKnightDeath.Name = "lblKnightDeath";
-            this.lblKnightDeath.Size = new System.Drawing.Size(65, 19);
-            this.lblKnightDeath.TabIndex = 19;
-            this.lblKnightDeath.Text = "Death (%):";
+            this.lblKnightKilled.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblKnightKilled.AutoSize = true;
+            this.lblKnightKilled.Location = new System.Drawing.Point(227, 293);
+            this.lblKnightKilled.Name = "lblKnightKilled";
+            this.lblKnightKilled.Size = new System.Drawing.Size(65, 19);
+            this.lblKnightKilled.TabIndex = 19;
+            this.lblKnightKilled.Text = "Killed (%):";
             // 
-            // numKnightDeath
+            // numKnightKilled
             // 
-            this.numKnightDeath.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightDeath.Location = new System.Drawing.Point(384, 292);
-            this.numKnightDeath.Name = "numKnightDeath";
-            this.numKnightDeath.Size = new System.Drawing.Size(60, 27);
-            this.numKnightDeath.TabIndex = 20;
-            this.numKnightDeath.Value = new decimal(new int[] {
+            this.numKnightKilled.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.numKnightKilled.Location = new System.Drawing.Point(384, 292);
+            this.numKnightKilled.Name = "numKnightKilled";
+            this.numKnightKilled.Size = new System.Drawing.Size(60, 27);
+            this.numKnightKilled.TabIndex = 20;
+            this.numKnightKilled.Value = new decimal(new int[] {
             15,
             0,
             0,
@@ -630,7 +630,7 @@ namespace CrusaderWars.client.Options
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneLegged)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderOneEyed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderDisfigured)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCommanderDeath)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCommanderKilled)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightWounded)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightSeverelyInjured)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightBrutallyMauled)).EndInit();
@@ -638,7 +638,7 @@ namespace CrusaderWars.client.Options
             ((System.ComponentModel.ISupportInitialize)(this.numKnightOneLegged)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightOneEyed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightDisfigured)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numKnightDeath)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numKnightKilled)).EndInit();
             this.ResumeLayout(false);
         }
 
@@ -662,8 +662,8 @@ namespace CrusaderWars.client.Options
         private System.Windows.Forms.NumericUpDown numCommanderOneEyed;
         private System.Windows.Forms.Label lblCommanderDisfigured;
         private System.Windows.Forms.NumericUpDown numCommanderDisfigured;
-        private System.Windows.Forms.Label lblCommanderDeath;
-        private System.Windows.Forms.NumericUpDown numCommanderDeath;
+        private System.Windows.Forms.Label lblCommanderKilled;
+        private System.Windows.Forms.NumericUpDown numCommanderKilled;
         private System.Windows.Forms.Label lblCommanderTotal;
         private System.Windows.Forms.Label lblKnightWounded;
         private System.Windows.Forms.NumericUpDown numKnightWounded;
@@ -679,8 +679,8 @@ namespace CrusaderWars.client.Options
         private System.Windows.Forms.NumericUpDown numKnightOneEyed;
         private System.Windows.Forms.Label lblKnightDisfigured;
         private System.Windows.Forms.NumericUpDown numKnightDisfigured;
-        private System.Windows.Forms.Label lblKnightDeath;
-        private System.Windows.Forms.NumericUpDown numKnightDeath;
+        private System.Windows.Forms.Label lblKnightKilled;
+        private System.Windows.Forms.NumericUpDown numKnightKilled;
         private System.Windows.Forms.Label lblKnightTotal;
         private System.Windows.Forms.Label lblCommanderHeader; // Add this line
         private System.Windows.Forms.Label lblKnightHeader;    // Add this line
