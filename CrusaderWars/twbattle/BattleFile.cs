@@ -1314,8 +1314,10 @@ namespace CrusaderWars
             }
             else // Not a siege battle (field battle)
             {
-                // Default rout position for field battles
-                victoryConditions.AppendLine("<rout_position x=\"0.00\" y=\"0.00\"/>");
+                // Rout position for field battles (same side as deployment)
+                string deploymentDirection = Deployments.beta_GeDirection(army.CombatSide);
+                (string routX, string routY) = GetRoutPositionCoordinates(deploymentDirection);
+                victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
             }
 
             victoryConditions.AppendLine(); // Add an extra newline for formatting
