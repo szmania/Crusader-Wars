@@ -1042,16 +1042,34 @@ namespace CrusaderWars.data.battle_results
                                 if (aliveDataIndex != -1)
                                 {
                                     int healthLineIndex = -1;
-                                    // Search for health line *within* the alive_data block
-                                    for (int i = aliveDataIndex + 1; i < charBlock.Count; i++)
+                                    int aliveBraceCount = 0;
+                                    bool blockStarted = false;
+
+                                    // Search for health line *within* the alive_data block using brace counting
+                                    for (int i = aliveDataIndex; i < charBlock.Count; i++)
                                     {
-                                        string trimmedLine = charBlock[i].Trim();
-                                        if (trimmedLine.StartsWith("health="))
+                                        string currentLine = charBlock[i];
+                                        
+                                        // Start counting braces from the line where alive_data starts
+                                        if (i == aliveDataIndex)
+                                        {
+                                            blockStarted = true;
+                                        }
+
+                                        if (blockStarted)
+                                        {
+                                            aliveBraceCount += currentLine.Count(c => c == '{');
+                                            aliveBraceCount -= currentLine.Count(c => c == '}');
+                                        }
+
+                                        // Look for health line only if we haven't found it yet
+                                        if (healthLineIndex == -1 && currentLine.Trim().StartsWith("health="))
                                         {
                                             healthLineIndex = i;
-                                            break;
                                         }
-                                        if (trimmedLine == "}") // End of alive_data block
+
+                                        // If brace count is 0, we've found the end of the alive_data block
+                                        if (blockStarted && aliveBraceCount == 0)
                                         {
                                             break;
                                         }
@@ -1065,7 +1083,7 @@ namespace CrusaderWars.data.battle_results
                                     }
                                     else
                                     {
-                                        // Not found, insert it.
+                                        // Not found, insert it right after alive_data={
                                         charBlock.Insert(aliveDataIndex + 1, "\t\thealth=0.0");
                                     }
                                 }
