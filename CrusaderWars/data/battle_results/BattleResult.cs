@@ -851,6 +851,10 @@ namespace CrusaderWars.data.battle_results
                 {
                     Program.Logger.Debug($"Commander {army.Commander.ID} in army {army.ID} has fallen.");
                 }
+                else
+                {
+                    Program.Logger.Debug($"Commander {army.Commander.ID} in army {army.ID} has NOT fallen.");
+                }
             }
         }
 
