@@ -63,6 +63,7 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Resetting all data containers and extraction flags.");
             // Clear lists and reset values
+            Date.Reset();
             twbattle.Sieges.Reset();
             units_scripts.Clear();
             PlayerIDsAccolades = new List<string> ();

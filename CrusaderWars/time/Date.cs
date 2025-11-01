@@ -38,6 +38,12 @@
             return season;
         }
 
+        public static void Reset()
+        {
+            Month = 0;
+            Year = 0;
+            Day = 0;
+        }
     }
 
     
