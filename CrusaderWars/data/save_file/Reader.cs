@@ -35,22 +35,42 @@ namespace CrusaderWars.data.save_file
                 if (File.Exists(metaDataPath))
                 {
                     string[] lines = File.ReadAllLines(metaDataPath);
+                    bool dateFound = false;
                     foreach (string line in lines)
                     {
-                        if (line.Trim().StartsWith("meta_player_name="))
+                        string trimmedLine = line.Trim();
+                        if (trimmedLine.StartsWith("meta_player_name="))
                         {
-                            var match = Regex.Match(line, @"""(.+)""");
+                            var match = Regex.Match(trimmedLine, @"""(.+)""");
                             if (match.Success)
                             {
                                 metaPlayerName = match.Groups[1].Value;
                                 Program.Logger.Debug($"Found meta_player_name: {metaPlayerName}");
-                                return;
+                            }
+                        }
+                        else if (trimmedLine.StartsWith("date="))
+                        {
+                            var match = Regex.Match(trimmedLine, @"date=(\d+)\.(\d+)\.(\d+)");
+                            if (match.Success)
+                            {
+                                Date.Year = int.Parse(match.Groups[1].Value);
+                                Date.Month = int.Parse(match.Groups[2].Value);
+                                Date.Day = int.Parse(match.Groups[3].Value);
+                                Program.Logger.Debug($"Found date: {Date.Year}.{Date.Month}.{Date.Day}");
+                                dateFound = true;
                             }
                         }
                     }
+                    if (!dateFound)
+                    {
+                        Program.Logger.Debug("date not found in metadata.txt.");
+                    }
                 }
             }
-            Program.Logger.Debug("meta_player_name not found in metadata.txt.");
+            if (string.IsNullOrEmpty(metaPlayerName))
+            {
+                Program.Logger.Debug("meta_player_name not found in metadata.txt.");
+            }
         }
 
         static void ClearFilesData()
