@@ -4,6 +4,7 @@
     {
         public static int Month { get; set; }
         public static int Year { get; set; }
+        public static int Day { get; set; }
         
         public static string GetSeason()
         {
