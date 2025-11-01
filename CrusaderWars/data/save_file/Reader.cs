@@ -27,11 +27,11 @@ namespace CrusaderWars.data.save_file
 
         private static void ReadMetaData(string savePath)
         {
-            Program.Logger.Debug("Reading meta_data.txt...");
+            Program.Logger.Debug("Reading metadata.txt...");
             string? unzippedSaveDir = Path.GetDirectoryName(savePath);
             if (unzippedSaveDir != null)
             {
-                string metaDataPath = Path.Combine(unzippedSaveDir, "meta_data.txt");
+                string metaDataPath = Path.Combine(unzippedSaveDir, "metadata.txt");
                 if (File.Exists(metaDataPath))
                 {
                     string[] lines = File.ReadAllLines(metaDataPath);
@@ -50,7 +50,7 @@ namespace CrusaderWars.data.save_file
                     }
                 }
             }
-            Program.Logger.Debug("meta_player_name not found in meta_data.txt.");
+            Program.Logger.Debug("meta_player_name not found in metadata.txt.");
         }
 
         static void ClearFilesData()
