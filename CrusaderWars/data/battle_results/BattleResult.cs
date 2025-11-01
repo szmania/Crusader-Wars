@@ -1030,13 +1030,25 @@ namespace CrusaderWars.data.battle_results
                                 Program.Logger.Debug($"Player character {char_id} was slain. Setting health to 0 and adding 'Brutally Mauled' trait.");
                                 // Player is slain: set health=0.0 and add trait
                                 int healthLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("health="));
-                                if (healthLineIndex != -1)
+                                int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+
+                                if (aliveDataIndex != -1)
                                 {
-                                    charBlock[healthLineIndex] = "\thealth=0.0";
-                                }
-                                else
-                                {
-                                    charBlock.Insert(1, "\thealth=0.0");
+                                    // Check if a health line already exists within the alive_data block
+                                    if (healthLineIndex > aliveDataIndex)
+                                    {
+                                        charBlock[healthLineIndex] = "\t\thealth=0.0";
+                                    }
+                                    else
+                                    {
+                                        // If a health line exists outside the block, remove it
+                                        if (healthLineIndex != -1)
+                                        {
+                                            charBlock.RemoveAt(healthLineIndex);
+                                        }
+                                        // Insert the new health line inside the alive_data block
+                                        charBlock.Insert(aliveDataIndex + 1, "\t\thealth=0.0");
+                                    }
                                 }
 
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
