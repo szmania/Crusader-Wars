@@ -984,12 +984,16 @@ namespace CrusaderWars.data.battle_results
                         List<string> charBlock = new List<string> { line };
                         string char_id = Regex.Match(line, @"\d+").Value;
 
-                        // Read the whole block
-                        while ((line = streamReader.ReadLine()) != null && line.Trim() != "}")
+                        // Count braces on the first line
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+
+                        // Read the whole block by counting braces until the count is zero
+                        while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
                         {
                             charBlock.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
                         }
-                        if (line != null) charBlock.Add(line); // Add the closing brace
 
                         // Process the block
                         bool isSlain = false;
