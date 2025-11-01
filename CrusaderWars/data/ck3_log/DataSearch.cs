@@ -418,30 +418,14 @@ namespace CrusaderWars
         {
             string month;
             string year;
-            string day;
             try
             {
-                Match metaDateMatch = Regex.Match(log, @"meta_date=(\d{4})\.(\d{1,2})\.(\d{1,2})");
-                if (metaDateMatch.Success)
-                {
-                    year = metaDateMatch.Groups[1].Value;
-                    month = metaDateMatch.Groups[2].Value;
-                    day = metaDateMatch.Groups[3].Value;
-                    Date.Year = Int32.Parse(year);
-                    Date.Month = Int32.Parse(month);
-                    Date.Day = Int32.Parse(day);
-                    Program.Logger.Debug($"Date searched from meta_date: Year={year}, Month={month}, Day={day}");
-                }
-                else
-                {
-                    // Fallback to old method if meta_date not found
-                    month = Regex.Match(log, @"DateMonth:(\d+)").Groups[1].Value;
-                    year = Regex.Match(log, @"DateYear:(\d+)").Groups[1].Value;
-                    Date.Month = Int32.Parse(month);
-                    Date.Year = Int32.Parse(year);
-                    Date.Day = 1; // Default to 1 if no day info
-                    Program.Logger.Debug($"Date searched (fallback): Month={month}, Year={year}, Day=1");
-                }
+                month = Regex.Match(log, @"DateMonth:(\d+)").Groups[1].Value;
+                year = Regex.Match(log, @"DateYear:(\d+)").Groups[1].Value;
+                Date.Month = Int32.Parse(month);
+                Date.Year = Int32.Parse(year);
+                Date.Day = 1; // Day is not available in the log, default to 1
+                Program.Logger.Debug($"Date searched from log: Year={year}, Month={month}, Day=1");
 
                 string season = Date.GetSeason();
                 Weather.SetSeason(season);
@@ -449,13 +433,11 @@ namespace CrusaderWars
             }
             catch
             {
-                month = "1"; // Default to January
-                year = "1300";
-                day = "1";
-                Date.Month = Int32.Parse(month);
-                Date.Year = Int32.Parse(year);
-                Date.Day = Int32.Parse(day);
+                Date.Month = 1;
+                Date.Year = 1300;
+                Date.Day = 1;
                 Weather.SetSeason("random");
+                Program.Logger.Debug($"Failed to parse date from log. Defaulting to {Date.Year}.{Date.Month}.{Date.Day} and random season.");
             }
 
         }
