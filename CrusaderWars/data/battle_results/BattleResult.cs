@@ -1028,25 +1028,36 @@ namespace CrusaderWars.data.battle_results
                             if (isPlayer)
                             {
                                 Program.Logger.Debug($"Player character {char_id} was slain. Setting health to 0 and adding 'Brutally Mauled' trait.");
-                                // Player is slain: set health=0.0 and add trait
-                                int healthLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("health="));
+                                // Player is slain: set health=0.0
                                 int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
 
                                 if (aliveDataIndex != -1)
                                 {
-                                    // Check if a health line already exists within the alive_data block
-                                    if (healthLineIndex > aliveDataIndex)
+                                    int healthLineIndex = -1;
+                                    // Search for health line *within* the alive_data block
+                                    for (int i = aliveDataIndex + 1; i < charBlock.Count; i++)
                                     {
-                                        charBlock[healthLineIndex] = "\t\thealth=0.0";
+                                        string trimmedLine = charBlock[i].Trim();
+                                        if (trimmedLine.StartsWith("health="))
+                                        {
+                                            healthLineIndex = i;
+                                            break;
+                                        }
+                                        if (trimmedLine == "}") // End of alive_data block
+                                        {
+                                            break;
+                                        }
+                                    }
+
+                                    if (healthLineIndex != -1)
+                                    {
+                                        // Found it, replace it, preserving indentation.
+                                        string indentation = Regex.Match(charBlock[healthLineIndex], @"^(\s*)").Groups[1].Value;
+                                        charBlock[healthLineIndex] = $"{indentation}health=0.0";
                                     }
                                     else
                                     {
-                                        // If a health line exists outside the block, remove it
-                                        if (healthLineIndex != -1)
-                                        {
-                                            charBlock.RemoveAt(healthLineIndex);
-                                        }
-                                        // Insert the new health line inside the alive_data block
+                                        // Not found, insert it.
                                         charBlock.Insert(aliveDataIndex + 1, "\t\thealth=0.0");
                                     }
                                 }
@@ -1067,7 +1078,7 @@ namespace CrusaderWars.data.battle_results
                                 if (closingBraceIndex >= 0 && charBlock[closingBraceIndex].Trim() == "}")
                                 {
                                     charBlock.Insert(closingBraceIndex, "\tdead_data={");
-                                    charBlock.Insert(closingBraceIndex + 1, $"\t\tdate={Date.Year}.{Date.Month}.1");
+                                    charBlock.Insert(closingBraceIndex + 1, $"\t\tdate={Date.Year}.{Date.Month}.{Date.Day}");
                                     charBlock.Insert(closingBraceIndex + 2, "\t\treason=death_battle");
                                     charBlock.Insert(closingBraceIndex + 3, "\t}");
                                 }
