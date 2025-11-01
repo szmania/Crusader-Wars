@@ -8,6 +8,10 @@ using CrusaderWars.data.save_file;
 
 namespace CrusaderWars
 {
+    internal static class CharacterSharedRandom
+    {
+        internal static readonly Random Rng = new Random();
+    }
 
     struct MartialSkill
     {

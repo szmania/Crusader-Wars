@@ -841,9 +841,9 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug($"Created {reportsList.Count} casualty reports for army {army.ID}.");
         }
 
-        public static void CheckForDeathCommanders(Army army, string path_attila_log)
+        public static void CheckForSlainCommanders(Army army, string path_attila_log)
         {
-            Program.Logger.Debug($"Checking for commander death in army {army.ID}");
+            Program.Logger.Debug($"Checking for slain commander in army {army.ID}");
             if (army.Commander != null)
             {
                 army.Commander.HasGeneralFallen(path_attila_log);
@@ -854,9 +854,9 @@ namespace CrusaderWars.data.battle_results
             }
         }
 
-        public static void CheckForDeathKnights(Army army)
+        public static void CheckForSlainKnights(Army army)
         {
-            Program.Logger.Debug($"Checking for knight deaths in army {army.ID}");
+            Program.Logger.Debug($"Checking for slain knights in army {army.ID}");
             if (army.Knights != null && army.Knights.HasKnights())
             {
                 if (army.UnitsResults == null) return;
@@ -969,105 +969,112 @@ namespace CrusaderWars.data.battle_results
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Living_Path()))
             {
                 streamWriter.NewLine = "\n";
-
-                bool searchStarted = false;
-                bool isCommander = false;
-                bool isKnight = false;
-                bool isDead = false; // ADDED: Flag to track character death
-
-                CommanderSystem? commander = null;
-                Knight? knight = null;
-
-
                 string? line;
+                string playerCharId = DataSearch.Player_Character.GetID();
+                var allArmies = attacker_armies.Concat(defender_armies).ToList();
+
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    if (!searchStarted && line != null && Regex.IsMatch(line, @"\d+={"))
+                    if (Regex.IsMatch(line, @"^\d+={")) // Start of a character block
                     {
+                        List<string> charBlock = new List<string> { line };
                         string char_id = Regex.Match(line, @"\d+").Value;
-                        isDead = false; // Reset for each character
 
-                        var searchData = SearchCharacters(char_id, attacker_armies);
+                        // Read the whole block
+                        while ((line = streamReader.ReadLine()) != null && line.Trim() != "}")
+                        {
+                            charBlock.Add(line);
+                        }
+                        if (line != null) charBlock.Add(line); // Add the closing brace
+
+                        // Process the block
+                        bool isSlain = false;
+                        bool isPlayer = (char_id == playerCharId);
+                        
+                        var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted)
                         {
-                            searchStarted = true;
-                            if (searchData.isCommander)
+                            bool hasFallen = (searchData.isCommander && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight.HasFallen());
+                            if (hasFallen)
                             {
-                                isCommander = true;
-                                commander = searchData.commander;
-                                Program.Logger.Debug($"Found character {char_id} as Commander (Attacker).");
-                            }
-                            else if (searchData.isKnight)
-                            {
-                                isKnight = true;
-                                knight = searchData.knight;
-                                Program.Logger.Debug($"Found character {char_id} as Knight (Attacker).");
-                            }
-                        }
-                        else
-                        {
-                            searchData = SearchCharacters(char_id, defender_armies);
-                            if (searchData.searchStarted)
-                            {
-                                searchStarted = true;
-                                if (searchData.isCommander)
+                                int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
+                                if (traitsLineIndex != -1)
                                 {
-                                    isCommander = true;
-                                    commander = searchData.commander;
-                                    Program.Logger.Debug($"Found character {char_id} as Commander (Defender).");
-                                }
-                                else if (searchData.isKnight)
-                                {
-                                    isKnight = true;
-                                    knight = searchData.knight;
-                                    Program.Logger.Debug($"Found character {char_id} as Knight (Defender).");
+                                    string originalTraitsLine = charBlock[traitsLineIndex];
+                                    (bool isSlain, string newTraits) healthResult;
+
+                                    if (searchData.isCommander)
+                                    {
+                                        healthResult = searchData.commander.Health(originalTraitsLine);
+                                    }
+                                    else // isKnight
+                                    {
+                                        healthResult = searchData.knight.Health(originalTraitsLine);
+                                    }
+
+                                    isSlain = healthResult.isSlain;
+                                    
+                                    if (!isSlain)
+                                    {
+                                        // Only update traits if wounded, not slain.
+                                        charBlock[traitsLineIndex] = healthResult.newTraits;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    else if (searchStarted && line.StartsWith("\ttraits={"))
+                        if (isSlain)
+                        {
+                            if (isPlayer)
+                            {
+                                Program.Logger.Debug($"Player character {char_id} was slain. Setting health to 0 and adding 'Brutally Mauled' trait.");
+                                // Player is slain: set health=0.0 and add trait
+                                int healthLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("health="));
+                                if (healthLineIndex != -1)
+                                {
+                                    charBlock[healthLineIndex] = "\thealth=0.0";
+                                }
+                                else
+                                {
+                                    charBlock.Insert(1, "\thealth=0.0");
+                                }
+
+                                int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
+                                if (traitsLineIndex != -1)
+                                {
+                                    string originalTraitsLine = charBlock[traitsLineIndex]; // It's unmodified if slain
+                                    string brutallyMauledTraitId = WoundedTraits.Brutally_Mauled().ToString();
+                                    charBlock[traitsLineIndex] = CharacterWounds.VerifyTraits(originalTraitsLine, brutallyMauledTraitId);
+                                }
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"NPC {char_id} was slain. Adding dead_data block.");
+                                // NPC is slain: add dead_data block
+                                int closingBraceIndex = charBlock.Count - 1;
+                                if (closingBraceIndex >= 0 && charBlock[closingBraceIndex].Trim() == "}")
+                                {
+                                    charBlock.Insert(closingBraceIndex, "\tdead_data={");
+                                    charBlock.Insert(closingBraceIndex + 1, $"\t\tdate={Date.Year}.{Date.Month}.1");
+                                    charBlock.Insert(closingBraceIndex + 2, "\t\treason=death_battle");
+                                    charBlock.Insert(closingBraceIndex + 3, "\t}");
+                                }
+                            }
+                        }
+
+                        // Write the (potentially modified) block
+                        foreach (var blockLine in charBlock)
+                        {
+                            streamWriter.WriteLine(blockLine);
+                        }
+                    }
+                    else
                     {
-                        string edited_line = line;
-                        if (isCommander && commander != null && commander.hasFallen)
-                        {
-                            var healthResult = commander.Health(line);
-                            isDead = healthResult.isDead;
-                            edited_line = healthResult.newTraits;
-                        }
-                        else if (isKnight && knight != null && knight.HasFallen())
-                        {
-                            var healthResult = knight.Health(line);
-                            isDead = healthResult.isDead;
-                            edited_line = healthResult.newTraits;
-                        }
-
-                        streamWriter.WriteLine(edited_line);
-                        continue;
+                        // Not a character block start, just write the line
+                        streamWriter.WriteLine(line);
                     }
-
-                    else if (searchStarted && line == "}")
-                    {
-                        if (isDead) // If character died, add the dead_data block before the closing brace
-                        {
-                            streamWriter.WriteLine("\tdead_data={");
-                            streamWriter.WriteLine($"\t\tdate={Date.Year}.{Date.Month}.1");
-                            streamWriter.WriteLine("\t\treason=death_battle");
-                            streamWriter.WriteLine("\t}");
-                        }
-                        
-                        searchStarted = false;
-                        isCommander = false;
-                        isKnight = false;
-                        commander = null;
-                        knight = null;
-                        isDead = false; // Reset flag
-                    }
-
-                    streamWriter.WriteLine(line);
                 }
             }
-
             Program.Logger.Debug("Finished editing Living file.");
         }
 

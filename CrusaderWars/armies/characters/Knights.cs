@@ -136,7 +136,7 @@ namespace CrusaderWars
             return soldiers + value;
         }
 
-        public (bool isDead, string newTraits) Health(string traits_line)
+        public (bool isSlain, string newTraits) Health(string traits_line)
         {
             if (hasFallen)
             {
@@ -160,8 +160,7 @@ namespace CrusaderWars
                 int oneEyedThreshold = oneLeggedThreshold + oneEyedChance;
                 int disfiguredThreshold = oneEyedThreshold + disfiguredChance;
 
-                var Chance = new Random();
-                var RandomNumber = Chance.Next(1, 101); // 1 to 100
+                var RandomNumber = CharacterSharedRandom.Rng.Next(1, 101); // 1 to 100
 
                 // Determine which option to set based on its percentage chance
                 if (RandomNumber <= slainThreshold)

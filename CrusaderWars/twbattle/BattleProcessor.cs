@@ -810,18 +810,18 @@ namespace CrusaderWars.twbattle
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
                         BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForDeathCommanders(army, path_log_attila);
+                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
                         BattleResult.CheckKnightsKills(army);
-                        BattleResult.CheckForDeathKnights(army);
+                        BattleResult.CheckForSlainKnights(army);
                     }
                     Program.Logger.Debug("Setting casualties for defender armies...");
                     foreach (var army in defender_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
                         BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForDeathCommanders(army, path_log_attila);
+                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
                         BattleResult.CheckKnightsKills(army);
-                        BattleResult.CheckForDeathKnights(army);
+                        BattleResult.CheckForSlainKnights(army);
 
                     }
 
