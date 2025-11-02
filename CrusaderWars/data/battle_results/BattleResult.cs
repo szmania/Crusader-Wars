@@ -997,7 +997,6 @@ namespace CrusaderWars.data.battle_results
 
                         // Process the block
                         bool isSlain = false;
-                        bool isPlayer = (char_id == playerCharId);
                         
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted)
@@ -1033,81 +1032,66 @@ namespace CrusaderWars.data.battle_results
 
                         if (isSlain)
                         {
-                            if (isPlayer)
+                            Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data block.");
+
+                            // 1. Find and remove the alive_data block.
+                            int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                            if (aliveDataStartIndex != -1)
                             {
-                                Program.Logger.Debug($"Player character {char_id} was slain. Setting health to 0 and adding 'Brutally Mauled' trait.");
-                                // Player is slain: set health=-100.00
-                                int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                                int aliveDataEndIndex = -1;
+                                int braceCount = 0;
+                                bool blockStarted = false;
 
-                                if (aliveDataIndex != -1)
+                                for (int i = aliveDataStartIndex; i < charBlock.Count; i++)
                                 {
-                                    int healthLineIndex = -1;
-                                    int aliveBraceCount = 0;
-                                    bool blockStarted = false;
-
-                                    // Search for health line *within* the alive_data block using brace counting
-                                    for (int i = aliveDataIndex; i < charBlock.Count; i++)
+                                    string currentLine = charBlock[i];
+                                    
+                                    // Start counting braces from the line where alive_data starts
+                                    if (i == aliveDataStartIndex)
                                     {
-                                        string currentLine = charBlock[i];
-                                        
-                                        // Start counting braces from the line where alive_data starts
-                                        if (i == aliveDataIndex)
-                                        {
-                                            blockStarted = true;
-                                        }
-
-                                        if (blockStarted)
-                                        {
-                                            aliveBraceCount += currentLine.Count(c => c == '{');
-                                            aliveBraceCount -= currentLine.Count(c => c == '}');
-                                        }
-
-                                        // Look for health line only if we haven't found it yet
-                                        if (healthLineIndex == -1 && currentLine.Trim().StartsWith("health="))
-                                        {
-                                            healthLineIndex = i;
-                                        }
-
-                                        // If brace count is 0, we've found the end of the alive_data block
-                                        if (blockStarted && aliveBraceCount == 0)
-                                        {
-                                            break;
-                                        }
+                                        blockStarted = true;
                                     }
 
-                                    if (healthLineIndex != -1)
+                                    if (blockStarted)
                                     {
-                                        // Found it, replace it, preserving indentation.
-                                        string indentation = Regex.Match(charBlock[healthLineIndex], @"^(\s*)").Groups[1].Value;
-                                        charBlock[healthLineIndex] = $"{indentation}health=-100.00";
+                                        braceCount += currentLine.Count(c => c == '{');
+                                        braceCount -= currentLine.Count(c => c == '}');
                                     }
-                                    else
+
+                                    // If brace count is 0, we've found the end of the alive_data block
+                                    if (blockStarted && braceCount == 0)
                                     {
-                                        // Not found, insert it right after alive_data={
-                                        charBlock.Insert(aliveDataIndex + 1, "\t\thealth=-100.00");
+                                        aliveDataEndIndex = i;
+                                        break;
                                     }
                                 }
 
-                                int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
-                                if (traitsLineIndex != -1)
+                                if (aliveDataEndIndex != -1)
                                 {
-                                    string originalTraitsLine = charBlock[traitsLineIndex]; // It's unmodified if slain
-                                    string brutallyMauledTraitId = WoundedTraits.Brutally_Mauled().ToString();
-                                    charBlock[traitsLineIndex] = CharacterWounds.VerifyTraits(originalTraitsLine, brutallyMauledTraitId);
+                                    // Remove the lines from start to end, inclusive.
+                                    charBlock.RemoveRange(aliveDataStartIndex, aliveDataEndIndex - aliveDataStartIndex + 1);
+                                    Program.Logger.Debug($"Removed alive_data block for character {char_id}.");
                                 }
+                                else
+                                {
+                                    Program.Logger.Debug($"Warning: Could not find the end of the alive_data block for character {char_id}.");
+                                }
+                            }
+
+                            // 2. Add the dead_data block.
+                            // This should be inserted before the final closing brace of the character block.
+                            int closingBraceIndex = charBlock.FindLastIndex(l => l.Trim() == "}");
+                            if (closingBraceIndex != -1)
+                            {
+                                charBlock.Insert(closingBraceIndex, "\tdead_data={");
+                                charBlock.Insert(closingBraceIndex + 1, $"\t\tdate={Date.Year}.{Date.Month}.{Date.Day}");
+                                charBlock.Insert(closingBraceIndex + 2, "\t\treason=death_battle");
+                                charBlock.Insert(closingBraceIndex + 3, "\t}");
+                                Program.Logger.Debug($"Added dead_data block for character {char_id}.");
                             }
                             else
                             {
-                                Program.Logger.Debug($"NPC {char_id} was slain. Adding dead_data block.");
-                                // NPC is slain: add dead_data block
-                                int closingBraceIndex = charBlock.Count - 1;
-                                if (closingBraceIndex >= 0 && charBlock[closingBraceIndex].Trim() == "}")
-                                {
-                                    charBlock.Insert(closingBraceIndex, "\tdead_data={");
-                                    charBlock.Insert(closingBraceIndex + 1, $"\t\tdate={Date.Year}.{Date.Month}.{Date.Day}");
-                                    charBlock.Insert(closingBraceIndex + 2, "\t\treason=death_battle");
-                                    charBlock.Insert(closingBraceIndex + 3, "\t}");
-                                }
+                                Program.Logger.Debug($"Warning: Could not find closing brace to add dead_data block for character {char_id}.");
                             }
                         }
 
