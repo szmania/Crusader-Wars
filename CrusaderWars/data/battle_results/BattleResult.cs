@@ -1153,7 +1153,7 @@ namespace CrusaderWars.data.battle_results
                 string content = File.ReadAllText(playedCharPath);
                 string newLegacyEntry = $"\t\t{{\n\t\t\tcharacter={playerHeirId}\n\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}\n\t\t\twars={{ 0 0 0 0 }}\n\t\t}}";
                 
-                Regex legacyRegex = new Regex(@"(legacy={[\s\S]*?)(^\t})", RegexOptions.Multiline);
+                Regex legacyRegex = new Regex(@"(legacy={[\s\S]*?)(^ })", RegexOptions.Multiline);
                 Match legacyMatch = legacyRegex.Match(content);
 
                 if (legacyMatch.Success)
@@ -1174,7 +1174,7 @@ namespace CrusaderWars.data.battle_results
             if (File.Exists(currentlyPlayedPath))
             {
                 string content = File.ReadAllText(currentlyPlayedPath);
-                string updatedContent = Regex.Replace(content, @"(currently_played_characters={\s*)\d+", $"$1{playerHeirId}");
+                string updatedContent = Regex.Replace(content, @"(currently_played_characters={\s*)\d+", "$1" + playerHeirId);
                 File.WriteAllText(currentlyPlayedTempPath, updatedContent);
                 Program.Logger.Debug($"Updated currently_played_characters to heir ID {playerHeirId}.");
             }
