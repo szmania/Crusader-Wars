@@ -1153,7 +1153,7 @@ namespace CrusaderWars.data.battle_results
                 string content = File.ReadAllText(playedCharPath);
                 string newLegacyEntry = $"\t\t{{\n\t\t\tcharacter={playerHeirId}\n\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}\n\t\t\twars={{ 0 0 0 0 }}\n\t\t}}";
                 
-                Regex legacyRegex = new Regex(@"(legacy={[\s\S]*?)(^ })", RegexOptions.Multiline);
+                Regex legacyRegex = new Regex(@"(legacy={[\s\S]*?)(^\s*})", RegexOptions.Multiline);
                 Match legacyMatch = legacyRegex.Match(content);
 
                 if (legacyMatch.Success)
