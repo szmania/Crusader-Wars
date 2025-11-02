@@ -1174,7 +1174,7 @@ namespace CrusaderWars.data.battle_results
             if (File.Exists(currentlyPlayedPath))
             {
                 string content = File.ReadAllText(currentlyPlayedPath);
-                string updatedContent = Regex.Replace(content, @"(currently_played_characters={\s*)\d+", "$1" + playerHeirId);
+                string updatedContent = Regex.Replace(content, @"(currently_played_characters={\s*)\d+", "${1}" + playerHeirId);
                 File.WriteAllText(currentlyPlayedTempPath, updatedContent);
                 Program.Logger.Debug($"Updated currently_played_characters to heir ID {playerHeirId}.");
             }
