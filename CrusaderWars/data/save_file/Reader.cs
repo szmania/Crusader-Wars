@@ -25,46 +25,42 @@ namespace CrusaderWars.data.save_file
         private static string metaPlayerName = "";
         public static string GetMetaPlayerName() { return metaPlayerName; }
 
-        private static void ReadMetaData(string savePath)
+        private static void ReadMetaData()
         {
             Program.Logger.Debug("Reading metadata.txt...");
-            string? unzippedSaveDir = Path.GetDirectoryName(savePath);
-            if (unzippedSaveDir != null)
+            string metaDataPath = @".\data\save_file_data\metadata.txt";
+            if (File.Exists(metaDataPath))
             {
-                string metaDataPath = Path.Combine(unzippedSaveDir, "metadata.txt");
-                if (File.Exists(metaDataPath))
+                string[] lines = File.ReadAllLines(metaDataPath);
+                bool dateFound = false;
+                foreach (string line in lines)
                 {
-                    string[] lines = File.ReadAllLines(metaDataPath);
-                    bool dateFound = false;
-                    foreach (string line in lines)
+                    string trimmedLine = line.Trim();
+                    if (trimmedLine.StartsWith("meta_player_name="))
                     {
-                        string trimmedLine = line.Trim();
-                        if (trimmedLine.StartsWith("meta_player_name="))
+                        var match = Regex.Match(trimmedLine, @"""(.+)""");
+                        if (match.Success)
                         {
-                            var match = Regex.Match(trimmedLine, @"""(.+)""");
-                            if (match.Success)
-                            {
-                                metaPlayerName = match.Groups[1].Value;
-                                Program.Logger.Debug($"Found meta_player_name: {metaPlayerName}");
-                            }
-                        }
-                        else if (trimmedLine.StartsWith("date="))
-                        {
-                            var match = Regex.Match(trimmedLine, @"date=(\d+)\.(\d+)\.(\d+)");
-                            if (match.Success)
-                            {
-                                Date.Year = int.Parse(match.Groups[1].Value);
-                                Date.Month = int.Parse(match.Groups[2].Value);
-                                Date.Day = int.Parse(match.Groups[3].Value);
-                                Program.Logger.Debug($"Found date: {Date.Year}.{Date.Month}.{Date.Day}");
-                                dateFound = true;
-                            }
+                            metaPlayerName = match.Groups[1].Value;
+                            Program.Logger.Debug($"Found meta_player_name: {metaPlayerName}");
                         }
                     }
-                    if (!dateFound)
+                    else if (trimmedLine.StartsWith("date="))
                     {
-                        Program.Logger.Debug("date not found in metadata.txt.");
+                        var match = Regex.Match(trimmedLine, @"date=(\d+)\.(\d+)\.(\d+)");
+                        if (match.Success)
+                        {
+                            Date.Year = int.Parse(match.Groups[1].Value);
+                            Date.Month = int.Parse(match.Groups[2].Value);
+                            Date.Day = int.Parse(match.Groups[3].Value);
+                            Program.Logger.Debug($"Found date: {Date.Year}.{Date.Month}.{Date.Day}");
+                            dateFound = true;
+                        }
                     }
+                }
+                if (!dateFound)
+                {
+                    Program.Logger.Debug("date not found in metadata.txt.");
                 }
             }
             if (string.IsNullOrEmpty(metaPlayerName))
@@ -145,7 +141,7 @@ namespace CrusaderWars.data.save_file
         public static void ReadFile(string savePath)
         {
             Program.Logger.Debug($"Starting to read save file: {Path.GetFullPath(savePath)}");
-            ReadMetaData(savePath);
+            ReadMetaData();
             //Clean all data in save file data files
             Program.Logger.Debug("Clearing previous save data from temp files...");
             ClearFilesData();
