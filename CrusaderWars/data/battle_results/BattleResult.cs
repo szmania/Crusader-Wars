@@ -1159,8 +1159,9 @@ namespace CrusaderWars.data.battle_results
 
                 string newLegacyEntry = $"\t\t{{\n\t\t\tcharacter={playerHeirId}\n\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}\n\t\t\twars={{ 0 0 0 0 }}\n\t\t}}";
                 
-                // Corrected Regex: Use a lookahead to find the position before the final brace of the legacy block.
-                Regex legacyRegex = new Regex(@"(legacy={[\s\S]*?)(?=\s*})}$", RegexOptions.Multiline);
+                // Corrected Regex: Use a lookahead to find the closing brace of the legacy block,
+                // which is followed by another property. This is more robust than assuming it's at the end of the file.
+                Regex legacyRegex = new Regex(@"(legacy\s*=\s*{[\s\S]*?)(?=\s*\}\s*\w+\s*=)", RegexOptions.Multiline);
                 Match legacyMatch = legacyRegex.Match(content);
 
                 if (legacyMatch.Success)
@@ -1169,8 +1170,9 @@ namespace CrusaderWars.data.battle_results
                     // If so, we need to add a space. Otherwise, we add a newline and tab.
                     string separator = legacyMatch.Groups[1].Value.TrimEnd().EndsWith("}") ? " " : "\n\t\t";
                     
-                    // Insert the new entry before the closing brace of the legacy block
-                    string replacement = $"{legacyMatch.Groups[1].Value}{separator}{newLegacyEntry}\n\t}}";
+                    // The lookahead in the regex ensures we don't consume the closing brace.
+                    // We replace the matched part (everything up to the brace) with itself plus the new entry.
+                    string replacement = $"{legacyMatch.Groups[1].Value}{separator}{newLegacyEntry}";
                     content = legacyRegex.Replace(content, replacement, 1);
                     Program.Logger.Debug("Added new legacy entry to played_character block.");
                 }
