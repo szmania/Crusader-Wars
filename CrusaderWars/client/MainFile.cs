@@ -1733,6 +1733,7 @@ namespace CrusaderWars
                 return;
             }
             Data.Reset(); // ADDED as per plan
+            Reader.ReadMetaData();
             DataSearch.Search(logSnippet);
 
             Program.Logger.Debug("Battle context restored.");

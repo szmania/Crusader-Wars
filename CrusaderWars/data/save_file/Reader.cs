@@ -25,7 +25,7 @@ namespace CrusaderWars.data.save_file
         private static string metaPlayerName = "";
         public static string GetMetaPlayerName() { return metaPlayerName; }
 
-        private static void ReadMetaData()
+        public static void ReadMetaData()
         {
             Program.Logger.Debug("Reading metadata.txt...");
             string metaDataPath = @".\data\save_file_data\metadata.txt";
