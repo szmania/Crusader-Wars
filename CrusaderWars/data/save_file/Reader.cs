@@ -45,9 +45,9 @@ namespace CrusaderWars.data.save_file
                             Program.Logger.Debug($"Found meta_player_name: {metaPlayerName}");
                         }
                     }
-                    else if (trimmedLine.StartsWith("date="))
+                    else if (trimmedLine.StartsWith("meta_date="))
                     {
-                        var match = Regex.Match(trimmedLine, @"date=(\d+)\.(\d+)\.(\d+)");
+                        var match = Regex.Match(trimmedLine, @"meta_date=(\d+)\.(\d+)\.(\d+)");
                         if (match.Success)
                         {
                             Date.Year = int.Parse(match.Groups[1].Value);
