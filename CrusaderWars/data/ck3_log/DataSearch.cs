@@ -417,6 +417,15 @@ namespace CrusaderWars
 
         static void DateSearch(string log)
         {
+            if (Date.Year != 0)
+            {
+                Program.Logger.Debug($"Date already set to {Date.Year}.{Date.Month}.{Date.Day}. Skipping date parsing from log.");
+                string season = Date.GetSeason();
+                Weather.SetSeason(season);
+                Program.Logger.Debug($"Season set to: {season}");
+                return;
+            }
+
             string month;
             string year;
             try
