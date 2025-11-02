@@ -15,7 +15,6 @@ namespace CrusaderWars.data.save_file
         static bool Combats_NeedsSkiping { get; set; }
         static bool Sieges_NeedsSkiping { get; set; }
         static bool PlayedCharacter_NeedsSkipping { get; set; }
-        static bool CurrentlyPlayedCharacters_NeedsSkipping { get; set; }
         public static void SendDataToFile(string savePath)
         {
             // Reset static state variables
@@ -24,7 +23,6 @@ namespace CrusaderWars.data.save_file
             Combats_NeedsSkiping = false;
             Sieges_NeedsSkiping = false;
             PlayedCharacter_NeedsSkipping = false;
-            CurrentlyPlayedCharacters_NeedsSkipping = false;
 
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             // Removed resultsFound and combatsFound boolean variables.
@@ -84,12 +82,6 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("Finished skipping played_character block.");
                         PlayedCharacter_NeedsSkipping = false;
                         // Do not continue, let this line be processed
-                    }
-                    else if (CurrentlyPlayedCharacters_NeedsSkipping && line.Contains("}"))
-                    {
-                        Program.Logger.Debug("Finished skipping currently_played_characters block.");
-                        CurrentlyPlayedCharacters_NeedsSkipping = false;
-                        continue; // Skip the closing brace of the old block
                     }
                     else if (NeedSkiping && line == "\tarmy_regiments={")
                     {
@@ -164,12 +156,12 @@ namespace CrusaderWars.data.save_file
                         PlayedCharacter_NeedsSkipping = true;
                     }
                     // NEW BLOCK: Replace the entire currently_played_characters block
-                    else if (line.StartsWith("currently_played_characters={") && !CurrentlyPlayedCharacters_NeedsSkipping)
+                    else if (line.StartsWith("currently_played_characters={"))
                     {
                         Program.Logger.Debug("Writing modified currently_played_characters block.");
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.CurrentlyPlayedCharacters_Path(), FileType.CurrentlyPlayedCharacters);
                         Program.Logger.Debug("EDITED CURRENTLY PLAYED CHARACTERS SENT!");
-                        CurrentlyPlayedCharacters_NeedsSkipping = true;
+                        continue;
                     }
                     // NEW BLOCK: Replace the entire sieges block when "sieges={" is encountered
                     else if (line == "sieges={" && !Sieges_NeedsSkiping)
@@ -191,7 +183,7 @@ namespace CrusaderWars.data.save_file
                             // DO NOT set Sieges_NeedsSkiping = true, so the original content is copied.
                         }
                     }
-                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !CurrentlyPlayedCharacters_NeedsSkipping)
+                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping)
                     {
                         streamWriter.WriteLine(line);
                     }
