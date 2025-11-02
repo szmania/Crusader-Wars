@@ -52,7 +52,14 @@ namespace CrusaderWars
         public static StringBuilder SB_Dynasties = new StringBuilder();
 		public static StringBuilder SB_Traits = new StringBuilder();
         public static StringBuilder SB_Sieges = new StringBuilder(); // Added StringBuilder for Sieges
+        public static StringBuilder SB_PlayedCharacter = new StringBuilder();
+        public static StringBuilder SB_CurrentlyPlayedCharacters = new StringBuilder();
 
+
+
+        // New properties to store original blocks for replacement
+        public static string? Original_PlayedCharacter_Block;
+        public static string? Original_CurrentlyPlayedCharacters_Block;
 
 
         //Sieges
@@ -75,6 +82,9 @@ namespace CrusaderWars
             EnemyCommanderAccoladeID = "";
             PlayerCommanderAccolade = ("","","");
             EnemyCommanderAccolade = ("","","");
+
+            Original_PlayedCharacter_Block = null;
+            Original_CurrentlyPlayedCharacters_Block = null;
 
             Province_Buildings.Clear();
             twbattle.BattleState.IsSiegeBattle = false;
@@ -105,6 +115,8 @@ namespace CrusaderWars
             SearchKeys.HasAccoladesExtracted = false;
             SearchKeys.HasDynastiesExtracted = false;
             SearchKeys.HasSiegesExtracted = false; // Added reset for Sieges extraction flag
+            SearchKeys.HasPlayedCharacterExtracted = false;
+            SearchKeys.HasCurrentlyPlayedCharactersExtracted = false;
         }
     }
 
@@ -849,6 +861,98 @@ namespace CrusaderWars
                     Start_DynastiesFound = false;
                     End_DynastiesFound = false;
                     dynastiesBraceCount = 0; // Reset for next file read
+                }
+            }
+        }
+
+
+        private static bool Start_PlayedCharacterFound { get; set; }
+        private static bool End_PlayedCharacterFound { get; set; }
+        public static bool HasPlayedCharacterExtracted { get; set; }
+        private static int playedCharacterBraceCount = 0;
+        public static void PlayedCharacter(string line)
+        {
+            if (!HasPlayedCharacterExtracted)
+            {
+                if (!Start_PlayedCharacterFound)
+                {
+                    if (line.StartsWith("played_character={"))
+                    {
+                        Program.Logger.Debug("Found start of played_character block.");
+                        Start_PlayedCharacterFound = true;
+                        playedCharacterBraceCount = 0; // Reset
+                    }
+                }
+
+                if (Start_PlayedCharacterFound && !End_PlayedCharacterFound)
+                {
+                    Data.SB_PlayedCharacter.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') playedCharacterBraceCount++;
+                        else if (c == '}') playedCharacterBraceCount--;
+                    }
+
+                    if (playedCharacterBraceCount == 0 && Start_PlayedCharacterFound)
+                    {
+                        Program.Logger.Debug("Found end of played_character block by bracket counting.");
+                        Data.Original_PlayedCharacter_Block = Data.SB_PlayedCharacter.ToString();
+                        Program.Logger.Debug($"Writing {Data.Original_PlayedCharacter_Block.Length} characters to PlayedCharacter.txt");
+                        File.WriteAllText(@".\data\save_file_data\PlayedCharacter.txt", Data.Original_PlayedCharacter_Block);
+                        Data.SB_PlayedCharacter = new StringBuilder();
+                        GC.Collect();
+                        End_PlayedCharacterFound = true;
+                    }
+                }
+
+                if (End_PlayedCharacterFound)
+                {
+                    HasPlayedCharacterExtracted = true;
+                    Start_PlayedCharacterFound = false;
+                    End_PlayedCharacterFound = false;
+                    playedCharacterBraceCount = 0;
+                }
+            }
+        }
+
+        private static bool Start_CurrentlyPlayedCharactersFound { get; set; }
+        private static bool End_CurrentlyPlayedCharactersFound { get; set; }
+        public static bool HasCurrentlyPlayedCharactersExtracted { get; set; }
+        public static void CurrentlyPlayedCharacters(string line)
+        {
+            if (!HasCurrentlyPlayedCharactersExtracted)
+            {
+                if (!Start_CurrentlyPlayedCharactersFound)
+                {
+                    if (line.StartsWith("currently_played_characters={"))
+                    {
+                        Program.Logger.Debug("Found start of currently_played_characters block.");
+                        Start_CurrentlyPlayedCharactersFound = true;
+                    }
+                }
+
+                if (Start_CurrentlyPlayedCharactersFound && !End_CurrentlyPlayedCharactersFound)
+                {
+                    Data.SB_CurrentlyPlayedCharacters.AppendLine(line);
+
+                    if (line.Contains("}"))
+                    {
+                        Program.Logger.Debug("Found end of currently_played_characters block.");
+                        Data.Original_CurrentlyPlayedCharacters_Block = Data.SB_CurrentlyPlayedCharacters.ToString();
+                        Program.Logger.Debug($"Writing {Data.Original_CurrentlyPlayedCharacters_Block.Length} characters to CurrentlyPlayedCharacters.txt");
+                        File.WriteAllText(@".\data\save_file_data\CurrentlyPlayedCharacters.txt", Data.Original_CurrentlyPlayedCharacters_Block);
+                        Data.SB_CurrentlyPlayedCharacters = new StringBuilder();
+                        GC.Collect();
+                        End_CurrentlyPlayedCharactersFound = true;
+                    }
+                }
+
+                if (End_CurrentlyPlayedCharactersFound)
+                {
+                    HasCurrentlyPlayedCharactersExtracted = true;
+                    Start_CurrentlyPlayedCharactersFound = false;
+                    End_CurrentlyPlayedCharactersFound = false;
                 }
             }
         }

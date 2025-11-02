@@ -1031,6 +1031,8 @@ namespace CrusaderWars.data.battle_results
             }
             Program.Logger.Debug($"Living file: Pass 1 complete. Found {healthOutcomes.Count} characters with health outcomes. Player slain: {playerIsSlain}.");
 
+            EditPlayerCharacterFiles(playerIsSlain, playerHeirId);
+
             // --- PASS 2: Apply changes and write to temp file ---
             Program.Logger.Debug("Living file: Starting Pass 2 (Apply changes)");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
@@ -1125,6 +1127,57 @@ namespace CrusaderWars.data.battle_results
                 }
             }
             Program.Logger.Debug("Finished editing Living file.");
+        }
+
+        public static void EditPlayerCharacterFiles(bool playerIsSlain, string? playerHeirId)
+        {
+            Program.Logger.Debug("Editing Player Character files...");
+            string playedCharPath = Writter.DataFilesPaths.PlayedCharacter_Path();
+            string playedCharTempPath = Writter.DataTEMPFilesPaths.PlayedCharacter_Path();
+            string currentlyPlayedPath = Writter.DataFilesPaths.CurrentlyPlayedCharacters_Path();
+            string currentlyPlayedTempPath = Writter.DataTEMPFilesPaths.CurrentlyPlayedCharacters_Path();
+
+            if (!playerIsSlain || string.IsNullOrEmpty(playerHeirId))
+            {
+                Program.Logger.Debug("Player not slain or no heir. Copying original player character files to temp.");
+                if (File.Exists(playedCharPath)) File.Copy(playedCharPath, playedCharTempPath, true);
+                if (File.Exists(currentlyPlayedPath)) File.Copy(currentlyPlayedPath, currentlyPlayedTempPath, true);
+                return;
+            }
+
+            Program.Logger.Debug($"Player slain, heir is {playerHeirId}. Modifying player character files.");
+
+            // --- Edit PlayedCharacter.txt ---
+            if (File.Exists(playedCharPath))
+            {
+                string content = File.ReadAllText(playedCharPath);
+                string newLegacyEntry = $"\t\t{{\n\t\t\tcharacter={playerHeirId}\n\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}\n\t\t\twars={{ 0 0 0 0 }}\n\t\t}}";
+                
+                Regex legacyRegex = new Regex(@"(legacy={[\s\S]*?)(^\t})", RegexOptions.Multiline);
+                Match legacyMatch = legacyRegex.Match(content);
+
+                if (legacyMatch.Success)
+                {
+                    // Insert the new entry before the closing brace of the legacy block
+                    string replacement = $"{legacyMatch.Groups[1].Value}{newLegacyEntry}\n{legacyMatch.Groups[2].Value}";
+                    content = legacyRegex.Replace(content, replacement, 1);
+                    Program.Logger.Debug("Added new legacy entry to played_character block.");
+                }
+                else
+                {
+                    Program.Logger.Debug("Warning: Could not find legacy block in PlayedCharacter.txt to add heir.");
+                }
+                File.WriteAllText(playedCharTempPath, content);
+            }
+
+            // --- Edit CurrentlyPlayedCharacters.txt ---
+            if (File.Exists(currentlyPlayedPath))
+            {
+                string content = File.ReadAllText(currentlyPlayedPath);
+                string updatedContent = Regex.Replace(content, @"(currently_played_characters={\s*)\d+", $"$1{playerHeirId}");
+                File.WriteAllText(currentlyPlayedTempPath, updatedContent);
+                Program.Logger.Debug($"Updated currently_played_characters to heir ID {playerHeirId}.");
+            }
         }
 
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)

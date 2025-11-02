@@ -153,6 +153,11 @@ namespace CrusaderWars.data.save_file
             File.WriteAllText(Writter.DataFilesPaths.Sieges_Path(), "");
             //Clear Sieges TEMP File
             File.WriteAllText(Writter.DataTEMPFilesPaths.Sieges_Path(), "");
+
+            File.WriteAllText(Writter.DataFilesPaths.PlayedCharacter_Path(), "");
+            File.WriteAllText(Writter.DataTEMPFilesPaths.PlayedCharacter_Path(), "");
+            File.WriteAllText(Writter.DataFilesPaths.CurrentlyPlayedCharacters_Path(), "");
+            File.WriteAllText(Writter.DataTEMPFilesPaths.CurrentlyPlayedCharacters_Path(), "");
             Program.Logger.Debug("Finished clearing all temporary save file data.");
         }
 
@@ -197,6 +202,8 @@ namespace CrusaderWars.data.save_file
                     SearchKeys.Regiments(line);
                     SearchKeys.ArmyRegiments(line);
                     SearchKeys.Living(line);
+                    SearchKeys.PlayedCharacter(line);
+                    SearchKeys.CurrentlyPlayedCharacters(line);
 
 
                     SearchKeys.Armies(line);
