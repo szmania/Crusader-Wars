@@ -121,6 +121,7 @@ namespace CrusaderWars
 
 
         public static PlayerChar? Player_Character { get; set; }
+        public static string? Player_Heir_ID { get; set; }
 
         static string LogPath = Properties.Settings.Default.VAR_log_ck3;
 

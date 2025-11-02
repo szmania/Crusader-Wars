@@ -33,10 +33,32 @@ namespace CrusaderWars.data.save_file
             {
                 string[] lines = File.ReadAllLines(metaDataPath);
                 bool dateFound = false;
+                bool inHeirPortraitBlock = false;
                 foreach (string line in lines)
                 {
                     string trimmedLine = line.Trim();
-                    if (trimmedLine.StartsWith("meta_player_name="))
+
+                    if (inHeirPortraitBlock)
+                    {
+                        if (trimmedLine.StartsWith("id="))
+                        {
+                            var match = Regex.Match(trimmedLine, @"id=(\d+)");
+                            if (match.Success)
+                            {
+                                DataSearch.Player_Heir_ID = match.Groups[1].Value;
+                                Program.Logger.Debug($"Found player heir ID: {DataSearch.Player_Heir_ID}");
+                            }
+                        }
+                        else if (trimmedLine.Contains("}"))
+                        {
+                            inHeirPortraitBlock = false;
+                        }
+                    }
+                    else if (trimmedLine.StartsWith("meta_heir_portrait={"))
+                    {
+                        inHeirPortraitBlock = true;
+                    }
+                    else if (trimmedLine.StartsWith("meta_player_name="))
                     {
                         var match = Regex.Match(trimmedLine, @"""(.+)""");
                         if (match.Success)

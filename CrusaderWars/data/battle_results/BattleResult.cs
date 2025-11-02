@@ -968,15 +968,77 @@ namespace CrusaderWars.data.battle_results
 
         public static void EditLivingFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
-            Program.Logger.Debug("Editing Living file...");
+            Program.Logger.Debug("Editing Living file (2-pass approach)...");
+            var allArmies = attacker_armies.Concat(defender_armies).ToList();
+            string playerCharId = DataSearch.Player_Character.GetID();
+            string? playerHeirId = DataSearch.Player_Heir_ID;
+
+            // --- PASS 1: Determine all health outcomes ---
+            Program.Logger.Debug("Living file: Starting Pass 1 (Determine outcomes)");
+            var healthOutcomes = new Dictionary<string, (bool isSlain, string newTraits)>();
+            bool playerIsSlain = false;
+
+            using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
+            {
+                string? line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\d+={"))
+                    {
+                        string char_id = Regex.Match(line, @"\d+").Value;
+                        var searchData = SearchCharacters(char_id, allArmies);
+                        if (searchData.searchStarted)
+                        {
+                            bool hasFallen = (searchData.isCommander && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight.HasFallen());
+                            if (hasFallen)
+                            {
+                                string? traitsLine = null;
+                                int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                                {
+                                    if (line.Trim().StartsWith("traits={"))
+                                    {
+                                        traitsLine = line;
+                                    }
+                                    braceCount += line.Count(c => c == '{');
+                                    braceCount -= line.Count(c => c == '}');
+                                }
+
+                                if (traitsLine != null)
+                                {
+                                    (bool isSlain, string newTraits) healthResult;
+                                    if (searchData.isCommander)
+                                    {
+                                        healthResult = searchData.commander.Health(traitsLine);
+                                    }
+                                    else // isKnight
+                                    {
+                                        healthResult = searchData.knight.Health(traitsLine);
+                                    }
+                                    
+                                    healthOutcomes[char_id] = healthResult;
+
+                                    if (healthResult.isSlain && char_id == playerCharId)
+                                    {
+                                        playerIsSlain = true;
+                                        Program.Logger.Debug($"Player character {playerCharId} was slain.");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Program.Logger.Debug($"Living file: Pass 1 complete. Found {healthOutcomes.Count} characters with health outcomes. Player slain: {playerIsSlain}.");
+
+            // --- PASS 2: Apply changes and write to temp file ---
+            Program.Logger.Debug("Living file: Starting Pass 2 (Apply changes)");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Living_Path()))
             {
                 streamWriter.NewLine = "\n";
                 string? line;
-                string playerCharId = DataSearch.Player_Character.GetID();
-                var allArmies = attacker_armies.Concat(defender_armies).ToList();
-
+                
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     if (Regex.IsMatch(line, @"^\d+={")) // Start of a character block
@@ -984,10 +1046,7 @@ namespace CrusaderWars.data.battle_results
                         List<string> charBlock = new List<string> { line };
                         string char_id = Regex.Match(line, @"\d+").Value;
 
-                        // Count braces on the first line
                         int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
-
-                        // Read the whole block by counting braces until the count is zero
                         while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
                         {
                             charBlock.Add(line);
@@ -995,107 +1054,65 @@ namespace CrusaderWars.data.battle_results
                             braceCount -= line.Count(c => c == '}');
                         }
 
-                        // Process the block
-                        bool isSlain = false;
-                        
-                        var searchData = SearchCharacters(char_id, allArmies);
-                        if (searchData.searchStarted)
+                        if (healthOutcomes.TryGetValue(char_id, out var outcome))
                         {
-                            bool hasFallen = (searchData.isCommander && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight.HasFallen());
-                            if (hasFallen)
+                            if (outcome.isSlain)
+                            {
+                                Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data block.");
+                                int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                                if (aliveDataStartIndex != -1)
+                                {
+                                    int aliveDataEndIndex = -1;
+                                    int aliveBraceCount = 0;
+                                    for (int i = aliveDataStartIndex; i < charBlock.Count; i++)
+                                    {
+                                        aliveBraceCount += charBlock[i].Count(c => c == '{');
+                                        aliveBraceCount -= charBlock[i].Count(c => c == '}');
+                                        if (aliveBraceCount == 0)
+                                        {
+                                            aliveDataEndIndex = i;
+                                            break;
+                                        }
+                                    }
+                                    if (aliveDataEndIndex != -1)
+                                    {
+                                        charBlock.RemoveRange(aliveDataStartIndex, aliveDataEndIndex - aliveDataStartIndex + 1);
+                                    }
+                                }
+
+                                int closingBraceIndex = charBlock.FindLastIndex(l => l.Trim() == "}");
+                                if (closingBraceIndex != -1)
+                                {
+                                    charBlock.Insert(closingBraceIndex, "\tdead_data={");
+                                    charBlock.Insert(closingBraceIndex + 1, $"\t\tdate={Date.Year}.{Date.Month}.{Date.Day}");
+                                    charBlock.Insert(closingBraceIndex + 2, "\t\treason=death_battle");
+                                    charBlock.Insert(closingBraceIndex + 3, "\t}");
+                                }
+                            }
+                            else // Wounded
                             {
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
                                 if (traitsLineIndex != -1)
                                 {
-                                    string originalTraitsLine = charBlock[traitsLineIndex];
-                                    (bool isSlain, string newTraits) healthResult;
-
-                                    if (searchData.isCommander)
-                                    {
-                                        healthResult = searchData.commander.Health(originalTraitsLine);
-                                    }
-                                    else // isKnight
-                                    {
-                                        healthResult = searchData.knight.Health(originalTraitsLine);
-                                    }
-
-                                    isSlain = healthResult.isSlain;
-                                    
-                                    if (!isSlain)
-                                    {
-                                        // Only update traits if wounded, not slain.
-                                        charBlock[traitsLineIndex] = healthResult.newTraits;
-                                    }
+                                    charBlock[traitsLineIndex] = outcome.newTraits;
                                 }
                             }
                         }
 
-                        if (isSlain)
+                        if (playerIsSlain && playerHeirId != null && char_id == playerHeirId)
                         {
-                            Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data block.");
-
-                            // 1. Find and remove the alive_data block.
-                            int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
-                            if (aliveDataStartIndex != -1)
+                            Program.Logger.Debug($"Player was slain. Adding 'was_player=yes' to heir {playerHeirId}.");
+                            int playableDataIndex = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                            if (playableDataIndex != -1)
                             {
-                                int aliveDataEndIndex = -1;
-                                int braceCount = 0;
-                                bool blockStarted = false;
-
-                                for (int i = aliveDataStartIndex; i < charBlock.Count; i++)
-                                {
-                                    string currentLine = charBlock[i];
-                                    
-                                    // Start counting braces from the line where alive_data starts
-                                    if (i == aliveDataStartIndex)
-                                    {
-                                        blockStarted = true;
-                                    }
-
-                                    if (blockStarted)
-                                    {
-                                        braceCount += currentLine.Count(c => c == '{');
-                                        braceCount -= currentLine.Count(c => c == '}');
-                                    }
-
-                                    // If brace count is 0, we've found the end of the alive_data block
-                                    if (blockStarted && braceCount == 0)
-                                    {
-                                        aliveDataEndIndex = i;
-                                        break;
-                                    }
-                                }
-
-                                if (aliveDataEndIndex != -1)
-                                {
-                                    // Remove the lines from start to end, inclusive.
-                                    charBlock.RemoveRange(aliveDataStartIndex, aliveDataEndIndex - aliveDataStartIndex + 1);
-                                    Program.Logger.Debug($"Removed alive_data block for character {char_id}.");
-                                }
-                                else
-                                {
-                                    Program.Logger.Debug($"Warning: Could not find the end of the alive_data block for character {char_id}.");
-                                }
-                            }
-
-                            // 2. Add the dead_data block.
-                            // This should be inserted before the final closing brace of the character block.
-                            int closingBraceIndex = charBlock.FindLastIndex(l => l.Trim() == "}");
-                            if (closingBraceIndex != -1)
-                            {
-                                charBlock.Insert(closingBraceIndex, "\tdead_data={");
-                                charBlock.Insert(closingBraceIndex + 1, $"\t\tdate={Date.Year}.{Date.Month}.{Date.Day}");
-                                charBlock.Insert(closingBraceIndex + 2, "\t\treason=death_battle");
-                                charBlock.Insert(closingBraceIndex + 3, "\t}");
-                                Program.Logger.Debug($"Added dead_data block for character {char_id}.");
+                                charBlock.Insert(playableDataIndex + 1, "\t\twas_player=yes");
                             }
                             else
                             {
-                                Program.Logger.Debug($"Warning: Could not find closing brace to add dead_data block for character {char_id}.");
+                                Program.Logger.Debug($"Warning: Could not find playable_data block for heir {playerHeirId}.");
                             }
                         }
 
-                        // Write the (potentially modified) block
                         foreach (var blockLine in charBlock)
                         {
                             streamWriter.WriteLine(blockLine);
@@ -1103,7 +1120,6 @@ namespace CrusaderWars.data.battle_results
                     }
                     else
                     {
-                        // Not a character block start, just write the line
                         streamWriter.WriteLine(line);
                     }
                 }
