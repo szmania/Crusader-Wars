@@ -1151,6 +1151,12 @@ namespace CrusaderWars.data.battle_results
             if (File.Exists(playedCharPath))
             {
                 string content = File.ReadAllText(playedCharPath);
+
+                // NEW: Update the main character ID to the heir, replacing only the first occurrence.
+                Regex mainCharRegex = new Regex(@"(^\s*character=)\d+", RegexOptions.Multiline);
+                content = mainCharRegex.Replace(content, $"${{1}}{playerHeirId}", 1);
+                Program.Logger.Debug($"Updated main character ID to heir ID {playerHeirId}.");
+
                 string newLegacyEntry = $"\t\t{{\n\t\t\tcharacter={playerHeirId}\n\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}\n\t\t\twars={{ 0 0 0 0 }}\n\t\t}}";
                 
                 Regex legacyRegex = new Regex(@"(legacy={[\s\S]*?)(^\s*})", RegexOptions.Multiline);
