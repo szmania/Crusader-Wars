@@ -413,6 +413,12 @@ namespace CrusaderWars
                 BattleScale_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
                 AutoScaleUnits_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
 
+                // Temporarily disable event handlers in CandK_Tab to prevent validation logic from firing
+                if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptionsForEvents)
+                {
+                    candKOptionsForEvents.UnsubscribeEventHandlers();
+                }
+
                 // Set Commander NumericUpDown values with proper validation
                 if (numCommanderWounded != null) 
                 {
@@ -512,6 +518,8 @@ namespace CrusaderWars
                 // Manually trigger UpdateTotal for CandK_Tab after setting values
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
                 {
+                    // Re-enable event handlers before updating totals
+                    candKOptions.SubscribeEventHandlers();
                     // Update totals after setting values
                     candKOptions.UpdateCommanderTotal();
                     candKOptions.UpdateKnightTotal();

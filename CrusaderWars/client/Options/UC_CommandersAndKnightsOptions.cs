@@ -37,7 +37,7 @@ namespace CrusaderWars.client.Options
             SetDefaults();
         }
 
-        private void UnsubscribeEventHandlers()
+        public void UnsubscribeEventHandlers()
         {
             foreach (var control in commanderControls)
             {
@@ -49,7 +49,7 @@ namespace CrusaderWars.client.Options
             }
         }
 
-        private void SubscribeEventHandlers()
+        public void SubscribeEventHandlers()
         {
             foreach (var control in commanderControls)
             {
