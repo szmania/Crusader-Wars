@@ -2182,6 +2182,7 @@ namespace CrusaderWars
             
             Options optionsChild = new Options();
             optionsChild.ShowDialog();
+            Options.ReadOptionsFile();
             UpdatePlaythroughDisplay(); // Update display after settings are closed
         }
 

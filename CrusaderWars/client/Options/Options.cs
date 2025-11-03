@@ -1395,7 +1395,6 @@ namespace CrusaderWars
 
             // If validation passes, proceed with saving and cleanup
             SaveValuesToOptionsFile();
-            ReadOptionsFile();
             WriteUnitMappersOptions();
             SubmodManager.SaveActiveSubmods(); // Save active submods
 
