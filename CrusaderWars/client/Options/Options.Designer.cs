@@ -261,9 +261,9 @@
             this.Btn_UnitsTab.ForeColor = System.Drawing.Color.White;
             this.Btn_UnitsTab.Location = new System.Drawing.Point(78, 3);
             this.Btn_UnitsTab.Name = "Btn_UnitsTab";
-            this.Btn_UnitsTab.Size = new System.Drawing.Size(97, 28);
+            this.Btn_UnitsTab.Size = new System.Drawing.Size(110, 28);
             this.Btn_UnitsTab.TabIndex = 1;
-            this.Btn_UnitsTab.Text = "Units & Scale";
+            this.Btn_UnitsTab.Text = "Unit Scale/Max";
             this.Btn_UnitsTab.UseVisualStyleBackColor = false;
             this.Btn_UnitsTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_UnitsTab.Click += new System.EventHandler(this.Btn_UnitsTab_Click);
@@ -278,7 +278,7 @@
             this.Btn_CandKTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CandKTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_CandKTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_CandKTab.Location = new System.Drawing.Point(181, 3);
+            this.Btn_CandKTab.Location = new System.Drawing.Point(194, 3);
             this.Btn_CandKTab.Name = "Btn_CandKTab";
             this.Btn_CandKTab.Size = new System.Drawing.Size(100, 28);
             this.Btn_CandKTab.TabIndex = 3;

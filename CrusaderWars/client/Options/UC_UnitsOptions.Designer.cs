@@ -43,11 +43,11 @@
             this.OptionSelection_RangedMax = new System.Windows.Forms.ComboBox();
             this.OptionSelection_LeviesMax = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.label5 = new System.Windows.Forms.Label();
             this.OptionSelection_BattleSizeScale = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.OptionSelection_AutoScale = new System.Windows.Forms.ComboBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -60,33 +60,33 @@
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.label4, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox2, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_InfantryMax, 0, 5);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_CavalryMax, 1, 5);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox3, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox4, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_RangedMax, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_LeviesMax, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label5, 0, 6);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_BattleSizeScale, 1, 6);
-            this.tableLayoutPanel1.Controls.Add(this.label6, 0, 7);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_AutoScale, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 1, 6);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 6);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox2, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_InfantryMax, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_CavalryMax, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox3, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox4, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_RangedMax, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_LeviesMax, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_BattleSizeScale, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label6, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_AutoScale, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 8;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(535, 389);
@@ -100,7 +100,7 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Paradox King Script", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(270, 231);
+            this.label4.Location = new System.Drawing.Point(270, 306);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(262, 38);
             this.label4.TabIndex = 11;
@@ -115,7 +115,7 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Paradox King Script", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(3, 231);
+            this.label3.Location = new System.Drawing.Point(3, 306);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(261, 38);
             this.label3.TabIndex = 10;
@@ -130,7 +130,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Paradox King Script", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(270, 77);
+            this.label2.Location = new System.Drawing.Point(270, 152);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(262, 38);
             this.label2.TabIndex = 9;
@@ -144,9 +144,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox2.BackgroundImage = global::CrusaderWars.Properties.Resources.archers;
             this.pictureBox2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox2.Location = new System.Drawing.Point(270, 3);
+            this.pictureBox2.Location = new System.Drawing.Point(270, 79);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(262, 71);
+            this.pictureBox2.Size = new System.Drawing.Size(262, 70);
             this.pictureBox2.TabIndex = 1;
             this.pictureBox2.TabStop = false;
             // 
@@ -157,9 +157,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackgroundImage = global::CrusaderWars.Properties.Resources.levies;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox1.Location = new System.Drawing.Point(3, 79);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(261, 71);
+            this.pictureBox1.Size = new System.Drawing.Size(261, 70);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
@@ -174,7 +174,7 @@
             "300",
             "400",
             "500"});
-            this.OptionSelection_InfantryMax.Location = new System.Drawing.Point(73, 276);
+            this.OptionSelection_InfantryMax.Location = new System.Drawing.Point(73, 351);
             this.OptionSelection_InfantryMax.Name = "OptionSelection_InfantryMax";
             this.OptionSelection_InfantryMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_InfantryMax.TabIndex = 4;
@@ -193,7 +193,7 @@
             "250",
             "300",
             "350"});
-            this.OptionSelection_CavalryMax.Location = new System.Drawing.Point(340, 276);
+            this.OptionSelection_CavalryMax.Location = new System.Drawing.Point(340, 351);
             this.OptionSelection_CavalryMax.Name = "OptionSelection_CavalryMax";
             this.OptionSelection_CavalryMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_CavalryMax.TabIndex = 7;
@@ -206,7 +206,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox3.BackgroundImage = global::CrusaderWars.Properties.Resources.heavy_infantry;
             this.pictureBox3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox3.Location = new System.Drawing.Point(3, 156);
+            this.pictureBox3.Location = new System.Drawing.Point(3, 231);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(261, 72);
             this.pictureBox3.TabIndex = 2;
@@ -219,7 +219,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox4.BackgroundImage = global::CrusaderWars.Properties.Resources.heavy_cavalry;
             this.pictureBox4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox4.Location = new System.Drawing.Point(270, 156);
+            this.pictureBox4.Location = new System.Drawing.Point(270, 231);
             this.pictureBox4.Name = "pictureBox4";
             this.pictureBox4.Size = new System.Drawing.Size(262, 72);
             this.pictureBox4.TabIndex = 3;
@@ -236,7 +236,7 @@
             "300",
             "400",
             "500"});
-            this.OptionSelection_RangedMax.Location = new System.Drawing.Point(340, 122);
+            this.OptionSelection_RangedMax.Location = new System.Drawing.Point(340, 197);
             this.OptionSelection_RangedMax.Name = "OptionSelection_RangedMax";
             this.OptionSelection_RangedMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_RangedMax.TabIndex = 6;
@@ -253,7 +253,7 @@
             "300",
             "400",
             "500"});
-            this.OptionSelection_LeviesMax.Location = new System.Drawing.Point(73, 122);
+            this.OptionSelection_LeviesMax.Location = new System.Drawing.Point(73, 197);
             this.OptionSelection_LeviesMax.Name = "OptionSelection_LeviesMax";
             this.OptionSelection_LeviesMax.Size = new System.Drawing.Size(121, 24);
             this.OptionSelection_LeviesMax.TabIndex = 5;
@@ -267,17 +267,12 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Paradox King Script", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(3, 77);
+            this.label1.Location = new System.Drawing.Point(3, 152);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(261, 38);
             this.label1.TabIndex = 8;
             this.label1.Text = "Levies";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // toolTip1
-            // 
-            this.toolTip1.AutomaticDelay = 100000;
-            this.toolTip1.IsBalloon = true;
             // 
             // label5
             // 
@@ -288,7 +283,7 @@
             this.label5.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.White;
             this.label5.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.label5.Location = new System.Drawing.Point(3, 307);
+            this.label5.Location = new System.Drawing.Point(3, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(261, 38);
             this.label5.TabIndex = 12;
@@ -308,7 +303,7 @@
             "50%",
             "75%",
             "100%"});
-            this.OptionSelection_BattleSizeScale.Location = new System.Drawing.Point(340, 313);
+            this.OptionSelection_BattleSizeScale.Location = new System.Drawing.Point(340, 6);
             this.OptionSelection_BattleSizeScale.Name = "OptionSelection_BattleSizeScale";
             this.OptionSelection_BattleSizeScale.Size = new System.Drawing.Size(121, 26);
             this.OptionSelection_BattleSizeScale.TabIndex = 13;
@@ -324,9 +319,9 @@
             this.label6.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.Color.White;
             this.label6.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.label6.Location = new System.Drawing.Point(3, 345);
+            this.label6.Location = new System.Drawing.Point(3, 38);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(261, 44);
+            this.label6.Size = new System.Drawing.Size(261, 38);
             this.label6.TabIndex = 14;
             this.label6.Text = "Auto Scale Units Max:";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -341,13 +336,18 @@
             this.OptionSelection_AutoScale.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_AutoScale.Location = new System.Drawing.Point(340, 354);
+            this.OptionSelection_AutoScale.Location = new System.Drawing.Point(340, 44);
             this.OptionSelection_AutoScale.Name = "OptionSelection_AutoScale";
             this.OptionSelection_AutoScale.Size = new System.Drawing.Size(121, 26);
             this.OptionSelection_AutoScale.TabIndex = 15;
             this.toolTip1.SetToolTip(this.OptionSelection_AutoScale, "Enabled: CC will auto size the maximum number of soldiers an Attila can have acco" +
         "rding to huge scale battles. (Recommended)\r\nDisabled: Units maximum size will al" +
         "ways be from user set options.");
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.AutomaticDelay = 100000;
+            this.toolTip1.IsBalloon = true;
             // 
             // UC_UnitsOptions
             // 
