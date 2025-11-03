@@ -283,6 +283,9 @@ namespace CrusaderWars.client
         public static int GetKnightOneEyedChance() => Int32.Parse(optionsValuesCollection["KnightOneEyedChance"]);
         public static int GetKnightDisfiguredChance() => Int32.Parse(optionsValuesCollection["KnightDisfiguredChance"]);
 
+        public static int GetCommanderPrisonerChance() => Int32.Parse(optionsValuesCollection["CommanderPrisonerChance"]);
+        public static int GetKnightPrisonerChance() => Int32.Parse(optionsValuesCollection["KnightPrisonerChance"]);
+
         public static bool GetOptInPreReleases()
         {
             return optionsValuesCollection.TryGetValue("OptInPreReleases", out var value) && bool.TryParse(value, out bool result) && result;
