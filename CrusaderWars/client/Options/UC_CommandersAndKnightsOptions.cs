@@ -169,10 +169,10 @@ namespace CrusaderWars.client.Options
             toolTip1.SetToolTip(lblKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
             toolTip1.SetToolTip(numCommanderSlain, "Chance for a commander to be slain when they fall in battle. This is included in the 100% total chance.");
             toolTip1.SetToolTip(numKnightSlain, "Chance for a knight to be slain when they fall in battle. This is included in the 100% total chance.");
-            toolTip1.SetToolTip(lblCommanderPrisoner, "Chance for a commander to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
-            toolTip1.SetToolTip(numCommanderPrisoner, "Chance for a commander to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
-            toolTip1.SetToolTip(lblKnightPrisoner, "Chance for a knight to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
-            toolTip1.SetToolTip(numKnightPrisoner, "Chance for a knight to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
+            toolTip1.SetToolTip(lblCommanderPrisoner, "Chance for a commander to be taken prisoner if they survive. This is a separate roll and is NOT part of the 100% total for wounds/death.");
+            toolTip1.SetToolTip(numCommanderPrisoner, "Chance for a commander to be taken prisoner if they survive. This is a separate roll and is NOT part of the 100% total for wounds/death.");
+            toolTip1.SetToolTip(lblKnightPrisoner, "Chance for a knight to be taken prisoner if they survive. This is a separate roll and is NOT part of the 100% total for wounds/death.");
+            toolTip1.SetToolTip(numKnightPrisoner, "Chance for a knight to be taken prisoner if they survive. This is a separate roll and is NOT part of the 100% total for wounds/death.");
             
             // Add tooltip to reset button
             toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");
