@@ -1111,7 +1111,7 @@ namespace CrusaderWars.data.battle_results
                                     charBlock.Insert(closingBraceIndex + 3, "\t}");
                                 }
                             }
-                            else // Wounded or Captured
+                            else // Wounded and/or Captured
                             {
                                 // Apply wound traits first
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
