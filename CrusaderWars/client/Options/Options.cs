@@ -374,26 +374,26 @@ namespace CrusaderWars
                 var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
                 // Commander NumericUpDowns
-                var numCommanderWounded = CandK_Tab.Controls.Find("numCommanderWounded", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderSeverelyInjured = CandK_Tab.Controls.Find("numCommanderSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderBrutallyMauled = CandK_Tab.Controls.Find("numCommanderBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderMaimed = CandK_Tab.Controls.Find("numCommanderMaimed", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderOneLegged = CandK_Tab.Controls.Find("numCommanderOneLegged", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderOneEyed = CandK_Tab.Controls.Find("numCommanderOneEyed", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderDisfigured = CandK_Tab.Controls.Find("numCommanderDisfigured", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderSlain = CandK_Tab.Controls.Find("numCommanderSlain", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderPrisoner = CandK_Tab.Controls.Find("numCommanderPrisoner", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderWounded = CandK_Tab.numCommanderWounded;
+                var numCommanderSeverelyInjured = CandK_Tab.numCommanderSeverelyInjured;
+                var numCommanderBrutallyMauled = CandK_Tab.numCommanderBrutallyMauled;
+                var numCommanderMaimed = CandK_Tab.numCommanderMaimed;
+                var numCommanderOneLegged = CandK_Tab.numCommanderOneLegged;
+                var numCommanderOneEyed = CandK_Tab.numCommanderOneEyed;
+                var numCommanderDisfigured = CandK_Tab.numCommanderDisfigured;
+                var numCommanderSlain = CandK_Tab.numCommanderSlain;
+                var numCommanderPrisoner = CandK_Tab.numCommanderPrisoner;
 
                 // Knight NumericUpDowns
-                var numKnightWounded = CandK_Tab.Controls.Find("numKnightWounded", true).FirstOrDefault() as NumericUpDown;
-                var numKnightSeverelyInjured = CandK_Tab.Controls.Find("numKnightSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
-                var numKnightBrutallyMauled = CandK_Tab.Controls.Find("numKnightBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
-                var numKnightMaimed = CandK_Tab.Controls.Find("numKnightMaimed", true).FirstOrDefault() as NumericUpDown;
-                var numKnightOneLegged = CandK_Tab.Controls.Find("numKnightOneLegged", true).FirstOrDefault() as NumericUpDown;
-                var numKnightOneEyed = CandK_Tab.Controls.Find("numKnightOneEyed", true).FirstOrDefault() as NumericUpDown;
-                var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
-                var numKnightSlain = CandK_Tab.Controls.Find("numKnightSlain", true).FirstOrDefault() as NumericUpDown;
-                var numKnightPrisoner = CandK_Tab.Controls.Find("numKnightPrisoner", true).FirstOrDefault() as NumericUpDown;
+                var numKnightWounded = CandK_Tab.numKnightWounded;
+                var numKnightSeverelyInjured = CandK_Tab.numKnightSeverelyInjured;
+                var numKnightBrutallyMauled = CandK_Tab.numKnightBrutallyMauled;
+                var numKnightMaimed = CandK_Tab.numKnightMaimed;
+                var numKnightOneLegged = CandK_Tab.numKnightOneLegged;
+                var numKnightOneEyed = CandK_Tab.numKnightOneEyed;
+                var numKnightDisfigured = CandK_Tab.numKnightDisfigured;
+                var numKnightSlain = CandK_Tab.numKnightSlain;
+                var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
 
                 CloseCK3_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseCK3"];
@@ -556,26 +556,26 @@ namespace CrusaderWars
                 var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
                 // Commander NumericUpDowns
-                var numCommanderWounded = CandK_Tab.Controls.Find("numCommanderWounded", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderSeverelyInjured = CandK_Tab.Controls.Find("numCommanderSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderBrutallyMauled = CandK_Tab.Controls.Find("numCommanderBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderMaimed = CandK_Tab.Controls.Find("numCommanderMaimed", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderOneLegged = CandK_Tab.Controls.Find("numCommanderOneLegged", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderOneEyed = CandK_Tab.Controls.Find("numCommanderOneEyed", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderDisfigured = CandK_Tab.Controls.Find("numCommanderDisfigured", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderSlain = CandK_Tab.Controls.Find("numCommanderSlain", true).FirstOrDefault() as NumericUpDown;
-                var numCommanderPrisoner = CandK_Tab.Controls.Find("numCommanderPrisoner", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderWounded = CandK_Tab.numCommanderWounded;
+                var numCommanderSeverelyInjured = CandK_Tab.numCommanderSeverelyInjured;
+                var numCommanderBrutallyMauled = CandK_Tab.numCommanderBrutallyMauled;
+                var numCommanderMaimed = CandK_Tab.numCommanderMaimed;
+                var numCommanderOneLegged = CandK_Tab.numCommanderOneLegged;
+                var numCommanderOneEyed = CandK_Tab.numCommanderOneEyed;
+                var numCommanderDisfigured = CandK_Tab.numCommanderDisfigured;
+                var numCommanderSlain = CandK_Tab.numCommanderSlain;
+                var numCommanderPrisoner = CandK_Tab.numCommanderPrisoner;
 
                 // Knight NumericUpDowns
-                var numKnightWounded = CandK_Tab.Controls.Find("numKnightWounded", true).FirstOrDefault() as NumericUpDown;
-                var numKnightSeverelyInjured = CandK_Tab.Controls.Find("numKnightSeverelyInjured", true).FirstOrDefault() as NumericUpDown;
-                var numKnightBrutallyMauled = CandK_Tab.Controls.Find("numKnightBrutallyMauled", true).FirstOrDefault() as NumericUpDown;
-                var numKnightMaimed = CandK_Tab.Controls.Find("numKnightMaimed", true).FirstOrDefault() as NumericUpDown;
-                var numKnightOneLegged = CandK_Tab.Controls.Find("numKnightOneLegged", true).FirstOrDefault() as NumericUpDown;
-                var numKnightOneEyed = CandK_Tab.Controls.Find("numKnightOneEyed", true).FirstOrDefault() as NumericUpDown;
-                var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
-                var numKnightSlain = CandK_Tab.Controls.Find("numKnightSlain", true).FirstOrDefault() as NumericUpDown;
-                var numKnightPrisoner = CandK_Tab.Controls.Find("numKnightPrisoner", true).FirstOrDefault() as NumericUpDown;
+                var numKnightWounded = CandK_Tab.numKnightWounded;
+                var numKnightSeverelyInjured = CandK_Tab.numKnightSeverelyInjured;
+                var numKnightBrutallyMauled = CandK_Tab.numKnightBrutallyMauled;
+                var numKnightMaimed = CandK_Tab.numKnightMaimed;
+                var numKnightOneLegged = CandK_Tab.numKnightOneLegged;
+                var numKnightOneEyed = CandK_Tab.numKnightOneEyed;
+                var numKnightDisfigured = CandK_Tab.numKnightDisfigured;
+                var numKnightSlain = CandK_Tab.numKnightSlain;
+                var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
 
                 var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
