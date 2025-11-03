@@ -207,16 +207,15 @@ namespace CrusaderWars
                     newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString());
                 }
 
-                // If survived, roll for capture only if on the losing side
+                // If survived, roll for capture
                 bool isCaptured = false;
-                if (wasOnLosingSide)
+                int effectivePrisonerChance = wasOnLosingSide ? prisonerChance : (int)Math.Round(prisonerChance * 0.25);
+                var prisonerRng = CharacterSharedRandom.Rng.Next(1, 101);
+                isCaptured = prisonerRng <= effectivePrisonerChance;
+                if (isCaptured)
                 {
-                    var prisonerRng = CharacterSharedRandom.Rng.Next(1, 101);
-                    isCaptured = prisonerRng <= prisonerChance;
-                    if (isCaptured)
-                    {
-                        Program.Logger.Debug($"Knight {ID} has been captured (chance: {prisonerChance}%).");
-                    }
+                    string side = wasOnLosingSide ? "losing" : "winning";
+                    Program.Logger.Debug($"Knight {ID} has been captured from the {side} side (chance: {effectivePrisonerChance}%).");
                 }
 
                 return (false, isCaptured, newTraits);
