@@ -354,7 +354,7 @@ namespace CrusaderWars
         }
         
 
-        public (bool isSlain, bool isCaptured, string newTraits) Health(string traits_line)
+        public (bool isSlain, bool isCaptured, string newTraits) Health(string traits_line, bool wasOnLosingSide)
         {
             if (hasFallen)
             {
@@ -425,12 +425,16 @@ namespace CrusaderWars
                     newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString());
                 }
 
-                // If survived, roll for capture
-                var prisonerRng = CharacterSharedRandom.Rng.Next(1, 101);
-                bool isCaptured = prisonerRng <= prisonerChance;
-                if (isCaptured)
+                // If survived, roll for capture only if on the losing side
+                bool isCaptured = false;
+                if (wasOnLosingSide)
                 {
-                    Program.Logger.Debug($"Commander {ID} has been captured (chance: {prisonerChance}%).");
+                    var prisonerRng = CharacterSharedRandom.Rng.Next(1, 101);
+                    isCaptured = prisonerRng <= prisonerChance;
+                    if (isCaptured)
+                    {
+                        Program.Logger.Debug($"Commander {ID} has been captured (chance: {prisonerChance}%).");
+                    }
                 }
 
                 return (false, isCaptured, newTraits);

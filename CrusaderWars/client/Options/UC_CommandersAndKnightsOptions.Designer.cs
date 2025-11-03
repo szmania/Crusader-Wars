@@ -628,9 +628,9 @@ namespace CrusaderWars.client.Options
             this.lblCommanderPrisoner.AutoSize = true;
             this.lblCommanderPrisoner.Location = new System.Drawing.Point(3, 44);
             this.lblCommanderPrisoner.Name = "lblCommanderPrisoner";
-            this.lblCommanderPrisoner.Size = new System.Drawing.Size(133, 19);
+            this.lblCommanderPrisoner.Size = new System.Drawing.Size(123, 19);
             this.lblCommanderPrisoner.TabIndex = 21;
-            this.lblCommanderPrisoner.Text = "Prisoner (Not in Total %):";
+            this.lblCommanderPrisoner.Text = "Prisoner Chance (%):";
             // 
             // numCommanderPrisoner
             // 
@@ -651,9 +651,9 @@ namespace CrusaderWars.client.Options
             this.lblKnightPrisoner.AutoSize = true;
             this.lblKnightPrisoner.Location = new System.Drawing.Point(227, 44);
             this.lblKnightPrisoner.Name = "lblKnightPrisoner";
-            this.lblKnightPrisoner.Size = new System.Drawing.Size(133, 19);
+            this.lblKnightPrisoner.Size = new System.Drawing.Size(123, 19);
             this.lblKnightPrisoner.TabIndex = 23;
-            this.lblKnightPrisoner.Text = "Prisoner (Not in Total %):";
+            this.lblKnightPrisoner.Text = "Prisoner Chance (%):";
             // 
             // numKnightPrisoner
             // 

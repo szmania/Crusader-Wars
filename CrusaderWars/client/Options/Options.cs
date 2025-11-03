@@ -278,25 +278,25 @@ namespace CrusaderWars
                 var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
 
                 // New Commander and Knight wound chances
-                var CommanderWoundedChance_Value = GetOptionValue(xmlDoc, "CommanderWoundedChance", "50");
-                var CommanderSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "CommanderSeverelyInjuredChance", "20");
-                var CommanderBrutallyMauledChance_Value = GetOptionValue(xmlDoc, "CommanderBrutallyMauledChance", "20");
-                var CommanderMaimedChance_Value = GetOptionValue(xmlDoc, "CommanderMaimedChance", "3");
-                var CommanderOneLeggedChance_Value = GetOptionValue(xmlDoc, "CommanderOneLeggedChance", "3");
+                var CommanderWoundedChance_Value = GetOptionValue(xmlDoc, "CommanderWoundedChance", "65");
+                var CommanderSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "CommanderSeverelyInjuredChance", "10");
+                var CommanderBrutallyMauledChance_Value = GetOptionValue(xmlDoc, "CommanderBrutallyMauledChance", "5");
+                var CommanderMaimedChance_Value = GetOptionValue(xmlDoc, "CommanderMaimedChance", "5");
+                var CommanderOneLeggedChance_Value = GetOptionValue(xmlDoc, "CommanderOneLeggedChance", "2");
                 var CommanderOneEyedChance_Value = GetOptionValue(xmlDoc, "CommanderOneEyedChance", "3");
-                var CommanderDisfiguredChance_Value = GetOptionValue(xmlDoc, "CommanderDisfiguredChance", "1");
-                var CommanderSlainChance_Value = GetOptionValue(xmlDoc, "CommanderSlainChance", "15");
-                var CommanderPrisonerChance_Value = GetOptionValue(xmlDoc, "CommanderPrisonerChance", "25");
+                var CommanderDisfiguredChance_Value = GetOptionValue(xmlDoc, "CommanderDisfiguredChance", "2");
+                var CommanderSlainChance_Value = GetOptionValue(xmlDoc, "CommanderSlainChance", "8");
+                var CommanderPrisonerChance_Value = GetOptionValue(xmlDoc, "CommanderPrisonerChance", "65");
 
-                var KnightWoundedChance_Value = GetOptionValue(xmlDoc, "KnightWoundedChance", "50");
-                var KnightSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "KnightSeverelyInjuredChance", "20");
-                var KnightBrutallyMauledChance_Value = GetOptionValue(xmlDoc, "KnightBrutallyMauledChance", "20");
-                var KnightMaimedChance_Value = GetOptionValue(xmlDoc, "KnightMaimedChance", "3");
-                var KnightOneLeggedChance_Value = GetOptionValue(xmlDoc, "KnightOneLeggedChance", "3");
+                var KnightWoundedChance_Value = GetOptionValue(xmlDoc, "KnightWoundedChance", "65");
+                var KnightSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "KnightSeverelyInjuredChance", "10");
+                var KnightBrutallyMauledChance_Value = GetOptionValue(xmlDoc, "KnightBrutallyMauledChance", "5");
+                var KnightMaimedChance_Value = GetOptionValue(xmlDoc, "KnightMaimedChance", "5");
+                var KnightOneLeggedChance_Value = GetOptionValue(xmlDoc, "KnightOneLeggedChance", "2");
                 var KnightOneEyedChance_Value = GetOptionValue(xmlDoc, "KnightOneEyedChance", "3");
-                var KnightDisfiguredChance_Value = GetOptionValue(xmlDoc, "KnightDisfiguredChance", "1");
-                var KnightSlainChance_Value = GetOptionValue(xmlDoc, "KnightSlainChance", "15");
-                var KnightPrisonerChance_Value = GetOptionValue(xmlDoc, "KnightPrisonerChance", "25");
+                var KnightDisfiguredChance_Value = GetOptionValue(xmlDoc, "KnightDisfiguredChance", "2");
+                var KnightSlainChance_Value = GetOptionValue(xmlDoc, "KnightSlainChance", "8");
+                var KnightPrisonerChance_Value = GetOptionValue(xmlDoc, "KnightPrisonerChance", "65");
 
                 // Add new OptInPreReleases option
                 var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
