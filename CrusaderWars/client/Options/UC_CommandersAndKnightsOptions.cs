@@ -118,7 +118,7 @@ namespace CrusaderWars.client.Options
             numCommanderOneEyed.Value = 3;
             numCommanderDisfigured.Value = 2;
             numCommanderSlain.Value = 8;
-            numCommanderPrisoner.Value = 25;
+            numCommanderPrisoner.Value = 60;
 
             // Knight Defaults
             numKnightWounded.Value = 65;
@@ -129,7 +129,7 @@ namespace CrusaderWars.client.Options
             numKnightOneEyed.Value = 3;
             numKnightDisfigured.Value = 2;
             numKnightSlain.Value = 8;
-            numKnightPrisoner.Value = 25;
+            numKnightPrisoner.Value = 60;
 
             UpdateCommanderTotal();
             UpdateKnightTotal();
