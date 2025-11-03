@@ -1716,7 +1716,7 @@ namespace CrusaderWars.data.battle_results
         }
 
 
-        public static void EditCombatFile(List<Army> attacker_armies, List<Army> defender_armies, string player_armies_combat_side, string enemy_armies_combat_side, string path_attila_log)
+        public static void EditCombatFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat file using block replacement...");
 
@@ -1934,16 +1934,8 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug($"Setting battle winner to: {winner}");
             try
             {
-                if (winner == "attacker")
-                {
-                    IsAttackerVictorious = true;
-                    Program.Logger.Debug("Battle winner is attacker. IsAttackerVictorious = true.");
-                }
-                else
-                {
-                    IsAttackerVictorious = false;
-                    Program.Logger.Debug("Battle winner is defender. IsAttackerVictorious = false.");
-                }
+                // IsAttackerVictorious is now set authoritatively in BattleProcessor before any file edits.
+                // This method now only modifies the Player_Combat string.
 
                 //Set pursuit phase
                 Player_Combat = Regex.Replace(Player_Combat ?? string.Empty, @"(phase=)\w+", "$1" + "pursuit");
@@ -2434,7 +2426,6 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
-            // Determine winner here since EditCombatFile might be skipped for standard sieges
             Program.Logger.Debug($"Using pre-determined battle winner. IsAttackerVictorious: {IsAttackerVictorious}");
 
 

@@ -861,7 +861,7 @@ namespace CrusaderWars.twbattle
                         var mobile_defender_armies = defender_armies.Where(a => !a.IsGarrison()).ToList();
 
                         //  EDIT COMBATS FILE
-                        BattleResult.EditCombatFile(mobile_attacker_armies, mobile_defender_armies, left_side[0].CombatSide, right_side[0].CombatSide, path_log_attila);
+                        BattleResult.EditCombatFile(mobile_attacker_armies, mobile_defender_armies);
                         //  EDIT COMBATS RESULTS FILE
                         BattleResult.EditCombatResultsFile(mobile_attacker_armies, mobile_defender_armies);
                     }
