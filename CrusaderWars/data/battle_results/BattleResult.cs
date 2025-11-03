@@ -1728,7 +1728,7 @@ namespace CrusaderWars.data.battle_results
             }
 
             // 1. Set winner and phase changes on the main Player_Combat string
-            string winner = GetAttilaWinner(path_attila_log, player_armies_combat_side, enemy_armies_combat_side);
+            string winner = IsAttackerVictorious ? "attacker" : "defender";
             SetWinner(winner); // This modifies Player_Combat in memory
 
             // 2. Isolate Attacker and Defender blocks to prevent regex cross-contamination
@@ -2435,9 +2435,8 @@ namespace CrusaderWars.data.battle_results
             }
 
             // Determine winner here since EditCombatFile might be skipped for standard sieges
-            string winner = GetAttilaWinner(path_log_attila, attacker_side, defender_side);
-            IsAttackerVictorious = (winner == "attacker");
-            Program.Logger.Debug($"Siege battle winner determined: {winner}. IsAttackerVictorious set to: {IsAttackerVictorious}");
+            Program.Logger.Debug($"Using pre-determined battle winner. IsAttackerVictorious: {IsAttackerVictorious}");
+
 
             if (string.IsNullOrEmpty(SiegeID))
             {

@@ -842,6 +842,12 @@ namespace CrusaderWars.twbattle
                     BattleResult.LogPostBattleReport(defender_armies, originalDefenderSizes, "DEFENDER");
                     // --- END: Call new logging method ---
 
+                    // DETERMINE WINNER FIRST so EditLivingFile can correctly calculate prisoner chances
+                    string winner = BattleResult.GetAttilaWinner(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide);
+                    BattleResult.IsAttackerVictorious = (winner == "attacker");
+                    Program.Logger.Debug($"Battle winner determined: {winner}. IsAttackerVictorious set to: {BattleResult.IsAttackerVictorious}");
+
+
                     //  EDIT LIVING FILE
                     Program.Logger.Debug("Editing Living.txt file...");
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
