@@ -131,7 +131,6 @@ namespace CrusaderWars
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
             Units_Tab = new UC_UnitsOptions();
-            BattleScale_Tab = new UC_BattleScaleOptions();
             CandK_Tab = new UC_CommandersAndKnightsOptions();
 
             SubmodManager.LoadActiveSubmods();
@@ -163,7 +162,6 @@ namespace CrusaderWars
          */
         UserControl General_Tab = null!;
         UserControl Units_Tab = null!;
-        UserControl BattleScale_Tab = null!;
         UC_CommandersAndKnightsOptions CandK_Tab = null!; // Changed type to UC_CommandersAndKnightsOptions
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
@@ -175,12 +173,6 @@ namespace CrusaderWars
         {
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != Units_Tab)
                 ChangeOptionsTab(Units_Tab);
-        }
-
-        private void Btn_BattleScaleTab_Click(object sender, EventArgs e)
-        {
-            if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != BattleScale_Tab)
-                ChangeOptionsTab(BattleScale_Tab);
         }
 
         private void Btn_CandKTab_Click(object sender, EventArgs e)
@@ -203,26 +195,21 @@ namespace CrusaderWars
             // Reset all buttons
             Btn_GeneralTab.BackgroundImage = null;
             Btn_UnitsTab.BackgroundImage = null;
-            Btn_BattleScaleTab.BackgroundImage = null;
             Btn_CandKTab.BackgroundImage = null;
             Btn_GeneralTab.BackColor = inactiveColor;
             Btn_UnitsTab.BackColor = inactiveColor;
-            Btn_BattleScaleTab.BackColor = inactiveColor;
             Btn_CandKTab.BackColor = inactiveColor;
             Btn_GeneralTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_UnitsTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            Btn_BattleScaleTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_CandKTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_GeneralTab.FlatAppearance.BorderSize = 1;
             Btn_UnitsTab.FlatAppearance.BorderSize = 1;
-            Btn_BattleScaleTab.FlatAppearance.BorderSize = 1;
             Btn_CandKTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
             Button? activeButton = null;
             if (control == General_Tab) activeButton = Btn_GeneralTab;
             else if (control == Units_Tab) activeButton = Btn_UnitsTab;
-            else if (control == BattleScale_Tab) activeButton = Btn_BattleScaleTab;
             else if (control == CandK_Tab) activeButton = Btn_CandKTab;
 
             if (activeButton != null)
@@ -370,8 +357,8 @@ namespace CrusaderWars
                 var InfantryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
                 var CavalryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
 
-                var BattleScale_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
-                var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
+                var BattleScale_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
+                var AutoScaleUnits_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
                 // Commander NumericUpDowns
                 var numCommanderWounded = CandK_Tab.numCommanderWounded;
@@ -560,8 +547,8 @@ namespace CrusaderWars
                 var InfantryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
                 var CavalryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
 
-                var BattleScale_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
-                var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
+                var BattleScale_ComboBox = Units_Tab.Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
+                var AutoScaleUnits_ComboBox = Units_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
                 // Commander NumericUpDowns
                 var numCommanderWounded = CandK_Tab.numCommanderWounded;

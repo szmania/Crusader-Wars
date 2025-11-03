@@ -50,7 +50,6 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.Btn_GeneralTab = new System.Windows.Forms.Button();
             this.Btn_UnitsTab = new System.Windows.Forms.Button();
-            this.Btn_BattleScaleTab = new System.Windows.Forms.Button();
             this.Btn_CandKTab = new System.Windows.Forms.Button();
             this.toggleModManagerButton = new System.Windows.Forms.Button();
             this.ModManager = new System.Windows.Forms.DataGridView();
@@ -224,7 +223,6 @@
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel1.Controls.Add(this.Btn_GeneralTab);
             this.flowLayoutPanel1.Controls.Add(this.Btn_UnitsTab);
-            this.flowLayoutPanel1.Controls.Add(this.Btn_BattleScaleTab);
             this.flowLayoutPanel1.Controls.Add(this.Btn_CandKTab);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 24);
@@ -263,31 +261,12 @@
             this.Btn_UnitsTab.ForeColor = System.Drawing.Color.White;
             this.Btn_UnitsTab.Location = new System.Drawing.Point(78, 3);
             this.Btn_UnitsTab.Name = "Btn_UnitsTab";
-            this.Btn_UnitsTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_UnitsTab.Size = new System.Drawing.Size(97, 28);
             this.Btn_UnitsTab.TabIndex = 1;
-            this.Btn_UnitsTab.Text = "Units Max";
+            this.Btn_UnitsTab.Text = "Units & Scale";
             this.Btn_UnitsTab.UseVisualStyleBackColor = false;
             this.Btn_UnitsTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_UnitsTab.Click += new System.EventHandler(this.Btn_UnitsTab_Click);
-            // 
-            // Btn_BattleScaleTab
-            // 
-            this.Btn_BattleScaleTab.AutoSize = true;
-            this.Btn_BattleScaleTab.BackColor = System.Drawing.Color.LightGray;
-            this.Btn_BattleScaleTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_BattleScaleTab.BackgroundImage")));
-            this.Btn_BattleScaleTab.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Btn_BattleScaleTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.Btn_BattleScaleTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Btn_BattleScaleTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Btn_BattleScaleTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_BattleScaleTab.Location = new System.Drawing.Point(164, 3);
-            this.Btn_BattleScaleTab.Name = "Btn_BattleScaleTab";
-            this.Btn_BattleScaleTab.Size = new System.Drawing.Size(97, 28);
-            this.Btn_BattleScaleTab.TabIndex = 2;
-            this.Btn_BattleScaleTab.Text = "Battle Scale";
-            this.Btn_BattleScaleTab.UseVisualStyleBackColor = false;
-            this.Btn_BattleScaleTab.Click += new System.EventHandler(this.Btn_BattleScaleTab_Click);
-            this.Btn_BattleScaleTab.Cursor = System.Windows.Forms.Cursors.Hand;
             // 
             // Btn_CandKTab
             // 
@@ -299,7 +278,7 @@
             this.Btn_CandKTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CandKTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_CandKTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_CandKTab.Location = new System.Drawing.Point(267, 3);
+            this.Btn_CandKTab.Location = new System.Drawing.Point(181, 3);
             this.Btn_CandKTab.Name = "Btn_CandKTab";
             this.Btn_CandKTab.Size = new System.Drawing.Size(100, 28);
             this.Btn_CandKTab.TabIndex = 3;
@@ -679,7 +658,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button Btn_GeneralTab;
         private System.Windows.Forms.Button Btn_UnitsTab;
-        private System.Windows.Forms.Button Btn_BattleScaleTab;
         private System.Windows.Forms.Button Btn_CandKTab;
         private System.Windows.Forms.Button toggleModManagerButton;
         private System.Windows.Forms.DataGridView ModManager;
