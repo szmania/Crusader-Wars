@@ -1742,13 +1742,14 @@ namespace CrusaderWars.unit_mapper
 
                         string heritage_name = heritage.Attributes?["name"]?.Value ?? string.Empty;                       
 
-                        if(heritage_name == HeritageName)
+                        if(heritage_name == HeritageName && !string.IsNullOrEmpty(HeritageName))
                         {
                             string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
                             if (!string.IsNullOrEmpty(found_heritage_faction))
                             {
                                 heritage_mapping = (found_heritage_faction, currentFile);
-                                Program.Logger.Debug($"  - Found/Updated heritage mapping: {HeritageName} -> {heritage_mapping.faction}");
+                                culture_mapping = ("", ""); // Reset culture mapping to ensure heritage override takes priority
+                                Program.Logger.Debug($"  - Found/Updated heritage mapping: {HeritageName} -> {heritage_mapping.faction}. Culture mapping was reset.");
                             }
 
                             foreach(XmlNode culture in heritage.ChildNodes)
