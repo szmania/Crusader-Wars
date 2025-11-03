@@ -47,6 +47,8 @@ namespace CrusaderWars.client
             this.OptionSelection_BattleMapsSize = new System.Windows.Forms.ComboBox();
             this.OptionSelection_DefensiveDeployables = new System.Windows.Forms.ComboBox();
             this.OptionSelection_UnitCards = new System.Windows.Forms.ComboBox();
+            this.label_SiegeEngines = new System.Windows.Forms.Label();
+            this.OptionSelection_SiegeEngines = new System.Windows.Forms.ComboBox();
             this.General_ToopTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -72,22 +74,25 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_BattleMapsSize, 1, 5);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_DefensiveDeployables, 1, 4);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_UnitCards, 1, 6);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SeparateArmies, 1, 7);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SeparateArmies, 1, 8);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.label_SiegeEngines, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SiegeEngines, 1, 7);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 9;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.11111F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(544, 288);
+            this.tableLayoutPanel1.RowCount = 10;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(544, 320);
             this.tableLayoutPanel1.TabIndex = 28;
             // 
             // label_CloseCK3
@@ -125,7 +130,7 @@ namespace CrusaderWars.client
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(3, 224);
+            this.label2.Location = new System.Drawing.Point(3, 256);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(129, 19);
             this.label2.TabIndex = 12;
@@ -144,7 +149,7 @@ namespace CrusaderWars.client
             "All Controled",
             "Friendly Only",
             "All Separate"});
-            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(360, 227);
+            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(360, 259);
             this.OptionSelection_SeparateArmies.Name = "OptionSelection_SeparateArmies";
             this.OptionSelection_SeparateArmies.Size = new System.Drawing.Size(181, 26);
             this.OptionSelection_SeparateArmies.TabIndex = 13;
@@ -333,6 +338,37 @@ namespace CrusaderWars.client
             this.General_ToopTip.SetToolTip(this.OptionSelection_UnitCards, "Disabled: Unit card names will be from the Attila mods.\r\nEnabled: Unit card names" +
         " will use the names from CK3.");
             // 
+            // label_SiegeEngines
+            // 
+            this.label_SiegeEngines.AutoSize = true;
+            this.label_SiegeEngines.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_SiegeEngines.ForeColor = System.Drawing.Color.White;
+            this.label_SiegeEngines.Location = new System.Drawing.Point(3, 224);
+            this.label_SiegeEngines.Name = "label_SiegeEngines";
+            this.label_SiegeEngines.Size = new System.Drawing.Size(222, 19);
+            this.label_SiegeEngines.TabIndex = 16;
+            this.label_SiegeEngines.Text = "Siege Engines in Field Battles:";
+            // 
+            // OptionSelection_SiegeEngines
+            // 
+            this.OptionSelection_SiegeEngines.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.OptionSelection_SiegeEngines.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_SiegeEngines.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OptionSelection_SiegeEngines.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_SiegeEngines.FormattingEnabled = true;
+            this.OptionSelection_SiegeEngines.Items.AddRange(new object[] {
+            "Enabled",
+            "Disabled"});
+            this.OptionSelection_SiegeEngines.Location = new System.Drawing.Point(360, 227);
+            this.OptionSelection_SiegeEngines.Name = "OptionSelection_SiegeEngines";
+            this.OptionSelection_SiegeEngines.Size = new System.Drawing.Size(181, 26);
+            this.OptionSelection_SiegeEngines.TabIndex = 17;
+            this.General_ToopTip.SetToolTip(this.OptionSelection_SiegeEngines, "Enabled: Siege engines (e.g. trebuchets, mangonels) can appear in field battles.\r" +
+        "\nDisabled: Siege engines will be excluded from field battles. This does not aff" +
+        "ect sieges.");
+            // 
             // General_ToopTip
             // 
             this.General_ToopTip.AutoPopDelay = 1000000;
@@ -376,5 +412,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.ComboBox OptionSelection_SeparateArmies;
         private System.Windows.Forms.Label label_CloseCK3;
         private System.Windows.Forms.ComboBox OptionSelection_CloseCK3;
+        private System.Windows.Forms.Label label_SiegeEngines;
+        private System.Windows.Forms.ComboBox OptionSelection_SiegeEngines;
     }
 }

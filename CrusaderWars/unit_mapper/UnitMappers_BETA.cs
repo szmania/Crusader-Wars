@@ -1441,41 +1441,53 @@ namespace CrusaderWars.unit_mapper
 
         public static (string, bool) GetUnitKey(Unit unit)
         {
+            (string unit_key, bool isSiege) result;
+
             // If the unit is a Garrison unit, its key is already set directly from the XML
             if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty) // Changed from unit.GetName() == "Garrison"
             {
-                return ProcessUnitKeyResult(unit, unit.GetAttilaUnitKey(), false); // Garrison units are not siege weapons
-            }
-
-            var (unit_key, isSiege) = SearchInTitlesFile(unit);
-            if (unit_key != NOT_FOUND_KEY)
-            {
-                return ProcessUnitKeyResult(unit, unit_key, isSiege);
-            }
-
-            (unit_key, isSiege) = SearchInFactionFiles(unit);
-            if (unit_key != NOT_FOUND_KEY)
-            {
-                return ProcessUnitKeyResult(unit, unit_key, isSiege);
-            }
-
-            // Fallback to default unit if no specific mapping is found
-            var (default_key, defaultIsSiege) = GetDefaultUnitKey(unit);
-            if (default_key != NOT_FOUND_KEY)
-            {
-                Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
-                return ProcessUnitKeyResult(unit, default_key, defaultIsSiege);
-            }
-
-            if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
-            {
-                Program.Logger.Debug($"  - INFO: No single key mapping for '{unit.GetName()}' (Type: {unit.GetRegimentType()}). This is expected as they are processed as a composition later.");
+                result = (unit.GetAttilaUnitKey(), false); // Garrison units are not siege weapons
             }
             else
             {
-                Program.Logger.Debug($"  - ERROR: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
+                result = SearchInTitlesFile(unit);
+                if (result.unit_key == NOT_FOUND_KEY)
+                {
+                    result = SearchInFactionFiles(unit);
+                }
+                if (result.unit_key == NOT_FOUND_KEY)
+                {
+                    var (default_key, defaultIsSiege) = GetDefaultUnitKey(unit);
+                    if (default_key != NOT_FOUND_KEY)
+                    {
+                        Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
+                        result = (default_key, defaultIsSiege);
+                    }
+                    else
+                    {
+                        if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
+                        {
+                            Program.Logger.Debug($"  - INFO: No single key mapping for '{unit.GetName()}' (Type: {unit.GetRegimentType()}). This is expected as they are processed as a composition later.");
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"  - ERROR: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
+                        }
+                        result = (NOT_FOUND_KEY, false);
+                    }
+                }
             }
-            return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, false); // This will be the found key or NOT_FOUND_KEY
+
+            // Centralized check for siege engines in field battles
+            bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
+
+            if (result.isSiege && !BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles)
+            {
+                Program.Logger.Debug($"Excluding siege unit '{unit.GetName()}' (key: {result.unit_key}) from field battle as per option.");
+                return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, false);
+            }
+
+            return ProcessUnitKeyResult(unit, result.unit_key, result.isSiege);
         }
 
         private static string GetUnitMaxCategory(Unit unit)
