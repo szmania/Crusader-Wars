@@ -973,6 +973,23 @@ namespace CrusaderWars.data.battle_results
             string playerCharId = DataSearch.Player_Character.GetID();
             string? playerHeirId = DataSearch.Player_Heir_ID;
 
+            // --- Determine which combat side corresponds to the "left" side from CK3 log data ---
+            string leftSideCombatRole = "";
+            string leftSideParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+            if (!string.IsNullOrEmpty(leftSideParticipantId))
+            {
+                if (attacker_armies.Any(a => a.Owner?.GetID() == leftSideParticipantId || a.Commander?.GetID() == leftSideParticipantId || (a.MergedArmies != null && a.MergedArmies.Any(ma => ma.Owner?.GetID() == leftSideParticipantId || ma.Commander?.GetID() == leftSideParticipantId))))
+                {
+                    leftSideCombatRole = "attacker";
+                }
+                else if (defender_armies.Any(a => a.Owner?.GetID() == leftSideParticipantId || a.Commander?.GetID() == leftSideParticipantId || (a.MergedArmies != null && a.MergedArmies.Any(ma => ma.Owner?.GetID() == leftSideParticipantId || ma.Commander?.GetID() == leftSideParticipantId))))
+                {
+                    leftSideCombatRole = "defender";
+                }
+            }
+            Program.Logger.Debug($"Determined Left Side combat role: {leftSideCombatRole}");
+
+
             // --- PASS 1: Determine all health outcomes ---
             Program.Logger.Debug("Living file: Starting Pass 1 (Determine outcomes)");
             var healthOutcomes = new Dictionary<string, (bool isSlain, bool isCaptured, string newTraits)>();
@@ -1006,8 +1023,8 @@ namespace CrusaderWars.data.battle_results
 
                                 if (traitsLine != null)
                                 {
-                                    bool wasOnLosingSide = (searchData.army.CombatSide == "left" && !IsAttackerVictorious) ||
-                                                           (searchData.army.CombatSide == "right" && IsAttackerVictorious);
+                                    bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
+                                                           (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
 
                                     (bool isSlain, bool isCaptured, string newTraits) healthResult;
                                     if (searchData.isCommander)
@@ -1112,7 +1129,9 @@ namespace CrusaderWars.data.battle_results
                                     if (characterArmy != null)
                                     {
                                         string imprisonerId = "";
-                                        if (characterArmy.CombatSide == "left")
+                                        bool isCharacterOnLeftSide = !string.IsNullOrEmpty(leftSideCombatRole) && characterArmy.CombatSide == leftSideCombatRole;
+
+                                        if (isCharacterOnLeftSide)
                                         {
                                             imprisonerId = CK3LogData.RightSide.GetMainParticipant().id;
                                         }
@@ -1124,7 +1143,7 @@ namespace CrusaderWars.data.battle_results
                                         // Fallback logic
                                         if (string.IsNullOrEmpty(imprisonerId))
                                         {
-                                            if (characterArmy.CombatSide == "left") // Character was on left side, winner is right side
+                                            if (isCharacterOnLeftSide) // Character was on left side, winner is right side
                                             {
                                                 imprisonerId = CK3LogData.RightSide.GetCommander().id;
                                             }
