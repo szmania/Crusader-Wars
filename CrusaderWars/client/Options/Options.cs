@@ -286,7 +286,7 @@ namespace CrusaderWars
                 var CommanderOneEyedChance_Value = GetOptionValue(xmlDoc, "CommanderOneEyedChance", "3");
                 var CommanderDisfiguredChance_Value = GetOptionValue(xmlDoc, "CommanderDisfiguredChance", "2");
                 var CommanderSlainChance_Value = GetOptionValue(xmlDoc, "CommanderSlainChance", "8");
-                var CommanderPrisonerChance_Value = GetOptionValue(xmlDoc, "CommanderPrisonerChance", "50");
+                var CommanderPrisonerChance_Value = GetOptionValue(xmlDoc, "CommanderPrisonerChance", "60");
 
                 var KnightWoundedChance_Value = GetOptionValue(xmlDoc, "KnightWoundedChance", "65");
                 var KnightSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "KnightSeverelyInjuredChance", "10");
@@ -296,7 +296,7 @@ namespace CrusaderWars
                 var KnightOneEyedChance_Value = GetOptionValue(xmlDoc, "KnightOneEyedChance", "3");
                 var KnightDisfiguredChance_Value = GetOptionValue(xmlDoc, "KnightDisfiguredChance", "2");
                 var KnightSlainChance_Value = GetOptionValue(xmlDoc, "KnightSlainChance", "8");
-                var KnightPrisonerChance_Value = GetOptionValue(xmlDoc, "KnightPrisonerChance", "50");
+                var KnightPrisonerChance_Value = GetOptionValue(xmlDoc, "KnightPrisonerChance", "60");
 
                 // Add new OptInPreReleases option
                 var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
