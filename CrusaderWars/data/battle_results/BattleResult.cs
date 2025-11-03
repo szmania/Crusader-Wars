@@ -975,7 +975,7 @@ namespace CrusaderWars.data.battle_results
 
             // --- PASS 1: Determine all health outcomes ---
             Program.Logger.Debug("Living file: Starting Pass 1 (Determine outcomes)");
-            var healthOutcomes = new Dictionary<string, (bool isSlain, string newTraits)>();
+            var healthOutcomes = new Dictionary<string, (bool isSlain, bool isCaptured, string newTraits)>();
             bool playerIsSlain = false;
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
@@ -1006,7 +1006,7 @@ namespace CrusaderWars.data.battle_results
 
                                 if (traitsLine != null)
                                 {
-                                    (bool isSlain, string newTraits) healthResult;
+                                    (bool isSlain, bool isCaptured, string newTraits) healthResult;
                                     if (searchData.isCommander)
                                     {
                                         healthResult = searchData.commander.Health(traitsLine);
@@ -1091,12 +1091,63 @@ namespace CrusaderWars.data.battle_results
                                     charBlock.Insert(closingBraceIndex + 3, "\t}");
                                 }
                             }
-                            else // Wounded
+                            else // Wounded or Captured
                             {
+                                // Apply wound traits first
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
                                 if (traitsLineIndex != -1)
                                 {
                                     charBlock[traitsLineIndex] = outcome.newTraits;
+                                }
+
+                                // If captured, add prison_data block
+                                if (outcome.isCaptured)
+                                {
+                                    // Find the character's army to determine their side
+                                    Army characterArmy = null;
+                                    var searchData = SearchCharacters(char_id, allArmies);
+                                    if (searchData.searchStarted)
+                                    {
+                                        foreach (var army in allArmies)
+                                        {
+                                            if (searchData.isCommander && army.Commander == searchData.commander) { characterArmy = army; break; }
+                                            if (searchData.isKnight && army.Knights?.GetKnightsList().Contains(searchData.knight) == true) { characterArmy = army; break; }
+                                        }
+                                    }
+
+                                    if (characterArmy != null)
+                                    {
+                                        string imprisonerId = characterArmy.CombatSide == "left"
+                                            ? CK3LogData.RightSide.GetMainParticipant().id
+                                            : CK3LogData.LeftSide.GetMainParticipant().id;
+
+                                        string dateString = $"{Date.Year}.{Date.Month}.{Date.Day}";
+
+                                        var prisonBlock = new List<string>
+                                        {
+                                            "\t\tprison_data={",
+                                            $"\t\t\timprisoner={imprisonerId}",
+                                            $"\t\t\tdate={dateString}",
+                                            $"\t\t\timprison_type_date={dateString}",
+                                            "\t\t\ttype=house_arrest",
+                                            "\t\t}"
+                                        };
+
+                                        int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                                        if (aliveDataIndex != -1)
+                                        {
+                                            charBlock.InsertRange(aliveDataIndex + 1, prisonBlock);
+                                            Program.Logger.Debug($"Character {char_id} captured by {imprisonerId}. Adding prison_data block.");
+                                        }
+                                        else
+                                        {
+                                            Program.Logger.Debug($"Warning: Could not find alive_data block for captured character {char_id}.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Program.Logger.Debug($"Warning: Could not find army for captured character {char_id}.");
+                                    }
                                 }
                             }
                         }

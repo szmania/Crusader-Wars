@@ -354,7 +354,7 @@ namespace CrusaderWars
         }
         
 
-        public (bool isSlain, string newTraits) Health(string traits_line)
+        public (bool isSlain, bool isCaptured, string newTraits) Health(string traits_line)
         {
             if (hasFallen)
             {
@@ -367,6 +367,7 @@ namespace CrusaderWars
                 int oneLeggedChance = client.ModOptions.GetCommanderOneLeggedChance();
                 int oneEyedChance = client.ModOptions.GetCommanderOneEyedChance();
                 int disfiguredChance = client.ModOptions.GetCommanderDisfiguredChance();
+                int prisonerChance = client.ModOptions.GetCommanderPrisonerChance();
 
                 // Calculate cumulative thresholds
                 int slainThreshold = slainChance;
@@ -384,46 +385,58 @@ namespace CrusaderWars
                 if (RandomNumber <= slainThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} has been slain in battle (chance: {slainChance}%).");
-                    return (true, traits_line);
+                    return (true, false, traits_line);
                 }
-                else if (RandomNumber <= woundedThreshold)
+
+                string newTraits = traits_line;
+                if (RandomNumber <= woundedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Wounded");
-                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Wounded().ToString()));
+                    newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Wounded().ToString());
                 }
                 else if (RandomNumber <= severelyInjuredThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Severely Injured");
-                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Severely_Injured().ToString()));
+                    newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Severely_Injured().ToString());
                 }
                 else if (RandomNumber <= brutallyMauledThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Brutally Mauled");
-                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Brutally_Mauled().ToString()));
+                    newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Brutally_Mauled().ToString());
                 }
                 else if (RandomNumber <= maimedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Maimed");
-                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Maimed().ToString()));
+                    newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Maimed().ToString());
                 }
                 else if (RandomNumber <= oneLeggedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got One Legged");
-                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Legged().ToString()));
+                    newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Legged().ToString());
                 }
                 else if (RandomNumber <= oneEyedThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got One Eyed");
-                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Eyed().ToString()));
+                    newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.One_Eyed().ToString());
                 }
                 else if (RandomNumber <= disfiguredThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} got Disfigured");
-                    return (false, CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString()));
+                    newTraits = CharacterWounds.VerifyTraits(traits_line, WoundedTraits.Disfigured().ToString());
                 }
+
+                // If survived, roll for capture
+                var prisonerRng = CharacterSharedRandom.Rng.Next(1, 101);
+                bool isCaptured = prisonerRng <= prisonerChance;
+                if (isCaptured)
+                {
+                    Program.Logger.Debug($"Commander {ID} has been captured (chance: {prisonerChance}%).");
+                }
+
+                return (false, isCaptured, newTraits);
             }
 
-            return (false, traits_line);
+            return (false, false, traits_line);
         }
     }
 }

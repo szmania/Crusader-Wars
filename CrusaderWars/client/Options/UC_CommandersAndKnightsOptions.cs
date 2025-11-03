@@ -118,6 +118,7 @@ namespace CrusaderWars.client.Options
             numCommanderOneEyed.Value = 3;
             numCommanderDisfigured.Value = 1;
             numCommanderSlain.Value = 15;
+            numCommanderPrisoner.Value = 25;
 
             // Knight Defaults
             numKnightWounded.Value = 35;
@@ -128,6 +129,7 @@ namespace CrusaderWars.client.Options
             numKnightOneEyed.Value = 3;
             numKnightDisfigured.Value = 1;
             numKnightSlain.Value = 15;
+            numKnightPrisoner.Value = 25;
 
             UpdateCommanderTotal();
             UpdateKnightTotal();
@@ -167,6 +169,10 @@ namespace CrusaderWars.client.Options
             toolTip1.SetToolTip(lblKnightDisfigured, "Chance for knight to be disfigured when fallen in battle");
             toolTip1.SetToolTip(numCommanderSlain, "Chance for a commander to be slain when they fall in battle. This is included in the 100% total chance.");
             toolTip1.SetToolTip(numKnightSlain, "Chance for a knight to be slain when they fall in battle. This is included in the 100% total chance.");
+            toolTip1.SetToolTip(lblCommanderPrisoner, "Chance for a commander to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
+            toolTip1.SetToolTip(numCommanderPrisoner, "Chance for a commander to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
+            toolTip1.SetToolTip(lblKnightPrisoner, "Chance for a knight to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
+            toolTip1.SetToolTip(numKnightPrisoner, "Chance for a knight to be taken prisoner if they survive falling in battle. This is a separate roll and not part of the 100% total.");
             
             // Add tooltip to reset button
             toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");
@@ -218,5 +224,7 @@ namespace CrusaderWars.client.Options
 
         public int GetCommanderSlainChance() => (int)numCommanderSlain.Value;
         public int GetKnightSlainChance() => (int)numKnightSlain.Value;
+        public int GetCommanderPrisonerChance() => (int)numCommanderPrisoner.Value;
+        public int GetKnightPrisonerChance() => (int)numKnightPrisoner.Value;
     }
 }
