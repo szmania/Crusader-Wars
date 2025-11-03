@@ -286,6 +286,7 @@ namespace CrusaderWars
                 var CommanderOneEyedChance_Value = GetOptionValue(xmlDoc, "CommanderOneEyedChance", "3");
                 var CommanderDisfiguredChance_Value = GetOptionValue(xmlDoc, "CommanderDisfiguredChance", "1");
                 var CommanderSlainChance_Value = GetOptionValue(xmlDoc, "CommanderSlainChance", "15");
+                var CommanderPrisonerChance_Value = GetOptionValue(xmlDoc, "CommanderPrisonerChance", "25");
 
                 var KnightWoundedChance_Value = GetOptionValue(xmlDoc, "KnightWoundedChance", "50");
                 var KnightSeverelyInjuredChance_Value = GetOptionValue(xmlDoc, "KnightSeverelyInjuredChance", "20");
@@ -295,6 +296,7 @@ namespace CrusaderWars
                 var KnightOneEyedChance_Value = GetOptionValue(xmlDoc, "KnightOneEyedChance", "3");
                 var KnightDisfiguredChance_Value = GetOptionValue(xmlDoc, "KnightDisfiguredChance", "1");
                 var KnightSlainChance_Value = GetOptionValue(xmlDoc, "KnightSlainChance", "15");
+                var KnightPrisonerChance_Value = GetOptionValue(xmlDoc, "KnightPrisonerChance", "25");
 
                 // Add new OptInPreReleases option
                 var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
@@ -325,6 +327,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("CommanderOneEyedChance", CommanderOneEyedChance_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderDisfiguredChance", CommanderDisfiguredChance_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderSlainChance", CommanderSlainChance_Value);
+                ModOptions.optionsValuesCollection.Add("CommanderPrisonerChance", CommanderPrisonerChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightWoundedChance", KnightWoundedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightSeverelyInjuredChance", KnightSeverelyInjuredChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightBrutallyMauledChance", KnightBrutallyMauledChance_Value);
@@ -333,6 +336,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("KnightOneEyedChance", KnightOneEyedChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightDisfiguredChance", KnightDisfiguredChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightSlainChance", KnightSlainChance_Value);
+                ModOptions.optionsValuesCollection.Add("KnightPrisonerChance", KnightPrisonerChance_Value);
                 ModOptions.optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
                 Program.Logger.Debug("Options collection populated.");
 
@@ -378,6 +382,7 @@ namespace CrusaderWars
                 var numCommanderOneEyed = CandK_Tab.Controls.Find("numCommanderOneEyed", true).FirstOrDefault() as NumericUpDown;
                 var numCommanderDisfigured = CandK_Tab.Controls.Find("numCommanderDisfigured", true).FirstOrDefault() as NumericUpDown;
                 var numCommanderSlain = CandK_Tab.Controls.Find("numCommanderSlain", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderPrisoner = CandK_Tab.Controls.Find("numCommanderPrisoner", true).FirstOrDefault() as NumericUpDown;
 
                 // Knight NumericUpDowns
                 var numKnightWounded = CandK_Tab.Controls.Find("numKnightWounded", true).FirstOrDefault() as NumericUpDown;
@@ -388,6 +393,7 @@ namespace CrusaderWars
                 var numKnightOneEyed = CandK_Tab.Controls.Find("numKnightOneEyed", true).FirstOrDefault() as NumericUpDown;
                 var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
                 var numKnightSlain = CandK_Tab.Controls.Find("numKnightSlain", true).FirstOrDefault() as NumericUpDown;
+                var numKnightPrisoner = CandK_Tab.Controls.Find("numKnightPrisoner", true).FirstOrDefault() as NumericUpDown;
 
 
                 CloseCK3_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseCK3"];
@@ -491,6 +497,18 @@ namespace CrusaderWars
                     numKnightSlain.Value = Math.Max(numKnightSlain.Minimum, Math.Min(numKnightSlain.Maximum, val));
                 }
 
+                // Set Prisoner NumericUpDown values with proper validation
+                if (numCommanderPrisoner != null)
+                {
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderPrisonerChance"]);
+                    numCommanderPrisoner.Value = Math.Max(numCommanderPrisoner.Minimum, Math.Min(numCommanderPrisoner.Maximum, val));
+                }
+                if (numKnightPrisoner != null)
+                {
+                    int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightPrisonerChance"]);
+                    numKnightPrisoner.Value = Math.Max(numKnightPrisoner.Minimum, Math.Min(numKnightPrisoner.Maximum, val));
+                }
+
                 // Manually trigger UpdateTotal for CandK_Tab after setting values
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
                 {
@@ -546,6 +564,7 @@ namespace CrusaderWars
                 var numCommanderOneEyed = CandK_Tab.Controls.Find("numCommanderOneEyed", true).FirstOrDefault() as NumericUpDown;
                 var numCommanderDisfigured = CandK_Tab.Controls.Find("numCommanderDisfigured", true).FirstOrDefault() as NumericUpDown;
                 var numCommanderSlain = CandK_Tab.Controls.Find("numCommanderSlain", true).FirstOrDefault() as NumericUpDown;
+                var numCommanderPrisoner = CandK_Tab.Controls.Find("numCommanderPrisoner", true).FirstOrDefault() as NumericUpDown;
 
                 // Knight NumericUpDowns
                 var numKnightWounded = CandK_Tab.Controls.Find("numKnightWounded", true).FirstOrDefault() as NumericUpDown;
@@ -556,6 +575,7 @@ namespace CrusaderWars
                 var numKnightOneEyed = CandK_Tab.Controls.Find("numKnightOneEyed", true).FirstOrDefault() as NumericUpDown;
                 var numKnightDisfigured = CandK_Tab.Controls.Find("numKnightDisfigured", true).FirstOrDefault() as NumericUpDown;
                 var numKnightSlain = CandK_Tab.Controls.Find("numKnightSlain", true).FirstOrDefault() as NumericUpDown;
+                var numKnightPrisoner = CandK_Tab.Controls.Find("numKnightPrisoner", true).FirstOrDefault() as NumericUpDown;
 
 
                 var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
@@ -606,6 +626,8 @@ namespace CrusaderWars
                 if (CommanderDisfiguredChance_Node != null && numCommanderDisfigured != null) CommanderDisfiguredChance_Node.InnerText = numCommanderDisfigured.Value.ToString();
                 var CommanderSlainChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderSlainChance']");
                 if (CommanderSlainChance_Node != null && numCommanderSlain != null) CommanderSlainChance_Node.InnerText = numCommanderSlain.Value.ToString();
+                var CommanderPrisonerChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderPrisonerChance']");
+                if (CommanderPrisonerChance_Node != null && numCommanderPrisoner != null) CommanderPrisonerChance_Node.InnerText = numCommanderPrisoner.Value.ToString();
 
                 // Save Knight NumericUpDown values
                 var KnightWoundedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightWoundedChance']");
@@ -624,6 +646,8 @@ namespace CrusaderWars
                 if (KnightDisfiguredChance_Node != null && numKnightDisfigured != null) KnightDisfiguredChance_Node.InnerText = numKnightDisfigured.Value.ToString();
                 var KnightSlainChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightSlainChance']");
                 if (KnightSlainChance_Node != null && numKnightSlain != null) KnightSlainChance_Node.InnerText = numKnightSlain.Value.ToString();
+                var KnightPrisonerChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightPrisonerChance']");
+                if (KnightPrisonerChance_Node != null && numKnightPrisoner != null) KnightPrisonerChance_Node.InnerText = numKnightPrisoner.Value.ToString();
 
 
                 xmlDoc.Save(file);
