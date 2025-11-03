@@ -813,6 +813,17 @@ namespace CrusaderWars.data.battle_results
                     starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
                 }
 
+                if (unitType == RegimentType.Levy)
+                {
+                    int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
+                    if (ratio > 0 && ratio < 100)
+                    {
+                        double scaleFactor = 100.0 / ratio;
+                        starting = (int)Math.Round(starting * scaleFactor);
+                        Program.Logger.Debug($"Applying reverse scaling to levy 'Starting' count. New value: {starting}");
+                    }
+                }
+
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
