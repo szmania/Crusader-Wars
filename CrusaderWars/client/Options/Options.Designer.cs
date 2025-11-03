@@ -245,6 +245,7 @@
             this.Btn_GeneralTab.Size = new System.Drawing.Size(69, 28);
             this.Btn_GeneralTab.TabIndex = 0;
             this.Btn_GeneralTab.Text = "General";
+            this.ToolTip_Options.SetToolTip(this.Btn_GeneralTab, "General game and battle options.");
             this.Btn_GeneralTab.UseVisualStyleBackColor = false;
             this.Btn_GeneralTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_GeneralTab.Click += new System.EventHandler(this.Btn_GeneralTab_Click);
@@ -264,6 +265,7 @@
             this.Btn_UnitsTab.Size = new System.Drawing.Size(110, 28);
             this.Btn_UnitsTab.TabIndex = 1;
             this.Btn_UnitsTab.Text = "Unit Scale/Max";
+            this.ToolTip_Options.SetToolTip(this.Btn_UnitsTab, "Options for unit sizes and battle scale.");
             this.Btn_UnitsTab.UseVisualStyleBackColor = false;
             this.Btn_UnitsTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_UnitsTab.Click += new System.EventHandler(this.Btn_UnitsTab_Click);
@@ -283,6 +285,7 @@
             this.Btn_CandKTab.Size = new System.Drawing.Size(100, 28);
             this.Btn_CandKTab.TabIndex = 3;
             this.Btn_CandKTab.Text = "Cmdr/Knights";
+            this.ToolTip_Options.SetToolTip(this.Btn_CandKTab, "Options for commander and knight wound and capture chances.");
             this.Btn_CandKTab.UseVisualStyleBackColor = false;
             this.Btn_CandKTab.Click += new System.EventHandler(this.Btn_CandKTab_Click);
             this.Btn_CandKTab.Cursor = System.Windows.Forms.Cursors.Hand;
