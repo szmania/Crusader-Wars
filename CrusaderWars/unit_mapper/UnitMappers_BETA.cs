@@ -28,6 +28,16 @@ namespace CrusaderWars.unit_mapper
         public List<string> Replaces { get; set; } = new List<string>();
     }
 
+    internal class LandBridgeMap
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ProvinceFrom { get; set; } = string.Empty;
+        public string ProvinceTo { get; set; } = string.Empty;
+        public string CK3Type { get; set; } = string.Empty;
+        public string BattleType { get; set; } = string.Empty;
+        public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
+    }
+
     public static class BattleStateBridge
     {
         public static string? BesiegedDeploymentWidth { get; set; }
@@ -78,14 +88,16 @@ namespace CrusaderWars.unit_mapper
         List<(string terrain, string x, string y)> NormalMaps { get; set; }
         public List<SettlementMap> SettlementMaps { get; private set; }
         public List<UniqueSettlementMap> UniqueSettlementMaps { get; private set; }
+        public List<LandBridgeMap> LandBridgeMaps { get; private set; }
 
-        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps)
+        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps, List<LandBridgeMap> landBridgeMaps)
         {
             AttilaMap = attilaMap;
             HistoricalMaps = historicalMaps;    
             NormalMaps = normalMaps;
             SettlementMaps = settlementMaps;
             UniqueSettlementMaps = uniqueSettlementMaps;
+            LandBridgeMaps = landBridgeMaps;
         }
 
         public string GetAttilaMap() { return AttilaMap; }
@@ -233,7 +245,7 @@ namespace CrusaderWars.unit_mapper
             Program.Logger.Debug("Province settlement map cache has been cleared for the new battle.");
         }
 
-        private static int GetDeterministicIndex(string input, int listCount)
+        public static int GetDeterministicIndex(string input, int listCount)
         {
             if (listCount <= 0) return 0;
 
@@ -371,6 +383,7 @@ namespace CrusaderWars.unit_mapper
                 var settlementMapsByCompositeKey = new Dictionary<(string faction, string battleType, string provinces), SettlementMap>();
                 var uniqueSettlementMapsByCompositeKey = new Dictionary<(string battleType, string provinces), UniqueSettlementMap>();
                 var siegeEngines = new Dictionary<string, SiegeEngine>();
+                var landBridgeMaps = new List<LandBridgeMap>();
 
                 foreach (var file in terrainFiles)
                 {
@@ -540,6 +553,42 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
+                        else if (Element.Name == "Land_Bridge_Maps")
+                        {
+                            foreach (XmlElement landBridgeNode in Element.ChildNodes)
+                            {
+                                if (landBridgeNode.Name == "Land_Bridge")
+                                {
+                                    var landBridgeMap = new LandBridgeMap
+                                    {
+                                        Name = landBridgeNode.Attributes?["name"]?.Value ?? string.Empty,
+                                        ProvinceFrom = landBridgeNode.Attributes?["ck3_province_from"]?.Value ?? string.Empty,
+                                        ProvinceTo = landBridgeNode.Attributes?["ck3_province_to"]?.Value ?? string.Empty,
+                                        CK3Type = landBridgeNode.Attributes?["ck3_type"]?.Value ?? string.Empty,
+                                        BattleType = landBridgeNode.Attributes?["battle_type"]?.Value ?? string.Empty,
+                                    };
+
+                                    foreach (XmlElement variantNode in landBridgeNode.ChildNodes)
+                                    {
+                                        if (variantNode.Name == "Variant")
+                                        {
+                                            var variant = new SettlementVariant
+                                            {
+                                                Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
+                                            };
+                                            XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
+                                            if (mapNode != null)
+                                            {
+                                                variant.X = mapNode.Attributes?["x"]?.Value ?? string.Empty;
+                                                variant.Y = mapNode.Attributes?["y"]?.Value ?? string.Empty;
+                                            }
+                                            landBridgeMap.Variants.Add(variant);
+                                        }
+                                    }
+                                    landBridgeMaps.Add(landBridgeMap);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -549,7 +598,7 @@ namespace CrusaderWars.unit_mapper
                 var uniqueSettlementMapsList = uniqueSettlementMapsByCompositeKey.Values.ToList();
                 SiegeEngines.AddRange(siegeEngines.Values);
 
-                Terrains = new TerrainsUM(attilaMap, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList);
+                Terrains = new TerrainsUM(attilaMap, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList, landBridgeMaps);
             }
             catch (Exception ex)
             {
@@ -675,6 +724,13 @@ namespace CrusaderWars.unit_mapper
             }
 
             return requiredMods;
+        }
+
+        public static LandBridgeMap? GetLandBridgeMap(string provinceId)
+        {
+            if (Terrains?.LandBridgeMaps == null) return null;
+
+            return Terrains.LandBridgeMaps.FirstOrDefault(lb => lb.ProvinceFrom == provinceId || lb.ProvinceTo == provinceId);
         }
 
         struct MaxType
