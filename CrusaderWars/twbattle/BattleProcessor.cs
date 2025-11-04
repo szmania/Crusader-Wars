@@ -189,7 +189,7 @@ namespace CrusaderWars.twbattle
                         if (!BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles)
                         {
                             displayableUnmappedUnits = displayableUnmappedUnits
-                                .Where(u => !UnitMappers_BETA.IsUnitTypeSiege(u.RegimentType, u.UnitName, u.AttilaFaction))
+                                .Where(u => !UnitMappers_BETA.IsUnitTypeSiege((RegimentType)Enum.Parse(typeof(RegimentType), u.RegimentType), u.UnitName, u.AttilaFaction))
                                 .ToList();
                         }
 
