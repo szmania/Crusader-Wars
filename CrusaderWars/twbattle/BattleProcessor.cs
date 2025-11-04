@@ -181,25 +181,40 @@ namespace CrusaderWars.twbattle
                     if (BattleLog.HasUnmappedUnits())
                     {
                         var unmappedUnits = BattleLog.GetUnmappedUnits();
-                        var sb = new System.Text.StringBuilder();
-                        sb.AppendLine("Warning: Some CK3 units could not be mapped to Total War: Attila units and were dropped from the battle.");
-                        sb.AppendLine("This usually means a unit from a CK3 mod is not supported by the active Unit Mapper playthrough.");
-                        sb.AppendLine();
-                        sb.AppendLine("Unmapped Units:");
-                        foreach (var u in unmappedUnits.Distinct().ToList())
-                        {
-                            sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
-                        }
-                        sb.AppendLine();
-                        sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team on our Discord server.");
-                        sb.AppendLine();
-                        sb.AppendLine("The battle will proceed without these units.");
 
-                        form.Invoke((System.Windows.Forms.MethodInvoker)delegate {
-                            string messageText = sb.ToString();
-                            string discordUrl = "https://discord.gg/eFZTprHh3j";
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, discordUrl);
-                        });
+                        bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
+                        
+                        var displayableUnmappedUnits = unmappedUnits.Distinct().ToList();
+
+                        if (!BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles)
+                        {
+                            displayableUnmappedUnits = displayableUnmappedUnits
+                                .Where(u => !UnitMappers_BETA.IsUnitTypeSiege(u.RegimentType, u.UnitName, u.AttilaFaction))
+                                .ToList();
+                        }
+
+                        if (displayableUnmappedUnits.Any())
+                        {
+                            var sb = new System.Text.StringBuilder();
+                            sb.AppendLine("Warning: Some CK3 units could not be mapped to Total War: Attila units and were dropped from the battle.");
+                            sb.AppendLine("This usually means a unit from a CK3 mod is not supported by the active Unit Mapper playthrough.");
+                            sb.AppendLine();
+                            sb.AppendLine("Unmapped Units:");
+                            foreach (var u in displayableUnmappedUnits)
+                            {
+                                sb.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
+                            }
+                            sb.AppendLine();
+                            sb.AppendLine("Please report this bug to the Crusader Conflicts Development Team on our Discord server.");
+                            sb.AppendLine();
+                            sb.AppendLine("The battle will proceed without these units.");
+
+                            form.Invoke((System.Windows.Forms.MethodInvoker)delegate {
+                                string messageText = sb.ToString();
+                                string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, discordUrl);
+                            });
+                        }
                     }
 
                     //Close Script
