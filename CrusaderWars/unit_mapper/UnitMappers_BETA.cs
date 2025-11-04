@@ -1372,6 +1372,7 @@ namespace CrusaderWars.unit_mapper
             }
             else
             {
+                bool isPotentiallySiege = false;
                 // Existing logic for MenAtArms
                 foreach (XmlNode node in factionElement.ChildNodes)
                 {
@@ -1383,11 +1384,19 @@ namespace CrusaderWars.unit_mapper
                     if (node.Name == "MenAtArm" && unit.GetRegimentType() == RegimentType.MenAtArms)
                     {
                         if (node.Attributes?["type"]?.Value == unit.GetName())
+                        {
+                            // We found a match for the unit type.
+                            // Check if this definition marks it as a siege unit.
+                            if (node.Attributes?["siege"]?.Value == "true")
                             {
-                            if (node?.Attributes?["key"] != null)
+                                isPotentiallySiege = true;
+                            }
+
+                            // Now, check if there's a key we can use.
+                            if (node.Attributes?["key"]?.Value is string unit_key && !string.IsNullOrEmpty(unit_key))
                             {
-                                string? unit_key = node.Attributes["key"]?.Value;
                                 if (unit_key == keyToExclude) continue;
+                                
                                 bool isSiege = node.Attributes?["siege"]?.Value == "true";
                                 if (isSiege)
                                 {
@@ -1401,11 +1410,14 @@ namespace CrusaderWars.unit_mapper
                                         unit.SetNumGuns(numGuns);
                                     }
                                 }
-                                if (unit_key != null) return (unit_key, isSiege);
+                                return (unit_key, isSiege);
                             }
                         }
                     }
                 }
+                // If we exit the loop without returning, it means no key was found.
+                // Return NOT_FOUND_KEY, but with the knowledge of whether it's a siege type.
+                return (NOT_FOUND_KEY, isPotentiallySiege);
             }
 
             return (NOT_FOUND_KEY, false);
@@ -1443,10 +1455,10 @@ namespace CrusaderWars.unit_mapper
         {
             (string unit_key, bool isSiege) result;
 
-            // If the unit is a Garrison unit, its key is already set directly from the XML
-            if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty) // Changed from unit.GetName() == "Garrison"
+            // 1. Initial search in specific files
+            if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty)
             {
-                result = (unit.GetAttilaUnitKey(), false); // Garrison units are not siege weapons
+                result = (unit.GetAttilaUnitKey(), false);
             }
             else
             {
@@ -1455,38 +1467,49 @@ namespace CrusaderWars.unit_mapper
                 {
                     result = SearchInFactionFiles(unit);
                 }
-                if (result.unit_key == NOT_FOUND_KEY)
-                {
-                    var (default_key, defaultIsSiege) = GetDefaultUnitKey(unit);
-                    if (default_key != NOT_FOUND_KEY)
-                    {
-                        Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
-                        result = (default_key, defaultIsSiege);
-                    }
-                    else
-                    {
-                        if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
-                        {
-                            Program.Logger.Debug($"  - INFO: No single key mapping for '{unit.GetName()}' (Type: {unit.GetRegimentType()}). This is expected as they are processed as a composition later.");
-                        }
-                        else
-                        {
-                            Program.Logger.Debug($"  - ERROR: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
-                        }
-                        result = (NOT_FOUND_KEY, false);
-                    }
-                }
             }
 
-            // Centralized check for siege engines in field battles
+            // 2. Check for exclusion based on initial search result
             bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
 
             if (result.isSiege && !BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles)
             {
-                Program.Logger.Debug($"Excluding siege unit '{unit.GetName()}' (key: {result.unit_key}) from field battle as per option.");
-                return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, false);
+                Program.Logger.Debug($"Excluding siege unit type '{unit.GetName()}' from field battle as per option.");
+                return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, true); // Exclude it.
             }
 
+            // 3. If no key found yet, try default
+            if (result.unit_key == NOT_FOUND_KEY)
+            {
+                var (default_key, defaultIsSiege) = GetDefaultUnitKey(unit);
+                if (default_key != NOT_FOUND_KEY)
+                {
+                    Program.Logger.Debug($"  - INFO: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). Substituting with default Attila unit '{default_key}'.");
+                    result = (default_key, defaultIsSiege);
+
+                    // 4. Re-check for exclusion if the default unit is a siege unit
+                    if (result.isSiege && !BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles)
+                    {
+                        Program.Logger.Debug($"Excluding default substitute (which is a siege unit, key: {result.unit_key}) for '{unit.GetName()}' from field battle as per option.");
+                        return ProcessUnitKeyResult(unit, NOT_FOUND_KEY, true); // Exclude it.
+                    }
+                }
+                else
+                {
+                    // No specific key, no default key. Log and return NOT_FOUND.
+                    if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
+                    {
+                        Program.Logger.Debug($"  - INFO: No single key mapping for '{unit.GetName()}' (Type: {unit.GetRegimentType()}). This is expected as they are processed as a composition later.");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"  - ERROR: Could not map CK3 Unit '{unit.GetName()}' (Type: {unit.GetRegimentType()}). All mapping attempts including default fallback failed.");
+                    }
+                    result = (NOT_FOUND_KEY, result.isSiege); // Keep the isSiege info from initial search
+                }
+            }
+
+            // 5. Return final result
             return ProcessUnitKeyResult(unit, result.unit_key, result.isSiege);
         }
 
