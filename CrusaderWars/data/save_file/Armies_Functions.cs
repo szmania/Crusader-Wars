@@ -424,7 +424,15 @@ namespace CrusaderWars.data.save_file
 
                 if (key == UnitMappers_BETA.NOT_FOUND_KEY)
                 {
-                    if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
+                    // If the unit is a siege unit and we are in a field battle where they are disabled, it was intentionally excluded.
+                    // Do not attempt to find a fallback.
+                    bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
+                    if (isSiege && !BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles)
+                    {
+                        Program.Logger.Debug($"Unit '{unit.GetName()}' was identified as a siege unit and excluded from a field battle. No fallback will be applied.");
+                        unit.SetUnitKey(string.Empty); // Ensure it's dropped
+                    }
+                    else if (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison)
                     {
                         // This is expected for Levies and Garrisons, as they are handled by composition later.
                         // We set an empty key, and they will be processed in BETA_AddArmyUnits.
