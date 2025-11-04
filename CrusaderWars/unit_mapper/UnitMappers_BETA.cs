@@ -1225,6 +1225,8 @@ namespace CrusaderWars.unit_mapper
             //Garrison units also skip this, as their keys are set directly
             if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"
 
+            bool isPotentiallySiege = false; // Latch to remember siege status
+
             // Priority 1: Search for a specific faction mapping in reverse file order
             foreach (var xml_file in files_paths)
             {
@@ -1235,6 +1237,7 @@ namespace CrusaderWars.unit_mapper
                 if (factionNode != null)
                 {
                     var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit, null);
+                    if (foundIsSiege) isPotentiallySiege = true; // Remember if it's ever marked as siege
                     if (foundKey != NOT_FOUND_KEY)
                     {
                         Program.Logger.Debug($"  - INFO: Found mapping for unit '{unit.GetName()}' in faction '{unit.GetAttilaFaction()}' from file '{Path.GetFileName(xml_file)}'.");
@@ -1254,6 +1257,7 @@ namespace CrusaderWars.unit_mapper
                 if (factionNode != null)
                 {
                     var (foundKey, foundIsSiege) = FindUnitKeyInFaction(factionNode, unit, null);
+                    if (foundIsSiege) isPotentiallySiege = true; // Remember if it's ever marked as siege
                     if (foundKey != NOT_FOUND_KEY)
                     {
                         Program.Logger.Debug($"  - INFO: Found 'Default' fallback mapping for unit '{unit.GetName()}' from file '{Path.GetFileName(xml_file)}'.");
@@ -1262,7 +1266,7 @@ namespace CrusaderWars.unit_mapper
                 }
             }
 
-            return (NOT_FOUND_KEY, false);
+            return (NOT_FOUND_KEY, isPotentiallySiege);
         }
 
         private static string SelectRankedUnitKey(List<(int rank, string key)> candidates, int requiredRank, string? keyToExclude = null)
