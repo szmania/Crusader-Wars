@@ -2149,5 +2149,73 @@ namespace CrusaderWars.unit_mapper
                 return;
             }
         }
+
+        public static bool IsUnitTypeSiege(RegimentType regimentType, string unitName, string attilaFaction)
+        {
+            // Only Men-at-Arms can be siege units according to the current mapping logic.
+            if (regimentType != RegimentType.MenAtArms)
+            {
+                return false;
+            }
+
+            if (LoadedUnitMapper_FolderPath == null)
+            {
+                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot determine if unit is siege type.");
+                return false;
+            }
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
+
+            // This function will check a given faction node for the siege attribute.
+            bool CheckFactionNodeForSiege(XmlNode factionNode, string maaName)
+            {
+                XmlNode? maaNode = factionNode.SelectSingleNode($"MenAtArm[@type='{maaName}']");
+                if (maaNode != null)
+                {
+                    if (maaNode.Attributes?["siege"]?.Value == "true")
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // Priority 1: Search for a specific faction mapping in reverse file order
+            foreach (var xml_file in files_paths)
+            {
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{attilaFaction}']");
+
+                if (factionNode != null)
+                {
+                    if (CheckFactionNodeForSiege(factionNode, unitName))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // Priority 2: If no specific mapping found, search for a default mapping in reverse file order
+            foreach (var xml_file in files_paths)
+            {
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='Default' or @name='DEFAULT']");
+
+                if (factionNode != null)
+                {
+                    if (CheckFactionNodeForSiege(factionNode, unitName))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }
