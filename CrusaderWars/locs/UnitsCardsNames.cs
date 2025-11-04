@@ -143,101 +143,109 @@ namespace CrusaderWars.locs
                         }
 
                         
-                        foreach(Unit unit in allUnits)
+                        Unit? unitToApply = null;
+                        // Find the last unit that matches this line's key. This prevents multiple appends
+                        // if several units map to the same Attila unit. The last one found is used.
+                        foreach (var unit in allUnits)
                         {
-                            // Line 219 - Add null check before accessing GetAttilaUnitKey()
                             if (unit?.GetAttilaUnitKey() != null && line.Contains($"land_units_onscreen_name_{unit.GetAttilaUnitKey()}\t"))
                             {
-                                string ownerNameSuffix = "";
-                                if (unit.GetOwner() != null && !string.IsNullOrEmpty(unit.GetOwner().GetID()))
-                                {
-                                    string ownerId = unit.GetOwner().GetID();
-                                    string? displayName = null;
+                                unitToApply = unit;
+                            }
+                        }
 
-                                    if (ownerId == DataSearch.Player_Character.GetID())
+                        if (unitToApply != null)
+                        {
+                            // A matching unit was found, now we generate the new name and replace it in the line.
+                            string ownerNameSuffix = "";
+                            if (unitToApply.GetOwner() != null && !string.IsNullOrEmpty(unitToApply.GetOwner().GetID()))
+                            {
+                                string ownerId = unitToApply.GetOwner().GetID();
+                                string? displayName = null;
+
+                                if (ownerId == DataSearch.Player_Character.GetID())
+                                {
+                                    displayName = Reader.GetMetaPlayerName();
+                                }
+                                else
+                                {
+                                    var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(ownerId);
+                                    if (!string.IsNullOrEmpty(firstName))
                                     {
-                                        displayName = Reader.GetMetaPlayerName();
-                                    }
-                                    else
-                                    {
-                                        var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(ownerId);
-                                        if (!string.IsNullOrEmpty(firstName))
+                                        if (!string.IsNullOrEmpty(nickname))
                                         {
-                                            if (!string.IsNullOrEmpty(nickname))
-                                            {
-                                                displayName = $"{firstName} \"{nickname}\"";
-                                            }
-                                            else
-                                            {
-                                                displayName = firstName;
-                                            }
+                                            displayName = $"{firstName} \"{nickname}\"";
+                                        }
+                                        else
+                                        {
+                                            displayName = firstName;
                                         }
                                     }
-                                    if (!string.IsNullOrEmpty(displayName))
-                                        ownerNameSuffix = $" ({displayName})";
                                 }
+                                if (!string.IsNullOrEmpty(displayName))
+                                    ownerNameSuffix = $" ({displayName})";
+                            }
 
-                                string newName = "";
-                                bool shouldReplace = false;
+                            string newName = "";
+                            bool shouldReplace = false;
 
-                                //Commander
-                                if (unit.GetRegimentType() == RegimentType.Commander)
+                            //Commander
+                            if (unitToApply.GetRegimentType() == RegimentType.Commander)
+                            {
+                                newName = $"Commander{ownerNameSuffix}";
+                                shouldReplace = true;
+                            }
+                            //Knights
+                            else if (unitToApply.GetRegimentType() == RegimentType.Knight && unitToApply.GetSoldiers() > 0)
+                            {
+                                newName = $"Knights{ownerNameSuffix}";
+                                shouldReplace = true;
+                            }
+                            //Men-At-Arms
+                            else if (unitToApply.GetRegimentType() == RegimentType.MenAtArms)
+                            {
+                                string maaName = unitToApply.GetLocName();
+                                if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
+                                newName = $"MAA {maaName}{ownerNameSuffix}";
+                                shouldReplace = true;
+                            }
+                            //Levies
+                            else if (unitToApply.GetRegimentType() == RegimentType.Levy)
+                            {
+                                var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                if (match.Success)
                                 {
-                                    newName = $"Commander{ownerNameSuffix}";
-                                    shouldReplace = true;
-                                }
-                                //Knights
-                                else if (unit.GetRegimentType() == RegimentType.Knight && unit.GetSoldiers() > 0)
-                                {
-                                    newName = $"Knights{ownerNameSuffix}";
-                                    shouldReplace = true;
-                                }
-                                //Men-At-Arms
-                                else if (unit.GetRegimentType() == RegimentType.MenAtArms)
-                                {
-                                    string maaName = unit.GetLocName();
-                                    if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
-                                    newName = $"MAA {maaName}{ownerNameSuffix}";
-                                    shouldReplace = true;
-                                }
-                                //Levies
-                                else if (unit.GetRegimentType() == RegimentType.Levy)
-                                {
-                                    var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
-                                    if (match.Success)
+                                    string originalName = match.Groups["UnitName"].Value;
+                                    while (originalName.StartsWith("Levy "))
                                     {
-                                        string originalName = match.Groups["UnitName"].Value;
-                                        while (originalName.StartsWith("Levy "))
-                                        {
-                                            originalName = originalName.Substring("Levy ".Length);
-                                        }
-                                        newName = $"Levy {originalName}{ownerNameSuffix}";
-                                        shouldReplace = true;
+                                        originalName = originalName.Substring("Levy ".Length);
                                     }
+                                    newName = $"Levy {originalName}{ownerNameSuffix}";
+                                    shouldReplace = true;
                                 }
-                                //Garrisons
-                                else if (unit.GetRegimentType() == RegimentType.Garrison)
+                            }
+                            //Garrisons
+                            else if (unitToApply.GetRegimentType() == RegimentType.Garrison)
+                            {
+                                var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                if (match.Success)
                                 {
-                                    var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
-                                    if (match.Success)
+                                    string originalName = match.Groups["UnitName"].Value;
+                                    while (originalName.StartsWith("Garrison "))
                                     {
-                                        string originalName = match.Groups["UnitName"].Value;
-                                        while (originalName.StartsWith("Garrison "))
-                                        {
-                                            originalName = originalName.Substring("Garrison ".Length);
-                                        }
-                                        newName = $"Garrison {originalName}{ownerNameSuffix}";
-                                        shouldReplace = true;
+                                        originalName = originalName.Substring("Garrison ".Length);
                                     }
-                                }
-
-                                if (shouldReplace)
-                                {
-                                    line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{newName}\t");
+                                    newName = $"Garrison {originalName}{ownerNameSuffix}";
+                                    shouldReplace = true;
                                 }
                             }
 
+                            if (shouldReplace)
+                            {
+                                line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{newName}\t");
+                            }
                         }
+
 
                         edited_names += line + "\n"; // write to string every line
                     }
