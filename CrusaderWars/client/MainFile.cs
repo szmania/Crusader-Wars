@@ -848,7 +848,13 @@ namespace CrusaderWars
 
                     Label messageLabel = new Label
                     {
-                        Text = "New Optional Sub-Mod for Medieval Playthroughs for the Far East!\n\n" +
+                        Text = "River, Strait, and Coastal Battles!\n\n" +
+                               "• Armies crossing rivers, straits, or fighting in coastal provinces will now battle on unique, immersive maps that reflect the terrain.\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "Prisoners of War & Slain in Battle!\n\n" +
+                               "• Characters can now be slain or taken prisoner on the battlefield, with outcomes influenced by their prowess, traits, and the battle's result.\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "New Optional Sub-Mod for Medieval Playthroughs for the Far East!\n\n" +
                                "• Added support for 'Dahan China' for the Medieval playthroughs.\n" +
                                "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=2826656101\n" +
                                "• And here: https://steamcommunity.com/sharedfiles/filedetails/?id=1559011232\n" +
@@ -872,10 +878,7 @@ namespace CrusaderWars
                                "----------------------------------------------------------\n\n" +
                                "New Required Mod for Medieval Playthroughs!\n\n" +
                                "• The High, Late, and Renaissance medieval playthroughs now require the 'Medieval Kingdoms 1212AD - Custom cities beta' mod.\n" +
-                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
-                               "----------------------------------------------------------\n\n" +
-                               "Sieges Added!\n\n" +
-                               "• Siege battles can be fought and won in all your favorite playthroughs!.\n",
+                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n",
                         Font = new Font("Microsoft Sans Serif", 10f),
                         AutoSize = true,
                         MaximumSize = new Size(scrollPanel.ClientSize.Width - 25, 0),
