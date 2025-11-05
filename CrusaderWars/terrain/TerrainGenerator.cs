@@ -103,11 +103,6 @@ namespace CrusaderWars
 
         public static void CheckForLandBridgeBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
-            if (unit_mapper.UnitMappers_BETA.Terrains?.GetAttilaMap()?.Contains("terrain/battles/main_attila_map/") != true)
-            {
-                return; // Map name condition not met
-            }
-
             var landBridge = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
             if (landBridge == null)
             {
