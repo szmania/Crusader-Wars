@@ -88,19 +88,6 @@ namespace CrusaderWars
             UniqueMaps.Clear();
         }
 
-        private static (string[] attPositions, string[] defPositions) GetRandomNorthSouthPositions()
-        {
-            Random random = new Random();
-            if (random.Next(0, 2) == 0)
-            {
-                return (new string[] { "N", "N" }, new string[] { "S", "S" });
-            }
-            else
-            {
-                return (new string[] { "S", "S" }, new string[] { "N", "N" });
-            }
-        }
-
         public static void CheckForLandBridgeBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
             var landBridge = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
@@ -183,8 +170,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Getting land bridge (strait type) battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeStrait.Variants.Count);
                     var variant = landBridgeStrait.Variants[index];
-                    var (attPositions, defPositions) = GetRandomNorthSouthPositions();
-                    return (variant.X, variant.Y, attPositions, defPositions);
+                    return (variant.X, variant.Y, new string[] { "All", "All" }, new string[] { "All", "All" });
                 }
 
                 Program.Logger.Debug($"Getting strait battle map for terrain: {TerrainType}");
@@ -201,8 +187,7 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Getting land bridge battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeRiver.Variants.Count);
                     var variant = landBridgeRiver.Variants[index];
-                    var (attPositions, defPositions) = GetRandomNorthSouthPositions();
-                    return (variant.X, variant.Y, attPositions, defPositions);
+                    return (variant.X, variant.Y, new string[] { "All", "All" }, new string[] { "All", "All" });
                 }
 
                 Program.Logger.Debug($"Getting river battle map for terrain: {TerrainType}");
