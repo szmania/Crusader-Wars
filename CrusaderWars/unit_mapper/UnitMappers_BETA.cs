@@ -65,6 +65,7 @@ namespace CrusaderWars.unit_mapper
         public string X { get; set; } = string.Empty;
         public string Y { get; set; } = string.Empty;
         public List<string>? BesiegerOrientations { get; set; }
+        public List<string>? Orientations { get; set; }
         public string? BesiegedDeploymentZoneWidth { get; set; }
         public string? BesiegedDeploymentZoneHeight { get; set; }
     }
@@ -589,6 +590,11 @@ namespace CrusaderWars.unit_mapper
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
                                             };
+                                            string? orientationsAttr = variantNode.Attributes?["orientations"]?.Value;
+                                            if (!string.IsNullOrEmpty(orientationsAttr))
+                                            {
+                                                variant.Orientations = orientationsAttr.Split(',').Select(o => o.Trim()).ToList();
+                                            }
                                             XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
                                             if (mapNode != null)
                                             {
@@ -625,6 +631,11 @@ namespace CrusaderWars.unit_mapper
                                             {
                                                 Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
                                             };
+                                            string? orientationsAttr = variantNode.Attributes?["orientations"]?.Value;
+                                            if (!string.IsNullOrEmpty(orientationsAttr))
+                                            {
+                                                variant.Orientations = orientationsAttr.Split(',').Select(o => o.Trim()).ToList();
+                                            }
                                             XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
                                             if (mapNode != null)
                                             {

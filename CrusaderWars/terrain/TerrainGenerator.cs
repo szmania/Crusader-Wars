@@ -186,7 +186,8 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Getting land bridge (strait type) battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeStrait.Variants.Count);
                     var variant = landBridgeStrait.Variants[index];
-                    return (variant.X, variant.Y, new string[] { "All", "All" }, new string[] { "All", "All" });
+                    string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
+                    return (variant.X, variant.Y, orientations, orientations);
                 }
 
                 var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
@@ -195,7 +196,8 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Getting coastal battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, coastalMap.Variants.Count);
                     var variant = coastalMap.Variants[index];
-                    return (variant.X, variant.Y, new string[] { "All", "All" }, new string[] { "All", "All" });
+                    string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
+                    return (variant.X, variant.Y, orientations, orientations);
                 }
 
                 Program.Logger.Debug($"Getting strait battle map for terrain: {TerrainType}");
@@ -212,7 +214,8 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Getting land bridge battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeRiver.Variants.Count);
                     var variant = landBridgeRiver.Variants[index];
-                    return (variant.X, variant.Y, new string[] { "All", "All" }, new string[] { "All", "All" });
+                    string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
+                    return (variant.X, variant.Y, orientations, orientations);
                 }
 
                 Program.Logger.Debug($"Getting river battle map for terrain: {TerrainType}");

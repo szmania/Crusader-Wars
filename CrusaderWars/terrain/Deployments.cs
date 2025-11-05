@@ -154,7 +154,7 @@ namespace CrusaderWars.terrain
             {
                 if(useRotatedDeployment)
                 {
-                    int defender_index = _random.Next(0, 2);
+                    int defender_index = _random.Next(0, battle_map.attacker_dir.Length);
                     defender_direction = battle_map.attacker_dir[defender_index];
                     attacker_direction = Directions.GetOppositeDirection(defender_direction);
                     defender_deployment = Directions.SetDirection(defender_direction, total_soldiers);
@@ -162,7 +162,7 @@ namespace CrusaderWars.terrain
                 }
                 else
                 {
-                    int defender_index = _random.Next(0, 2);
+                    int defender_index = _random.Next(0, battle_map.defender_dir.Length);
                     defender_direction = battle_map.defender_dir[defender_index];
                     attacker_direction = Directions.GetOppositeDirection(defender_direction);
                     defender_deployment = Directions.SetDirection(defender_direction, total_soldiers);
