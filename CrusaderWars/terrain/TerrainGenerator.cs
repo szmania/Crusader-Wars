@@ -29,12 +29,13 @@ namespace CrusaderWars
 
     public static class TerrainGenerator
     {
-   
+        private static readonly Random _random = new Random();
         public static string TerrainType { get; set; } = string.Empty;
         public static string Region { get; private set; } = string.Empty;
 
         public static bool isRiver { get; private set; }
         public static bool isStrait { get; private set; }
+        public static bool isCoastal { get; private set; }
         public static bool isUnique { get; private set; }
 
         public static void SetRegion(string a)
@@ -50,6 +51,19 @@ namespace CrusaderWars
                     return;
                 case false:
                     isUnique = false;
+                    return;
+            }
+        }
+
+        public static void isCoastalBattle(bool yn)
+        {
+            switch (yn)
+            {
+                case true:
+                    isCoastal = true;
+                    return;
+                case false:
+                    isCoastal = false;
                     return;
             }
         }
@@ -84,83 +98,82 @@ namespace CrusaderWars
             TerrainType = String.Empty;
             isRiver = false;
             isStrait = false;
+            isCoastal = false;
             isUnique = false;
             UniqueMaps.Clear();
         }
 
         public static void CheckForSpecialCrossingBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
+            // Check for army movement across a land bridge first (strait/river crossing)
             var landBridge = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
-            var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
-
-            if (landBridge == null && coastalMap == null)
+            
+            if (landBridge != null)
             {
-                return; // Not a special crossing province
-            }
-
-            var allArmyIDs = attacker_armies.Concat(defender_armies).Select(a => a.ArmyUnitID).Where(id => !string.IsNullOrEmpty(id)).ToHashSet();
-            if (!allArmyIDs.Any())
-            {
-                return; // No armies to check
-            }
-
-            try
-            {
-                string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
-                string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
-
-                foreach (string block in unitBlocks)
+                var allArmyIDs = attacker_armies.Concat(defender_armies).Select(a => a.ArmyUnitID).Where(id => !string.IsNullOrEmpty(id)).ToHashSet();
+                if (allArmyIDs.Any())
                 {
-                    if (string.IsNullOrWhiteSpace(block)) continue;
-
-                    var unitIdMatch = Regex.Match(block, @"^\s*\t(\d+)={");
-                    if (!unitIdMatch.Success || !allArmyIDs.Contains(unitIdMatch.Groups[1].Value))
+                    try
                     {
-                        continue; // Not a relevant army unit
+                        string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
+                        string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
+
+                        foreach (string block in unitBlocks)
+                        {
+                            if (string.IsNullOrWhiteSpace(block)) continue;
+
+                            var unitIdMatch = Regex.Match(block, @"^\s*\t(\d+)={");
+                            if (!unitIdMatch.Success || !allArmyIDs.Contains(unitIdMatch.Groups[1].Value))
+                            {
+                                continue; // Not a relevant army unit
+                            }
+
+                            var locationMatch = Regex.Match(block, @"location=(\d+)");
+                            var prevMatch = Regex.Match(block, @"prev=(\d+)");
+
+                            if (locationMatch.Success && prevMatch.Success)
+                            {
+                                string location = locationMatch.Groups[1].Value;
+                                string prev = prevMatch.Groups[1].Value;
+
+                                if ((location == landBridge.ProvinceFrom && prev == landBridge.ProvinceTo) ||
+                                    (location == landBridge.ProvinceTo && prev == landBridge.ProvinceFrom))
+                                {
+                                    Program.Logger.Debug($"Land bridge crossing detected for army unit {unitIdMatch.Groups[1].Value}. CK3 Type: {landBridge.CK3Type}");
+                                    if (landBridge.CK3Type == "strait")
+                                    {
+                                        isStraitBattle(true);
+                                    }
+                                    else // Default to river for "river_large" and any other types
+                                    {
+                                        isRiverBattle(true);
+                                    }
+                                    return; // Strait/River crossing found, this is the highest priority.
+                                }
+                            }
+                        }
                     }
-
-                    var locationMatch = Regex.Match(block, @"location=(\d+)");
-                    var prevMatch = Regex.Match(block, @"prev=(\d+)");
-
-                    if (locationMatch.Success && prevMatch.Success)
+                    catch (Exception ex)
                     {
-                        string location = locationMatch.Groups[1].Value;
-                        string prev = prevMatch.Groups[1].Value;
-
-                        if (landBridge != null)
-                        {
-                            if ((location == landBridge.ProvinceFrom && prev == landBridge.ProvinceTo) ||
-                                (location == landBridge.ProvinceTo && prev == landBridge.ProvinceFrom))
-                            {
-                                Program.Logger.Debug($"Land bridge crossing detected for army unit {unitIdMatch.Groups[1].Value}. CK3 Type: {landBridge.CK3Type}");
-                                if (landBridge.CK3Type == "strait")
-                                {
-                                    isStraitBattle(true);
-                                }
-                                else // Default to river for "river_large" and any other types
-                                {
-                                    isRiverBattle(true);
-                                }
-                                return; // Found one, no need to check further
-                            }
-                        }
-
-                        if (coastalMap != null)
-                        {
-                            if ((location == coastalMap.ProvinceFrom && prev == coastalMap.ProvinceTo) ||
-                                (location == coastalMap.ProvinceTo && prev == coastalMap.ProvinceFrom))
-                            {
-                                Program.Logger.Debug($"Coastal crossing detected for army unit {unitIdMatch.Groups[1].Value}. CK3 Type: {coastalMap.CK3Type}");
-                                isStraitBattle(true); // Treat as a strait battle
-                                return; // Found one, no need to check further
-                            }
-                        }
+                        Program.Logger.Debug($"Error checking for land bridge crossing in Units.txt: {ex.Message}");
                     }
                 }
             }
-            catch (Exception ex)
+
+            // If no strait/river crossing was detected, check for a coastal battle.
+            var coastalMapByLocation = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
+            if (coastalMapByLocation != null)
             {
-                Program.Logger.Debug($"Error checking for special crossing battle in Units.txt: {ex.Message}");
+                if (_random.Next(100) < 40)
+                {
+                    Program.Logger.Debug($"Coastal province battle detected for province {data.battle_results.BattleResult.ProvinceID}. 40% chance succeeded. Setting as coastal battle.");
+                    isCoastalBattle(true);
+                    return;
+                }
+                else
+                {
+                    Program.Logger.Debug($"Coastal province battle detected for province {data.battle_results.BattleResult.ProvinceID}. 40% chance failed. Proceeding with normal land battle terrain.");
+                }
             }
         }
 
@@ -177,6 +190,19 @@ namespace CrusaderWars
                 return battlemap;
             }
 
+            if (isCoastal)
+            {
+                var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
+                if (coastalMap != null && coastalMap.Variants.Any())
+                {
+                    Program.Logger.Debug($"Getting coastal battle map for province: {data.battle_results.BattleResult.ProvinceID}");
+                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, coastalMap.Variants.Count);
+                    var variant = coastalMap.Variants[index];
+                    string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
+                    return (variant.X, variant.Y, orientations, orientations);
+                }
+            }
+
             //Straits Battle Maps
             if(isStrait)
             {
@@ -186,16 +212,6 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Getting land bridge (strait type) battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeStrait.Variants.Count);
                     var variant = landBridgeStrait.Variants[index];
-                    string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
-                    return (variant.X, variant.Y, orientations, orientations);
-                }
-
-                var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
-                if (coastalMap != null && coastalMap.Variants.Any())
-                {
-                    Program.Logger.Debug($"Getting coastal battle map for province: {data.battle_results.BattleResult.ProvinceID}");
-                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, coastalMap.Variants.Count);
-                    var variant = coastalMap.Variants[index];
                     string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
                     return (variant.X, variant.Y, orientations, orientations);
                 }
@@ -224,7 +240,7 @@ namespace CrusaderWars
             }
 
             //Land Battle Maps
-            bool isLand = (!isStrait && !isRiver && !isUnique);
+            bool isLand = (!isStrait && !isRiver && !isUnique && !isCoastal);
             if (isLand) 
             {
                 Program.Logger.Debug($"Getting land battle map for terrain: {TerrainType}");

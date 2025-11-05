@@ -41,9 +41,7 @@ namespace CrusaderWars.unit_mapper
     internal class CoastalMap
     {
         public string Name { get; set; } = string.Empty;
-        public string ProvinceFrom { get; set; } = string.Empty;
-        public string ProvinceTo { get; set; } = string.Empty;
-        public string CK3Type { get; set; } = string.Empty;
+        public string Province { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
         public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
@@ -617,9 +615,7 @@ namespace CrusaderWars.unit_mapper
                                     var coastalMap = new CoastalMap
                                     {
                                         Name = coastalNode.Attributes?["name"]?.Value ?? string.Empty,
-                                        ProvinceFrom = coastalNode.Attributes?["ck3_province_from"]?.Value ?? string.Empty,
-                                        ProvinceTo = coastalNode.Attributes?["ck3_province_to"]?.Value ?? string.Empty,
-                                        CK3Type = coastalNode.Attributes?["ck3_type"]?.Value ?? string.Empty,
+                                        Province = coastalNode.Attributes?["ck3_province"]?.Value ?? string.Empty,
                                         BattleType = coastalNode.Attributes?["battle_type"]?.Value ?? string.Empty,
                                     };
 
@@ -797,7 +793,7 @@ namespace CrusaderWars.unit_mapper
         {
             if (Terrains?.CoastalMaps == null) return null;
 
-            return Terrains.CoastalMaps.FirstOrDefault(cm => cm.ProvinceFrom == provinceId || cm.ProvinceTo == provinceId);
+            return Terrains.CoastalMaps.FirstOrDefault(cm => cm.Province == provinceId);
         }
 
         struct MaxType
