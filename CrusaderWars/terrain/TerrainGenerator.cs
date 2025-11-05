@@ -88,12 +88,14 @@ namespace CrusaderWars
             UniqueMaps.Clear();
         }
 
-        public static void CheckForLandBridgeBattle(List<Army> attacker_armies, List<Army> defender_armies)
+        public static void CheckForSpecialCrossingBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
             var landBridge = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
-            if (landBridge == null)
+            var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
+
+            if (landBridge == null && coastalMap == null)
             {
-                return; // Not a land bridge province
+                return; // Not a special crossing province
             }
 
             var allArmyIDs = attacker_armies.Concat(defender_armies).Select(a => a.ArmyUnitID).Where(id => !string.IsNullOrEmpty(id)).ToHashSet();
@@ -125,26 +127,40 @@ namespace CrusaderWars
                         string location = locationMatch.Groups[1].Value;
                         string prev = prevMatch.Groups[1].Value;
 
-                        if ((location == landBridge.ProvinceFrom && prev == landBridge.ProvinceTo) ||
-                            (location == landBridge.ProvinceTo && prev == landBridge.ProvinceFrom))
+                        if (landBridge != null)
                         {
-                            Program.Logger.Debug($"Land bridge crossing detected for army unit {unitIdMatch.Groups[1].Value}. CK3 Type: {landBridge.CK3Type}");
-                            if (landBridge.CK3Type == "strait")
+                            if ((location == landBridge.ProvinceFrom && prev == landBridge.ProvinceTo) ||
+                                (location == landBridge.ProvinceTo && prev == landBridge.ProvinceFrom))
                             {
-                                isStraitBattle(true);
+                                Program.Logger.Debug($"Land bridge crossing detected for army unit {unitIdMatch.Groups[1].Value}. CK3 Type: {landBridge.CK3Type}");
+                                if (landBridge.CK3Type == "strait")
+                                {
+                                    isStraitBattle(true);
+                                }
+                                else // Default to river for "river_large" and any other types
+                                {
+                                    isRiverBattle(true);
+                                }
+                                return; // Found one, no need to check further
                             }
-                            else // Default to river for "river_large" and any other types
+                        }
+
+                        if (coastalMap != null)
+                        {
+                            if ((location == coastalMap.ProvinceFrom && prev == coastalMap.ProvinceTo) ||
+                                (location == coastalMap.ProvinceTo && prev == coastalMap.ProvinceFrom))
                             {
-                                isRiverBattle(true);
+                                Program.Logger.Debug($"Coastal crossing detected for army unit {unitIdMatch.Groups[1].Value}. CK3 Type: {coastalMap.CK3Type}");
+                                isStraitBattle(true); // Treat as a strait battle
+                                return; // Found one, no need to check further
                             }
-                            return; // Found one, no need to check further
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error checking for land bridge battle in Units.txt: {ex.Message}");
+                Program.Logger.Debug($"Error checking for special crossing battle in Units.txt: {ex.Message}");
             }
         }
 
@@ -165,11 +181,20 @@ namespace CrusaderWars
             if(isStrait)
             {
                 var landBridgeStrait = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
-                if (landBridgeStrait != null && landBridgeStrait.Variants.Any())
+                if (landBridgeStrait != null && landBridgeStrait.CK3Type == "strait" && landBridgeStrait.Variants.Any())
                 {
                     Program.Logger.Debug($"Getting land bridge (strait type) battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeStrait.Variants.Count);
                     var variant = landBridgeStrait.Variants[index];
+                    return (variant.X, variant.Y, new string[] { "All", "All" }, new string[] { "All", "All" });
+                }
+
+                var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
+                if (coastalMap != null && coastalMap.Variants.Any())
+                {
+                    Program.Logger.Debug($"Getting coastal battle map for province: {data.battle_results.BattleResult.ProvinceID}");
+                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, coastalMap.Variants.Count);
+                    var variant = coastalMap.Variants[index];
                     return (variant.X, variant.Y, new string[] { "All", "All" }, new string[] { "All", "All" });
                 }
 
@@ -182,7 +207,7 @@ namespace CrusaderWars
             if(isRiver) 
             {
                 var landBridgeRiver = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
-                if (landBridgeRiver != null && landBridgeRiver.Variants.Any())
+                if (landBridgeRiver != null && landBridgeRiver.CK3Type != "strait" && landBridgeRiver.Variants.Any())
                 {
                     Program.Logger.Debug($"Getting land bridge battle map for province: {data.battle_results.BattleResult.ProvinceID}");
                     int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeRiver.Variants.Count);

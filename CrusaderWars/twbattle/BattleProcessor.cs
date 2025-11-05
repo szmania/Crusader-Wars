@@ -76,7 +76,7 @@ namespace CrusaderWars.twbattle
 
             if (!BattleState.IsSiegeBattle)
             {
-                TerrainGenerator.CheckForLandBridgeBattle(attacker_armies, defender_armies);
+                TerrainGenerator.CheckForSpecialCrossingBattle(attacker_armies, defender_armies);
             }
 
             int left_side_total = left_side.Sum(army => army.GetTotalSoldiers());

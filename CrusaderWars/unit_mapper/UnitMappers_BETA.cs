@@ -38,6 +38,16 @@ namespace CrusaderWars.unit_mapper
         public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
+    internal class CoastalMap
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ProvinceFrom { get; set; } = string.Empty;
+        public string ProvinceTo { get; set; } = string.Empty;
+        public string CK3Type { get; set; } = string.Empty;
+        public string BattleType { get; set; } = string.Empty;
+        public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
+    }
+
     public static class BattleStateBridge
     {
         public static string? BesiegedDeploymentWidth { get; set; }
@@ -89,8 +99,9 @@ namespace CrusaderWars.unit_mapper
         public List<SettlementMap> SettlementMaps { get; private set; }
         public List<UniqueSettlementMap> UniqueSettlementMaps { get; private set; }
         public List<LandBridgeMap> LandBridgeMaps { get; private set; }
+        public List<CoastalMap> CoastalMaps { get; private set; }
 
-        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps, List<LandBridgeMap> landBridgeMaps)
+        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps, List<LandBridgeMap> landBridgeMaps, List<CoastalMap> coastalMaps)
         {
             AttilaMap = attilaMap;
             HistoricalMaps = historicalMaps;    
@@ -98,6 +109,7 @@ namespace CrusaderWars.unit_mapper
             SettlementMaps = settlementMaps;
             UniqueSettlementMaps = uniqueSettlementMaps;
             LandBridgeMaps = landBridgeMaps;
+            CoastalMaps = coastalMaps;
         }
 
         public string GetAttilaMap() { return AttilaMap; }
@@ -384,6 +396,7 @@ namespace CrusaderWars.unit_mapper
                 var uniqueSettlementMapsByCompositeKey = new Dictionary<(string battleType, string provinces), UniqueSettlementMap>();
                 var siegeEngines = new Dictionary<string, SiegeEngine>();
                 var landBridgeMaps = new List<LandBridgeMap>();
+                var coastalMaps = new List<CoastalMap>();
 
                 foreach (var file in terrainFiles)
                 {
@@ -589,6 +602,42 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
+                        else if (Element.Name == "Coastal_Maps")
+                        {
+                            foreach (XmlElement coastalNode in Element.ChildNodes)
+                            {
+                                if (coastalNode.Name == "Coastal")
+                                {
+                                    var coastalMap = new CoastalMap
+                                    {
+                                        Name = coastalNode.Attributes?["name"]?.Value ?? string.Empty,
+                                        ProvinceFrom = coastalNode.Attributes?["ck3_province_from"]?.Value ?? string.Empty,
+                                        ProvinceTo = coastalNode.Attributes?["ck3_province_to"]?.Value ?? string.Empty,
+                                        CK3Type = coastalNode.Attributes?["ck3_type"]?.Value ?? string.Empty,
+                                        BattleType = coastalNode.Attributes?["battle_type"]?.Value ?? string.Empty,
+                                    };
+
+                                    foreach (XmlElement variantNode in coastalNode.ChildNodes)
+                                    {
+                                        if (variantNode.Name == "Variant")
+                                        {
+                                            var variant = new SettlementVariant
+                                            {
+                                                Key = variantNode.Attributes?["key"]?.Value ?? string.Empty,
+                                            };
+                                            XmlElement? mapNode = variantNode.SelectSingleNode("Map") as XmlElement;
+                                            if (mapNode != null)
+                                            {
+                                                variant.X = mapNode.Attributes?["x"]?.Value ?? string.Empty;
+                                                variant.Y = mapNode.Attributes?["y"]?.Value ?? string.Empty;
+                                            }
+                                            coastalMap.Variants.Add(variant);
+                                        }
+                                    }
+                                    coastalMaps.Add(coastalMap);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -598,7 +647,7 @@ namespace CrusaderWars.unit_mapper
                 var uniqueSettlementMapsList = uniqueSettlementMapsByCompositeKey.Values.ToList();
                 SiegeEngines.AddRange(siegeEngines.Values);
 
-                Terrains = new TerrainsUM(attilaMap, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList, landBridgeMaps);
+                Terrains = new TerrainsUM(attilaMap, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList, landBridgeMaps, coastalMaps);
             }
             catch (Exception ex)
             {
@@ -731,6 +780,13 @@ namespace CrusaderWars.unit_mapper
             if (Terrains?.LandBridgeMaps == null) return null;
 
             return Terrains.LandBridgeMaps.FirstOrDefault(lb => lb.ProvinceFrom == provinceId || lb.ProvinceTo == provinceId);
+        }
+
+        public static CoastalMap? GetCoastalMap(string provinceId)
+        {
+            if (Terrains?.CoastalMaps == null) return null;
+
+            return Terrains.CoastalMaps.FirstOrDefault(cm => cm.ProvinceFrom == provinceId || cm.ProvinceTo == provinceId);
         }
 
         struct MaxType
