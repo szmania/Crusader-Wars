@@ -134,7 +134,9 @@ namespace CrusaderWars.terrain
  
         static string attacker_direction = "", defender_direction = "";
         static string? attacker_deployment, defender_deployment = "";
-        public static void beta_SetSidesDirections(int total_soldiers, (string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, bool shouldRotateDeployment)
+
+        public static void beta_SetSidesDirections(int total_soldiers,
+            (string x, string y, string[] attacker_dir, string[] defender_dir) battle_map, bool shouldRotateDeployment)
         {
             bool useRotatedDeployment = BattleState.AutofixDeploymentRotationOverride ?? shouldRotateDeployment;
             //All directions battle maps
@@ -144,10 +146,8 @@ namespace CrusaderWars.terrain
                 int index = _random.Next(0, 4);
                 attacker_direction = coords[index];
                 defender_direction = Directions.GetOppositeDirection(attacker_direction);
-                attacker_deployment =  Directions.SetDirection(attacker_direction, total_soldiers);
+                attacker_deployment = Directions.SetDirection(attacker_direction, total_soldiers);
                 defender_deployment = Directions.SetOppositeDirection(attacker_direction, total_soldiers);
-
-
             }
             //Defined directions battle maps
             else
