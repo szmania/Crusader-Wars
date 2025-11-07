@@ -164,7 +164,7 @@ namespace CrusaderWars
             var coastalMapByLocation = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
             if (coastalMapByLocation != null)
             {
-                if (_random.Next(100) < 40)
+                if (_random.Next(100) < 30)
                 {
                     Program.Logger.Debug($"Coastal province battle detected for province {data.battle_results.BattleResult.ProvinceID}. 40% chance succeeded. Setting as coastal battle.");
                     isCoastalBattle(true);
