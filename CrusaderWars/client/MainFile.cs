@@ -1547,7 +1547,24 @@ namespace CrusaderWars
                 try
                 {
                     UpdateLoadingScreenMessage("Getting data from CK3 save file...");
-                    await Task.Delay(2000); //Old was 3000ms
+
+                    // Find the latest save file
+                    var directory = new DirectoryInfo(saveGames_Path);
+                    var lastSave = directory.GetFiles("*.ck3")
+                        .OrderByDescending(f => f.LastWriteTime)
+                        .FirstOrDefault();
+
+                    if (lastSave == null)
+                    {
+                        throw new FileNotFoundException("No CK3 save file found in the save games directory.");
+                    }
+
+                    // NEW: Wait for the file to be accessible
+                    if (!await WaitForFileAccess(lastSave.FullName, token))
+                    {
+                        throw new IOException("Timed out waiting for CK3 to finish writing the save file. The file may be locked or corrupted.");
+                    }
+                    
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.CloseCrusaderKingsProcess();
@@ -1568,6 +1585,36 @@ namespace CrusaderWars
                         BattleResult.GetPlayerCombatResult();
                         BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
                     }
+                }
+                catch (InvalidDataException ex) // SPECIFIC CATCH for zip errors
+                {
+                    Program.Logger.Debug($"Error reading save file (InvalidDataException): {ex.Message}");
+                    this.Show();
+                    if (loadingScreen != null) CloseLoadingScreen();
+                    string errorMessage = "Error reading the save file: The file is not a valid save or is corrupted.\n\n" +
+                                          "This often happens with Ironman or Cloud saves, which are not supported.\n\n" +
+                                          "Troubleshooting:\n" +
+                                          "1. Disable Ironman mode.\n" +
+                                          "2. Use local saves instead of Steam Cloud.\n" +
+                                          "3. Ensure the game has fully saved before a battle starts.\n" +
+                                          "4. Verify game files in Steam.";
+                    MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Crusader Conflicts: Invalid Save File",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+
+                    if (ModOptions.CloseCK3DuringBattle())
+                    {
+                        Games.StartCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.ResumeProcess();
+                    }
+
+                    //Data Clear
+                    Data.Reset();
+                    SetPlaythrough(); // Re-initialize playthrough after reset
+
+                    continue;
                 }
                 catch(Exception ex)
                 {
@@ -1695,6 +1742,51 @@ namespace CrusaderWars
             }
             UpdateUIForBattleState();
             this.Text = "Crusader Conflicts";
+        }
+
+        private async Task<bool> WaitForFileAccess(string filePath, CancellationToken token)
+        {
+            UpdateLoadingScreenMessage("Waiting for CK3 to finish saving...");
+            Program.Logger.Debug($"Waiting for file access to: {filePath}");
+
+            // Timeout after 30 seconds
+            var stopwatch = Stopwatch.StartNew();
+            while (stopwatch.Elapsed.TotalSeconds < 30)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("File access wait cancelled by user.");
+                    return false;
+                }
+
+                try
+                {
+                    // Attempt to open the file with read/write access.
+                    // This will throw an IOException if the file is locked by another process (like CK3).
+                    using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                    {
+                        // If we can open it, it means CK3 is done writing.
+                        fs.Close(); // Immediately close it.
+                        Program.Logger.Debug("File access acquired. Proceeding with save file processing.");
+                        return true;
+                    }
+                }
+                catch (IOException)
+                {
+                    // File is locked, wait and try again.
+                    Program.Logger.Debug("Save file is locked by another process. Waiting...");
+                    await Task.Delay(500, token); // Wait 500ms before retrying
+                }
+                catch (Exception ex)
+                {
+                    // Catch other potential exceptions
+                    Program.Logger.Debug($"An unexpected error occurred while waiting for file access: {ex.Message}");
+                    return false;
+                }
+            }
+
+            Program.Logger.Debug("Timed out waiting for file access after 30 seconds.");
+            return false; // Timeout reached
         }
 
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
