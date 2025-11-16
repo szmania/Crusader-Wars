@@ -955,7 +955,7 @@ namespace CrusaderWars.data.battle_results
                         {
                             Program.Logger.Debug(
                                 $"Commander {char_id} found in merged army {mergedArmy.ID} (part of main army {army.ID}).");
-                            return (true, true, army.Commander, false, null, army);
+                            return (true, true, mergedArmy.Commander, false, null, army);
                         }
                         else if (mergedArmy.Knights?.GetKnightsList() != null)
                         {
