@@ -383,7 +383,7 @@ namespace CrusaderWars
 
                     //if (soldiers_lost <= 0) break;
                     
-                    knight.HasFallen(true);
+                    knight.SetHasFallen(true);
                     tempKnightsList.Remove(knight);
 
                 }
