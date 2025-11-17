@@ -12,6 +12,7 @@
     <ProductName>Crusader Conflicts</ProductName>
     <PublisherName>Faray and Community</PublisherName>
     <StartupObject>CrusaderWars.Program</StartupObject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
     <ItemGroup>
