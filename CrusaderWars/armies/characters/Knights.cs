@@ -52,7 +52,7 @@ namespace CrusaderWars
         public bool HasFallen() { return hasFallen; }
         public int GetKills() { return Kills; }
 
-        internal void HasFallen(bool yn) { hasFallen = yn; }
+        internal void SetHasFallen(bool yn) { hasFallen = yn; }
         public void SetKills(int kills) { Kills = kills; }
         public void ChangeCulture(Culture cul) { CultureObj = cul; }
         public void SetTraits(List<(int, string)> list_trait) { Traits = list_trait; }
