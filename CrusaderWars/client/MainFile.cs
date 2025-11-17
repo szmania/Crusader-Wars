@@ -881,7 +881,7 @@ namespace CrusaderWars
                                "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n",
                         Font = new Font("Microsoft Sans Serif", 10f),
                         AutoSize = true,
-                        MaximumSize = new Size(scrollPanel.ClientSize.Width - 25, 0),
+                        MaximumSize = new Size(notificationForm.ClientSize.Width - 40, 0),
                         Location = new Point(0, 0)
                     };
                     scrollPanel.Controls.Add(messageLabel);
