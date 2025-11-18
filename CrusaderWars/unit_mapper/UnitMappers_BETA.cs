@@ -1902,14 +1902,8 @@ namespace CrusaderWars.unit_mapper
 
                         if(heritage_name == HeritageName && !string.IsNullOrEmpty(HeritageName))
                         {
-                            string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            if (!string.IsNullOrEmpty(found_heritage_faction))
-                            {
-                                heritage_mapping = (found_heritage_faction, currentFile);
-                                culture_mapping = ("", ""); // Reset culture mapping to ensure heritage override takes priority
-                                Program.Logger.Debug($"  - Found/Updated heritage mapping: {HeritageName} -> {heritage_mapping.faction}. Culture mapping was reset.");
-                            }
-
+                            bool cultureMatchFoundInThisBlock = false;
+                            // First, loop for a specific culture match
                             foreach(XmlNode culture in heritage.ChildNodes)
                             {
                                 if (culture is XmlComment) continue; 
@@ -1922,7 +1916,27 @@ namespace CrusaderWars.unit_mapper
                                     {
                                         culture_mapping = (found_culture_faction, currentFile);
                                         Program.Logger.Debug($"  - Found/Updated culture mapping: {CultureName} -> {culture_mapping.faction}");
+                                        cultureMatchFoundInThisBlock = true;
+                                        
+                                        // Also update heritage mapping from this file, as it's the most relevant context
+                                        string found_heritage_faction_context = heritage.Attributes?["faction"]?.Value ?? string.Empty;
+                                        if (!string.IsNullOrEmpty(found_heritage_faction_context)) {
+                                            heritage_mapping = (found_heritage_faction_context, currentFile);
+                                            Program.Logger.Debug($"  - Contextual heritage mapping updated: {HeritageName} -> {heritage_mapping.faction}");
+                                        }
                                     }
+                                }
+                            }
+
+                            // If no specific culture was found in this block, check for a heritage-level mapping
+                            if (!cultureMatchFoundInThisBlock)
+                            {
+                                string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
+                                // Only apply this heritage mapping if we haven't found a specific culture mapping in a *previous* file.
+                                if (!string.IsNullOrEmpty(found_heritage_faction) && string.IsNullOrEmpty(culture_mapping.faction))
+                                {
+                                    heritage_mapping = (found_heritage_faction, currentFile);
+                                    Program.Logger.Debug($"  - Found/Updated heritage mapping: {HeritageName} -> {heritage_mapping.faction}.");
                                 }
                             }
                         }
