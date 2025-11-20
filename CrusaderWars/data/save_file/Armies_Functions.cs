@@ -547,10 +547,13 @@ namespace CrusaderWars.data.save_file
                             unit = new Unit("Levy", soldiersNum, levyCulture, regiment.type);
                     }
                     else if (regiment.type == RegimentType.MenAtArms)
+                    {
+                        Culture? maaCulture = regiment.regiment.Culture ?? army.Owner?.GetCulture();
                         if (regiment.regiment.isMercenary())
-                            unit = new Unit(regiment.maa_name, soldiersNum, regiment.regiment.Culture, regiment.type, true);
+                            unit = new Unit(regiment.maa_name, soldiersNum, maaCulture, regiment.type, true);
                         else
-                            unit = new Unit(regiment.maa_name, soldiersNum, regiment.regiment.Culture, regiment.type);
+                            unit = new Unit(regiment.maa_name, soldiersNum, maaCulture, regiment.type);
+                    }
                     else
                         continue;
 
