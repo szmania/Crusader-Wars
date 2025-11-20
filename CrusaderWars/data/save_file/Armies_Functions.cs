@@ -540,7 +540,9 @@ namespace CrusaderWars.data.save_file
                     Unit unit;
                     if (regiment.type == RegimentType.Levy)
                     {
-                        Culture? levyCulture = regiment.regiment.Culture ?? army.Owner?.GetCulture();
+                        Culture? levyCulture = (regiment.regiment.Culture != null && !string.IsNullOrEmpty(regiment.regiment.Culture.GetCultureName()))
+                            ? regiment.regiment.Culture
+                            : army.Owner?.GetCulture();
                         if (regiment.regiment.isMercenary())
                             unit = new Unit("Levy", soldiersNum, levyCulture, regiment.type, true);
                         else
@@ -548,7 +550,9 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (regiment.type == RegimentType.MenAtArms)
                     {
-                        Culture? maaCulture = regiment.regiment.Culture ?? army.Owner?.GetCulture();
+                        Culture? maaCulture = (regiment.regiment.Culture != null && !string.IsNullOrEmpty(regiment.regiment.Culture.GetCultureName()))
+                            ? regiment.regiment.Culture
+                            : army.Owner?.GetCulture();
                         if (regiment.regiment.isMercenary())
                             unit = new Unit(regiment.maa_name, soldiersNum, maaCulture, regiment.type, true);
                         else
