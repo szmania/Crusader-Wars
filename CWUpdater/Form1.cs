@@ -437,9 +437,13 @@ del ""%~f0""
 
                             string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
                             string settingsDir = Path.Combine(applicationPath, "settings");
+                            string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
+                            string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
                             if (destinationPath.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
-                                destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
+                                destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
+                                destinationPath.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                                destinationPath.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                             {
                                 Logger.Log($"Skipping overwrite of file in protected directory: {finalRelativePath}");
                                 continue;
@@ -598,6 +602,8 @@ del ""%~f0""
             {
                 string settingsDir = Path.Combine(applicationPath, "settings");
                 string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
+                string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
+                string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
@@ -607,7 +613,9 @@ del ""%~f0""
                     // Skip files within the updater, settings, and unit mappers directories to prevent accidental deletion
                     if (file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) ||
                         file.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
-                        file.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase))
+                        file.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativePath = file.Substring(applicationPath.Length + 1);
@@ -630,7 +638,9 @@ del ""%~f0""
                     // Skip the updater, settings, and unit mappers directories
                     if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) || updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
-                        dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase))
+                        dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
