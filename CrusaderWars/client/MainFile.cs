@@ -836,13 +836,20 @@ namespace CrusaderWars
                     notificationForm.ShowInTaskbar = false;
                     notificationForm.Icon = this.Icon;
 
+                    // Panel for the button at the bottom
+                    Panel bottomPanel = new Panel
+                    {
+                        Dock = DockStyle.Bottom,
+                        Height = 50,
+                    };
+                    notificationForm.Controls.Add(bottomPanel);
+
+                    // Panel for the scrollable content, fills the rest of the space
                     Panel scrollPanel = new Panel
                     {
                         Dock = DockStyle.Fill,
                         AutoScroll = true,
-                        Padding = new Padding(10),
-                        Height = notificationForm.ClientSize.Height - 50,
-                        Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+                        Padding = new Padding(10)
                     };
                     notificationForm.Controls.Add(scrollPanel);
 
@@ -911,10 +918,10 @@ namespace CrusaderWars
                         Text = "OK",
                         DialogResult = DialogResult.OK,
                         Size = new Size(100, 30),
-                        Location = new Point((notificationForm.ClientSize.Width - 100) / 2, notificationForm.ClientSize.Height - 40),
-                        Anchor = AnchorStyles.Bottom
+                        Location = new Point((bottomPanel.ClientSize.Width - 100) / 2, 10), // Centered in bottom panel
+                        Anchor = AnchorStyles.None // Let the panel handle positioning
                     };
-                    notificationForm.Controls.Add(okButton);
+                    bottomPanel.Controls.Add(okButton);
                     notificationForm.AcceptButton = okButton;
 
                     notificationForm.ShowDialog(this);
