@@ -668,6 +668,7 @@ namespace CrusaderWars.unit_mapper
             ActivePlaythroughTag = tag;
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             List<string> requiredMods = new List<string>();
+            AvailableSubmods.Clear(); // Clear the list before populating
 
             foreach (var mapper in unit_mappers_folder)
             {
@@ -736,6 +737,36 @@ namespace CrusaderWars.unit_mapper
                                                     }
                                                     else if (node.Name == "Submod")
                                                     {
+                                                        // Populate the static list of all available submods
+                                                        var submod = new Submod
+                                                        {
+                                                            Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                                            ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                                                        };
+                                                        string? replaceAttr = node.Attributes?["replace"]?.Value;
+                                                        if (!string.IsNullOrEmpty(replaceAttr))
+                                                        {
+                                                            submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
+                                                        }
+                                                        foreach (XmlNode submod_modNode in node.ChildNodes)
+                                                        {
+                                                            if (submod_modNode.Name == "Mod")
+                                                            {
+                                                                var modFile = new ModFile
+                                                                {
+                                                                    FileName = submod_modNode.InnerText,
+                                                                    Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
+                                                                    ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
+                                                                    Url = submod_modNode.Attributes?["url"]?.Value
+                                                                };
+                                                                submod.Mods.Add(modFile);
+                                                            }
+                                                        }
+                                                        if (!string.IsNullOrEmpty(submod.Tag))
+                                                        {
+                                                            AvailableSubmods.Add(submod);
+                                                        }
+
                                                         // This part is for adding active submod files to the load order
                                                         string? submodTag = node.Attributes?["submod_tag"]?.Value;
                                                         if (!string.IsNullOrEmpty(submodTag) && activeSubmods.Contains(submodTag))
