@@ -172,10 +172,12 @@ namespace CrusaderWars.data.save_file
                         bracketCount += line.Count(c => c == '{');
                         bracketCount -= line.Count(c => c == '}');
 
-                        // If we haven't found the culture name yet, search for it on this line.
-                        if (string.IsNullOrEmpty(culture_name) && line.Contains("name="))
+                        // If we haven't found the culture name yet, search for it at the correct nesting level.
+                        if (string.IsNullOrEmpty(culture_name) && bracketCount == 1 && line.Contains("name="))
                         {
-                            Match nameMatch = Regex.Match(line, @"name=""([^""]+)""");
+                            // This regex ensures we only match 'name=' at the start of the line (with whitespace)
+                            // and not nested inside other definitions.
+                            Match nameMatch = Regex.Match(line, @"^\s*name=""([^""]+)""");
                             if (nameMatch.Success)
                             {
                                 culture_name = nameMatch.Groups[1].Value;

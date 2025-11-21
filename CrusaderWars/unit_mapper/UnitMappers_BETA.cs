@@ -323,7 +323,7 @@ namespace CrusaderWars.unit_mapper
                     using (var reader = XmlReader.Create(file))
                     {
                         reader.MoveToContent();
-                        string? addonForTag = reader.GetAttribute("submod_addon_tag");
+                        string? addonForTag = reader.GetAttribute("submod_addon_for");
                         string? submodTag = reader.GetAttribute("submod_tag");
 
                         if (!string.IsNullOrEmpty(addonForTag) && activeSubmods.Contains(addonForTag))
@@ -346,7 +346,7 @@ namespace CrusaderWars.unit_mapper
                             // File has a tag for an inactive sub-mod, so we skip it.
                             if (!string.IsNullOrEmpty(addonForTag))
                             {
-                                Program.Logger.Debug($"Skipping file '{fileName}' because its submod_addon_tag tag '{addonForTag}' is not active.");
+                                Program.Logger.Debug($"Skipping file '{fileName}' because its submod_addon_for tag '{addonForTag}' is not active.");
                             }
                             if (!string.IsNullOrEmpty(submodTag))
                             {
