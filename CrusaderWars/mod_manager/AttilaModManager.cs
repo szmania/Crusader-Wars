@@ -201,8 +201,23 @@ namespace CrusaderWars.mod_manager
                 }
             }
 
+            // Get a list of all possible submod pack files to prevent duplication.
+            var allSubmodPacks = new HashSet<string>();
+            if (UnitMappers_BETA.AvailableSubmods.Any())
+            {
+                foreach (var submod in UnitMappers_BETA.AvailableSubmods)
+                {
+                    foreach (var modFile in submod.Mods)
+                    {
+                        allSubmodPacks.Add(modFile.FileName);
+                    }
+                }
+            }
+
             // Get ordered lists of mods
-            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod() && !modsToExclude.Contains(x.GetName()))
+            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod() 
+                                                && !modsToExclude.Contains(x.GetName())
+                                                && !allSubmodPacks.Contains(x.GetName())) // Exclude submod packs
                                        .OrderBy(x => x.GetLoadOrderValue())
                                        .ToList();
 
