@@ -766,19 +766,6 @@ namespace CrusaderWars.unit_mapper
                                                         {
                                                             AvailableSubmods.Add(submod);
                                                         }
-
-                                                        // This part is for adding active submod files to the load order
-                                                        string? submodTag = node.Attributes?["submod_tag"]?.Value;
-                                                        if (!string.IsNullOrEmpty(submodTag) && activeSubmods.Contains(submodTag))
-                                                        {
-                                                            foreach (XmlNode submod_modNode in node.ChildNodes)
-                                                            {
-                                                                if (submod_modNode.Name == "Mod")
-                                                                {
-                                                                    requiredMods.Add(submod_modNode.InnerText);
-                                                                }
-                                                            }
-                                                        }
                                                     }
                                                 }
                                             }

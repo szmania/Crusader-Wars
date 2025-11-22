@@ -248,7 +248,19 @@ namespace CrusaderWars.mod_manager
                 sw.WriteLine($"mod \"CrusaderConflicts.pack\";");
                 Program.Logger.Debug("  - Mod: CrusaderConflicts.pack (Highest Priority)");
 
-                // 2. Active Submod packs
+                // 2. Optional (user-selected) mods
+                foreach (var mod in optionalMods)
+                {
+                    writeModEntry(mod, "Optional");
+                }
+
+                // 3. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
+                foreach (var mod in requiredMods)
+                {
+                    writeModEntry(mod, "Required");
+                }
+
+                // 4. Active Submod packs
                 if (UnitMappers_BETA.ActivePlaythroughTag != null)
                 {
                     var activeSubmodTags = SubmodManager.GetActiveSubmodsForPlaythrough(UnitMappers_BETA.ActivePlaythroughTag);
@@ -275,18 +287,6 @@ namespace CrusaderWars.mod_manager
                             }
                         }
                     }
-                }
-
-                // 3. Optional (user-selected) mods
-                foreach (var mod in optionalMods)
-                {
-                    writeModEntry(mod, "Optional");
-                }
-
-                // 4. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
-                foreach (var mod in requiredMods)
-                {
-                    writeModEntry(mod, "Required");
                 }
 
                 sw.Dispose();
