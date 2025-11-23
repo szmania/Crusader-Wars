@@ -1,3 +1,4 @@
+using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
 using System;
 using System.Collections.Generic;
@@ -98,9 +99,9 @@ namespace CrusaderWars.client
 
         private void btnReplace_Click(object sender, EventArgs e)
         {
-            if (tvCurrentUnits.SelectedNodes.Count == 0 || tvAvailableUnits.SelectedNode == null)
+            if (tvCurrentUnits.SelectedNode == null || tvAvailableUnits.SelectedNode == null)
             {
-                MessageBox.Show("Please select at least one unit from the 'Current Battle' list and one unit from the 'Available Replacements' list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select one unit from the 'Current Battle' list and one unit from the 'Available Replacements' list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -114,25 +115,24 @@ namespace CrusaderWars.client
             string replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
             string replacementName = tvAvailableUnits.SelectedNode.Text;
 
-            foreach (TreeNode selectedNode in tvCurrentUnits.SelectedNodes)
+            
+            // Only act on final unit nodes
+            if (tvCurrentUnits.SelectedNode.Tag != null)
             {
-                // Only act on final unit nodes
-                if (selectedNode.Tag != null)
-                {
-                    string originalKey = selectedNode.Tag.ToString();
-                    Replacements[originalKey] = replacementKey;
+                string originalKey = tvCurrentUnits.SelectedNode.Tag.ToString();
+                Replacements[originalKey] = replacementKey;
 
-                    // Visual feedback
-                    selectedNode.ForeColor = Color.MediumSeaGreen;
-                    // Remove old replacement text if it exists
-                    int arrowIndex = selectedNode.Text.IndexOf(" ->");
-                    if (arrowIndex > 0)
-                    {
-                        selectedNode.Text = selectedNode.Text.Substring(0, arrowIndex);
-                    }
-                    selectedNode.Text += $" -> {replacementName}";
+                // Visual feedback
+                tvCurrentUnits.SelectedNode.ForeColor = Color.MediumSeaGreen;
+                // Remove old replacement text if it exists
+                int arrowIndex = tvCurrentUnits.SelectedNode.Text.IndexOf(" ->");
+                if (arrowIndex > 0)
+                {
+                    tvCurrentUnits.SelectedNode.Text = tvCurrentUnits.SelectedNode.Text.Substring(0, arrowIndex);
                 }
+                tvCurrentUnits.SelectedNode.Text += $" -> {replacementName}";
             }
+            
         }
 
         private void btnOK_Click(object sender, EventArgs e)
