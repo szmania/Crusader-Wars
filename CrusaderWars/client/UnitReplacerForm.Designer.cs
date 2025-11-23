@@ -37,26 +37,29 @@ namespace CrusaderWars.client
             this.label2 = new System.Windows.Forms.Label();
             this.InstructionsBox = new System.Windows.Forms.GroupBox();
             this.labelInstructions = new System.Windows.Forms.Label();
+            this.btnUndo = new System.Windows.Forms.Button();
             this.InstructionsBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // tvCurrentUnits
             // 
-            this.tvCurrentUnits.Location = new System.Drawing.Point(12, 140);
+            this.tvCurrentUnits.Location = new System.Drawing.Point(12, 170);
             this.tvCurrentUnits.Name = "tvCurrentUnits";
             this.tvCurrentUnits.Size = new System.Drawing.Size(300, 450);
             this.tvCurrentUnits.TabIndex = 0;
+            this.tvCurrentUnits.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvCurrentUnits_BeforeSelect);
+            this.tvCurrentUnits.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvCurrentUnits_NodeMouseClick);
             // 
             // tvAvailableUnits
             // 
-            this.tvAvailableUnits.Location = new System.Drawing.Point(472, 140);
+            this.tvAvailableUnits.Location = new System.Drawing.Point(472, 170);
             this.tvAvailableUnits.Name = "tvAvailableUnits";
             this.tvAvailableUnits.Size = new System.Drawing.Size(300, 450);
             this.tvAvailableUnits.TabIndex = 1;
             // 
             // btnReplace
             // 
-            this.btnReplace.Location = new System.Drawing.Point(344, 350);
+            this.btnReplace.Location = new System.Drawing.Point(344, 360);
             this.btnReplace.Name = "btnReplace";
             this.btnReplace.Size = new System.Drawing.Size(100, 23);
             this.btnReplace.TabIndex = 2;
@@ -66,7 +69,7 @@ namespace CrusaderWars.client
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(697, 605);
+            this.btnOK.Location = new System.Drawing.Point(697, 635);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 3;
@@ -77,7 +80,7 @@ namespace CrusaderWars.client
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(616, 605);
+            this.btnCancel.Location = new System.Drawing.Point(616, 635);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 4;
@@ -89,7 +92,7 @@ namespace CrusaderWars.client
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(12, 124);
+            this.label1.Location = new System.Drawing.Point(12, 154);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(118, 13);
             this.label1.TabIndex = 5;
@@ -99,7 +102,7 @@ namespace CrusaderWars.client
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(469, 124);
+            this.label2.Location = new System.Drawing.Point(469, 154);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(177, 13);
             this.label2.TabIndex = 6;
@@ -111,7 +114,7 @@ namespace CrusaderWars.client
             this.InstructionsBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.InstructionsBox.Location = new System.Drawing.Point(12, 12);
             this.InstructionsBox.Name = "InstructionsBox";
-            this.InstructionsBox.Size = new System.Drawing.Size(760, 100);
+            this.InstructionsBox.Size = new System.Drawing.Size(760, 130);
             this.InstructionsBox.TabIndex = 7;
             this.InstructionsBox.TabStop = false;
             this.InstructionsBox.Text = "Instructions";
@@ -122,9 +125,19 @@ namespace CrusaderWars.client
             this.labelInstructions.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelInstructions.Location = new System.Drawing.Point(15, 20);
             this.labelInstructions.Name = "labelInstructions";
-            this.labelInstructions.Size = new System.Drawing.Size(454, 65);
+            this.labelInstructions.Size = new System.Drawing.Size(499, 104);
             this.labelInstructions.TabIndex = 0;
-            this.labelInstructions.Text = "1. Select a unit type to replace from the \'Current Battle Units\' list on the left.\r\n2. Select a unit to replace it with from the \'Available Replacements\' list on the right.\r\n3. Click the \'-> Replace ->\' button.\r\n4. Repeat for other unit types if needed. Replacing one unit replaces ALL units of that same type.\r\n5. Click \'OK\' to confirm your changes and restart the battle.";
+            this.labelInstructions.Text = "How to Replace Units:\r\n1. Select units to replace from the \'Current Battle Units\' list.\r\n   (Use Ctrl+Click for multiple units, or Shift+Click for a range).\r\n2. Select a unit to replace them with from the \'Available...\' list on the right.\r\n3. Click \'-> Replace ->\' to mark them for replacement.\r\n4. Repeat for other groups of units with different replacements.\r\n\r\n- Replacing a Men-At-Arm unit replaces all units of that same type.\r\n- The \'Undo\' button will clear all pending replacements.\r\n- Click \'OK\' when you have finished setting all replacements.";
+            // 
+            // btnUndo
+            // 
+            this.btnUndo.Location = new System.Drawing.Point(344, 390);
+            this.btnUndo.Name = "btnUndo";
+            this.btnUndo.Size = new System.Drawing.Size(100, 23);
+            this.btnUndo.TabIndex = 8;
+            this.btnUndo.Text = "Undo";
+            this.btnUndo.UseVisualStyleBackColor = true;
+            this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
             // UnitReplacerForm
             // 
@@ -132,7 +145,8 @@ namespace CrusaderWars.client
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(784, 641);
+            this.ClientSize = new System.Drawing.Size(784, 671);
+            this.Controls.Add(this.btnUndo);
             this.Controls.Add(this.InstructionsBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -166,5 +180,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox InstructionsBox;
         private System.Windows.Forms.Label labelInstructions;
+        private System.Windows.Forms.Button btnUndo;
     }
 }

@@ -13,6 +13,7 @@ namespace CrusaderWars.client
         private readonly List<Unit> _currentUnits;
         private readonly List<AvailableUnit> _allAvailableUnits;
         public Dictionary<string, string> Replacements { get; private set; } = new Dictionary<string, string>();
+        private List<TreeNode> _selectedCurrentNodes = new List<TreeNode>();
 
         public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits)
         {
@@ -129,13 +130,12 @@ namespace CrusaderWars.client
 
         private void btnReplace_Click(object sender, EventArgs e)
         {
-            if (tvCurrentUnits.SelectedNode == null || tvAvailableUnits.SelectedNode == null)
+            if (_selectedCurrentNodes.Count == 0 || tvAvailableUnits.SelectedNode == null)
             {
-                MessageBox.Show("Please select one unit from the 'Current Battle' list and one unit from the 'Available Replacements' list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select one or more units from the 'Current Battle' list and one unit from the 'Available Replacements' list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // The replacement key must be a final unit node, not a category node
             if (tvAvailableUnits.SelectedNode.Tag == null)
             {
                 MessageBox.Show("Please select a specific unit to replace with, not a category.", "Invalid Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -143,86 +143,196 @@ namespace CrusaderWars.client
             }
 
             string replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
-            string replacementName = tvAvailableUnits.SelectedNode.Text;
 
+            foreach (var selectedNode in _selectedCurrentNodes)
+            {
+                if (selectedNode.Tag is { } tag)
+                {
+                    string keyToReplace = "";
+                    string maaTypeToReplace = null;
 
-            // This helper function will recursively find all nodes in a tree
-            Action<TreeNodeCollection, Action<TreeNode>> TraverseNodes = null;
-            TraverseNodes = (nodes, action) =>
+                    if (tag is string s)
+                    {
+                        keyToReplace = s;
+                    }
+                    else
+                    {
+                        dynamic tagObject = tag;
+                        keyToReplace = tagObject.OriginalKey;
+                        maaTypeToReplace = tagObject.MaAType;
+                    }
+
+                    if (!string.IsNullOrEmpty(maaTypeToReplace))
+                    {
+                        foreach (var unit in _currentUnits.Where(u => u.GetName() == maaTypeToReplace))
+                        {
+                            Replacements[unit.GetAttilaUnitKey()] = replacementKey;
+                        }
+                    }
+                    else
+                    {
+                        Replacements[keyToReplace] = replacementKey;
+                    }
+                }
+            }
+            
+            UpdateCurrentUnitsTreeVisuals();
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            Replacements.Clear();
+            ClearNodeSelection();
+            UpdateCurrentUnitsTreeVisuals();
+        }
+
+        private void UpdateCurrentUnitsTreeVisuals()
+        {
+            Action<TreeNodeCollection> TraverseNodes = null;
+            TraverseNodes = (nodes) =>
             {
                 foreach (TreeNode node in nodes)
                 {
-                    action(node);
-                    TraverseNodes(node.Nodes, action);
-                }
-            };
-
-            // We can replace a single unit, or a whole type of MenAtArm
-            if (tvCurrentUnits.SelectedNode.Tag is { } tag)
-            {
-                string keyToReplace = "";
-                string maaTypeToReplace = null;
-
-                if (tag is string s) // It's a General, Knight, etc.
-                {
-                    keyToReplace = s;
-                }
-                else // It's a MenAtArm with our complex object
-                {
-                    dynamic tagObject = tag;
-                    keyToReplace = tagObject.OriginalKey;
-                    maaTypeToReplace = tagObject.MaAType;
-                }
-
-                Replacements[keyToReplace] = replacementKey;
-
-                // Now, update all matching nodes visually
-                TraverseNodes(tvCurrentUnits.Nodes, node =>
-                {
                     if (node.Tag is { } nodeTag)
                     {
-                        bool match = false;
-                        if (!string.IsNullOrEmpty(maaTypeToReplace))
-                        {
-                            // Match by MenAtArm type
-                            if (!(nodeTag is string))
-                            {
-                                dynamic nodeTagObject = nodeTag;
-                                if (nodeTagObject.MaAType == maaTypeToReplace)
-                                {
-                                    match = true;
-                                    // Also update the replacement dictionary for this specific key if it's different
-                                    if (Replacements.ContainsKey(nodeTagObject.OriginalKey) == false)
-                                    {
-                                        Replacements[nodeTagObject.OriginalKey] = replacementKey;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Match by simple key (for Generals, Knights)
-                            if (nodeTag is string nodeKey && nodeKey == keyToReplace)
-                            {
-                                match = true;
-                            }
-                        }
+                        string originalKey = (nodeTag is string s) ? s : (string)((dynamic)nodeTag).OriginalKey;
 
-                        if (match)
+                        int arrowIndex = node.Text.IndexOf(" ->");
+                        if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
+                        node.ForeColor = tvCurrentUnits.ForeColor;
+
+                        if (Replacements.TryGetValue(originalKey, out string replacementKey))
                         {
-                            node.ForeColor = Color.MediumSeaGreen;
-                            // Remove old replacement text if it exists
-                            int arrowIndex = node.Text.IndexOf(" ->");
-                            if (arrowIndex > 0)
-                            {
-                                node.Text = node.Text.Substring(0, arrowIndex);
-                            }
+                            string replacementName = FindAvailableUnitNodeText(replacementKey);
                             node.Text += $" -> {replacementName}";
+                            node.ForeColor = Color.MediumSeaGreen;
                         }
                     }
-                });
+                    TraverseNodes(node.Nodes);
+                }
+            };
+            TraverseNodes(tvCurrentUnits.Nodes);
+        }
+
+        private string FindAvailableUnitNodeText(string key)
+        {
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        if (unitNode.Tag as string == key)
+                        {
+                            return unitNode.Text;
+                        }
+                    }
+                }
+            }
+            return key;
+        }
+
+        private void tvCurrentUnits_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            e.Cancel = true;
+        }
+
+        private void tvCurrentUnits_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node.Tag == null) return;
+
+            bool isCtrlPressed = (ModifierKeys & Keys.Control) == Keys.Control;
+            bool isShiftPressed = (ModifierKeys & Keys.Shift) == Keys.Shift;
+
+            if (!isCtrlPressed && !isShiftPressed)
+            {
+                ClearNodeSelection();
+                AddNodeToSelection(e.Node);
+            }
+            else if (isCtrlPressed)
+            {
+                if (_selectedCurrentNodes.Contains(e.Node))
+                {
+                    RemoveNodeFromSelection(e.Node);
+                }
+                else
+                {
+                    AddNodeToSelection(e.Node);
+                }
+            }
+            else if (isShiftPressed)
+            {
+                TreeNode lastSelectedNode = _selectedCurrentNodes.LastOrDefault();
+                ClearNodeSelection();
+
+                if (lastSelectedNode != null && lastSelectedNode.TreeView == e.Node.TreeView)
+                {
+                    SelectRange(lastSelectedNode, e.Node);
+                }
+                else
+                {
+                    AddNodeToSelection(e.Node);
+                }
+            }
+        }
+
+        private void ClearNodeSelection()
+        {
+            foreach (var node in _selectedCurrentNodes)
+            {
+                node.BackColor = tvCurrentUnits.BackColor;
+            }
+            _selectedCurrentNodes.Clear();
+        }
+
+        private void AddNodeToSelection(TreeNode node)
+        {
+            if (node != null && !_selectedCurrentNodes.Contains(node) && node.Tag != null)
+            {
+                _selectedCurrentNodes.Add(node);
+                node.BackColor = SystemColors.Highlight;
+            }
+        }
+
+        private void RemoveNodeFromSelection(TreeNode node)
+        {
+            if (node != null && _selectedCurrentNodes.Contains(node))
+            {
+                _selectedCurrentNodes.Remove(node);
+                node.BackColor = tvCurrentUnits.BackColor;
+            }
+        }
+
+        private void SelectRange(TreeNode startNode, TreeNode endNode)
+        {
+            List<TreeNode> allNodes = new List<TreeNode>();
+            Action<TreeNodeCollection> collectNodes = null;
+            collectNodes = (nodes) => {
+                foreach (TreeNode node in nodes)
+                {
+                    allNodes.Add(node);
+                    collectNodes(node.Nodes);
+                }
+            };
+            collectNodes(tvCurrentUnits.Nodes);
+
+            int startIndex = allNodes.IndexOf(startNode);
+            int endIndex = allNodes.IndexOf(endNode);
+
+            if (startIndex > endIndex)
+            {
+                int temp = startIndex;
+                startIndex = endIndex;
+                endIndex = temp;
             }
 
+            if (startIndex != -1 && endIndex != -1)
+            {
+                for (int i = startIndex; i <= endIndex; i++)
+                {
+                    AddNodeToSelection(allNodes[i]);
+                }
+            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
