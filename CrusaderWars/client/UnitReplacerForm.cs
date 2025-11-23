@@ -174,7 +174,8 @@ namespace CrusaderWars.client
 
                     if (!string.IsNullOrEmpty(maaTypeToReplace))
                     {
-                        foreach (var unit in _currentUnits.Where(u => u.GetName() == maaTypeToReplace))
+                        bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
+                        foreach (var unit in _currentUnits.Where(u => u.GetName() == maaTypeToReplace && u.IsPlayer() == isPlayerAlliance))
                         {
                             Replacements[unit.GetAttilaUnitKey()] = (replacementKey, isSiege);
                         }
