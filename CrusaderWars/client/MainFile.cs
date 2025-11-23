@@ -1727,6 +1727,8 @@ namespace CrusaderWars
                     break;
                 }
 
+                ExecuteButton.Enabled = false;
+                ContinueBattleButton.Enabled = false;
                 if (!await BattleProcessor.ProcessBattle(this, attacker_armies, defender_armies, token))
                 {
                     break;
@@ -1915,6 +1917,8 @@ namespace CrusaderWars
                 }
             }
 
+            ExecuteButton.Enabled = false;
+            ContinueBattleButton.Enabled = false;
             _programmaticClick = true;
             if (await BattleProcessor.ProcessBattle(this, attacker_armies, defender_armies, token, regenerateAndRestart))
             {
@@ -1943,6 +1947,33 @@ namespace CrusaderWars
         private void ContinueBattleButton_MouseLeave(object sender, EventArgs e)
         {
             ContinueBattleButton.BackgroundImage = Properties.Resources.start_new;
+        }
+
+        public void UpdateInfoLabel(string? message)
+        {
+            if (infoLabel != null && !infoLabel.IsDisposed && infoLabel.IsHandleCreated)
+            {
+                infoLabel.BeginInvoke(new Action(() => {
+                    if (infoLabel != null && !infoLabel.IsDisposed)
+                    {
+                        infoLabel.Text = message ?? string.Empty;
+                    }
+                }));
+            }
+        }
+
+        public void SetBattleButtonsEnabled(bool enabled)
+        {
+            if (ExecuteButton != null && !ExecuteButton.IsDisposed && ExecuteButton.IsHandleCreated)
+            {
+                ExecuteButton.BeginInvoke(new Action(() => {
+                    ExecuteButton.Enabled = enabled;
+                    if (ContinueBattleButton != null && !ContinueBattleButton.IsDisposed)
+                    {
+                        ContinueBattleButton.Enabled = enabled;
+                    }
+                }));
+            }
         }
 
         /*---------------------------------------------
