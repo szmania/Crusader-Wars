@@ -60,9 +60,10 @@ namespace CrusaderWars.client
                         string nameToShow = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName();
                         string attilaKey = unit.GetAttilaUnitKey();
                         string displayName;
-                        object nodeTag = attilaKey; // Default tag is just the key
+                        object nodeTag; // Declare nodeTag without an initial value
+                        var regimentType = unit.GetRegimentType(); // Get the regiment type
 
-                        if (unit.GetRegimentType() == RegimentType.MenAtArms)
+                        if (regimentType == RegimentType.MenAtArms)
                         {
                             string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(unit.GetName());
                             if (!string.IsNullOrEmpty(maxCategory))
@@ -74,11 +75,17 @@ namespace CrusaderWars.client
                                 displayName = $"MAA {nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
                             }
                             // Store both key and type for multi-update logic
-                            nodeTag = new { OriginalKey = attilaKey, MaAType = unit.GetName() };
+                            nodeTag = new { OriginalKey = attilaKey, TypeIdentifier = unit.GetName(), RegimentType = regimentType };
                         }
-                        else
+                        else if (regimentType == RegimentType.Commander || regimentType == RegimentType.Knight || regimentType == RegimentType.Levy)
                         {
                             displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
+                            nodeTag = new { OriginalKey = attilaKey, TypeIdentifier = regimentType.ToString(), RegimentType = regimentType };
+                        }
+                        else // for all other units (e.g., Garrison)
+                        {
+                            displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
+                            nodeTag = attilaKey;
                         }
 
                         var unitNode = new TreeNode(displayName)
@@ -164,33 +171,32 @@ namespace CrusaderWars.client
 
             foreach (var selectedNode in _selectedCurrentNodes)
             {
-                if (selectedNode.Tag is { } tag)
+                if (selectedNode.Tag is string keyToReplace) // Handles individual replacements (e.g., Garrison)
                 {
-                    string keyToReplace = "";
-                    string maaTypeToReplace = null;
+                    Replacements[keyToReplace] = (replacementKey, isSiege);
+                }
+                else // Handles group replacements (MenAtArms, Commander, Knight, Levy)
+                {
+                    dynamic tagObject = selectedNode.Tag;
+                    string originalKey = tagObject.OriginalKey;
+                    RegimentType regimentType = tagObject.RegimentType;
+                    string typeIdentifier = tagObject.TypeIdentifier; // This will be unit.GetName() for MAA, or regimentType.ToString() for others.
 
-                    if (tag is string s)
+                    bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
+                    IEnumerable<Unit> unitsToReplace;
+
+                    if (regimentType == RegimentType.MenAtArms)
                     {
-                        keyToReplace = s;
+                        unitsToReplace = _currentUnits.Where(u => u.GetName() == typeIdentifier && u.IsPlayer() == isPlayerAlliance);
                     }
-                    else
+                    else // Commander, Knight, Levy
                     {
-                        dynamic tagObject = tag;
-                        keyToReplace = tagObject.OriginalKey;
-                        maaTypeToReplace = tagObject.MaAType;
+                        unitsToReplace = _currentUnits.Where(u => u.GetRegimentType() == regimentType && u.IsPlayer() == isPlayerAlliance);
                     }
 
-                    if (!string.IsNullOrEmpty(maaTypeToReplace))
+                    foreach (var unit in unitsToReplace)
                     {
-                        bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
-                        foreach (var unit in _currentUnits.Where(u => u.GetName() == maaTypeToReplace && u.IsPlayer() == isPlayerAlliance))
-                        {
-                            Replacements[unit.GetAttilaUnitKey()] = (replacementKey, isSiege);
-                        }
-                    }
-                    else
-                    {
-                        Replacements[keyToReplace] = (replacementKey, isSiege);
+                        Replacements[unit.GetAttilaUnitKey()] = (replacementKey, isSiege);
                     }
                 }
             }
