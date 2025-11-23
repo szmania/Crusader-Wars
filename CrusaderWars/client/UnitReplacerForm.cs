@@ -59,7 +59,7 @@ namespace CrusaderWars.client
                     {
                         string nameToShow = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName();
                         string attilaKey = unit.GetAttilaUnitKey();
-                        string displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
+                        string displayName;
                         object nodeTag = attilaKey; // Default tag is just the key
 
                         if (unit.GetRegimentType() == RegimentType.MenAtArms)
@@ -67,10 +67,18 @@ namespace CrusaderWars.client
                             string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(unit.GetName());
                             if (!string.IsNullOrEmpty(maxCategory))
                             {
-                                displayName = $"{nameToShow} [{maxCategory}] [{attilaKey}] ({unit.GetSoldiers()} men)";
+                                displayName = $"MAA {nameToShow} [{maxCategory}] [{attilaKey}] ({unit.GetSoldiers()} men)";
+                            }
+                            else
+                            {
+                                displayName = $"MAA {nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
                             }
                             // Store both key and type for multi-update logic
                             nodeTag = new { OriginalKey = attilaKey, MaAType = unit.GetName() };
+                        }
+                        else
+                        {
+                            displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
                         }
 
                         var unitNode = new TreeNode(displayName)
