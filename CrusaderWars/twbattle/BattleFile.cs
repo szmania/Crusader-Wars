@@ -112,6 +112,16 @@ namespace CrusaderWars
                     foreach (var army in defender_armies) { army.IsPlayer(true); } // Corrected line
                 }
             }
+
+            foreach(var army in attacker_armies.Concat(defender_armies))
+            {
+                if (army.Units == null) continue;
+                bool isPlayerArmy = army.IsPlayer();
+                foreach(var unit in army.Units)
+                {
+                    unit.SetIsPlayer(isPlayerArmy);
+                }
+            }
         }
 
         static void AllControledArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap, Dictionary<string, int> siegeEngines)

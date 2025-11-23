@@ -89,6 +89,7 @@ namespace CrusaderWars.data.save_file
         private bool IsSiegeWeapon { get; set; }
         private bool IsSiegeEnginePerUnitBool { get; set; }
         private int NumGuns { get; set; }
+        private bool IsPlayerUnitBool { get; set; }
 
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
@@ -156,6 +157,7 @@ namespace CrusaderWars.data.save_file
         public void SetIsSiege(bool isSiege) { IsSiegeWeapon = isSiege; }
         public void SetIsSiegeEnginePerUnit(bool isPerUnit) { IsSiegeEnginePerUnitBool = isPerUnit; }
         public void SetNumGuns(int numGuns) { NumGuns = numGuns; }
+        public void SetIsPlayer(bool isPlayer) { IsPlayerUnitBool = isPlayer; }
 
 
         public int GetMax() { return Max; }
@@ -188,6 +190,7 @@ namespace CrusaderWars.data.save_file
         public bool IsSiege() { return IsSiegeWeapon; }
         public bool IsSiegeEnginePerUnit() { return IsSiegeEnginePerUnitBool; }
         public int GetNumGuns() { return NumGuns; }
+        public bool IsPlayer() { return IsPlayerUnitBool; }
 
     }
 
