@@ -21,6 +21,83 @@ using static CrusaderWars.HomePage; // To access nested static classes like Game
 
 namespace CrusaderWars.twbattle
 {
+    public static class BattleState
+    {
+        private static bool _isBattleInProgress = false;
+        private const string BattleStateFile = @".\data\battle_state.cw_battle";
+        private const string LogSnippetFile = @".\data\log_snippet.txt";
+
+        // Properties from usage
+        public static bool IsSiegeBattle { get; set; }
+        public static bool HasReliefArmy { get; set; }
+        public static List<string>? SiegeBesiegerOrientations { get; set; }
+        public static string OriginalSiegeAttackerDirection { get; set; }
+
+        // Autofix properties
+        public static int AutofixMapVariantOffset { get; set; }
+        public static bool AutofixForceGenericMap { get; set; }
+        public static bool AutofixDeploymentRotationOverride { get; set; }
+        public static string AutofixAttackerDirectionOverride { get; set; }
+        public static string AutofixDeploymentSizeOverride { get; set; }
+
+        // Manual replacement property
+        public static Dictionary<string, (string replacementKey, bool isSiege)> ManualUnitReplacements { get; set; } = new Dictionary<string, (string, bool)>();
+
+
+        public static bool IsBattleInProgress()
+        {
+            return File.Exists(BattleStateFile);
+        }
+
+        public static void MarkBattleStarted()
+        {
+            File.WriteAllText(BattleStateFile, "Battle in progress");
+            _isBattleInProgress = true;
+        }
+
+        public static void ClearBattleState()
+        {
+            if (File.Exists(BattleStateFile))
+            {
+                File.Delete(BattleStateFile);
+            }
+            if (File.Exists(LogSnippetFile))
+            {
+                File.Delete(LogSnippetFile);
+            }
+            _isBattleInProgress = false;
+            IsSiegeBattle = false;
+            HasReliefArmy = false;
+            ClearAutofixOverrides();
+        }
+
+        public static void ClearAutofixOverrides()
+        {
+            AutofixMapVariantOffset = 0;
+            AutofixForceGenericMap = false;
+            AutofixDeploymentRotationOverride = false;
+            AutofixAttackerDirectionOverride = null;
+            AutofixDeploymentSizeOverride = null;
+            SiegeBesiegerOrientations = null;
+            OriginalSiegeAttackerDirection = null;
+            ManualUnitReplacements.Clear();
+        }
+
+        public static void SaveLogSnippet(string log)
+        {
+            File.WriteAllText(LogSnippetFile, log);
+        }
+
+        public static string LoadLogSnippet()
+        {
+            if (File.Exists(LogSnippetFile))
+            {
+                return File.ReadAllText(LogSnippetFile);
+            }
+            return null;
+        }
+    }
+
     public static class BattleProcessor
     {
         private static readonly Random _random = new Random();
@@ -38,7 +115,7 @@ namespace CrusaderWars.twbattle
             public string OriginalFieldMapDescription { get; set; } = "";
 
             // New properties for strategy-based autofix
-            public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant }
+            public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant, ManualUnitReplacement }
             public AutofixStrategy? CurrentStrategy { get; set; } = null;
             public HashSet<AutofixStrategy> TriedStrategies { get; set; } = new HashSet<AutofixStrategy>();
 
@@ -630,7 +707,8 @@ namespace CrusaderWars.twbattle
                             AutofixState.AutofixStrategy.Units,
                             AutofixState.AutofixStrategy.MapSize,
                             AutofixState.AutofixStrategy.Deployment,
-                            AutofixState.AutofixStrategy.MapVariant
+                            AutofixState.AutofixStrategy.MapVariant,
+                            AutofixState.AutofixStrategy.ManualUnitReplacement
                         };
 
                         if (BattleState.IsSiegeBattle)
@@ -719,6 +797,9 @@ namespace CrusaderWars.twbattle
                             break;
                         case AutofixState.AutofixStrategy.MapVariant:
                             (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
+                            break;
+                        case AutofixState.AutofixStrategy.ManualUnitReplacement:
+                            (fixApplied, fixDescription) = TryManualUnitFix(autofixState, form);
                             break;
                     }
 
@@ -1189,6 +1270,59 @@ namespace CrusaderWars.twbattle
             return (false, "");
         }
 
+        private static (bool, string) TryManualUnitFix(AutofixState autofixState, HomePage form)
+        {
+            Program.Logger.Debug("--- Autofix: Initiating Manual Unit Replacement ---");
+
+            // 1. Collect data
+            var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies);
+            var currentUnits = allArmies.SelectMany(a => a.Units)
+                                        .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
+                                        .ToList();
+
+            var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+
+            // 2. Show form
+            Dictionary<string, string> replacements = new Dictionary<string, string>();
+            bool userCommitted = false;
+            form.Invoke((MethodInvoker)delegate
+            {
+                // This is where we hook in your new form
+                using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits))
+                {
+                    if (replacerForm.ShowDialog(form) == DialogResult.OK)
+                    {
+                        replacements = replacerForm.Replacements;
+                        userCommitted = true;
+                    }
+                }
+            });
+
+            // 3. Process results
+            if (userCommitted && replacements.Any())
+            {
+                Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements.");
+                BattleState.ManualUnitReplacements.Clear(); // Clear previous manual fixes
+
+                foreach (var replacement in replacements)
+                {
+                    string keyToReplace = replacement.Key;
+                    string newKey = replacement.Value;
+
+                    bool isSiege = UnitMappers_BETA.IsUnitKeySiege(newKey);
+
+                    BattleState.ManualUnitReplacements[keyToReplace] = (newKey, isSiege);
+                    Program.Logger.Debug($"  - Replacing '{keyToReplace}' with '{newKey}' (IsSiege: {isSiege})");
+                }
+                return (true, "applying manual unit replacements");
+            }
+            else
+            {
+                Program.Logger.Debug("Manual unit replacement was cancelled or no changes were made.");
+                return (false, "");
+            }
+        }
+
         private static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies)
         {
             using (Form prompt = new Form())
@@ -1211,7 +1345,8 @@ namespace CrusaderWars.twbattle
                     { AutofixState.AutofixStrategy.Units, (new RadioButton() { Text = "Change Units", AutoSize = true }, new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.MapSize, (new RadioButton() { Text = "Change Map Size", AutoSize = true }, new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) }
+                    { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Manual Unit Replacement", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
                 int currentTop = 100;

@@ -118,6 +118,15 @@ namespace CrusaderWars.unit_mapper
         public List<UniqueSettlementMap> GetUniqueSettlementMaps() { return UniqueSettlementMaps; }
 
     }
+
+    public class AvailableUnit
+    {
+        public string FactionName { get; set; }
+        public string UnitType { get; set; } // e.g., General, Knights, MenAtArm
+        public string AttilaUnitKey { get; set; }
+        public string DisplayName { get; set; } // For MenAtArm, this will be the 'type' attribute
+    }
+
     internal static class UnitMappers_BETA
     {
         /*----------------------------------------------------------------
@@ -1577,6 +1586,14 @@ namespace CrusaderWars.unit_mapper
 
         private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)
         {
+            // Check for manual replacements first.
+            if (key != NOT_FOUND_KEY && BattleState.ManualUnitReplacements.TryGetValue(key, out var manualReplacement))
+            {
+                Program.Logger.Debug($"Manual Replace: Applying replacement for unit key '{key}' with '{manualReplacement.replacementKey}'.");
+                unit.SetIsSiege(manualReplacement.isSiege);
+                return (manualReplacement.replacementKey, manualReplacement.isSiege);
+            }
+
             // Check if the determined key has an autofix replacement.
             if (key != NOT_FOUND_KEY && BattleProcessor.AutofixReplacements.TryGetValue(key, out var replacement))
             {
@@ -2366,6 +2383,104 @@ namespace CrusaderWars.unit_mapper
                 }
             }
 
+            return false;
+        }
+
+        public static List<AvailableUnit> GetAllAvailableUnits()
+        {
+            var allUnits = new List<AvailableUnit>();
+            var uniqueUnitTracker = new HashSet<(string, string)>(); // To track faction + key to avoid duplicates
+
+            if (LoadedUnitMapper_FolderPath == null) return allUnits;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            if (!Directory.Exists(factions_folder_path)) return allUnits;
+
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+
+            foreach (var xml_file in files_paths)
+            {
+                try
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    foreach (XmlNode factionNode in FactionsFile.SelectNodes("/Factions/Faction"))
+                    {
+                        string factionName = factionNode.Attributes?["name"]?.Value ?? "Unknown";
+
+                        foreach (XmlNode unitNode in factionNode.ChildNodes)
+                        {
+                            if (unitNode is XmlComment) continue;
+
+                            string? key = unitNode.Attributes?["key"]?.Value;
+                            if (string.IsNullOrEmpty(key)) continue;
+
+                            if (uniqueUnitTracker.Contains((factionName, key))) continue; // Skip duplicates from files with lower priority
+
+                            var availableUnit = new AvailableUnit
+                            {
+                                FactionName = factionName,
+                                AttilaUnitKey = key,
+                                UnitType = unitNode.Name,
+                                DisplayName = key // Default display name is the key
+                            };
+
+                            if (unitNode.Name == "MenAtArm")
+                            {
+                                availableUnit.DisplayName = unitNode.Attributes?["type"]?.Value ?? key;
+                            }
+
+                            allUnits.Add(availableUnit);
+                            uniqueUnitTracker.Add((factionName, key));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in GetAllAvailableUnits: {ex.Message}");
+                }
+            }
+
+            return allUnits.OrderBy(u => u.FactionName).ThenBy(u => u.UnitType).ThenBy(u => u.DisplayName).ToList();
+        }
+
+        public static bool IsUnitKeySiege(string unitKey)
+        {
+            if (string.IsNullOrEmpty(unitKey) || LoadedUnitMapper_FolderPath == null) return false;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            if (!Directory.Exists(factions_folder_path)) return false;
+
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Prioritize submods, as they can override base files
+
+            foreach (var xml_file in files_paths)
+            {
+                try
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    // Find a MenAtArm node with the matching key
+                    XmlNode maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@key='{unitKey}']");
+                    if (maaNode != null)
+                    {
+                        // If we find the key, we have our answer.
+                        return maaNode.Attributes?["siege"]?.Value == "true";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in IsUnitKeySiege: {ex.Message}");
+                }
+            }
+
+            // If the key is not found in any file, it's not a siege unit (or not a MenAtArm).
             return false;
         }
     }
