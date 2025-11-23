@@ -1815,6 +1815,7 @@ namespace CrusaderWars
             // Update status label immediately
             infoLabel.Text = "Preparing TW:Attila battle...";
             this.Text = "Crusader Conflicts (Preparing TW:Attila battle...)";
+            await Task.Delay(50); // Allow UI to update
 
             // Ensure Attila shortcut exists
             CreateAttilaShortcut();
