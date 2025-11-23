@@ -673,6 +673,31 @@ namespace CrusaderWars.twbattle
                         Program.Logger.Debug($"User chose autofix strategy: {chosenStrategy.Value}.");
                     }
 
+                    form.Invoke((MethodInvoker)delegate
+                    {
+                        if (autofixState.CurrentStrategy.HasValue)
+                        {
+                            switch (autofixState.CurrentStrategy.Value)
+                            {
+                                case AutofixState.AutofixStrategy.Units:
+                                    form.infoLabel.Text = "Processing: Analyzing units for replacement...";
+                                    break;
+                                case AutofixState.AutofixStrategy.MapSize:
+                                    form.infoLabel.Text = "Processing: Changing map size...";
+                                    break;
+                                case AutofixState.AutofixStrategy.Deployment:
+                                    form.infoLabel.Text = "Processing: Changing deployment...";
+                                    break;
+                                case AutofixState.AutofixStrategy.MapVariant:
+                                    form.infoLabel.Text = "Processing: Changing map variant...";
+                                    break;
+                                case AutofixState.AutofixStrategy.ManualUnitReplacement:
+                                    form.infoLabel.Text = "Loading manual unit replacer...";
+                                    break;
+                            }
+                        }
+                    });
+
                     // 2. A strategy is active. Try to apply a fix.
                     bool fixApplied = false;
                     string fixDescription = "";
