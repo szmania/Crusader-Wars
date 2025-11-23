@@ -1238,7 +1238,6 @@ namespace CrusaderWars.twbattle
             bool userCommitted = false;
             form.Invoke((MethodInvoker)delegate
             {
-                // This is where we hook in your new form
                 using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits))
                 {
                     if (replacerForm.ShowDialog(form) == DialogResult.OK)
@@ -1255,17 +1254,79 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements.");
                 BattleState.ManualUnitReplacements.Clear(); // Clear previous manual fixes
 
+                // Create lookups for user-friendly names
+                var originalUnitLookup = currentUnits
+                    .Where(u => !string.IsNullOrEmpty(u.GetAttilaUnitKey()))
+                    .GroupBy(u => u.GetAttilaUnitKey())
+                    .ToDictionary(g => g.Key, g => {
+                        var unit = g.First();
+                        string name = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName();
+                        if (unit.GetRegimentType() == RegimentType.MenAtArms)
+                        {
+                            string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(unit.GetName());
+                            if (!string.IsNullOrEmpty(maxCategory))
+                            {
+                                return $"{name} [{maxCategory}]";
+                            }
+                        }
+                        return name;
+                    });
+
+                var replacementUnitLookup = allAvailableUnits
+                    .GroupBy(u => u.AttilaUnitKey)
+                    .ToDictionary(g => g.Key, g => {
+                        var unit = g.First();
+                        string displayText = unit.DisplayName;
+                        if (unit.UnitType == "MenAtArm" && !string.IsNullOrEmpty(unit.MaxCategory))
+                        {
+                            displayText += $" [{unit.MaxCategory}]";
+                        }
+                        if (unit.Rank.HasValue)
+                        {
+                            displayText += $" [Rank: {unit.Rank.Value}]";
+                        }
+                        else if (unit.Level.HasValue)
+                        {
+                            displayText += $" [Level: {unit.Level.Value}]";
+                        }
+                        return displayText;
+                    });
+
+                var sb = new StringBuilder();
+                sb.AppendLine("applying the following manual unit replacements:");
+
+                var groupedReplacements = replacements
+                    .GroupBy(kvp => kvp.Value) // Group by replacement key
+                    .Select(g => new {
+                        ReplacementKey = g.Key,
+                        OriginalKeys = g.Select(kvp => kvp.Key).ToList()
+                    });
+
+                foreach (var group in groupedReplacements)
+                {
+                    string replacementName = replacementUnitLookup.TryGetValue(group.ReplacementKey, out var name) ? name : group.ReplacementKey;
+
+                    var originalNames = group.OriginalKeys
+                        .Select(key => originalUnitLookup.TryGetValue(key, out var origName) ? origName : key)
+                        .Distinct()
+                        .OrderBy(n => n);
+
+                    sb.AppendLine($" - Replacing [{string.Join(", ", originalNames)}] with [{replacementName}]");
+                }
+
+                string fixDescription = sb.ToString().TrimEnd(); // Remove trailing newline
+
+                // Process replacements for the game state
                 foreach (var replacement in replacements)
                 {
                     string keyToReplace = replacement.Key;
                     string newKey = replacement.Value;
-
                     bool isSiege = UnitMappers_BETA.IsUnitKeySiege(newKey);
-
                     BattleState.ManualUnitReplacements[keyToReplace] = (newKey, isSiege);
                     Program.Logger.Debug($"  - Replacing '{keyToReplace}' with '{newKey}' (IsSiege: {isSiege})");
                 }
-                return (true, "applying manual unit replacements");
+
+                return (true, fixDescription);
             }
             else
             {
