@@ -30,6 +30,7 @@ namespace CrusaderWars.client
             PopulateAvailableUnitsTree();
             // After populating, update visuals to show any existing replacements
             UpdateCurrentUnitsTreeVisuals();
+            UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
         }
 
         private void PopulateCurrentUnitsTree()
@@ -354,6 +355,21 @@ namespace CrusaderWars.client
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
+        }
+
+        private void UnitReplacerForm_Resize(object sender, EventArgs e)
+        {
+            // Calculate the center point between the two TreeViews
+            int leftTreeViewRight = tvCurrentUnits.Left + tvCurrentUnits.Width;
+            int rightTreeViewLeft = tvAvailableUnits.Left;
+            int gapWidth = rightTreeViewLeft - leftTreeViewRight;
+
+            // Calculate the new X position for the buttons to be centered in the gap
+            int newButtonX = leftTreeViewRight + (gapWidth / 2) - (btnReplace.Width / 2);
+
+            // Apply the new positions
+            btnReplace.Left = newButtonX;
+            btnUndo.Left = newButtonX;
         }
     }
 }
