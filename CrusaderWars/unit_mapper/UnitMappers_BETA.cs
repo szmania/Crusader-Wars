@@ -128,6 +128,7 @@ namespace CrusaderWars.unit_mapper
         public int? Rank { get; set; }
         public int? Level { get; set; }
         public string? MaxCategory { get; set; }
+        public bool IsSiege { get; set; }
     }
 
     internal static class UnitMappers_BETA
@@ -2428,13 +2429,15 @@ namespace CrusaderWars.unit_mapper
                                 FactionName = factionName,
                                 AttilaUnitKey = key,
                                 UnitType = unitNode.Name,
-                                DisplayName = key // Default display name is the key
+                                DisplayName = key, // Default display name is the key
+                                IsSiege = false
                             };
 
                             if (unitNode.Name == "MenAtArm")
                             {
                                 availableUnit.DisplayName = unitNode.Attributes?["type"]?.Value ?? key;
                                 availableUnit.MaxCategory = unitNode.Attributes?["max"]?.Value;
+                                availableUnit.IsSiege = unitNode.Attributes?["siege"]?.Value == "true";
                             }
                             else if (unitNode.Name == "General" || unitNode.Name == "Knights")
                             {

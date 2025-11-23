@@ -12,20 +12,24 @@ namespace CrusaderWars.client
     {
         private readonly List<Unit> _currentUnits;
         private readonly List<AvailableUnit> _allAvailableUnits;
-        public Dictionary<string, string> Replacements { get; private set; } = new Dictionary<string, string>();
+        public Dictionary<string, (string replacementKey, bool isSiege)> Replacements { get; private set; } = new Dictionary<string, (string, bool)>();
         private List<TreeNode> _selectedCurrentNodes = new List<TreeNode>();
 
-        public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits)
+        public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<string, (string replacementKey, bool isSiege)> existingReplacements)
         {
             InitializeComponent();
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
+            // Create a copy of the existing replacements to work with
+            Replacements = new Dictionary<string, (string, bool)>(existingReplacements);
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)
         {
             PopulateCurrentUnitsTree();
             PopulateAvailableUnitsTree();
+            // After populating, update visuals to show any existing replacements
+            UpdateCurrentUnitsTreeVisuals();
         }
 
         private void PopulateCurrentUnitsTree()
@@ -104,6 +108,10 @@ namespace CrusaderWars.client
                     foreach (var unit in typeGroup.OrderBy(u => u.DisplayName))
                     {
                         string displayText = unit.DisplayName;
+                        if (unit.IsSiege)
+                        {
+                            displayText += " [SIEGE]";
+                        }
                         if (unit.UnitType == "MenAtArm" && !string.IsNullOrEmpty(unit.MaxCategory))
                         {
                             displayText += $" [{unit.MaxCategory}]";
@@ -143,6 +151,7 @@ namespace CrusaderWars.client
             }
 
             string replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
+            bool isSiege = UnitMappers_BETA.IsUnitKeySiege(replacementKey);
 
             foreach (var selectedNode in _selectedCurrentNodes)
             {
@@ -166,12 +175,12 @@ namespace CrusaderWars.client
                     {
                         foreach (var unit in _currentUnits.Where(u => u.GetName() == maaTypeToReplace))
                         {
-                            Replacements[unit.GetAttilaUnitKey()] = replacementKey;
+                            Replacements[unit.GetAttilaUnitKey()] = (replacementKey, isSiege);
                         }
                     }
                     else
                     {
-                        Replacements[keyToReplace] = replacementKey;
+                        Replacements[keyToReplace] = (replacementKey, isSiege);
                     }
                 }
             }
@@ -201,9 +210,9 @@ namespace CrusaderWars.client
                         if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
                         node.ForeColor = tvCurrentUnits.ForeColor;
 
-                        if (Replacements.TryGetValue(originalKey, out string replacementKey))
+                        if (Replacements.TryGetValue(originalKey, out var replacement))
                         {
-                            string replacementName = FindAvailableUnitNodeText(replacementKey);
+                            string replacementName = FindAvailableUnitNodeText(replacement.replacementKey);
                             node.Text += $" -> {replacementName}";
                             node.ForeColor = Color.MediumSeaGreen;
                         }
