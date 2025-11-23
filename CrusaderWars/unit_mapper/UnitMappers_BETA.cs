@@ -125,6 +125,8 @@ namespace CrusaderWars.unit_mapper
         public string UnitType { get; set; } // e.g., General, Knights, MenAtArm
         public string AttilaUnitKey { get; set; }
         public string DisplayName { get; set; } // For MenAtArm, this will be the 'type' attribute
+        public int? Rank { get; set; }
+        public int? Level { get; set; }
     }
 
     internal static class UnitMappers_BETA
@@ -2431,6 +2433,20 @@ namespace CrusaderWars.unit_mapper
                             if (unitNode.Name == "MenAtArm")
                             {
                                 availableUnit.DisplayName = unitNode.Attributes?["type"]?.Value ?? key;
+                            }
+                            else if (unitNode.Name == "General" || unitNode.Name == "Knights")
+                            {
+                                if(unitNode.Attributes?["rank"]?.Value is string rankStr && int.TryParse(rankStr, out int rank))
+                                {
+                                    availableUnit.Rank = rank;
+                                }
+                            }
+                            else if (unitNode.Name == "Garrison")
+                            {
+                                if (unitNode.Attributes?["level"]?.Value is string levelStr && int.TryParse(levelStr, out int level))
+                                {
+                                    availableUnit.Level = level;
+                                }
                             }
 
                             allUnits.Add(availableUnit);

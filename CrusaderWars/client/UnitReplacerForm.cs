@@ -89,7 +89,17 @@ namespace CrusaderWars.client
 
                     foreach (var unit in typeGroup.OrderBy(u => u.DisplayName))
                     {
-                        var unitNode = new TreeNode(unit.DisplayName)
+                        string displayText = unit.DisplayName;
+                        if(unit.Rank.HasValue)
+                        {
+                            displayText += $" [Rank: {unit.Rank.Value}]";
+                        }
+                        else if (unit.Level.HasValue)
+                        {
+                            displayText += $" [Level: {unit.Level.Value}]";
+                        }
+
+                        var unitNode = new TreeNode(displayText)
                         {
                             Tag = unit.AttilaUnitKey // Store the key
                         };
