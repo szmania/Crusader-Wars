@@ -1197,7 +1197,10 @@ namespace CrusaderWars.twbattle
         {
             Program.Logger.Debug("--- Autofix: Initiating Manual Unit Replacement ---");
 
-            // 1. Collect data
+            // 1. Set army sides to ensure IsPlayer() is correct on units
+            BattleFile.SetArmiesSides(autofixState.OriginalAttackerArmies, autofixState.OriginalDefenderArmies);
+
+            // 2. Collect data
             var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies);
             var currentUnits = allArmies.SelectMany(a => a.Units)
                                         .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
@@ -1205,7 +1208,7 @@ namespace CrusaderWars.twbattle
 
             var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
 
-            // 2. Show form
+            // 3. Show form
             Dictionary<string, string> replacements = new Dictionary<string, string>();
             bool userCommitted = false;
             form.Invoke((MethodInvoker)delegate
@@ -1221,7 +1224,7 @@ namespace CrusaderWars.twbattle
                 }
             });
 
-            // 3. Process results
+            // 4. Process results
             if (userCommitted && replacements.Any())
             {
                 Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements.");

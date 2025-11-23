@@ -51,7 +51,9 @@ namespace CrusaderWars.client
 
                     foreach (var unit in factionGroup.OrderBy(u => u.GetName()))
                     {
-                        string displayName = $"{unit.GetName()} ({unit.GetSoldiers()} men)";
+                        string nameToShow = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName();
+                        string attilaKey = unit.GetAttilaUnitKey();
+                        string displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
                         var unitNode = new TreeNode(displayName)
                         {
                             Tag = unit.GetAttilaUnitKey() // Store the key for replacement logic
