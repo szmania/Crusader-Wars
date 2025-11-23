@@ -127,6 +127,7 @@ namespace CrusaderWars.unit_mapper
         public string DisplayName { get; set; } // For MenAtArm, this will be the 'type' attribute
         public int? Rank { get; set; }
         public int? Level { get; set; }
+        public string? MaxCategory { get; set; }
     }
 
     internal static class UnitMappers_BETA
@@ -2433,6 +2434,7 @@ namespace CrusaderWars.unit_mapper
                             if (unitNode.Name == "MenAtArm")
                             {
                                 availableUnit.DisplayName = unitNode.Attributes?["type"]?.Value ?? key;
+                                availableUnit.MaxCategory = unitNode.Attributes?["max"]?.Value;
                             }
                             else if (unitNode.Name == "General" || unitNode.Name == "Knights")
                             {
@@ -2498,6 +2500,40 @@ namespace CrusaderWars.unit_mapper
 
             // If the key is not found in any file, it's not a siege unit (or not a MenAtArm).
             return false;
+        }
+        public static string? GetMenAtArmMaxCategory(string menAtArmType)
+        {
+            if (string.IsNullOrEmpty(menAtArmType) || LoadedUnitMapper_FolderPath == null) return null;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            if (!Directory.Exists(factions_folder_path)) return null;
+
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Prioritize submods
+
+            foreach (var xml_file in files_paths)
+            {
+                try
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    // Find a MenAtArm node with the matching type attribute
+                    XmlNode maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
+                    if (maaNode != null)
+                    {
+                        return maaNode.Attributes?["max"]?.Value;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in GetMenAtArmMaxCategory: {ex.Message}");
+                }
+            }
+
+            return null; // Not found
         }
     }
 }

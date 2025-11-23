@@ -54,9 +54,22 @@ namespace CrusaderWars.client
                         string nameToShow = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName();
                         string attilaKey = unit.GetAttilaUnitKey();
                         string displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
+                        object nodeTag = attilaKey; // Default tag is just the key
+
+                        if (unit.GetRegimentType() == RegimentType.MenAtArms)
+                        {
+                            string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(unit.GetName());
+                            if (!string.IsNullOrEmpty(maxCategory))
+                            {
+                                displayName = $"{nameToShow} [{maxCategory}] [{attilaKey}] ({unit.GetSoldiers()} men)";
+                            }
+                            // Store both key and type for multi-update logic
+                            nodeTag = new { OriginalKey = attilaKey, MaAType = unit.GetName() };
+                        }
+
                         var unitNode = new TreeNode(displayName)
                         {
-                            Tag = unit.GetAttilaUnitKey() // Store the key for replacement logic
+                            Tag = nodeTag
                         };
                         factionNode.Nodes.Add(unitNode);
                     }
@@ -90,7 +103,11 @@ namespace CrusaderWars.client
                     foreach (var unit in typeGroup.OrderBy(u => u.DisplayName))
                     {
                         string displayText = unit.DisplayName;
-                        if(unit.Rank.HasValue)
+                        if (unit.UnitType == "MenAtArm" && !string.IsNullOrEmpty(unit.MaxCategory))
+                        {
+                            displayText += $" [{unit.MaxCategory}]";
+                        }
+                        if (unit.Rank.HasValue)
                         {
                             displayText += $" [Rank: {unit.Rank.Value}]";
                         }
@@ -98,6 +115,7 @@ namespace CrusaderWars.client
                         {
                             displayText += $" [Level: {unit.Level.Value}]";
                         }
+                        displayText += $" [{unit.AttilaUnitKey}]";
 
                         var unitNode = new TreeNode(displayText)
                         {
@@ -127,24 +145,84 @@ namespace CrusaderWars.client
             string replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
             string replacementName = tvAvailableUnits.SelectedNode.Text;
 
-            
-            // Only act on final unit nodes
-            if (tvCurrentUnits.SelectedNode.Tag != null)
-            {
-                string originalKey = tvCurrentUnits.SelectedNode.Tag.ToString();
-                Replacements[originalKey] = replacementKey;
 
-                // Visual feedback
-                tvCurrentUnits.SelectedNode.ForeColor = Color.MediumSeaGreen;
-                // Remove old replacement text if it exists
-                int arrowIndex = tvCurrentUnits.SelectedNode.Text.IndexOf(" ->");
-                if (arrowIndex > 0)
+            // This helper function will recursively find all nodes in a tree
+            Action<TreeNodeCollection, Action<TreeNode>> TraverseNodes = null;
+            TraverseNodes = (nodes, action) =>
+            {
+                foreach (TreeNode node in nodes)
                 {
-                    tvCurrentUnits.SelectedNode.Text = tvCurrentUnits.SelectedNode.Text.Substring(0, arrowIndex);
+                    action(node);
+                    TraverseNodes(node.Nodes, action);
                 }
-                tvCurrentUnits.SelectedNode.Text += $" -> {replacementName}";
+            };
+
+            // We can replace a single unit, or a whole type of MenAtArm
+            if (tvCurrentUnits.SelectedNode.Tag is { } tag)
+            {
+                string keyToReplace = "";
+                string maaTypeToReplace = null;
+
+                if (tag is string s) // It's a General, Knight, etc.
+                {
+                    keyToReplace = s;
+                }
+                else // It's a MenAtArm with our complex object
+                {
+                    dynamic tagObject = tag;
+                    keyToReplace = tagObject.OriginalKey;
+                    maaTypeToReplace = tagObject.MaAType;
+                }
+
+                Replacements[keyToReplace] = replacementKey;
+
+                // Now, update all matching nodes visually
+                TraverseNodes(tvCurrentUnits.Nodes, node =>
+                {
+                    if (node.Tag is { } nodeTag)
+                    {
+                        bool match = false;
+                        if (!string.IsNullOrEmpty(maaTypeToReplace))
+                        {
+                            // Match by MenAtArm type
+                            if (!(nodeTag is string))
+                            {
+                                dynamic nodeTagObject = nodeTag;
+                                if (nodeTagObject.MaAType == maaTypeToReplace)
+                                {
+                                    match = true;
+                                    // Also update the replacement dictionary for this specific key if it's different
+                                    if (Replacements.ContainsKey(nodeTagObject.OriginalKey) == false)
+                                    {
+                                        Replacements[nodeTagObject.OriginalKey] = replacementKey;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Match by simple key (for Generals, Knights)
+                            if (nodeTag is string nodeKey && nodeKey == keyToReplace)
+                            {
+                                match = true;
+                            }
+                        }
+
+                        if (match)
+                        {
+                            node.ForeColor = Color.MediumSeaGreen;
+                            // Remove old replacement text if it exists
+                            int arrowIndex = node.Text.IndexOf(" ->");
+                            if (arrowIndex > 0)
+                            {
+                                node.Text = node.Text.Substring(0, arrowIndex);
+                            }
+                            node.Text += $" -> {replacementName}";
+                        }
+                    }
+                });
             }
-            
+
         }
 
         private void btnOK_Click(object sender, EventArgs e)
