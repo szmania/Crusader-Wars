@@ -25,7 +25,7 @@ namespace CrusaderWars.unit_mapper
         public string Tag { get; set; } = string.Empty;
         public string ScreenName { get; set; } = string.Empty;
         public List<ModFile> Mods { get; set; } = new List<ModFile>();
-        public List<string> Replaces { get; set; = new List<string>();
+        public List<string> Replaces { get; set; }  = new List<string>();
     }
 
     internal class LandBridgeMap
@@ -138,7 +138,7 @@ namespace CrusaderWars.unit_mapper
          * House files reader for AGOT
          ----------------------------------------------------------------*/
 
-        public static List<Submod> AvailableSubmods { get; private set; = new List<Submod>();
+        public static List<Submod> AvailableSubmods { get; private set; } = new List<Submod>();
         public static TerrainsUM? Terrains { get;private set; }  
         static string? LoadedUnitMapper_FolderPath { get; set; }
         public static string? ActivePlaythroughTag { get; private set; }
@@ -146,7 +146,7 @@ namespace CrusaderWars.unit_mapper
         private static readonly Random _random = new Random();
         private static Dictionary<string, (string X, string Y, List<string>? orientations)> _provinceMapCache = new Dictionary<string, (string X, string Y, List<string>? orientations)>();
 
-        public static List<SiegeEngine> SiegeEngines { get; private set; = new List<SiegeEngine>();
+        public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
         private static Dictionary<string, XmlDocument>? _factionFileCache;
         private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
