@@ -31,7 +31,7 @@ namespace CrusaderWars.twbattle
             public List<string> ProblematicUnitKeys { get; set; }  = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
-            public string LastAppliedFixDescription { get; set; } = "";
+            public string LastAppliedFixDescription { get; set; = "";
             public int MapVariantOffset { get; set; } = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
@@ -44,7 +44,7 @@ namespace CrusaderWars.twbattle
 
 
             // State for individual strategies
-            public int MapSizeFixAttempts { get; set; } = 0;
+            public int MapSizeFixAttempts { get; set; = 0;
             public string? OriginalMapSize { get; set; }
             public bool DeploymentRotationTried { get; set; } = false;
             public int SiegeDirectionFixAttempts { get; set; } = 0;
@@ -769,15 +769,25 @@ namespace CrusaderWars.twbattle
                             ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
                         });
 
+                        // Mark the current strategy as tried and clear it for the next attempt
+                        if (autofixState.CurrentStrategy.HasValue)
+                        {
+                            autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
+                            autofixState.CurrentStrategy = null;
+                        }
+
                         Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}). Re-reading army data from save files to apply changes.");
                         var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
                         return await ProcessBattle(form, fresh_attackers, fresh_defenders, token, true, autofixState);
                     }
                     else
                     {
-                        // The current strategy is exhausted.
-                        Program.Logger.Debug($"--- Autofix: Strategy {autofixState.CurrentStrategy} exhausted. ---");
-                        autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
+                        // The current strategy is exhausted or cancelled.
+                        Program.Logger.Debug($"--- Autofix: Strategy {autofixState.CurrentStrategy} is complete for this attempt. ---");
+                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement)
+                        {
+                            autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
+                        }
                         autofixState.CurrentStrategy = null;
                         // The `while(battleEnded == false)` loop will continue. Since the process is still dead,
                         // it will re-enter this entire `if` block on the next iteration.
