@@ -380,7 +380,7 @@ namespace CrusaderWars
 
             // Set sizes programmatically
             btt_debug.Size = new Size(179, 39);
-            infoLabel.Size = new Size(199, 31);
+            // infoLabel.Size = new Size(199, 31); // REMOVED THIS LINE
             SettingsBtn.Size = new Size(248, 158);
             pictureBox1.Size = new Size(295, 300);
             discordLink.Size = new Size(32, 32);
@@ -2160,7 +2160,7 @@ namespace CrusaderWars
                     worker.Dispose();
                 }
 
-                await Task.Delay(1000);
+                await Task.Delay(1);
                 Program.Logger.Debug("Total War: Attila process closed.");
             }
         };
