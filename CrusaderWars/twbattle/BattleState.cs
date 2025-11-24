@@ -17,7 +17,7 @@ namespace CrusaderWars.twbattle
         public static List<string>? SiegeBesiegerOrientations { get; set; } = null;
         public static bool AutofixForceGenericMap { get; set; } = false;
         public static int AutofixMapVariantOffset { get; set; } = 0;
-        public static Dictionary<string, (string replacementKey, bool isSiege)> ManualUnitReplacements { get; set; } = new Dictionary<string, (string, bool)>();
+        public static Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> ManualUnitReplacements { get; set; } = new Dictionary<(string, bool), (string, bool)>();
 
         static BattleState()
         {

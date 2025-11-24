@@ -31,7 +31,7 @@ namespace CrusaderWars.twbattle
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
-            public string LastAppliedFixDescription { get; set; } = "";
+            public string LastAppliedFixDescription { get; set; = "";
             public int MapVariantOffset { get; set; } = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
@@ -1234,7 +1234,7 @@ namespace CrusaderWars.twbattle
             var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
 
             // 3. Show form
-            Dictionary<string, (string replacementKey, bool isSiege)> replacements = new Dictionary<string, (string, bool)>();
+            Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> replacements = new Dictionary<(string, bool), (string, bool)>();
             bool userCommitted = false;
             form.Invoke((MethodInvoker)delegate
             {
@@ -1296,33 +1296,31 @@ namespace CrusaderWars.twbattle
                 sb.AppendLine("applying the following manual unit replacements:");
 
                 var groupedReplacements = replacements
-                    .GroupBy(kvp => kvp.Value.replacementKey) // Group by replacement key string
+                    .GroupBy(kvp => new { ReplacementKey = kvp.Value.replacementKey, IsPlayer = kvp.Key.isPlayerAlliance })
                     .Select(g => new {
-                        ReplacementKey = g.Key,
-                        OriginalKeys = g.Select(kvp => kvp.Key).ToList()
+                        g.Key.ReplacementKey,
+                        g.Key.IsPlayer,
+                        OriginalKeys = g.Select(kvp => kvp.Key.originalKey).ToList()
                     });
 
-                foreach (var group in groupedReplacements)
+                foreach (var group in groupedReplacements.OrderBy(g => !g.IsPlayer))
                 {
                     string replacementName = replacementUnitLookup.TryGetValue(group.ReplacementKey, out var name) ? (name ?? group.ReplacementKey) : group.ReplacementKey;
-
                     var originalNames = group.OriginalKeys
                         .Select(key => originalUnitLookup.TryGetValue(key, out var origName) ? (origName ?? key) : key)
                         .Distinct()
                         .OrderBy(n => n);
-
-                    sb.AppendLine($" - Replacing [{string.Join(", ", originalNames)}] with [{replacementName}]");
+                    string allianceName = group.IsPlayer ? "Player's Alliance" : "Enemy's Alliance";
+                    sb.AppendLine($" - In {allianceName}: Replacing [{string.Join(", ", originalNames)}] with [{replacementName}]");
                 }
 
-                string fixDescription = sb.ToString().TrimEnd(); // Remove trailing newline
+                string fixDescription = sb.ToString().TrimEnd();
 
                 // Process replacements for the game state
                 foreach (var replacement in replacements)
                 {
-                    string keyToReplace = replacement.Key;
-                    (string newKey, bool isSiege) = replacement.Value;
-                    BattleState.ManualUnitReplacements[keyToReplace] = (newKey, isSiege);
-                    Program.Logger.Debug($"  - Replacing '{keyToReplace}' with '{newKey}' (IsSiege: {isSiege})");
+                    BattleState.ManualUnitReplacements[replacement.Key] = replacement.Value;
+                    Program.Logger.Debug($"  - Replacing '{replacement.Key.originalKey}' with '{replacement.Value.replacementKey}' for {(replacement.Key.isPlayerAlliance ? "Player" : "Enemy")}");
                 }
 
                 return (true, fixDescription);

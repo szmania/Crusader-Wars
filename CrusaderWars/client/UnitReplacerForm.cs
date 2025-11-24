@@ -12,20 +12,15 @@ namespace CrusaderWars.client
     {
         private readonly List<Unit> _currentUnits;
         private readonly List<AvailableUnit> _allAvailableUnits;
-        public Dictionary<string, (string replacementKey, bool isSiege, bool? isPlayerAlliance)> Replacements { get; private set; } = new Dictionary<string, (string, bool, bool?)>();
+        public Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> Replacements { get; private set; }
         private List<TreeNode> _selectedCurrentNodes = new List<TreeNode>();
 
-        public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<string, (string replacementKey, bool isSiege)> existingReplacements)
+        public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements)
         {
             InitializeComponent();
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
-            // Create a copy of the existing replacements to work with
-            // Convert existing (string, bool) to (string, bool, bool?) with isPlayerAlliance = null
-            Replacements = existingReplacements.ToDictionary(
-                kvp => kvp.Key,
-                kvp => (kvp.Value.replacementKey, kvp.Value.isSiege, (bool?)null)
-            );
+            Replacements = new Dictionary<(string, bool), (string, bool)>(existingReplacements);
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)
@@ -172,42 +167,38 @@ namespace CrusaderWars.client
 
             string replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
             bool isSiege = UnitMappers_BETA.IsUnitKeySiege(replacementKey);
-            
-            // Determine the alliance of the selected node for replacement tracking
-            bool nodeIsPlayerAlliance = _selectedCurrentNodes.First().Parent.Parent.Text == "Player's Alliance";
 
             foreach (var selectedNode in _selectedCurrentNodes)
             {
-                if (selectedNode.Tag is string keyToReplace) // Handles individual replacements (e.g., Garrison)
+                bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
+
+                if (selectedNode.Tag is string keyToReplace) // Handles individual replacements
                 {
-                    Replacements[keyToReplace] = (replacementKey, isSiege, nodeIsPlayerAlliance);
+                    Replacements[(keyToReplace, isPlayerAlliance)] = (replacementKey, isSiege);
                 }
                 else // Handles group replacements (MenAtArms, Commander, Knight, Levy)
                 {
                     dynamic tagObject = selectedNode.Tag;
-                    string originalKey = tagObject.OriginalKey;
                     RegimentType regimentType = tagObject.RegimentType;
-                    string typeIdentifier = tagObject.TypeIdentifier; // This will be unit.GetName() for MAA, or regimentType.ToString() for others.
+                    string typeIdentifier = tagObject.TypeIdentifier;
 
-                    bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
                     IEnumerable<Unit> unitsToReplace;
-
                     if (regimentType == RegimentType.MenAtArms)
                     {
                         unitsToReplace = _currentUnits.Where(u => u.GetName() == typeIdentifier && u.IsPlayer() == isPlayerAlliance);
                     }
-                    else // Commander, Knight, Levy
+                    else
                     {
                         unitsToReplace = _currentUnits.Where(u => u.GetRegimentType() == regimentType && u.IsPlayer() == isPlayerAlliance);
                     }
 
                     foreach (var unit in unitsToReplace)
                     {
-                        Replacements[unit.GetAttilaUnitKey()] = (replacementKey, isSiege, nodeIsPlayerAlliance);
+                        Replacements[(unit.GetAttilaUnitKey(), isPlayerAlliance)] = (replacementKey, isSiege);
                     }
                 }
             }
-            
+
             UpdateCurrentUnitsTreeVisuals();
         }
 
@@ -234,7 +225,7 @@ namespace CrusaderWars.client
                         if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
                         node.ForeColor = tvCurrentUnits.ForeColor;
 
-                        if (Replacements.TryGetValue(originalKey, out var r) && (r.isPlayerAlliance == null || r.isPlayerAlliance.Value == nodeIsPlayerAlliance))
+                        if (Replacements.TryGetValue((originalKey, nodeIsPlayerAlliance), out var r))
                         {
                             string replacementName = FindAvailableUnitNodeText(r.replacementKey);
                             node.Text += $" -> {replacementName}";
