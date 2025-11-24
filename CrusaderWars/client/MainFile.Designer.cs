@@ -95,6 +95,8 @@
             // infoLabel
             // 
             resources.ApplyResources(this.infoLabel, "infoLabel");
+            this.infoLabel.AutoSize = true;
+            this.infoLabel.MaximumSize = new System.Drawing.Size(450, 0);
             this.infoLabel.BackColor = System.Drawing.Color.Transparent;
             this.infoLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.infoLabel.Name = "infoLabel";
