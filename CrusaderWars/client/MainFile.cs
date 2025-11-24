@@ -72,6 +72,7 @@ namespace CrusaderWars
                 Directory.CreateDirectory(@".\font");
                 Directory.CreateDirectory(@".\settings");
                 Directory.CreateDirectory(@".\unit mappers");
+                Directory.CreateDirectory(@".\unit mappers\schemas");
                 Program.Logger.Debug("Required directories created/verified.");
             }
             catch (Exception ex)
