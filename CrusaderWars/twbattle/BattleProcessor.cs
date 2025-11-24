@@ -29,7 +29,7 @@ namespace CrusaderWars.twbattle
         public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
-            public int NextUnitKeyIndexToReplace { get; set; } = 0;
+            public int NextUnitKeyIndexToReplace { get; set; = 0;
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
             public int MapVariantOffset { get; set; } = 0;
@@ -383,7 +383,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, $"Error creating the battle: {ex.Message}", "Crusader Conflicts: Data Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.StartCrusaderKingsProcess();
@@ -432,7 +432,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, "Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     form.infoLabel.Text = "Ready to start!";
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -468,7 +468,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                 MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                 {
@@ -1030,7 +1030,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -1153,7 +1153,7 @@ namespace CrusaderWars.twbattle
 
                 foreach (var replacementFaction in heritageFactions)
                 {
-                    var (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetReplacementUnitKeyFromFaction(representativeUnit, replacementFaction, keyToReplace);
+                    var (replacementKey, replacementIsSiege) = UnitMappers_BETA.GetReplacementUnitKeyFromFaction(representativeUnit, replacementFaction, keyToExclude);
                     if (replacementKey != UnitMappers_BETA.NOT_FOUND_KEY)
                     {
                         string fixDescription = $"replacing unit key '{keyToReplace}' with a unit from heritage faction '{replacementFaction}' ('{replacementKey}')";
@@ -1164,7 +1164,7 @@ namespace CrusaderWars.twbattle
                 }
 
                 // 2. If no heritage replacement found, fall back to a default unit.
-                var (defaultKey, defaultIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToReplace);
+                var (defaultKey, defaultIsSiege) = UnitMappers_BETA.GetDefaultUnitKey(representativeUnit, keyToExclude);
                 if (defaultKey != UnitMappers_BETA.NOT_FOUND_KEY)
                 {
                     string fixDescription = $"replacing unit key '{keyToReplace}' with default unit '{defaultKey}'";
