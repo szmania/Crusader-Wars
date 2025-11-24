@@ -445,10 +445,21 @@ namespace CrusaderWars.unit_mapper
         {
             SiegeEngines.Clear(); // Clear the list to prevent duplicate data on re-read
 
-            if (LoadedUnitMapper_FolderPath == null || !Directory.Exists($@"{LoadedUnitMapper_FolderPath}\terrains")) { Terrains = null; return; }
+            if (LoadedUnitMapper_FolderPath == null) { Terrains = null; return; }
+
+            string terrainsFolderPath = Path.Combine(LoadedUnitMapper_FolderPath, "terrains");
+            if (!Directory.Exists(terrainsFolderPath))
+            {
+                terrainsFolderPath = Path.Combine(LoadedUnitMapper_FolderPath, "Terrains");
+                if (!Directory.Exists(terrainsFolderPath)) 
+                { 
+                    Terrains = null; 
+                    return; 
+                }
+            }
 
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var terrainFiles = GetSortedFilePaths($@"{LoadedUnitMapper_FolderPath}\terrains", priorityFilePattern);
+            var terrainFiles = GetSortedFilePaths(terrainsFolderPath, priorityFilePattern);
 
             try
             {
