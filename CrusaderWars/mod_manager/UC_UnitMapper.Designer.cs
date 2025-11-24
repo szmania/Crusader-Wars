@@ -116,7 +116,7 @@ namespace CrusaderWars.mod_manager
             this.customMapperLabel.AutoSize = true;
             this.customMapperLabel.Font = new System.Drawing.Font("Paradox King Script", 9.75F);
             this.customMapperLabel.ForeColor = System.Drawing.Color.White;
-            this.customMapperLabel.Location = new System.Drawing.Point(277, 125);
+            this.customMapperLabel.Location = new System.Drawing.Point(277, 90);
             this.customMapperLabel.Name = "customMapperLabel";
             this.customMapperLabel.Size = new System.Drawing.Size(101, 16);
             this.customMapperLabel.TabIndex = 5;
