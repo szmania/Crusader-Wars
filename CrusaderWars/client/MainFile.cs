@@ -2069,6 +2069,8 @@ namespace CrusaderWars
                     return "Realms in Exile (LOTR)";
                 case "AGOT":
                     return "A Game of Thrones (AGOT)";
+                case "Custom":
+                    return "Custom";
                 default:
                     return "Selected"; // A safe default
             }
