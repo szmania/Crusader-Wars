@@ -66,7 +66,7 @@ namespace CrusaderWars.mod_manager
             if (Directory.Exists(unitMappersDir))
             {
                 var customDirs = Directory.GetDirectories(unitMappersDir)
-                                          .Where(d => Path.GetFileName(d).StartsWith("Custom", StringComparison.OrdinalIgnoreCase))
+                                          .Where(d => Path.GetFileName(d).StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                                           .Select(d => Path.GetFileName(d))
                                           .OrderBy(d => d)
                                           .ToList();
