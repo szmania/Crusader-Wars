@@ -118,7 +118,7 @@
             this.CloseBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.CloseBtn.FlatAppearance.BorderSize = 0;
             this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CloseBtn.Location = new System.Drawing.Point(1012, 35);
+            this.CloseBtn.Location = new System.Drawing.Point(1135, 35);
             this.CloseBtn.Name = "CloseBtn";
             this.CloseBtn.Size = new System.Drawing.Size(53, 54);
             this.CloseBtn.TabIndex = 9;
