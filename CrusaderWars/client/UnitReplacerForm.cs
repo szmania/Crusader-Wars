@@ -221,34 +221,26 @@ namespace CrusaderWars.client
                 dynamic tagObject = selectedNode.Tag;
                 RegimentType regimentType = tagObject.RegimentType;
                 string typeIdentifier = tagObject.TypeIdentifier;
+                string faction = selectedNode.Parent.Text; // Get faction from parent node
 
                 if (regimentType == RegimentType.Levy || regimentType == RegimentType.Garrison)
                 {
-                    var factionsOnSide = _currentUnits
-                        .Where(u => u.IsPlayer() == isPlayerAlliance)
-                        .Select(u => u.GetAttilaFaction())
-                        .Where(f => !string.IsNullOrEmpty(f) && f != UnitMappers_BETA.NOT_FOUND_KEY)
-                        .Distinct();
-
-                    foreach (var faction in factionsOnSide)
+                    if (regimentType == RegimentType.Levy)
                     {
-                        if (regimentType == RegimentType.Levy)
+                        var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
+                        foreach (var levy in levyTuples)
                         {
-                            var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
-                            foreach (var levy in levyTuples)
-                            {
-                                Replacements[(levy.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
-                            }
+                            Replacements[(levy.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
                         }
-                        else // Garrison
+                    }
+                    else // Garrison
+                    {
+                        for (int level = 1; level <= 20; level++)
                         {
-                            for (int level = 1; level <= 20; level++)
+                            var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, level);
+                            foreach (var garrison in garrisonTuples)
                             {
-                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, level);
-                                foreach (var garrison in garrisonTuples)
-                                {
-                                    Replacements[(garrison.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
-                                }
+                                Replacements[(garrison.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
                             }
                         }
                     }
@@ -258,11 +250,11 @@ namespace CrusaderWars.client
                     IEnumerable<Unit> unitsToReplace;
                     if (regimentType == RegimentType.MenAtArms)
                     {
-                        unitsToReplace = _currentUnits.Where(u => u.GetName() == typeIdentifier && u.IsPlayer() == isPlayerAlliance);
+                        unitsToReplace = _currentUnits.Where(u => u.GetName() == typeIdentifier && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction);
                     }
                     else
                     {
-                        unitsToReplace = _currentUnits.Where(u => u.GetRegimentType() == regimentType && u.IsPlayer() == isPlayerAlliance);
+                        unitsToReplace = _currentUnits.Where(u => u.GetRegimentType() == regimentType && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction);
                     }
 
                     foreach (var unit in unitsToReplace)
@@ -295,6 +287,7 @@ namespace CrusaderWars.client
                         RegimentType regimentType = tag.RegimentType;
                         string typeIdentifier = tag.TypeIdentifier;
                         bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
+                        string faction = node.Parent.Text; // Get faction from parent node
 
                         int arrowIndex = node.Text.IndexOf(" ->");
                         if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
@@ -305,39 +298,29 @@ namespace CrusaderWars.client
 
                         if (regimentType == RegimentType.Levy || regimentType == RegimentType.Garrison)
                         {
-                            var factionsOnSide = _currentUnits
-                                .Where(u => u.IsPlayer() == nodeIsPlayerAlliance)
-                                .Select(u => u.GetAttilaFaction())
-                                .Where(f => !string.IsNullOrEmpty(f) && f != UnitMappers_BETA.NOT_FOUND_KEY)
-                                .Distinct();
-
-                            foreach (var faction in factionsOnSide)
+                            if (regimentType == RegimentType.Levy)
                             {
-                                if (isReplaced) break;
-                                if (regimentType == RegimentType.Levy)
+                                var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
+                                if (levyTuples.Any() && Replacements.TryGetValue((levyTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
                                 {
-                                    var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
-                                    if (levyTuples.Any() && Replacements.TryGetValue((levyTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
-                                    {
-                                        isReplaced = true;
-                                    }
+                                    isReplaced = true;
                                 }
-                                else // Garrison
+                            }
+                            else // Garrison
+                            {
+                                // Check for any garrison unit key from this faction and side
+                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1); // Use level 1 as a representative
+                                if (garrisonTuples.Any() && Replacements.TryGetValue((garrisonTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
                                 {
-                                    // Check for any garrison unit key from this faction and side
-                                    var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1); // Use level 1 as a representative
-                                    if (garrisonTuples.Any() && Replacements.TryGetValue((garrisonTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
-                                    {
-                                        isReplaced = true;
-                                    }
+                                    isReplaced = true;
                                 }
                             }
                         }
                         else
                         {
                             Unit? representativeUnit = (regimentType == RegimentType.MenAtArms)
-                                ? _currentUnits.FirstOrDefault(u => u.GetName() == typeIdentifier && u.IsPlayer() == nodeIsPlayerAlliance)
-                                : _currentUnits.FirstOrDefault(u => u.GetRegimentType() == regimentType && u.IsPlayer() == nodeIsPlayerAlliance);
+                                ? _currentUnits.FirstOrDefault(u => u.GetName() == typeIdentifier && u.IsPlayer() == nodeIsPlayerAlliance && u.GetAttilaFaction() == faction)
+                                : _currentUnits.FirstOrDefault(u => u.GetRegimentType() == regimentType && u.IsPlayer() == nodeIsPlayerAlliance && u.GetAttilaFaction() == faction);
 
                             if (representativeUnit != null && !string.IsNullOrEmpty(representativeUnit.GetAttilaUnitKey()) && Replacements.TryGetValue((representativeUnit.GetAttilaUnitKey(), nodeIsPlayerAlliance), out replacementInfo))
                             {
