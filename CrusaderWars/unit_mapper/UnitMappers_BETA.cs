@@ -730,135 +730,140 @@ namespace CrusaderWars.unit_mapper
         public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods)
         {
             ActivePlaythroughTag = tag;
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
-            AvailableSubmods.Clear(); // Clear the list before populating
 
+            if (tag == "Custom")
+            {
+                string customMapperName = ModOptions.GetSelectedCustomMapper();
+                if (string.IsNullOrEmpty(customMapperName))
+                {
+                    MessageBox.Show("No custom unit mapper selected for the 'Custom' playthrough. Please select one in the Options > Unit Mappers screen.", "Crusader Conflicts: Configuration Error",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    return requiredMods;
+                }
+
+                string mapperPath = Path.Combine(@".\unit mappers", customMapperName);
+                if (!Directory.Exists(mapperPath))
+                {
+                    MessageBox.Show($"The selected custom unit mapper folder '{customMapperName}' was not found.", "Crusader Conflicts: Configuration Error",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    return requiredMods;
+                }
+
+                // Process this specific mapper
+                return ProcessMapper(mapperPath);
+            }
+
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             foreach (var mapper in unit_mappers_folder)
             {
-                string mapperName = Path.GetFileName(mapper); // Changed GetDirectoryName to GetFileName
-                var files = Directory.GetFiles(mapper);
-                foreach (var file in files)
+                string tagFilePath = Path.Combine(mapper, "tag.txt");
+                if (File.Exists(tagFilePath))
+                {
+                    string fileTag = File.ReadAllText(tagFilePath).Trim();
+                    if (tag == fileTag)
                     {
-                    string fileName = Path.GetFileName(file);
-                    if (fileName == "tag.txt")
-                    {
-                        string fileTag = File.ReadAllText(file).Trim();
-                        if (tag == fileTag)
+                        var mods = ProcessMapper(mapper);
+                        if (mods.Any()) // ProcessMapper returns empty list on time period mismatch
                         {
-                            // TIME PERIOD
-                            int startYear = -1, endYear = -1;
-                            bool isDefault = false;
-                            string timePeriodPath = mapper + @"\Time Period.xml";
-                            if (File.Exists(timePeriodPath))
-                            {
-                                XmlDocument xmlDocument = new XmlDocument();
-                                xmlDocument.Load(timePeriodPath);
-                                if (xmlDocument.DocumentElement == null) continue; // Added null check
-                                string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
-                                string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
-                                
-                                if(startYearStr == "Default" || startYearStr == "DEFAULT")
-                                {
-                                    isDefault = true;
-                                    startYear = 0;
-                                    endYear = 0;
-                                }
-
-                                if(!int.TryParse(startYearStr, out startYear))
-                                {
-                                    isDefault = true;
-                                    startYear = 0;
-                                    endYear = 0;
-                                }
-
-                                if (!int.TryParse(endYearStr, out endYear))
-                                {
-                                    isDefault = true;
-                                    startYear = 0;
-                                    endYear = 0;
-                                }
-
-                                if(startYear != -1 && endYear != -1)
-                                {
-
-                                    if((Date.Year >= startYear && Date.Year <= endYear) || isDefault)
-                                    {
-                                        //  MODS
-                                        string modsPath = mapper + @"\Mods.xml";
-                                        if (File.Exists(modsPath))
-                                        {
-                                            XmlDocument xmlMods = new XmlDocument();
-                                            xmlMods.Load(modsPath);
-                                            if (xmlMods.DocumentElement != null) // Added null check
-                                            {
-                                                foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
-                                                {
-                                                    if (node is XmlComment) continue;
-                                                    if (node.Name == "Mod")
-                                                    {
-                                                        requiredMods.Add(node.InnerText);
-                                                    }
-                                                    else if (node.Name == "Submod")
-                                                    {
-                                                        // Populate the static list of all available submods
-                                                        var submod = new Submod
-                                                        {
-                                                            Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
-                                                            ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
-                                                        };
-                                                        string? replaceAttr = node.Attributes?["replace"]?.Value;
-                                                        if (!string.IsNullOrEmpty(replaceAttr))
-                                                        {
-                                                            submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
-                                                        }
-                                                        foreach (XmlNode submod_modNode in node.ChildNodes)
-                                                        {
-                                                            if (submod_modNode.Name == "Mod")
-                                                            {
-                                                                var modFile = new ModFile
-                                                                {
-                                                                    FileName = submod_modNode.InnerText,
-                                                                    Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
-                                                                    ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
-                                                                    Url = submod_modNode.Attributes?["url"]?.Value
-                                                                };
-                                                                submod.Mods.Add(modFile);
-                                                            }
-                                                        }
-                                                        if (!string.IsNullOrEmpty(submod.Tag))
-                                                        {
-                                                            AvailableSubmods.Add(submod);
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            LoadedUnitMapper_FolderPath = mapper;
-                                            ReadTerrainsFile();
-                                            return requiredMods;
-                                        }
-                                        else
-                                        {
-                                            MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Conflicts: Unit Mappers Error",
-                                            MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                MessageBox.Show($"Time Period.xml was not found in {mapper}", "Crusader Conflicts: Unit Mappers Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                            }
-                            break;
+                            return mods; // Found the correct mapper for the time period
                         }
                     }
                 }
+            }
+
+            return requiredMods; // Return empty list if no suitable mapper is found
+        }
+
+        private static List<string> ProcessMapper(string mapperPath)
+        {
+            List<string> requiredMods = new List<string>();
+
+            // TIME PERIOD CHECK
+            int startYear = -1, endYear = -1;
+            bool isDefault = false;
+            string timePeriodPath = Path.Combine(mapperPath, "Time Period.xml");
+
+            if (File.Exists(timePeriodPath))
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(timePeriodPath);
+                if (xmlDocument.DocumentElement == null) return requiredMods;
+
+                string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
+                string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
+
+                if (startYearStr.Equals("Default", StringComparison.OrdinalIgnoreCase)) isDefault = true;
+                if (!int.TryParse(startYearStr, out startYear)) isDefault = true;
+                if (!int.TryParse(endYearStr, out endYear)) isDefault = true;
+
+                if (isDefault) { startYear = 0; endYear = 9999; }
+
+                if ((Date.Year >= startYear && Date.Year <= endYear))
+                {
+                    // MODS and SUBMODS
+                    string modsPath = Path.Combine(mapperPath, "Mods.xml");
+                    if (File.Exists(modsPath))
+                    {
+                        XmlDocument xmlMods = new XmlDocument();
+                        xmlMods.Load(modsPath);
+                        if (xmlMods.DocumentElement != null)
+                        {
+                            foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
+                            {
+                                if (node is XmlComment) continue;
+                                if (node.Name == "Mod")
+                                {
+                                    requiredMods.Add(node.InnerText);
+                                }
+                                else if (node.Name == "Submod")
+                                {
+                                    var submod = new Submod
+                                    {
+                                        Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                        ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                                    };
+                                    string? replaceAttr = node.Attributes?["replace"]?.Value;
+                                    if (!string.IsNullOrEmpty(replaceAttr))
+                                    {
+                                        submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
+                                    }
+                                    foreach (XmlNode submod_modNode in node.ChildNodes)
+                                    {
+                                        if (submod_modNode.Name == "Mod")
+                                        {
+                                            var modFile = new ModFile
+                                            {
+                                                FileName = submod_modNode.InnerText,
+                                                Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
+                                                ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
+                                                Url = submod_modNode.Attributes?["url"]?.Value
+                                            };
+                                            submod.Mods.Add(modFile);
+                                        }
+                                    }
+                                    if (!string.IsNullOrEmpty(submod.Tag))
+                                    {
+                                        AvailableSubmods.Add(submod);
+                                    }
+                                }
+                            }
+                        }
+                        LoadedUnitMapper_FolderPath = mapperPath;
+                        ReadTerrainsFile();
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Mods.xml was not found in {mapperPath}", "Crusader Conflicts: Unit Mappers Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show($"Time Period.xml was not found in {mapperPath}", "Crusader Conflicts: Unit Mappers Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
 
             return requiredMods;
