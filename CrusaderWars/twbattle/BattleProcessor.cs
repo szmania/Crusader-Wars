@@ -28,7 +28,7 @@ namespace CrusaderWars.twbattle
 
         public class AutofixState
         {
-            public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
+            public List<string> ProblematicUnitKeys { get; set; = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
@@ -383,7 +383,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, $"Error creating the battle: {ex.Message}", "Crusader Conflicts: Data Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.StartCrusaderKingsProcess();
@@ -432,7 +432,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, "Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                     form.infoLabel.Text = "Ready to start!";
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -468,7 +468,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                 MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                 {
@@ -585,7 +585,7 @@ namespace CrusaderWars.twbattle
                             {
                                 var garrison_porcentages = UnitMappers_BETA.GetFactionGarrison(faction, level);
                                 if (garrison_porcentages != null)
-                                {
+                                    {
                                     foreach (var garrisonData in garrison_porcentages)
                                     {
                                         allUnitKeys.Add(garrisonData.unit_key);
@@ -1030,7 +1030,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -1290,6 +1290,8 @@ namespace CrusaderWars.twbattle
                         {
                             displayText += $" [Level: {unit.Level.Value}]";
                         }
+                        displayText += $" [{unit.AttilaUnitKey}]";
+
                         return displayText;
                     });
 
