@@ -28,6 +28,7 @@ namespace CrusaderWars.client
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tvCurrentUnits = new System.Windows.Forms.TreeView();
             this.tvAvailableUnits = new System.Windows.Forms.TreeView();
             this.btnReplace = new System.Windows.Forms.Button();
@@ -38,6 +39,7 @@ namespace CrusaderWars.client
             this.InstructionsBox = new System.Windows.Forms.GroupBox();
             this.textBoxInstructions = new System.Windows.Forms.TextBox();
             this.btnUndo = new System.Windows.Forms.Button();
+            this.UnitReplacerToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.InstructionsBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -154,6 +156,17 @@ namespace CrusaderWars.client
             this.btnUndo.UseVisualStyleBackColor = true;
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
+            // Set ToolTips
+            // 
+            this.UnitReplacerToolTip.SetToolTip(this.tvCurrentUnits, "List of units currently in the battle. Use Ctrl+Click or Shift+Click to select m" +
+        "ultiple units to replace.");
+            this.UnitReplacerToolTip.SetToolTip(this.tvAvailableUnits, "List of all possible units you can use as replacements. Select one unit from this" +
+        " list.");
+            this.UnitReplacerToolTip.SetToolTip(this.btnReplace, "Applies the selected replacement to the unit(s) chosen on the left.");
+            this.UnitReplacerToolTip.SetToolTip(this.btnUndo, "Clears all pending replacements you have made in this window.");
+            this.UnitReplacerToolTip.SetToolTip(this.btnOK, "Saves all replacements and continues with the battle.");
+            this.UnitReplacerToolTip.SetToolTip(this.btnCancel, "Discards all replacements and closes this window.");
+            // 
             // UnitReplacerForm
             // 
             this.AcceptButton = this.btnOK;
@@ -197,5 +210,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.GroupBox InstructionsBox;
         private System.Windows.Forms.TextBox textBoxInstructions;
         private System.Windows.Forms.Button btnUndo;
+        private System.Windows.Forms.ToolTip UnitReplacerToolTip;
     }
 }
