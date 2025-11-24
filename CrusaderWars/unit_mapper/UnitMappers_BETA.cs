@@ -35,7 +35,7 @@ namespace CrusaderWars.unit_mapper
         public string ProvinceTo { get; set; } = string.Empty;
         public string CK3Type { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; private set; = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; }  = new List<SettlementVariant>();
     }
 
     internal class CoastalMap
@@ -43,7 +43,7 @@ namespace CrusaderWars.unit_mapper
         public string Name { get; set; } = string.Empty;
         public string Province { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
-        public List<SettlementVariant> Variants { get; private set; = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; }  = new List<SettlementVariant>();
     }
 
     public static class BattleStateBridge
@@ -73,14 +73,14 @@ namespace CrusaderWars.unit_mapper
         public string Faction { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
         public List<string> ProvinceNames { get; set; } = new List<string>();
-        public List<SettlementVariant> Variants { get; private set; = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; } = new List<SettlementVariant>();
     }
 
     internal class UniqueSettlementMap
     {
         public string BattleType { get; set; } = string.Empty;
         public List<string> ProvinceNames { get; set; } = new List<string>();
-        public List<SettlementVariant> Variants { get; private set; = new List<SettlementVariant>();
+        public List<SettlementVariant> Variants { get; private set; }  = new List<SettlementVariant>();
     }
 
     internal class SiegeEngine
@@ -146,7 +146,7 @@ namespace CrusaderWars.unit_mapper
         private static readonly Random _random = new Random();
         private static Dictionary<string, (string X, string Y, List<string>? orientations)> _provinceMapCache = new Dictionary<string, (string X, string Y, List<string>? orientations)>();
 
-        public static List<SiegeEngine> SiegeEngines { get; private set; = new List<SiegeEngine>();
+        public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
         public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
         {

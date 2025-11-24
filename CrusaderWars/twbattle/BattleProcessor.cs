@@ -31,7 +31,7 @@ namespace CrusaderWars.twbattle
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
-            public string LastAppliedFixDescription { get; set; = "";
+            public string LastAppliedFixDescription { get; set; } = "";
             public int MapVariantOffset { get; set; } = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
