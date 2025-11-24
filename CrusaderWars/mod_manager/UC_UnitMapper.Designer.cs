@@ -125,6 +125,7 @@ namespace CrusaderWars.mod_manager
             // 
             // customMapperComboBox
             // 
+            this.customMapperComboBox = new System.Windows.Forms.ComboBox();
             this.customMapperComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.customMapperComboBox.FormattingEnabled = true;
             this.customMapperComboBox.Location = new System.Drawing.Point(280, 145);

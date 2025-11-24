@@ -118,6 +118,10 @@ namespace CrusaderWars
             {
                 return AGOT_Tab;
             }
+            if(Custom_Tab != null && Custom_Tab.GetState())
+            {
+                return Custom_Tab;
+            }
             return null;
         }
 
