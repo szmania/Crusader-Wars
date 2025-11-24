@@ -15,7 +15,9 @@ namespace CrusaderWars.client
     public static class ModOptions
     {
         internal static Dictionary<string, string> optionsValuesCollection = new Dictionary<string, string>();
-        
+        internal static string SelectedCustomMapper { get; set; } = string.Empty;
+
+        public static string GetSelectedCustomMapper() { return SelectedCustomMapper; }
         public static int GetLevyMax()
         {
             return Int32.Parse(optionsValuesCollection["LeviesMax"]);

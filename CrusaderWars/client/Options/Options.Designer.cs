@@ -671,6 +671,7 @@
         private System.Windows.Forms.Button Btn_TFETab;
         private System.Windows.Forms.Button Btn_LOTRTab;
         private System.Windows.Forms.Button Btn_AGOTTab;
+        private System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
         private System.Windows.Forms.DataGridViewImageColumn ImageColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn ModName;

@@ -46,11 +46,13 @@ namespace CrusaderWars
             Btn_CK3Tab.FlatAppearance.BorderSize = 1;
             Btn_TFETab.FlatAppearance.BorderSize = 1;
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
-            Btn_AGOTTab.FlatAppearance.BorderSize = 1; // Added AGOT tab
+            Btn_AGOTTab.FlatAppearance.BorderSize = 1;
+            Btn_CustomTab.FlatAppearance.BorderSize = 1;
             Btn_CK3Tab.FlatAppearance.BorderColor = Color.Black;
             Btn_TFETab.FlatAppearance.BorderColor = Color.Black;
             Btn_LOTRTab.FlatAppearance.BorderColor = Color.Black;
-            Btn_AGOTTab.FlatAppearance.BorderColor = Color.Black; // Added AGOT tab
+            Btn_AGOTTab.FlatAppearance.BorderColor = Color.Black;
+            Btn_CustomTab.FlatAppearance.BorderColor = Color.Black;
 
             // Reset submod button borders on all playthrough tabs
             foreach (var playthrough in new[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab })

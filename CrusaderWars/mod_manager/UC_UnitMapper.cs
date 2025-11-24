@@ -47,6 +47,54 @@ namespace CrusaderWars.mod_manager
             _availableSubmods = submods;
 
             BtnSubmods.Visible = _availableSubmods != null && _availableSubmods.Any();
+
+            if (_playthroughTag == "Custom")
+            {
+                customMapperLabel.Visible = true;
+                customMapperComboBox.Visible = true;
+                PopulateCustomMappers();
+                customMapperComboBox.SelectedIndexChanged += CustomMapperComboBox_SelectedIndexChanged;
+            }
+        }
+
+        private void PopulateCustomMappers()
+        {
+            customMapperComboBox.Items.Clear();
+            string unitMappersDir = @".\unit mappers";
+            if (Directory.Exists(unitMappersDir))
+            {
+                var customDirs = Directory.GetDirectories(unitMappersDir)
+                                          .Where(d => Path.GetFileName(d).StartsWith("Custom", StringComparison.OrdinalIgnoreCase))
+                                          .Select(d => Path.GetFileName(d))
+                                          .OrderBy(d => d)
+                                          .ToList();
+
+                foreach (var dir in customDirs)
+                {
+                    customMapperComboBox.Items.Add(dir);
+                }
+            }
+
+            if (customMapperComboBox.Items.Count > 0)
+            {
+                string selectedMapper = client.ModOptions.GetSelectedCustomMapper();
+                if (!string.IsNullOrEmpty(selectedMapper) && customMapperComboBox.Items.Contains(selectedMapper))
+                {
+                    customMapperComboBox.SelectedItem = selectedMapper;
+                }
+                else
+                {
+                    customMapperComboBox.SelectedIndex = 0;
+                }
+            }
+        }
+
+        private void CustomMapperComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (customMapperComboBox.SelectedItem != null)
+            {
+                client.ModOptions.SelectedCustomMapper = customMapperComboBox.SelectedItem.ToString();
+            }
         }
 
         public void SetPulsing(bool isPulsing)

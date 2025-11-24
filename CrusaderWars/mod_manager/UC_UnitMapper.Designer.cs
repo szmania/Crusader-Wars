@@ -135,5 +135,7 @@ namespace CrusaderWars.mod_manager
         private System.Windows.Forms.Button BtnVerifyMods;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button BtnSubmods;
+        internal System.Windows.Forms.Label customMapperLabel;
+        internal System.Windows.Forms.ComboBox customMapperComboBox;
     }
 }
