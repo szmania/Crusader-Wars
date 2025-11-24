@@ -797,6 +797,10 @@ namespace CrusaderWars.unit_mapper
             int startYear = -1, endYear = -1;
             bool isDefault = false;
             string timePeriodPath = Path.Combine(mapperPath, "Time Period.xml");
+            if (!File.Exists(timePeriodPath))
+            {
+                timePeriodPath = Path.Combine(mapperPath, "TimePeriod.xml");
+            }
 
             if (File.Exists(timePeriodPath))
             {
@@ -875,7 +879,7 @@ namespace CrusaderWars.unit_mapper
             }
             else
             {
-                MessageBox.Show($"Time Period.xml was not found in {mapperPath}", "Crusader Conflicts: Unit Mappers Error",
+                MessageBox.Show($"Time Period.xml or TimePeriod.xml was not found in {mapperPath}", "Crusader Conflicts: Unit Mappers Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
 

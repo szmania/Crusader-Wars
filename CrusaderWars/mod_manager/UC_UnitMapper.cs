@@ -280,6 +280,10 @@ namespace CrusaderWars.mod_manager
 
                     // Validate Time Period.xml
                     string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
+                    if (!File.Exists(timePeriodXml))
+                    {
+                        timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
+                    }
                     if (File.Exists(timePeriodXml))
                         allErrors.AddRange(XmlValidator.Validate(timePeriodXml, Path.Combine(schemasDir, "timperiod.xsd")));
 
