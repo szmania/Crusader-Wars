@@ -68,7 +68,7 @@ namespace CrusaderWars.mod_manager
             this.BtnVerifyMods.BackgroundImage = global::CrusaderWars.Properties.Resources.searchModsIcon;
             this.BtnVerifyMods.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.BtnVerifyMods.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.BtnVerifyMods.Location = new System.Drawing.Point(400, 10);
+            this.BtnVerifyMods.Location = new System.Drawing.Point(183, 10);
             this.BtnVerifyMods.Name = "BtnVerifyMods";
             this.BtnVerifyMods.Size = new System.Drawing.Size(40, 35);
             this.BtnVerifyMods.TabIndex = 3;
@@ -99,7 +99,7 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnSubmods.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnSubmods.ForeColor = System.Drawing.Color.White;
-            this.BtnSubmods.Location = new System.Drawing.Point(280, 140);
+            this.BtnSubmods.Location = new System.Drawing.Point(280, 100);
             this.BtnSubmods.Name = "BtnSubmods";
             this.BtnSubmods.Size = new System.Drawing.Size(160, 30);
             this.BtnSubmods.TabIndex = 4;
