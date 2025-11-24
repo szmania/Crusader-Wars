@@ -9,6 +9,7 @@ using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.terrain;
 using CrusaderWars.unit_mapper;
+using CrusaderWars.twbattle;
 
 namespace CrusaderWars
 {
