@@ -394,6 +394,28 @@ del ""%~f0""
                         string oldDirectory = cleanApplicationPath + "_old";
                         Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
 
+                        // Preserve Custom_ folders by moving them to a temporary location
+                        string customMappersBackupPath = Path.Combine(Path.GetTempPath(), "cw_custom_mappers_backup");
+                        if (Directory.Exists(customMappersBackupPath))
+                        {
+                            Directory.Delete(customMappersBackupPath, true);
+                        }
+                        Directory.CreateDirectory(customMappersBackupPath);
+
+                        if (Directory.Exists(applicationPath))
+                        {
+                            var customDirs = Directory.GetDirectories(applicationPath)
+                                .Where(d => Path.GetFileName(d).StartsWith("Custom_", StringComparison.OrdinalIgnoreCase));
+
+                            foreach (var dir in customDirs)
+                            {
+                                string dirName = Path.GetFileName(dir);
+                                string destination = Path.Combine(customMappersBackupPath, dirName);
+                                Logger.Log($"Backing up custom mapper: {dir} to {destination}");
+                                await RetryActionAsync(() => Directory.Move(dir, destination), $"Backup custom mapper {dirName}");
+                            }
+                        }
+
                         // 1. Clean up any leftover old directory from a previous failed update
                         if (Directory.Exists(oldDirectory))
                         {
@@ -402,16 +424,35 @@ del ""%~f0""
                         }
 
                         // 2. Rename current directory to _old
-                        Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
-                        await RetryActionAsync(() => Directory.Move(applicationPath, oldDirectory), "Rename current to _old");
+                        if (Directory.Exists(applicationPath))
+                        {
+                            Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
+                            await RetryActionAsync(() => Directory.Move(applicationPath, oldDirectory), "Rename current to _old");
+                        }
 
                         // 3. Move the new directory into place
                         Logger.Log($"Moving '{tempDirectory}' to '{applicationPath}'.");
                         await RetryActionAsync(() => Directory.Move(tempDirectory, applicationPath), "Move new to current");
 
+                        // Restore Custom_ folders
+                        if (Directory.Exists(customMappersBackupPath))
+                        {
+                            foreach (var dir in Directory.GetDirectories(customMappersBackupPath))
+                            {
+                                string dirName = Path.GetFileName(dir);
+                                string destination = Path.Combine(applicationPath, dirName);
+                                Logger.Log($"Restoring custom mapper: {dir} to {destination}");
+                                await RetryActionAsync(() => Directory.Move(dir, destination), $"Restore custom mapper {dirName}");
+                            }
+                            Directory.Delete(customMappersBackupPath, true);
+                        }
+
                         // 4. Delete the old directory
-                        Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
-                        await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
+                        if (Directory.Exists(oldDirectory))
+                        {
+                            Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
+                            await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
+                        }
                     }
                     else // Existing logic for App Updater
                     {
