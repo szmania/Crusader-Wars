@@ -1162,6 +1162,12 @@ namespace CrusaderWars
                 ChangeUnitMappersTab(AGOT_Tab);
         }
 
+        private void Btn_CustomTab_Click(object sender, EventArgs e)
+        {
+            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != Custom_Tab)
+                ChangeUnitMappersTab(Custom_Tab);
+        }
+
 
         void ChangeUnitMappersTab(Control control)
         {
