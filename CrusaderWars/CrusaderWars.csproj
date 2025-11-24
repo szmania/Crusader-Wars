@@ -247,6 +247,9 @@
     <None Include="Resources\paper.jpg" />
     <None Include="Resources\info.png" />
     <None Include="Resources\playthrough_agot.png" />
+    <None Include="Resources\playthrough_custom.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
