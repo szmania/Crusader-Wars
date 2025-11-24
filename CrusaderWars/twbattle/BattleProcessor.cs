@@ -50,8 +50,8 @@ namespace CrusaderWars.twbattle
             public int SiegeDirectionFixAttempts { get; set; } = 0;
 
             // Golden copy of armies for unit replacement strategy
-            public List<Army> OriginalAttackerArmies { get; set; = new List<Army>();
-            public List<Army> OriginalDefenderArmies { get; set; = new List<Army>();
+            public List<Army> OriginalAttackerArmies { get; set; } = new List<Army>();
+            public List<Army> OriginalDefenderArmies { get; set; } = new List<Army>();
         }
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
