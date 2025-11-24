@@ -87,6 +87,11 @@ namespace CrusaderWars.mod_manager
                     customMapperComboBox.SelectedIndex = 0;
                 }
             }
+            else
+            {
+                // No custom mappers found, clear any saved selection.
+                client.ModOptions.SelectedCustomMapper = string.Empty;
+            }
         }
 
         private void CustomMapperComboBox_SelectedIndexChanged(object sender, EventArgs e)

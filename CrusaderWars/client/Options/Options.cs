@@ -656,6 +656,9 @@ namespace CrusaderWars
                 var KnightPrisonerChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightPrisonerChance']");
                 if (KnightPrisonerChance_Node != null && numKnightPrisoner != null) KnightPrisonerChance_Node.InnerText = numKnightPrisoner.Value.ToString();
 
+                var SelectedCustomMapper_Node = xmlDoc.SelectSingleNode("//Option [@name='SelectedCustomMapper']");
+                if (SelectedCustomMapper_Node != null) SelectedCustomMapper_Node.InnerText = ModOptions.SelectedCustomMapper;
+
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("Options saved to file.");

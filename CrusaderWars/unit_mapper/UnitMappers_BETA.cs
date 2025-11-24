@@ -738,8 +738,10 @@ namespace CrusaderWars.unit_mapper
                 string customMapperName = ModOptions.GetSelectedCustomMapper();
                 if (string.IsNullOrEmpty(customMapperName))
                 {
-                    MessageBox.Show("No custom unit mapper selected for the 'Custom' playthrough. Please select one in the Options > Unit Mappers screen.", "Crusader Conflicts: Configuration Error",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    // No custom mapper selected, which is fine if none exist.
+                    // Just return an empty list of mods.
+                    LoadedUnitMapper_FolderPath = null; // Ensure no previous mapper is loaded
+                    Terrains = null;
                     return requiredMods;
                 }
 
