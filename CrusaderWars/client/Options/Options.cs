@@ -290,6 +290,7 @@ namespace CrusaderWars
 
                 // Add new OptInPreReleases option
                 var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
+                var SelectedCustomMapper_Value = GetOptionValue(xmlDoc, "SelectedCustomMapper", "");
 
 
                 xmlDoc.Save(file);
