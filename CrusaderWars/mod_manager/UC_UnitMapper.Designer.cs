@@ -116,7 +116,7 @@ namespace CrusaderWars.mod_manager
             this.customMapperLabel.AutoSize = true;
             this.customMapperLabel.Font = new System.Drawing.Font("Paradox King Script", 9.75F);
             this.customMapperLabel.ForeColor = System.Drawing.Color.White;
-            this.customMapperLabel.Location = new System.Drawing.Point(277, 90);
+            this.customMapperLabel.Location = new System.Drawing.Point(277, 100);
             this.customMapperLabel.Name = "customMapperLabel";
             this.customMapperLabel.Size = new System.Drawing.Size(101, 16);
             this.customMapperLabel.TabIndex = 5;
@@ -128,7 +128,7 @@ namespace CrusaderWars.mod_manager
             this.customMapperComboBox = new System.Windows.Forms.ComboBox();
             this.customMapperComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.customMapperComboBox.FormattingEnabled = true;
-            this.customMapperComboBox.Location = new System.Drawing.Point(280, 145);
+            this.customMapperComboBox.Location = new System.Drawing.Point(280, 120);
             this.customMapperComboBox.Name = "customMapperComboBox";
             this.customMapperComboBox.Size = new System.Drawing.Size(160, 21);
             this.customMapperComboBox.TabIndex = 6;
