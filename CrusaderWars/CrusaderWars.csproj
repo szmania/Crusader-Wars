@@ -176,7 +176,6 @@
     <None Include="Resources\logo.ico" />
     <None Include="Resources\searchModsIcon.png" />
     <None Include="Resources\LOTR.png" />
-    <None Include="Resources\tfe1.png" />
     <None Include="Resources\tfe.png" />
     <None Include="Resources\toggle_yes.png" />
     <None Include="Resources\toggle_no.png" />
