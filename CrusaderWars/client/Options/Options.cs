@@ -1238,7 +1238,7 @@ namespace CrusaderWars
 
         private Bitmap LoadCustomPlaythroughImage()
         {
-            string imagePath = @"CrusaderWars\Resources\playthrough_custom.png";
+            string imagePath = @"Resources\playthrough_custom.png";
             if (File.Exists(imagePath))
             {
                 try
