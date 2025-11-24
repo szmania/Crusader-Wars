@@ -54,44 +54,37 @@ namespace CrusaderWars.client
                     var factionNode = new TreeNode(factionGroup.Key);
                     sideNode.Nodes.Add(factionNode);
 
-                    foreach (var unit in factionGroup.OrderBy(u => u.GetName()))
-                    {
-                        string nameToShow = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName();
-                        string attilaKey = unit.GetAttilaUnitKey();
-                        string displayName;
-                        object nodeTag; // Declare nodeTag without an initial value
-                        var regimentType = unit.GetRegimentType(); // Get the regiment type
+                    var groupedForDisplay = factionGroup
+                        .GroupBy(u => {
+                            var type = u.GetRegimentType();
+                            string groupIdentifier = (type == RegimentType.MenAtArms) ? u.GetName() : type.ToString();
+                            return new { RegimentType = type, Identifier = groupIdentifier };
+                        })
+                        .OrderBy(g => g.Key.RegimentType).ThenBy(g => g.Key.Identifier);
 
+                    foreach (var unitGroup in groupedForDisplay)
+                    {
+                        int unitCount = unitGroup.Count();
+                        int totalSoldiers = unitGroup.Sum(u => u.GetSoldiers());
+                        string nameToShow = unitGroup.Key.Identifier;
+                        var regimentType = unitGroup.Key.RegimentType;
+
+                        string displayName;
                         if (regimentType == RegimentType.MenAtArms)
                         {
-                            string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(unit.GetName());
-                            if (!string.IsNullOrEmpty(maxCategory))
-                            {
-                                displayName = $"MAA {nameToShow} [{maxCategory}] [{attilaKey}] ({unit.GetSoldiers()} men)";
-                            }
-                            else
-                            {
-                                displayName = $"MAA {nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
-                            }
-                            // Store both key and type for multi-update logic
-                            nodeTag = new { OriginalKey = attilaKey, TypeIdentifier = unit.GetName(), RegimentType = regimentType };
+                            string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(nameToShow) ?? "Unit";
+                            displayName = $"MAA: {nameToShow} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
                         }
-                        else if (regimentType == RegimentType.Commander || regimentType == RegimentType.Knight || regimentType == RegimentType.Levy)
+                        else
                         {
-                            displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
-                            nodeTag = new { OriginalKey = attilaKey, TypeIdentifier = regimentType.ToString(), RegimentType = regimentType };
-                        }
-                        else // for all other units (e.g., Garrison)
-                        {
-                            displayName = $"{nameToShow} [{attilaKey}] ({unit.GetSoldiers()} men)";
-                            nodeTag = attilaKey;
+                            displayName = $"{nameToShow} ({unitCount} units, {totalSoldiers} men)";
                         }
 
-                        var unitNode = new TreeNode(displayName)
+                        var groupNode = new TreeNode(displayName)
                         {
-                            Tag = nodeTag
+                            Tag = new { TypeIdentifier = nameToShow, RegimentType = regimentType }
                         };
-                        factionNode.Nodes.Add(unitNode);
+                        factionNode.Nodes.Add(groupNode);
                     }
                 }
             }
@@ -155,7 +148,7 @@ namespace CrusaderWars.client
         {
             if (_selectedCurrentNodes.Count == 0 || tvAvailableUnits.SelectedNode == null)
             {
-                MessageBox.Show("Please select one or more units from the 'Current Battle' list and one unit from the 'Available Replacements' list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select one or more unit groups from the 'Current Battle' list and one unit from the 'Available Replacements' list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -171,17 +164,43 @@ namespace CrusaderWars.client
             foreach (var selectedNode in _selectedCurrentNodes)
             {
                 bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
+                dynamic tagObject = selectedNode.Tag;
+                RegimentType regimentType = tagObject.RegimentType;
+                string typeIdentifier = tagObject.TypeIdentifier;
 
-                if (selectedNode.Tag is string keyToReplace) // Handles individual replacements
+                if (regimentType == RegimentType.Levy || regimentType == RegimentType.Garrison)
                 {
-                    Replacements[(keyToReplace, isPlayerAlliance)] = (replacementKey, isSiege);
+                    var factionsOnSide = _currentUnits
+                        .Where(u => u.IsPlayer() == isPlayerAlliance)
+                        .Select(u => u.GetAttilaFaction())
+                        .Where(f => !string.IsNullOrEmpty(f) && f != UnitMappers_BETA.NOT_FOUND_KEY)
+                        .Distinct();
+
+                    foreach (var faction in factionsOnSide)
+                    {
+                        if (regimentType == RegimentType.Levy)
+                        {
+                            var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
+                            foreach (var levy in levyTuples)
+                            {
+                                Replacements[(levy.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
+                            }
+                        }
+                        else // Garrison
+                        {
+                            for (int level = 1; level <= 20; level++)
+                            {
+                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, level);
+                                foreach (var garrison in garrisonTuples)
+                                {
+                                    Replacements[(garrison.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
+                                }
+                            }
+                        }
+                    }
                 }
-                else // Handles group replacements (MenAtArms, Commander, Knight, Levy)
+                else
                 {
-                    dynamic tagObject = selectedNode.Tag;
-                    RegimentType regimentType = tagObject.RegimentType;
-                    string typeIdentifier = tagObject.TypeIdentifier;
-
                     IEnumerable<Unit> unitsToReplace;
                     if (regimentType == RegimentType.MenAtArms)
                     {
@@ -218,21 +237,70 @@ namespace CrusaderWars.client
                 {
                     if (node.Tag is { } nodeTag)
                     {
-                        string originalKey = (nodeTag is string s) ? s : (string)((dynamic)nodeTag).OriginalKey;
+                        dynamic tag = nodeTag;
+                        RegimentType regimentType = tag.RegimentType;
+                        string typeIdentifier = tag.TypeIdentifier;
                         bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
 
                         int arrowIndex = node.Text.IndexOf(" ->");
                         if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
                         node.ForeColor = tvCurrentUnits.ForeColor;
 
-                        if (Replacements.TryGetValue((originalKey, nodeIsPlayerAlliance), out var r))
+                        bool isReplaced = false;
+                        (string replacementKey, bool isSiege) replacementInfo = default;
+
+                        if (regimentType == RegimentType.Levy || regimentType == RegimentType.Garrison)
                         {
-                            string replacementName = FindAvailableUnitNodeText(r.replacementKey);
+                            var factionsOnSide = _currentUnits
+                                .Where(u => u.IsPlayer() == nodeIsPlayerAlliance)
+                                .Select(u => u.GetAttilaFaction())
+                                .Where(f => !string.IsNullOrEmpty(f) && f != UnitMappers_BETA.NOT_FOUND_KEY)
+                                .Distinct();
+
+                            foreach (var faction in factionsOnSide)
+                            {
+                                if (isReplaced) break;
+                                if (regimentType == RegimentType.Levy)
+                                {
+                                    var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
+                                    if (levyTuples.Any() && Replacements.TryGetValue((levyTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
+                                    {
+                                        isReplaced = true;
+                                    }
+                                }
+                                else // Garrison
+                                {
+                                    var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1);
+                                    if (garrisonTuples.Any() && Replacements.TryGetValue((garrisonTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
+                                    {
+                                        isReplaced = true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Unit? representativeUnit = (regimentType == RegimentType.MenAtArms)
+                                ? _currentUnits.FirstOrDefault(u => u.GetName() == typeIdentifier && u.IsPlayer() == nodeIsPlayerAlliance)
+                                : _currentUnits.FirstOrDefault(u => u.GetRegimentType() == regimentType && u.IsPlayer() == nodeIsPlayerAlliance);
+
+                            if (representativeUnit != null && !string.IsNullOrEmpty(representativeUnit.GetAttilaUnitKey()) && Replacements.TryGetValue((representativeUnit.GetAttilaUnitKey(), nodeIsPlayerAlliance), out replacementInfo))
+                            {
+                                isReplaced = true;
+                            }
+                        }
+
+                        if (isReplaced)
+                        {
+                            string replacementName = FindAvailableUnitNodeText(replacementInfo.replacementKey);
                             node.Text += $" -> {replacementName}";
                             node.ForeColor = Color.MediumSeaGreen;
                         }
                     }
-                    TraverseNodes(node.Nodes);
+                    if (node.Nodes != null && node.Nodes.Count > 0)
+                    {
+                        TraverseNodes(node.Nodes);
+                    }
                 }
             };
             TraverseNodes(tvCurrentUnits.Nodes);

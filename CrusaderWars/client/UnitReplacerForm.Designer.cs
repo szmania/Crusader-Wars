@@ -143,7 +143,7 @@ namespace CrusaderWars.client
             this.textBoxInstructions.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBoxInstructions.Size = new System.Drawing.Size(754, 111);
             this.textBoxInstructions.TabIndex = 0;
-            this.textBoxInstructions.Text = "How to Replace Units:\r\n1. Select units to replace from the \'Current Battle Units\' list.\r\n   (Use Ctrl+Click for multiple units, or Shift+Click for a range).\r\n2. Select a unit to replace them with from the \'Available...\' list on the right.\r\n3. Click \'-> Replace ->\' to mark them for replacement.\r\n4. Repeat for other groups of units with different replacements.\r\n\r\n- Replacing a Men-At-Arm unit replaces all units of that same type.\r\n- The \'Undo\' button will clear all pending replacements.\r\n- Click \'OK\' when you have finished setting all replacements.";
+            this.textBoxInstructions.Text = "How to Replace Units:\r\n1. Select one or more unit groups from the 'Current Battle Units' list on the left.\r\n   (Use Ctrl+Click to select multiple groups).\r\n2. Select a single unit to replace them with from the 'Available...' list on the right.\r\n3. Click '-> Replace ->' to mark the group(s) for replacement.\r\n4. Repeat for other groups of units if you want different replacements.\r\n\r\n- All units within a group (e.g., all Levies, all Longbowmen) will be replaced.\r\n- The 'Undo' button will clear all pending replacements.\r\n- Click 'OK' when you have finished setting all replacements.";
             // 
             // btnUndo
             // 
