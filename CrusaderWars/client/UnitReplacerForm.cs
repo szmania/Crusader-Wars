@@ -12,7 +12,7 @@ namespace CrusaderWars.client
     {
         private readonly List<Unit> _currentUnits;
         private readonly List<AvailableUnit> _allAvailableUnits;
-        public Dictionary<string, (string replacementKey, bool isSiege)> Replacements { get; private set; } = new Dictionary<string, (string, bool)>();
+        public Dictionary<string, (string replacementKey, bool isSiege, bool? isPlayerAlliance)> Replacements { get; private set; } = new Dictionary<string, (string, bool, bool?)>();
         private List<TreeNode> _selectedCurrentNodes = new List<TreeNode>();
 
         public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<string, (string replacementKey, bool isSiege)> existingReplacements)
@@ -21,7 +21,11 @@ namespace CrusaderWars.client
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
             // Create a copy of the existing replacements to work with
-            Replacements = new Dictionary<string, (string, bool)>(existingReplacements);
+            // Convert existing (string, bool) to (string, bool, bool?) with isPlayerAlliance = null
+            Replacements = existingReplacements.ToDictionary(
+                kvp => kvp.Key,
+                kvp => (kvp.Value.replacementKey, kvp.Value.isSiege, (bool?)null)
+            );
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)
@@ -168,12 +172,15 @@ namespace CrusaderWars.client
 
             string replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
             bool isSiege = UnitMappers_BETA.IsUnitKeySiege(replacementKey);
+            
+            // Determine the alliance of the selected node for replacement tracking
+            bool nodeIsPlayerAlliance = _selectedCurrentNodes.First().Parent.Parent.Text == "Player's Alliance";
 
             foreach (var selectedNode in _selectedCurrentNodes)
             {
                 if (selectedNode.Tag is string keyToReplace) // Handles individual replacements (e.g., Garrison)
                 {
-                    Replacements[keyToReplace] = (replacementKey, isSiege);
+                    Replacements[keyToReplace] = (replacementKey, isSiege, nodeIsPlayerAlliance);
                 }
                 else // Handles group replacements (MenAtArms, Commander, Knight, Levy)
                 {
@@ -196,7 +203,7 @@ namespace CrusaderWars.client
 
                     foreach (var unit in unitsToReplace)
                     {
-                        Replacements[unit.GetAttilaUnitKey()] = (replacementKey, isSiege);
+                        Replacements[unit.GetAttilaUnitKey()] = (replacementKey, isSiege, nodeIsPlayerAlliance);
                     }
                 }
             }
@@ -221,14 +228,15 @@ namespace CrusaderWars.client
                     if (node.Tag is { } nodeTag)
                     {
                         string originalKey = (nodeTag is string s) ? s : (string)((dynamic)nodeTag).OriginalKey;
+                        bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
 
                         int arrowIndex = node.Text.IndexOf(" ->");
                         if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
                         node.ForeColor = tvCurrentUnits.ForeColor;
 
-                        if (Replacements.TryGetValue(originalKey, out var replacement))
+                        if (Replacements.TryGetValue(originalKey, out var r) && (r.isPlayerAlliance == null || r.isPlayerAlliance.Value == nodeIsPlayerAlliance))
                         {
-                            string replacementName = FindAvailableUnitNodeText(replacement.replacementKey);
+                            string replacementName = FindAvailableUnitNodeText(r.replacementKey);
                             node.Text += $" -> {replacementName}";
                             node.ForeColor = Color.MediumSeaGreen;
                         }
