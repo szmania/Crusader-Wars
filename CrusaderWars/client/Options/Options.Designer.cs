@@ -436,6 +436,7 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(477, 34);

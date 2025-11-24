@@ -711,7 +711,14 @@ namespace CrusaderWars
                     }
 
                     // Format name and update label
-                    userFriendlyName = System.Text.RegularExpressions.Regex.Replace(activePlaythroughTag, "(\\B[A-Z])", " $1");
+                    if (activePlaythroughTag == "Custom")
+                    {
+                        userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
+                    }
+                    else
+                    {
+                        userFriendlyName = System.Text.RegularExpressions.Regex.Replace(activePlaythroughTag, "(\\B[A-Z])", " $1");
+                    }
                     playthroughNameLabel.Text = userFriendlyName;
                     playthroughNameLabel.ForeColor = Color.WhiteSmoke;
                     playthroughPanel.Visible = true;

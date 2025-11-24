@@ -73,6 +73,9 @@ namespace CrusaderWars.locs
                 case "OfficialCC_AGOT_SevenKingdoms":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), unitsCollection);
                     break;
+                case "Custom":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), unitsCollection);
+                    break;
             }
 
         }

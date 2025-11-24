@@ -110,10 +110,34 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.Visible = false;
             this.BtnSubmods.Click += new System.EventHandler(this.BtnSubmods_Click);
             // 
+            // customMapperLabel
+            // 
+            this.customMapperLabel.AutoSize = true;
+            this.customMapperLabel.Font = new System.Drawing.Font("Paradox King Script", 9.75F);
+            this.customMapperLabel.ForeColor = System.Drawing.Color.White;
+            this.customMapperLabel.Location = new System.Drawing.Point(277, 125);
+            this.customMapperLabel.Name = "customMapperLabel";
+            this.customMapperLabel.Size = new System.Drawing.Size(101, 16);
+            this.customMapperLabel.TabIndex = 5;
+            this.customMapperLabel.Text = "Select Mapper:";
+            this.customMapperLabel.Visible = false;
+            // 
+            // customMapperComboBox
+            // 
+            this.customMapperComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.customMapperComboBox.FormattingEnabled = true;
+            this.customMapperComboBox.Location = new System.Drawing.Point(280, 145);
+            this.customMapperComboBox.Name = "customMapperComboBox";
+            this.customMapperComboBox.Size = new System.Drawing.Size(160, 21);
+            this.customMapperComboBox.TabIndex = 6;
+            this.customMapperComboBox.Visible = false;
+            // 
             // UC_UnitMapper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.customMapperLabel);
+            this.Controls.Add(this.customMapperComboBox);
             this.Controls.Add(this.BtnSubmods);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.uC_Toggle1);
@@ -124,6 +148,7 @@ namespace CrusaderWars.mod_manager
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.UC_UnitMapper_Paint);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
