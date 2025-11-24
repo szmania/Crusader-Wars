@@ -99,7 +99,7 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnSubmods.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnSubmods.ForeColor = System.Drawing.Color.White;
-            this.BtnSubmods.Location = new System.Drawing.Point(280, 90);
+            this.BtnSubmods.Location = new System.Drawing.Point(280, 140);
             this.BtnSubmods.Name = "BtnSubmods";
             this.BtnSubmods.Size = new System.Drawing.Size(160, 30);
             this.BtnSubmods.TabIndex = 4;
