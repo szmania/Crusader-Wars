@@ -274,52 +274,7 @@ namespace CrusaderWars.mod_manager
 
                 if (!string.IsNullOrEmpty(unitMapperDirectory) && Directory.Exists(unitMapperDirectory))
                 {
-                    var allErrors = new List<string>();
-                    string schemasDir = @".\unit mappers\schemas";
-
-                    // Validate Mods.xml
-                    string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
-                    if (File.Exists(modsXml))
-                        allErrors.AddRange(XmlValidator.Validate(modsXml, Path.Combine(schemasDir, "mods.xsd")));
-
-                    // Validate Time Period.xml
-                    string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
-                    if (!File.Exists(timePeriodXml))
-                    {
-                        timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
-                    }
-                    if (File.Exists(timePeriodXml))
-                        allErrors.AddRange(XmlValidator.Validate(timePeriodXml, Path.Combine(schemasDir, "timperiod.xsd")));
-
-                    // Validate Cultures
-                    string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
-                    if (Directory.Exists(culturesDir))
-                    {
-                        foreach (var file in Directory.GetFiles(culturesDir, "*.xml"))
-                        {
-                            allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "cultures.xsd")));
-                        }
-                    }
-
-                    // Validate Factions
-                    string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
-                    if (Directory.Exists(factionsDir))
-                    {
-                        foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
-                        {
-                            allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "factions.xsd")));
-                        }
-                    }
-
-                    // Validate Titles
-                    string titlesDir = Path.Combine(unitMapperDirectory, "Titles");
-                    if (Directory.Exists(titlesDir))
-                    {
-                        foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
-                        {
-                            allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "titles.xsd")));
-                        }
-                    }
+                    var allErrors = XmlValidator.ValidateUnitMapper(unitMapperDirectory);
 
                     if (allErrors.Any())
                     {
@@ -925,6 +880,56 @@ namespace CrusaderWars.mod_manager
 
     public static class XmlValidator
     {
+        public static List<string> ValidateUnitMapper(string unitMapperDirectory)
+        {
+            var allErrors = new List<string>();
+            string schemasDir = @".\unit mappers\schemas";
+
+            // Validate Mods.xml
+            string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
+            if (File.Exists(modsXml))
+                allErrors.AddRange(Validate(modsXml, Path.Combine(schemasDir, "mods.xsd")));
+
+            // Validate Time Period.xml
+            string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
+            if (!File.Exists(timePeriodXml))
+            {
+                timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
+            }
+            if (File.Exists(timePeriodXml))
+                allErrors.AddRange(Validate(timePeriodXml, Path.Combine(schemasDir, "timperiod.xsd")));
+
+            // Validate Cultures
+            string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
+            if (Directory.Exists(culturesDir))
+            {
+                foreach (var file in Directory.GetFiles(culturesDir, "*.xml"))
+                {
+                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "cultures.xsd")));
+                }
+            }
+
+            // Validate Factions
+            string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
+            if (Directory.Exists(factionsDir))
+            {
+                foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
+                {
+                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "factions.xsd")));
+                }
+            }
+
+            // Validate Titles
+            string titlesDir = Path.Combine(unitMapperDirectory, "Titles");
+            if (Directory.Exists(titlesDir))
+            {
+                foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
+                {
+                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "titles.xsd")));
+                }
+            }
+            return allErrors;
+        }
         public static List<string> Validate(string xmlPath, string xsdPath)
         {
             var errors = new List<string>();

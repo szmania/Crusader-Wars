@@ -305,6 +305,78 @@ namespace CrusaderWars
             return false;
         }
 
+        private bool ValidateActiveUnitMapper()
+        {
+            string activePlaythroughTag = GetActivePlaythroughTag();
+            if (string.IsNullOrEmpty(activePlaythroughTag))
+            {
+                MessageBox.Show("No Unit Mapper has been selected. Please select a playthrough in the Mod Settings.", "No Playthrough Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            string unitMapperDirectory = "";
+            string unitMappersBaseDir = @".\unit mappers";
+
+            if (activePlaythroughTag == "Custom")
+            {
+                string customMapperName = client.ModOptions.GetSelectedCustomMapper();
+                if (!string.IsNullOrEmpty(customMapperName))
+                {
+                    unitMapperDirectory = Path.Combine(unitMappersBaseDir, customMapperName);
+                }
+                else
+                {
+                    MessageBox.Show("The 'Custom' playthrough is active, but no custom unit mapper has been selected from the dropdown in Mod Settings.", "Custom Mapper Not Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+            }
+            else
+            {
+                if (Directory.Exists(unitMappersBaseDir))
+                {
+                    foreach (var dir in Directory.GetDirectories(unitMappersBaseDir))
+                    {
+                        string tagFile = Path.Combine(dir, "tag.txt");
+                        if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
+                        {
+                            unitMapperDirectory = dir;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(unitMapperDirectory) && Directory.Exists(unitMapperDirectory))
+            {
+                var allErrors = XmlValidator.ValidateUnitMapper(unitMapperDirectory);
+
+                if (allErrors.Any())
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("The selected unit mapper has validation errors and cannot be used.");
+                    sb.AppendLine("Please fix the following issues or select a different playthrough:");
+                    sb.AppendLine();
+                    foreach (var error in allErrors.Take(20))
+                    {
+                        sb.AppendLine(error);
+                    }
+                    if (allErrors.Count > 20)
+                    {
+                        sb.AppendLine($"\n... and {allErrors.Count - 20} more errors.");
+                    }
+
+                    MessageBox.Show(sb.ToString(), "Unit Mapper Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false; // Validation failed
+                }
+            }
+            else
+            {
+                Program.Logger.Debug($"Unit mapper directory not found for playthrough '{activePlaythroughTag}'. Skipping validation.");
+            }
+
+            return true; // Validation passed or was skipped
+        }
+
         private void Timer_Tick(object? sender, EventArgs e)
         {
             if (_myVariable == 0)
@@ -1094,6 +1166,7 @@ namespace CrusaderWars
         List<Army> defender_armies = null!;
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
+            if (!ValidateActiveUnitMapper()) { return; }
             Program.Logger.Debug("Execute button clicked.");
 
             // Check if Crusader Conflicts mod is enabled in the playset
@@ -1808,6 +1881,7 @@ namespace CrusaderWars
 
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
+            if (!ValidateActiveUnitMapper()) { return; }
             Program.Logger.Debug("Continue Battle button clicked.");
 
             // Cancel any previous monitoring operation
