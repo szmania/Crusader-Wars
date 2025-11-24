@@ -69,15 +69,53 @@ namespace CrusaderWars.client
                         string nameToShow = unitGroup.Key.Identifier;
                         var regimentType = unitGroup.Key.RegimentType;
 
+                        string attilaKeyDisplay = "";
+                        if (regimentType == RegimentType.MenAtArms || regimentType == RegimentType.Commander || regimentType == RegimentType.Knight)
+                        {
+                            // For single-unit groups, get the key from the first unit
+                            string key = unitGroup.First().GetAttilaUnitKey();
+                            if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
+                            {
+                                attilaKeyDisplay = $" [{key}]";
+                            }
+                        }
+                        else if (regimentType == RegimentType.Levy)
+                        {
+                            // For composite groups (Levies), get all possible keys for the faction
+                            var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
+                            var distinctKeys = levyTuples.Select(l => l.unit_key).Distinct().ToList();
+                            if (distinctKeys.Any())
+                            {
+                                attilaKeyDisplay = $" [{string.Join(", ", distinctKeys)}]";
+                            }
+                        }
+                        else if (regimentType == RegimentType.Garrison)
+                        {
+                            // For composite groups (Garrison), get all possible keys for the faction
+                            // Assuming a max holding level for display purposes, or iterate through all levels
+                            // For simplicity, let's get all distinct keys across all levels for the faction
+                            var distinctKeys = new List<string>();
+                            for (int level = 1; level <= 20; level++) // Iterate through possible holding levels
+                            {
+                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(factionGroup.Key, level);
+                                distinctKeys.AddRange(garrisonTuples.Select(g => g.unit_key));
+                            }
+                            distinctKeys = distinctKeys.Distinct().ToList();
+                            if (distinctKeys.Any())
+                            {
+                                attilaKeyDisplay = $" [{string.Join(", ", distinctKeys)}]";
+                            }
+                        }
+
                         string displayName;
                         if (regimentType == RegimentType.MenAtArms)
                         {
                             string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(nameToShow) ?? "Unit";
-                            displayName = $"MAA: {nameToShow} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
+                            displayName = $"MAA: {nameToShow}{attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
                         }
                         else
                         {
-                            displayName = $"{nameToShow} ({unitCount} units, {totalSoldiers} men)";
+                            displayName = $"{nameToShow}{attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
                         }
 
                         var groupNode = new TreeNode(displayName)
@@ -110,29 +148,45 @@ namespace CrusaderWars.client
 
                 foreach (var typeGroup in unitsByType)
                 {
-                    var typeNode = new TreeNode(typeGroup.Key);
+                    // Correct "Levies" to "Levy" for display
+                    string typeDisplayName = typeGroup.Key == "Levies" ? "Levy" : typeGroup.Key;
+                    var typeNode = new TreeNode(typeDisplayName);
                     factionNode.Nodes.Add(typeNode);
 
                     foreach (var unit in typeGroup.OrderBy(u => u.DisplayName))
                     {
-                        string displayText = unit.DisplayName;
-                        if (unit.IsSiege)
+                        string displayText;
+
+                        if (unit.UnitType == "MenAtArm")
                         {
-                            displayText += " [SIEGE]";
+                            displayText = unit.DisplayName; // This is the CK3 unit name
+                            if (unit.IsSiege)
+                            {
+                                displayText += " [SIEGE]";
+                            }
+                            if (!string.IsNullOrEmpty(unit.MaxCategory))
+                            {
+                                displayText += $" [{unit.MaxCategory}]";
+                            }
+                            displayText += $" [{unit.AttilaUnitKey}]";
                         }
-                        if (unit.UnitType == "MenAtArm" && !string.IsNullOrEmpty(unit.MaxCategory))
+                        else // General, Knights, Levy, Garrison
                         {
-                            displayText += $" [{unit.MaxCategory}]";
+                            displayText = unit.UnitType; // Start with the unit type (e.g., "General", "Knight", "Levy", "Garrison")
+                            if (unit.IsSiege)
+                            {
+                                displayText += " [SIEGE]";
+                            }
+                            if (unit.Rank.HasValue)
+                            {
+                                displayText += $" [Rank: {unit.Rank.Value}]";
+                            }
+                            else if (unit.Level.HasValue)
+                            {
+                                displayText += $" [Level: {unit.Level.Value}]";
+                            }
+                            displayText += $" [{unit.AttilaUnitKey}]";
                         }
-                        if (unit.Rank.HasValue)
-                        {
-                            displayText += $" [Rank: {unit.Rank.Value}]";
-                        }
-                        else if (unit.Level.HasValue)
-                        {
-                            displayText += $" [Level: {unit.Level.Value}]";
-                        }
-                        displayText += $" [{unit.AttilaUnitKey}]";
 
                         var unitNode = new TreeNode(displayText)
                         {
@@ -270,7 +324,8 @@ namespace CrusaderWars.client
                                 }
                                 else // Garrison
                                 {
-                                    var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1);
+                                    // Check for any garrison unit key from this faction and side
+                                    var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1); // Use level 1 as a representative
                                     if (garrisonTuples.Any() && Replacements.TryGetValue((garrisonTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
                                     {
                                         isReplaced = true;
