@@ -28,7 +28,7 @@ namespace CrusaderWars.twbattle
 
         public class AutofixState
         {
-            public List<string> ProblematicUnitKeys { get; set; = new List<string>();
+            public List<string> ProblematicUnitKeys { get; set; }  = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
