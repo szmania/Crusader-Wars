@@ -1306,7 +1306,7 @@ namespace CrusaderWars
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
             RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList()); // Changed to use playthrough_agot
-            Custom_Tab = new UC_UnitMapper(Properties.Resources.playthrough_custom, string.Empty, new List<(string, string, string, string)>(), customToggleState, "Custom", new List<Submod>());
+            Custom_Tab = new UC_UnitMapper(new Bitmap(@"CrusaderWars\Resources\playthrough_custom.png"), string.Empty, new List<(string, string, string, string)>(), customToggleState, "Custom", new List<Submod>());
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
