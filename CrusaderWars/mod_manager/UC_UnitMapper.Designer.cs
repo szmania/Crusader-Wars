@@ -55,7 +55,7 @@ namespace CrusaderWars.mod_manager
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(280, 60);
+            this.button1.Location = new System.Drawing.Point(380, 60);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(160, 30);
             this.button1.TabIndex = 2;
@@ -99,7 +99,7 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnSubmods.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnSubmods.ForeColor = System.Drawing.Color.White;
-            this.BtnSubmods.Location = new System.Drawing.Point(280, 100);
+            this.BtnSubmods.Location = new System.Drawing.Point(380, 100);
             this.BtnSubmods.Name = "BtnSubmods";
             this.BtnSubmods.Size = new System.Drawing.Size(160, 30);
             this.BtnSubmods.TabIndex = 4;
@@ -116,7 +116,7 @@ namespace CrusaderWars.mod_manager
             this.customMapperLabel.AutoSize = true;
             this.customMapperLabel.Font = new System.Drawing.Font("Paradox King Script", 9.75F);
             this.customMapperLabel.ForeColor = System.Drawing.Color.White;
-            this.customMapperLabel.Location = new System.Drawing.Point(277, 10);
+            this.customMapperLabel.Location = new System.Drawing.Point(377, 10);
             this.customMapperLabel.Name = "customMapperLabel";
             this.customMapperLabel.Size = new System.Drawing.Size(101, 16);
             this.customMapperLabel.TabIndex = 5;
@@ -128,7 +128,7 @@ namespace CrusaderWars.mod_manager
             this.customMapperComboBox = new System.Windows.Forms.ComboBox();
             this.customMapperComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.customMapperComboBox.FormattingEnabled = true;
-            this.customMapperComboBox.Location = new System.Drawing.Point(280, 30);
+            this.customMapperComboBox.Location = new System.Drawing.Point(380, 30);
             this.customMapperComboBox.Name = "customMapperComboBox";
             this.customMapperComboBox.Size = new System.Drawing.Size(160, 21);
             this.customMapperComboBox.TabIndex = 6;
@@ -146,7 +146,7 @@ namespace CrusaderWars.mod_manager
             this.Controls.Add(this.button1);
             this.Controls.Add(this.BtnVerifyMods);
             this.Name = "UC_UnitMapper";
-            this.Size = new System.Drawing.Size(480, 185);
+            this.Size = new System.Drawing.Size(580, 185);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.UC_UnitMapper_Paint);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
