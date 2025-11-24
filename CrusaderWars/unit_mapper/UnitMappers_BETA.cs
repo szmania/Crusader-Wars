@@ -22,7 +22,7 @@ namespace CrusaderWars.unit_mapper
 
     public class Submod
     {
-        public string Tag { get; set; = string.Empty;
+        public string Tag { get; set; } = string.Empty;
         public string ScreenName { get; set; } = string.Empty;
         public List<ModFile> Mods { get; set; } = new List<ModFile>();
         public List<string> Replaces { get; set; } = new List<string>();
