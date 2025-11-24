@@ -302,7 +302,7 @@ namespace CrusaderWars.unit_mapper
                 case "OfficialCC_TheFallenEagle_AgeOfJustinain":
                     return "DARK AGES";
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                case "OfficialCC_TheFallenEagle_FireforgedEmpires":
+                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
                     return "LATE ANTIQUITY";
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     return "SECOND AGE";
