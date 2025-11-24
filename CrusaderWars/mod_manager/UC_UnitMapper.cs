@@ -10,8 +10,11 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CrusaderWars.unit_mapper;
-using System.Xml;
-using System.Xml.Schema;
+
+namespace CrusaderWars.mod_manager
+{
+    public partial class UC_UnitMapper : UserControl
+    {
         public event EventHandler? ToggleClicked;
         private bool _isPulsing;
         private bool _pulseState;
