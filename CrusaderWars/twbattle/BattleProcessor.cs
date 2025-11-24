@@ -50,8 +50,8 @@ namespace CrusaderWars.twbattle
             public int SiegeDirectionFixAttempts { get; set; } = 0;
 
             // Golden copy of armies for unit replacement strategy
-            public List<Army> OriginalAttackerArmies { get; set; } = new List<Army>();
-            public List<Army> OriginalDefenderArmies { get; set; } = new List<Army>();
+            public List<Army> OriginalAttackerArmies { get; set; = new List<Army>();
+            public List<Army> OriginalDefenderArmies { get; set; = new List<Army>();
         }
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
@@ -60,6 +60,7 @@ namespace CrusaderWars.twbattle
             {
                 AutofixReplacements.Clear(); // Clear fixes for a new battle
                 CharacterDataManager.ClearCache(); // Clear dynasty name cache
+                UnitMappers_BETA.ClearFactionCache(); // <-- ADD THIS LINE
                 BattleStateBridge.Clear();
                 BattleState.ClearAutofixOverrides();
             }
@@ -382,7 +383,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, $"Error creating the battle: {ex.Message}", "Crusader Conflicts: Data Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.StartCrusaderKingsProcess();
@@ -431,7 +432,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, "Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     form.infoLabel.Text = "Ready to start!";
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -467,7 +468,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                 MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                 {
@@ -1029,7 +1030,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                     {

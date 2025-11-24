@@ -22,7 +22,7 @@ namespace CrusaderWars.unit_mapper
 
     public class Submod
     {
-        public string Tag { get; set; } = string.Empty;
+        public string Tag { get; set; = string.Empty;
         public string ScreenName { get; set; } = string.Empty;
         public List<ModFile> Mods { get; set; } = new List<ModFile>();
         public List<string> Replaces { get; set; } = new List<string>();
@@ -147,6 +147,57 @@ namespace CrusaderWars.unit_mapper
         private static Dictionary<string, (string X, string Y, List<string>? orientations)> _provinceMapCache = new Dictionary<string, (string X, string Y, List<string>? orientations)>();
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
+
+        private static Dictionary<string, XmlDocument>? _factionFileCache;
+        private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
+        private static Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>? _garrisonCache;
+
+        public static void ClearFactionCache()
+        {
+            _factionFileCache = null;
+            _levyCache = null;
+            _garrisonCache = null;
+        }
+
+        private static void EnsureFactionCacheLoaded()
+        {
+            if (_factionFileCache != null) return; // Cache is already loaded
+
+            _factionFileCache = new Dictionary<string, XmlDocument>();
+            _levyCache = new Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>();
+            _garrisonCache = new Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>();
+
+            if (LoadedUnitMapper_FolderPath == null) return;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+
+            foreach (var file in files_paths)
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.Load(file);
+                _factionFileCache[file] = doc;
+
+                foreach (XmlNode factionNode in doc.SelectNodes("/Factions/Faction"))
+                {
+                    string factionName = factionNode.Attributes?["name"]?.Value ?? string.Empty;
+                    if (string.IsNullOrEmpty(factionName)) continue;
+
+                    var levies = Levies(doc, factionName);
+                    if (levies.Any())
+                    {
+                        _levyCache[factionName] = (levies, factionName);
+                    }
+
+                    var garrisons = Garrison(doc, factionName);
+                    if (garrisons.Any())
+                    {
+                        _garrisonCache[factionName] = garrisons;
+                    }
+                }
+            }
+        }
 
         public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
         {
@@ -790,7 +841,7 @@ namespace CrusaderWars.unit_mapper
                                         else
                                         {
                                             MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Conflicts: Unit Mappers Error",
-                                            MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                                         }
                                     }
                                     else
@@ -802,7 +853,7 @@ namespace CrusaderWars.unit_mapper
                             else
                             {
                                 MessageBox.Show($"Time Period.xml was not found in {mapper}", "Crusader Conflicts: Unit Mappers Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                MessageBoxButtons.OK, MessageBoxIcon.Error, DefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             }
                             break;
                         }
@@ -1153,50 +1204,20 @@ namespace CrusaderWars.unit_mapper
         public static (List<(int porcentage, string unit_key, string name, string max)>, string) GetFactionLevies(string attila_faction)
         {
             Program.Logger.Debug($"Getting faction levies: '{attila_faction}'");
-            if (LoadedUnitMapper_FolderPath == null)
+            EnsureFactionCacheLoaded();
+
+            if (_levyCache != null && _levyCache.TryGetValue(attila_faction, out var specificLevies))
             {
-                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get faction levies.");
-                throw new Exception("Unit mapper folder path not configured");
+                Program.Logger.Debug($"Found specific levy definitions for faction '{attila_faction}' in cache.");
+                return specificLevies;
             }
 
-            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths.Reverse(); // Search from last-loaded to first
-
-            // Priority 1: Search for specific faction levies in reverse file order
-            foreach (var xml_file in files_paths)
+            if (_levyCache != null && _levyCache.TryGetValue("Default", out var defaultLevies))
             {
-                XmlDocument FactionsFile = new XmlDocument();
-                FactionsFile.Load(xml_file);
-                if (FactionsFile.DocumentElement == null) continue;
-
-                var foundSpecific = Levies(FactionsFile, attila_faction);
-                if (foundSpecific.Any())
-                {
-                    Program.Logger.Debug($"Found specific levy definitions for faction '{attila_faction}' in file '{Path.GetFileName(xml_file)}'. Using this definition.");
-                    return (foundSpecific, attila_faction);
-                }
+                Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Using 'Default' definitions from cache.");
+                return defaultLevies;
             }
 
-            // Priority 2: If not found, search for default faction levies in reverse file order
-            Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Searching for 'Default' faction definitions.");
-            foreach (var xml_file in files_paths.ToList()) // Create a copy to iterate again
-            {
-                XmlDocument FactionsFile = new XmlDocument();
-                FactionsFile.Load(xml_file);
-                if (FactionsFile.DocumentElement == null) continue;
-
-                var foundDefault = Levies(FactionsFile, "Default");
-                if (foundDefault.Any())
-                {
-                    Program.Logger.Debug($"Found 'Default' levy definitions in file '{Path.GetFileName(xml_file)}'. Using this definition as fallback.");
-                    return (foundDefault, "Default");
-                }
-            }
-
-
-            // If neither loop finds any levies, throw an exception
             throw new Exception($"Unit Mapper Error: Could not find any levy definitions for faction '{attila_faction}' or for the 'Default' faction. Please check your unit mapper configuration.");
         }
 
@@ -1209,53 +1230,19 @@ namespace CrusaderWars.unit_mapper
             }
 
             Program.Logger.Debug($"Getting faction garrison for: '{attila_faction}' at holding level: {holdingLevel}");
-            if (LoadedUnitMapper_FolderPath == null)
-            {
-                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get faction garrison.");
-                throw new Exception("Unit mapper folder path not configured");
-            }
-
-            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
+            EnsureFactionCacheLoaded();
 
             List<(int percentage, string unit_key, string name, string max, int level)> garrisonDefinitions = new List<(int percentage, string unit_key, string name, string max, int level)>();
 
-            // Priority 1: Search for specific faction garrisons in reverse file order
-            foreach (var xml_file in files_paths)
+            if (_garrisonCache != null && _garrisonCache.TryGetValue(attila_faction, out var specificGarrisons))
             {
-                XmlDocument FactionsFile = new XmlDocument();
-                FactionsFile.Load(xml_file);
-                if (FactionsFile.DocumentElement == null) continue;
-
-                var foundSpecific = Garrison(FactionsFile, attila_faction);
-                if (foundSpecific.Any())
-                {
-                    Program.Logger.Debug($"Found specific garrison definitions for faction '{attila_faction}' in file '{Path.GetFileName(xml_file)}'. Using this definition.");
-                    garrisonDefinitions = foundSpecific;
-                    break; // Found the highest priority definition, stop searching
-                }
+                Program.Logger.Debug($"Found specific garrison definitions for faction '{attila_faction}' in cache.");
+                garrisonDefinitions = specificGarrisons;
             }
-
-            // Priority 2: If not found, search for default faction garrisons in reverse file order
-            if (!garrisonDefinitions.Any())
+            else if (_garrisonCache != null && _garrisonCache.TryGetValue("Default", out var defaultGarrisons))
             {
-                Program.Logger.Debug($"No specific garrison definitions found for faction '{attila_faction}'. Searching for 'Default' faction definitions.");
-                foreach (var xml_file in files_paths)
-                {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue;
-
-                    var foundDefault = Garrison(FactionsFile, "Default");
-                    if (foundDefault.Any())
-                    {
-                        Program.Logger.Debug($"Found 'Default' garrison definitions in file '{Path.GetFileName(xml_file)}'. Using this definition as fallback.");
-                        garrisonDefinitions = foundDefault;
-                        break; // Found the highest priority definition, stop searching
-                    }
-                }
+                Program.Logger.Debug($"No specific garrison definitions found for faction '{attila_faction}'. Using 'Default' definitions from cache.");
+                garrisonDefinitions = defaultGarrisons;
             }
 
             List<(int percentage, string unit_key, string name, string max)> finalGarrisonComposition;
