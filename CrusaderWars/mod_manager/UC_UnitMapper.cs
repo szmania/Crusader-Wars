@@ -196,6 +196,13 @@ namespace CrusaderWars.mod_manager
 
         private async void uC_Toggle1_Click(object sender, EventArgs e)
         {
+            if (uC_Toggle1.State && _playthroughTag == "Custom" && customMapperComboBox.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a custom unit mapper from the dropdown before enabling.", "No Mapper Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                uC_Toggle1.SetState(false); // Revert the toggle state
+                return;
+            }
+
             // 1. When deactivating a playthrough, clear its submods and skip verification.
             if (!uC_Toggle1.State)
             {
