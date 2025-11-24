@@ -10,11 +10,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CrusaderWars.unit_mapper;
-
-namespace CrusaderWars.mod_manager
-{
-    public partial class UC_UnitMapper : UserControl
-    {
+using System.Xml;
+using System.Xml.Schema;
         public event EventHandler? ToggleClicked;
         private bool _isPulsing;
         private bool _pulseState;
@@ -229,19 +226,119 @@ namespace CrusaderWars.mod_manager
             };
             Label statusLabel = new Label
             {
-                Text = "Validating TW:Attila mod files...",
+                Text = "Validating Unit Mapper...",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter
             };
             statusForm.Controls.Add(statusLabel);
             statusForm.Show(this.FindForm());
 
-            var progress = new Progress<string>(update => {
-                statusLabel.Text = update;
-            });
-
             try
             {
+                // XML VALIDATION LOGIC
+                string unitMapperDirectory = "";
+                string unitMappersBaseDir = @".\unit mappers";
+
+                if (_playthroughTag == "Custom")
+                {
+                    string customMapperName = client.ModOptions.GetSelectedCustomMapper();
+                    if (!string.IsNullOrEmpty(customMapperName))
+                    {
+                        unitMapperDirectory = Path.Combine(unitMappersBaseDir, customMapperName);
+                    }
+                }
+                else
+                {
+                    if (Directory.Exists(unitMappersBaseDir))
+                    {
+                        foreach (var dir in Directory.GetDirectories(unitMappersBaseDir))
+                        {
+                            string tagFile = Path.Combine(dir, "tag.txt");
+                            if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == _playthroughTag)
+                            {
+                                unitMapperDirectory = dir;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(unitMapperDirectory) && Directory.Exists(unitMapperDirectory))
+                {
+                    var allErrors = new List<string>();
+                    string schemasDir = @".\unit mappers\schemas";
+
+                    // Validate Mods.xml
+                    string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
+                    if (File.Exists(modsXml))
+                        allErrors.AddRange(XmlValidator.Validate(modsXml, Path.Combine(schemasDir, "mods.xsd")));
+
+                    // Validate Time Period.xml
+                    string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
+                    if (File.Exists(timePeriodXml))
+                        allErrors.AddRange(XmlValidator.Validate(timePeriodXml, Path.Combine(schemasDir, "timeperiod.xsd")));
+
+                    // Validate Cultures
+                    string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
+                    if (Directory.Exists(culturesDir))
+                    {
+                        foreach (var file in Directory.GetFiles(culturesDir, "*.xml"))
+                        {
+                            allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "cultures.xsd")));
+                        }
+                    }
+
+                    // Validate Factions
+                    string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
+                    if (Directory.Exists(factionsDir))
+                    {
+                        foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
+                        {
+                            allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "factions.xsd")));
+                        }
+                    }
+
+                    // Validate Titles
+                    string titlesDir = Path.Combine(unitMapperDirectory, "Titles");
+                    if (Directory.Exists(titlesDir))
+                    {
+                        foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
+                        {
+                            allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "titles.xsd")));
+                        }
+                    }
+
+                    if (allErrors.Any())
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        sb.AppendLine("The selected unit mapper has validation errors and cannot be enabled.");
+                        sb.AppendLine("Please fix the following issues:");
+                        sb.AppendLine();
+                        foreach (var error in allErrors.Take(20))
+                        {
+                            sb.AppendLine(error);
+                        }
+                        if (allErrors.Count > 20)
+                        {
+                            sb.AppendLine($"\n... and {allErrors.Count - 20} more errors.");
+                        }
+
+                        ShowClickableMessageBox(sb.ToString(), "Unit Mapper Validation Failed");
+                        uC_Toggle1.SetState(false);
+                        return; // Stop execution
+                    }
+                }
+                else
+                {
+                    Program.Logger.Debug($"Unit mapper directory not found for playthrough '{_playthroughTag}'. Skipping validation.");
+                }
+
+
+                statusLabel.Text = "Validating TW:Attila mod files...";
+                var progress = new Progress<string>(update => {
+                    statusLabel.Text = update;
+                });
+
                 var verificationResult = await Task.Run(() => VerifyModFiles(RequiredModsList, progress));
 
                 // 1. Check for missing files (highest priority)
@@ -810,6 +907,54 @@ namespace CrusaderWars.mod_manager
                     }
                 }
             }
+        }
+    }
+
+    public static class XmlValidator
+    {
+        public static List<string> Validate(string xmlPath, string xsdPath)
+        {
+            var errors = new List<string>();
+
+            if (!File.Exists(xmlPath))
+            {
+                errors.Add($"XML file not found: {xmlPath}");
+                return errors;
+            }
+
+            if (!File.Exists(xsdPath))
+            {
+                errors.Add($"Schema file not found: {xsdPath}. Please contact the developers.");
+                return errors;
+            }
+
+            try
+            {
+                var settings = new XmlReaderSettings
+                {
+                    ValidationType = ValidationType.Schema,
+                    ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings | XmlSchemaValidationFlags.ProcessInlineSchema | XmlSchemaValidationFlags.ProcessSchemaLocation
+                };
+                settings.Schemas.Add(null, xsdPath);
+
+                settings.ValidationEventHandler += (sender, args) =>
+                {
+                    string fileName = Path.GetFileName(xmlPath);
+                    string message = $"File: {fileName}, Line: {args.Exception.LineNumber}, Position: {args.Exception.LinePosition} - {args.Message}";
+                    if (!errors.Contains(message)) errors.Add(message);
+                };
+
+                using (var reader = XmlReader.Create(xmlPath, settings))
+                {
+                    while (reader.Read()) { }
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"An error occurred during validation of {Path.GetFileName(xmlPath)}: {ex.Message}");
+            }
+
+            return errors;
         }
     }
 }
