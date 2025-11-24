@@ -199,91 +199,106 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
-        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
+        private static (List<ModFile> requiredMods, List<Submod> submods) ParseModsFileFromMapperPath(string mapperPath)
         {
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             var requiredMods = new List<ModFile>();
             var submods = new List<Submod>();
-
-            foreach (var mapper in unit_mappers_folder)
+            string modsPath = Path.Combine(mapperPath, "Mods.xml");
+            if (File.Exists(modsPath))
             {
-                string? mapperName = Path.GetDirectoryName(mapper);
-                var files = Directory.GetFiles(mapper);
-                foreach (var file in files)
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(modsPath);
+                if (xmlDocument.DocumentElement != null)
                 {
-                    string fileName = Path.GetFileName(file);
-                    if (fileName == "tag.txt")
+                    foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
                     {
-                        string fileTag = File.ReadAllText(file).Trim(); // Trim whitespace from the file content
-                        if (tag == fileTag)
+                        if (node is XmlComment) continue;
+                        if (node.Name == "Mod")
                         {
-                            string modsPath = mapper + @"\Mods.xml";
-                            if (File.Exists(modsPath))
+                            var modFile = new ModFile
                             {
-                                XmlDocument xmlDocument = new XmlDocument();
-                                xmlDocument.Load(modsPath);
-                                if (xmlDocument.DocumentElement != null)
+                                FileName = node.InnerText,
+                                Sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty,
+                                ScreenName = node.Attributes?["screen_name"]?.Value,
+                                Url = node.Attributes?["url"]?.Value
+                            };
+                            requiredMods.Add(modFile);
+                        }
+                        else if (node.Name == "Submod")
+                        {
+                            var submod = new Submod
+                            {
+                                Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                            };
+                            string? replaceAttr = node.Attributes?["replace"]?.Value;
+                            if (!string.IsNullOrEmpty(replaceAttr))
+                            {
+                                submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
+                            }
+                            foreach (XmlNode submod_modNode in node.ChildNodes)
+                            {
+                                if (submod_modNode.Name == "Mod")
                                 {
-                                    foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
+                                    var modFile = new ModFile
                                     {
-                                        if (node is XmlComment) continue;
-                                        if (node.Name == "Mod")
-                                        {
-                                            var modFile = new ModFile
-                                            {
-                                                FileName = node.InnerText,
-                                                Sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty,
-                                                ScreenName = node.Attributes?["screen_name"]?.Value,
-                                                Url = node.Attributes?["url"]?.Value
-                                            };
-                                            requiredMods.Add(modFile);
-                                        }
-                                        else if (node.Name == "Submod")
-                                        {
-                                            var submod = new Submod
-                                            {
-                                                Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
-                                                ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
-                                            };
-                                            string? replaceAttr = node.Attributes?["replace"]?.Value;
-                                            if (!string.IsNullOrEmpty(replaceAttr))
-                                            {
-                                                submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
-                                            }
-                                            foreach (XmlNode submod_modNode in node.ChildNodes)
-                                            {
-                                                if(submod_modNode.Name == "Mod")
-                                                {
-                                                    var modFile = new ModFile
-                                                    {
-                                                        FileName = submod_modNode.InnerText,
-                                                        Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
-                                                        ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
-                                                        Url = submod_modNode.Attributes?["url"]?.Value
-                                                    };
-                                                    submod.Mods.Add(modFile);
-                                                }
-                                            }
-                                            if(!string.IsNullOrEmpty(submod.Tag))
-                                            {
-                                                submods.Add(submod);
-                                            }
-                                        }
-                                    }
+                                        FileName = submod_modNode.InnerText,
+                                        Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
+                                        ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
+                                        Url = submod_modNode.Attributes?["url"]?.Value
+                                    };
+                                    submod.Mods.Add(modFile);
                                 }
                             }
-                            else
+                            if (!string.IsNullOrEmpty(submod.Tag))
                             {
-                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Conflicts: Crusader Conflicts: Unit Mappers Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                submods.Add(submod);
                             }
-                            break;
                         }
                     }
                 }
             }
-
+            else
+            {
+                MessageBox.Show($"Mods.xml was not found in {mapperPath}", "Crusader Conflicts: Crusader Conflicts: Unit Mappers Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+            }
             return (requiredMods, submods);
+        }
+        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
+        {
+            if (tag == "Custom")
+            {
+                string selectedMapperName = ModOptions.GetSelectedCustomMapper();
+                if (!string.IsNullOrEmpty(selectedMapperName))
+                {
+                    string mapperPath = Path.Combine(@".\unit mappers", selectedMapperName);
+                    if (Directory.Exists(mapperPath))
+                    {
+                        return ParseModsFileFromMapperPath(mapperPath);
+                    }
+                }
+                return (new List<ModFile>(), new List<Submod>());
+            }
+
+
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+
+            foreach (var mapper in unit_mappers_folder)
+            {
+                string tagFile = Path.Combine(mapper, "tag.txt");
+                if (File.Exists(tagFile))
+                {
+                    string fileTag = File.ReadAllText(tagFile).Trim();
+                    if (tag == fileTag)
+                    {
+                        // For non-custom, we assume one folder per tag.
+                        return ParseModsFileFromMapperPath(mapper);
+                    }
+                }
+            }
+
+            return (new List<ModFile>(), new List<Submod>());
         }
 
         // Fix for CS8602 and CS8600

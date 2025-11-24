@@ -66,7 +66,11 @@ namespace CrusaderWars.mod_manager
             if (Directory.Exists(unitMappersDir))
             {
                 var customDirs = Directory.GetDirectories(unitMappersDir)
-                                          .Where(d => Path.GetFileName(d).StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
+                                          .Where(d =>
+                                          {
+                                              string tagFile = Path.Combine(d, "tag.txt");
+                                              return File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals("Custom", StringComparison.OrdinalIgnoreCase);
+                                          })
                                           .Select(d => Path.GetFileName(d))
                                           .OrderBy(d => d)
                                           .ToList();
