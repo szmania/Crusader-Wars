@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.Btn_CustomTab = new System.Windows.Forms.Button();
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Options));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -522,6 +523,26 @@
             this.Btn_AGOTTab.UseVisualStyleBackColor = false;
             this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
+            // 
+            // Btn_CustomTab
+            // 
+            this.Btn_CustomTab.AutoSize = true;
+            this.Btn_CustomTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_CustomTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
+            this.Btn_CustomTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_CustomTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_CustomTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_CustomTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_CustomTab.Location = new System.Drawing.Point(457, 3);
+            this.Btn_CustomTab.Name = "Btn_CustomTab";
+            this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_CustomTab.TabIndex = 4;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CustomTab, "Custom playthrough with a custom unit mapper.");
+            this.Btn_CustomTab.Text = "Custom";
+            this.Btn_CustomTab.UseVisualStyleBackColor = false;
+            this.Btn_CustomTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_CustomTab.Click += new System.EventHandler(this.Btn_CustomTab_Click);
             // 
             // TableLayoutGamePaths
             // 
