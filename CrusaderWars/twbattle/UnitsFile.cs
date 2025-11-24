@@ -515,21 +515,30 @@ namespace CrusaderWars
                 return composedUnits;
             }
 
-            // Apply autofix replacements to the levy template list
+            // Apply manual and autofix replacements to the levy template list
             var corrected_levy_porcentages = new List<(int porcentage, string unit_key, string name, string max)>();
+            bool isPlayerAlliance = army.IsPlayer();
             foreach (var levyData in faction_levy_porcentages)
             {
-                if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(levyData.unit_key, out var replacement))
+                string currentKey = levyData.unit_key;
+
+                // Priority 1: Manual Replacements
+                if (BattleState.ManualUnitReplacements.TryGetValue((currentKey, isPlayerAlliance), out var manualReplacement))
                 {
-                    Program.Logger.Debug($"Autofix: Applying levy template replacement for '{levyData.unit_key}' with '{replacement.replacementKey}'.");
-                    corrected_levy_porcentages.Add((levyData.porcentage, replacement.replacementKey, levyData.name, levyData.max));
+                    Program.Logger.Debug($"Manual Replace: Applying levy template replacement for '{currentKey}' with '{manualReplacement.replacementKey}' for {(isPlayerAlliance ? "player" : "enemy")} alliance.");
+                    currentKey = manualReplacement.replacementKey;
                 }
-                else
+                // Priority 2: Autofix Replacements
+                else if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(currentKey, out var autofixReplacement))
                 {
-                    corrected_levy_porcentages.Add(levyData);
+                    Program.Logger.Debug($"Autofix: Applying levy template replacement for '{currentKey}' with '{autofixReplacement.replacementKey}'.");
+                    currentKey = autofixReplacement.replacementKey;
                 }
+                
+                corrected_levy_porcentages.Add((levyData.porcentage, currentKey, levyData.name, levyData.max));
             }
             faction_levy_porcentages = corrected_levy_porcentages; // Use the corrected list from now on.
+
 
             // NEW: Filter out Men-At-Arms units from the levy pool
             var filtered_levy_porcentages = faction_levy_porcentages
@@ -637,19 +646,27 @@ namespace CrusaderWars
                 return composedUnits;
             }
 
-            // Apply autofix replacements to the garrison template list
+            // Apply manual and autofix replacements to the garrison template list
             var corrected_garrison_porcentages = new List<(int porcentage, string unit_key, string name, string max)>();
+            bool isPlayerAlliance = army.IsPlayer();
             foreach (var garrisonData in faction_garrison_porcentages)
             {
-                if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(garrisonData.unit_key, out var replacement))
+                string currentKey = garrisonData.unit_key;
+
+                // Priority 1: Manual Replacements
+                if (BattleState.ManualUnitReplacements.TryGetValue((currentKey, isPlayerAlliance), out var manualReplacement))
                 {
-                    Program.Logger.Debug($"Autofix: Applying garrison template replacement for '{garrisonData.unit_key}' with '{replacement.replacementKey}'.");
-                    corrected_garrison_porcentages.Add((garrisonData.porcentage, replacement.replacementKey, garrisonData.name, garrisonData.max));
+                    Program.Logger.Debug($"Manual Replace: Applying garrison template replacement for '{currentKey}' with '{manualReplacement.replacementKey}' for {(isPlayerAlliance ? "player" : "enemy")} alliance.");
+                    currentKey = manualReplacement.replacementKey;
                 }
-                else
+                // Priority 2: Autofix Replacements
+                else if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(currentKey, out var autofixReplacement))
                 {
-                    corrected_garrison_porcentages.Add(garrisonData);
+                    Program.Logger.Debug($"Autofix: Applying garrison template replacement for '{currentKey}' with '{autofixReplacement.replacementKey}'.");
+                    currentKey = autofixReplacement.replacementKey;
                 }
+
+                corrected_garrison_porcentages.Add((garrisonData.porcentage, currentKey, garrisonData.name, garrisonData.max));
             }
             faction_garrison_porcentages = corrected_garrison_porcentages; // Use the corrected list from now on.
 
