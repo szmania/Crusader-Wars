@@ -54,7 +54,9 @@ namespace CrusaderWars.client
                     var factionNode = new TreeNode(factionGroup.Key);
                     sideNode.Nodes.Add(factionNode);
 
-                    var groupedForDisplay = factionGroup
+                    // --- Process Non-Levy Units ---
+                    var nonLevyUnits = factionGroup.Where(u => u.GetRegimentType() != RegimentType.Levy);
+                    var groupedForDisplay = nonLevyUnits
                         .GroupBy(u => {
                             var type = u.GetRegimentType();
                             string groupIdentifier = (type == RegimentType.MenAtArms) ? u.GetName() : type.ToString();
@@ -72,30 +74,16 @@ namespace CrusaderWars.client
                         string attilaKeyDisplay = "";
                         if (regimentType == RegimentType.MenAtArms || regimentType == RegimentType.Commander || regimentType == RegimentType.Knight)
                         {
-                            // For single-unit groups, get the key from the first unit
                             string key = unitGroup.First().GetAttilaUnitKey();
                             if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             {
                                 attilaKeyDisplay = $" [{key}]";
                             }
                         }
-                        else if (regimentType == RegimentType.Levy)
-                        {
-                            // For composite groups (Levies), get all possible keys for the faction
-                            var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
-                            var distinctKeys = levyTuples.Select(l => l.unit_key).Distinct().ToList();
-                            if (distinctKeys.Any())
-                            {
-                                attilaKeyDisplay = $" [{string.Join(", ", distinctKeys)}]";
-                            }
-                        }
                         else if (regimentType == RegimentType.Garrison)
                         {
-                            // For composite groups (Garrison), get all possible keys for the faction
-                            // Assuming a max holding level for display purposes, or iterate through all levels
-                            // For simplicity, let's get all distinct keys across all levels for the faction
                             var distinctKeys = new List<string>();
-                            for (int level = 1; level <= 20; level++) // Iterate through possible holding levels
+                            for (int level = 1; level <= 20; level++)
                             {
                                 var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(factionGroup.Key, level);
                                 distinctKeys.AddRange(garrisonTuples.Select(g => g.unit_key));
@@ -120,9 +108,56 @@ namespace CrusaderWars.client
 
                         var groupNode = new TreeNode(displayName)
                         {
-                            Tag = new { TypeIdentifier = nameToShow, RegimentType = regimentType }
+                            Tag = new { TypeIdentifier = nameToShow, RegimentType = regimentType, IsSplitLevyNode = false }
                         };
                         factionNode.Nodes.Add(groupNode);
+                    }
+
+                    // --- Process Levy Units Separately ---
+                    var levyUnitsInFaction = factionGroup.Where(u => u.GetRegimentType() == RegimentType.Levy).ToList();
+                    if (levyUnitsInFaction.Any())
+                    {
+                        int totalLevySoldiers = levyUnitsInFaction.Sum(u => u.GetSoldiers());
+                        var (levyComposition, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
+
+                        if (levyComposition != null && levyComposition.Any())
+                        {
+                            int totalPercentage = levyComposition.Sum(l => l.porcentage);
+                            if (totalPercentage > 0)
+                            {
+                                var soldiersPerKey = new Dictionary<string, int>();
+                                int assignedSoldiers = 0;
+
+                                // Calculate soldiers for each key based on percentage
+                                foreach (var levy in levyComposition)
+                                {
+                                    int soldiersForKey = (int)Math.Round(totalLevySoldiers * ((double)levy.porcentage / totalPercentage));
+                                    soldiersPerKey[levy.unit_key] = soldiersForKey;
+                                    assignedSoldiers += soldiersForKey;
+                                }
+
+                                // Adjust for rounding errors
+                                int remainder = totalLevySoldiers - assignedSoldiers;
+                                if (remainder != 0 && soldiersPerKey.Any())
+                                {
+                                    var largestGroup = soldiersPerKey.OrderByDescending(kvp => kvp.Value).First();
+                                    soldiersPerKey[largestGroup.Key] += remainder;
+                                }
+
+                                // Create a node for each levy type
+                                foreach (var kvp in soldiersPerKey.Where(kvp => kvp.Value > 0).OrderBy(kvp => kvp.Key))
+                                {
+                                    string levyKey = kvp.Key;
+                                    int soldierCount = kvp.Value;
+                                    string displayName = $"Levy: [{levyKey}] ({soldierCount} men)";
+                                    var levyNode = new TreeNode(displayName)
+                                    {
+                                        Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true }
+                                    };
+                                    factionNode.Nodes.Add(levyNode);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -222,26 +257,21 @@ namespace CrusaderWars.client
                 RegimentType regimentType = tagObject.RegimentType;
                 string typeIdentifier = tagObject.TypeIdentifier;
                 string faction = selectedNode.Parent.Text; // Get faction from parent node
+                bool isSplitLevyNode = tagObject.GetType().GetProperty("IsSplitLevyNode") != null && tagObject.IsSplitLevyNode;
 
-                if (regimentType == RegimentType.Levy || regimentType == RegimentType.Garrison)
+                if (isSplitLevyNode)
                 {
-                    if (regimentType == RegimentType.Levy)
+                    string originalKey = typeIdentifier; // For split levies, the identifier is the key
+                    Replacements[(originalKey, isPlayerAlliance)] = (replacementKey, isSiege);
+                }
+                else if (regimentType == RegimentType.Garrison)
+                {
+                    for (int level = 1; level <= 20; level++)
                     {
-                        var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
-                        foreach (var levy in levyTuples)
+                        var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, level);
+                        foreach (var garrison in garrisonTuples)
                         {
-                            Replacements[(levy.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
-                        }
-                    }
-                    else // Garrison
-                    {
-                        for (int level = 1; level <= 20; level++)
-                        {
-                            var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, level);
-                            foreach (var garrison in garrisonTuples)
-                            {
-                                Replacements[(garrison.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
-                            }
+                            Replacements[(garrison.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
                         }
                     }
                 }
@@ -288,6 +318,7 @@ namespace CrusaderWars.client
                         string typeIdentifier = tag.TypeIdentifier;
                         bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
                         string faction = node.Parent.Text; // Get faction from parent node
+                        bool isSplitLevyNode = tag.GetType().GetProperty("IsSplitLevyNode") != null && tag.IsSplitLevyNode;
 
                         int arrowIndex = node.Text.IndexOf(" ->");
                         if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
@@ -296,24 +327,21 @@ namespace CrusaderWars.client
                         bool isReplaced = false;
                         (string replacementKey, bool isSiege) replacementInfo = default;
 
-                        if (regimentType == RegimentType.Levy || regimentType == RegimentType.Garrison)
+                        if (isSplitLevyNode)
                         {
-                            if (regimentType == RegimentType.Levy)
+                            string originalKey = typeIdentifier;
+                            if (Replacements.TryGetValue((originalKey, nodeIsPlayerAlliance), out replacementInfo))
                             {
-                                var (levyTuples, _) = UnitMappers_BETA.GetFactionLevies(faction);
-                                if (levyTuples.Any() && Replacements.TryGetValue((levyTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
-                                {
-                                    isReplaced = true;
-                                }
+                                isReplaced = true;
                             }
-                            else // Garrison
+                        }
+                        else if (regimentType == RegimentType.Garrison)
+                        {
+                            // Check for any garrison unit key from this faction and side
+                            var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1); // Use level 1 as a representative
+                            if (garrisonTuples.Any() && Replacements.TryGetValue((garrisonTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
                             {
-                                // Check for any garrison unit key from this faction and side
-                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1); // Use level 1 as a representative
-                                if (garrisonTuples.Any() && Replacements.TryGetValue((garrisonTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
-                                {
-                                    isReplaced = true;
-                                }
+                                isReplaced = true;
                             }
                         }
                         else
