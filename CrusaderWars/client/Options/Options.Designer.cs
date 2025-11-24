@@ -427,7 +427,7 @@
             this.UMpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.UMpanel.Location = new System.Drawing.Point(3, 64);
             this.UMpanel.Name = "UMpanel";
-            this.UMpanel.Size = new System.Drawing.Size(480, 185);
+            this.UMpanel.Size = new System.Drawing.Size(580, 185);
             this.UMpanel.TabIndex = 32;
             // 
             // flowLayoutPanel2
@@ -440,7 +440,7 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(535, 34);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(580, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             this.flowLayoutPanel2.WrapContents = false;
             // 
@@ -599,7 +599,7 @@
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(541, 252);
+            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(600, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             // 
