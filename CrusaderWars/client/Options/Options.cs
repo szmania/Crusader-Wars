@@ -330,6 +330,8 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("KnightSlainChance", KnightSlainChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightPrisonerChance", KnightPrisonerChance_Value);
                 ModOptions.optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
+                ModOptions.optionsValuesCollection.Add("SelectedCustomMapper", SelectedCustomMapper_Value);
+                ModOptions.SelectedCustomMapper = SelectedCustomMapper_Value;
                 Program.Logger.Debug("Options collection populated.");
 
 
