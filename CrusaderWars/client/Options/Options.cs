@@ -1130,6 +1130,7 @@ namespace CrusaderWars
         UC_UnitMapper RealmsInExile_Tab = null!;
         UC_UnitMapper AGOT_Tab = null!; // Added AGOT tab
         UC_UnitMapper Custom_Tab = null!;
+        UC_UnitMapper Custom_Tab = null!;
 
         private void Btn_CK3Tab_Click(object sender, EventArgs e)
         {
