@@ -25,7 +25,7 @@ namespace CrusaderWars.mod_manager
         string SteamCollectionLink {  get; set; }
         List<(string FileName, string Sha256, string ScreenName, string Url)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
-        private readonly List<Submod> _availableSubmods;
+        private List<Submod> _availableSubmods;
         private readonly string _playthroughTag;
 
         public string GetPlaythroughTag() { return _playthroughTag; }
@@ -54,6 +54,8 @@ namespace CrusaderWars.mod_manager
             {
                 customMapperLabel.Visible = true;
                 customMapperComboBox.Visible = true;
+                button1.Visible = false; // "Required Mods" button
+                BtnVerifyMods.Visible = false; // "Verify Mods" button
                 PopulateCustomMappers();
                 customMapperComboBox.SelectedIndexChanged += CustomMapperComboBox_SelectedIndexChanged;
                 toolTip2.SetToolTip(customMapperComboBox, "Select a custom unit mapper. The values are from the 'tag.txt' file within each custom mapper folder, which must be prefixed with 'Custom'.");
@@ -103,11 +105,13 @@ namespace CrusaderWars.mod_manager
                 {
                     customMapperComboBox.SelectedIndex = 0;
                 }
+                UpdateCustomMapperSelection(customMapperComboBox.SelectedItem.ToString());
             }
             else
             {
                 // No custom mappers found, clear any saved selection.
                 client.ModOptions.SelectedCustomMapper = string.Empty;
+                UpdateCustomMapperSelection(null);
             }
         }
 
@@ -116,26 +120,51 @@ namespace CrusaderWars.mod_manager
             if (customMapperComboBox.SelectedItem != null)
             {
                 string selectedMapper = customMapperComboBox.SelectedItem.ToString();
-                client.ModOptions.SelectedCustomMapper = selectedMapper;
+                UpdateCustomMapperSelection(selectedMapper);
+            }
+        }
 
-                try
+        private void UpdateCustomMapperSelection(string? selectedMapper)
+        {
+            if (string.IsNullOrEmpty(selectedMapper))
+            {
+                this.RequiredModsList = new List<(string FileName, string Sha256, string ScreenName, string Url)>();
+                this._availableSubmods.Clear();
+                BtnSubmods.Visible = false;
+                client.ModOptions.SelectedCustomMapper = "";
+                return;
+            }
+
+            // 1. Update the static ModOptions
+            client.ModOptions.SelectedCustomMapper = selectedMapper;
+
+            // 2. Persist the selection immediately for the main window
+            try
+            {
+                string file = @".\settings\Options.xml";
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(file);
+                var node = xmlDoc.SelectSingleNode("//Option [@name='SelectedCustomMapper']");
+                if (node != null)
                 {
-                    string file = @".\settings\Options.xml";
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.Load(file);
-                    var node = xmlDoc.SelectSingleNode("//Option [@name='SelectedCustomMapper']");
-                    if (node != null)
-                    {
-                        node.InnerText = selectedMapper;
-                        xmlDoc.Save(file);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception, but don't bother the user.
-                    Program.Logger.Debug($"Error saving selected custom mapper on change: {ex.Message}");
+                    node.InnerText = selectedMapper;
+                    xmlDoc.Save(file);
                 }
             }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error saving selected custom mapper on change: {ex.Message}");
+            }
+
+            // 3. Update this control's instance with the new mod/submod data
+            var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(selectedMapper);
+            this.RequiredModsList = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
+
+            this._availableSubmods.Clear();
+            this._availableSubmods.AddRange(modsCollection.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+
+            // 4. Update the UI
+            BtnSubmods.Visible = this._availableSubmods.Any();
         }
 
         public void SetPulsing(bool isPulsing)
