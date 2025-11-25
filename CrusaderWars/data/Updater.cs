@@ -47,21 +47,38 @@ namespace CrusaderWars
                     bool optInPreReleases = ModOptions.GetOptInPreReleases();
                     JsonElement? targetRelease = null;
 
+                    Program.Logger.Debug($"Searching for releases. Opt-in for pre-releases: {optInPreReleases}");
+
                     foreach (JsonElement release in root.EnumerateArray())
                     {
                         bool isApiPreRelease = release.GetProperty("prerelease").GetBoolean();
                         string tagName = release.GetProperty("tag_name").GetString() ?? "";
 
                         // A release is considered a pre-release if the API flag is true OR the tag contains a pre-release identifier.
-                        bool isEffectivelyPreRelease = isApiPreRelease || 
-                                                       tagName.Contains("-beta") || 
-                                                       tagName.Contains("-alpha") || 
+                        bool isEffectivelyPreRelease = isApiPreRelease ||
+                                                       tagName.Contains("-beta") ||
+                                                       tagName.Contains("-alpha") ||
                                                        tagName.Contains("-rc");
+                        
+                        Program.Logger.Debug($"Evaluating release: {tagName} (Is pre-release: {isEffectivelyPreRelease})");
 
-                        if (optInPreReleases || !isEffectivelyPreRelease)
+                        if (optInPreReleases)
                         {
+                            // If opted in, take the very first release found (the latest), regardless of whether it's stable or pre-release.
+                            Program.Logger.Debug($"Opted into pre-releases. Selecting latest release: {tagName}");
                             targetRelease = release;
-                            break; // Found the most recent suitable release.
+                            break;
+                        }
+                        else if (!isEffectivelyPreRelease)
+                        {
+                            // If not opted in, take the first release that is NOT a pre-release.
+                            Program.Logger.Debug($"Not opted into pre-releases. Selecting latest stable release: {tagName}");
+                            targetRelease = release;
+                            break;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Skipping pre-release: {tagName}");
                         }
                     }
 
