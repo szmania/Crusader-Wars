@@ -918,7 +918,7 @@ namespace CrusaderWars.mod_manager
                 timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
             }
             if (File.Exists(timePeriodXml))
-                allErrors.AddRange(Validate(timePeriodXml, Path.Combine(schemasDir, "timperiod.xsd")));
+                allErrors.AddRange(Validate(timePeriodXml, Path.Combine(schemasDir, "timeperiod.xsd")));
 
             // Validate Cultures
             string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
