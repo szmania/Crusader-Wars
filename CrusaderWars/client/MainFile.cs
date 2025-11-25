@@ -1946,7 +1946,7 @@ namespace CrusaderWars
 
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
-            if (!ValidateActiveUnitMapper()) { return; }
+            if (await ValidateActiveUnitMapper() == false) { return; }
             Program.Logger.Debug("Continue Battle button clicked.");
 
             // Cancel any previous monitoring operation
