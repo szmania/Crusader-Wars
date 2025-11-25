@@ -294,7 +294,7 @@ namespace CrusaderWars.mod_manager
             };
             Label statusLabel = new Label
             {
-                Text = "Validating Unit Mapper...",
+                Text = "Validating Unit Mapper XML files...",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter
             };
