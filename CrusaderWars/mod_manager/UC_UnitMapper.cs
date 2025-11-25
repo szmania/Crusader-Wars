@@ -1045,7 +1045,15 @@ namespace CrusaderWars.mod_manager
                     {
                         return;
                     }
-                    string message = $"File: {fullXmlPath}, Error: Line {args.Exception.LineNumber}, Position {args.Exception.LinePosition} - {args.Message}";
+                    string message;
+                    if (args.Exception != null)
+                    {
+                        message = $"File: {fullXmlPath}, Error: Line {args.Exception.LineNumber}, Position {args.Exception.LinePosition} - {args.Message}";
+                    }
+                    else
+                    {
+                        message = $"File: {fullXmlPath}, Error: {args.Message}";
+                    }
                     if (!errors.Contains(message)) errors.Add(message);
                 };
 
