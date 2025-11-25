@@ -267,12 +267,12 @@ namespace CrusaderWars.unit_mapper
         }
         public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
         {
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             if (tag == "Custom")
             {
                 string selectedMapperTag = ModOptions.GetSelectedCustomMapper();
                 if (!string.IsNullOrEmpty(selectedMapperTag))
                 {
-                    var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
                     foreach (var mapper in unit_mappers_folder)
                     {
                         string tagFile = Path.Combine(mapper, "tag.txt");
@@ -289,7 +289,6 @@ namespace CrusaderWars.unit_mapper
                 return (new List<ModFile>(), new List<Submod>());
             }
 
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
 
             foreach (var mapper in unit_mappers_folder)
             {
@@ -766,6 +765,7 @@ namespace CrusaderWars.unit_mapper
             AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
 
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             if (tag == "Custom")
             {
                 string customMapperTag = ModOptions.GetSelectedCustomMapper();
@@ -776,7 +776,6 @@ namespace CrusaderWars.unit_mapper
                     return requiredMods;
                 }
 
-                var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
                 var matchingMappers = new List<string>();
                 foreach (var mapper in unit_mappers_folder)
                 {
@@ -808,7 +807,6 @@ namespace CrusaderWars.unit_mapper
                 return requiredMods;
             }
 
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             foreach (var mapper in unit_mappers_folder)
             {
                 string tagFilePath = Path.Combine(mapper, "tag.txt");
