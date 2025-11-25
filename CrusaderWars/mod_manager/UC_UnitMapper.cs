@@ -408,7 +408,7 @@ namespace CrusaderWars.mod_manager
                 form.Text = title;
                 form.StartPosition = FormStartPosition.CenterParent;
                 form.FormBorderStyle = FormBorderStyle.Sizable;
-                form.ClientSize = new Size(700, 400);
+                form.ClientSize = new Size(900, 500);
                 form.MaximizeBox = true;
                 form.MinimizeBox = true;
 

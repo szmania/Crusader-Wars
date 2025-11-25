@@ -368,13 +368,9 @@ namespace CrusaderWars
                     sb.AppendLine("The selected unit mapper has validation errors and cannot be used.");
                     sb.AppendLine("Please fix the following issues or select a different playthrough:");
                     sb.AppendLine();
-                    foreach (var error in allErrors.Take(20))
+                    foreach (var error in allErrors)
                     {
                         sb.AppendLine(error);
-                    }
-                    if (allErrors.Count > 20)
-                    {
-                        sb.AppendLine($"\n... and {allErrors.Count - 20} more errors.");
                     }
 
                     MessageBox.Show(sb.ToString(), "Unit Mapper Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
