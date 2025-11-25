@@ -978,6 +978,11 @@ namespace CrusaderWars.mod_manager
 
                 settings.ValidationEventHandler += (sender, args) =>
                 {
+                    // Ignore missing sha256 attribute errors
+                    if (args.Message.Contains("'sha256'"))
+                    {
+                        return;
+                    }
                     string fileName = Path.GetFileName(xmlPath);
                     string message = $"File: {fileName}, Line: {args.Exception.LineNumber}, Position: {args.Exception.LinePosition} - {args.Message}";
                     if (!errors.Contains(message)) errors.Add(message);
