@@ -394,7 +394,7 @@ del ""%~f0""
                         string oldDirectory = cleanApplicationPath + "_old";
                         Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
 
-                        // Preserve Custom_ folders by moving them to a temporary location
+                        // Preserve Custom folders by moving them to a temporary location
                         string customMappersBackupPath = Path.Combine(Path.GetTempPath(), "cw_custom_mappers_backup");
                         if (Directory.Exists(customMappersBackupPath))
                         {
