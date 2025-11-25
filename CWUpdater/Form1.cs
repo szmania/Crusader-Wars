@@ -405,7 +405,29 @@ del ""%~f0""
                         if (Directory.Exists(applicationPath))
                         {
                             var customDirs = Directory.GetDirectories(applicationPath)
-                                .Where(d => Path.GetFileName(d).StartsWith("Custom_", StringComparison.OrdinalIgnoreCase));
+                                .Where(d =>
+                                {
+                                    string tagFile = Path.Combine(d, "tag.txt");
+                                    if (File.Exists(tagFile))
+                                    {
+                                        try
+                                        {
+                                            string tag = File.ReadAllText(tagFile).Trim();
+                                            bool isCustom = tag.StartsWith("Custom", StringComparison.OrdinalIgnoreCase);
+                                            if(isCustom)
+                                            {
+                                                Logger.Log($"Found custom mapper to preserve: {Path.GetFileName(d)} with tag '{tag}'");
+                                            }
+                                            return isCustom;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Logger.Log($"Error reading tag file {tagFile}: {ex.Message}");
+                                            return false;
+                                        }
+                                    }
+                                    return false;
+                                });
 
                             foreach (var dir in customDirs)
                             {
