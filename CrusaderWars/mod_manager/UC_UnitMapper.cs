@@ -56,6 +56,7 @@ namespace CrusaderWars.mod_manager
                 customMapperComboBox.Visible = true;
                 PopulateCustomMappers();
                 customMapperComboBox.SelectedIndexChanged += CustomMapperComboBox_SelectedIndexChanged;
+                toolTip2.SetToolTip(customMapperComboBox, "Select a custom unit mapper. The values are from the 'tag.txt' file within each custom mapper folder, which must be prefixed with 'Custom'.");
             }
         }
 
