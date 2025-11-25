@@ -756,13 +756,20 @@ namespace CrusaderWars
                 string unitMappersDir = @".\unit mappers";
                 if (Directory.Exists(unitMappersDir))
                 {
-                    // Find the directory whose tag.txt matches the active playthrough tag
+                    string tagToFind = activePlaythroughTag;
+                    if (activePlaythroughTag == "Custom")
+                    {
+                        tagToFind = ModOptions.GetSelectedCustomMapper();
+                        Program.Logger.Debug($"Custom playthrough is active. Searching for folder with tag: '{tagToFind}'");
+                    }
+
+                    // Find the directory whose tag.txt matches the tagToFind
                     foreach (var dir in Directory.GetDirectories(unitMappersDir))
                     {
                         string tagFile = Path.Combine(dir, "tag.txt");
                         if (File.Exists(tagFile))
                         {
-                            if (File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
+                            if (File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
                             {
                                 playthroughFolderPath = dir;
                                 break;
