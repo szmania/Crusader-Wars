@@ -1468,6 +1468,7 @@ namespace CrusaderWars.unit_mapper
 
         private static string SelectRankedUnitKey(List<(int rank, string key)> candidates, int requiredRank, string? keyToExclude = null)
         {
+            Program.Logger.Debug($"      - SelectRankedUnitKey: Called with {candidates.Count} candidates, required rank <= {requiredRank}.");
             if (!candidates.Any()) return NOT_FOUND_KEY;
 
             // NEW: Exclude the problematic key if provided
@@ -1476,13 +1477,14 @@ namespace CrusaderWars.unit_mapper
                 candidates = candidates.Where(c => c.key != keyToExclude).ToList();
                 if (!candidates.Any())
                 {
-                    Program.Logger.Debug($"SelectRankedUnitKey: All candidates were excluded (key: {keyToExclude}).");
+                    Program.Logger.Debug($"      - SelectRankedUnitKey: All candidates were excluded (key: {keyToExclude}).");
                     return NOT_FOUND_KEY; // All candidates were the one to be excluded
                 }
             }
 
             // Find all candidates at or below the required rank
             var suitableCandidates = candidates.Where(t => t.rank <= requiredRank).ToList();
+            Program.Logger.Debug($"      - SelectRankedUnitKey: Found {suitableCandidates.Count} suitable candidates with rank <= {requiredRank}.");
 
             List<(int rank, string key)> finalSelectionPool;
 
@@ -1491,21 +1493,26 @@ namespace CrusaderWars.unit_mapper
                 // Find the best rank among the suitable candidates
                 int bestRank = suitableCandidates.Max(t => t.rank);
                 finalSelectionPool = suitableCandidates.Where(t => t.rank == bestRank).ToList();
+                Program.Logger.Debug($"      - SelectRankedUnitKey: Best suitable rank is {bestRank}. Final pool has {finalSelectionPool.Count} units.");
             }
             else
             {
                 // Fallback: No suitable rank found, so use the lowest available rank overall
                 int lowestRank = candidates.Min(t => t.rank);
                 finalSelectionPool = candidates.Where(t => t.rank == lowestRank).ToList();
+                Program.Logger.Debug($"      - SelectRankedUnitKey: No suitable rank found. Falling back to lowest available rank {lowestRank}. Final pool has {finalSelectionPool.Count} units.");
             }
 
             // Randomly select one candidate from the final pool
             if (finalSelectionPool.Any())
             {
                 int index = _random.Next(finalSelectionPool.Count);
-                return finalSelectionPool[index].key;
+                string selectedKey = finalSelectionPool[index].key;
+                Program.Logger.Debug($"      - SelectRankedUnitKey: Randomly selected '{selectedKey}' from the final pool.");
+                return selectedKey;
             }
 
+            Program.Logger.Debug("      - SelectRankedUnitKey: Final selection pool was empty. Returning NOT_FOUND_KEY.");
             return NOT_FOUND_KEY;
         }
 
@@ -1514,6 +1521,7 @@ namespace CrusaderWars.unit_mapper
         {
             if (unit.GetRegimentType() == RegimentType.Commander)
             {
+                Program.Logger.Debug($"    - FindUnitKeyInFaction: Searching for COMMANDER unit in faction '{factionElement.Attributes?["name"]?.Value ?? "Unknown"}'.");
                 var generalRanks = new List<(int rank, string key)>();
                 foreach (XmlNode generalNode in factionElement.SelectNodes("General"))
                 {
@@ -1531,16 +1539,24 @@ namespace CrusaderWars.unit_mapper
 
                 if (generalRanks.Any())
                 {
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: Found {generalRanks.Count} possible general units: [{string.Join(", ", generalRanks.Select(g => $"{g.key} (rank {g.rank})"))}]");
                     // Map CK3 title Rank to a required rank level for the general unit
                     int requiredRank = 1;
                     if (unit.CharacterRank >= 4) requiredRank = 3; // King or Emperor gets rank 3 general
                     else if (unit.CharacterRank == 3) requiredRank = 2; // Duke gets rank 2 general
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: Commander's CK3 rank is {unit.CharacterRank}, required Attila rank is {requiredRank}.");
 
                     string selectedKey = SelectRankedUnitKey(generalRanks, requiredRank, keyToExclude);
                     if (selectedKey != NOT_FOUND_KEY)
                     {
+                        Program.Logger.Debug($"    - FindUnitKeyInFaction: Selected general unit key '{selectedKey}'.");
                         return (selectedKey, false);
                     }
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: No suitable general unit key found for rank {requiredRank}.");
+                }
+                else
+                {
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: No <General> nodes found in this faction block.");
                 }
             }
             else if (unit.GetRegimentType() == RegimentType.Knight)
