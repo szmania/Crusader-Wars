@@ -1231,7 +1231,7 @@ namespace CrusaderWars
         List<Army> defender_armies = null!;
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
-            if (!ValidateActiveUnitMapper()) { return; }
+            if (!await ValidateActiveUnitMapper()) { return; }
             Program.Logger.Debug("Execute button clicked.");
 
             // Check if Crusader Conflicts mod is enabled in the playset
