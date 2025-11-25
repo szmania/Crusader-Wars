@@ -115,7 +115,26 @@ namespace CrusaderWars.mod_manager
         {
             if (customMapperComboBox.SelectedItem != null)
             {
-                client.ModOptions.SelectedCustomMapper = customMapperComboBox.SelectedItem.ToString();
+                string selectedMapper = customMapperComboBox.SelectedItem.ToString();
+                client.ModOptions.SelectedCustomMapper = selectedMapper;
+
+                try
+                {
+                    string file = @".\settings\Options.xml";
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.Load(file);
+                    var node = xmlDoc.SelectSingleNode("//Option [@name='SelectedCustomMapper']");
+                    if (node != null)
+                    {
+                        node.InnerText = selectedMapper;
+                        xmlDoc.Save(file);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception, but don't bother the user.
+                    Program.Logger.Debug($"Error saving selected custom mapper on change: {ex.Message}");
+                }
             }
         }
 
@@ -967,10 +986,11 @@ namespace CrusaderWars.mod_manager
         public static List<string> Validate(string xmlPath, string xsdPath)
         {
             var errors = new List<string>();
+            string fullXmlPath = Path.GetFullPath(xmlPath);
 
-            if (!File.Exists(xmlPath))
+            if (!File.Exists(fullXmlPath))
             {
-                errors.Add($"File: {xmlPath}, Error: XML file not found.");
+                errors.Add($"File: {fullXmlPath}, Error: XML file not found.");
                 return errors;
             }
 
@@ -996,18 +1016,18 @@ namespace CrusaderWars.mod_manager
                     {
                         return;
                     }
-                    string message = $"File: {xmlPath}, Error: Line {args.Exception.LineNumber}, Position {args.Exception.LinePosition} - {args.Message}";
+                    string message = $"File: {fullXmlPath}, Error: Line {args.Exception.LineNumber}, Position {args.Exception.LinePosition} - {args.Message}";
                     if (!errors.Contains(message)) errors.Add(message);
                 };
 
-                using (var reader = XmlReader.Create(xmlPath, settings))
+                using (var reader = XmlReader.Create(fullXmlPath, settings))
                 {
                     while (reader.Read()) { }
                 }
             }
             catch (Exception ex)
             {
-                errors.Add($"An error occurred during validation of {Path.GetFileName(xmlPath)}: {ex.Message}");
+                errors.Add($"An error occurred during validation of {Path.GetFileName(fullXmlPath)}: {ex.Message}");
             }
 
             return errors;
