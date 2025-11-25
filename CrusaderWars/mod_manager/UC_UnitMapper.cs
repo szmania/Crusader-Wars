@@ -411,10 +411,10 @@ namespace CrusaderWars.mod_manager
             {
                 form.Text = title;
                 form.StartPosition = FormStartPosition.CenterParent;
-                form.FormBorderStyle = FormBorderStyle.FixedDialog;
-                form.ClientSize = new Size(480, 250);
-                form.MaximizeBox = false;
-                form.MinimizeBox = false;
+                form.FormBorderStyle = FormBorderStyle.Sizable;
+                form.ClientSize = new Size(700, 400);
+                form.MaximizeBox = true;
+                form.MinimizeBox = true;
 
                 RichTextBox richTextBox = new RichTextBox
                 {

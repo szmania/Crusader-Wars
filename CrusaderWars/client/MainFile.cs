@@ -350,7 +350,6 @@ namespace CrusaderWars
                         if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
                         {
                             unitMapperDirectories.Add(dir);
-                            break;
                         }
                     }
                 }
