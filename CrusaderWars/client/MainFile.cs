@@ -1884,7 +1884,10 @@ namespace CrusaderWars
             UpdateLoadingScreenMessage("Waiting for CK3 to finish saving...");
             Program.Logger.Debug($"Waiting for file access to: {filePath}");
 
-            // Timeout after 30 seconds
+            long lastSize = -1;
+            int stableCounter = 0;
+            const int checksForStability = 3; // e.g., 3 checks * 500ms = 1.5 seconds of stability
+
             var stopwatch = Stopwatch.StartNew();
             while (stopwatch.Elapsed.TotalSeconds < 30)
             {
@@ -1896,28 +1899,50 @@ namespace CrusaderWars
 
                 try
                 {
-                    // Attempt to open the file with read/write access.
-                    // This will throw an IOException if the file is locked by another process (like CK3).
-                    using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                    long currentSize = new FileInfo(filePath).Length;
+
+                    if (lastSize == currentSize)
                     {
-                        // If we can open it, it means CK3 is done writing.
-                        fs.Close(); // Immediately close it.
-                        Program.Logger.Debug("File access acquired. Proceeding with save file processing.");
-                        return true;
+                        stableCounter++;
+                        Program.Logger.Debug($"File size stable at {currentSize} bytes. Count: {stableCounter}/{checksForStability}");
                     }
+                    else
+                    {
+                        stableCounter = 0;
+                        Program.Logger.Debug($"File size changed to {currentSize} bytes. Resetting stability count.");
+                    }
+
+                    lastSize = currentSize;
+
+                    if (stableCounter >= checksForStability)
+                    {
+                        // Now that size is stable, try to get exclusive access as a final check
+                        using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                        {
+                            fs.Close();
+                            Program.Logger.Debug("File size stable and exclusive access acquired. Proceeding.");
+                            return true;
+                        }
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    Program.Logger.Debug("Save file not found yet. Waiting...");
+                    stableCounter = 0; // Reset if file disappears
                 }
                 catch (IOException)
                 {
                     // File is locked, wait and try again.
                     Program.Logger.Debug("Save file is locked by another process. Waiting...");
-                    await Task.Delay(500, token); // Wait 500ms before retrying
+                    stableCounter = 0; // Reset stability count if we lose access
                 }
                 catch (Exception ex)
                 {
-                    // Catch other potential exceptions
                     Program.Logger.Debug($"An unexpected error occurred while waiting for file access: {ex.Message}");
                     return false;
                 }
+
+                await Task.Delay(500, token); // Wait 500ms before the next check
             }
 
             Program.Logger.Debug("Timed out waiting for file access after 30 seconds.");
