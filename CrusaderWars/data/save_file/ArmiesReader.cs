@@ -50,16 +50,18 @@ namespace CrusaderWars.data.save_file
                 }
 
                 // Create sets of character IDs for quick lookup
-                var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id).Append(CK3LogData.LeftSide.GetCommander().id));
+                var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id));
                 var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
                 // Also include the player's own character ID in the appropriate set to correctly identify armies they own but don't command.
                 if (playerSide == DataSearchSides.LeftSide)
                 {
+                    attackerCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
                     attackerCharIDs.Add(DataSearch.Player_Character.GetID());
                     Program.Logger.Debug($"Player is on LeftSide, adding Player ID {DataSearch.Player_Character.GetID()} to attacker character set.");
                 }
                 else
                 {
+                    defenderCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
                     defenderCharIDs.Add(DataSearch.Player_Character.GetID());
                     Program.Logger.Debug($"Player is on RightSide, adding Player ID {DataSearch.Player_Character.GetID()} to defender character set.");
                 }
