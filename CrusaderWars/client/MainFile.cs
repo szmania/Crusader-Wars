@@ -1713,7 +1713,7 @@ namespace CrusaderWars
                     }
 
                     // NEW: Wait for the file to be accessible
-                    if (!await WaitForFileAccess(lastSave.FullName, token))
+                    if (await WaitForFileAccess(lastSave.FullName, token) == false)
                     {
                         throw new IOException("Timed out waiting for CK3 to finish writing the save file. The file may be locked or corrupted.");
                     }
