@@ -304,13 +304,9 @@ namespace CrusaderWars.mod_manager
                         sb.AppendLine("The selected unit mapper has validation errors and cannot be enabled.");
                         sb.AppendLine("Please fix the following issues:");
                         sb.AppendLine();
-                        foreach (var error in allErrors.Take(20))
+                        foreach (var error in allErrors)
                         {
                             sb.AppendLine(error);
-                        }
-                        if (allErrors.Count > 20)
-                        {
-                            sb.AppendLine($"\n... and {allErrors.Count - 20} more errors.");
                         }
 
                         ShowClickableMessageBox(sb.ToString(), "Unit Mapper Validation Failed");
