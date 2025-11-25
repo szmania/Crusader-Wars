@@ -305,7 +305,7 @@ namespace CrusaderWars
             return false;
         }
 
-        private bool ValidateActiveUnitMapper()
+        private async Task<bool> ValidateActiveUnitMapper()
         {
             string activePlaythroughTag = GetActivePlaythroughTag();
             if (string.IsNullOrEmpty(activePlaythroughTag))
@@ -313,12 +313,6 @@ namespace CrusaderWars
                 MessageBox.Show("No Unit Mapper has been selected. Please select a playthrough in the Mod Settings.", "No Playthrough Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
-
-            string unitMapperDirectory = "";
-            string unitMappersBaseDir = @".\unit mappers";
-
-            var allErrors = new List<string>();
-            var unitMapperDirectories = new List<string>();
 
             if (activePlaythroughTag == "Custom")
             {
@@ -328,39 +322,79 @@ namespace CrusaderWars
                     MessageBox.Show("The 'Custom' playthrough is active, but no custom unit mapper has been selected from the dropdown in Mod Settings.", "Custom Mapper Not Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
                 }
-                if (Directory.Exists(unitMappersBaseDir))
-                {
-                    unitMapperDirectories.AddRange(
-                        Directory.GetDirectories(unitMappersBaseDir)
-                                 .Where(dir =>
-                                 {
-                                     string tagFile = Path.Combine(dir, "tag.txt");
-                                     return File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase);
-                                 })
-                    );
-                }
-            }
-            else
-            {
-                if (Directory.Exists(unitMappersBaseDir))
-                {
-                    foreach (var dir in Directory.GetDirectories(unitMappersBaseDir))
-                    {
-                        string tagFile = Path.Combine(dir, "tag.txt");
-                        if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
-                        {
-                            unitMapperDirectories.Add(dir);
-                        }
-                    }
-                }
             }
 
-            if (unitMapperDirectories.Any())
+            // Create and show a simple status form
+            Form statusForm = new Form
             {
-                foreach(var dir in unitMapperDirectories)
+                Width = 300,
+                Height = 100,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = "Verification in Progress",
+                StartPosition = FormStartPosition.CenterParent,
+                ControlBox = false
+            };
+            Label statusLabel = new Label
+            {
+                Text = "Validating Unit Mapper XML files...",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            statusForm.Controls.Add(statusLabel);
+            statusForm.Show(this);
+            statusForm.Update();
+
+            try
+            {
+                var allErrors = await Task.Run(() =>
                 {
-                    allErrors.AddRange(XmlValidator.ValidateUnitMapper(dir));
-                }
+                    string unitMappersBaseDir = @".\unit mappers";
+                    var unitMapperDirectories = new List<string>();
+                    var errors = new List<string>();
+
+                    if (activePlaythroughTag == "Custom")
+                    {
+                        string customMapperTag = client.ModOptions.GetSelectedCustomMapper();
+                        if (Directory.Exists(unitMappersBaseDir))
+                        {
+                            unitMapperDirectories.AddRange(
+                                Directory.GetDirectories(unitMappersBaseDir)
+                                         .Where(dir =>
+                                         {
+                                             string tagFile = Path.Combine(dir, "tag.txt");
+                                             return File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase);
+                                         })
+                            );
+                        }
+                    }
+                    else
+                    {
+                        if (Directory.Exists(unitMappersBaseDir))
+                        {
+                            foreach (var dir in Directory.GetDirectories(unitMappersBaseDir))
+                            {
+                                string tagFile = Path.Combine(dir, "tag.txt");
+                                if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
+                                {
+                                    unitMapperDirectories.Add(dir);
+                                }
+                            }
+                        }
+                    }
+
+                    if (unitMapperDirectories.Any())
+                    {
+                        foreach (var dir in unitMapperDirectories)
+                        {
+                            errors.AddRange(XmlValidator.ValidateUnitMapper(dir));
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Unit mapper directory not found for playthrough '{activePlaythroughTag}'. Skipping validation.");
+                    }
+                    return errors;
+                });
 
                 if (allErrors.Any())
                 {
@@ -373,7 +407,7 @@ namespace CrusaderWars
                         .Select(e => {
                             var parts = e.Split(new[] { ", Error: " }, 2, StringSplitOptions.None);
                             var filePart = parts[0].Replace("File: ", "").Trim();
-                            var messagePart = parts.Length > 1 ? parts[1] : filePart; // if no 'Error:', message is the file part
+                            var messagePart = parts.Length > 1 ? parts[1] : filePart;
                             return new { FilePath = filePart, Message = messagePart };
                         })
                         .GroupBy(e => e.FilePath)
@@ -390,15 +424,15 @@ namespace CrusaderWars
                     }
 
                     MessageBox.Show(sb.ToString(), "Unit Mapper Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false; // Validation failed
+                    return false;
                 }
             }
-            else
+            finally
             {
-                Program.Logger.Debug($"Unit mapper directory not found for playthrough '{activePlaythroughTag}'. Skipping validation.");
+                statusForm.Close();
             }
 
-            return true; // Validation passed or was skipped
+            return true;
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
