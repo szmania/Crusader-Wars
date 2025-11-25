@@ -1343,7 +1343,15 @@ namespace CrusaderWars
             AGOT_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, Custom_Tab });
             Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
 
-            ChangeUnitMappersTab(CrusaderKings_Tab);
+            var activePlaythrough = GetActivePlaythrough();
+            if (activePlaythrough != null)
+            {
+                ChangeUnitMappersTab(activePlaythrough);
+            }
+            else
+            {
+                ChangeUnitMappersTab(CrusaderKings_Tab);
+            }
             CheckPlaythroughSelection();
         }
 
