@@ -304,9 +304,25 @@ namespace CrusaderWars.mod_manager
                         sb.AppendLine("The selected unit mapper has validation errors and cannot be enabled.");
                         sb.AppendLine("Please fix the following issues:");
                         sb.AppendLine();
-                        foreach (var error in allErrors)
+
+                        var groupedErrors = allErrors
+                            .Select(e => {
+                                var parts = e.Split(new[] { ", Error: " }, 2, StringSplitOptions.None);
+                                var filePart = parts[0].Replace("File: ", "").Trim();
+                                var messagePart = parts.Length > 1 ? parts[1] : filePart; // if no 'Error:', message is the file part
+                                return new { FilePath = filePart, Message = messagePart };
+                            })
+                            .GroupBy(e => e.FilePath)
+                            .OrderBy(g => g.Key);
+
+                        foreach (var group in groupedErrors)
                         {
-                            sb.AppendLine(error);
+                            sb.AppendLine($"File: {group.Key}");
+                            foreach (var error in group)
+                            {
+                                sb.AppendLine($"  - {error.Message}");
+                            }
+                            sb.AppendLine();
                         }
 
                         ShowClickableMessageBox(sb.ToString(), "Unit Mapper Validation Failed");
@@ -954,7 +970,7 @@ namespace CrusaderWars.mod_manager
 
             if (!File.Exists(xmlPath))
             {
-                errors.Add($"XML file not found: {xmlPath}");
+                errors.Add($"File: {xmlPath}, Error: XML file not found.");
                 return errors;
             }
 
@@ -980,8 +996,7 @@ namespace CrusaderWars.mod_manager
                     {
                         return;
                     }
-                    string fileName = Path.GetFileName(xmlPath);
-                    string message = $"File: {fileName}, Line: {args.Exception.LineNumber}, Position: {args.Exception.LinePosition} - {args.Message}";
+                    string message = $"File: {xmlPath}, Error: Line {args.Exception.LineNumber}, Position {args.Exception.LinePosition} - {args.Message}";
                     if (!errors.Contains(message)) errors.Add(message);
                 };
 
