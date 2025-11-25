@@ -266,7 +266,7 @@
     <None Update="unit mappers\schemas\mods.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\timperiod.xsd">
+    <None Update="unit mappers\schemas\timeperiod.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="unit mappers\schemas\titles.xsd">

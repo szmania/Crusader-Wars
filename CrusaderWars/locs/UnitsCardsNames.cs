@@ -66,8 +66,8 @@ namespace CrusaderWars.locs
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), unitsCollection);
                     break;
-                case "OfficialCC_TheFallenEagle_FireforgedEmpires":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empires"), unitsCollection);
+                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), unitsCollection);
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), unitsCollection);
