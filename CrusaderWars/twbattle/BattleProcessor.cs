@@ -771,11 +771,11 @@ namespace CrusaderWars.twbattle
                         });
 
                         // Mark the current strategy as tried and clear it for the next attempt
-                        if (autofixState.CurrentStrategy.HasValue)
+                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement)
                         {
                             autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
-                            autofixState.CurrentStrategy = null;
                         }
+                        autofixState.CurrentStrategy = null;
 
                         Program.Logger.Debug($"Relaunching battle after autofix ({fixDescription}). Re-reading army data from save files to apply changes.");
                         var (fresh_attackers, fresh_defenders) = ArmiesReader.ReadBattleArmies();
