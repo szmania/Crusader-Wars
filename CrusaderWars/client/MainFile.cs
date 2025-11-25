@@ -317,17 +317,27 @@ namespace CrusaderWars
             string unitMapperDirectory = "";
             string unitMappersBaseDir = @".\unit mappers";
 
+            var allErrors = new List<string>();
+            var unitMapperDirectories = new List<string>();
+
             if (activePlaythroughTag == "Custom")
             {
-                string customMapperName = client.ModOptions.GetSelectedCustomMapper();
-                if (!string.IsNullOrEmpty(customMapperName))
-                {
-                    unitMapperDirectory = Path.Combine(unitMappersBaseDir, customMapperName);
-                }
-                else
+                string customMapperTag = client.ModOptions.GetSelectedCustomMapper();
+                if (string.IsNullOrEmpty(customMapperTag))
                 {
                     MessageBox.Show("The 'Custom' playthrough is active, but no custom unit mapper has been selected from the dropdown in Mod Settings.", "Custom Mapper Not Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
+                }
+                if (Directory.Exists(unitMappersBaseDir))
+                {
+                    unitMapperDirectories.AddRange(
+                        Directory.GetDirectories(unitMappersBaseDir)
+                                 .Where(dir =>
+                                 {
+                                     string tagFile = Path.Combine(dir, "tag.txt");
+                                     return File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase);
+                                 })
+                    );
                 }
             }
             else
@@ -339,16 +349,19 @@ namespace CrusaderWars
                         string tagFile = Path.Combine(dir, "tag.txt");
                         if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
                         {
-                            unitMapperDirectory = dir;
+                            unitMapperDirectories.Add(dir);
                             break;
                         }
                     }
                 }
             }
 
-            if (!string.IsNullOrEmpty(unitMapperDirectory) && Directory.Exists(unitMapperDirectory))
+            if (unitMapperDirectories.Any())
             {
-                var allErrors = XmlValidator.ValidateUnitMapper(unitMapperDirectory);
+                foreach(var dir in unitMapperDirectories)
+                {
+                    allErrors.AddRange(XmlValidator.ValidateUnitMapper(dir));
+                }
 
                 if (allErrors.Any())
                 {

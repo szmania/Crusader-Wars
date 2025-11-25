@@ -269,18 +269,25 @@ namespace CrusaderWars.unit_mapper
         {
             if (tag == "Custom")
             {
-                string selectedMapperName = ModOptions.GetSelectedCustomMapper();
-                if (!string.IsNullOrEmpty(selectedMapperName))
+                string selectedMapperTag = ModOptions.GetSelectedCustomMapper();
+                if (!string.IsNullOrEmpty(selectedMapperTag))
                 {
-                    string mapperPath = Path.Combine(@".\unit mappers", selectedMapperName);
-                    if (Directory.Exists(mapperPath))
+                    var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+                    foreach (var mapper in unit_mappers_folder)
                     {
-                        return ParseModsFileFromMapperPath(mapperPath);
+                        string tagFile = Path.Combine(mapper, "tag.txt");
+                        if (File.Exists(tagFile))
+                        {
+                            string fileTag = File.ReadAllText(tagFile).Trim();
+                            if (selectedMapperTag.Equals(fileTag, StringComparison.OrdinalIgnoreCase))
+                            {
+                                return ParseModsFileFromMapperPath(mapper);
+                            }
+                        }
                     }
                 }
                 return (new List<ModFile>(), new List<Submod>());
             }
-
 
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
 
@@ -761,26 +768,44 @@ namespace CrusaderWars.unit_mapper
 
             if (tag == "Custom")
             {
-                string customMapperName = ModOptions.GetSelectedCustomMapper();
-                if (string.IsNullOrEmpty(customMapperName))
+                string customMapperTag = ModOptions.GetSelectedCustomMapper();
+                if (string.IsNullOrEmpty(customMapperTag))
                 {
-                    // No custom mapper selected, which is fine if none exist.
-                    // Just return an empty list of mods.
-                    LoadedUnitMapper_FolderPath = null; // Ensure no previous mapper is loaded
+                    LoadedUnitMapper_FolderPath = null;
                     Terrains = null;
                     return requiredMods;
                 }
 
-                string mapperPath = Path.Combine(@".\unit mappers", customMapperName);
-                if (!Directory.Exists(mapperPath))
+                var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+                var matchingMappers = new List<string>();
+                foreach (var mapper in unit_mappers_folder)
                 {
-                    MessageBox.Show($"The selected custom unit mapper folder '{customMapperName}' was not found.", "Crusader Conflicts: Configuration Error",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    return requiredMods;
+                    string tagFilePath = Path.Combine(mapper, "tag.txt");
+                    if (File.Exists(tagFilePath))
+                    {
+                        string fileTag = File.ReadAllText(tagFilePath).Trim();
+                        if (customMapperTag.Equals(fileTag, StringComparison.OrdinalIgnoreCase))
+                        {
+                            matchingMappers.Add(mapper);
+                        }
+                    }
                 }
 
-                // Process this specific mapper
-                return ProcessMapper(mapperPath);
+                if (matchingMappers.Any())
+                {
+                    foreach (var mapperPath in matchingMappers)
+                    {
+                        var mods = ProcessMapper(mapperPath);
+                        if (mods.Any())
+                        {
+                            return mods; // Found the correct mapper for the time period
+                        }
+                    }
+                }
+
+                MessageBox.Show($"The selected custom unit mapper '{customMapperTag}' does not have a valid configuration for the current in-game year ({Date.Year}).", "Crusader Conflicts: Configuration Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                return requiredMods;
             }
 
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
