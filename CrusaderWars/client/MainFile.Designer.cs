@@ -98,6 +98,7 @@
             resources.ApplyResources(this.infoLabel, "infoLabel");
             this.infoLabel.AutoSize = true;
             this.infoLabel.MaximumSize = new System.Drawing.Size(450, 0);
+            this.infoLabel.Margin = new System.Windows.Forms.Padding(3, -10, 3, 0);
             this.infoLabel.BackColor = System.Drawing.Color.Transparent;
             this.infoLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.infoLabel.Name = "infoLabel";
@@ -205,7 +206,7 @@
             this.ButtonsContainerPanel.Controls.Add(this.ContinueBattleButton);
             this.ButtonsContainerPanel.Controls.Add(this.LaunchAutoFixerButton);
             this.ButtonsContainerPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.ButtonsContainerPanel.Margin = new System.Windows.Forms.Padding(47, 4, 4, 4);
+            this.ButtonsContainerPanel.Margin = new System.Windows.Forms.Padding(47, -15, 4, 4);
             this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
             // 
             // ContinueBattleButton
