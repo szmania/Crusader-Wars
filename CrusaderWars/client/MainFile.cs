@@ -3059,6 +3059,24 @@ namespace CrusaderWars
                 }
                 DataSearch.Search(logSnippet);
 
+                // Load the unit mapper before reading armies
+                string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
+                if (string.IsNullOrEmpty(selectedPlaythrough))
+                {
+                    MessageBox.Show("No playthrough is selected. The AutoFixer cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                string mapperName = UnitMappers_BETA.GetMapperNameFromTag(selectedPlaythrough);
+                string mapperPath = Path.Combine(@".\unit mappers", mapperName);
+                if (!Directory.Exists(mapperPath))
+                {
+                    MessageBox.Show($"Could not find the unit mapper directory for the selected playthrough '{selectedPlaythrough}'.\nExpected path: {mapperPath}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                UnitMappers_BETA.SetLoadedUnitMapper(mapperPath);
+                Program.Logger.Debug($"LaunchAutoFixer: Loaded unit mapper '{mapperName}' for playthrough '{selectedPlaythrough}'.");
+
+
                 // 1. Read battle armies
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
