@@ -1267,7 +1267,7 @@ namespace CrusaderWars.twbattle
             var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies).ToList();
             Program.Logger.Debug($"TryManualUnitFix: Collected {allArmies.Count} total armies.");
 
-            var currentUnits = allArmies.SelectMany(a => a.Units)
+            var currentUnits = allArmies.Where(a => a.Units != null).SelectMany(a => a.Units)
                                         .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
                                         .ToList();
             Program.Logger.Debug($"TryManualUnitFix: Collected {currentUnits.Count} current units with valid keys.");

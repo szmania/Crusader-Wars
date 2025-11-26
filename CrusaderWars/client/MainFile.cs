@@ -3066,7 +3066,7 @@ namespace CrusaderWars
                 var allArmies = attackerArmies.Concat(defenderArmies).ToList();
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {allArmies.Count} total armies.");
 
-                var currentUnits = allArmies.SelectMany(a => a.Units)
+                var currentUnits = allArmies.Where(a => a.Units != null).SelectMany(a => a.Units)
                                             .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
                                             .ToList();
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
