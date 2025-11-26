@@ -303,11 +303,17 @@ namespace CrusaderWars.client
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
-                XmlNode? selectedNode = xmlDoc.SelectSingleNode("//UnitMappers[text()='True']");
-                if (selectedNode != null)
+                XmlNodeList? mapperNodes = xmlDoc.SelectNodes("//UnitMappers");
+                if (mapperNodes != null)
                 {
-                    string? playthrough = selectedNode.Attributes?["name"]?.Value;
-                    return playthrough ?? string.Empty;
+                    foreach (XmlNode node in mapperNodes)
+                    {
+                        if (node.InnerText.Trim().Equals("True", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string? playthrough = node.Attributes?["name"]?.Value;
+                            return playthrough ?? string.Empty;
+                        }
+                    }
                 }
             }
             catch (Exception)
