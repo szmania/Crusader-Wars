@@ -660,6 +660,11 @@ namespace CrusaderWars.twbattle
                         DialogResult userResponse = DialogResult.No;
                         AutofixState.AutofixStrategy? chosenStrategy = null;
 
+                        if (form is null || form.IsDisposed)
+                        {
+                            Program.Logger.Debug("Autofix Error: Form is null or disposed. Cannot show strategy choice prompt.");
+                            return false; // Abort battle
+                        }
                         form.Invoke((MethodInvoker)delegate
                         {
                             (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form, availableStrategies);
@@ -757,18 +762,21 @@ namespace CrusaderWars.twbattle
                     if (fixApplied)
                     {
                         autofixState.LastAppliedFixDescription = fixDescription;
-                        form.Invoke((MethodInvoker)delegate
+                        if (form != null && !form.IsDisposed)
                         {
-                            form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
-                            form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
-                        });
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                form.infoLabel.Text = $"Attila crashed. Attempting automatic fix #{autofixState.FailureCount}...";
+                                form.Text = $"Crusader Conflicts (Attempting fix #{autofixState.FailureCount})";
+                            });
 
-                        form.Invoke((MethodInvoker)delegate
-                        {
-                            string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
-                            string discordUrl = "https://discord.gg/eFZTprHh3j";
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
-                        });
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
+                            });
+                        }
 
                         // Mark the current strategy as tried and clear it for the next attempt
                         if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement)
@@ -1256,6 +1264,11 @@ namespace CrusaderWars.twbattle
             // 3. Show form
             Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> replacements = new Dictionary<(string, bool), (string, bool)>();
             bool userCommitted = false;
+            if (form is null || form.IsDisposed)
+            {
+                Program.Logger.Debug("Autofix Error: Form is null or disposed. Cannot show manual unit replacer.");
+                return (false, ""); // Cannot apply this fix without a form
+            }
             form.Invoke((MethodInvoker)delegate
             {
                 using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
