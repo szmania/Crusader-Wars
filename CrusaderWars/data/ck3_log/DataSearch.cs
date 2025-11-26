@@ -256,7 +256,7 @@ namespace CrusaderWars
              ---------------------------------------------*/
 
             //Search player ID
-            string left_side_commander_id = Regex.Match(log, @"LeftSide_ID:\s*(\d*)").Groups[1].Value;
+            string left_side_commander_id = Regex.Match(log, @"LeftSide_ID:\s*(\d*)").Groups[1].Value.Trim();
             string left_side_commander_culture_id = "";
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -264,11 +264,11 @@ namespace CrusaderWars
             }
             else
             {
-                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:\s*(\d*)").Groups[1].Value;
+                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:\s*(\d*)").Groups[1].Value.Trim();
             }
 
             //Search enemy ID
-            string right_side_commander_id = Regex.Match(log, @"RightSide_ID:\s*(\d*)").Groups[1].Value;
+            string right_side_commander_id = Regex.Match(log, @"RightSide_ID:\s*(\d*)").Groups[1].Value.Trim();
             string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:\s*(.*)").Groups[1].Value.Trim();
 
             // --- NEW: Fallback for empty commander ID ---
