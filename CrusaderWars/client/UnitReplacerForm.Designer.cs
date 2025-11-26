@@ -47,20 +47,20 @@ namespace CrusaderWars.client
             // 
             this.tvCurrentUnits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.tvCurrentUnits.Location = new System.Drawing.Point(12, 170);
+            this.tvCurrentUnits.Location = new System.Drawing.Point(12, 196);
             this.tvCurrentUnits.Name = "tvCurrentUnits";
-            this.tvCurrentUnits.Size = new System.Drawing.Size(350, 450);
+            this.tvCurrentUnits.Size = new System.Drawing.Size(400, 424);
             this.tvCurrentUnits.TabIndex = 0;
             this.tvCurrentUnits.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvCurrentUnits_BeforeSelect);
             this.tvCurrentUnits.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvCurrentUnits_NodeMouseClick);
             // 
             // tvAvailableUnits
             // 
-            this.tvAvailableUnits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.tvAvailableUnits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvAvailableUnits.Location = new System.Drawing.Point(522, 170);
+            this.tvAvailableUnits.Location = new System.Drawing.Point(472, 196);
             this.tvAvailableUnits.Name = "tvAvailableUnits";
-            this.tvAvailableUnits.Size = new System.Drawing.Size(350, 450);
+            this.tvAvailableUnits.Size = new System.Drawing.Size(400, 424);
             this.tvAvailableUnits.TabIndex = 1;
             // 
             // btnReplace
@@ -101,7 +101,7 @@ namespace CrusaderWars.client
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(12, 154);
+            this.label1.Location = new System.Drawing.Point(12, 180);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(118, 13);
             this.label1.TabIndex = 5;
@@ -112,7 +112,7 @@ namespace CrusaderWars.client
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(519, 154);
+            this.label2.Location = new System.Drawing.Point(469, 180);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(177, 13);
             this.label2.TabIndex = 6;
@@ -167,6 +167,90 @@ namespace CrusaderWars.client
             this.UnitReplacerToolTip.SetToolTip(this.btnOK, "Saves all replacements and continues with the battle.");
             this.UnitReplacerToolTip.SetToolTip(this.btnCancel, "Discards all replacements and closes this window.");
             // 
+            // txtSearchCurrent
+            // 
+            this.txtSearchCurrent.Location = new System.Drawing.Point(62, 151);
+            this.txtSearchCurrent.Name = "txtSearchCurrent";
+            this.txtSearchCurrent.Size = new System.Drawing.Size(200, 20);
+            this.txtSearchCurrent.TabIndex = 10;
+            this.UnitReplacerToolTip.SetToolTip(this.txtSearchCurrent, "Type here to search for units in the list below. Press Enter to search.");
+            this.txtSearchCurrent.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearchCurrent_KeyDown);
+            // 
+            // btnPrevCurrent
+            // 
+            this.btnPrevCurrent.Location = new System.Drawing.Point(268, 149);
+            this.btnPrevCurrent.Name = "btnPrevCurrent";
+            this.btnPrevCurrent.Size = new System.Drawing.Size(44, 23);
+            this.btnPrevCurrent.TabIndex = 11;
+            this.btnPrevCurrent.Text = "▲";
+            this.UnitReplacerToolTip.SetToolTip(this.btnPrevCurrent, "Go to the previous search result.");
+            this.btnPrevCurrent.UseVisualStyleBackColor = true;
+            this.btnPrevCurrent.Click += new System.EventHandler(this.btnPrevCurrent_Click);
+            // 
+            // btnNextCurrent
+            // 
+            this.btnNextCurrent.Location = new System.Drawing.Point(318, 149);
+            this.btnNextCurrent.Name = "btnNextCurrent";
+            this.btnNextCurrent.Size = new System.Drawing.Size(44, 23);
+            this.btnNextCurrent.TabIndex = 12;
+            this.btnNextCurrent.Text = "▼";
+            this.UnitReplacerToolTip.SetToolTip(this.btnNextCurrent, "Go to the next search result.");
+            this.btnNextCurrent.UseVisualStyleBackColor = true;
+            this.btnNextCurrent.Click += new System.EventHandler(this.btnNextCurrent_Click);
+            // 
+            // txtSearchAvailable
+            // 
+            this.txtSearchAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearchAvailable.Location = new System.Drawing.Point(519, 151);
+            this.txtSearchAvailable.Name = "txtSearchAvailable";
+            this.txtSearchAvailable.Size = new System.Drawing.Size(200, 20);
+            this.txtSearchAvailable.TabIndex = 14;
+            this.UnitReplacerToolTip.SetToolTip(this.txtSearchAvailable, "Type here to search for units in the list below. Press Enter to search.");
+            this.txtSearchAvailable.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearchAvailable_KeyDown);
+            // 
+            // btnPrevAvailable
+            // 
+            this.btnPrevAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPrevAvailable.Location = new System.Drawing.Point(725, 149);
+            this.btnPrevAvailable.Name = "btnPrevAvailable";
+            this.btnPrevAvailable.Size = new System.Drawing.Size(44, 23);
+            this.btnPrevAvailable.TabIndex = 15;
+            this.btnPrevAvailable.Text = "▲";
+            this.UnitReplacerToolTip.SetToolTip(this.btnPrevAvailable, "Go to the previous search result.");
+            this.btnPrevAvailable.UseVisualStyleBackColor = true;
+            this.btnPrevAvailable.Click += new System.EventHandler(this.btnPrevAvailable_Click);
+            // 
+            // btnNextAvailable
+            // 
+            this.btnNextAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNextAvailable.Location = new System.Drawing.Point(775, 149);
+            this.btnNextAvailable.Name = "btnNextAvailable";
+            this.btnNextAvailable.Size = new System.Drawing.Size(44, 23);
+            this.btnNextAvailable.TabIndex = 16;
+            this.btnNextAvailable.Text = "▼";
+            this.UnitReplacerToolTip.SetToolTip(this.btnNextAvailable, "Go to the next search result.");
+            this.btnNextAvailable.UseVisualStyleBackColor = true;
+            this.btnNextAvailable.Click += new System.EventHandler(this.btnNextAvailable_Click);
+            // 
+            // lblCurrentSearch
+            // 
+            this.lblCurrentSearch.AutoSize = true;
+            this.lblCurrentSearch.Location = new System.Drawing.Point(12, 154);
+            this.lblCurrentSearch.Name = "lblCurrentSearch";
+            this.lblCurrentSearch.Size = new System.Drawing.Size(44, 13);
+            this.lblCurrentSearch.TabIndex = 9;
+            this.lblCurrentSearch.Text = "Search:";
+            // 
+            // lblAvailableSearch
+            // 
+            this.lblAvailableSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblAvailableSearch.AutoSize = true;
+            this.lblAvailableSearch.Location = new System.Drawing.Point(469, 154);
+            this.lblAvailableSearch.Name = "lblAvailableSearch";
+            this.lblAvailableSearch.Size = new System.Drawing.Size(44, 13);
+            this.lblAvailableSearch.TabIndex = 13;
+            this.lblAvailableSearch.Text = "Search:";
+            // 
             // UnitReplacerForm
             // 
             this.AcceptButton = this.btnOK;
@@ -174,6 +258,14 @@ namespace CrusaderWars.client
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(884, 671);
+            this.Controls.Add(this.lblAvailableSearch);
+            this.Controls.Add(this.lblCurrentSearch);
+            this.Controls.Add(this.btnNextAvailable);
+            this.Controls.Add(this.btnPrevAvailable);
+            this.Controls.Add(this.txtSearchAvailable);
+            this.Controls.Add(this.btnNextCurrent);
+            this.Controls.Add(this.btnPrevCurrent);
+            this.Controls.Add(this.txtSearchCurrent);
             this.Controls.Add(this.btnUndo);
             this.Controls.Add(this.InstructionsBox);
             this.Controls.Add(this.label2);
