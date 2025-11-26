@@ -271,6 +271,14 @@ namespace CrusaderWars
             string right_side_commander_id = Regex.Match(log, @"RightSide_ID:(\d+)").Groups[1].Value;
             string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(.+)\n").Groups[1].Value;
 
+            // --- NEW: Fallback for empty commander ID ---
+            if (string.IsNullOrEmpty(right_side_commander_id) && !string.IsNullOrEmpty(right_side_mainparticipant_id) && right_side_mainparticipant_id != "4294967295")
+            {
+                Program.Logger.Debug("RightSide_ID not found in log. Using RightSide_Owner_ID as fallback for commander ID.");
+                right_side_commander_id = right_side_mainparticipant_id;
+            }
+            // --- END NEW ---
+
             // --- NEW CORRECTION LOGIC for invalid log data ---
             if (left_side_mainparticipant_id == "4294967295" && !string.IsNullOrEmpty(left_side_commander_id))
             {
