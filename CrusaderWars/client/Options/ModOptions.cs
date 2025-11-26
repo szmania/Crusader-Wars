@@ -292,35 +292,10 @@ namespace CrusaderWars.client
 
         public static string GetSelectedPlaythrough()
         {
-            try
+            if (optionsValuesCollection.TryGetValue("Playthrough", out var playthrough))
             {
-                string file = @".\settings\UnitMappers.xml";
-                if (!File.Exists(file))
-                {
-                    return string.Empty;
-                }
-
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(file);
-
-                XmlNodeList? mapperNodes = xmlDoc.SelectNodes("//UnitMappers");
-                if (mapperNodes != null)
-                {
-                    foreach (XmlNode node in mapperNodes)
-                    {
-                        if (node.InnerText.Trim().Equals("True", StringComparison.OrdinalIgnoreCase))
-                        {
-                            string? playthrough = node.Attributes?["name"]?.Value;
-                            return playthrough ?? string.Empty;
-                        }
-                    }
-                }
+                return playthrough;
             }
-            catch (Exception)
-            {
-                // Silently fail if there's an error reading the file.
-            }
-
             return string.Empty;
         }
 
