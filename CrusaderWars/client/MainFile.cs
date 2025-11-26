@@ -3060,7 +3060,7 @@ namespace CrusaderWars
                 DataSearch.Search(logSnippet);
 
                 // Load the unit mapper before reading armies
-                string? selectedPlaythrough = Options.GetSelectedPlaythrough();
+                string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
                 if (string.IsNullOrEmpty(selectedPlaythrough))
                 {
                     MessageBox.Show("No playthrough is selected. The AutoFixer cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
