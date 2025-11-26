@@ -3058,7 +3058,6 @@ namespace CrusaderWars
                     return;
                 }
                 DataSearch.Search(logSnippet);
-                DataSearch.FindSiegeCombatID();
 
                 // 1. Read battle armies
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
@@ -3067,6 +3066,7 @@ namespace CrusaderWars
                     MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                DataSearch.FindSiegeCombatID();
                 Program.Logger.Debug($"LaunchAutoFixer: Read {attackerArmies.Count} attacker and {defenderArmies.Count} defender armies.");
 
 
