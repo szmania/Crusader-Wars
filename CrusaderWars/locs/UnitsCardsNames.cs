@@ -341,5 +341,68 @@ namespace CrusaderWars.locs
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
+        public static Dictionary<string, string> GetUnitScreenNames(string Mapper_Name)
+        {
+            var screenNames = new Dictionary<string, string>();
+            string[] locFiles;
+
+            switch (Mapper_Name)
+            {
+                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
+                    locFiles = GetLocFilesForPlaythrough("anno domini");
+                    break;
+                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
+                    locFiles = GetLocFilesForPlaythrough("mk1212");
+                    break;
+                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
+                    locFiles = GetLocFilesForPlaythrough("age of justinian");
+                    break;
+                case "OfficialCC_TheFallenEagle_FallofTheEagle":
+                    locFiles = GetLocFilesForPlaythrough("fall of the eagles");
+                    break;
+                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
+                    locFiles = GetLocFilesForPlaythrough("fireforged empire");
+                    break;
+                case "OfficialCC_RealmsInExile_TheDawnlessDays":
+                    locFiles = GetLocFilesForPlaythrough("dawnless days");
+                    break;
+                case "OfficialCC_AGOT_SevenKingdoms":
+                    locFiles = GetLocFilesForPlaythrough("seven_kingdoms");
+                    break;
+                case "Custom":
+                    locFiles = GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper());
+                    break;
+                default:
+                    locFiles = new string[0];
+                    break;
+            }
+
+            foreach (var file in locFiles)
+            {
+                if (!File.Exists(file)) continue;
+                using (StreamReader reader = new StreamReader(file))
+                {
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        Match keyMatch = Regex.Match(line, @"land_units_onscreen_name_([^\t]+)");
+                        if (keyMatch.Success)
+                        {
+                            string key = keyMatch.Groups[1].Value;
+                            Match nameMatch = Regex.Match(line, @"\t(?<UnitName>[^\t]+)\t");
+                            if (nameMatch.Success)
+                            {
+                                string name = nameMatch.Groups["UnitName"].Value;
+                                screenNames[key] = name; // Add or overwrite
+                            }
+                        }
+                    }
+                }
+            }
+
+            return screenNames;
+        }
     }
 }

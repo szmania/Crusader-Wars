@@ -1244,13 +1244,14 @@ namespace CrusaderWars.twbattle
                                         .ToList();
 
             var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+            var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
 
             // 3. Show form
             Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> replacements = new Dictionary<(string, bool), (string, bool)>();
             bool userCommitted = false;
             form.Invoke((MethodInvoker)delegate
             {
-                using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements))
+                using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
                 {
                     if (replacerForm.ShowDialog(form) == DialogResult.OK)
                     {

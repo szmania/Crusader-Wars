@@ -14,13 +14,21 @@ namespace CrusaderWars.client
         private readonly List<AvailableUnit> _allAvailableUnits;
         public Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> Replacements { get; private set; }
         private List<TreeNode> _selectedCurrentNodes = new List<TreeNode>();
+        private readonly Dictionary<string, string> _unitScreenNames;
+        private List<TreeNode> _currentSearchResults = new List<TreeNode>();
+        private int _currentSearchResultIndex = -1;
+        private string _lastCurrentSearch = "";
+        private List<TreeNode> _availableSearchResults = new List<TreeNode>();
+        private int _availableSearchResultIndex = -1;
+        private string _lastAvailableSearch = "";
 
-        public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements)
+        public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements, Dictionary<string, string> unitScreenNames)
         {
             InitializeComponent();
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
             Replacements = new Dictionary<(string, bool), (string, bool)>(existingReplacements);
+            _unitScreenNames = unitScreenNames;
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)
