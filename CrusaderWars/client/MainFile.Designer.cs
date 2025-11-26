@@ -42,6 +42,7 @@
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.ContinueBattleButton = new System.Windows.Forms.Button();
+            this.LaunchAutoFixerButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.linkOptInPreReleases = new System.Windows.Forms.Label();
@@ -225,6 +226,24 @@
             this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
             this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
             this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
+            // 
+            // LaunchAutoFixerButton
+            // 
+            this.LaunchAutoFixerButton.BackColor = System.Drawing.Color.Transparent;
+            this.LaunchAutoFixerButton.BackgroundImage = global::CrusaderWars.Properties.Resources.start_new;
+            resources.ApplyResources(this.LaunchAutoFixerButton, "LaunchAutoFixerButton");
+            this.LaunchAutoFixerButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.LaunchAutoFixerButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.LaunchAutoFixerButton.FlatAppearance.BorderSize = 0;
+            this.LaunchAutoFixerButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.LaunchAutoFixerButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.LaunchAutoFixerButton.ForeColor = System.Drawing.Color.White;
+            this.LaunchAutoFixerButton.Name = "LaunchAutoFixerButton";
+            this.LaunchAutoFixerButton.TabStop = false;
+            this.LaunchAutoFixerButton.UseVisualStyleBackColor = true;
+            this.LaunchAutoFixerButton.Click += new System.EventHandler(this.LaunchAutoFixerButton_Click);
+            this.LaunchAutoFixerButton.MouseEnter += new System.EventHandler(this.LaunchAutoFixerButton_MouseEnter);
+            this.LaunchAutoFixerButton.MouseLeave += new System.EventHandler(this.LaunchAutoFixerButton_MouseLeave);
             // 
             // BottomPanelLayout
             // 
@@ -449,5 +468,6 @@
         private System.Windows.Forms.Label labelSeparatorRight;
         private System.Windows.Forms.FlowLayoutPanel VersionInfoFlowPanel;
         private System.Windows.Forms.Label linkOptInPreReleases;
+        private System.Windows.Forms.Button LaunchAutoFixerButton;
     }
 }

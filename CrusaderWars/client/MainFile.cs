@@ -30,7 +30,6 @@ namespace CrusaderWars
     
     public partial class HomePage : Form
     {
-        private Button LaunchAutoFixerButton = null!;
         private LoadingScreen? loadingScreen;
         private Thread? loadingThread;
         private string log = null!;  // For CK3 log content
@@ -95,6 +94,7 @@ namespace CrusaderWars
             // Set fonts programmatically
             ExecuteButton.Font = new Font("Yu Gothic UI", 16f, FontStyle.Bold);
             ContinueBattleButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
+            LaunchAutoFixerButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
             btt_debug.Font = new Font("Microsoft Sans Serif", 12f);
             infoLabel.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             viewLogsLink.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
@@ -108,6 +108,7 @@ namespace CrusaderWars
             // Set FlatStyle programmatically
             ExecuteButton.FlatStyle = FlatStyle.Flat;
             ContinueBattleButton.FlatStyle = FlatStyle.Flat;
+            LaunchAutoFixerButton.FlatStyle = FlatStyle.Flat;
             btt_debug.FlatStyle = FlatStyle.Flat;
             SettingsBtn.FlatStyle = FlatStyle.Flat;
             viewLogsLink.FlatStyle = FlatStyle.Flat;
@@ -551,6 +552,7 @@ namespace CrusaderWars
             // Set BackgroundImageLayout properties programmatically
             ExecuteButton.BackgroundImageLayout = ImageLayout.Zoom;
             ContinueBattleButton.BackgroundImageLayout = ImageLayout.Zoom;
+            LaunchAutoFixerButton.BackgroundImageLayout = ImageLayout.Zoom;
             SettingsBtn.BackgroundImageLayout = ImageLayout.Zoom;
             WebsiteBTN.BackgroundImageLayout = ImageLayout.Zoom;
             SteamBTN.BackgroundImageLayout = ImageLayout.Zoom;
@@ -1075,6 +1077,7 @@ namespace CrusaderWars
             bool battleInProgress = BattleState.IsBattleInProgress();
 
             ContinueBattleButton.Visible = battleInProgress;
+            LaunchAutoFixerButton.Visible = battleInProgress;
 
             if (battleInProgress)
             {
@@ -1085,6 +1088,7 @@ namespace CrusaderWars
                 // Resize buttons to fit side-by-by
                 ExecuteButton.Size = new Size(197, 115);
                 ContinueBattleButton.Size = new Size(197, 115);
+                LaunchAutoFixerButton.Size = new Size(197, 50);
             }
             else
             {
@@ -2770,6 +2774,16 @@ namespace CrusaderWars
                     infoLabel.Text = "Ready to Start!";
                 }
             }
+        }
+
+        private void LaunchAutoFixerButton_MouseEnter(object sender, EventArgs e)
+        {
+            LaunchAutoFixerButton.BackgroundImage = Properties.Resources.start_new_hover;
+        }
+
+        private void LaunchAutoFixerButton_MouseLeave(object sender, EventArgs e)
+        {
+            LaunchAutoFixerButton.BackgroundImage = Properties.Resources.start_new;
         }
 
         #region CK3 Mod Updater Logic
