@@ -269,7 +269,7 @@ namespace CrusaderWars
 
             //Search enemy ID
             string right_side_commander_id = Regex.Match(log, @"RightSide_ID:\s*(\d*)").Groups[1].Value.Trim();
-            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:\s*(.*)").Groups[1].Value.Trim();
+            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:\s*(\d*)").Groups[1].Value.Trim();
 
             // --- NEW: Fallback for empty commander ID ---
             if (string.IsNullOrEmpty(right_side_commander_id) && !string.IsNullOrEmpty(right_side_mainparticipant_id) && right_side_mainparticipant_id != "4294967295")
