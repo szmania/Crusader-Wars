@@ -245,31 +245,31 @@ namespace CrusaderWars
             /*---------------------------------------------
              * ::::::::::::::Main Participants::::::::::::::
              ---------------------------------------------*/
-            string left_side_mainparticipant_id = Regex.Match(log, @"LeftSide_Owner_ID:(.+)\n").Groups[1].Value;
-            string left_side_mainparticipant_culture_id = Regex.Match(log, @"LeftSide_Owner_Culture:(.+)\n").Groups[1].Value;
+            string left_side_mainparticipant_id = Regex.Match(log, @"LeftSide_Owner_ID:(.*)").Groups[1].Value.Trim();
+            string left_side_mainparticipant_culture_id = Regex.Match(log, @"LeftSide_Owner_Culture:(.*)").Groups[1].Value.Trim();
 
-            string right_side_mainparticipant_id = Regex.Match(log, @"RightSide_Owner_ID:(.+)\n").Groups[1].Value;
-            string right_side_mainparticipant_culture_id = Regex.Match(log, @"RightSide_Owner_Culture:(.+)\n").Groups[1].Value;
+            string right_side_mainparticipant_id = Regex.Match(log, @"RightSide_Owner_ID:(.*)").Groups[1].Value.Trim();
+            string right_side_mainparticipant_culture_id = Regex.Match(log, @"RightSide_Owner_Culture:(.*)").Groups[1].Value.Trim();
 
             /*---------------------------------------------
              * ::::::::::::Commanders ID's:::::::::::::::::
              ---------------------------------------------*/
 
             //Search player ID
-            string left_side_commander_id = Regex.Match(log, @"LeftSide_ID:(\d+)").Groups[1].Value;
+            string left_side_commander_id = Regex.Match(log, @"LeftSide_ID:(\d*)").Groups[1].Value.Trim();
             string left_side_commander_culture_id = "";
             if (twbattle.BattleState.IsSiegeBattle)
             {
-                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:.*ONCLICK:CULTURE[,]*(\d+)").Groups[1].Value;
+                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:.*ONCLICK:CULTURE[,]*(\d*)").Groups[1].Value.Trim();
             }
             else
             {
-                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:(\d+)").Groups[1].Value;
+                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:(\d*)").Groups[1].Value.Trim();
             }
 
             //Search enemy ID
-            string right_side_commander_id = Regex.Match(log, @"RightSide_ID:(\d+)").Groups[1].Value;
-            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(.+)\n").Groups[1].Value;
+            string right_side_commander_id = Regex.Match(log, @"RightSide_ID:(\d*)").Groups[1].Value.Trim();
+            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(.*)").Groups[1].Value.Trim();
 
             // --- NEW: Fallback for empty commander ID ---
             if (string.IsNullOrEmpty(right_side_commander_id) && !string.IsNullOrEmpty(right_side_mainparticipant_id) && right_side_mainparticipant_id != "4294967295")
