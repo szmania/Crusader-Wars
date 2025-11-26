@@ -214,24 +214,7 @@ namespace CrusaderWars
             _preReleasePulseTimer.Interval = 75; // Sets the pulse speed
             _preReleasePulseTimer.Tick += PreReleasePulseTimer_Tick;
 
-            // Initialize and add LaunchAutoFixerButton
-            this.LaunchAutoFixerButton = new System.Windows.Forms.Button();
-            this.LaunchAutoFixerButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(1)))), ((int)(((byte)(5)))), ((int)(((byte)(15)))));
-            this.LaunchAutoFixerButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.LaunchAutoFixerButton.FlatAppearance.BorderSize = 2;
-            this.LaunchAutoFixerButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(1)))), ((int)(((byte)(5)))), ((int)(((byte)(15)))));
-            this.LaunchAutoFixerButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(1)))), ((int)(((byte)(5)))), ((int)(((byte)(15)))));
-            this.LaunchAutoFixerButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.LaunchAutoFixerButton.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold);
-            this.LaunchAutoFixerButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.LaunchAutoFixerButton.Name = "LaunchAutoFixerButton";
-            this.LaunchAutoFixerButton.Size = new System.Drawing.Size(260, 35);
-            this.LaunchAutoFixerButton.TabIndex = 4;
-            this.LaunchAutoFixerButton.Text = "Launch AutoFixer";
-            this.LaunchAutoFixerButton.UseVisualStyleBackColor = false;
-            this.LaunchAutoFixerButton.Visible = false; // Initially hidden
-            this.LaunchAutoFixerButton.Click += new System.EventHandler(this.LaunchAutoFixerButton_Click);
-            this.ButtonsContainerPanel.Controls.Add(this.LaunchAutoFixerButton);
+            // LaunchAutoFixerButton is now initialized in the designer, its click event is also there.
         }
 
         private void PulseTimer_Tick(object? sender, EventArgs e)

@@ -202,6 +202,7 @@
             this.ButtonsContainerPanel.BackColor = System.Drawing.Color.Transparent;
             this.ButtonsContainerPanel.Controls.Add(this.ExecuteButton);
             this.ButtonsContainerPanel.Controls.Add(this.ContinueBattleButton);
+            this.ButtonsContainerPanel.Controls.Add(this.LaunchAutoFixerButton);
             this.ButtonsContainerPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.ButtonsContainerPanel.Margin = new System.Windows.Forms.Padding(47, 4, 4, 4);
             this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
