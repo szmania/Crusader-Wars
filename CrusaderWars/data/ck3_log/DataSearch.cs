@@ -149,7 +149,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Searching for siege-specific data in log...");
 
             // Holding type key
-            string holdingLevel = Regex.Match(log, @"HoldingLevel:(.+)").Groups[1].Value.Trim();
+            string holdingLevel = Regex.Match(log, @"HoldingLevel:\s*(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found HoldingLevel Key: {holdingLevel}");
             twbattle.Sieges.SetHoldingLevelKey(holdingLevel);
                         
@@ -186,7 +186,7 @@ namespace CrusaderWars
             twbattle.Sieges.SetGarrisonHeritage(garrisonHeritage);
 
             // Garrison size
-            string garrisonSizeStr = Regex.Match(log, @"GarrisonSize:(\d+)").Groups[1].Value;
+            string garrisonSizeStr = Regex.Match(log, @"GarrisonSize:\s*(\d+)").Groups[1].Value;
             if (int.TryParse(garrisonSizeStr, out int garrisonSize))
             {
                 Program.Logger.Debug($"Found Garrison Size: {garrisonSize}");
@@ -237,8 +237,8 @@ namespace CrusaderWars
             /*---------------------------------------------
              * ::::::::::::::Player Character::::::::::::::
              ---------------------------------------------*/
-            string player_culture_id = Regex.Match(log, @"PlayerCharacter_Culture:(.+)\n").Groups[1].Value;
-            string playerID = Regex.Match(log, @"PlayerCharacter_ID:(.+)\n").Groups[1].Value;
+            string player_culture_id = Regex.Match(log, @"PlayerCharacter_Culture:\s*(.+)").Groups[1].Value.Trim();
+            string playerID = Regex.Match(log, @"PlayerCharacter_ID:\s*(.+)").Groups[1].Value.Trim();
             Player_Character = new PlayerChar(playerID, player_culture_id);
             Program.Logger.Debug($"Player character: ID={playerID}, CultureID={player_culture_id}");
 
@@ -256,7 +256,7 @@ namespace CrusaderWars
              ---------------------------------------------*/
 
             //Search player ID
-            string left_side_commander_id = Regex.Match(log, @"LeftSide_ID:(\d*)").Groups[1].Value.Trim();
+            string left_side_commander_id = Regex.Match(log, @"LeftSide_ID:\s*(\d*)").Groups[1].Value;
             string left_side_commander_culture_id = "";
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -264,12 +264,12 @@ namespace CrusaderWars
             }
             else
             {
-                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:(\d*)").Groups[1].Value.Trim();
+                left_side_commander_culture_id = Regex.Match(log, @"LeftSide_Commander_Culture:\s*(\d*)").Groups[1].Value;
             }
 
             //Search enemy ID
-            string right_side_commander_id = Regex.Match(log, @"RightSide_ID:(\d*)").Groups[1].Value.Trim();
-            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:(.*)").Groups[1].Value.Trim();
+            string right_side_commander_id = Regex.Match(log, @"RightSide_ID:\s*(\d*)").Groups[1].Value;
+            string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:\s*(.*)").Groups[1].Value.Trim();
 
             // --- NEW: Fallback for empty commander ID ---
             if (string.IsNullOrEmpty(right_side_commander_id) && !string.IsNullOrEmpty(right_side_mainparticipant_id) && right_side_mainparticipant_id != "4294967295")
@@ -443,8 +443,8 @@ namespace CrusaderWars
             string year;
             try
             {
-                month = Regex.Match(log, @"DateMonth:(\d+)").Groups[1].Value;
-                year = Regex.Match(log, @"DateYear:(\d+)").Groups[1].Value;
+                month = Regex.Match(log, @"DateMonth:\s*(\d+)").Groups[1].Value;
+                year = Regex.Match(log, @"DateYear:\s*(\d+)").Groups[1].Value;
                 Date.Month = Int32.Parse(month);
                 Date.Year = Int32.Parse(year);
                 Date.Day = 1; // Day is not available in the log, default to 1
