@@ -3049,6 +3049,7 @@ namespace CrusaderWars
             try
             {
                 Program.Logger.Debug("--- Manual AutoFixer Launched from UI ---");
+                Options.ReadOptionsFile();
 
                 // Load log snippet to restore context before reading armies
                 string? logSnippet = BattleState.LoadLogSnippet();
