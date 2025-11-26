@@ -1259,9 +1259,9 @@ namespace CrusaderWars
                              }
 
                              // Check for base mod
-                             if (!enabledMods.Contains("crusader_conflicts.mod"))
+                             if (!enabledMods.Contains("crusader_conflicts.mod") && !enabledMods.Contains("ugc_3612451961.mod"))
                              {
-                                 Program.Logger.Debug("Crusader Conflicts mod not found in enabled_mods in dlc_load.json.");
+                                 Program.Logger.Debug("Crusader Conflicts mod (local or steam) not found in enabled_mods in dlc_load.json.");
                                  var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
                                                               "Crusader Conflicts Mod Not Enabled",
                                                               MessageBoxButtons.YesNo,
