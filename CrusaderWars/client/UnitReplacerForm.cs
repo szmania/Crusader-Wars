@@ -528,5 +528,122 @@ namespace CrusaderWars.client
             btnReplace.Left = newButtonX;
             btnUndo.Left = newButtonX;
         }
+
+
+        // SEARCH =================================================================================================
+        private void txtSearchCurrent_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
+                e.SuppressKeyPress = true; // Prevents the 'ding' sound
+            }
+        }
+
+        private void btnNextCurrent_Click(object sender, EventArgs e)
+        {
+            SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
+            NavigateSearchResults(tvCurrentUnits, _currentSearchResults, ref _currentSearchResultIndex, true);
+        }
+
+        private void btnPrevCurrent_Click(object sender, EventArgs e)
+        {
+            SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
+            NavigateSearchResults(tvCurrentUnits, _currentSearchResults, ref _currentSearchResultIndex, false);
+        }
+
+        private void txtSearchAvailable_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
+                e.SuppressKeyPress = true; // Prevents the 'ding' sound
+            }
+        }
+
+        private void btnNextAvailable_Click(object sender, EventArgs e)
+        {
+            SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
+            NavigateSearchResults(tvAvailableUnits, _availableSearchResults, ref _availableSearchResultIndex, true);
+        }
+
+        private void btnPrevAvailable_Click(object sender, EventArgs e)
+        {
+            SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
+            NavigateSearchResults(tvAvailableUnits, _availableSearchResults, ref _availableSearchResultIndex, false);
+        }
+
+        private void SearchInTreeView(TreeView tv, string searchText, ref List<TreeNode> searchResults, ref int searchResultIndex, ref string lastSearch)
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                searchResults.Clear();
+                searchResultIndex = -1;
+                return;
+            }
+
+            // If the search text is new, perform a new search
+            if (searchText != lastSearch)
+            {
+                lastSearch = searchText;
+                searchResults.Clear();
+                searchResultIndex = -1;
+
+                // Recursive function to find all matching nodes
+                Action<TreeNodeCollection> findNodes = null;
+                findNodes = (nodes) =>
+                {
+                    foreach (TreeNode node in nodes)
+                    {
+                        if (node.Text.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            searchResults.Add(node);
+                        }
+                        if (node.Nodes != null && node.Nodes.Count > 0)
+                        {
+                            findNodes(node.Nodes);
+                        }
+                    }
+                };
+
+                findNodes(tv.Nodes);
+
+                if (searchResults.Any())
+                {
+                    searchResultIndex = 0;
+                    tv.SelectedNode = searchResults[0];
+                    searchResults[0].EnsureVisible();
+                }
+                else
+                {
+                    MessageBox.Show("No matches found.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void NavigateSearchResults(TreeView tv, List<TreeNode> searchResults, ref int searchResultIndex, bool forward)
+        {
+            if (!searchResults.Any()) return;
+
+            if (forward)
+            {
+                searchResultIndex++;
+                if (searchResultIndex >= searchResults.Count)
+                {
+                    searchResultIndex = 0; // Wrap around
+                }
+            }
+            else // Backward
+            {
+                searchResultIndex--;
+                if (searchResultIndex < 0)
+                {
+                    searchResultIndex = searchResults.Count - 1; // Wrap around
+                }
+            }
+
+            tv.SelectedNode = searchResults[searchResultIndex];
+            searchResults[searchResultIndex].EnsureVisible();
+        }
     }
 }

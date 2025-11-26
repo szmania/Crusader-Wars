@@ -49,24 +49,24 @@ namespace CrusaderWars.client
             | System.Windows.Forms.AnchorStyles.Left)));
             this.tvCurrentUnits.Location = new System.Drawing.Point(12, 196);
             this.tvCurrentUnits.Name = "tvCurrentUnits";
-            this.tvCurrentUnits.Size = new System.Drawing.Size(400, 424);
+            this.tvCurrentUnits.Size = new System.Drawing.Size(480, 424);
             this.tvCurrentUnits.TabIndex = 0;
             this.tvCurrentUnits.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvCurrentUnits_BeforeSelect);
             this.tvCurrentUnits.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvCurrentUnits_NodeMouseClick);
             // 
             // tvAvailableUnits
             // 
-            this.tvAvailableUnits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.tvAvailableUnits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvAvailableUnits.Location = new System.Drawing.Point(472, 196);
+            this.tvAvailableUnits.Location = new System.Drawing.Point(592, 196);
             this.tvAvailableUnits.Name = "tvAvailableUnits";
-            this.tvAvailableUnits.Size = new System.Drawing.Size(400, 424);
+            this.tvAvailableUnits.Size = new System.Drawing.Size(480, 424);
             this.tvAvailableUnits.TabIndex = 1;
             // 
             // btnReplace
             // 
             this.btnReplace.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnReplace.Location = new System.Drawing.Point(392, 360);
+            this.btnReplace.Location = new System.Drawing.Point(495, 360);
             this.btnReplace.Name = "btnReplace";
             this.btnReplace.Size = new System.Drawing.Size(100, 23);
             this.btnReplace.TabIndex = 2;
@@ -77,7 +77,7 @@ namespace CrusaderWars.client
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(797, 635);
+            this.btnOK.Location = new System.Drawing.Point(997, 635);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 3;
@@ -89,7 +89,7 @@ namespace CrusaderWars.client
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(716, 635);
+            this.btnCancel.Location = new System.Drawing.Point(916, 635);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 4;
@@ -112,7 +112,7 @@ namespace CrusaderWars.client
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(469, 180);
+            this.label2.Location = new System.Drawing.Point(589, 180);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(177, 13);
             this.label2.TabIndex = 6;
@@ -126,7 +126,7 @@ namespace CrusaderWars.client
             this.InstructionsBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.InstructionsBox.Location = new System.Drawing.Point(12, 12);
             this.InstructionsBox.Name = "InstructionsBox";
-            this.InstructionsBox.Size = new System.Drawing.Size(860, 130);
+            this.InstructionsBox.Size = new System.Drawing.Size(1060, 130);
             this.InstructionsBox.TabIndex = 7;
             this.InstructionsBox.TabStop = false;
             this.InstructionsBox.Text = "Instructions";
@@ -141,14 +141,14 @@ namespace CrusaderWars.client
             this.textBoxInstructions.Name = "textBoxInstructions";
             this.textBoxInstructions.ReadOnly = true;
             this.textBoxInstructions.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxInstructions.Size = new System.Drawing.Size(854, 111);
+            this.textBoxInstructions.Size = new System.Drawing.Size(1054, 111);
             this.textBoxInstructions.TabIndex = 0;
             this.textBoxInstructions.Text = "How to Replace Units:\r\n1. Select one or more unit groups from the 'Current Battle Units' list on the left.\r\n   (Use Ctrl+Click to select multiple groups).\r\n2. Select a single unit to replace them with from the 'Available...' list on the right.\r\n3. Click '-> Replace ->' to mark the group(s) for replacement.\r\n4. Repeat for other groups of units if you want different replacements.\r\n\r\n- All units within a group (e.g., all Levies, all Longbowmen) will be replaced.\r\n- The 'Undo' button will clear all pending replacements.\r\n- Click 'OK' when you have finished setting all replacements.";
             // 
             // btnUndo
             // 
             this.btnUndo.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnUndo.Location = new System.Drawing.Point(392, 390);
+            this.btnUndo.Location = new System.Drawing.Point(495, 390);
             this.btnUndo.Name = "btnUndo";
             this.btnUndo.Size = new System.Drawing.Size(100, 23);
             this.btnUndo.TabIndex = 8;
@@ -156,7 +156,7 @@ namespace CrusaderWars.client
             this.btnUndo.UseVisualStyleBackColor = true;
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
-            // Set ToolTips
+            // UnitReplacerToolTip
             // 
             this.UnitReplacerToolTip.SetToolTip(this.tvCurrentUnits, "List of units currently in the battle. Use Ctrl+Click or Shift+Click to select m" +
         "ultiple units to replace.");
@@ -201,7 +201,7 @@ namespace CrusaderWars.client
             // txtSearchAvailable
             // 
             this.txtSearchAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSearchAvailable.Location = new System.Drawing.Point(519, 151);
+            this.txtSearchAvailable.Location = new System.Drawing.Point(642, 151);
             this.txtSearchAvailable.Name = "txtSearchAvailable";
             this.txtSearchAvailable.Size = new System.Drawing.Size(200, 20);
             this.txtSearchAvailable.TabIndex = 14;
@@ -211,7 +211,7 @@ namespace CrusaderWars.client
             // btnPrevAvailable
             // 
             this.btnPrevAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPrevAvailable.Location = new System.Drawing.Point(725, 149);
+            this.btnPrevAvailable.Location = new System.Drawing.Point(848, 149);
             this.btnPrevAvailable.Name = "btnPrevAvailable";
             this.btnPrevAvailable.Size = new System.Drawing.Size(44, 23);
             this.btnPrevAvailable.TabIndex = 15;
@@ -223,7 +223,7 @@ namespace CrusaderWars.client
             // btnNextAvailable
             // 
             this.btnNextAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNextAvailable.Location = new System.Drawing.Point(775, 149);
+            this.btnNextAvailable.Location = new System.Drawing.Point(898, 149);
             this.btnNextAvailable.Name = "btnNextAvailable";
             this.btnNextAvailable.Size = new System.Drawing.Size(44, 23);
             this.btnNextAvailable.TabIndex = 16;
@@ -245,7 +245,7 @@ namespace CrusaderWars.client
             // 
             this.lblAvailableSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAvailableSearch.AutoSize = true;
-            this.lblAvailableSearch.Location = new System.Drawing.Point(469, 154);
+            this.lblAvailableSearch.Location = new System.Drawing.Point(589, 154);
             this.lblAvailableSearch.Name = "lblAvailableSearch";
             this.lblAvailableSearch.Size = new System.Drawing.Size(44, 13);
             this.lblAvailableSearch.TabIndex = 13;
@@ -257,7 +257,7 @@ namespace CrusaderWars.client
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(884, 671);
+            this.ClientSize = new System.Drawing.Size(1084, 671);
             this.Controls.Add(this.lblAvailableSearch);
             this.Controls.Add(this.lblCurrentSearch);
             this.Controls.Add(this.btnNextAvailable);
@@ -303,5 +303,13 @@ namespace CrusaderWars.client
         private System.Windows.Forms.TextBox textBoxInstructions;
         private System.Windows.Forms.Button btnUndo;
         private System.Windows.Forms.ToolTip UnitReplacerToolTip;
+        private System.Windows.Forms.Label lblAvailableSearch;
+        private System.Windows.Forms.Label lblCurrentSearch;
+        private System.Windows.Forms.Button btnNextAvailable;
+        private System.Windows.Forms.Button btnPrevAvailable;
+        private System.Windows.Forms.TextBox txtSearchAvailable;
+        private System.Windows.Forms.Button btnNextCurrent;
+        private System.Windows.Forms.Button btnPrevCurrent;
+        private System.Windows.Forms.TextBox txtSearchCurrent;
     }
 }
