@@ -1261,15 +1261,22 @@ namespace CrusaderWars.twbattle
 
             // 1. Set army sides to ensure IsPlayer() is correct on units
             BattleFile.SetArmiesSides(autofixState.OriginalAttackerArmies, autofixState.OriginalDefenderArmies);
+            Program.Logger.Debug("TryManualUnitFix: Army sides set.");
 
             // 2. Collect data
-            var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies);
+            var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies).ToList();
+            Program.Logger.Debug($"TryManualUnitFix: Collected {allArmies.Count} total armies.");
+
             var currentUnits = allArmies.SelectMany(a => a.Units)
                                         .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
                                         .ToList();
+            Program.Logger.Debug($"TryManualUnitFix: Collected {currentUnits.Count} current units with valid keys.");
 
             var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+            Program.Logger.Debug($"TryManualUnitFix: Collected {allAvailableUnits?.Count ?? 0} available units.");
+
             var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+            Program.Logger.Debug($"TryManualUnitFix: Collected {unitScreenNames?.Count ?? 0} unit screen names.");
 
             if (unitScreenNames is null)
             {
@@ -1288,8 +1295,10 @@ namespace CrusaderWars.twbattle
             }
             form.Invoke((MethodInvoker)delegate
             {
+                Program.Logger.Debug("TryManualUnitFix: Invoking UnitReplacerForm creation...");
                 using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
                 {
+                    Program.Logger.Debug("TryManualUnitFix: UnitReplacerForm created. Showing dialog...");
                     if (replacerForm.ShowDialog(form) == DialogResult.OK)
                     {
                         replacements = replacerForm.Replacements;

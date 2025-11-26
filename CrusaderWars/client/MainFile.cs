@@ -3057,16 +3057,27 @@ namespace CrusaderWars
                     MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                Program.Logger.Debug($"LaunchAutoFixer: Read {attackerArmies.Count} attacker and {defenderArmies.Count} defender armies.");
+
 
                 // 2. Set army sides and collect data
                 BattleFile.SetArmiesSides(attackerArmies, defenderArmies);
-                var allArmies = attackerArmies.Concat(defenderArmies);
+                Program.Logger.Debug("LaunchAutoFixer: Army sides set.");
+                var allArmies = attackerArmies.Concat(defenderArmies).ToList();
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {allArmies.Count} total armies.");
+
                 var currentUnits = allArmies.SelectMany(a => a.Units)
                                             .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
                                             .ToList();
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
+
 
                 var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {allAvailableUnits?.Count ?? 0} available units.");
+
                 var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {unitScreenNames?.Count ?? 0} unit screen names.");
+
 
                 if (unitScreenNames is null)
                 {
@@ -3076,8 +3087,10 @@ namespace CrusaderWars
                 }
 
                 // 3. Show form
+                Program.Logger.Debug("LaunchAutoFixer: Creating UnitReplacerForm...");
                 using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
                 {
+                    Program.Logger.Debug("LaunchAutoFixer: UnitReplacerForm created. Showing dialog...");
                     if (replacerForm.ShowDialog(this) == DialogResult.OK)
                     {
                         // 4. Process results
