@@ -593,53 +593,15 @@ namespace CrusaderWars.data.save_file
                         {
                             if (isOwner)
                             {
-                                var owner = searchingArmy.Owner;
-                                if (owner != null)
-                                {
-                                    owner.SetPrimaryTitle(GetTitleKey(firstTitleID));
-                                }
+                                searchingArmy.Owner?.SetPrimaryTitle(GetTitleKey(firstTitleID));
                             }
 
                             var landedTitlesData = GetCommanderNobleRankAndTitleName(firstTitleID);
                             nonMainCommander_Rank = landedTitlesData.rank;
-                            if (searchingArmy != null && searchingArmy.IsPlayer())
-                            {
-                                var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight.id != null) // Reverted from commanderKnight != null
-                                {
-                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
-                                    if (nonMainCommander_Rank == 1)
-                                        nonMainCommander_Name = commanderKnight.name;
-                                    else
-                                        nonMainCommander_Name = $"{commanderKnight.name} of {landedTitlesData.titleName}";
-                                }
-                                else
-                                {
-                                    nonMainCommander_Prowess = nonMainCommander_BaseSkills.prowess;
-                                    if (nonMainCommander_Rank > 1)
-                                        nonMainCommander_Name += $" of {landedTitlesData.titleName}";
-                                }
 
-                            }
-                            else if (searchingArmy != null && CK3LogData.RightSide.GetKnights().Exists(x => x.id == searchingArmy.CommanderID))
-                            {
-                                var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
-                                if (commanderKnight.id != null) // Reverted from commanderKnight != null
-                                {
-                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
-                                    if (nonMainCommander_Rank == 1)
-                                        nonMainCommander_Name = commanderKnight.name;
-                                    else
-                                        nonMainCommander_Name = $"{commanderKnight.name} of {landedTitlesData.titleName}";
-                                }
-                                else
-                                {
-                                    nonMainCommander_Prowess = nonMainCommander_BaseSkills.prowess;
-                                    if (nonMainCommander_Rank > 1)
-                                        nonMainCommander_Name += $" of {landedTitlesData.titleName}";
-                                }
-
-                            }
+                            var prowessAndName = GetCommanderProwessAndName(searchingArmy, nonMainCommander_Rank, nonMainCommander_Name, landedTitlesData.titleName, nonMainCommander_BaseSkills);
+                            nonMainCommander_Prowess = prowessAndName.prowess;
+                            nonMainCommander_Name = prowessAndName.name;
                         }
                         else if (isOwner && searchingArmy != null)
                         {
@@ -683,6 +645,33 @@ namespace CrusaderWars.data.save_file
                 }
             }
             Program.Logger.Debug("Finished reading characters data.");
+        }
+
+        private static (int prowess, string name) GetCommanderProwessAndName(Army searchingArmy, int rank, string currentName, string titleName, BaseSkills baseSkills)
+        {
+            var knights = searchingArmy.IsPlayer() ? CK3LogData.LeftSide.GetKnights() : CK3LogData.RightSide.GetKnights();
+            var commanderAsKnight = knights.FirstOrDefault(x => x.id == searchingArmy.CommanderID);
+
+            int prowess;
+            string name;
+
+            if (commanderAsKnight.id != null)
+            {
+                prowess = Int32.Parse(commanderAsKnight.prowess);
+                name = commanderAsKnight.name;
+            }
+            else
+            {
+                prowess = baseSkills.prowess;
+                name = currentName;
+            }
+
+            if (rank > 1 && !string.IsNullOrEmpty(titleName))
+            {
+                name = $"{name} of {titleName}";
+            }
+
+            return (prowess, name);
         }
 
         static Accolade? GetAccolade(string accoladeID)
