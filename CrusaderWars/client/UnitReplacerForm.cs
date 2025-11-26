@@ -28,7 +28,7 @@ namespace CrusaderWars.client
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
             Replacements = new Dictionary<(string, bool), (string, bool)>(existingReplacements);
-            _unitScreenNames = unitScreenNames;
+            _unitScreenNames = unitScreenNames ?? new Dictionary<string, string>();
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)

@@ -1246,6 +1246,13 @@ namespace CrusaderWars.twbattle
             var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
             var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
 
+            if (unitScreenNames is null)
+            {
+                Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
+                MessageBox.Show(form, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return (false, "");
+            }
+
             // 3. Show form
             Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> replacements = new Dictionary<(string, bool), (string, bool)>();
             bool userCommitted = false;
