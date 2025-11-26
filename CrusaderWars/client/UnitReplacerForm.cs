@@ -589,6 +589,7 @@ namespace CrusaderWars.client
                 searchResults.Clear();
                 searchResultIndex = -1;
 
+                var foundNodes = new List<TreeNode>();
                 // Recursive function to find all matching nodes
                 Action<TreeNodeCollection> findNodes = null;
                 findNodes = (nodes) =>
@@ -597,7 +598,7 @@ namespace CrusaderWars.client
                     {
                         if (node.Text.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
-                            searchResults.Add(node);
+                            foundNodes.Add(node);
                         }
                         if (node.Nodes != null && node.Nodes.Count > 0)
                         {
@@ -607,6 +608,7 @@ namespace CrusaderWars.client
                 };
 
                 findNodes(tv.Nodes);
+                searchResults = foundNodes;
 
                 if (searchResults.Any())
                 {
