@@ -85,7 +85,14 @@ namespace CrusaderWars.client
                             string key = unitGroup.First().GetAttilaUnitKey();
                             if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             {
-                                attilaKeyDisplay = $" [{key}]";
+                                if (_unitScreenNames.TryGetValue(key, out var screenName))
+                                {
+                                    attilaKeyDisplay = $" [{screenName}]";
+                                }
+                                else
+                                {
+                                    attilaKeyDisplay = $" [{key}]";
+                                }
                             }
                         }
                         else if (regimentType == RegimentType.Garrison)
@@ -99,7 +106,8 @@ namespace CrusaderWars.client
                             distinctKeys = distinctKeys.Distinct().ToList();
                             if (distinctKeys.Any())
                             {
-                                attilaKeyDisplay = $" [{string.Join(", ", distinctKeys)}]";
+                                var screenNames = distinctKeys.Select(k => _unitScreenNames.TryGetValue(k, out var sn) ? sn : k);
+                                attilaKeyDisplay = $" [{string.Join(", ", screenNames)}]";
                             }
                         }
 
@@ -157,7 +165,8 @@ namespace CrusaderWars.client
                                 {
                                     string levyKey = kvp.Key;
                                     int soldierCount = kvp.Value;
-                                    string displayName = $"Levy: [{levyKey}] ({soldierCount} men)";
+                                    string screenNameDisplay = _unitScreenNames.TryGetValue(levyKey, out var sn) ? sn : levyKey;
+                                    string displayName = $"Levy: [{screenNameDisplay}] ({soldierCount} men)";
                                     var levyNode = new TreeNode(displayName)
                                     {
                                         Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true }
@@ -198,37 +207,29 @@ namespace CrusaderWars.client
 
                     foreach (var unit in typeGroup.OrderBy(u => u.DisplayName))
                     {
+                        string screenName = _unitScreenNames.TryGetValue(unit.AttilaUnitKey, out var sn) ? sn : unit.AttilaUnitKey;
                         string displayText;
 
                         if (unit.UnitType == "MenAtArm")
                         {
-                            displayText = unit.DisplayName; // This is the CK3 unit name
-                            if (unit.IsSiege)
+                            // For MAA, show "CK3 Name -> Screen Name [Category]" if they are different
+                            if (unit.DisplayName != screenName && !string.IsNullOrEmpty(unit.DisplayName))
                             {
-                                displayText += " [SIEGE]";
+                                displayText = $"{unit.DisplayName} -> {screenName}";
                             }
-                            if (!string.IsNullOrEmpty(unit.MaxCategory))
+                            else
                             {
-                                displayText += $" [{unit.MaxCategory}]";
+                                displayText = screenName;
                             }
-                            displayText += $" [{unit.AttilaUnitKey}]";
+                            if (unit.IsSiege) displayText += " [SIEGE]";
+                            if (!string.IsNullOrEmpty(unit.MaxCategory)) displayText += $" [{unit.MaxCategory}]";
                         }
                         else // General, Knights, Levy, Garrison
                         {
-                            displayText = unit.UnitType; // Start with the unit type (e.g., "General", "Knight", "Levy", "Garrison")
-                            if (unit.IsSiege)
-                            {
-                                displayText += " [SIEGE]";
-                            }
-                            if (unit.Rank.HasValue)
-                            {
-                                displayText += $" [Rank: {unit.Rank.Value}]";
-                            }
-                            else if (unit.Level.HasValue)
-                            {
-                                displayText += $" [Level: {unit.Level.Value}]";
-                            }
-                            displayText += $" [{unit.AttilaUnitKey}]";
+                            displayText = screenName;
+                            if (unit.IsSiege) displayText += " [SIEGE]";
+                            if (unit.Rank.HasValue) displayText += $" [Rank: {unit.Rank.Value}]";
+                            else if (unit.Level.HasValue) displayText += $" [Level: {unit.Level.Value}]";
                         }
 
                         var unitNode = new TreeNode(displayText)
