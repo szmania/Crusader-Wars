@@ -213,6 +213,26 @@ namespace CrusaderWars
             _preReleasePulseTimer = new System.Windows.Forms.Timer();
             _preReleasePulseTimer.Interval = 75; // Sets the pulse speed
             _preReleasePulseTimer.Tick += PreReleasePulseTimer_Tick;
+
+            // Initialize and add LaunchAutoFixerButton
+            this.LaunchAutoFixerButton = new System.Windows.Forms.Button();
+            this.LaunchAutoFixerButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(1)))), ((int)(((byte)(5)))), ((int)(((byte)(15)))));
+            this.LaunchAutoFixerButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.LaunchAutoFixerButton.FlatAppearance.BorderSize = 2;
+            this.LaunchAutoFixerButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(1)))), ((int)(((byte)(5)))), ((int)(((byte)(15)))));
+            this.LaunchAutoFixerButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(1)))), ((int)(((byte)(5)))), ((int)(((byte)(15)))));
+            this.LaunchAutoFixerButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.LaunchAutoFixerButton.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold);
+            this.LaunchAutoFixerButton.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.LaunchAutoFixerButton.Location = new System.Drawing.Point(350, 480);
+            this.LaunchAutoFixerButton.Name = "LaunchAutoFixerButton";
+            this.LaunchAutoFixerButton.Size = new System.Drawing.Size(260, 35);
+            this.LaunchAutoFixerButton.TabIndex = 4;
+            this.LaunchAutoFixerButton.Text = "Launch AutoFixer";
+            this.LaunchAutoFixerButton.UseVisualStyleBackColor = false;
+            this.LaunchAutoFixerButton.Visible = false; // Initially hidden
+            this.LaunchAutoFixerButton.Click += new System.EventHandler(this.LaunchAutoFixerButton_Click);
+            this.Controls.Add(this.LaunchAutoFixerButton);
         }
 
         private void PulseTimer_Tick(object? sender, EventArgs e)
@@ -3025,6 +3045,75 @@ namespace CrusaderWars
                     string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
                     CopyDirectory(subDir.FullName, newDestinationDir, true);
                 }
+            }
+        }
+
+        private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Program.Logger.Debug("--- Manual AutoFixer Launched from UI ---");
+
+                // 1. Read battle armies
+                var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
+                if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
+                {
+                    MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // 2. Set army sides and collect data
+                BattleFile.SetArmiesSides(attackerArmies, defenderArmies);
+                var allArmies = attackerArmies.Concat(defenderArmies);
+                var currentUnits = allArmies.SelectMany(a => a.Units)
+                                            .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            .ToList();
+
+                var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+                var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+
+                if (unitScreenNames is null)
+                {
+                    Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
+                    MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // 3. Show form
+                using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
+                {
+                    if (replacerForm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        // 4. Process results
+                        var replacements = replacerForm.Replacements;
+                        if (replacements.Any())
+                        {
+                            Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements from UI.");
+                            BattleState.ManualUnitReplacements.Clear(); // Clear previous manual fixes
+
+                            foreach (var replacement in replacements)
+                            {
+                                BattleState.ManualUnitReplacements[replacement.Key] = replacement.Value;
+                                Program.Logger.Debug($"  - Storing replacement for '{replacement.Key.originalKey}' with '{replacement.Value.replacementKey}' for {(replacement.Key.isPlayerAlliance ? "Player" : "Enemy")}");
+                            }
+                            MessageBox.Show("Unit replacements have been saved. They will be applied when you click 'Continue Battle'.", "Replacements Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            BattleState.ManualUnitReplacements.Clear();
+                            Program.Logger.Debug("Manual unit replacement window was closed with OK, but no replacements were made. Clearing any existing replacements.");
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug("Manual unit replacement was cancelled.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error in LaunchAutoFixerButton_Click: {ex.Message}");
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
