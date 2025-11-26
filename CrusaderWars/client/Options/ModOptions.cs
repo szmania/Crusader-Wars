@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CrusaderWars.data.save_file;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using System.Xml;
+using System.IO;
 
 namespace CrusaderWars.client
 {
@@ -290,10 +292,29 @@ namespace CrusaderWars.client
 
         public static string GetSelectedPlaythrough()
         {
-            if (optionsValuesCollection.TryGetValue("Playthrough", out var playthrough))
+            try
             {
-                return playthrough;
+                string file = @".\settings\UnitMappers.xml";
+                if (!File.Exists(file))
+                {
+                    return string.Empty;
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(file);
+
+                XmlNode? selectedNode = xmlDoc.SelectSingleNode("//UnitMappers[text()='True']");
+                if (selectedNode != null)
+                {
+                    string? playthrough = selectedNode.Attributes?["name"]?.Value;
+                    return playthrough ?? string.Empty;
+                }
             }
+            catch (Exception)
+            {
+                // Silently fail if there's an error reading the file.
+            }
+
             return string.Empty;
         }
 
