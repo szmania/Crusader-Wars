@@ -30,6 +30,7 @@ namespace CrusaderWars
     
     public partial class HomePage : Form
     {
+        private Button LaunchAutoFixerButton = null!;
         private LoadingScreen? loadingScreen;
         private Thread? loadingThread;
         private string log = null!;  // For CK3 log content
