@@ -23,14 +23,14 @@ namespace CrusaderWars.mod_manager
         List<UC_UnitMapper> AllControlsReferences { get; set; } = null!;
 
         string SteamCollectionLink {  get; set; }
-        List<(string FileName, string Sha256, string ScreenName, string Url)> RequiredModsList { get; set; }
+        List<(string FileName, string Sha256, string? ScreenName, string? Url)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
         private List<Submod> _availableSubmods;
         private readonly string _playthroughTag;
 
         public string GetPlaythroughTag() { return _playthroughTag; }
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string ScreenName, string Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string? ScreenName, string? Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
         {
             InitializeComponent();
 
@@ -128,7 +128,7 @@ namespace CrusaderWars.mod_manager
         {
             if (string.IsNullOrEmpty(selectedMapper))
             {
-                this.RequiredModsList = new List<(string FileName, string Sha256, string ScreenName, string Url)>();
+                this.RequiredModsList = new List<(string FileName, string Sha256, string? ScreenName, string? Url)>();
                 this._availableSubmods.Clear();
                 BtnSubmods.Visible = false;
                 client.ModOptions.SelectedCustomMapper = "";
@@ -689,8 +689,8 @@ namespace CrusaderWars.mod_manager
 
         internal class VerificationResult
         {
-            public List<(string FileName, string ScreenName, string Url)> MissingFiles { get; } = new List<(string, string, string)>();
-            public List<(string FileName, string ExpectedSha, string ScreenName, string Url)> MismatchedFiles { get; } = new List<(string, string, string, string)>();
+            public List<(string FileName, string? ScreenName, string? Url)> MissingFiles { get; } = new List<(string, string?, string?)>();
+            public List<(string FileName, string ExpectedSha, string? ScreenName, string? Url)> MismatchedFiles { get; } = new List<(string, string, string?, string?)>();
         }
 
         public void SetSteamLinkButtonTooltip(string text)
@@ -718,7 +718,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        private VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string ScreenName, string Url)> modsToVerifyList, IProgress<string>? progress)
+        private VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress)
         {
             Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
@@ -740,13 +740,13 @@ namespace CrusaderWars.mod_manager
                     var fileName = Path.GetFileName(file);
                     if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                     {
-                        string screenName = modsToFind[fileName].ScreenName;
+                        var screenName = modsToFind[fileName].ScreenName;
                         string progressMessage = string.IsNullOrEmpty(screenName)
                             ? $"Verifying: {fileName}"
                             : $"Verifying: {screenName} - {fileName}";
                         progress?.Report(progressMessage);
                         string expectedSha = modsToFind[fileName].Sha;
-                        string url = modsToFind[fileName].Url;
+                        var url = modsToFind[fileName].Url;
                         if (!string.IsNullOrEmpty(expectedSha))
                         {
                             string actualSha = CalculateSHA256(file);
@@ -790,13 +790,13 @@ namespace CrusaderWars.mod_manager
                         var fileName = Path.GetFileName(file);
                         if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                         {
-                            string screenName = modsToFind[fileName].ScreenName;
+                            var screenName = modsToFind[fileName].ScreenName;
                             string progressMessage = string.IsNullOrEmpty(screenName)
                                 ? $"Verifying: {fileName}"
                                 : $"Verifying: {screenName} - {fileName}";
                             progress?.Report(progressMessage);
                             string expectedSha = modsToFind[fileName].Sha;
-                            string url = modsToFind[fileName].Url;
+                            var url = modsToFind[fileName].Url;
                             if (!string.IsNullOrEmpty(expectedSha))
                             {
                                 string actualSha = CalculateSHA256(file);
