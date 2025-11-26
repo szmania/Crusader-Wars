@@ -1372,6 +1372,80 @@ namespace CrusaderWars
                                      return;
                                  }
                              }
+
+                             // Check for recommended load order
+                             var enabledModsList = new List<string>();
+                             using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                             {
+                                 JsonElement root = doc.RootElement;
+                                 if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
+                                 {
+                                     foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                     {
+                                         string? modPath = modEntry.GetString();
+                                         if (modPath != null)
+                                         {
+                                             enabledModsList.Add(Path.GetFileName(modPath));
+                                         }
+                                     }
+                                 }
+                             }
+
+                             if (enabledModsList.Any())
+                             {
+                                 string mainModLocal = "crusader_conflicts.mod";
+                                 string mainModSteam = "ugc_3612451961.mod";
+                                 string agotPatchLocal = "crusader_conflicts_agot_compat_patch.mod";
+                                 string agotPatchSteam = "ugc_3612526842.mod";
+                                 string lotrPatchLocal = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                 string lotrPatchSteam = "ugc_3612526762.mod";
+
+                                 int mainModIndex = enabledModsList.FindLastIndex(m => m.Equals(mainModLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(mainModSteam, StringComparison.OrdinalIgnoreCase));
+
+                                 bool loadOrderCorrect = true;
+                                 string expectedOrderMessage = "";
+
+                                 if (activePlaythrough == "AGOT")
+                                 {
+                                     int agotPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(agotPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(agotPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                     if (agotPatchIndex != enabledModsList.Count - 1 || mainModIndex != agotPatchIndex - 1)
+                                     {
+                                         loadOrderCorrect = false;
+                                         expectedOrderMessage = "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded just before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
+                                     }
+                                 }
+                                 else if (activePlaythrough == "RealmsInExile")
+                                 {
+                                     int lotrPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(lotrPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(lotrPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                     if (lotrPatchIndex != enabledModsList.Count - 1 || mainModIndex != lotrPatchIndex - 1)
+                                     {
+                                         loadOrderCorrect = false;
+                                         expectedOrderMessage = "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded just before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
+                                     }
+                                 }
+                                 else // Default case
+                                 {
+                                     if (mainModIndex != enabledModsList.Count - 1)
+                                     {
+                                         loadOrderCorrect = false;
+                                         expectedOrderMessage = "For maximum compatibility, it is recommended to place the 'Crusader Conflicts' mod at the very end of your playset's load order.";
+                                     }
+                                 }
+
+                                 if (!loadOrderCorrect)
+                                 {
+                                     Program.Logger.Debug("Incorrect mod load order detected.");
+                                     var result = MessageBox.Show($"{expectedOrderMessage}\n\nYour current load order might cause issues.\n\nDo you still want to continue?",
+                                                                  "Mod Load Order Warning",
+                                                                  MessageBoxButtons.YesNo,
+                                                                  MessageBoxIcon.Warning);
+                                     if (result == DialogResult.No)
+                                     {
+                                         Program.Logger.Debug("User cancelled execution due to incorrect mod load order.");
+                                         return; // Stop execution
+                                     }
+                                 }
+                             }
                          }
                          catch (Exception ex)
                          {
