@@ -271,64 +271,35 @@ namespace CrusaderWars
             string right_side_commander_id = Regex.Match(log, @"RightSide_ID:\s*(\d*)").Groups[1].Value.Trim();
             string right_side_commander_culture_id = Regex.Match(log, @"RightSide_Commander_Culture:\s*(\d*)").Groups[1].Value.Trim();
 
-            // --- NEW: Fallback for empty commander ID ---
-            if (string.IsNullOrEmpty(right_side_commander_id) && !string.IsNullOrEmpty(right_side_mainparticipant_id) && right_side_mainparticipant_id != "4294967295")
+            // --- Consolidated Fallback & Correction Logic ---
+            // Left Side
+            if (string.IsNullOrEmpty(left_side_commander_id) || left_side_commander_id == "4294967295")
             {
-                Program.Logger.Debug("RightSide_ID not found in log. Using RightSide_Owner_ID as fallback for commander ID.");
-                right_side_commander_id = right_side_mainparticipant_id;
-                if(right_side_commander_culture_id != right_side_mainparticipant_culture_id)
-                {
-                    Program.Logger.Debug($"Commander culture ({right_side_commander_culture_id}) differs from owner culture ({right_side_mainparticipant_culture_id}). Using owner culture as fallback.");
-                    right_side_commander_culture_id = right_side_mainparticipant_culture_id;
-                }
+                Program.Logger.Debug("Left side commander ID is missing or invalid. Using owner ID as fallback.");
+                left_side_commander_id = left_side_mainparticipant_id;
+                left_side_commander_culture_id = left_side_mainparticipant_culture_id;
             }
-            // --- END NEW ---
-
-            // --- NEW CORRECTION LOGIC for invalid log data ---
-            if (left_side_mainparticipant_id == "4294967295" && !string.IsNullOrEmpty(left_side_commander_id))
+            else if (left_side_mainparticipant_id == "4294967295")
             {
-                Program.Logger.Debug("Invalid LeftSide_Owner_ID detected. Correcting with LeftSide_ID.");
+                Program.Logger.Debug("Left side owner ID is invalid. Using commander ID as fallback.");
                 left_side_mainparticipant_id = left_side_commander_id;
-
-                if (left_side_mainparticipant_culture_id == "4294967295")
-                {
-                    Program.Logger.Debug("Invalid LeftSide_Owner_Culture detected. Looking up culture for commander ID.");
-                    string corrected_culture_id = CrusaderWars.data.save_file.Armies_Functions.GetCharacterCultureID(left_side_commander_id);
-                    if (!string.IsNullOrEmpty(corrected_culture_id))
-                    {
-                        left_side_mainparticipant_culture_id = corrected_culture_id;
-                        left_side_commander_culture_id = corrected_culture_id; // Also correct the commander's culture
-                        Program.Logger.Debug($"Found and applied corrected culture ID: {corrected_culture_id}");
-                    }
-                    else
-                    {
-                        Program.Logger.Debug($"WARNING: Could not find culture for commander {left_side_commander_id}. Culture will remain invalid.");
-                    }
-                }
+                left_side_mainparticipant_culture_id = left_side_commander_culture_id;
             }
-            // Safeguard for right side
-            if (right_side_mainparticipant_id == "4294967295" && !string.IsNullOrEmpty(right_side_commander_id))
+
+            // Right Side
+            if (string.IsNullOrEmpty(right_side_commander_id) || right_side_commander_id == "4294967295")
             {
-                Program.Logger.Debug("Invalid RightSide_Owner_ID detected. Correcting with RightSide_ID.");
-                right_side_mainparticipant_id = right_side_commander_id;
-
-                if (right_side_mainparticipant_culture_id == "4294967295")
-                {
-                    Program.Logger.Debug("Invalid RightSide_Owner_Culture detected. Looking up culture for commander ID.");
-                    string corrected_culture_id = CrusaderWars.data.save_file.Armies_Functions.GetCharacterCultureID(right_side_commander_id);
-                    if (!string.IsNullOrEmpty(corrected_culture_id))
-                    {
-                        right_side_mainparticipant_culture_id = corrected_culture_id;
-                        right_side_commander_culture_id = corrected_culture_id; // Also correct the commander's culture
-                        Program.Logger.Debug($"Found and applied corrected culture ID: {corrected_culture_id}");
-                    }
-                    else
-                    {
-                        Program.Logger.Debug($"WARNING: Could not find culture for commander {right_side_commander_id}. Culture will remain invalid.");
-                    }
-                }
+                Program.Logger.Debug("Right side commander ID is missing or invalid. Using owner ID as fallback.");
+                right_side_commander_id = right_side_mainparticipant_id;
+                right_side_commander_culture_id = right_side_mainparticipant_culture_id;
             }
-            // --- END NEW LOGIC ---
+            else if (right_side_mainparticipant_id == "4294967295")
+            {
+                Program.Logger.Debug("Right side owner ID is invalid. Using commander ID as fallback.");
+                right_side_mainparticipant_id = right_side_commander_id;
+                right_side_mainparticipant_culture_id = right_side_commander_culture_id;
+            }
+            // --- End Consolidated Logic ---
 
             CK3LogData.LeftSide.SetMainParticipant((left_side_mainparticipant_id, left_side_mainparticipant_culture_id));
             Program.Logger.Debug($"Left side main participant: ID={left_side_mainparticipant_id}, CultureID={left_side_mainparticipant_culture_id}");
