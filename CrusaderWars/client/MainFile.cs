@@ -1308,22 +1308,22 @@ namespace CrusaderWars
                              {
                                  requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
                                  playthroughName = "Realms in Exile (LOTR)";
-                                 if (!enabledMods.Contains(requiredPatch))
+                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526762.mod"))
                                  {
-                                     Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' not found in dlc_load.json.");
-                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch}\n\nDo you still want to continue?",
+                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch (local or steam) not found in dlc_load.json.");
+                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
                                                                   "Compatibility Patch Not Enabled",
                                                                   MessageBoxButtons.YesNo,
                                                                   MessageBoxIcon.Warning);
                                      if (result == DialogResult.No)
                                      {
-                                         Program.Logger.Debug("User cancelled execution because compatibility patch is not enabled.");
+                                         Program.Logger.Debug("User cancelled execution because Realms in Exile compatibility patch is not enabled.");
                                          return; // Stop execution
                                      }
                                  }
                                  else
                                  {
-                                     Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' is enabled.");
+                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
                                  }
                              }
  
