@@ -224,7 +224,6 @@ namespace CrusaderWars
             this.LaunchAutoFixerButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.LaunchAutoFixerButton.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold);
             this.LaunchAutoFixerButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.LaunchAutoFixerButton.Location = new System.Drawing.Point(350, 480);
             this.LaunchAutoFixerButton.Name = "LaunchAutoFixerButton";
             this.LaunchAutoFixerButton.Size = new System.Drawing.Size(260, 35);
             this.LaunchAutoFixerButton.TabIndex = 4;
@@ -232,7 +231,7 @@ namespace CrusaderWars
             this.LaunchAutoFixerButton.UseVisualStyleBackColor = false;
             this.LaunchAutoFixerButton.Visible = false; // Initially hidden
             this.LaunchAutoFixerButton.Click += new System.EventHandler(this.LaunchAutoFixerButton_Click);
-            this.Controls.Add(this.LaunchAutoFixerButton);
+            this.ButtonsContainerPanel.Controls.Add(this.LaunchAutoFixerButton);
         }
 
         private void PulseTimer_Tick(object? sender, EventArgs e)
