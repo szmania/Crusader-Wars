@@ -3050,6 +3050,16 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug("--- Manual AutoFixer Launched from UI ---");
 
+                // Load log snippet to restore context before reading armies
+                string? logSnippet = BattleState.LoadLogSnippet();
+                if (logSnippet == null)
+                {
+                    MessageBox.Show("Could not find the saved battle information (log snippet). The AutoFixer cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                DataSearch.Search(logSnippet);
+                DataSearch.FindSiegeCombatID();
+
                 // 1. Read battle armies
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
