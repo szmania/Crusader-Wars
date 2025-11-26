@@ -1286,29 +1286,45 @@ namespace CrusaderWars
                              {
                                  requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
                                  playthroughName = "A Game of Thrones (AGOT)";
+                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
+                                 {
+                                     Program.Logger.Debug($"Required AGOT compatibility patch (local or steam) not found in dlc_load.json.");
+                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                  "Compatibility Patch Not Enabled",
+                                                                  MessageBoxButtons.YesNo,
+                                                                  MessageBoxIcon.Warning);
+                                     if (result == DialogResult.No)
+                                     {
+                                         Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
+                                         return; // Stop execution
+                                     }
+                                 }
+                                 else
+                                 {
+                                     Program.Logger.Debug($"Required AGOT compatibility patch is enabled.");
+                                 }
                              }
                              else if (activePlaythrough == "RealmsInExile")
                              {
                                  requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
                                  playthroughName = "Realms in Exile (LOTR)";
-                             }
- 
-                             if (!string.IsNullOrEmpty(requiredPatch) && !enabledMods.Contains(requiredPatch))
-                             {
-                                 Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' not found in dlc_load.json.");
-                                 var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch}\n\nDo you still want to continue?",
-                                                              "Compatibility Patch Not Enabled",
-                                                              MessageBoxButtons.YesNo,
-                                                              MessageBoxIcon.Warning);
-                                 if (result == DialogResult.No)
+                                 if (!enabledMods.Contains(requiredPatch))
                                  {
-                                     Program.Logger.Debug("User cancelled execution because compatibility patch is not enabled.");
-                                     return; // Stop execution
+                                     Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' not found in dlc_load.json.");
+                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch}\n\nDo you still want to continue?",
+                                                                  "Compatibility Patch Not Enabled",
+                                                                  MessageBoxButtons.YesNo,
+                                                                  MessageBoxIcon.Warning);
+                                     if (result == DialogResult.No)
+                                     {
+                                         Program.Logger.Debug("User cancelled execution because compatibility patch is not enabled.");
+                                         return; // Stop execution
+                                     }
                                  }
-                             }
-                             else if (!string.IsNullOrEmpty(requiredPatch))
-                             {
-                                 Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' is enabled.");
+                                 else
+                                 {
+                                     Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' is enabled.");
+                                 }
                              }
  
                              // Check for incorrectly enabled compatibility patches
