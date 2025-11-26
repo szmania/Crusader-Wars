@@ -216,11 +216,15 @@ namespace CrusaderWars.twbattle
                             sb.AppendLine();
                             sb.AppendLine("The battle will proceed without these units.");
 
-                            form.Invoke((System.Windows.Forms.MethodInvoker)delegate {
-                                string messageText = sb.ToString();
-                                string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, discordUrl);
-                            });
+                            if (form != null && !form.IsDisposed)
+                            {
+                                form.Invoke((System.Windows.Forms.MethodInvoker)delegate
+                                {
+                                    string messageText = sb.ToString();
+                                    string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, discordUrl);
+                                });
+                            }
                         }
                     }
 
@@ -604,14 +608,17 @@ namespace CrusaderWars.twbattle
                         if (!autofixState.ProblematicUnitKeys.Any())
                         {
                             Program.Logger.Debug("Autofix initiated, but no potentially problematic custom units were found to replace.");
-                            form.Invoke((MethodInvoker)delegate
+                            if (form != null && !form.IsDisposed)
                             {
-                                MessageBox.Show(form,
-                                    "The autofix process could not find any replaceable custom units in the armies.\n\nThe crash may be caused by something else (e.g., a game bug, outdated drivers, or a corrupted installation).\n\nThe battle will be aborted.",
-                                    "Crusader Conflicts: Autofix Failed",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-                            });
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    MessageBox.Show(form,
+                                        "The autofix process could not find any replaceable custom units in the armies.\n\nThe crash may be caused by something else (e.g., a game bug, outdated drivers, or a corrupted installation).\n\nThe battle will be aborted.",
+                                        "Crusader Conflicts: Autofix Failed",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information);
+                                });
+                            }
                             return false;
                         }
                         Program.Logger.Debug($"Found {autofixState.ProblematicUnitKeys.Count} unique unit keys to test: {string.Join(", ", autofixState.ProblematicUnitKeys)}");
@@ -646,14 +653,17 @@ namespace CrusaderWars.twbattle
                         if (!availableStrategies.Any())
                         {
                             Program.Logger.Debug("Autofix failed. All strategies have been attempted.");
-                            form.Invoke((MethodInvoker)delegate
+                            if (form != null && !form.IsDisposed)
                             {
-                                MessageBox.Show(form,
-                                    "The automatic fix failed. All available strategies were tried, but the game still crashed.\n\nThe battle will be aborted.",
-                                    "Crusader Conflicts: Autofix Failed",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Error);
-                            });
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    MessageBox.Show(form,
+                                        "The automatic fix failed. All available strategies were tried, but the game still crashed.\n\nThe battle will be aborted.",
+                                        "Crusader Conflicts: Autofix Failed",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);
+                                });
+                            }
                             return false; // All strategies exhausted
                         }
 
@@ -680,30 +690,33 @@ namespace CrusaderWars.twbattle
                         Program.Logger.Debug($"User chose autofix strategy: {chosenStrategy.Value}.");
                     }
 
-                    form.Invoke((MethodInvoker)delegate
+                    if (form != null && !form.IsDisposed)
                     {
-                        if (autofixState.CurrentStrategy.HasValue)
+                        form.Invoke((MethodInvoker)delegate
                         {
-                            switch (autofixState.CurrentStrategy.Value)
+                            if (autofixState.CurrentStrategy.HasValue)
                             {
-                                case AutofixState.AutofixStrategy.Units:
-                                    form.infoLabel.Text = "Processing: Analyzing units for replacement...";
-                                    break;
-                                case AutofixState.AutofixStrategy.MapSize:
-                                    form.infoLabel.Text = "Processing: Changing map size...";
-                                    break;
-                                case AutofixState.AutofixStrategy.Deployment:
-                                    form.infoLabel.Text = "Processing: Changing deployment...";
-                                    break;
-                                case AutofixState.AutofixStrategy.MapVariant:
-                                    form.infoLabel.Text = "Processing: Changing map variant...";
-                                    break;
-                                case AutofixState.AutofixStrategy.ManualUnitReplacement:
-                                    form.infoLabel.Text = "Loading manual unit replacer...";
-                                    break;
+                                switch (autofixState.CurrentStrategy.Value)
+                                {
+                                    case AutofixState.AutofixStrategy.Units:
+                                        form.infoLabel.Text = "Processing: Analyzing units for replacement...";
+                                        break;
+                                    case AutofixState.AutofixStrategy.MapSize:
+                                        form.infoLabel.Text = "Processing: Changing map size...";
+                                        break;
+                                    case AutofixState.AutofixStrategy.Deployment:
+                                        form.infoLabel.Text = "Processing: Changing deployment...";
+                                        break;
+                                    case AutofixState.AutofixStrategy.MapVariant:
+                                        form.infoLabel.Text = "Processing: Changing map variant...";
+                                        break;
+                                    case AutofixState.AutofixStrategy.ManualUnitReplacement:
+                                        form.infoLabel.Text = "Loading manual unit replacer...";
+                                        break;
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
 
                     // 2. A strategy is active. Try to apply a fix.
                     bool fixApplied = false;
@@ -1026,9 +1039,13 @@ namespace CrusaderWars.twbattle
                         messageText += "Please report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         string discordUrl = "https://discord.gg/eFZTprHh3j";
 
-                        form.Invoke((MethodInvoker)delegate {
-                            ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, autofixState.LastAppliedFixDescription, originalMapInfo);
-                        });
+                        if (form != null && !form.IsDisposed)
+                        {
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, autofixState.LastAppliedFixDescription, originalMapInfo);
+                            });
+                        }
                     }
 
                     //  OPEN CK3 WITH BATTLE RESULTS
