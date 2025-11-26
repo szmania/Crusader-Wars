@@ -245,11 +245,11 @@ namespace CrusaderWars
             /*---------------------------------------------
              * ::::::::::::::Main Participants::::::::::::::
              ---------------------------------------------*/
-            string left_side_mainparticipant_id = Regex.Match(log, @"LeftSide_Owner_ID:(.*)").Groups[1].Value.Trim();
-            string left_side_mainparticipant_culture_id = Regex.Match(log, @"LeftSide_Owner_Culture:(.*)").Groups[1].Value.Trim();
+            string left_side_mainparticipant_id = Regex.Match(log, @"LeftSide_Owner_ID:\s*(\d*)").Groups[1].Value.Trim();
+            string left_side_mainparticipant_culture_id = Regex.Match(log, @"LeftSide_Owner_Culture:\s*(\d*)").Groups[1].Value.Trim();
 
-            string right_side_mainparticipant_id = Regex.Match(log, @"RightSide_Owner_ID:(.*)").Groups[1].Value.Trim();
-            string right_side_mainparticipant_culture_id = Regex.Match(log, @"RightSide_Owner_Culture:(.*)").Groups[1].Value.Trim();
+            string right_side_mainparticipant_id = Regex.Match(log, @"RightSide_Owner_ID:\s*(\d*)").Groups[1].Value.Trim();
+            string right_side_mainparticipant_culture_id = Regex.Match(log, @"RightSide_Owner_Culture:\s*(\d*)").Groups[1].Value.Trim();
 
             /*---------------------------------------------
              * ::::::::::::Commanders ID's:::::::::::::::::
