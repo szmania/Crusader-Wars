@@ -276,6 +276,11 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug("RightSide_ID not found in log. Using RightSide_Owner_ID as fallback for commander ID.");
                 right_side_commander_id = right_side_mainparticipant_id;
+                if(right_side_commander_culture_id != right_side_mainparticipant_culture_id)
+                {
+                    Program.Logger.Debug($"Commander culture ({right_side_commander_culture_id}) differs from owner culture ({right_side_mainparticipant_culture_id}). Using owner culture as fallback.");
+                    right_side_commander_culture_id = right_side_mainparticipant_culture_id;
+                }
             }
             // --- END NEW ---
 
