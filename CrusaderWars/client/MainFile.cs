@@ -15,6 +15,7 @@ using CrusaderWars.data.attila_settings;
 using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
 using CrusaderWars.twbattle; // Added for BattleProcessor
+using CrusaderWars.terrain;
 using System.Threading; // Added for CancellationToken
 using System.Text.Json; // Added for playset check
 using CrusaderWars.mod_manager;
