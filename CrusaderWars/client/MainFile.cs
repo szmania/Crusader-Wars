@@ -233,7 +233,7 @@ namespace CrusaderWars
 
             _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle
             // Pulse between a bright yellow (255, 255, 150) and a slightly dimmer yellow (255, 255, 50)
-            int pulseValue = (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _preReleasePulseStep) * 10);
+            int pulseValue = (_preReleasePulseStep < 10 ? _pulseStep * 10 : (20 - _preReleasePulseStep) * 10);
             int blueComponent = 150 - pulseValue;
             blueComponent = Math.Max(0, Math.Min(255, blueComponent)); // Clamp the value
             linkOptInPreReleases.ForeColor = Color.FromArgb(255, 255, blueComponent);
@@ -2097,6 +2097,7 @@ namespace CrusaderWars
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
                 infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
                 this.Text = "Crusader Conflicts"; // Reset status on early exit
@@ -2138,6 +2139,7 @@ namespace CrusaderWars
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
                 infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
                 this.Text = "Crusader Conflicts"; // Reset status on early exit
@@ -2171,6 +2173,7 @@ namespace CrusaderWars
                     _myVariable = 0;
                     ExecuteButton.Enabled = true;
                     ContinueBattleButton.Enabled = true;
+                    LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                     if (ExecuteButton.Enabled)
                     {
                         ExecuteButton.BackgroundImage = Properties.Resources.start_new;
@@ -2197,6 +2200,7 @@ namespace CrusaderWars
                 UpdateUIForBattleState();
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                 if (ExecuteButton.Enabled)
                     {
                         ExecuteButton.BackgroundImage = Properties.Resources.start_new;
@@ -2810,7 +2814,7 @@ namespace CrusaderWars
             public string Name { get; set; } = "";
             public string OldVersion { get; set; } = "0.0.0";
             public string NewVersion { get; set; } = "0.0.0";
-            public string SourceModFile { get; set; } = "";
+            public string SourceModFile { get; set; = "";
             public string SourceModDir { get; set; }  = "";
             public string TargetModFile { get; set; } = "";
             public string TargetModDir { get; set; } = "";
