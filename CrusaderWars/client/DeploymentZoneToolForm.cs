@@ -113,19 +113,40 @@ namespace CrusaderWars.client
 
         private void UpdateZonesAndRedraw()
         {
-            // Update attacker zone from controls
+            // Create proposed new zones from controls
             float ax = (float)nudAttackerX.Value;
             float ay = (float)nudAttackerY.Value;
             float aWidth = (float)nudAttackerWidth.Value;
             float aHeight = (float)nudAttackerHeight.Value;
-            _attackerZone = new RectangleF(ax - aWidth / 2, ay - aHeight / 2, aWidth, aHeight);
+            RectangleF newAttackerZone = new RectangleF(ax - aWidth / 2, ay - aHeight / 2, aWidth, aHeight);
 
-            // Update defender zone from controls
             float dx = (float)nudDefenderX.Value;
             float dy = (float)nudDefenderY.Value;
             float dWidth = (float)nudDefenderWidth.Value;
             float dHeight = (float)nudDefenderHeight.Value;
-            _defenderZone = new RectangleF(dx - dWidth / 2, dy - dHeight / 2, dWidth, dHeight);
+            RectangleF newDefenderZone = new RectangleF(dx - dWidth / 2, dy - dHeight / 2, dWidth, dHeight);
+
+            // Check for collision
+            RectangleF collisionCheckZone = newDefenderZone;
+            collisionCheckZone.Inflate(50, 50); // Add 50 margin on all sides
+            if (newAttackerZone.IntersectsWith(collisionCheckZone))
+            {
+                // Collision detected. Revert the NUDs that caused it.
+                // The one that doesn't match the current state is the one that changed.
+                if (newAttackerZone != _attackerZone)
+                {
+                    UpdateNudsFromZone(true); // Revert attacker NUDs to match _attackerZone
+                }
+                if (newDefenderZone != _defenderZone)
+                {
+                    UpdateNudsFromZone(false); // Revert defender NUDs to match _defenderZone
+                }
+                return; // Stop processing
+            }
+
+            // No collision, so update the state
+            _attackerZone = newAttackerZone;
+            _defenderZone = newDefenderZone;
 
             mapPanel.Invalidate(); // Trigger repaint
         }
@@ -245,7 +266,6 @@ namespace CrusaderWars.client
 
             float dx = (e.Location.X - _lastMousePosition.X) / _scale;
             float dy = -(e.Location.Y - _lastMousePosition.Y) / _scale; // Inverted Y
-            _lastMousePosition = e.Location;
 
             RectangleF currentZone = _isAttackerZoneActive ? _unsnappedAttackerZone : _unsnappedDefenderZone;
             RectangleF newZone = currentZone;
@@ -268,6 +288,19 @@ namespace CrusaderWars.client
                 case DragHandle.BottomLeft: newZone.X += dx; newZone.Width -= dx; newZone.Y += dy; newZone.Height -= dy; break;
                 case DragHandle.BottomRight: newZone.Width += dx; newZone.Y += dy; newZone.Height -= dy; break;
             }
+
+            // --- Collision Detection ---
+            RectangleF otherZone = _isAttackerZoneActive ? _defenderZone : _attackerZone;
+            RectangleF collisionZone = otherZone;
+            collisionZone.Inflate(50, 50); // Add 50 margin on all sides
+
+            if (newZone.IntersectsWith(collisionZone))
+            {
+                return; // Don't allow move/resize that causes overlap
+            }
+            // --- End Collision Detection ---
+
+            _lastMousePosition = e.Location; // Update last mouse position only on valid move
 
             if (_isAttackerZoneActive)
             {
