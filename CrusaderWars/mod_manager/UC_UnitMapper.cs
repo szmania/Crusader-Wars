@@ -223,7 +223,7 @@ namespace CrusaderWars.mod_manager
                 {
                     foreach (var (mod, _, screenName, _) in RequiredModsList)
                     {
-                        modsMessage.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? mod : screenName)}");
+                        modsMessage.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? mod : $"{screenName} ({mod})")}");
                     }
                     modsMessage.AppendLine("\nPlease ensure these are enabled in the Attila Mod Manager.");
                 }
