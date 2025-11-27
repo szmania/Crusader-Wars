@@ -833,7 +833,7 @@ namespace CrusaderWars.twbattle
                         }
 
                         // Mark the current strategy as tried and clear it for the next attempt
-                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement)
+                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.DeploymentZoneEditor)
                         {
                             autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
                         }
@@ -847,7 +847,7 @@ namespace CrusaderWars.twbattle
                     {
                         // The current strategy is exhausted or cancelled.
                         Program.Logger.Debug($"--- Autofix: Strategy {autofixState.CurrentStrategy} is complete for this attempt. ---");
-                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement)
+                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.DeploymentZoneEditor)
                         {
                             autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
                         }
