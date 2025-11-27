@@ -684,5 +684,23 @@ namespace CrusaderWars.client
                 btnNextAvailable.Visible = true;
             }
         }
+
+        private void TxtSearchCurrent_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnSearchCurrent_Click(sender, e);
+                e.SuppressKeyPress = true; // Prevents the 'ding' sound
+            }
+        }
+
+        private void TxtSearchAvailable_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnSearchAvailable_Click(sender, e);
+                e.SuppressKeyPress = true; // Prevents the 'ding' sound
+            }
+        }
     }
 }
