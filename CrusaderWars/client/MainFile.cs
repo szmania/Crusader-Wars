@@ -3183,15 +3183,8 @@ namespace CrusaderWars
                 var currentUnits = allArmies.Where(a => a.Units != null).SelectMany(a => a.Units)
                                             .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
                                             .ToList();
-                Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
-
-
                 var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
-                Program.Logger.Debug($"LaunchAutoFixer: Collected {allAvailableUnits?.Count ?? 0} available units.");
-
                 var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
-                Program.Logger.Debug($"LaunchAutoFixer: Collected {unitScreenNames?.Count ?? 0} unit screen names.");
-
 
                 if (unitScreenNames is null)
                 {
@@ -3199,10 +3192,23 @@ namespace CrusaderWars
                     MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                if (allAvailableUnits is null)
+                {
+                    Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
+                    MessageBox.Show(this, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Filter units to only those that have a screen name to prevent crashes inside the form.
+                var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey) && unitScreenNames.ContainsKey(u.AttilaUnitKey)).ToList();
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {allAvailableUnits.Count} total available units, filtered down to {availableUnits.Count} with screen names.");
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {unitScreenNames.Count} unit screen names.");
+
 
                 // 3. Show form
                 Program.Logger.Debug("LaunchAutoFixer: Creating UnitReplacerForm...");
-                using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
+                using (var replacerForm = new client.UnitReplacerForm(currentUnits, availableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
                 {
                     Program.Logger.Debug("LaunchAutoFixer: UnitReplacerForm created. Showing dialog...");
                     if (replacerForm.ShowDialog(this) == DialogResult.OK)

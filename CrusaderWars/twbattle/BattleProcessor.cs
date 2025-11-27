@@ -1280,10 +1280,7 @@ namespace CrusaderWars.twbattle
             Program.Logger.Debug($"TryManualUnitFix: Collected {currentUnits.Count} current units with valid keys.");
 
             var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
-            Program.Logger.Debug($"TryManualUnitFix: Collected {allAvailableUnits?.Count ?? 0} available units.");
-
             var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
-            Program.Logger.Debug($"TryManualUnitFix: Collected {unitScreenNames?.Count ?? 0} unit screen names.");
 
             if (unitScreenNames is null)
             {
@@ -1291,6 +1288,19 @@ namespace CrusaderWars.twbattle
                 MessageBox.Show(form, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
             }
+            if (allAvailableUnits is null)
+            {
+                Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
+                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return (false, "");
+            }
+
+            // Filter units to only those that have a screen name to prevent crashes inside the form.
+            var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey) && unitScreenNames.ContainsKey(u.AttilaUnitKey)).ToList();
+            Program.Logger.Debug($"TryManualUnitFix: Collected {currentUnits.Count} current units with valid keys.");
+            Program.Logger.Debug($"TryManualUnitFix: Collected {allAvailableUnits.Count} total available units, filtered down to {availableUnits.Count} with screen names.");
+            Program.Logger.Debug($"TryManualUnitFix: Collected {unitScreenNames.Count} unit screen names.");
+
 
             // 3. Show form
             Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> replacements = new Dictionary<(string, bool), (string, bool)>();
@@ -1303,7 +1313,7 @@ namespace CrusaderWars.twbattle
             form.Invoke((MethodInvoker)delegate
             {
                 Program.Logger.Debug("TryManualUnitFix: Invoking UnitReplacerForm creation...");
-                using (var replacerForm = new client.UnitReplacerForm(currentUnits, allAvailableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
+                using (var replacerForm = new client.UnitReplacerForm(currentUnits, availableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
                 {
                     Program.Logger.Debug("TryManualUnitFix: UnitReplacerForm created. Showing dialog...");
                     if (replacerForm.ShowDialog(form) == DialogResult.OK)
