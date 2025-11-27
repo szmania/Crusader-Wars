@@ -1063,7 +1063,6 @@ namespace CrusaderWars.twbattle
                     SaveFile.Finish();
 
                     // Update UI before showing potentially blocking message box
-                    form.Text = "Crusader Conflicts";
                     form.battleJustCompleted = true;
 
                     // Show successful autofix/manual tool message if applicable
@@ -1180,7 +1179,7 @@ namespace CrusaderWars.twbattle
                 form.infoLabel.Text = "Waiting for CK3 battle...";
                 form.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
-                //Data Clear
+                //Data Clearas
                 Data.Reset();
                 return true; // Continue
             }
