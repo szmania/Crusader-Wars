@@ -1790,10 +1790,23 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Autofix Error: Form is null or disposed. Cannot show deployment zone tool.");
                     return (false, "");
                 }
+                
+                // Get Battle Details
+                string battleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
+                string battleType;
+                if (BattleState.IsSiegeBattle) {
+                    battleType = "Siege Battle";
+                } else if (TerrainGenerator.TerrainType == "river" || TerrainGenerator.TerrainType == "strait") {
+                    battleType = "River/Strait Battle";
+                } else if (TerrainGenerator.IsCoastal) {
+                    battleType = "Coastal Battle";
+                } else {
+                    battleType = "Field Battle";
+                }
 
                 form.Invoke((MethodInvoker)delegate
                 {
-                    using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle))
+                    using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle, battleDate, battleType))
                     {
                         if (toolForm.ShowDialog(form) == DialogResult.OK)
                         {

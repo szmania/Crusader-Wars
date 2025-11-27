@@ -3320,7 +3320,21 @@ namespace CrusaderWars
                 DeploymentArea defenderArea = new DeploymentArea(defender_direction, option_map_size, total_soldiers, BattleState.IsSiegeBattle);
                 float map_dimension = float.Parse(ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle), System.Globalization.CultureInfo.InvariantCulture);
 
-                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle))
+                // Get Battle Details
+                string battleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
+                string battleType;
+                if (BattleState.IsSiegeBattle) {
+                    battleType = "Siege Battle";
+                } else if (TerrainGenerator.TerrainType == "river" || TerrainGenerator.TerrainType == "strait") {
+                    battleType = "River/Strait Battle";
+                } else if (TerrainGenerator.IsCoastal) {
+                    battleType = "Coastal Battle";
+                } else {
+                    battleType = "Field Battle";
+                }
+
+
+                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle, battleDate, battleType))
                 {
                     if (toolForm.ShowDialog(this) == DialogResult.OK)
                     {

@@ -12,6 +12,8 @@ namespace CrusaderWars.client
         private readonly DeploymentArea _initialDefenderArea;
         private RectangleF _attackerZone;
         private RectangleF _defenderZone;
+        private RectangleF _unsnappedAttackerZone;
+        private RectangleF _unsnappedDefenderZone;
         private readonly float _scale;
         private readonly float _mapDimension;
         private readonly bool _isAttackerPlayer;
@@ -26,7 +28,7 @@ namespace CrusaderWars.client
         private bool _ignoreNudChanges = false;
 
 
-        public DeploymentZoneToolForm(DeploymentArea attackerArea, DeploymentArea defenderArea, float mapDimension, bool isAttackerPlayer, bool isSiegeBattle)
+        public DeploymentZoneToolForm(DeploymentArea attackerArea, DeploymentArea defenderArea, float mapDimension, bool isAttackerPlayer, bool isSiegeBattle, string battleDate, string battleType)
         {
             InitializeComponent();
 
@@ -35,6 +37,10 @@ namespace CrusaderWars.client
             _mapDimension = mapDimension;
             _isAttackerPlayer = isAttackerPlayer;
             _isSiegeBattle = isSiegeBattle;
+
+            // Set battle details
+            lblBattleDate.Text = $"Date: {battleDate}";
+            lblBattleType.Text = $"Type: {battleType}";
 
             // Calculate scale to fit map into panel
             _scale = (float)mapPanel.ClientRectangle.Width / _mapDimension;
@@ -206,6 +212,7 @@ namespace CrusaderWars.client
                 _isDragging = true;
                 _isAttackerZoneActive = true;
                 _lastMousePosition = e.Location;
+                _unsnappedAttackerZone = _attackerZone; // Sync for dragging
                 return;
             }
 
@@ -215,6 +222,7 @@ namespace CrusaderWars.client
                 _isDragging = true;
                 _isAttackerZoneActive = false;
                 _lastMousePosition = e.Location;
+                _unsnappedDefenderZone = _defenderZone; // Sync for dragging
                 return;
             }
         }
@@ -237,7 +245,7 @@ namespace CrusaderWars.client
             float dy = -(e.Location.Y - _lastMousePosition.Y) / _scale; // Inverted Y
             _lastMousePosition = e.Location;
 
-            RectangleF currentZone = _isAttackerZoneActive ? _attackerZone : _defenderZone;
+            RectangleF currentZone = _isAttackerZoneActive ? _unsnappedAttackerZone : _unsnappedDefenderZone;
             RectangleF newZone = currentZone;
 
             // In our Y-up system, RectangleF's (X, Y) is the bottom-left corner.
@@ -259,18 +267,17 @@ namespace CrusaderWars.client
                 case DragHandle.BottomRight: newZone.Width += dx; newZone.Y += dy; newZone.Height -= dy; break;
             }
 
-            // Snap and Clamp
-            newZone = SnapAndClampZone(newZone);
-
-
             if (_isAttackerZoneActive)
             {
-                _attackerZone = newZone;
+                _unsnappedAttackerZone = newZone;
+                _attackerZone = SnapAndClampZone(newZone);
             }
             else
             {
-                _defenderZone = newZone;
+                _unsnappedDefenderZone = newZone;
+                _defenderZone = SnapAndClampZone(newZone);
             }
+
 
             UpdateNudsFromZone(_isAttackerZoneActive);
             mapPanel.Invalidate();
