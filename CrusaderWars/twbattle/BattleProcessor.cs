@@ -1062,38 +1062,57 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Finalizing save file...");
                     SaveFile.Finish();
 
-                    // Show successful autofix message if applicable
-                    if (autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription))
+                    // Show successful autofix/manual tool message if applicable
+                    bool wasAutofixSuccess = autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription);
+                    bool wasManualToolUsed = BattleState.DeploymentZoneOverrideAttacker != null || BattleState.ManualUnitReplacements.Any();
+
+                    if (wasAutofixSuccess || wasManualToolUsed)
                     {
-                        string messageText = $"The battle was successful after an automatic fix.\n\nThe fix that worked was: {autofixState.LastAppliedFixDescription}.\n\n";
+                        string messageText;
                         string originalMapInfo = "";
-                        if (!string.IsNullOrEmpty(autofixState.OriginalMapDescription))
-                        {
-                            messageText += $"The original map ({autofixState.OriginalMapDescription}) is likely buggy. ";
-                            originalMapInfo = autofixState.OriginalMapDescription;
-                        }
-                        else if (!string.IsNullOrEmpty(autofixState.OriginalFieldMapDescription))
-                        {
-                            messageText += $"The original map ({autofixState.OriginalFieldMapDescription}) is likely buggy. ";
-                            originalMapInfo = autofixState.OriginalFieldMapDescription;
-                        }
-                        messageText += "Please report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         string discordUrl = "https://discord.gg/eFZTprHh3j";
+                        string title = "Crusader Conflicts: Battle Report";
+
+                        if (wasAutofixSuccess)
+                        {
+                            title = "Crusader Conflicts: Autofix Successful";
+                            messageText = $"The battle was successful after an automatic fix.\n\nThe fix that worked was: {autofixState.LastAppliedFixDescription}.\n\n";
+                            if (!string.IsNullOrEmpty(autofixState.OriginalMapDescription))
+                            {
+                                messageText += $"The original map ({autofixState.OriginalMapDescription}) is likely buggy. ";
+                                originalMapInfo = autofixState.OriginalMapDescription;
+                            }
+                            else if (!string.IsNullOrEmpty(autofixState.OriginalFieldMapDescription))
+                            {
+                                messageText += $"The original map ({autofixState.OriginalFieldMapDescription}) is likely buggy. ";
+                                originalMapInfo = autofixState.OriginalFieldMapDescription;
+                            }
+                            messageText += "Please report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
+                        }
+                        else // wasManualToolUsed
+                        {
+                            messageText = "The battle was successful after applying manual tool settings.\n\nBelow are the settings that were used. Please consider reporting them on Discord if they fixed a crash, so the issue can be resolved in a future update.";
+                        }
+
 
                         if (form != null && !form.IsDisposed)
                         {
                             form.Invoke((MethodInvoker)delegate
                             {
                                 var report = new StringBuilder();
-                                report.AppendLine("--- Crusader Conflicts Autofix Report ---");
+                                report.AppendLine("--- Crusader Conflicts Battle Report ---");
                                 report.AppendLine($"Date: {DateTime.Now}");
                                 report.AppendLine();
-                                report.AppendLine($"[Applied Fix]: {autofixState.LastAppliedFixDescription}");
-                                if (!string.IsNullOrEmpty(originalMapInfo))
+
+                                if (wasAutofixSuccess)
                                 {
-                                    report.AppendLine($"[Original Buggy Map]: {originalMapInfo}");
+                                    report.AppendLine($"[Applied Fix]: {autofixState.LastAppliedFixDescription}");
+                                    if (!string.IsNullOrEmpty(originalMapInfo))
+                                    {
+                                        report.AppendLine($"[Original Buggy Map]: {originalMapInfo}");
+                                    }
+                                    report.AppendLine();
                                 }
-                                report.AppendLine();
 
                                 // Manual Unit Replacements
                                 if (BattleState.ManualUnitReplacements.Any())
@@ -1124,7 +1143,7 @@ namespace CrusaderWars.twbattle
                                 report.AppendLine($"Location: {provinceName}");
                                 report.AppendLine($"Map Coordinates: ({mapX}, {mapY})");
 
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl, report.ToString());
+                                ShowClickableLinkMessageBox(form, messageText, title, "Report on Discord: " + discordUrl, discordUrl, report.ToString());
                             });
                         }
                     }
