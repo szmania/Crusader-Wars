@@ -316,8 +316,18 @@ namespace CrusaderWars.client
             float boundary = _mapDimension / 2f;
             float edgeBuffer = 50f;
 
-            x = Math.Clamp(x, -boundary + edgeBuffer, boundary - width - edgeBuffer);
-            y = Math.Clamp(y, -boundary + edgeBuffer, boundary - height - edgeBuffer);
+            // Clamp size first to prevent issues with position clamping
+            width = Math.Min(width, 2 * boundary - 2 * edgeBuffer);
+            height = Math.Min(height, 2 * boundary - 2 * edgeBuffer);
+
+            // Clamp position
+            float min_x = -boundary + edgeBuffer;
+            float max_x = boundary - width - edgeBuffer;
+            x = x < min_x ? min_x : (x > max_x ? max_x : x); // Safe clamp
+
+            float min_y = -boundary + edgeBuffer;
+            float max_y = boundary - height - edgeBuffer;
+            y = y < min_y ? min_y : (y > max_y ? max_y : y); // Safe clamp
 
             return new RectangleF(x, y, width, height);
         }
