@@ -1504,6 +1504,7 @@ namespace CrusaderWars.twbattle
             using (Form prompt = new Form())
             {
                 prompt.Width = 550;
+                prompt.Height = 750; // Increased height
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.Sizable;
                 prompt.AutoScroll = true;
@@ -1542,75 +1543,38 @@ namespace CrusaderWars.twbattle
                 int currentTop = textLabel.Bottom + 20;
                 bool first = true;
 
-                // Create GroupBoxes
-                GroupBox autofixGroup = new GroupBox() { Text = "Pre-emptive Fixes", Left = 20, Top = currentTop, Width = 510 };
-                if (isAfterCrash) { autofixGroup.Text = "Automatic Fixes"; }
-                prompt.Controls.Add(autofixGroup);
-                int currentAutofixTop = 20;
-
-                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Tools", Left = 20, Width = 510 };
-                prompt.Controls.Add(manualFixGroup);
-                int currentManualFixTop = 20;
-
+                // Create a single GroupBox for all tools
+                GroupBox toolsGroup = new GroupBox() { Text = "Available Tools", Left = 20, Top = currentTop, Width = 510 };
+                prompt.Controls.Add(toolsGroup);
+                int currentToolTop = 20;
 
                 foreach (var strategy in availableStrategies)
                 {
                     if (allStrategyControls.TryGetValue(strategy, out var controls))
                     {
-                        if (strategy == AutofixState.AutofixStrategy.ManualUnitReplacement || strategy == AutofixState.AutofixStrategy.DeploymentZoneEditor)
-                        {
-                            controls.rb.Left = 10;
-                            controls.rb.Top = currentManualFixTop;
-                            if (first) { controls.rb.Checked = true; first = false; }
-                            manualFixGroup.Controls.Add(controls.rb);
+                        controls.rb.Left = 10;
+                        controls.rb.Top = currentToolTop;
+                        if (first) { controls.rb.Checked = true; first = false; }
+                        toolsGroup.Controls.Add(controls.rb);
 
-                            controls.lbl.Left = 30;
-                            controls.lbl.Top = currentManualFixTop + 20;
-                            manualFixGroup.Controls.Add(controls.lbl);
-                            currentManualFixTop += 70;
-                        }
-                        else
-                        {
-                            controls.rb.Left = 10;
-                            controls.rb.Top = currentAutofixTop;
-                            if (first) { controls.rb.Checked = true; first = false; }
-                            autofixGroup.Controls.Add(controls.rb);
-
-                            controls.lbl.Left = 30;
-                            controls.lbl.Top = currentAutofixTop + 20;
-                            autofixGroup.Controls.Add(controls.lbl);
-                            currentAutofixTop += 70;
-                        }
+                        controls.lbl.Left = 30;
+                        controls.lbl.Top = currentToolTop + 20;
+                        toolsGroup.Controls.Add(controls.lbl);
+                        currentToolTop += 70;
                     }
                 }
 
-                autofixGroup.Height = currentAutofixTop;
-                manualFixGroup.Top = autofixGroup.Bottom + 10;
-                manualFixGroup.Height = currentManualFixTop;
+                toolsGroup.Height = currentToolTop;
 
-                if (autofixGroup.Controls.Count == 0) {
-                    autofixGroup.Visible = false;
-                    manualFixGroup.Top = autofixGroup.Top;
-                }
-                if (manualFixGroup.Controls.Count == 0) {
-                    manualFixGroup.Visible = false;
-                }
+                int buttonsTop = toolsGroup.Bottom + 20;
 
-                int buttonsTop = manualFixGroup.Bottom + 20;
-                if (!manualFixGroup.Visible)
-                {
-                    buttonsTop = autofixGroup.Bottom + 20;
-                }
-                if (!autofixGroup.Visible && !manualFixGroup.Visible)
-                {
-                    buttonsTop = textLabel.Bottom + 20;
-                }
+                Button btnStart = new Button() { Text = "OK", Left = 175, Width = 100, Top = buttonsTop, DialogResult = DialogResult.Yes, Anchor = AnchorStyles.Bottom };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = buttonsTop, DialogResult = DialogResult.No, Anchor = AnchorStyles.Bottom };
 
+                // Adjust button position based on new height
+                btnStart.Top = prompt.ClientSize.Height - btnStart.Height - 10;
+                btnCancel.Top = prompt.ClientSize.Height - btnCancel.Height - 10;
 
-                Button btnStart = new Button() { Text = "OK", Left = 175, Width = 100, Top = buttonsTop, DialogResult = DialogResult.Yes };
-                Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = buttonsTop, DialogResult = DialogResult.No };
-
-                prompt.Height = buttonsTop + 80;
 
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };

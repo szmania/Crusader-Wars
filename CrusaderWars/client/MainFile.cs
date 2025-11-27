@@ -97,6 +97,7 @@ namespace CrusaderWars
             ExecuteButton.Font = new Font("Yu Gothic UI", 16f, FontStyle.Bold);
             ContinueBattleButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
             LaunchAutoFixerButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
+            LaunchAutoFixerButton.Text = "Battle Tools";
             btt_debug.Font = new Font("Microsoft Sans Serif", 12f);
             infoLabel.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             viewLogsLink.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
