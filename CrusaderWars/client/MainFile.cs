@@ -43,6 +43,7 @@ namespace CrusaderWars
         private int _pulseStep = 0;
         private Color _originalInfoLabelBackColor;
         private CancellationTokenSource? _battleMonitoringCts; // Added cancellation token source
+        private BattleProcessor.AutofixState? _manualAutofixState = null;
 
         // Playthrough Display UI Elements
         private Panel playthroughPanel = null!;
@@ -3045,6 +3046,46 @@ namespace CrusaderWars
         }
 
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
+        {
+            var allStrategies = new List<BattleProcessor.AutofixState.AutofixStrategy>
+            {
+                BattleProcessor.AutofixState.AutofixStrategy.Units,
+                BattleProcessor.AutofixState.AutofixStrategy.MapSize,
+                BattleProcessor.AutofixState.AutofixStrategy.Deployment,
+                BattleProcessor.AutofixState.AutofixStrategy.MapVariant,
+                BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement
+            };
+
+            if (BattleState.IsSiegeBattle)
+            {
+                allStrategies.Remove(BattleProcessor.AutofixState.AutofixStrategy.MapSize);
+            }
+
+            var (userResponse, chosenStrategy) = BattleProcessor.ShowAutofixStrategyChoicePrompt(this, allStrategies);
+
+            if (userResponse == DialogResult.No || chosenStrategy == null)
+            {
+                Program.Logger.Debug("User cancelled autofixer selection.");
+                return;
+            }
+
+            switch (chosenStrategy)
+            {
+                case BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement:
+                    LaunchUnitReplacerTool();
+                    break;
+                case BattleProcessor.AutofixState.AutofixStrategy.Units:
+                    MessageBox.Show("This option automatically replaces potentially buggy units one by one. It is intended for use during the automatic crash recovery process and cannot be manually triggered.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+                case BattleProcessor.AutofixState.AutofixStrategy.MapSize:
+                case BattleProcessor.AutofixState.AutofixStrategy.Deployment:
+                case BattleProcessor.AutofixState.AutofixStrategy.MapVariant:
+                    MessageBox.Show("This autofix strategy can only be used after a crash occurs.", "Strategy Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+            }
+        }
+
+        private void LaunchUnitReplacerTool()
         {
             try
             {

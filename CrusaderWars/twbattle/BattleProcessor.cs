@@ -1393,7 +1393,7 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        private static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies)
+        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies)
         {
             using (Form prompt = new Form())
             {
@@ -1416,7 +1416,7 @@ namespace CrusaderWars.twbattle
                     { AutofixState.AutofixStrategy.MapSize, (new RadioButton() { Text = "Change Map Size", AutoSize = true }, new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Manual Unit Replacement", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) }
+                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
                 int currentTop = 100;
