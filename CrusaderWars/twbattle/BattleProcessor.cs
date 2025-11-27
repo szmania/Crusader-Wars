@@ -1430,15 +1430,18 @@ namespace CrusaderWars.twbattle
                     { AutofixState.AutofixStrategy.DeploymentZoneTool, (new RadioButton() { Text = "Deployment Zone Tool", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
-                // Create GroupBoxes
-                GroupBox autofixGroup = new GroupBox() { Text = "Autofix", Left = 20, Top = 100, Width = 510 };
-                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Fix", Left = 20, Width = 510 }; // Top will be set later
-                prompt.Controls.Add(autofixGroup);
-                prompt.Controls.Add(manualFixGroup);
-
-                int currentAutofixTop = 20;
-                int currentManualFixTop = 20;
+                int currentTop = textLabel.Bottom + 20;
                 bool first = true;
+
+                // Create GroupBoxes
+                GroupBox autofixGroup = new GroupBox() { Text = "Autofix", Left = 20, Top = currentTop, Width = 510 };
+                prompt.Controls.Add(autofixGroup);
+                int currentAutofixTop = 20;
+
+                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Fix", Left = 20, Width = 510 };
+                prompt.Controls.Add(manualFixGroup);
+                int currentManualFixTop = 20;
+
 
                 foreach (var strategy in availableStrategies)
                 {
@@ -1446,7 +1449,6 @@ namespace CrusaderWars.twbattle
                     {
                         if (strategy == AutofixState.AutofixStrategy.ManualUnitReplacement || strategy == AutofixState.AutofixStrategy.DeploymentZoneTool)
                         {
-                            // Add to Manual Fix group
                             controls.rb.Left = 10;
                             controls.rb.Top = currentManualFixTop;
                             if (first) { controls.rb.Checked = true; first = false; }
@@ -1459,7 +1461,6 @@ namespace CrusaderWars.twbattle
                         }
                         else
                         {
-                            // Add to Autofix group
                             controls.rb.Left = 10;
                             controls.rb.Top = currentAutofixTop;
                             if (first) { controls.rb.Checked = true; first = false; }
@@ -1473,34 +1474,33 @@ namespace CrusaderWars.twbattle
                     }
                 }
 
-                // Adjust GroupBox heights and positions
                 autofixGroup.Height = currentAutofixTop;
-                manualFixGroup.Top = autofixGroup.Top + autofixGroup.Height + 10;
+                manualFixGroup.Top = autofixGroup.Bottom + 10;
                 manualFixGroup.Height = currentManualFixTop;
 
-                // Hide empty group boxes
-                if (autofixGroup.Controls.Count == 0)
-                {
+                if (autofixGroup.Controls.Count == 0) {
                     autofixGroup.Visible = false;
                     manualFixGroup.Top = autofixGroup.Top;
                 }
-                if (manualFixGroup.Controls.Count == 0)
-                {
+                if (manualFixGroup.Controls.Count == 0) {
                     manualFixGroup.Visible = false;
                 }
 
+                int buttonsTop = manualFixGroup.Bottom + 20;
+                if (!manualFixGroup.Visible)
+                {
+                    buttonsTop = autofixGroup.Bottom + 20;
+                }
+                if (!autofixGroup.Visible && !manualFixGroup.Visible)
+                {
+                    buttonsTop = textLabel.Bottom + 20;
+                }
 
-                // Adjust position of buttons based on which group boxes are visible
-                int lastControlBottom = textLabel.Bottom;
-                if (autofixGroup.Visible) lastControlBottom = autofixGroup.Bottom;
-                if (manualFixGroup.Visible) lastControlBottom = manualFixGroup.Bottom;
 
-                int currentTop = lastControlBottom + 20;
+                Button btnStart = new Button() { Text = "OK", Left = 175, Width = 100, Top = buttonsTop, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = buttonsTop, DialogResult = DialogResult.No };
 
-                Button btnStart = new Button() { Text = "OK", Left = 175, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
-                Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
-
-                prompt.Height = Math.Max(950, currentTop + 120);
+                prompt.Height = buttonsTop + 80;
 
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
