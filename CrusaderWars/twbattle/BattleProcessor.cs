@@ -1340,6 +1340,34 @@ namespace CrusaderWars.twbattle
         {
             Program.Logger.Debug("--- Autofix: Initiating Manual Unit Replacement ---");
 
+            // --- START: Added processing step for consistency ---
+            // This block ensures that armies are fully processed (levies expanded, commanders added, etc.)
+            // before being displayed in the Unit Replacer. This makes the manual tool's behavior
+            // consistent with the post-crash autofix scenario.
+            Program.Logger.Debug("TryManualUnitFix: Pre-processing armies for Unit Replacer...");
+
+            // Clear any previous temporary battle file data to avoid conflicts.
+            BattleFile.ClearFile();
+            DeclarationsFile.Erase();
+            Data.units_scripts.Clear();
+
+            // Determine if it's a siege battle to erase the correct script.
+            // This is necessary because BattleState might not be initialized when called from the main menu.
+            bool isSiegeBattle = File.Exists(Writter.DataFilesPaths.Sieges_Path()) && new FileInfo(Writter.DataFilesPaths.Sieges_Path()).Length > 10;
+            BattleScript.EraseScript(isSiegeBattle);
+
+            // Process each army to expand its unit list. This has side effects of writing to the
+            // temporary battle files, but this is acceptable as they will be overwritten by the
+            // actual battle generation process later.
+            UnitsFile.ResetProcessedArmies();
+            foreach (var army in autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies))
+            {
+                UnitsFile.BETA_ConvertandAddArmyUnits(army);
+            }
+            Program.Logger.Debug("TryManualUnitFix: Army pre-processing complete.");
+            // --- END: Added processing step ---
+
+
             // 1. Set army sides to ensure IsPlayer() is correct on units
             BattleFile.SetArmiesSides(autofixState.OriginalAttackerArmies, autofixState.OriginalDefenderArmies);
             Program.Logger.Debug("TryManualUnitFix: Army sides set.");
