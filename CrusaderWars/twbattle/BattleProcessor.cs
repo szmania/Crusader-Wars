@@ -1410,9 +1410,8 @@ namespace CrusaderWars.twbattle
                 prompt.Width = 550;
                 prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
                 prompt.StartPosition = FormStartPosition.CenterParent;
-                prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
-                prompt.MaximizeBox = false;
-                prompt.MinimizeBox = false;
+                prompt.FormBorderStyle = FormBorderStyle.Sizable;
+                prompt.AutoScroll = true;
 
                 Label textLabel = new Label()
                 {
@@ -1504,7 +1503,7 @@ namespace CrusaderWars.twbattle
                 Button btnStart = new Button() { Text = "Start Autofix", Left = 175, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
                 Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
 
-                prompt.Height = currentTop + 250;
+                prompt.Height = currentTop + 375;
 
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
