@@ -1410,7 +1410,7 @@ namespace CrusaderWars.twbattle
 
             using (Form prompt = new Form())
             {
-                prompt.Width = 550;
+                prompt.Width = 650;
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.Sizable;
                 prompt.AutoScroll = true;
@@ -1420,7 +1420,7 @@ namespace CrusaderWars.twbattle
                 {
                     Left = 20,
                     Top = 20,
-                    Width = 510,
+                    Width = 610,
                     Height = 50,
                     Text = "Select a tool to manually configure the next battle. These changes can help prevent crashes before they happen."
                 };
@@ -1435,7 +1435,7 @@ namespace CrusaderWars.twbattle
                 int currentTop = textLabel.Bottom + 20;
                 bool first = true;
 
-                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Tools", Left = 20, Top = currentTop, Width = 510 };
+                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Tools", Left = 20, Top = currentTop, Width = 610 };
                 prompt.Controls.Add(manualFixGroup);
                 int currentManualFixTop = 20;
 
@@ -1451,24 +1451,24 @@ namespace CrusaderWars.twbattle
                         controls.lbl.Left = 30;
                         controls.lbl.Top = currentManualFixTop + 20;
                         manualFixGroup.Controls.Add(controls.lbl);
-                        currentManualFixTop += 70;
+                        currentManualFixTop += 80;
                     }
                 }
                 manualFixGroup.Height = currentManualFixTop;
 
                 int buttonsTop = manualFixGroup.Bottom + 20;
 
-                Button btnStart = new Button() { Text = "OK", Left = 175, Width = 100, Top = buttonsTop, DialogResult = DialogResult.Yes };
-                Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = buttonsTop, DialogResult = DialogResult.No };
+                Button btnContinue = new Button() { Text = "Continue", Left = (prompt.Width / 2) - 110, Width = 100, Top = buttonsTop, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = (prompt.Width / 2) + 10, Width = 100, Top = buttonsTop, DialogResult = DialogResult.No };
 
-                prompt.Height = buttonsTop + 80;
+                prompt.Height = buttonsTop + 100;
 
-                btnStart.Click += (sender, e) => { prompt.Close(); };
+                btnContinue.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
 
-                prompt.Controls.Add(btnStart);
+                prompt.Controls.Add(btnContinue);
                 prompt.Controls.Add(btnCancel);
-                prompt.AcceptButton = btnStart;
+                prompt.AcceptButton = btnContinue;
                 prompt.CancelButton = btnCancel;
 
                 var dialogResult = prompt.ShowDialog(owner);

@@ -3232,6 +3232,26 @@ namespace CrusaderWars
                     }
                 }
 
+                // Load the unit mapper before reading armies
+                string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
+                if (string.IsNullOrEmpty(selectedPlaythrough))
+                {
+                    MessageBox.Show("No playthrough is selected. The tool cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                UnitMappers_BETA.ClearFactionCache(); // Clear any old data
+                var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(selectedPlaythrough);
+                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods);
+
+                if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
+                {
+                    MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                Program.Logger.Debug($"LaunchDeploymentZoneTool: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
+
+
                 // Read armies to get total soldier count for map size calculation
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
