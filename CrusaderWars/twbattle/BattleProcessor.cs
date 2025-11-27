@@ -1064,7 +1064,6 @@ namespace CrusaderWars.twbattle
 
                     // Update UI before showing potentially blocking message box
                     form.Text = "Crusader Conflicts";
-                    form.infoLabel.Text = "Battle complete! Ready for next battle.";
                     form.battleJustCompleted = true;
 
                     // Show successful autofix/manual tool message if applicable
