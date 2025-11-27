@@ -1743,8 +1743,8 @@ namespace CrusaderWars.data.battle_results
             SetWinner(winner); // This modifies Player_Combat in memory
 
             // 2. Isolate Attacker and Defender blocks to prevent regex cross-contamination
-            Match attackerMatch = Regex.Match(Player_Combat, @"(attacker={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
-            Match defenderMatch = Regex.Match(Player_Combat, @"(defender={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
+            Match attackerMatch = Regex.Match(Player_Combat!, @"(attacker={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
+            Match defenderMatch = Regex.Match(Player_Combat!, @"(defender={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
 
             if (!attackerMatch.Success || !defenderMatch.Success)
             {
@@ -1799,12 +1799,12 @@ namespace CrusaderWars.data.battle_results
             }
 
             // 4. Replace the original blocks in Player_Combat with the modified ones
-            Player_Combat = Player_Combat.Replace(originalAttackerBlock, modifiedAttackerBlock);
+            Player_Combat = Player_Combat!.Replace(originalAttackerBlock, modifiedAttackerBlock);
             Player_Combat = Player_Combat.Replace(originalDefenderBlock, modifiedDefenderBlock);
 
             // 5. Perform final block replacement into the full Combats.txt content
             string fullFileContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
-            string updatedFileContent = fullFileContent.Replace(Original_Player_Combat, Player_Combat);
+            string updatedFileContent = fullFileContent.Replace(Original_Player_Combat!, Player_Combat);
             File.WriteAllText(Writter.DataTEMPFilesPaths.Combats_Path(), updatedFileContent);
             Program.Logger.Debug("Finished editing Combat file.");
         }

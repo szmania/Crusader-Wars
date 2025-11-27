@@ -44,8 +44,6 @@ namespace CrusaderWars
         private int _pulseStep = 0;
         private Color _originalInfoLabelBackColor;
         private CancellationTokenSource? _battleMonitoringCts; // Added cancellation token source
-        private BattleProcessor.AutofixState? _manualAutofixState = null;
-
         // Playthrough Display UI Elements
         private Panel playthroughPanel = null!;
         private PictureBox playthroughPictureBox = null!;
@@ -3327,7 +3325,7 @@ namespace CrusaderWars
                     battleType = "Siege Battle";
                 } else if (TerrainGenerator.TerrainType == "river" || TerrainGenerator.TerrainType == "strait") {
                     battleType = "River/Strait Battle";
-                } else if (TerrainGenerator.IsCoastal) {
+                } else if (TerrainGenerator.isCoastal) {
                     battleType = "Coastal Battle";
                 } else {
                     battleType = "Field Battle";

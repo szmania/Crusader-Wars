@@ -1798,7 +1798,7 @@ namespace CrusaderWars.twbattle
                     battleType = "Siege Battle";
                 } else if (TerrainGenerator.TerrainType == "river" || TerrainGenerator.TerrainType == "strait") {
                     battleType = "River/Strait Battle";
-                } else if (TerrainGenerator.IsCoastal) {
+                } else if (TerrainGenerator.isCoastal) {
                     battleType = "Coastal Battle";
                 } else {
                     battleType = "Field Battle";
