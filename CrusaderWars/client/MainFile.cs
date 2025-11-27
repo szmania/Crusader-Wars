@@ -3087,8 +3087,8 @@ namespace CrusaderWars
                 case BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement:
                     LaunchUnitReplacerTool();
                     break;
-                case BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool:
-                    LaunchDeploymentZoneTool();
+                case BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor:
+                    LaunchDeploymentZoneEditor();
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.MapSize:
                     // For now, cycle through Big -> Huge -> default
@@ -3246,11 +3246,11 @@ namespace CrusaderWars
             }
         }
 
-        private void LaunchDeploymentZoneTool()
+        private void LaunchDeploymentZoneEditor()
         {
             try
             {
-                Program.Logger.Debug("--- Manual Deployment Zone Tool Launched from UI ---");
+                Program.Logger.Debug("--- Manual Deployment Zone Editor Launched from UI ---");
                 Options.ReadOptionsFile();
 
                 // Load log snippet to restore context
@@ -3293,7 +3293,7 @@ namespace CrusaderWars
                     MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                Program.Logger.Debug($"LaunchDeploymentZoneTool: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
+                Program.Logger.Debug($"LaunchDeploymentZoneEditor: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
 
 
                 // Read armies to get total soldier count for map size calculation
@@ -3343,7 +3343,7 @@ namespace CrusaderWars
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error in LaunchDeploymentZoneTool: {ex.Message}");
+                Program.Logger.Debug($"Error in LaunchDeploymentZoneEditor: {ex.Message}");
                 MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

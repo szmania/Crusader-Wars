@@ -38,7 +38,7 @@ namespace CrusaderWars.twbattle
             public string OriginalFieldMapDescription { get; set; } = "";
 
             // New properties for strategy-based autofix
-            public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant, ManualUnitReplacement, DeploymentZoneTool }
+            public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant, ManualUnitReplacement, DeploymentZoneEditor }
 
             public AutofixStrategy? CurrentStrategy { get; set; } = null;
             public HashSet<AutofixStrategy> TriedStrategies { get; set; } = new HashSet<AutofixStrategy>();
@@ -714,8 +714,8 @@ namespace CrusaderWars.twbattle
                                     case AutofixState.AutofixStrategy.ManualUnitReplacement:
                                         form.infoLabel.Text = "Loading manual unit replacer...";
                                         break;
-                                    case AutofixState.AutofixStrategy.DeploymentZoneTool:
-                                        form.infoLabel.Text = "Loading deployment zone tool...";
+                                    case AutofixState.AutofixStrategy.DeploymentZoneEditor:
+                                        form.infoLabel.Text = "Loading deployment zone editor...";
                                         break;
                                 }
                             }
@@ -773,8 +773,8 @@ namespace CrusaderWars.twbattle
                         case AutofixState.AutofixStrategy.ManualUnitReplacement:
                             (fixApplied, fixDescription) = TryManualUnitFix(autofixState, form);
                             break;
-                        case AutofixState.AutofixStrategy.DeploymentZoneTool:
-                            (fixApplied, fixDescription) = TryDeploymentZoneToolFix(autofixState, form);
+                        case AutofixState.AutofixStrategy.DeploymentZoneEditor:
+                            (fixApplied, fixDescription) = TryDeploymentZoneEditorFix(autofixState, form);
                             break;
                     }
 
@@ -1415,7 +1415,7 @@ namespace CrusaderWars.twbattle
             var manualStrategies = new List<AutofixState.AutofixStrategy>
             {
                 AutofixState.AutofixStrategy.ManualUnitReplacement,
-                AutofixState.AutofixStrategy.DeploymentZoneTool
+                AutofixState.AutofixStrategy.DeploymentZoneEditor
             };
 
             using (Form prompt = new Form())
@@ -1439,7 +1439,7 @@ namespace CrusaderWars.twbattle
                 var manualStrategyControls = new Dictionary<AutofixState.AutofixStrategy, (RadioButton rb, Label lbl)>
                 {
                     { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.DeploymentZoneTool, (new RadioButton() { Text = "Deployment Zone Tool", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) }
+                    { AutofixState.AutofixStrategy.DeploymentZoneEditor, (new RadioButton() { Text = "Deployment Zone Editor", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
                 int currentTop = textLabel.Bottom + 20;
@@ -1536,7 +1536,7 @@ namespace CrusaderWars.twbattle
                     { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.DeploymentZoneTool, (new RadioButton() { Text = "Deployment Zone Tool", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) }
+                    { AutofixState.AutofixStrategy.DeploymentZoneEditor, (new RadioButton() { Text = "Deployment Zone Editor", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
                 int currentTop = textLabel.Bottom + 20;
@@ -1557,7 +1557,7 @@ namespace CrusaderWars.twbattle
                 {
                     if (allStrategyControls.TryGetValue(strategy, out var controls))
                     {
-                        if (strategy == AutofixState.AutofixStrategy.ManualUnitReplacement || strategy == AutofixState.AutofixStrategy.DeploymentZoneTool)
+                        if (strategy == AutofixState.AutofixStrategy.ManualUnitReplacement || strategy == AutofixState.AutofixStrategy.DeploymentZoneEditor)
                         {
                             controls.rb.Left = 10;
                             controls.rb.Top = currentManualFixTop;
@@ -1794,9 +1794,9 @@ namespace CrusaderWars.twbattle
         }
 
 
-        private static (bool, string) TryDeploymentZoneToolFix(AutofixState autofixState, HomePage form)
+        private static (bool, string) TryDeploymentZoneEditorFix(AutofixState autofixState, HomePage form)
         {
-            Program.Logger.Debug("--- Autofix: Initiating Deployment Zone Tool ---");
+            Program.Logger.Debug("--- Autofix: Initiating Deployment Zone Editor ---");
 
             try
             {
@@ -1865,8 +1865,8 @@ namespace CrusaderWars.twbattle
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error in TryDeploymentZoneToolFix: {ex.Message}");
-                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Tool: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Program.Logger.Debug($"Error in TryDeploymentZoneEditorFix: {ex.Message}");
+                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
             }
         }
