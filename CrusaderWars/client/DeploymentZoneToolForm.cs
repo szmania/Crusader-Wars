@@ -145,7 +145,7 @@ namespace CrusaderWars.client
             // Draw settlement indicator if it's a siege battle
             if (_isSiegeBattle)
             {
-                float settlementSize = 40; // 40 pixels
+                float settlementSize = 80; // 80 pixels
                 RectangleF settlementRect = new RectangleF(-settlementSize / 2, -settlementSize / 2, settlementSize, settlementSize);
 
                 using (var settlementBrush = new SolidBrush(Color.FromArgb(150, Color.SaddleBrown)))
