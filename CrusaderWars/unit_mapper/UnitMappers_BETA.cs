@@ -1678,6 +1678,20 @@ namespace CrusaderWars.unit_mapper
         public static (string, bool) GetUnitKey(Unit unit)
         {
             (string unit_key, bool isSiege) result;
+            string initial_key = unit.GetAttilaUnitKey();
+
+            // 0. Check for manual replacements first, using the key already on the unit if available.
+            // This is crucial for levies and garrisons which are handled as compositions.
+            if (!string.IsNullOrEmpty(initial_key) && initial_key != NOT_FOUND_KEY)
+            {
+                if (BattleState.ManualUnitReplacements.TryGetValue((initial_key, unit.IsPlayer()), out var manualReplacement))
+                {
+                    Program.Logger.Debug($"Manual Replace (Pre-check): Applying replacement for pre-set unit key '{initial_key}' with '{manualReplacement.replacementKey}'.");
+                    unit.SetIsSiege(manualReplacement.isSiege);
+                    return (manualReplacement.replacementKey, manualReplacement.isSiege);
+                }
+            }
+
 
             // 1. Initial search in specific files
             if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty)
