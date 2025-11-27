@@ -40,6 +40,14 @@ namespace CrusaderWars.client
             this.textBoxInstructions = new System.Windows.Forms.TextBox();
             this.btnUndo = new System.Windows.Forms.Button();
             this.UnitReplacerToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.txtSearchCurrent = new System.Windows.Forms.TextBox();
+            this.btnPrevCurrent = new System.Windows.Forms.Button();
+            this.btnNextCurrent = new System.Windows.Forms.Button();
+            this.txtSearchAvailable = new System.Windows.Forms.TextBox();
+            this.btnPrevAvailable = new System.Windows.Forms.Button();
+            this.btnNextAvailable = new System.Windows.Forms.Button();
+            this.lblCurrentSearch = new System.Windows.Forms.Label();
+            this.lblAvailableSearch = new System.Windows.Forms.Label();
             this.InstructionsBox.SuspendLayout();
             this.SuspendLayout();
             // 
