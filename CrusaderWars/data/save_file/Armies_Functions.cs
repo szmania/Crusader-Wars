@@ -746,6 +746,78 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("END ExpandGarrisonArmies.");
         }
 
+        internal static void ExpandLevyArmies(List<Army> armies)
+        {
+            Program.Logger.Debug("START ExpandLevyArmies: Expanding placeholder levy units for UI.");
+
+            foreach (var army in armies)
+            {
+                var placeholderLevies = army.Units.Where(u => u.GetRegimentType() == RegimentType.Levy).ToList();
+                if (!placeholderLevies.Any()) continue;
+
+                Program.Logger.Debug($"Found {placeholderLevies.Count} placeholder levy groups in army {army.ID}.");
+                var newUnits = new List<Unit>();
+
+                foreach (var placeholder in placeholderLevies)
+                {
+                    int totalSoldiers = placeholder.GetSoldiers();
+                    string faction = placeholder.GetAttilaFaction();
+                    var (composition, _) = UnitMappers_BETA.GetFactionLevies(faction);
+
+                    if (composition == null || !composition.Any())
+                    {
+                        Program.Logger.Debug($"No levy composition found for faction '{faction}'. Re-adding placeholder.");
+                        newUnits.Add(placeholder); // Keep the placeholder if no composition is found
+                        continue;
+                    }
+
+                    // Distribute soldiers
+                    int remainingSoldiers = totalSoldiers;
+                    var distributedUnits = new List<Unit>();
+                    foreach (var component in composition)
+                    {
+                        int soldiersForComponent = (int)Math.Round(totalSoldiers * (component.porcentage / 100.0));
+                        
+                        if (soldiersForComponent > 0)
+                        {
+                            var newUnit = new Unit(component.name, soldiersForComponent, placeholder.GetObjCulture(), RegimentType.Levy, placeholder.IsMerc(), placeholder.GetOwner());
+                            newUnit.SetAttilaFaction(faction);
+                            newUnit.SetUnitKey(component.unit_key);
+                            newUnit.SetMax(UnitMappers_BETA.GetMax(newUnit)); // Set max for the new unit
+                            distributedUnits.Add(newUnit);
+                        }
+                    }
+
+                    // Adjust for rounding errors to match total soldiers
+                    int currentDistributedSoldiers = distributedUnits.Sum(u => u.GetSoldiers());
+                    int soldierDifference = totalSoldiers - currentDistributedSoldiers;
+
+                    if (soldierDifference != 0 && distributedUnits.Any())
+                    {
+                        // Distribute the remainder/deficit among the units, prioritizing larger ones
+                        var orderedUnits = distributedUnits.OrderByDescending(u => u.GetSoldiers()).ToList();
+                        int soldiersToDistribute = soldierDifference;
+                        int i = 0;
+                        while(soldiersToDistribute != 0)
+                        {
+                            int soldiersToAdd = soldiersToDistribute > 0 ? 1 : -1;
+                            orderedUnits[i].AddSoldiers(soldiersToAdd);
+                            soldiersToDistribute -= soldiersToAdd;
+                            i = (i + 1) % orderedUnits.Count; // Cycle through units
+                        }
+                    }
+                    newUnits.AddRange(distributedUnits);
+                }
+
+                // Replace placeholders with new units
+                army.Units.RemoveAll(u => u.GetRegimentType() == RegimentType.Levy);
+                army.Units.AddRange(newUnits);
+                Program.Logger.Debug($"Replaced placeholders in army {army.ID} with {newUnits.Count} expanded levy units.");
+            }
+            Program.Logger.Debug("END ExpandLevyArmies.");
+        }
+
+
         #region SEARCH HELPERS
         internal static (bool searchStarted, bool isKnight, bool isMainCommander, bool isCommander, bool isOwner, Army? searchingArmy, Knight? knight) SearchCharacters(string character_id, List<Army> armies)
         {

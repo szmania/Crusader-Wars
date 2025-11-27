@@ -1398,6 +1398,9 @@ namespace CrusaderWars.twbattle
             var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies).ToList();
             Program.Logger.Debug($"TryManualUnitFix: Collected {allArmies.Count} total armies.");
 
+            // Expand levy placeholders into actual units so they appear in the replacer tool
+            CrusaderWars.data.save_file.Armies_Functions.ExpandLevyArmies(allArmies);
+
             var currentUnits = allArmies.Where(a => a.Units != null).SelectMany(a => a.Units)
                                         .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
                                         .ToList();
