@@ -1503,12 +1503,11 @@ namespace CrusaderWars.unit_mapper
                 Program.Logger.Debug($"      - SelectRankedUnitKey: No suitable rank found. Falling back to lowest available rank {lowestRank}. Final pool has {finalSelectionPool.Count} units.");
             }
 
-            // Randomly select one candidate from the final pool
+            // Deterministically select one candidate from the final pool
             if (finalSelectionPool.Any())
             {
-                int index = _random.Next(finalSelectionPool.Count);
-                string selectedKey = finalSelectionPool[index].key;
-                Program.Logger.Debug($"      - SelectRankedUnitKey: Randomly selected '{selectedKey}' from the final pool.");
+                string selectedKey = finalSelectionPool.OrderBy(c => c.key).First().key;
+                Program.Logger.Debug($"      - SelectRankedUnitKey: Deterministically selected '{selectedKey}' from the final pool.");
                 return selectedKey;
             }
 
@@ -1858,8 +1857,8 @@ namespace CrusaderWars.unit_mapper
                             candidates.Add((key, isSiege));
                         }
                     }
-                    if (candidates.Any()) return candidates[_random.Next(candidates.Count)];
-                    if (fallbackCandidates.Any()) return fallbackCandidates[_random.Next(fallbackCandidates.Count)];
+                    if (candidates.Any()) return candidates.OrderBy(c => c.key).First();
+                    if (fallbackCandidates.Any()) return fallbackCandidates.OrderBy(c => c.key).First();
                     break;
 
                 case RegimentType.Garrison:
@@ -1882,7 +1881,7 @@ namespace CrusaderWars.unit_mapper
                         List<(string key, int level)> finalSelectionPool = suitableGarrisons.Any()
                             ? suitableGarrisons.Where(g => g.level == suitableGarrisons.Max(s => s.level)).ToList()
                             : allGarrisons.Where(g => g.level == allGarrisons.Min(s => s.level)).ToList();
-                        if (finalSelectionPool.Any()) return (finalSelectionPool[_random.Next(finalSelectionPool.Count)].key, false);
+                        if (finalSelectionPool.Any()) return (finalSelectionPool.OrderBy(g => g.key).First().key, false);
                     }
                     break;
 
@@ -1891,7 +1890,7 @@ namespace CrusaderWars.unit_mapper
                         .Select(node => node.Attributes?["key"]?.Value)
                         .Where(key => !string.IsNullOrEmpty(key) && key != keyToExclude)
                         .ToList();
-                    if (levyKeys != null && levyKeys.Any()) return (levyKeys[_random.Next(levyKeys.Count)], false);
+                    if (levyKeys != null && levyKeys.Any()) return (levyKeys.OrderBy(k => k).First(), false);
                     break;
             }
 
