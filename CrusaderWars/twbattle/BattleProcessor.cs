@@ -1407,7 +1407,7 @@ namespace CrusaderWars.twbattle
         {
             using (Form prompt = new Form())
             {
-                prompt.Width = 500;
+                prompt.Width = 550;
                 prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -1418,7 +1418,7 @@ namespace CrusaderWars.twbattle
                 {
                     Left = 20,
                     Top = 20,
-                    Width = 460,
+                    Width = 510,
                     Height = 70,
                     Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:"
                 };
@@ -1435,8 +1435,8 @@ namespace CrusaderWars.twbattle
                 };
 
                 // Create GroupBoxes
-                GroupBox autofixGroup = new GroupBox() { Text = "Autofix", Left = 20, Top = 100, Width = 460 };
-                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Fix", Left = 20, Width = 460 }; // Top will be set later
+                GroupBox autofixGroup = new GroupBox() { Text = "Autofix", Left = 20, Top = 100, Width = 510 };
+                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Fix", Left = 20, Width = 510 }; // Top will be set later
                 prompt.Controls.Add(autofixGroup);
                 prompt.Controls.Add(manualFixGroup);
 
@@ -1501,10 +1501,10 @@ namespace CrusaderWars.twbattle
 
                 int currentTop = lastControlBottom + 20;
 
-                Button btnStart = new Button() { Text = "Start Autofix", Left = 150, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
-                Button btnCancel = new Button() { Text = "Cancel", Left = 270, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
+                Button btnStart = new Button() { Text = "Start Autofix", Left = 175, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
 
-                prompt.Height = currentTop + 80;
+                prompt.Height = currentTop + 100;
 
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
