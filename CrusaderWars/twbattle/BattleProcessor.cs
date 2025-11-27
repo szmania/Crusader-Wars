@@ -1158,7 +1158,8 @@ namespace CrusaderWars.twbattle
                         ProcessCommands.ResumeProcess();
                     }
 
-                    form.Text = "Crusader Conflicts (Battle Complete)";
+                    form.Text = "Crusader Conflicts";
+                    form.infoLabel.Text = "Battle complete! Ready for next battle.";
                     form.battleJustCompleted = true;
                 }
             }
