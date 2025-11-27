@@ -19,6 +19,16 @@ namespace CrusaderWars.twbattle
         public static int AutofixMapVariantOffset { get; set; } = 0;
         public static Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> ManualUnitReplacements { get; set; } = new Dictionary<(string, bool), (string, bool)>();
 
+        public class ZoneOverride
+        {
+            public float X { get; set; }
+            public float Y { get; set; }
+            public float Width { get; set; }
+            public float Height { get; set; }
+        }
+        public static ZoneOverride? DeploymentZoneOverrideAttacker { get; set; } = null;
+        public static ZoneOverride? DeploymentZoneOverrideDefender { get; set; } = null;
+
         static BattleState()
         {
             // Ensure directory exists
@@ -59,6 +69,8 @@ namespace CrusaderWars.twbattle
             AutofixForceGenericMap = false;
             AutofixMapVariantOffset = 0;
             ManualUnitReplacements.Clear();
+            DeploymentZoneOverrideAttacker = null;
+            DeploymentZoneOverrideDefender = null;
         }
 
         public static void ClearBattleState()
