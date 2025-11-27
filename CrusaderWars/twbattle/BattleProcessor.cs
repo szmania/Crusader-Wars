@@ -1625,62 +1625,45 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, params string[] boldWords)
+        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, string reportContent)
         {
             using (Form prompt = new Form())
             {
-                prompt.Width = 550;
-                prompt.Height = 250;
+                prompt.Width = 600;
+                prompt.Height = 450;
                 prompt.Text = title;
                 prompt.StartPosition = FormStartPosition.CenterParent;
-                prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
+                prompt.FormBorderStyle = FormBorderStyle.Sizable;
                 prompt.MaximizeBox = false;
                 prompt.MinimizeBox = false;
 
-                RichTextBox richTextLabel = new RichTextBox()
+                Label textLabel = new Label()
                 {
                     Left = 20,
                     Top = 20,
-                    Width = 500,
-                    Height = 120,
+                    Width = 550,
+                    Height = 60,
                     Text = text,
-                    BorderStyle = BorderStyle.None,
-                    ReadOnly = true,
-                    BackColor = System.Drawing.SystemColors.Control,
-                    DetectUrls = false
                 };
 
-                if (boldWords != null)
+                TextBox reportBox = new TextBox()
                 {
-                    foreach (string word in boldWords)
-                    {
-                        if (!string.IsNullOrEmpty(word))
-                        {
-                            int startIndex = 0;
-                            while (startIndex < richTextLabel.TextLength)
-                            {
-                                int wordStartIndex = richTextLabel.Find(word, startIndex, RichTextBoxFinds.None);
-                                if (wordStartIndex != -1)
-                                {
-                                    richTextLabel.SelectionStart = wordStartIndex;
-                                    richTextLabel.SelectionLength = word.Length;
-                                    richTextLabel.SelectionFont = new System.Drawing.Font(richTextLabel.Font, System.Drawing.FontStyle.Bold);
-                                    startIndex = wordStartIndex + word.Length;
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                    Left = 20,
+                    Top = 80,
+                    Width = 550,
+                    Height = 220,
+                    Multiline = true,
+                    ScrollBars = ScrollBars.Vertical,
+                    ReadOnly = true,
+                    Text = reportContent,
+                    Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)))
+                };
 
                 LinkLabel linkLabel = new LinkLabel()
                 {
                     Left = 20,
-                    Top = 140,
-                    Width = 500,
+                    Top = 310,
+                    Width = 550,
                     Text = linkText,
                     AutoSize = true
                 };
@@ -1695,17 +1678,31 @@ namespace CrusaderWars.twbattle
                     }
                 };
 
+                Button copyButton = new Button()
+                {
+                    Text = "Copy Details",
+                    Left = 20,
+                    Width = 120,
+                    Top = 340,
+                };
+                copyButton.Click += (sender, e) => {
+                    Clipboard.SetText(reportBox.Text);
+                };
+
+
                 Button confirmation = new Button()
                 {
                     Text = "OK",
-                    Left = 225,
-                    Width = 100,
-                    Top = 180,
+                    Left = 450,
+                    Width = 120,
+                    Top = 340,
                     DialogResult = DialogResult.OK
                 };
 
-                prompt.Controls.Add(richTextLabel);
+                prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(reportBox);
                 prompt.Controls.Add(linkLabel);
+                prompt.Controls.Add(copyButton);
                 prompt.Controls.Add(confirmation);
                 prompt.AcceptButton = confirmation;
 

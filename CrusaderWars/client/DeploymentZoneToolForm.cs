@@ -41,7 +41,7 @@ namespace CrusaderWars.client
             // Set battle details
             lblBattleDate.Text = $"Date: {battleDate}";
             lblBattleType.Text = $"Type: {battleType}";
-            lblProvinceName.Text = $"Province: {provinceName}";
+            lblProvinceName.Text = $"Location: {provinceName}";
             lblCoordinates.Text = $"Coords: ({mapX}, {mapY})";
 
             // Calculate scale to fit map into panel

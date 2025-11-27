@@ -407,7 +407,7 @@ namespace CrusaderWars.client
             this.lblProvinceName.Name = "lblProvinceName";
             this.lblProvinceName.Size = new System.Drawing.Size(191, 13);
             this.lblProvinceName.TabIndex = 7;
-            this.lblProvinceName.Text = "Province:";
+            this.lblProvinceName.Text = "Location:";
             this.lblProvinceName.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // lblCoordinates
