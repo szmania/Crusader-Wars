@@ -98,6 +98,8 @@ namespace CrusaderWars.twbattle
                 return false; // break
             }
 
+            BattleFile.SetArmiesSides(attacker_armies, defender_armies);
+
             if (!BattleState.IsSiegeBattle)
             {
                 TerrainGenerator.CheckForSpecialCrossingBattle(attacker_armies, defender_armies);
