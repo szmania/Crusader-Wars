@@ -1422,12 +1422,12 @@ namespace CrusaderWars.twbattle
 
                 var allStrategyControls = new Dictionary<AutofixState.AutofixStrategy, (RadioButton rb, Label lbl)>
                 {
-                    { AutofixState.AutofixStrategy.Units, (new RadioButton() { Text = "Change Units", AutoSize = true }, new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.MapSize, (new RadioButton() { Text = "Change Map Size", AutoSize = true }, new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.DeploymentZoneTool, (new RadioButton() { Text = "Deployment Zone Tool", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) }
+                    { AutofixState.AutofixStrategy.Units, (new RadioButton() { Text = "Change Units", AutoSize = true }, new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.MapSize, (new RadioButton() { Text = "Change Map Size", AutoSize = true }, new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.DeploymentZoneTool, (new RadioButton() { Text = "Deployment Zone Tool", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
                 // Create GroupBoxes
@@ -1455,7 +1455,7 @@ namespace CrusaderWars.twbattle
                             controls.lbl.Left = 30;
                             controls.lbl.Top = currentManualFixTop + 20;
                             manualFixGroup.Controls.Add(controls.lbl);
-                            currentManualFixTop += 60;
+                            currentManualFixTop += 70;
                         }
                         else
                         {
@@ -1468,7 +1468,7 @@ namespace CrusaderWars.twbattle
                             controls.lbl.Left = 30;
                             controls.lbl.Top = currentAutofixTop + 20;
                             autofixGroup.Controls.Add(controls.lbl);
-                            currentAutofixTop += 60;
+                            currentAutofixTop += 70;
                         }
                     }
                 }
@@ -1500,7 +1500,7 @@ namespace CrusaderWars.twbattle
                 Button btnStart = new Button() { Text = "Start Autofix", Left = 175, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
                 Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
 
-                prompt.Height = currentTop + 75;
+                prompt.Height = currentTop + 120;
 
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
