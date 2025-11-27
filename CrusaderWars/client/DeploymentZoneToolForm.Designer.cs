@@ -50,15 +50,15 @@ namespace CrusaderWars.client
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.attackerGroupBox.SuspendLayout();
-            this.defenderGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudAttackerHeight)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerX)).BeginInit();
+            this.defenderGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudDefenderHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderX)).BeginInit();
             this.SuspendLayout();
             // 
             // mapPanel
@@ -90,9 +90,19 @@ namespace CrusaderWars.client
             // nudAttackerHeight
             // 
             this.nudAttackerHeight.DecimalPlaces = 2;
+            this.nudAttackerHeight.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudAttackerHeight.Location = new System.Drawing.Point(134, 101);
             this.nudAttackerHeight.Maximum = new decimal(new int[] {
             10000,
+            0,
+            0,
+            0});
+            this.nudAttackerHeight.Minimum = new decimal(new int[] {
+            50,
             0,
             0,
             0});
@@ -112,9 +122,19 @@ namespace CrusaderWars.client
             // nudAttackerWidth
             // 
             this.nudAttackerWidth.DecimalPlaces = 2;
+            this.nudAttackerWidth.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudAttackerWidth.Location = new System.Drawing.Point(134, 75);
             this.nudAttackerWidth.Maximum = new decimal(new int[] {
             10000,
+            0,
+            0,
+            0});
+            this.nudAttackerWidth.Minimum = new decimal(new int[] {
+            50,
             0,
             0,
             0});
@@ -134,6 +154,11 @@ namespace CrusaderWars.client
             // nudAttackerY
             // 
             this.nudAttackerY.DecimalPlaces = 2;
+            this.nudAttackerY.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudAttackerY.Location = new System.Drawing.Point(134, 49);
             this.nudAttackerY.Maximum = new decimal(new int[] {
             5000,
@@ -161,6 +186,11 @@ namespace CrusaderWars.client
             // nudAttackerX
             // 
             this.nudAttackerX.DecimalPlaces = 2;
+            this.nudAttackerX.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudAttackerX.Location = new System.Drawing.Point(134, 23);
             this.nudAttackerX.Maximum = new decimal(new int[] {
             5000,
@@ -205,9 +235,19 @@ namespace CrusaderWars.client
             // nudDefenderHeight
             // 
             this.nudDefenderHeight.DecimalPlaces = 2;
+            this.nudDefenderHeight.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudDefenderHeight.Location = new System.Drawing.Point(134, 101);
             this.nudDefenderHeight.Maximum = new decimal(new int[] {
             10000,
+            0,
+            0,
+            0});
+            this.nudDefenderHeight.Minimum = new decimal(new int[] {
+            50,
             0,
             0,
             0});
@@ -227,9 +267,19 @@ namespace CrusaderWars.client
             // nudDefenderWidth
             // 
             this.nudDefenderWidth.DecimalPlaces = 2;
+            this.nudDefenderWidth.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudDefenderWidth.Location = new System.Drawing.Point(134, 75);
             this.nudDefenderWidth.Maximum = new decimal(new int[] {
             10000,
+            0,
+            0,
+            0});
+            this.nudDefenderWidth.Minimum = new decimal(new int[] {
+            50,
             0,
             0,
             0});
@@ -249,6 +299,11 @@ namespace CrusaderWars.client
             // nudDefenderY
             // 
             this.nudDefenderY.DecimalPlaces = 2;
+            this.nudDefenderY.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudDefenderY.Location = new System.Drawing.Point(134, 49);
             this.nudDefenderY.Maximum = new decimal(new int[] {
             5000,
@@ -276,6 +331,11 @@ namespace CrusaderWars.client
             // nudDefenderX
             // 
             this.nudDefenderX.DecimalPlaces = 2;
+            this.nudDefenderX.Increment = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
             this.nudDefenderX.Location = new System.Drawing.Point(134, 23);
             this.nudDefenderX.Maximum = new decimal(new int[] {
             5000,
@@ -332,16 +392,16 @@ namespace CrusaderWars.client
             this.Text = "Deployment Zone Editor";
             this.attackerGroupBox.ResumeLayout(false);
             this.attackerGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerWidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerX)).EndInit();
             this.defenderGroupBox.ResumeLayout(false);
             this.defenderGroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerWidth)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudAttackerHeight)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDefenderHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderWidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudDefenderX)).EndInit();
             this.ResumeLayout(false);
 
         }

@@ -1804,6 +1804,10 @@ namespace CrusaderWars.twbattle
                 int total_soldiers = allArmies.Sum(a => a.GetTotalSoldiers());
                 string option_map_size = ModOptions.DeploymentsZones();
 
+                // Determine which side is the player
+                BattleFile.SetArmiesSides(autofixState.OriginalAttackerArmies, autofixState.OriginalDefenderArmies);
+                bool isAttackerPlayer = autofixState.OriginalAttackerArmies.First().IsPlayer();
+
                 // Create temporary deployment areas to pass to the form
                 // Directions are placeholders; the user will adjust the final position and size.
                 string attacker_direction = BattleState.IsSiegeBattle ? (BattleState.OriginalSiegeAttackerDirection ?? "N") : "N";
@@ -1825,7 +1829,7 @@ namespace CrusaderWars.twbattle
 
                 form.Invoke((MethodInvoker)delegate
                 {
-                    using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension))
+                    using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer))
                     {
                         if (toolForm.ShowDialog(form) == DialogResult.OK)
                         {

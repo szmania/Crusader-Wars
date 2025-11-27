@@ -3307,6 +3307,10 @@ namespace CrusaderWars
                 int total_soldiers = attackerArmies.Sum(a => a.GetTotalSoldiers()) + defenderArmies.Sum(a => a.GetTotalSoldiers());
                 string option_map_size = ModOptions.DeploymentsZones();
 
+                // Determine which side is the player
+                BattleFile.SetArmiesSides(attackerArmies, defenderArmies);
+                bool isAttackerPlayer = attackerArmies.First().IsPlayer();
+
                 // Generate initial deployment areas
                 string attacker_direction = BattleState.IsSiegeBattle ? (BattleState.OriginalSiegeAttackerDirection ?? "N") : "N";
                 string defender_direction = "S";
@@ -3315,7 +3319,7 @@ namespace CrusaderWars
                 DeploymentArea defenderArea = new DeploymentArea(defender_direction, option_map_size, total_soldiers, BattleState.IsSiegeBattle);
                 float map_dimension = float.Parse(ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle), System.Globalization.CultureInfo.InvariantCulture);
 
-                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension))
+                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer))
                 {
                     if (toolForm.ShowDialog(this) == DialogResult.OK)
                     {
