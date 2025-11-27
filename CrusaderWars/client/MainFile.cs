@@ -1538,6 +1538,12 @@ namespace CrusaderWars
                 Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
                 this.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
+                if (battleJustCompleted)
+                {
+                    await BattleProcessor.CleanupAfterBattle();
+                    battleJustCompleted = false; // Reset the flag
+                }
+
                 bool filesCleared = false;
                 int maxRetries = 3;
                 for (int i = 0; i < maxRetries; i++)
@@ -1961,7 +1967,6 @@ namespace CrusaderWars
                 // Battle processed successfully. Loop will continue.
                 // Manually reset some UI elements for the next iteration,
                 // without touching infoLabel.
-                await BattleProcessor.CleanupAfterBattle();
                 battleJustCompleted = true;
                 ContinueBattleButton.Visible = false;
                 ExecuteButton.Text = "";
@@ -1976,6 +1981,11 @@ namespace CrusaderWars
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
             }
             UpdateUIForBattleState();
+            if (BattleState.IsBattleInProgress())
+            {
+                ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true;
+            }
             this.Text = "Crusader Conflicts";
         }
 
@@ -2177,7 +2187,6 @@ namespace CrusaderWars
             _programmaticClick = true;
             if (await BattleProcessor.ProcessBattle(this, attacker_armies, defender_armies, token, regenerateAndRestart))
             {
-                await BattleProcessor.CleanupAfterBattle();
                 battleJustCompleted = true;
                 // The battle finished successfully, start the main loop to wait for the next one.
                 ExecuteButton.PerformClick();
