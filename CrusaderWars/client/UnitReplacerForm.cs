@@ -117,7 +117,7 @@ namespace CrusaderWars.client
                         if (regimentType == RegimentType.MenAtArms)
                         {
                             string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(nameToShow) ?? "Unit";
-                            displayName = $"MAA: {nameToShow}{attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
+                            displayName = $"MAA: {nameToShow} {attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
                         }
                         else
                         {
@@ -229,17 +229,9 @@ namespace CrusaderWars.client
 
                         if (unit.UnitType == "MenAtArm")
                         {
-                            // For MAA, show "CK3 Name -> Screen Name [Category]" if they are different
-                            if (unit.DisplayName != screenName && !string.IsNullOrEmpty(unit.DisplayName))
-                            {
-                                displayText = $"CK3: {unit.DisplayName} -> {screenName} [{unit.AttilaUnitKey}]";
-                            }
-                            else
-                            {
-                                displayText = $"{screenName} [{unit.AttilaUnitKey}]";
-                            }
-                            if (unit.IsSiege) displayText += " [SIEGE]";
+                            displayText = $"{unit.DisplayName} [{screenName}] [{unit.AttilaUnitKey}]";
                             if (!string.IsNullOrEmpty(unit.MaxCategory)) displayText += $" [{unit.MaxCategory}]";
+                            if (unit.IsSiege) displayText += " [SIEGE]";
                         }
                         else // General, Knights, Levy, Garrison
                         {
