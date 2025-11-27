@@ -14,8 +14,8 @@ namespace CrusaderWars.client
         private RectangleF _defenderZone;
         private readonly float _scale;
         private readonly float _mapDimension;
-        private const int MAP_PANEL_SIZE = 500;
         private readonly bool _isAttackerPlayer;
+        private readonly bool _isSiegeBattle;
 
         // Dragging and Resizing State
         private enum DragHandle { None, Body, TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left }
@@ -26,7 +26,7 @@ namespace CrusaderWars.client
         private bool _ignoreNudChanges = false;
 
 
-        public DeploymentZoneToolForm(DeploymentArea attackerArea, DeploymentArea defenderArea, float mapDimension, bool isAttackerPlayer)
+        public DeploymentZoneToolForm(DeploymentArea attackerArea, DeploymentArea defenderArea, float mapDimension, bool isAttackerPlayer, bool isSiegeBattle)
         {
             InitializeComponent();
 
@@ -34,9 +34,10 @@ namespace CrusaderWars.client
             _initialDefenderArea = defenderArea;
             _mapDimension = mapDimension;
             _isAttackerPlayer = isAttackerPlayer;
+            _isSiegeBattle = isSiegeBattle;
 
             // Calculate scale to fit map into panel
-            _scale = MAP_PANEL_SIZE / _mapDimension;
+            _scale = (float)mapPanel.ClientRectangle.Width / _mapDimension;
 
             // Set labels based on player side
             if (_isAttackerPlayer)
@@ -127,11 +128,34 @@ namespace CrusaderWars.client
             g.Clear(Color.DarkSeaGreen); // Map background
 
             // Translate origin to center of panel
-            g.TranslateTransform(MAP_PANEL_SIZE / 2f, MAP_PANEL_SIZE / 2f);
+            g.TranslateTransform(mapPanel.ClientRectangle.Width / 2f, mapPanel.ClientRectangle.Height / 2f);
 
             // Draw map boundary
             float boundary = _mapDimension / 2f * _scale;
             g.DrawRectangle(Pens.Black, -boundary, -boundary, boundary * 2, boundary * 2);
+
+            // Draw settlement indicator if it's a siege battle
+            if (_isSiegeBattle)
+            {
+                float settlementSize = 40; // 40 pixels
+                RectangleF settlementRect = new RectangleF(-settlementSize / 2, -settlementSize / 2, settlementSize, settlementSize);
+
+                using (var settlementBrush = new SolidBrush(Color.FromArgb(150, Color.SaddleBrown)))
+                {
+                    g.FillRectangle(settlementBrush, settlementRect);
+                }
+                using (var settlementPen = new Pen(Color.Black, 2))
+                {
+                    g.DrawRectangle(settlementPen, Rectangle.Round(settlementRect));
+                }
+                // Draw label
+                using (var font = new Font("Arial", 8, FontStyle.Bold))
+                using (var stringFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+                using (var textBrush = new SolidBrush(Color.White))
+                {
+                    g.DrawString("Settlement", font, textBrush, settlementRect, stringFormat);
+                }
+            }
 
 
             // Draw attacker zone (Blue for player, Orange for enemy)
@@ -260,8 +284,8 @@ namespace CrusaderWars.client
 
         private PointF PixelToMapCoords(Point pixelPoint)
         {
-            float mapX = (pixelPoint.X - MAP_PANEL_SIZE / 2f) / _scale;
-            float mapY = -(pixelPoint.Y - MAP_PANEL_SIZE / 2f) / _scale;
+            float mapX = (pixelPoint.X - mapPanel.ClientRectangle.Width / 2f) / _scale;
+            float mapY = -(pixelPoint.Y - mapPanel.ClientRectangle.Height / 2f) / _scale;
             return new PointF(mapX, mapY);
         }
 

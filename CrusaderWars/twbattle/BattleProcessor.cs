@@ -1793,7 +1793,7 @@ namespace CrusaderWars.twbattle
 
                 form.Invoke((MethodInvoker)delegate
                 {
-                    using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer))
+                    using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle))
                     {
                         if (toolForm.ShowDialog(form) == DialogResult.OK)
                         {
