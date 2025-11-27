@@ -1489,7 +1489,7 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowPostCrashAutofixPrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies)
+        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowPostCrashAutofixPrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies, bool isAfterCrash = true)
         {
             using (Form prompt = new Form())
             {
@@ -1505,14 +1505,23 @@ namespace CrusaderWars.twbattle
                     Width = 510,
                 };
 
-                prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
-                textLabel.Height = 70;
-                textLabel.Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:";
+                if (isAfterCrash)
+                {
+                    prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
+                    textLabel.Height = 70;
+                    textLabel.Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:";
+                }
+                else
+                {
+                    prompt.Text = "Crusader Conflicts: Battle Tools";
+                    textLabel.Height = 50;
+                    textLabel.Text = "Select a tool to manually configure or apply a fix for the next battle. These changes can help prevent crashes before they happen.";
+                }
                 prompt.Controls.Add(textLabel);
 
                 var allStrategyControls = new Dictionary<AutofixState.AutofixStrategy, (RadioButton rb, Label lbl)>
                 {
-                    { AutofixState.AutofixStrategy.Units, (new RadioButton() { Text = "Change Units", AutoSize = true }, new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.Units, (new RadioButton() { Text = "Change Units (Automatic)", AutoSize = true }, new Label() { Text = "Replaces custom mod units one-by-one with default units. Good for a specific buggy unit.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.MapSize, (new RadioButton() { Text = "Change Map Size", AutoSize = true }, new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
@@ -1524,11 +1533,12 @@ namespace CrusaderWars.twbattle
                 bool first = true;
 
                 // Create GroupBoxes
-                GroupBox autofixGroup = new GroupBox() { Text = "Autofix", Left = 20, Top = currentTop, Width = 510 };
+                GroupBox autofixGroup = new GroupBox() { Text = "Pre-emptive Fixes", Left = 20, Top = currentTop, Width = 510 };
+                if (isAfterCrash) { autofixGroup.Text = "Automatic Fixes"; }
                 prompt.Controls.Add(autofixGroup);
                 int currentAutofixTop = 20;
 
-                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Fix", Left = 20, Width = 510 };
+                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Tools", Left = 20, Width = 510 };
                 prompt.Controls.Add(manualFixGroup);
                 int currentManualFixTop = 20;
 

@@ -3052,13 +3052,32 @@ namespace CrusaderWars
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
         {
             string originalInfoText = infoLabel.Text;
-            infoLabel.Text = "Loading Manual Battle Tools...";
+            infoLabel.Text = "Loading Battle Tools...";
 
-            var (userResponse, chosenStrategy) = BattleProcessor.ShowManualToolsPrompt(this);
+            // Load log snippet to determine if it's a siege battle to correctly populate strategies.
+            string? logSnippet = BattleState.LoadLogSnippet();
+            if (logSnippet == null)
+            {
+                MessageBox.Show(this, "Could not find saved battle information. The tools cannot be used until a battle has been started and saved.", "Battle Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                infoLabel.Text = originalInfoText;
+                return;
+            }
+            DataSearch.Search(logSnippet); // This sets BattleState.IsSiegeBattle
+
+            var allStrategies = Enum.GetValues(typeof(BattleProcessor.AutofixState.AutofixStrategy))
+                                   .Cast<BattleProcessor.AutofixState.AutofixStrategy>()
+                                   .ToList();
+
+            if (BattleState.IsSiegeBattle)
+            {
+                allStrategies.Remove(BattleProcessor.AutofixState.AutofixStrategy.MapSize);
+            }
+
+            var (userResponse, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, allStrategies, isAfterCrash: false);
 
             if (userResponse == DialogResult.No || chosenStrategy == null)
             {
-                Program.Logger.Debug("User cancelled manual tool selection.");
+                Program.Logger.Debug("User cancelled tool selection.");
                 infoLabel.Text = originalInfoText; // Reset label
                 return;
             }
@@ -3070,6 +3089,24 @@ namespace CrusaderWars
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool:
                     LaunchDeploymentZoneTool();
+                    break;
+                case BattleProcessor.AutofixState.AutofixStrategy.MapSize:
+                    // For now, cycle through Big -> Huge -> default
+                    string nextSize = BattleState.AutofixDeploymentSizeOverride == "Big" ? "Huge" : "Big";
+                    BattleState.AutofixDeploymentSizeOverride = nextSize;
+                    MessageBox.Show($"Autofix setting applied: Map size will be forced to '{nextSize}' for the next battle.", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+                case BattleProcessor.AutofixState.AutofixStrategy.Deployment:
+                    BattleState.AutofixDeploymentRotationOverride = !(BattleState.AutofixDeploymentRotationOverride ?? false);
+                    string rotationState = BattleState.AutofixDeploymentRotationOverride == true ? "enabled" : "disabled";
+                    MessageBox.Show($"Autofix setting applied: Deployment rotation is now {rotationState} for the next battle.", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+                case BattleProcessor.AutofixState.AutofixStrategy.MapVariant:
+                    BattleState.AutofixMapVariantOffset = (BattleState.AutofixMapVariantOffset ?? 0) + 1;
+                    MessageBox.Show($"Autofix setting applied: Map variant offset will be increased by 1 for the next battle (current offset: {BattleState.AutofixMapVariantOffset}).", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+                case BattleProcessor.AutofixState.AutofixStrategy.Units:
+                    MessageBox.Show("The 'Change Units' strategy is an automatic process that runs after a crash and cannot be configured beforehand. Please use the 'Unit Replacer Tool' for manual changes.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     break;
             }
             infoLabel.Text = originalInfoText; // Reset label after tool is used or cancelled
@@ -3198,8 +3235,8 @@ namespace CrusaderWars
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error in LaunchAutoFixerButton_Click: {ex.Message}");
-                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Program.Logger.Debug($"Error in LaunchUnitReplacerTool: {ex.Message}\n{ex.StackTrace}");
+                MessageBox.Show($"An unexpected error occurred while launching the Unit Replacer: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
