@@ -317,7 +317,7 @@ namespace CrusaderWars.client
             this.MinimizeBox = true;
             this.Name = "UnitReplacerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Unit Replacer Tool";
+            this.Text = "Unit Replacer";
             this.Load += new System.EventHandler(this.UnitReplacerForm_Load);
             this.Resize += new System.EventHandler(this.UnitReplacerForm_Resize);
             this.InstructionsBox.ResumeLayout(false);
