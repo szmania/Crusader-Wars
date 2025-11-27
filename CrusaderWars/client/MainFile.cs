@@ -3080,7 +3080,7 @@ namespace CrusaderWars
                     LaunchUnitReplacerTool();
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool:
-                    MessageBox.Show("Deployment Zone Tool is not yet implemented.", "Coming Soon", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LaunchDeploymentZoneTool();
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.Units:
                     MessageBox.Show("This option automatically replaces potentially buggy units one by one. It is intended for use during the automatic crash recovery process and cannot be manually triggered.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -3221,6 +3221,87 @@ namespace CrusaderWars
             }
         }
 
+        private void LaunchDeploymentZoneTool()
+        {
+            try
+            {
+                Program.Logger.Debug("--- Manual Deployment Zone Tool Launched from UI ---");
+                Options.ReadOptionsFile();
+
+                // Load log snippet to restore context
+                string? logSnippet = BattleState.LoadLogSnippet();
+                if (logSnippet == null)
+                {
+                    MessageBox.Show("Could not find the saved battle information (log snippet). The tool cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                DataSearch.Search(logSnippet);
+
+                // Set playthrough
+                string? activePlaythroughTag = GetActivePlaythroughTag();
+                if (!string.IsNullOrEmpty(activePlaythroughTag))
+                {
+                    if (ModOptions.optionsValuesCollection.ContainsKey("Playthrough"))
+                    {
+                        ModOptions.optionsValuesCollection["Playthrough"] = activePlaythroughTag;
+                    }
+                    else
+                    {
+                        ModOptions.optionsValuesCollection.Add("Playthrough", activePlaythroughTag);
+                    }
+                }
+
+                // Read armies to get total soldier count for map size calculation
+                var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
+                if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
+                {
+                    MessageBox.Show("Could not read army data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                DataSearch.FindSiegeCombatID();
+                int total_soldiers = attackerArmies.Sum(a => a.GetTotalSoldiers()) + defenderArmies.Sum(a => a.GetTotalSoldiers());
+                string option_map_size = ModOptions.DeploymentsZones();
+
+                // Generate initial deployment areas
+                string attacker_direction = BattleState.IsSiegeBattle ? (BattleState.OriginalSiegeAttackerDirection ?? "N") : "N";
+                string defender_direction = "S";
+
+                DeploymentArea attackerArea = new DeploymentArea(attacker_direction, option_map_size, total_soldiers);
+                DeploymentArea defenderArea = new DeploymentArea(defender_direction, option_map_size, total_soldiers, BattleState.IsSiegeBattle);
+                float map_dimension = float.Parse(ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle), System.Globalization.CultureInfo.InvariantCulture);
+
+                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension))
+                {
+                    if (toolForm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        var attackerValues = toolForm.GetAttackerValues();
+                        var defenderValues = toolForm.GetDefenderValues();
+
+                        BattleState.DeploymentZoneOverrideAttacker = new BattleState.ZoneOverride
+                        {
+                            X = (float)attackerValues.CenterX,
+                            Y = (float)attackerValues.CenterY,
+                            Width = (float)attackerValues.Width,
+                            Height = (float)attackerValues.Height
+                        };
+                        BattleState.DeploymentZoneOverrideDefender = new BattleState.ZoneOverride
+                        {
+                            X = (float)defenderValues.CenterX,
+                            Y = (float)defenderValues.CenterY,
+                            Width = (float)defenderValues.Width,
+                            Height = (float)defenderValues.Height
+                        };
+
+                        MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error in LaunchDeploymentZoneTool: {ex.Message}");
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         #endregion
     }
 }

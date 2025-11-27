@@ -774,10 +774,7 @@ namespace CrusaderWars.twbattle
                             (fixApplied, fixDescription) = TryManualUnitFix(autofixState, form);
                             break;
                         case AutofixState.AutofixStrategy.DeploymentZoneTool:
-                            // Placeholder for the new tool
-                            MessageBox.Show("Deployment Zone Tool is not yet implemented.", "Coming Soon", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            fixApplied = false;
-                            fixDescription = "";
+                            (fixApplied, fixDescription) = TryDeploymentZoneToolFix(autofixState, form);
                             break;
                     }
 
@@ -1686,5 +1683,82 @@ namespace CrusaderWars.twbattle
             return (false, 0);
         }
 
+
+        private static (bool, string) TryDeploymentZoneToolFix(AutofixState autofixState, HomePage form)
+        {
+            Program.Logger.Debug("--- Autofix: Initiating Deployment Zone Tool ---");
+
+            try
+            {
+                var allArmies = autofixState.OriginalAttackerArmies.Concat(autofixState.OriginalDefenderArmies).ToList();
+                int total_soldiers = allArmies.Sum(a => a.GetTotalSoldiers());
+                string option_map_size = ModOptions.DeploymentsZones();
+
+                // Create temporary deployment areas to pass to the form
+                // Directions are placeholders; the user will adjust the final position and size.
+                string attacker_direction = BattleState.IsSiegeBattle ? (BattleState.OriginalSiegeAttackerDirection ?? "N") : "N";
+                string defender_direction = "S";
+
+                DeploymentArea attackerArea = new DeploymentArea(attacker_direction, option_map_size, total_soldiers);
+                DeploymentArea defenderArea = new DeploymentArea(defender_direction, option_map_size, total_soldiers, BattleState.IsSiegeBattle);
+                float map_dimension = float.Parse(ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle), System.Globalization.CultureInfo.InvariantCulture);
+
+                bool userCommitted = false;
+                DeploymentZoneToolForm.DeploymentZoneValues? attackerValues = null;
+                DeploymentZoneToolForm.DeploymentZoneValues? defenderValues = null;
+
+                if (form is null || form.IsDisposed)
+                {
+                    Program.Logger.Debug("Autofix Error: Form is null or disposed. Cannot show deployment zone tool.");
+                    return (false, "");
+                }
+
+                form.Invoke((MethodInvoker)delegate
+                {
+                    using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension))
+                    {
+                        if (toolForm.ShowDialog(form) == DialogResult.OK)
+                        {
+                            attackerValues = toolForm.GetAttackerValues();
+                            defenderValues = toolForm.GetDefenderValues();
+                            userCommitted = true;
+                        }
+                    }
+                });
+
+                if (userCommitted && attackerValues != null && defenderValues != null)
+                {
+                    BattleState.DeploymentZoneOverrideAttacker = new BattleState.ZoneOverride
+                    {
+                        X = (float)attackerValues.CenterX,
+                        Y = (float)attackerValues.CenterY,
+                        Width = (float)attackerValues.Width,
+                        Height = (float)attackerValues.Height
+                    };
+                    BattleState.DeploymentZoneOverrideDefender = new BattleState.ZoneOverride
+                    {
+                        X = (float)defenderValues.CenterX,
+                        Y = (float)defenderValues.CenterY,
+                        Width = (float)defenderValues.Width,
+                        Height = (float)defenderValues.Height
+                    };
+
+                    string fixDescription = "manually adjusting deployment zones via the tool";
+                    Program.Logger.Debug($"Applying manual deployment zones: Attacker(X:{attackerValues.CenterX}, Y:{attackerValues.CenterY}, W:{attackerValues.Width}, H:{attackerValues.Height}), Defender(X:{defenderValues.CenterX}, Y:{defenderValues.CenterY}, W:{defenderValues.Width}, H:{defenderValues.Height})");
+                    return (true, fixDescription);
+                }
+                else
+                {
+                    Program.Logger.Debug("Deployment zone tool was cancelled or no changes were made.");
+                    return (false, "");
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error in TryDeploymentZoneToolFix: {ex.Message}");
+                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Tool: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return (false, "");
+            }
+        }
     }
 }

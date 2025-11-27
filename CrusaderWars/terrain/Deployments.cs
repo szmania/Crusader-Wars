@@ -278,27 +278,51 @@ namespace CrusaderWars.terrain
         {
             float centerX, centerY, width, height;
 
-            if (BattleState.IsSiegeBattle && isGarrisonDeployment)
+            // Check for manual overrides from the Deployment Zone Tool
+            var attackerOverride = BattleState.DeploymentZoneOverrideAttacker;
+            var defenderOverride = BattleState.DeploymentZoneOverrideDefender;
+            bool isAttacker = (direction == Deployments.beta_GeDirection("attacker"));
+
+            if (isAttacker && attackerOverride != null)
             {
-                // Special case for the central garrison deployment area
-                centerX = 0f;
-                centerY = 0f;
-                string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
-                string height_str = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
-                float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out width);
-                float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out height);
-
-                this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
-                this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
-                this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
-                this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
-
-                this.MinX = centerX - (width / 2f);
-                this.MaxX = centerX + (width / 2f);
-                this.MinY = centerY - (height / 2f);
-                this.MaxY = centerY + (height / 2f);
-                return; // Exit early, skipping edge-of-map logic
+                centerX = attackerOverride.X;
+                centerY = attackerOverride.Y;
+                width = attackerOverride.Width;
+                height = attackerOverride.Height;
+                Program.Logger.Debug("Applying manual override for Attacker deployment zone.");
             }
+            else if (!isAttacker && defenderOverride != null)
+            {
+                centerX = defenderOverride.X;
+                centerY = defenderOverride.Y;
+                width = defenderOverride.Width;
+                height = defenderOverride.Height;
+                Program.Logger.Debug("Applying manual override for Defender deployment zone.");
+            }
+            else
+            {
+                // Original logic if no override is present
+                if (BattleState.IsSiegeBattle && isGarrisonDeployment)
+                {
+                    // Special case for the central garrison deployment area
+                    centerX = 0f;
+                    centerY = 0f;
+                    string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
+                    string height_str = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
+                    float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out width);
+                    float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out height);
+
+                    this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
+                    this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
+                    this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
+                    this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
+
+                    this.MinX = centerX - (width / 2f);
+                    this.MaxX = centerX + (width / 2f);
+                    this.MinY = centerY - (height / 2f);
+                    this.MaxY = centerY + (height / 2f);
+                    return; // Exit early, skipping edge-of-map logic
+                }
 
             // Determine MapSize category ("Medium", "Big", "Huge")
             string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
@@ -394,6 +418,20 @@ namespace CrusaderWars.terrain
                 }
             }
 
+
+                // Assign final string values
+                this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
+                this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
+                this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
+                this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
+
+                // Set Min/Max for unit placement clamping
+                this.MinX = centerX - (width / 2f);
+                this.MaxX = centerX + (width / 2f);
+                this.MinY = centerY - (height / 2f);
+                this.MaxY = centerY + (height / 2f);
+                return; // Exit to avoid re-calculating
+            }
 
             // Assign final string values
             this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
