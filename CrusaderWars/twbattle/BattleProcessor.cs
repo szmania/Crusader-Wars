@@ -83,9 +83,9 @@ namespace CrusaderWars.twbattle
             {
                 AutofixReplacements.Clear(); // Clear fixes for a new battle
                 CharacterDataManager.ClearCache(); // Clear dynasty name cache
-                UnitMappers_BETA.ClearFactionCache(); // <-- ADD THIS LINE
+                UnitMappers_BETA.ClearFactionCache();
                 BattleStateBridge.Clear();
-                BattleState.ClearAutofixOverrides();
+                // BattleState.ClearAutofixOverrides(); // Moved to end of successful battle processing
             }
             UnitsFile.ResetProcessedArmies(); // Reset tracker for each battle processing attempt.
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
@@ -547,12 +547,8 @@ namespace CrusaderWars.twbattle
             form.Text = "Crusader Conflicts (Waiting for TW:Attila battle to end...)";
             Program.Logger.Debug("Waiting for TW:Attila battle to end...");
 
-            form.ExecuteButton.Enabled = true;
-            if (form.ExecuteButton.Enabled)
-            {
-                form.ExecuteButton.BackgroundImage = Properties.Resources.start_new;
-            }
-            form.ContinueBattleButton.Enabled = true;
+            form.ExecuteButton.Enabled = false;
+            form.ContinueBattleButton.Enabled = false;
 
             //  Waiting for TW:Attila battle to end...
             while (battleEnded == false)
@@ -1174,6 +1170,7 @@ namespace CrusaderWars.twbattle
             GC.Collect();
 
             // Clear battle state after successful completion
+            BattleState.ClearAutofixOverrides(); // Clear any manual or auto fixes for the next battle
             BattleState.ClearBattleState();
             TerrainGenerator.Clear(); // Moved from start of method to clear state AFTER battle is processed.
 
