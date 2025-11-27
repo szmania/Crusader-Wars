@@ -398,7 +398,7 @@ namespace CrusaderWars.mod_manager
                     sb.AppendLine("You are missing these required mods:");
                     foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                     {
-                        string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                        string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                         if (!string.IsNullOrEmpty(url))
                         {
                             line += $"\n  {url}";
@@ -636,7 +636,7 @@ namespace CrusaderWars.mod_manager
                         sb.AppendLine("You are missing these mods:");
                         foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                         {
-                            string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                            string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                             if (!string.IsNullOrEmpty(url))
                             {
                                 line += $"\n  {url}";
@@ -909,7 +909,7 @@ namespace CrusaderWars.mod_manager
                             sb.AppendLine("You are missing these required sub-mod files:");
                             foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                             {
-                                string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                                string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                                 if (!string.IsNullOrEmpty(url))
                                 {
                                     line += $"\n  {url}";
