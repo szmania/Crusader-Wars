@@ -1961,6 +1961,8 @@ namespace CrusaderWars
                 // Battle processed successfully. Loop will continue.
                 // Manually reset some UI elements for the next iteration,
                 // without touching infoLabel.
+                await BattleProcessor.CleanupAfterBattle();
+                battleJustCompleted = true;
                 ContinueBattleButton.Visible = false;
                 ExecuteButton.Text = "";
                 // The line `ExecuteButton.Size = new Size(197, 115);` was moved from here.
@@ -2175,6 +2177,8 @@ namespace CrusaderWars
             _programmaticClick = true;
             if (await BattleProcessor.ProcessBattle(this, attacker_armies, defender_armies, token, regenerateAndRestart))
             {
+                await BattleProcessor.CleanupAfterBattle();
+                battleJustCompleted = true;
                 // The battle finished successfully, start the main loop to wait for the next one.
                 ExecuteButton.PerformClick();
             }
@@ -2798,7 +2802,7 @@ namespace CrusaderWars
             public string OldVersion { get; set; } = "0.0.0";
             public string NewVersion { get; set; } = "0.0.0";
             public string SourceModFile { get; set; } = "";
-            public string SourceModDir { get; set; } = "";
+            public string SourceModDir { get; set; = "";
             public string TargetModFile { get; set; } = "";
             public string TargetModDir { get; set; } = "";
             public string ModDirectoryName { get; set; } = "";
