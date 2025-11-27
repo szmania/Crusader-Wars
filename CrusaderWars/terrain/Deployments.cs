@@ -74,31 +74,31 @@ namespace CrusaderWars.terrain
                 return PR_Deployment;
             }
 
-            public static string? SetOppositeDirection(string direction, int total_soldiers)
+            public static string? SetOppositeDirection(string direction, int total_soldiers, bool isGarrisonDeployment = false)
             {
                 DeploymentArea DEPLOYMENT_AREA;
                 switch (direction)
                 {
                     case "N":
-                        DEPLOYMENT_AREA = new DeploymentArea("S", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("S", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetSouth(DEPLOYMENT_AREA);
                     case "S":
-                        DEPLOYMENT_AREA = new DeploymentArea("N", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("N", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetNorth(DEPLOYMENT_AREA);
                     case "E":
-                        DEPLOYMENT_AREA = new DeploymentArea("W", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("W", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetWest(DEPLOYMENT_AREA);
                     case "W":
-                        DEPLOYMENT_AREA = new DeploymentArea("E", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("E", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetEast(DEPLOYMENT_AREA);
                     default:
                         throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
                 }
             }
 
-            public static string? SetDirection(string direction, int total_soldiers)
+            public static string? SetDirection(string direction, int total_soldiers, bool isGarrisonDeployment = false)
             {
-                DeploymentArea DEPLOYMENT_AREA = new DeploymentArea(direction, ModOptions.DeploymentsZones(), total_soldiers);
+                DeploymentArea DEPLOYMENT_AREA = new DeploymentArea(direction, ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                 switch (direction)
                 {
                     case "N":
@@ -177,20 +177,7 @@ namespace CrusaderWars.terrain
             siege_center_x = "0.00";
             siege_center_y = "0.00";
 
-            // Defender deployment area is now a fixed size for all sieges.
-            string width = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
-            string height = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
-
-            // Defender is at the center of the settlement.
-            defender_direction = "S"; // Default direction, provides a forward-facing orientation.
-            defender_deployment = "<deployment_area>\n" +
-                                  $"<centre x =\"{siege_center_x}\" y =\"{siege_center_y}\"/>\n" +
-                                  $"<width metres =\"{width}\"/>\n" +
-                                  $"<height metres =\"{height}\"/>\n" +
-                                  $"<orientation radians =\"{ROTATION_0º}\"/>\n" +
-                                  "</deployment_area>\n\n";
-
-            // Attacker gets a random direction from the edges of the map.
+            // 1. Determine Attacker Direction
             if (BattleState.AutofixAttackerDirectionOverride != null)
             {
                 attacker_direction = BattleState.AutofixAttackerDirectionOverride;
@@ -214,8 +201,21 @@ namespace CrusaderWars.terrain
                 BattleState.OriginalSiegeAttackerDirection = attacker_direction; // Store the initial direction
                 Program.Logger.Debug($"Initial siege attacker direction set to '{attacker_direction}'.");
             }
-            
-            // Use existing logic to place the attacker at the map edge.
+
+            // 2. Determine Defender Direction
+            defender_direction = "S"; // Default direction
+            // Prevent attacker and defender directions from being the same, which confuses override logic.
+            if (attacker_direction == defender_direction)
+            {
+                defender_direction = Directions.GetOppositeDirection(attacker_direction);
+                Program.Logger.Debug($"Attacker and defender directions were the same. Changed defender direction to '{defender_direction}'.");
+            }
+
+            // 3. Create Deployments
+            // Defender is at the center of the settlement.
+            defender_deployment = Directions.SetDirection(defender_direction, total_soldiers, true);
+
+            // Attacker is at the map edge.
             attacker_deployment = Directions.SetDirection(attacker_direction, total_soldiers);
         }
 
