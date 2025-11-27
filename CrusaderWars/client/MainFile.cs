@@ -3303,6 +3303,7 @@ namespace CrusaderWars
                     return;
                 }
                 DataSearch.FindSiegeCombatID();
+                BattleResult.ReadCombatBlock(); // Read province name from combat block
                 int total_soldiers = attackerArmies.Sum(a => a.GetTotalSoldiers()) + defenderArmies.Sum(a => a.GetTotalSoldiers());
                 string option_map_size = ModOptions.DeploymentsZones();
 
