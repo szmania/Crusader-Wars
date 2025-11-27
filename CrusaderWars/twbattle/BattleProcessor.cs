@@ -1182,6 +1182,11 @@ namespace CrusaderWars.twbattle
             }
 
 
+            return true; // Success
+        }
+
+        public static async Task CleanupAfterBattle()
+        {
             await Task.Delay(10);
 
             Program.Logger.Debug("Resetting unit sizes for next battle.");
@@ -1191,9 +1196,7 @@ namespace CrusaderWars.twbattle
             // Clear battle state after successful completion
             BattleState.ClearAutofixOverrides(); // Clear any manual or auto fixes for the next battle
             BattleState.ClearBattleState();
-            TerrainGenerator.Clear(); // Moved from start of method to clear state AFTER battle is processed.
-
-            return true; // Success
+            TerrainGenerator.Clear();
         }
 
         private static (bool, string) TryMapSizeFix(AutofixState autofixState, string originalMapSize)
