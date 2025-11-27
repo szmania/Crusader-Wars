@@ -2051,6 +2051,9 @@ namespace CrusaderWars
         {
             if (await ValidateActiveUnitMapper() == false) { return; }
             Program.Logger.Debug("Continue Battle button clicked.");
+            ContinueBattleButton.Enabled = false;
+            ExecuteButton.Enabled = false;
+            LaunchAutoFixerButton.Enabled = false;
 
             // Cancel any previous monitoring operation
             _battleMonitoringCts?.Cancel();
