@@ -28,7 +28,7 @@ namespace CrusaderWars.client
         private bool _ignoreNudChanges = false;
 
 
-        public DeploymentZoneToolForm(DeploymentArea attackerArea, DeploymentArea defenderArea, float mapDimension, bool isAttackerPlayer, bool isSiegeBattle, string battleDate, string battleType)
+        public DeploymentZoneToolForm(DeploymentArea attackerArea, DeploymentArea defenderArea, float mapDimension, bool isAttackerPlayer, bool isSiegeBattle, string battleDate, string battleType, string provinceName, string mapX, string mapY)
         {
             InitializeComponent();
 
@@ -41,6 +41,8 @@ namespace CrusaderWars.client
             // Set battle details
             lblBattleDate.Text = $"Date: {battleDate}";
             lblBattleType.Text = $"Type: {battleType}";
+            lblProvinceName.Text = $"Province: {provinceName}";
+            lblCoordinates.Text = $"Coords: ({mapX}, {mapY})";
 
             // Calculate scale to fit map into panel
             _scale = (float)mapPanel.ClientRectangle.Width / _mapDimension;

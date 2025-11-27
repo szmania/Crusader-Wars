@@ -3319,11 +3319,17 @@ namespace CrusaderWars
                 float map_dimension = float.Parse(ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle), System.Globalization.CultureInfo.InvariantCulture);
 
                 // Get Battle Details
+                if (!BattleState.IsSiegeBattle)
+                {
+                    TerrainGenerator.CheckForSpecialCrossingBattle(attackerArmies, defenderArmies);
+                }
+                var (mapX, mapY, _, _) = TerrainGenerator.GetBattleMap();
+                string provinceName = BattleResult.ProvinceName ?? "Unknown";
                 string battleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
                 string battleType;
                 if (BattleState.IsSiegeBattle) {
                     battleType = "Siege Battle";
-                } else if (TerrainGenerator.TerrainType == "river" || TerrainGenerator.TerrainType == "strait") {
+                } else if (TerrainGenerator.isRiver || TerrainGenerator.isStrait) {
                     battleType = "River/Strait Battle";
                 } else if (TerrainGenerator.isCoastal) {
                     battleType = "Coastal Battle";
@@ -3332,7 +3338,7 @@ namespace CrusaderWars
                 }
 
 
-                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle, battleDate, battleType))
+                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle, battleDate, battleType, provinceName, mapX, mapY))
                 {
                     if (toolForm.ShowDialog(this) == DialogResult.OK)
                     {

@@ -51,6 +51,8 @@ namespace CrusaderWars.client
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblBattleDate = new System.Windows.Forms.Label();
             this.lblBattleType = new System.Windows.Forms.Label();
+            this.lblProvinceName = new System.Windows.Forms.Label();
+            this.lblCoordinates = new System.Windows.Forms.Label();
             this.attackerGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudAttackerHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudAttackerWidth)).BeginInit();
@@ -398,11 +400,33 @@ namespace CrusaderWars.client
             this.lblBattleType.TabIndex = 6;
             this.lblBattleType.Text = "Battle Type:";
             // 
+            // lblProvinceName
+            // 
+            this.lblProvinceName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblProvinceName.Location = new System.Drawing.Point(597, 13);
+            this.lblProvinceName.Name = "lblProvinceName";
+            this.lblProvinceName.Size = new System.Drawing.Size(191, 13);
+            this.lblProvinceName.TabIndex = 7;
+            this.lblProvinceName.Text = "Province:";
+            this.lblProvinceName.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // lblCoordinates
+            // 
+            this.lblCoordinates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblCoordinates.Location = new System.Drawing.Point(597, 35);
+            this.lblCoordinates.Name = "lblCoordinates";
+            this.lblCoordinates.Size = new System.Drawing.Size(191, 13);
+            this.lblCoordinates.TabIndex = 8;
+            this.lblCoordinates.Text = "Coords:";
+            this.lblCoordinates.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // DeploymentZoneToolForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 524);
+            this.Controls.Add(this.lblCoordinates);
+            this.Controls.Add(this.lblProvinceName);
             this.Controls.Add(this.lblBattleType);
             this.Controls.Add(this.lblBattleDate);
             this.Controls.Add(this.btnCancel);
@@ -454,5 +478,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Label lblBattleDate;
         private System.Windows.Forms.Label lblBattleType;
+        private System.Windows.Forms.Label lblProvinceName;
+        private System.Windows.Forms.Label lblCoordinates;
     }
 }
