@@ -1398,15 +1398,19 @@ namespace CrusaderWars.twbattle
             using (Form prompt = new Form())
             {
                 prompt.Width = 500;
-                prompt.Text = "Crusader Conflicts: Attila Crash Detected";
+                prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
                 prompt.MaximizeBox = false;
                 prompt.MinimizeBox = false;
 
-                Label textLabel = new Label() { 
-                    Left = 20, Top = 20, Width = 460, Height = 70, 
-                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:" 
+                Label textLabel = new Label()
+                {
+                    Left = 20,
+                    Top = 20,
+                    Width = 460,
+                    Height = 70,
+                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:"
                 };
                 prompt.Controls.Add(textLabel);
 
@@ -1419,31 +1423,75 @@ namespace CrusaderWars.twbattle
                     { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
-                int currentTop = 100;
+                // Create GroupBoxes
+                GroupBox autofixGroup = new GroupBox() { Text = "Autofix", Left = 20, Top = 100, Width = 460 };
+                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Fix", Left = 20, Width = 460 }; // Top will be set later
+                prompt.Controls.Add(autofixGroup);
+                prompt.Controls.Add(manualFixGroup);
+
+                int currentAutofixTop = 20;
+                int currentManualFixTop = 20;
                 bool first = true;
+
                 foreach (var strategy in availableStrategies)
                 {
                     if (allStrategyControls.TryGetValue(strategy, out var controls))
                     {
-                        controls.rb.Left = 30;
-                        controls.rb.Top = currentTop;
-                        if (first)
+                        if (strategy == AutofixState.AutofixStrategy.ManualUnitReplacement)
                         {
-                            controls.rb.Checked = true;
-                            first = false;
+                            // Add to Manual Fix group
+                            controls.rb.Left = 10;
+                            controls.rb.Top = currentManualFixTop;
+                            if (first) { controls.rb.Checked = true; first = false; }
+                            manualFixGroup.Controls.Add(controls.rb);
+
+                            controls.lbl.Left = 30;
+                            controls.lbl.Top = currentManualFixTop + 20;
+                            manualFixGroup.Controls.Add(controls.lbl);
+                            currentManualFixTop += 55;
                         }
-                        prompt.Controls.Add(controls.rb);
+                        else
+                        {
+                            // Add to Autofix group
+                            controls.rb.Left = 10;
+                            controls.rb.Top = currentAutofixTop;
+                            if (first) { controls.rb.Checked = true; first = false; }
+                            autofixGroup.Controls.Add(controls.rb);
 
-                        controls.lbl.Left = 50;
-                        controls.lbl.Top = currentTop + 20;
-                        prompt.Controls.Add(controls.lbl);
-
-                        currentTop += 55;
+                            controls.lbl.Left = 30;
+                            controls.lbl.Top = currentAutofixTop + 20;
+                            autofixGroup.Controls.Add(controls.lbl);
+                            currentAutofixTop += 55;
+                        }
                     }
                 }
-                
-                Button btnStart = new Button() { Text = "Start Autofix", Left = 150, Width = 100, Top = currentTop + 10, DialogResult = DialogResult.Yes };
-                Button btnCancel = new Button() { Text = "Cancel", Left = 270, Width = 100, Top = currentTop + 10, DialogResult = DialogResult.No };
+
+                // Adjust GroupBox heights and positions
+                autofixGroup.Height = currentAutofixTop;
+                manualFixGroup.Top = autofixGroup.Top + autofixGroup.Height + 10;
+                manualFixGroup.Height = currentManualFixTop;
+
+                // Hide empty group boxes
+                if (autofixGroup.Controls.Count == 0)
+                {
+                    autofixGroup.Visible = false;
+                    manualFixGroup.Top = autofixGroup.Top;
+                }
+                if (manualFixGroup.Controls.Count == 0)
+                {
+                    manualFixGroup.Visible = false;
+                }
+
+
+                // Adjust position of buttons based on which group boxes are visible
+                int lastControlBottom = textLabel.Bottom;
+                if (autofixGroup.Visible) lastControlBottom = autofixGroup.Bottom;
+                if (manualFixGroup.Visible) lastControlBottom = manualFixGroup.Bottom;
+
+                int currentTop = lastControlBottom + 20;
+
+                Button btnStart = new Button() { Text = "Start Autofix", Left = 150, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 270, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
 
                 prompt.Height = currentTop + 80;
 
