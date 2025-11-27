@@ -281,7 +281,14 @@ namespace CrusaderWars.terrain
             // Check for manual overrides from the Deployment Zone Tool
             var attackerOverride = BattleState.DeploymentZoneOverrideAttacker;
             var defenderOverride = BattleState.DeploymentZoneOverrideDefender;
-            bool isAttacker = (direction == Deployments.beta_GeDirection("attacker"));
+            string globalAttackerDir = Deployments.beta_GeDirection("attacker");
+            bool isAttacker = (direction == globalAttackerDir);
+
+            Program.Logger.Debug($"--- DeploymentArea ---");
+            Program.Logger.Debug($"Direction: '{direction}', Global Attacker Direction: '{globalAttackerDir}', Is Attacker: {isAttacker}");
+            Program.Logger.Debug($"Attacker Override is {(attackerOverride == null ? "NULL" : "PRESENT")}");
+            Program.Logger.Debug($"Defender Override is {(defenderOverride == null ? "NULL" : "PRESENT")}");
+
 
             if (isAttacker && attackerOverride != null)
             {
@@ -289,7 +296,7 @@ namespace CrusaderWars.terrain
                 centerY = attackerOverride.Y;
                 width = attackerOverride.Width;
                 height = attackerOverride.Height;
-                Program.Logger.Debug("Applying manual override for Attacker deployment zone.");
+                Program.Logger.Debug($"Applying manual override for Attacker zone: X={centerX}, Y={centerY}, W={width}, H={height}");
             }
             else if (!isAttacker && defenderOverride != null)
             {
@@ -297,7 +304,7 @@ namespace CrusaderWars.terrain
                 centerY = defenderOverride.Y;
                 width = defenderOverride.Width;
                 height = defenderOverride.Height;
-                Program.Logger.Debug("Applying manual override for Defender deployment zone.");
+                Program.Logger.Debug($"Applying manual override for Defender zone: X={centerX}, Y={centerY}, W={width}, H={height}");
             }
             else
             {
