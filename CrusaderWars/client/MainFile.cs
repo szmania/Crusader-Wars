@@ -3047,6 +3047,7 @@ namespace CrusaderWars
 
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
         {
+            infoLabel.Text = "Loading AutoFixer tool...";
             var allStrategies = new List<BattleProcessor.AutofixState.AutofixStrategy>
             {
                 BattleProcessor.AutofixState.AutofixStrategy.Units,
