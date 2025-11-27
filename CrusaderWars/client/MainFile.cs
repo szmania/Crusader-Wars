@@ -3051,27 +3051,19 @@ namespace CrusaderWars
 
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
         {
-            infoLabel.Text = "Loading AutoFixer tool...";
-            var allStrategies = new List<BattleProcessor.AutofixState.AutofixStrategy>
+            infoLabel.Text = "Loading Manual Battle Tools...";
+            var manualStrategies = new List<BattleProcessor.AutofixState.AutofixStrategy>
             {
-                BattleProcessor.AutofixState.AutofixStrategy.Units,
-                BattleProcessor.AutofixState.AutofixStrategy.MapSize,
-                BattleProcessor.AutofixState.AutofixStrategy.Deployment,
-                BattleProcessor.AutofixState.AutofixStrategy.MapVariant,
                 BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement,
                 BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool
             };
 
-            if (BattleState.IsSiegeBattle)
-            {
-                allStrategies.Remove(BattleProcessor.AutofixState.AutofixStrategy.MapSize);
-            }
-
-            var (userResponse, chosenStrategy) = BattleProcessor.ShowAutofixStrategyChoicePrompt(this, allStrategies);
+            var (userResponse, chosenStrategy) = BattleProcessor.ShowAutofixStrategyChoicePrompt(this, manualStrategies, false);
 
             if (userResponse == DialogResult.No || chosenStrategy == null)
             {
-                Program.Logger.Debug("User cancelled autofixer selection.");
+                Program.Logger.Debug("User cancelled manual tool selection.");
+                infoLabel.Text = "Ready."; // Reset label
                 return;
             }
 
@@ -3083,15 +3075,8 @@ namespace CrusaderWars
                 case BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool:
                     LaunchDeploymentZoneTool();
                     break;
-                case BattleProcessor.AutofixState.AutofixStrategy.Units:
-                    MessageBox.Show("This option automatically replaces potentially buggy units one by one. It is intended for use during the automatic crash recovery process and cannot be manually triggered.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    break;
-                case BattleProcessor.AutofixState.AutofixStrategy.MapSize:
-                case BattleProcessor.AutofixState.AutofixStrategy.Deployment:
-                case BattleProcessor.AutofixState.AutofixStrategy.MapVariant:
-                    MessageBox.Show("This autofix strategy can only be used after a crash occurs.", "Strategy Unavailable", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    break;
             }
+            infoLabel.Text = "Ready."; // Reset label after tool is used or cancelled
         }
 
         private void LaunchUnitReplacerTool()

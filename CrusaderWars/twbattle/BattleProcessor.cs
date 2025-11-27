@@ -678,7 +678,7 @@ namespace CrusaderWars.twbattle
                         }
                         form.Invoke((MethodInvoker)delegate
                         {
-                            (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form, availableStrategies);
+                            (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form, availableStrategies, true);
                         });
 
                         if (userResponse == DialogResult.No || chosenStrategy == null)
@@ -1400,12 +1400,11 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies)
+        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies, bool isPostCrash)
         {
             using (Form prompt = new Form())
             {
                 prompt.Width = 550;
-                prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.Sizable;
                 prompt.AutoScroll = true;
@@ -1415,9 +1414,20 @@ namespace CrusaderWars.twbattle
                     Left = 20,
                     Top = 20,
                     Width = 510,
-                    Height = 70,
-                    Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:"
                 };
+
+                if (isPostCrash)
+                {
+                    prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
+                    textLabel.Height = 70;
+                    textLabel.Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:";
+                }
+                else
+                {
+                    prompt.Text = "Crusader Conflicts: Manual Battle Tools";
+                    textLabel.Height = 50;
+                    textLabel.Text = "Select a tool to manually configure the next battle. These changes can help prevent crashes before they happen.";
+                }
                 prompt.Controls.Add(textLabel);
 
                 var allStrategyControls = new Dictionary<AutofixState.AutofixStrategy, (RadioButton rb, Label lbl)>
