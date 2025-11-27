@@ -57,6 +57,28 @@ namespace CrusaderWars.twbattle
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
         {
+            Program.Logger.Debug("--- BattleProcessor: Checking for Deployment Zone Overrides ---");
+            if (BattleState.DeploymentZoneOverrideAttacker != null)
+            {
+                var ov = BattleState.DeploymentZoneOverrideAttacker;
+                Program.Logger.Debug($"Attacker Override FOUND: X={ov.X}, Y={ov.Y}, W={ov.Width}, H={ov.Height}");
+            }
+            else
+            {
+                Program.Logger.Debug("Attacker Override NOT FOUND.");
+            }
+
+            if (BattleState.DeploymentZoneOverrideDefender != null)
+            {
+                var ov = BattleState.DeploymentZoneOverrideDefender;
+                Program.Logger.Debug($"Defender Override FOUND: X={ov.X}, Y={ov.Y}, W={ov.Width}, H={ov.Height}");
+            }
+            else
+            {
+                Program.Logger.Debug("Defender Override NOT FOUND.");
+            }
+            Program.Logger.Debug("----------------------------------------------------------");
+
             if (autofixState == null)
             {
                 AutofixReplacements.Clear(); // Clear fixes for a new battle
