@@ -46,6 +46,8 @@ namespace CrusaderWars.client
             this.txtSearchAvailable = new System.Windows.Forms.TextBox();
             this.btnPrevAvailable = new System.Windows.Forms.Button();
             this.btnNextAvailable = new System.Windows.Forms.Button();
+            this.btnSearchCurrent = new System.Windows.Forms.Button();
+            this.btnSearchAvailable = new System.Windows.Forms.Button();
             this.lblCurrentSearch = new System.Windows.Forms.Label();
             this.lblAvailableSearch = new System.Windows.Forms.Label();
             this.InstructionsBox.SuspendLayout();
@@ -245,7 +247,6 @@ namespace CrusaderWars.client
             // 
             // btnSearchCurrent
             // 
-            this.btnSearchCurrent = new System.Windows.Forms.Button();
             this.btnSearchCurrent.Location = new System.Drawing.Point(268, 149);
             this.btnSearchCurrent.Name = "btnSearchCurrent";
             this.btnSearchCurrent.Size = new System.Drawing.Size(94, 23);
@@ -257,7 +258,6 @@ namespace CrusaderWars.client
             // 
             // btnSearchAvailable
             // 
-            this.btnSearchAvailable = new System.Windows.Forms.Button();
             this.btnSearchAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSearchAvailable.Location = new System.Drawing.Point(848, 149);
             this.btnSearchAvailable.Name = "btnSearchAvailable";
