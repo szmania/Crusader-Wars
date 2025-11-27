@@ -244,7 +244,20 @@ namespace CrusaderWars.twbattle
                                 {
                                     string messageText = sb.ToString();
                                     string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, discordUrl);
+
+                                    var report = new StringBuilder();
+                                    report.AppendLine("--- Unmapped Units Report ---");
+                                    report.AppendLine($"Date: {DateTime.Now}");
+                                    report.AppendLine($"Playthrough: {ModOptions.GetSelectedPlaythrough()}");
+                                    report.AppendLine($"Loaded Mapper: {UnitMappers_BETA.GetLoadedUnitMapperName()}");
+                                    report.AppendLine();
+                                    report.AppendLine("Unmapped Units:");
+                                    foreach (var u in displayableUnmappedUnits)
+                                    {
+                                        report.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
+                                    }
+
+                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, report.ToString());
                                 });
                             }
                         }
@@ -1072,7 +1085,47 @@ namespace CrusaderWars.twbattle
                         {
                             form.Invoke((MethodInvoker)delegate
                             {
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, autofixState.LastAppliedFixDescription, originalMapInfo);
+                                var report = new StringBuilder();
+                                report.AppendLine("--- Crusader Conflicts Autofix Report ---");
+                                report.AppendLine($"Date: {DateTime.Now}");
+                                report.AppendLine();
+                                report.AppendLine($"[Applied Fix]: {autofixState.LastAppliedFixDescription}");
+                                if (!string.IsNullOrEmpty(originalMapInfo))
+                                {
+                                    report.AppendLine($"[Original Buggy Map]: {originalMapInfo}");
+                                }
+                                report.AppendLine();
+
+                                // Manual Unit Replacements
+                                if (BattleState.ManualUnitReplacements.Any())
+                                {
+                                    report.AppendLine("--- Manual Unit Replacements ---");
+                                    foreach (var rep in BattleState.ManualUnitReplacements)
+                                    {
+                                        report.AppendLine($"Replaced '{rep.Key.originalKey}' with '{rep.Value.replacementKey}' for {(rep.Key.isPlayerAlliance ? "Player" : "Enemy")}");
+                                    }
+                                    report.AppendLine();
+                                }
+
+                                // Deployment Zone Overrides
+                                if (BattleState.DeploymentZoneOverrideAttacker != null && BattleState.DeploymentZoneOverrideDefender != null)
+                                {
+                                    report.AppendLine("--- Manual Deployment Zones ---");
+                                    var att = BattleState.DeploymentZoneOverrideAttacker;
+                                    var def = BattleState.DeploymentZoneOverrideDefender;
+                                    report.AppendLine($"Attacker Zone: Center=({att.X:F2}, {att.Y:F2}), Size=({att.Width:F2} x {att.Height:F2})");
+                                    report.AppendLine($"Defender Zone: Center=({def.X:F2}, {def.Y:F2}), Size=({def.Width:F2} x {def.Height:F2})");
+                                    report.AppendLine();
+                                }
+
+                                // Battle Map Info
+                                var (mapX, mapY, _, _) = TerrainGenerator.GetBattleMap();
+                                string provinceName = BattleResult.ProvinceName ?? "Unknown";
+                                report.AppendLine("--- Battle Details ---");
+                                report.AppendLine($"Location: {provinceName}");
+                                report.AppendLine($"Map Coordinates: ({mapX}, {mapY})");
+
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, report.ToString());
                             });
                         }
                     }
