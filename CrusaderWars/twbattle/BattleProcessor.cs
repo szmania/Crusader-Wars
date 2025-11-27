@@ -641,7 +641,7 @@ namespace CrusaderWars.twbattle
                             AutofixState.AutofixStrategy.Deployment,
                             AutofixState.AutofixStrategy.MapVariant,
                             AutofixState.AutofixStrategy.ManualUnitReplacement,
-                            AutofixState.AutofixStrategy.DeploymentZoneTool
+                            AutofixState.AutofixStrategy.DeploymentZoneEditor
                         };
 
                         if (BattleState.IsSiegeBattle)
