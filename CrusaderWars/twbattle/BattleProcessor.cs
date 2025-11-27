@@ -1497,10 +1497,10 @@ namespace CrusaderWars.twbattle
 
                 int currentTop = lastControlBottom + 20;
 
-                Button btnStart = new Button() { Text = "Continue", Left = 175, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
+                Button btnStart = new Button() { Text = "OK", Left = 175, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
                 Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
 
-                prompt.Height = Math.Max(750, currentTop + 120);
+                prompt.Height = Math.Max(950, currentTop + 120);
 
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
