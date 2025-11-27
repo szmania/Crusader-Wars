@@ -551,6 +551,7 @@ namespace CrusaderWars.twbattle
 
             form.ExecuteButton.Enabled = false;
             form.ContinueBattleButton.Enabled = false;
+            form.btnManualTools.Enabled = false;
 
             //  Waiting for TW:Attila battle to end...
             while (battleEnded == false)
