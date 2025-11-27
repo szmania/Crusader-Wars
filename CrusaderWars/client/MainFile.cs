@@ -3051,6 +3051,7 @@ namespace CrusaderWars
 
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
         {
+            string originalInfoText = infoLabel.Text;
             infoLabel.Text = "Loading Manual Battle Tools...";
 
             var (userResponse, chosenStrategy) = BattleProcessor.ShowManualToolsPrompt(this);
@@ -3058,7 +3059,7 @@ namespace CrusaderWars
             if (userResponse == DialogResult.No || chosenStrategy == null)
             {
                 Program.Logger.Debug("User cancelled manual tool selection.");
-                infoLabel.Text = "Ready."; // Reset label
+                infoLabel.Text = originalInfoText; // Reset label
                 return;
             }
 
@@ -3071,7 +3072,7 @@ namespace CrusaderWars
                     LaunchDeploymentZoneTool();
                     break;
             }
-            infoLabel.Text = "Ready."; // Reset label after tool is used or cancelled
+            infoLabel.Text = originalInfoText; // Reset label after tool is used or cancelled
         }
 
         private void LaunchUnitReplacerTool()
