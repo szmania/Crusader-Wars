@@ -1062,6 +1062,11 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Finalizing save file...");
                     SaveFile.Finish();
 
+                    // Update UI before showing potentially blocking message box
+                    form.Text = "Crusader Conflicts";
+                    form.infoLabel.Text = "Battle complete! Ready for next battle.";
+                    form.battleJustCompleted = true;
+
                     // Show successful autofix/manual tool message if applicable
                     bool wasAutofixSuccess = autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription);
                     bool wasManualToolUsed = BattleState.DeploymentZoneOverrideAttacker != null || BattleState.ManualUnitReplacements.Any();
@@ -1157,10 +1162,6 @@ namespace CrusaderWars.twbattle
                     {
                         ProcessCommands.ResumeProcess();
                     }
-
-                    form.Text = "Crusader Conflicts";
-                    form.infoLabel.Text = "Battle complete! Ready for next battle.";
-                    form.battleJustCompleted = true;
                 }
             }
             catch (Exception ex)
