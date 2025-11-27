@@ -1062,9 +1062,6 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Finalizing save file...");
                     SaveFile.Finish();
 
-                    // Update UI before showing potentially blocking message box
-                    form.battleJustCompleted = true;
-
                     // Show successful autofix/manual tool message if applicable
                     bool wasAutofixSuccess = autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription);
                     bool wasManualToolUsed = BattleState.DeploymentZoneOverrideAttacker != null || BattleState.ManualUnitReplacements.Any();
