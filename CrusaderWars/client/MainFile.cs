@@ -3052,13 +3052,8 @@ namespace CrusaderWars
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
         {
             infoLabel.Text = "Loading Manual Battle Tools...";
-            var manualStrategies = new List<BattleProcessor.AutofixState.AutofixStrategy>
-            {
-                BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement,
-                BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool
-            };
 
-            var (userResponse, chosenStrategy) = BattleProcessor.ShowAutofixStrategyChoicePrompt(this, manualStrategies, false);
+            var (userResponse, chosenStrategy) = BattleProcessor.ShowManualToolsPrompt(this);
 
             if (userResponse == DialogResult.No || chosenStrategy == null)
             {

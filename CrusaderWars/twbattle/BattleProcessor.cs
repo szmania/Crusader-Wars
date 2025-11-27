@@ -678,7 +678,7 @@ namespace CrusaderWars.twbattle
                         }
                         form.Invoke((MethodInvoker)delegate
                         {
-                            (userResponse, chosenStrategy) = ShowAutofixStrategyChoicePrompt(form, availableStrategies, true);
+                            (userResponse, chosenStrategy) = ShowPostCrashAutofixPrompt(form, availableStrategies);
                         });
 
                         if (userResponse == DialogResult.No || chosenStrategy == null)
@@ -1400,7 +1400,96 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowAutofixStrategyChoicePrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies, bool isPostCrash)
+        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowManualToolsPrompt(IWin32Window owner)
+        {
+            var manualStrategies = new List<AutofixState.AutofixStrategy>
+            {
+                AutofixState.AutofixStrategy.ManualUnitReplacement,
+                AutofixState.AutofixStrategy.DeploymentZoneTool
+            };
+
+            using (Form prompt = new Form())
+            {
+                prompt.Width = 550;
+                prompt.StartPosition = FormStartPosition.CenterParent;
+                prompt.FormBorderStyle = FormBorderStyle.Sizable;
+                prompt.AutoScroll = true;
+                prompt.Text = "Crusader Conflicts: Manual Battle Tools";
+
+                Label textLabel = new Label()
+                {
+                    Left = 20,
+                    Top = 20,
+                    Width = 510,
+                    Height = 50,
+                    Text = "Select a tool to manually configure the next battle. These changes can help prevent crashes before they happen."
+                };
+                prompt.Controls.Add(textLabel);
+
+                var manualStrategyControls = new Dictionary<AutofixState.AutofixStrategy, (RadioButton rb, Label lbl)>
+                {
+                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.DeploymentZoneTool, (new RadioButton() { Text = "Deployment Zone Tool", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 40, ForeColor = System.Drawing.Color.Gray }) }
+                };
+
+                int currentTop = textLabel.Bottom + 20;
+                bool first = true;
+
+                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Tools", Left = 20, Top = currentTop, Width = 510 };
+                prompt.Controls.Add(manualFixGroup);
+                int currentManualFixTop = 20;
+
+                foreach (var strategy in manualStrategies)
+                {
+                    if (manualStrategyControls.TryGetValue(strategy, out var controls))
+                    {
+                        controls.rb.Left = 10;
+                        controls.rb.Top = currentManualFixTop;
+                        if (first) { controls.rb.Checked = true; first = false; }
+                        manualFixGroup.Controls.Add(controls.rb);
+
+                        controls.lbl.Left = 30;
+                        controls.lbl.Top = currentManualFixTop + 20;
+                        manualFixGroup.Controls.Add(controls.lbl);
+                        currentManualFixTop += 70;
+                    }
+                }
+                manualFixGroup.Height = currentManualFixTop;
+
+                int buttonsTop = manualFixGroup.Bottom + 20;
+
+                Button btnStart = new Button() { Text = "OK", Left = 175, Width = 100, Top = buttonsTop, DialogResult = DialogResult.Yes };
+                Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = buttonsTop, DialogResult = DialogResult.No };
+
+                prompt.Height = buttonsTop + 80;
+
+                btnStart.Click += (sender, e) => { prompt.Close(); };
+                btnCancel.Click += (sender, e) => { prompt.Close(); };
+
+                prompt.Controls.Add(btnStart);
+                prompt.Controls.Add(btnCancel);
+                prompt.AcceptButton = btnStart;
+                prompt.CancelButton = btnCancel;
+
+                var dialogResult = prompt.ShowDialog(owner);
+
+                AutofixState.AutofixStrategy? selectedStrategy = null;
+                if (dialogResult == DialogResult.Yes)
+                {
+                    foreach (var strategy in manualStrategies)
+                    {
+                        if (manualStrategyControls[strategy].rb.Checked)
+                        {
+                            selectedStrategy = strategy;
+                            break;
+                        }
+                    }
+                }
+                return (dialogResult, selectedStrategy);
+            }
+        }
+
+        public static (DialogResult result, AutofixState.AutofixStrategy? strategy) ShowPostCrashAutofixPrompt(IWin32Window owner, List<AutofixState.AutofixStrategy> availableStrategies)
         {
             using (Form prompt = new Form())
             {
@@ -1416,18 +1505,9 @@ namespace CrusaderWars.twbattle
                     Width = 510,
                 };
 
-                if (isPostCrash)
-                {
-                    prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
-                    textLabel.Height = 70;
-                    textLabel.Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:";
-                }
-                else
-                {
-                    prompt.Text = "Crusader Conflicts: Manual Battle Tools";
-                    textLabel.Height = 50;
-                    textLabel.Text = "Select a tool to manually configure the next battle. These changes can help prevent crashes before they happen.";
-                }
+                prompt.Text = "Autofixer: Crusader Conflicts: Attila Crash Detected";
+                textLabel.Height = 70;
+                textLabel.Text = "It appears Total War: Attila has crashed. This is often caused by an incompatible custom unit or map.\n\nThe application will now attempt a fix. If it fails, you will be prompted again.\n\nPlease select which automatic fix strategy to try next:";
                 prompt.Controls.Add(textLabel);
 
                 var allStrategyControls = new Dictionary<AutofixState.AutofixStrategy, (RadioButton rb, Label lbl)>
