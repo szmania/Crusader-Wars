@@ -311,126 +311,103 @@ namespace CrusaderWars.terrain
                     string height_str = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
                     float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out width);
                     float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out height);
-
-                    this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
-                    this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
-                    this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
-                    this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
-
-                    this.MinX = centerX - (width / 2f);
-                    this.MaxX = centerX + (width / 2f);
-                    this.MinY = centerY - (height / 2f);
-                    this.MaxY = centerY + (height / 2f);
-                    return; // Exit early, skipping edge-of-map logic
                 }
-
-            // Determine MapSize category ("Medium", "Big", "Huge")
-            string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
-            if (map_size_source == "Dynamic")
-            {
-                if (BattleState.IsSiegeBattle)
+                else
                 {
-                    int holdingLevel = Sieges.GetHoldingLevel();
-                    if (holdingLevel <= 2) { MapSize = "Medium"; }
-                    else if (holdingLevel <= 4) { MapSize = "Big"; }
-                    else { MapSize = "Huge"; }
-                }
-                else // Field battle
-                {
-                    if (total_soldiers <= 5000) { MapSize = "Medium"; }
-                    else if (total_soldiers > 5000 && total_soldiers < 20000) { MapSize = "Big"; }
-                    else if (total_soldiers >= 20000) { MapSize = "Huge"; }
-                    else { MapSize = "Medium"; }
-                }
-            }
-            else
-            {
-                MapSize = map_size_source;
-            }
-
-            // Determine playable area boundary
-            string map_dimension_str = ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle);
-            float map_dimension = float.Parse(map_dimension_str, CultureInfo.InvariantCulture);
-            float playable_boundary = map_dimension / 2f;
-
-            // Determine deployment zone dimensions and position
-            if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
-            {
-                float inter_zone_buffer = 125f; // Space between defender and attacker zones
-                float map_edge_buffer = 50f;   // Space between attacker zone and map edge
-
-                string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
-                float.TryParse(defender_width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float defender_width_val);
-                float defender_radius = defender_width_val / 2f;
-
-                float attacker_depth = playable_boundary - defender_radius - inter_zone_buffer - map_edge_buffer;
-                if (attacker_depth < 50f) attacker_depth = 50f;
-
-                if (direction == "N" || direction == "S")
-                {
-                    width = (playable_boundary - map_edge_buffer) * 2f;
-                    height = attacker_depth;
-                    centerX = 0f;
-                    centerY = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
-                    if (direction == "S")
+                    // Determine MapSize category ("Medium", "Big", "Huge")
+                    string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
+                    if (map_size_source == "Dynamic")
                     {
-                        centerY = -centerY;
+                        if (BattleState.IsSiegeBattle)
+                        {
+                            int holdingLevel = Sieges.GetHoldingLevel();
+                            if (holdingLevel <= 2) { MapSize = "Medium"; }
+                            else if (holdingLevel <= 4) { MapSize = "Big"; }
+                            else { MapSize = "Huge"; }
+                        }
+                        else // Field battle
+                        {
+                            if (total_soldiers <= 5000) { MapSize = "Medium"; }
+                            else if (total_soldiers > 5000 && total_soldiers < 20000) { MapSize = "Big"; }
+                            else if (total_soldiers >= 20000) { MapSize = "Huge"; }
+                            else { MapSize = "Medium"; }
+                        }
+                    }
+                    else
+                    {
+                        MapSize = map_size_source;
+                    }
+
+                    // Determine playable area boundary
+                    string map_dimension_str = ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle);
+                    float map_dimension = float.Parse(map_dimension_str, CultureInfo.InvariantCulture);
+                    float playable_boundary = map_dimension / 2f;
+
+                    // Determine deployment zone dimensions and position
+                    if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
+                    {
+                        float inter_zone_buffer = 125f; // Space between defender and attacker zones
+                        float map_edge_buffer = 50f;   // Space between attacker zone and map edge
+
+                        string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
+                        float.TryParse(defender_width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float defender_width_val);
+                        float defender_radius = defender_width_val / 2f;
+
+                        float attacker_depth = playable_boundary - defender_radius - inter_zone_buffer - map_edge_buffer;
+                        if (attacker_depth < 50f) attacker_depth = 50f;
+
+                        if (direction == "N" || direction == "S")
+                        {
+                            width = (playable_boundary - map_edge_buffer) * 2f;
+                            height = attacker_depth;
+                            centerX = 0f;
+                            centerY = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
+                            if (direction == "S")
+                            {
+                                centerY = -centerY;
+                            }
+                        }
+                        else // "E" or "W"
+                        {
+                            height = (playable_boundary - map_edge_buffer) * 2f;
+                            width = attacker_depth;
+                            centerY = 0f;
+                            centerX = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
+                            if (direction == "W")
+                            {
+                                centerX = -centerX;
+                            }
+                        }
+                    }
+                    else // Field Battle
+                    {
+                        float buffer = 100f;
+                        if (direction == "N" || direction == "S")
+                        {
+                            // Horizontal deployment (along top or bottom edge)
+                            width = (playable_boundary - buffer) * 2f;
+                            height = GetDeploymentDepth(playable_boundary, buffer);
+                            centerX = 0f;
+                            centerY = playable_boundary - buffer - (height / 2f);
+                            if (direction == "S")
+                            {
+                                centerY = -centerY;
+                            }
+                        }
+                        else // "E" or "W"
+                        {
+                            // Vertical deployment (along left or right edge)
+                            height = (playable_boundary - buffer) * 2f;
+                            width = GetDeploymentDepth(playable_boundary, buffer);
+                            centerY = 0f;
+                            centerX = playable_boundary - buffer - (width / 2f);
+                            if (direction == "W")
+                            {
+                                centerX = -centerX;
+                            }
+                        }
                     }
                 }
-                else // "E" or "W"
-                {
-                    height = (playable_boundary - map_edge_buffer) * 2f;
-                    width = attacker_depth;
-                    centerY = 0f;
-                    centerX = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
-                    if (direction == "W")
-                    {
-                        centerX = -centerX;
-                    }
-                }
-            }
-            else // Field Battle
-            {
-                float buffer = 100f;
-                if (direction == "N" || direction == "S")
-                {
-                    // Horizontal deployment (along top or bottom edge)
-                    width = (playable_boundary - buffer) * 2f;
-                    height = GetDeploymentDepth(playable_boundary, buffer);
-                    centerX = 0f;
-                    centerY = playable_boundary - buffer - (height / 2f);
-                    if (direction == "S")
-                    {
-                        centerY = -centerY;
-                    }
-                }
-                else // "E" or "W"
-                {
-                    // Vertical deployment (along left or right edge)
-                    height = (playable_boundary - buffer) * 2f;
-                    width = GetDeploymentDepth(playable_boundary, buffer);
-                    centerY = 0f;
-                    centerX = playable_boundary - buffer - (width / 2f);
-                    if (direction == "W")
-                    {
-                        centerX = -centerX;
-                    }
-                }
-            }
-
-
-                // Assign final string values
-                this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
-                this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
-                this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
-                this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
-
-                // Set Min/Max for unit placement clamping
-                this.MinX = centerX - (width / 2f);
-                this.MaxX = centerX + (width / 2f);
-                this.MinY = centerY - (height / 2f);
-                this.MaxY = centerY + (height / 2f);
-                return; // Exit to avoid re-calculating
             }
 
             // Assign final string values
