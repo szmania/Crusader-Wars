@@ -84,7 +84,7 @@ namespace CrusaderWars.client
             this.attackerGroupBox.Controls.Add(this.lblAttackerY);
             this.attackerGroupBox.Controls.Add(this.nudAttackerX);
             this.attackerGroupBox.Controls.Add(this.lblAttackerX);
-            this.attackerGroupBox.Location = new System.Drawing.Point(528, 62);
+            this.attackerGroupBox.Location = new System.Drawing.Point(528, 76);
             this.attackerGroupBox.Name = "attackerGroupBox";
             this.attackerGroupBox.Size = new System.Drawing.Size(260, 150);
             this.attackerGroupBox.TabIndex = 1;
@@ -229,7 +229,7 @@ namespace CrusaderWars.client
             this.defenderGroupBox.Controls.Add(this.lblDefenderY);
             this.defenderGroupBox.Controls.Add(this.nudDefenderX);
             this.defenderGroupBox.Controls.Add(this.lblDefenderX);
-            this.defenderGroupBox.Location = new System.Drawing.Point(528, 230);
+            this.defenderGroupBox.Location = new System.Drawing.Point(528, 244);
             this.defenderGroupBox.Name = "defenderGroupBox";
             this.defenderGroupBox.Size = new System.Drawing.Size(260, 150);
             this.defenderGroupBox.TabIndex = 2;
@@ -384,41 +384,35 @@ namespace CrusaderWars.client
             // 
             // lblBattleDate
             // 
-            this.lblBattleDate.AutoSize = true;
             this.lblBattleDate.Location = new System.Drawing.Point(528, 13);
             this.lblBattleDate.Name = "lblBattleDate";
-            this.lblBattleDate.Size = new System.Drawing.Size(63, 13);
+            this.lblBattleDate.Size = new System.Drawing.Size(260, 13);
             this.lblBattleDate.TabIndex = 5;
             this.lblBattleDate.Text = "Battle Date:";
             // 
             // lblBattleType
             // 
-            this.lblBattleType.AutoSize = true;
-            this.lblBattleType.Location = new System.Drawing.Point(528, 35);
+            this.lblBattleType.Location = new System.Drawing.Point(528, 28);
             this.lblBattleType.Name = "lblBattleType";
-            this.lblBattleType.Size = new System.Drawing.Size(65, 13);
+            this.lblBattleType.Size = new System.Drawing.Size(260, 13);
             this.lblBattleType.TabIndex = 6;
             this.lblBattleType.Text = "Battle Type:";
             // 
             // lblProvinceName
             // 
-            this.lblProvinceName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblProvinceName.Location = new System.Drawing.Point(597, 13);
+            this.lblProvinceName.Location = new System.Drawing.Point(528, 43);
             this.lblProvinceName.Name = "lblProvinceName";
-            this.lblProvinceName.Size = new System.Drawing.Size(191, 13);
+            this.lblProvinceName.Size = new System.Drawing.Size(260, 13);
             this.lblProvinceName.TabIndex = 7;
             this.lblProvinceName.Text = "Location:";
-            this.lblProvinceName.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // lblCoordinates
             // 
-            this.lblCoordinates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblCoordinates.Location = new System.Drawing.Point(597, 35);
+            this.lblCoordinates.Location = new System.Drawing.Point(528, 58);
             this.lblCoordinates.Name = "lblCoordinates";
             this.lblCoordinates.Size = new System.Drawing.Size(191, 13);
             this.lblCoordinates.TabIndex = 8;
             this.lblCoordinates.Text = "Coords:";
-            this.lblCoordinates.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // DeploymentZoneToolForm
             // 
