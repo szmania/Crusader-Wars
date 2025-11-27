@@ -469,6 +469,6 @@
         private System.Windows.Forms.Label labelSeparatorRight;
         private System.Windows.Forms.FlowLayoutPanel VersionInfoFlowPanel;
         private System.Windows.Forms.Label linkOptInPreReleases;
-        private System.Windows.Forms.Button LaunchAutoFixerButton;
+        public System.Windows.Forms.Button LaunchAutoFixerButton;
     }
 }
