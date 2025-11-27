@@ -22,7 +22,6 @@ namespace CrusaderWars.client
         private DragHandle _activeHandle = DragHandle.None;
         private bool _isDragging = false;
         private Point _lastMousePosition;
-        private RectangleF _dragStartZone;
         private bool _isAttackerZoneActive = false;
         private bool _ignoreNudChanges = false;
 
@@ -137,19 +136,22 @@ namespace CrusaderWars.client
 
             // Draw attacker zone (Blue for player, Orange for enemy)
             Color attackerColor = _isAttackerPlayer ? Color.Blue : Color.OrangeRed;
-            DrawZone(g, _attackerZone, attackerColor);
+            string attackerLabel = _isAttackerPlayer ? "Player" : "Enemy";
+            DrawZone(g, _attackerZone, attackerColor, attackerLabel);
 
 
             // Draw defender zone (Red for enemy, Blue for player)
             Color defenderColor = _isAttackerPlayer ? Color.Red : Color.Blue;
-            DrawZone(g, _defenderZone, defenderColor);
+            string defenderLabel = _isAttackerPlayer ? "Enemy" : "Player";
+            DrawZone(g, _defenderZone, defenderColor, defenderLabel);
         }
 
-        private void DrawZone(Graphics g, RectangleF zone, Color color)
+        private void DrawZone(Graphics g, RectangleF zone, Color color, string label)
         {
+            // In our map system, Y is the bottom-left corner. For drawing, we need top-left.
             RectangleF scaledRect = new RectangleF(
                 zone.X * _scale,
-                -zone.Y * _scale - (zone.Height * _scale), // Invert Y for drawing
+                -(zone.Y + zone.Height) * _scale, // Invert Y and shift by height
                 zone.Width * _scale,
                 zone.Height * _scale
             );
@@ -160,6 +162,13 @@ namespace CrusaderWars.client
             using (var pen = new Pen(color, 2))
             {
                 g.DrawRectangle(pen, Rectangle.Round(scaledRect));
+            }
+            // Draw label
+            using (var font = new Font("Arial", 10, FontStyle.Bold))
+            using (var stringFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+            using (var textBrush = new SolidBrush(Color.White))
+            {
+                g.DrawString(label, font, textBrush, scaledRect, stringFormat);
             }
         }
 
@@ -172,7 +181,6 @@ namespace CrusaderWars.client
             {
                 _isDragging = true;
                 _isAttackerZoneActive = true;
-                _dragStartZone = _attackerZone;
                 _lastMousePosition = e.Location;
                 return;
             }
@@ -182,7 +190,6 @@ namespace CrusaderWars.client
             {
                 _isDragging = true;
                 _isAttackerZoneActive = false;
-                _dragStartZone = _defenderZone;
                 _lastMousePosition = e.Location;
                 return;
             }
@@ -209,20 +216,23 @@ namespace CrusaderWars.client
             RectangleF currentZone = _isAttackerZoneActive ? _attackerZone : _defenderZone;
             RectangleF newZone = currentZone;
 
+            // In our Y-up system, RectangleF's (X, Y) is the bottom-left corner.
             switch (_activeHandle)
             {
                 case DragHandle.Body:
                     newZone.X += dx;
                     newZone.Y += dy;
                     break;
-                case DragHandle.Left: newZone = new RectangleF(currentZone.X + dx, currentZone.Y, currentZone.Width - dx, currentZone.Height); break;
-                case DragHandle.Right: newZone = new RectangleF(currentZone.X, currentZone.Y, currentZone.Width + dx, currentZone.Height); break;
-                case DragHandle.Top: newZone = new RectangleF(currentZone.X, currentZone.Y, currentZone.Width, currentZone.Height + dy); break;
-                case DragHandle.Bottom: newZone = new RectangleF(currentZone.X, currentZone.Y + dy, currentZone.Width, currentZone.Height - dy); break;
-                case DragHandle.TopLeft: newZone = new RectangleF(currentZone.X + dx, currentZone.Y, currentZone.Width - dx, currentZone.Height + dy); break;
-                case DragHandle.TopRight: newZone = new RectangleF(currentZone.X, currentZone.Y, currentZone.Width + dx, currentZone.Height + dy); break;
-                case DragHandle.BottomLeft: newZone = new RectangleF(currentZone.X + dx, currentZone.Y + dy, currentZone.Width - dx, currentZone.Height - dy); break;
-                case DragHandle.BottomRight: newZone = new RectangleF(currentZone.X, currentZone.Y + dy, currentZone.Width + dx, currentZone.Height - dy); break;
+                // Edges
+                case DragHandle.Left: newZone.X += dx; newZone.Width -= dx; break;
+                case DragHandle.Right: newZone.Width += dx; break;
+                case DragHandle.Bottom: newZone.Y += dy; newZone.Height -= dy; break;
+                case DragHandle.Top: newZone.Height += dy; break;
+                // Corners
+                case DragHandle.TopLeft: newZone.X += dx; newZone.Width -= dx; newZone.Height += dy; break;
+                case DragHandle.TopRight: newZone.Width += dx; newZone.Height += dy; break;
+                case DragHandle.BottomLeft: newZone.X += dx; newZone.Width -= dx; newZone.Y += dy; newZone.Height -= dy; break;
+                case DragHandle.BottomRight: newZone.Width += dx; newZone.Y += dy; newZone.Height -= dy; break;
             }
 
             // Snap and Clamp
@@ -260,16 +270,24 @@ namespace CrusaderWars.client
             const int handleSize = 15; // in pixels
             float handleMapSize = handleSize / _scale;
 
-            if (new RectangleF(zone.Left, zone.Top - handleMapSize, handleMapSize, handleMapSize).Contains(mapPoint)) return DragHandle.TopLeft;
-            if (new RectangleF(zone.Right - handleMapSize, zone.Top - handleMapSize, handleMapSize, handleMapSize).Contains(mapPoint)) return DragHandle.TopRight;
-            if (new RectangleF(zone.Left, zone.Bottom, handleMapSize, handleMapSize).Contains(mapPoint)) return DragHandle.BottomLeft;
-            if (new RectangleF(zone.Right - handleMapSize, zone.Bottom, handleMapSize, handleMapSize).Contains(mapPoint)) return DragHandle.BottomRight;
+            float left = zone.X;
+            float right = zone.X + zone.Width;
+            float bottom = zone.Y;
+            float top = zone.Y + zone.Height;
 
-            if (new RectangleF(zone.Left, zone.Top - handleMapSize, zone.Width, handleMapSize).Contains(mapPoint)) return DragHandle.Top;
-            if (new RectangleF(zone.Left, zone.Bottom, zone.Width, handleMapSize).Contains(mapPoint)) return DragHandle.Bottom;
-            if (new RectangleF(zone.Left, zone.Top - handleMapSize, handleMapSize, zone.Height).Contains(mapPoint)) return DragHandle.Left;
-            if (new RectangleF(zone.Right - handleMapSize, zone.Top - handleMapSize, handleMapSize, zone.Height).Contains(mapPoint)) return DragHandle.Right;
+            // Corners
+            if (mapPoint.X >= left && mapPoint.X <= left + handleMapSize && mapPoint.Y <= top && mapPoint.Y >= top - handleMapSize) return DragHandle.TopLeft;
+            if (mapPoint.X <= right && mapPoint.X >= right - handleMapSize && mapPoint.Y <= top && mapPoint.Y >= top - handleMapSize) return DragHandle.TopRight;
+            if (mapPoint.X >= left && mapPoint.X <= left + handleMapSize && mapPoint.Y >= bottom && mapPoint.Y <= bottom + handleMapSize) return DragHandle.BottomLeft;
+            if (mapPoint.X <= right && mapPoint.X >= right - handleMapSize && mapPoint.Y >= bottom && mapPoint.Y <= bottom + handleMapSize) return DragHandle.BottomRight;
 
+            // Edges
+            if (mapPoint.X > left + handleMapSize && mapPoint.X < right - handleMapSize && mapPoint.Y <= top && mapPoint.Y >= top - handleMapSize) return DragHandle.Top;
+            if (mapPoint.X > left + handleMapSize && mapPoint.X < right - handleMapSize && mapPoint.Y >= bottom && mapPoint.Y <= bottom + handleMapSize) return DragHandle.Bottom;
+            if (mapPoint.Y > bottom + handleMapSize && mapPoint.Y < top - handleMapSize && mapPoint.X >= left && mapPoint.X <= left + handleMapSize) return DragHandle.Left;
+            if (mapPoint.Y > bottom + handleMapSize && mapPoint.Y < top - handleMapSize && mapPoint.X <= right && mapPoint.X >= right - handleMapSize) return DragHandle.Right;
+
+            // Body
             if (zone.Contains(mapPoint)) return DragHandle.Body;
 
             return DragHandle.None;
@@ -306,28 +324,47 @@ namespace CrusaderWars.client
 
         private RectangleF SnapAndClampZone(RectangleF zone)
         {
+            // Prevent flipping and enforce minimum size
+            if (zone.Width < 50)
+            {
+                if (_activeHandle == DragHandle.Left || _activeHandle == DragHandle.TopLeft || _activeHandle == DragHandle.BottomLeft)
+                    zone.X = zone.Right - 50;
+                zone.Width = 50;
+            }
+            if (zone.Height < 50)
+            {
+                if (_activeHandle == DragHandle.Bottom || _activeHandle == DragHandle.BottomLeft || _activeHandle == DragHandle.BottomRight)
+                    zone.Y = zone.Top - 50;
+                zone.Height = 50;
+            }
+
             // Snap position and size to increments of 50
             float x = (float)Math.Round(zone.X / 50) * 50;
             float y = (float)Math.Round(zone.Y / 50) * 50;
-            float width = Math.Max(50, (float)Math.Round(zone.Width / 50) * 50);
-            float height = Math.Max(50, (float)Math.Round(zone.Height / 50) * 50);
+            float width = (float)Math.Round(zone.Width / 50) * 50;
+            float height = (float)Math.Round(zone.Height / 50) * 50;
+
+            // Ensure minimum size after snapping
+            if (width < 50) width = 50;
+            if (height < 50) height = 50;
 
             // Clamp to map boundaries
             float boundary = _mapDimension / 2f;
             float edgeBuffer = 50f;
 
-            // Clamp size first to prevent issues with position clamping
-            width = Math.Min(width, 2 * boundary - 2 * edgeBuffer);
-            height = Math.Min(height, 2 * boundary - 2 * edgeBuffer);
-
             // Clamp position
-            float min_x = -boundary + edgeBuffer;
-            float max_x = boundary - width - edgeBuffer;
-            x = x < min_x ? min_x : (x > max_x ? max_x : x); // Safe clamp
+            x = Math.Max(-boundary + edgeBuffer, x);
+            y = Math.Max(-boundary + edgeBuffer, y);
 
-            float min_y = -boundary + edgeBuffer;
-            float max_y = boundary - height - edgeBuffer;
-            y = y < min_y ? min_y : (y > max_y ? max_y : y); // Safe clamp
+            // Clamp size based on new position
+            if (x + width > boundary - edgeBuffer)
+            {
+                width = boundary - edgeBuffer - x;
+            }
+            if (y + height > boundary - edgeBuffer)
+            {
+                height = boundary - edgeBuffer - y;
+            }
 
             return new RectangleF(x, y, width, height);
         }
@@ -336,20 +373,17 @@ namespace CrusaderWars.client
         private void UpdateNudsFromZone(bool isAttacker)
         {
             _ignoreNudChanges = true;
-            if (isAttacker)
-            {
-                nudAttackerX.Value = (decimal)(_attackerZone.X + _attackerZone.Width / 2);
-                nudAttackerY.Value = (decimal)(_attackerZone.Y + _attackerZone.Height / 2);
-                nudAttackerWidth.Value = (decimal)_attackerZone.Width;
-                nudAttackerHeight.Value = (decimal)_attackerZone.Height;
-            }
-            else
-            {
-                nudDefenderX.Value = (decimal)(_defenderZone.X + _defenderZone.Width / 2);
-                nudDefenderY.Value = (decimal)(_defenderZone.Y + _defenderZone.Height / 2);
-                nudDefenderWidth.Value = (decimal)_defenderZone.Width;
-                nudDefenderHeight.Value = (decimal)_defenderZone.Height;
-            }
+            RectangleF zone = isAttacker ? _attackerZone : _defenderZone;
+            NumericUpDown nudX = isAttacker ? nudAttackerX : nudDefenderX;
+            NumericUpDown nudY = isAttacker ? nudAttackerY : nudDefenderY;
+            NumericUpDown nudW = isAttacker ? nudAttackerWidth : nudDefenderWidth;
+            NumericUpDown nudH = isAttacker ? nudAttackerHeight : nudDefenderHeight;
+
+            nudX.Value = (decimal)(zone.X + zone.Width / 2);
+            nudY.Value = (decimal)(zone.Y + zone.Height / 2);
+            nudW.Value = (decimal)zone.Width;
+            nudH.Value = (decimal)zone.Height;
+            
             _ignoreNudChanges = false;
         }
 
