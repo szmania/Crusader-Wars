@@ -257,7 +257,7 @@ namespace CrusaderWars.twbattle
                                         report.AppendLine($" - Type: {u.RegimentType}, Name: {u.UnitName}, Faction: {u.AttilaFaction} (Culture: {u.Culture})");
                                     }
 
-                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, report.ToString());
+                                    ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Unit Mapping Warning", "Report on Discord: " + discordUrl, discordUrl, report.ToString());
                                 });
                             }
                         }
@@ -829,7 +829,7 @@ namespace CrusaderWars.twbattle
                             {
                                 string messageText = $"Attempting automatic fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
                                 string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, fixDescription);
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, fixDescription);
                             });
                         }
 
@@ -1125,7 +1125,7 @@ namespace CrusaderWars.twbattle
                                 report.AppendLine($"Location: {provinceName}");
                                 report.AppendLine($"Map Coordinates: ({mapX}, {mapY})");
 
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, report.ToString());
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Autofix Successful", "Report on Discord: " + discordUrl, discordUrl, report.ToString());
                             });
                         }
                     }
