@@ -21,6 +21,8 @@ namespace CrusaderWars.client
         private List<TreeNode> _availableSearchResults = new List<TreeNode>();
         private int _availableSearchResultIndex = -1;
         private string _lastAvailableSearch = "";
+        private readonly Color _searchHighlightColor = Color.Yellow;
+        private bool _programmaticSelect = false;
 
         public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements, Dictionary<string, string> unitScreenNames)
         {
@@ -33,6 +35,10 @@ namespace CrusaderWars.client
             txtSearchAvailable.TextChanged += TxtSearchAvailable_TextChanged;
             txtSearchCurrent.KeyDown += TxtSearchCurrent_KeyDown;
             txtSearchAvailable.KeyDown += TxtSearchAvailable_KeyDown;
+
+            // Add event handlers for restoring search highlight on deselection
+            tvCurrentUnits.BeforeSelect += TreeView_BeforeSelect;
+            tvAvailableUnits.BeforeSelect += TreeView_BeforeSelect;
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)
@@ -412,7 +418,12 @@ namespace CrusaderWars.client
 
         private void tvCurrentUnits_BeforeSelect(object sender, TreeViewCancelEventArgs e)
         {
-            e.Cancel = true;
+            // Allow programmatic selection for search navigation, but cancel manual user clicks
+            // to preserve the custom multi-selection behavior.
+            if (!_programmaticSelect)
+            {
+                e.Cancel = true;
+            }
         }
 
         private void tvCurrentUnits_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -570,19 +581,18 @@ namespace CrusaderWars.client
 
         private void SearchInTreeView(TreeView tv, string searchText, ref List<TreeNode> searchResults, ref int searchResultIndex, ref string lastSearch)
         {
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                searchResults.Clear();
-                searchResultIndex = -1;
-                return;
-            }
-
             // If the search text is new, perform a new search
             if (searchText != lastSearch)
             {
+                ClearSearchHighlight(tv, searchResults); // Clear previous search highlights
                 lastSearch = searchText;
                 searchResults.Clear();
                 searchResultIndex = -1;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    return;
+                }
 
                 var foundNodes = new List<TreeNode>();
                 // Recursive function to find all matching nodes
@@ -605,13 +615,13 @@ namespace CrusaderWars.client
                 findNodes(tv.Nodes);
                 searchResults = foundNodes;
 
-                if (searchResults.Any())
+                // Highlight all found nodes
+                foreach (var node in searchResults)
                 {
-                    searchResultIndex = 0;
-                    tv.SelectedNode = searchResults[0];
-                    searchResults[0].EnsureVisible();
+                    node.BackColor = _searchHighlightColor;
                 }
-                else
+
+                if (!searchResults.Any())
                 {
                     MessageBox.Show("No matches found.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -639,12 +649,24 @@ namespace CrusaderWars.client
                 }
             }
 
+            if (tv == tvCurrentUnits) _programmaticSelect = true;
             tv.SelectedNode = searchResults[searchResultIndex];
+            if (tv == tvCurrentUnits) _programmaticSelect = false;
+
             searchResults[searchResultIndex].EnsureVisible();
         }
 
         private void TxtSearchCurrent_TextChanged(object sender, EventArgs e)
         {
+            // When search text is cleared, remove highlights from previous search
+            if (string.IsNullOrWhiteSpace(txtSearchCurrent.Text) && !string.IsNullOrEmpty(_lastCurrentSearch))
+            {
+                ClearSearchHighlight(tvCurrentUnits, _currentSearchResults);
+                _currentSearchResults.Clear();
+                _lastCurrentSearch = "";
+                _currentSearchResultIndex = -1;
+            }
+
             if (btnSearchCurrent.Visible == false)
             {
                 btnSearchCurrent.Visible = true;
@@ -655,6 +677,15 @@ namespace CrusaderWars.client
 
         private void TxtSearchAvailable_TextChanged(object sender, EventArgs e)
         {
+            // When search text is cleared, remove highlights from previous search
+            if (string.IsNullOrWhiteSpace(txtSearchAvailable.Text) && !string.IsNullOrEmpty(_lastAvailableSearch))
+            {
+                ClearSearchHighlight(tvAvailableUnits, _availableSearchResults);
+                _availableSearchResults.Clear();
+                _lastAvailableSearch = "";
+                _availableSearchResultIndex = -1;
+            }
+
             if (btnSearchAvailable.Visible == false)
             {
                 btnSearchAvailable.Visible = true;
@@ -668,6 +699,10 @@ namespace CrusaderWars.client
             SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
             if (_currentSearchResults.Any())
             {
+                // Reset index to start from the beginning for navigation
+                _currentSearchResultIndex = -1;
+                NavigateSearchResults(tvCurrentUnits, _currentSearchResults, ref _currentSearchResultIndex, true);
+
                 btnSearchCurrent.Visible = false;
                 btnPrevCurrent.Visible = true;
                 btnNextCurrent.Visible = true;
@@ -679,6 +714,10 @@ namespace CrusaderWars.client
             SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
             if (_availableSearchResults.Any())
             {
+                // Reset index to start from the beginning for navigation
+                _availableSearchResultIndex = -1;
+                NavigateSearchResults(tvAvailableUnits, _availableSearchResults, ref _availableSearchResultIndex, true);
+
                 btnSearchAvailable.Visible = false;
                 btnPrevAvailable.Visible = true;
                 btnNextAvailable.Visible = true;
@@ -700,6 +739,49 @@ namespace CrusaderWars.client
             {
                 btnSearchAvailable_Click(sender, e);
                 e.SuppressKeyPress = true; // Prevents the 'ding' sound
+            }
+        }
+
+        private void ClearSearchHighlight(TreeView tv, List<TreeNode> searchResults)
+        {
+            if (searchResults == null || !searchResults.Any()) return;
+
+            foreach (var node in searchResults)
+            {
+                // If the node is selected for replacement, restore its blue highlight,
+                // otherwise restore the default background color.
+                if (tv == tvCurrentUnits && _selectedCurrentNodes.Contains(node))
+                {
+                    node.BackColor = SystemColors.Highlight;
+                }
+                else
+                {
+                    node.BackColor = tv.BackColor;
+                }
+            }
+        }
+
+        private void TreeView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            var tv = sender as TreeView;
+            if (tv == null || tv.SelectedNode == null) return;
+
+            var searchResults = (tv == tvCurrentUnits) ? _currentSearchResults : _availableSearchResults;
+
+            // When the selection is about to change, check if the currently selected node
+            // is a search result. If so, restore its yellow highlight color so it remains
+            // visible as a search match even after being deselected.
+            if (searchResults.Contains(tv.SelectedNode))
+            {
+                // Do not change color if it's a node selected for replacement.
+                if (tv == tvCurrentUnits && _selectedCurrentNodes.Contains(tv.SelectedNode))
+                {
+                    // It will remain highlighted blue by the selection logic.
+                }
+                else
+                {
+                    tv.SelectedNode.BackColor = _searchHighlightColor;
+                }
             }
         }
     }
