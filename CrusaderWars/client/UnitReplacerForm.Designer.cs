@@ -182,7 +182,6 @@ namespace CrusaderWars.client
             this.txtSearchCurrent.Size = new System.Drawing.Size(200, 20);
             this.txtSearchCurrent.TabIndex = 10;
             this.UnitReplacerToolTip.SetToolTip(this.txtSearchCurrent, "Type here to search for units in the list below. Press Enter to search.");
-            this.txtSearchCurrent.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearchCurrent_KeyDown);
             // 
             // btnPrevCurrent
             // 
@@ -193,6 +192,7 @@ namespace CrusaderWars.client
             this.btnPrevCurrent.Text = "▲";
             this.UnitReplacerToolTip.SetToolTip(this.btnPrevCurrent, "Go to the previous search result.");
             this.btnPrevCurrent.UseVisualStyleBackColor = true;
+            this.btnPrevCurrent.Visible = false;
             this.btnPrevCurrent.Click += new System.EventHandler(this.btnPrevCurrent_Click);
             // 
             // btnNextCurrent
@@ -204,6 +204,7 @@ namespace CrusaderWars.client
             this.btnNextCurrent.Text = "▼";
             this.UnitReplacerToolTip.SetToolTip(this.btnNextCurrent, "Go to the next search result.");
             this.btnNextCurrent.UseVisualStyleBackColor = true;
+            this.btnNextCurrent.Visible = false;
             this.btnNextCurrent.Click += new System.EventHandler(this.btnNextCurrent_Click);
             // 
             // txtSearchAvailable
@@ -214,7 +215,6 @@ namespace CrusaderWars.client
             this.txtSearchAvailable.Size = new System.Drawing.Size(200, 20);
             this.txtSearchAvailable.TabIndex = 14;
             this.UnitReplacerToolTip.SetToolTip(this.txtSearchAvailable, "Type here to search for units in the list below. Press Enter to search.");
-            this.txtSearchAvailable.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearchAvailable_KeyDown);
             // 
             // btnPrevAvailable
             // 
@@ -226,6 +226,7 @@ namespace CrusaderWars.client
             this.btnPrevAvailable.Text = "▲";
             this.UnitReplacerToolTip.SetToolTip(this.btnPrevAvailable, "Go to the previous search result.");
             this.btnPrevAvailable.UseVisualStyleBackColor = true;
+            this.btnPrevAvailable.Visible = false;
             this.btnPrevAvailable.Click += new System.EventHandler(this.btnPrevAvailable_Click);
             // 
             // btnNextAvailable
@@ -238,7 +239,31 @@ namespace CrusaderWars.client
             this.btnNextAvailable.Text = "▼";
             this.UnitReplacerToolTip.SetToolTip(this.btnNextAvailable, "Go to the next search result.");
             this.btnNextAvailable.UseVisualStyleBackColor = true;
+            this.btnNextAvailable.Visible = false;
             this.btnNextAvailable.Click += new System.EventHandler(this.btnNextAvailable_Click);
+            // 
+            // btnSearchCurrent
+            // 
+            this.btnSearchCurrent.Location = new System.Drawing.Point(268, 149);
+            this.btnSearchCurrent.Name = "btnSearchCurrent";
+            this.btnSearchCurrent.Size = new System.Drawing.Size(94, 23);
+            this.btnSearchCurrent.TabIndex = 17;
+            this.btnSearchCurrent.Text = "Search";
+            this.UnitReplacerToolTip.SetToolTip(this.btnSearchCurrent, "Search for units in the list.");
+            this.btnSearchCurrent.UseVisualStyleBackColor = true;
+            this.btnSearchCurrent.Click += new System.EventHandler(this.btnSearchCurrent_Click);
+            // 
+            // btnSearchAvailable
+            // 
+            this.btnSearchAvailable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSearchAvailable.Location = new System.Drawing.Point(848, 149);
+            this.btnSearchAvailable.Name = "btnSearchAvailable";
+            this.btnSearchAvailable.Size = new System.Drawing.Size(94, 23);
+            this.btnSearchAvailable.TabIndex = 18;
+            this.btnSearchAvailable.Text = "Search";
+            this.UnitReplacerToolTip.SetToolTip(this.btnSearchAvailable, "Search for units in the list.");
+            this.btnSearchAvailable.UseVisualStyleBackColor = true;
+            this.btnSearchAvailable.Click += new System.EventHandler(this.btnSearchAvailable_Click);
             // 
             // lblCurrentSearch
             // 
@@ -275,6 +300,8 @@ namespace CrusaderWars.client
             this.Controls.Add(this.btnPrevCurrent);
             this.Controls.Add(this.txtSearchCurrent);
             this.Controls.Add(this.btnUndo);
+            this.Controls.Add(this.btnSearchCurrent);
+            this.Controls.Add(this.btnSearchAvailable);
             this.Controls.Add(this.InstructionsBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -319,5 +346,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Button btnNextCurrent;
         private System.Windows.Forms.Button btnPrevCurrent;
         private System.Windows.Forms.TextBox txtSearchCurrent;
+        private System.Windows.Forms.Button btnSearchCurrent;
+        private System.Windows.Forms.Button btnSearchAvailable;
     }
 }

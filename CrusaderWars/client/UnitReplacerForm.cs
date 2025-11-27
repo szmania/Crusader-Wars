@@ -29,6 +29,8 @@ namespace CrusaderWars.client
             _allAvailableUnits = allAvailableUnits;
             Replacements = new Dictionary<(string, bool), (string, bool)>(existingReplacements);
             _unitScreenNames = unitScreenNames ?? new Dictionary<string, string>();
+            txtSearchCurrent.TextChanged += TxtSearchCurrent_TextChanged;
+            txtSearchAvailable.TextChanged += TxtSearchAvailable_TextChanged;
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)
@@ -546,14 +548,6 @@ namespace CrusaderWars.client
 
 
         // SEARCH =================================================================================================
-        private void txtSearchCurrent_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
-                e.SuppressKeyPress = true; // Prevents the 'ding' sound
-            }
-        }
 
         private void btnNextCurrent_Click(object sender, EventArgs e)
         {
@@ -567,14 +561,6 @@ namespace CrusaderWars.client
             NavigateSearchResults(tvCurrentUnits, _currentSearchResults, ref _currentSearchResultIndex, false);
         }
 
-        private void txtSearchAvailable_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
-                e.SuppressKeyPress = true; // Prevents the 'ding' sound
-            }
-        }
 
         private void btnNextAvailable_Click(object sender, EventArgs e)
         {
@@ -661,6 +647,48 @@ namespace CrusaderWars.client
 
             tv.SelectedNode = searchResults[searchResultIndex];
             searchResults[searchResultIndex].EnsureVisible();
+        }
+
+        private void TxtSearchCurrent_TextChanged(object sender, EventArgs e)
+        {
+            if (btnSearchCurrent.Visible == false)
+            {
+                btnSearchCurrent.Visible = true;
+                btnPrevCurrent.Visible = false;
+                btnNextCurrent.Visible = false;
+            }
+        }
+
+        private void TxtSearchAvailable_TextChanged(object sender, EventArgs e)
+        {
+            if (btnSearchAvailable.Visible == false)
+            {
+                btnSearchAvailable.Visible = true;
+                btnPrevAvailable.Visible = false;
+                btnNextAvailable.Visible = false;
+            }
+        }
+
+        private void btnSearchCurrent_Click(object sender, EventArgs e)
+        {
+            SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
+            if (_currentSearchResults.Any())
+            {
+                btnSearchCurrent.Visible = false;
+                btnPrevCurrent.Visible = true;
+                btnNextCurrent.Visible = true;
+            }
+        }
+
+        private void btnSearchAvailable_Click(object sender, EventArgs e)
+        {
+            SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
+            if (_availableSearchResults.Any())
+            {
+                btnSearchAvailable.Visible = false;
+                btnPrevAvailable.Visible = true;
+                btnNextAvailable.Visible = true;
+            }
         }
     }
 }
