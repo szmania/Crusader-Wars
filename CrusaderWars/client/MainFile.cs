@@ -3102,7 +3102,7 @@ namespace CrusaderWars
                     MessageBox.Show($"Autofix setting applied: Deployment rotation is now {rotationState} for the next battle.", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.MapVariant:
-                    BattleState.AutofixMapVariantOffset = (BattleState.AutofixMapVariantOffset ?? 0) + 1;
+                    BattleState.AutofixMapVariantOffset++;
                     MessageBox.Show($"Autofix setting applied: Map variant offset will be increased by 1 for the next battle (current offset: {BattleState.AutofixMapVariantOffset}).", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.Units:
