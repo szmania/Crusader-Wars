@@ -149,6 +149,7 @@ namespace CrusaderWars.data.save_file
         public void SetUnitKey(string unit_key) { AttilaKey = unit_key; }
         public void ChangeName(string y) { Name = y; }
         public void ChangeSoldiers(int y) { Soldiers = y; }
+        public void AddSoldiers(int soldiers) { Soldiers += soldiers; }
         public void SetSoldiers(int soldiers) { Soldiers = soldiers; }
         public void SetMax(int i) { Max = i; }
         public void SetLocName(string t) { LocName = t; }
