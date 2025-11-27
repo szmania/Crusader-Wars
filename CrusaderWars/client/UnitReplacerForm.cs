@@ -31,6 +31,8 @@ namespace CrusaderWars.client
             _unitScreenNames = unitScreenNames ?? new Dictionary<string, string>();
             txtSearchCurrent.TextChanged += TxtSearchCurrent_TextChanged;
             txtSearchAvailable.TextChanged += TxtSearchAvailable_TextChanged;
+            txtSearchCurrent.KeyDown += TxtSearchCurrent_KeyDown;
+            txtSearchAvailable.KeyDown += TxtSearchAvailable_KeyDown;
         }
 
         private void UnitReplacerForm_Load(object sender, EventArgs e)

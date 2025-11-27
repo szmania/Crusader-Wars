@@ -56,6 +56,7 @@ namespace CrusaderWars.client
             this.tvCurrentUnits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.tvCurrentUnits.Location = new System.Drawing.Point(12, 196);
+            this.tvCurrentUnits.HideSelection = false;
             this.tvCurrentUnits.Name = "tvCurrentUnits";
             this.tvCurrentUnits.Size = new System.Drawing.Size(480, 424);
             this.tvCurrentUnits.TabIndex = 0;
