@@ -205,7 +205,22 @@ namespace CrusaderWars.client
                     var typeNode = new TreeNode(typeDisplayName);
                     factionNode.Nodes.Add(typeNode);
 
-                    foreach (var unit in typeGroup.OrderBy(u => u.DisplayName))
+                    IOrderedEnumerable<AvailableUnit> sortedUnits;
+                    switch (typeGroup.Key)
+                    {
+                        case "Garrison":
+                            sortedUnits = typeGroup.OrderBy(u => u.Level);
+                            break;
+                        case "General":
+                        case "Knights":
+                            sortedUnits = typeGroup.OrderBy(u => u.Rank);
+                            break;
+                        default:
+                            sortedUnits = typeGroup.OrderBy(u => u.DisplayName);
+                            break;
+                    }
+
+                    foreach (var unit in sortedUnits)
                     {
                         string screenName = _unitScreenNames.TryGetValue(unit.AttilaUnitKey, out var sn) ? sn : unit.AttilaUnitKey;
                         string displayText;
@@ -215,18 +230,18 @@ namespace CrusaderWars.client
                             // For MAA, show "CK3 Name -> Screen Name [Category]" if they are different
                             if (unit.DisplayName != screenName && !string.IsNullOrEmpty(unit.DisplayName))
                             {
-                                displayText = $"{unit.DisplayName} -> {screenName}";
+                                displayText = $"CK3: {unit.DisplayName} -> {screenName} [{unit.AttilaUnitKey}]";
                             }
                             else
                             {
-                                displayText = screenName;
+                                displayText = $"{screenName} [{unit.AttilaUnitKey}]";
                             }
                             if (unit.IsSiege) displayText += " [SIEGE]";
                             if (!string.IsNullOrEmpty(unit.MaxCategory)) displayText += $" [{unit.MaxCategory}]";
                         }
                         else // General, Knights, Levy, Garrison
                         {
-                            displayText = screenName;
+                            displayText = $"{screenName} [{unit.AttilaUnitKey}]";
                             if (unit.IsSiege) displayText += " [SIEGE]";
                             if (unit.Rank.HasValue) displayText += $" [Rank: {unit.Rank.Value}]";
                             else if (unit.Level.HasValue) displayText += $" [Level: {unit.Level.Value}]";
