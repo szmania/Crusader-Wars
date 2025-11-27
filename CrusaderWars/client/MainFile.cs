@@ -3060,6 +3060,21 @@ namespace CrusaderWars
                 }
                 DataSearch.Search(logSnippet);
 
+                // Manually determine and set the active playthrough for the autofixer context
+                string? activePlaythroughTag = GetActivePlaythroughTag();
+                if (!string.IsNullOrEmpty(activePlaythroughTag))
+                {
+                    if (ModOptions.optionsValuesCollection.ContainsKey("Playthrough"))
+                    {
+                        ModOptions.optionsValuesCollection["Playthrough"] = activePlaythroughTag;
+                    }
+                    else
+                    {
+                        ModOptions.optionsValuesCollection.Add("Playthrough", activePlaythroughTag);
+                    }
+                    Program.Logger.Debug($"Autofixer context: Active playthrough set to '{activePlaythroughTag}'.");
+                }
+
                 // Load the unit mapper before reading armies
                 string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
                 if (string.IsNullOrEmpty(selectedPlaythrough))
