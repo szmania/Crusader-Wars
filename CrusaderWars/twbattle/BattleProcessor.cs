@@ -1459,7 +1459,7 @@ namespace CrusaderWars.twbattle
                             controls.lbl.Left = 30;
                             controls.lbl.Top = currentManualFixTop + 20;
                             manualFixGroup.Controls.Add(controls.lbl);
-                            currentManualFixTop += 55;
+                            currentManualFixTop += 60;
                         }
                         else
                         {
@@ -1472,7 +1472,7 @@ namespace CrusaderWars.twbattle
                             controls.lbl.Left = 30;
                             controls.lbl.Top = currentAutofixTop + 20;
                             autofixGroup.Controls.Add(controls.lbl);
-                            currentAutofixTop += 55;
+                            currentAutofixTop += 60;
                         }
                     }
                 }
@@ -1504,7 +1504,7 @@ namespace CrusaderWars.twbattle
                 Button btnStart = new Button() { Text = "Start Autofix", Left = 175, Width = 100, Top = currentTop, DialogResult = DialogResult.Yes };
                 Button btnCancel = new Button() { Text = "Cancel", Left = 295, Width = 100, Top = currentTop, DialogResult = DialogResult.No };
 
-                prompt.Height = currentTop + 150;
+                prompt.Height = currentTop + 100;
 
                 btnStart.Click += (sender, e) => { prompt.Close(); };
                 btnCancel.Click += (sender, e) => { prompt.Close(); };
