@@ -1410,7 +1410,7 @@ namespace CrusaderWars.twbattle
 
             using (Form prompt = new Form())
             {
-                prompt.Width = 650;
+                prompt.Width = 750;
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.Sizable;
                 prompt.AutoScroll = true;
@@ -1420,7 +1420,7 @@ namespace CrusaderWars.twbattle
                 {
                     Left = 20,
                     Top = 20,
-                    Width = 610,
+                    Width = 710,
                     Height = 50,
                     Text = "Select a tool to manually configure the next battle. These changes can help prevent crashes before they happen."
                 };
@@ -1435,7 +1435,7 @@ namespace CrusaderWars.twbattle
                 int currentTop = textLabel.Bottom + 20;
                 bool first = true;
 
-                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Tools", Left = 20, Top = currentTop, Width = 610 };
+                GroupBox manualFixGroup = new GroupBox() { Text = "Manual Tools", Left = 20, Top = currentTop, Width = 710 };
                 prompt.Controls.Add(manualFixGroup);
                 int currentManualFixTop = 20;
 
@@ -1451,7 +1451,7 @@ namespace CrusaderWars.twbattle
                         controls.lbl.Left = 30;
                         controls.lbl.Top = currentManualFixTop + 20;
                         manualFixGroup.Controls.Add(controls.lbl);
-                        currentManualFixTop += 80;
+                        currentManualFixTop += 90;
                     }
                 }
                 manualFixGroup.Height = currentManualFixTop;
