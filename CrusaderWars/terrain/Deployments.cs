@@ -256,7 +256,7 @@ namespace CrusaderWars.terrain
         }
     }
 
-    class DeploymentArea
+    public class DeploymentArea
     {
         //CENTER POSITIONS
         public string X { get; private set; }
