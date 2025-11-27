@@ -38,7 +38,7 @@ namespace CrusaderWars.twbattle
             public string OriginalFieldMapDescription { get; set; } = "";
 
             // New properties for strategy-based autofix
-            public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant, ManualUnitReplacement }
+            public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant, ManualUnitReplacement, DeploymentZoneTool }
 
             public AutofixStrategy? CurrentStrategy { get; set; } = null;
             public HashSet<AutofixStrategy> TriedStrategies { get; set; } = new HashSet<AutofixStrategy>();
@@ -640,7 +640,8 @@ namespace CrusaderWars.twbattle
                             AutofixState.AutofixStrategy.MapSize,
                             AutofixState.AutofixStrategy.Deployment,
                             AutofixState.AutofixStrategy.MapVariant,
-                            AutofixState.AutofixStrategy.ManualUnitReplacement
+                            AutofixState.AutofixStrategy.ManualUnitReplacement,
+                            AutofixState.AutofixStrategy.DeploymentZoneTool
                         };
 
                         if (BattleState.IsSiegeBattle)
@@ -713,6 +714,9 @@ namespace CrusaderWars.twbattle
                                     case AutofixState.AutofixStrategy.ManualUnitReplacement:
                                         form.infoLabel.Text = "Loading manual unit replacer...";
                                         break;
+                                    case AutofixState.AutofixStrategy.DeploymentZoneTool:
+                                        form.infoLabel.Text = "Loading deployment zone tool...";
+                                        break;
                                 }
                             }
                         });
@@ -768,6 +772,12 @@ namespace CrusaderWars.twbattle
                             break;
                         case AutofixState.AutofixStrategy.ManualUnitReplacement:
                             (fixApplied, fixDescription) = TryManualUnitFix(autofixState, form);
+                            break;
+                        case AutofixState.AutofixStrategy.DeploymentZoneTool:
+                            // Placeholder for the new tool
+                            MessageBox.Show("Deployment Zone Tool is not yet implemented.", "Coming Soon", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            fixApplied = false;
+                            fixDescription = "";
                             break;
                     }
 
@@ -1420,7 +1430,8 @@ namespace CrusaderWars.twbattle
                     { AutofixState.AutofixStrategy.MapSize, (new RadioButton() { Text = "Change Map Size", AutoSize = true }, new Label() { Text = "Increases deployment area. Good for crashes with very large armies.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.Deployment, (new RadioButton() { Text = "Change Deployment", AutoSize = true }, new Label() { Text = "Rotates deployment zones or attacker direction. Good for units spawning in bad terrain.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
                     { AutofixState.AutofixStrategy.MapVariant, (new RadioButton() { Text = "Change Map", AutoSize = true }, new Label() { Text = "Switches to a different map for the same location. Good for a buggy map file.", AutoSize = true, ForeColor = System.Drawing.Color.Gray }) },
-                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) }
+                    { AutofixState.AutofixStrategy.ManualUnitReplacement, (new RadioButton() { Text = "Unit Replacer Tool", AutoSize = true }, new Label() { Text = "Manually replace specific units in your army with any available unit.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) },
+                    { AutofixState.AutofixStrategy.DeploymentZoneTool, (new RadioButton() { Text = "Deployment Zone Tool", AutoSize = true }, new Label() { Text = "Manually adjust the size and position of deployment zones.", Width = 400, Height = 30, ForeColor = System.Drawing.Color.Gray }) }
                 };
 
                 // Create GroupBoxes
@@ -1437,7 +1448,7 @@ namespace CrusaderWars.twbattle
                 {
                     if (allStrategyControls.TryGetValue(strategy, out var controls))
                     {
-                        if (strategy == AutofixState.AutofixStrategy.ManualUnitReplacement)
+                        if (strategy == AutofixState.AutofixStrategy.ManualUnitReplacement || strategy == AutofixState.AutofixStrategy.DeploymentZoneTool)
                         {
                             // Add to Manual Fix group
                             controls.rb.Left = 10;

@@ -3057,7 +3057,8 @@ namespace CrusaderWars
                 BattleProcessor.AutofixState.AutofixStrategy.MapSize,
                 BattleProcessor.AutofixState.AutofixStrategy.Deployment,
                 BattleProcessor.AutofixState.AutofixStrategy.MapVariant,
-                BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement
+                BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement,
+                BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool
             };
 
             if (BattleState.IsSiegeBattle)
@@ -3077,6 +3078,9 @@ namespace CrusaderWars
             {
                 case BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement:
                     LaunchUnitReplacerTool();
+                    break;
+                case BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneTool:
+                    MessageBox.Show("Deployment Zone Tool is not yet implemented.", "Coming Soon", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.Units:
                     MessageBox.Show("This option automatically replaces potentially buggy units one by one. It is intended for use during the automatic crash recovery process and cannot be manually triggered.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
