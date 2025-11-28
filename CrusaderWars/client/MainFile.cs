@@ -133,7 +133,7 @@ namespace CrusaderWars
             // NEW HOVER EFFECTS FOR linkOptInPreReleases
             linkOptInPreReleases.MouseEnter += (sender, e) => {
                 _preReleasePulseTimer?.Stop();
-                linkOptInPreReReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
+                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
             };
             linkOptInPreReleases.MouseLeave += (sender, e) => {
                 if (ModOptions.GetOptInPreReleases()) {
@@ -2988,7 +2988,7 @@ namespace CrusaderWars
             public string OldVersion { get; set; } = "0.0.0";
             public string NewVersion { get; set; } = "0.0.0";
             public string SourceModFile { get; set; } = "";
-            public string SourceModDir { get; set; }  = "";
+            public string SourceModDir { get; set }  = "";
             public string TargetModFile { get; set; } = "";
             public string TargetModDir { get; set; } = "";
             public string ModDirectoryName { get; set; } = "";
