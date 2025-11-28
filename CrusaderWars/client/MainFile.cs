@@ -133,7 +133,7 @@ namespace CrusaderWars
             // NEW HOVER EFFECTS FOR linkOptInPreReleases
             linkOptInPreReleases.MouseEnter += (sender, e) => {
                 _preReleasePulseTimer?.Stop();
-                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
+                linkOptInPreReReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
             };
             linkOptInPreReleases.MouseLeave += (sender, e) => {
                 if (ModOptions.GetOptInPreReleases()) {
@@ -751,7 +751,40 @@ namespace CrusaderWars
                     // 2. Mod Validation
                     var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag);
                     var modsToVerify = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
-                    var verificationResult = AttilaModManager.VerifyModFiles(modsToVerify, null);
+                    
+                    // Create and show a simple status form for mod verification
+                    Form statusForm = new Form
+                    {
+                        Width = 300,
+                        Height = 100,
+                        FormBorderStyle = FormBorderStyle.FixedDialog,
+                        Text = "Verification in Progress",
+                        StartPosition = FormStartPosition.CenterParent,
+                        ControlBox = false
+                    };
+                    Label statusLabel = new Label
+                    {
+                        Text = "Validating TW:Attila mod files...",
+                        Dock = DockStyle.Fill,
+                        TextAlign = ContentAlignment.MiddleCenter
+                    };
+                    statusForm.Controls.Add(statusLabel);
+                    statusForm.Show(this);
+                    statusForm.Update();
+
+                    var progress = new Progress<string>(update => {
+                        statusLabel.Text = update;
+                    });
+
+                    VerificationResult verificationResult;
+                    try
+                    {
+                        verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToVerify, progress));
+                    }
+                    finally
+                    {
+                        statusForm.Close();
+                    }
 
                     if (verificationResult.MissingFiles.Any())
                     {
