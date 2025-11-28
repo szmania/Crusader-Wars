@@ -38,7 +38,7 @@ namespace CrusaderWars
         public bool battleJustCompleted = false; // Changed to public for BattleProcessor access
         private string _appVersion = null!;
         private string? _umVersion = null; // Made nullable
-        private Updater _updater = null!;
+        Updater _updater = null!;
         private System.Windows.Forms.Timer _pulseTimer = null!;
         private bool _isPulsing = false;
         private int _pulseStep = 0;
@@ -231,12 +231,26 @@ namespace CrusaderWars
         {
             if (ModOptions.GetOptInPreReleases()) return; // Safety check
 
-            _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle
-            // Pulse between a bright yellow (255, 255, 150) and a slightly dimmer yellow (255, 255, 50)
-            int pulseValue = (_preReleasePulseStep < 10 ? _pulseStep * 10 : (20 - _preReleasePulseStep) * 10);
-            int blueComponent = 150 - pulseValue;
-            blueComponent = Math.Max(0, Math.Min(255, blueComponent)); // Clamp the value
-            linkOptInPreReleases.ForeColor = Color.FromArgb(255, 255, blueComponent);
+            _preReleasePulseStep = (_preReleasePulseStep + 1) % 40; // 40 steps for a smoother cycle
+
+            // Define two vibrant colors to pulse between
+            Color color1 = Color.Gold;
+            Color color2 = Color.FromArgb(100, 200, 255); // A shimmering light blue
+
+            // Calculate interpolation factor 't' (from 0.0 to 1.0 and back)
+            float t = (_preReleasePulseStep < 20)
+                ? _preReleasePulseStep / 19.0f
+                : (39 - _preReleasePulseStep) / 19.0f;
+
+            // Clamp t to be safe
+            t = Math.Max(0.0f, Math.Min(1.0f, t));
+
+            // Interpolate RGB components
+            int r = (int)(color1.R * (1 - t) + color2.R * t);
+            int g = (int)(color1.G * (1 - t) + color2.G * t);
+            int b = (int)(color1.B * (1 - t) + color2.B * t);
+
+            linkOptInPreReleases.ForeColor = Color.FromArgb(r, g, b);
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -630,7 +644,6 @@ namespace CrusaderWars
             InitializePlaythroughDisplay();
 
             // Options.ReadOptionsFile(); // REMOVED: Moved to constructor
-            // Line 452 - Add null check
             // Removed the block:
             // if (Options.optionsValuesCollection != null)
             // {
