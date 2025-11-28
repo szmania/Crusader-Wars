@@ -40,7 +40,7 @@ namespace CrusaderWars.unit_mapper
 
     internal class CoastalMap
     {
-        public string Name { get; set; = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Province { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
         public List<SettlementVariant> Variants { get; private set; }  = new List<SettlementVariant>();
