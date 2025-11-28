@@ -40,7 +40,7 @@ namespace CrusaderWars.unit_mapper
 
     internal class CoastalMap
     {
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; = string.Empty;
         public string Province { get; set; } = string.Empty;
         public string BattleType { get; set; } = string.Empty;
         public List<SettlementVariant> Variants { get; private set; }  = new List<SettlementVariant>();
@@ -267,6 +267,9 @@ namespace CrusaderWars.unit_mapper
         }
         public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
         {
+            var allRequiredMods = new List<ModFile>();
+            var allSubmods = new List<Submod>();
+
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             if (tag == "Custom")
             {
@@ -281,30 +284,33 @@ namespace CrusaderWars.unit_mapper
                             string fileTag = File.ReadAllText(tagFile).Trim();
                             if (selectedMapperTag.Equals(fileTag, StringComparison.OrdinalIgnoreCase))
                             {
-                                return ParseModsFileFromMapperPath(mapper);
+                                var (mods, submods) = ParseModsFileFromMapperPath(mapper);
+                                allRequiredMods.AddRange(mods);
+                                allSubmods.AddRange(submods);
                             }
                         }
                     }
                 }
-                return (new List<ModFile>(), new List<Submod>());
             }
-
-
-            foreach (var mapper in unit_mappers_folder)
+            else
             {
-                string tagFile = Path.Combine(mapper, "tag.txt");
-                if (File.Exists(tagFile))
+                foreach (var mapper in unit_mappers_folder)
                 {
-                    string fileTag = File.ReadAllText(tagFile).Trim();
-                    if (tag == fileTag)
+                    string tagFile = Path.Combine(mapper, "tag.txt");
+                    if (File.Exists(tagFile))
                     {
-                        // For non-custom, we assume one folder per tag.
-                        return ParseModsFileFromMapperPath(mapper);
+                        string fileTag = File.ReadAllText(tagFile).Trim();
+                        if (tag == fileTag)
+                        {
+                            var (mods, submods) = ParseModsFileFromMapperPath(mapper);
+                            allRequiredMods.AddRange(mods);
+                            allSubmods.AddRange(submods);
+                        }
                     }
                 }
             }
 
-            return (new List<ModFile>(), new List<Submod>());
+            return (allRequiredMods, allSubmods);
         }
 
         // Fix for CS8602 and CS8600
@@ -797,13 +803,16 @@ namespace CrusaderWars.unit_mapper
                         var mods = ProcessMapper(mapperPath);
                         if (mods.Any())
                         {
-                            return mods; // Found the correct mapper for the time period
+                            requiredMods.AddRange(mods); // Aggregate mods
                         }
                     }
                 }
 
-                MessageBox.Show($"The selected custom unit mapper '{customMapperTag}' does not have a valid configuration for the current in-game year ({Date.Year}).", "Crusader Conflicts: Configuration Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                if (!requiredMods.Any()) // If no mods were found after checking all custom mappers
+                {
+                    MessageBox.Show($"The selected custom unit mapper '{customMapperTag}' does not have a valid configuration for the current in-game year ({Date.Year}).", "Crusader Conflicts: Configuration Error",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                }
                 return requiredMods;
             }
 
@@ -818,7 +827,7 @@ namespace CrusaderWars.unit_mapper
                         var mods = ProcessMapper(mapper);
                         if (mods.Any()) // ProcessMapper returns empty list on time period mismatch
                         {
-                            return mods; // Found the correct mapper for the time period
+                            requiredMods.AddRange(mods); // Aggregate mods
                         }
                     }
                 }
@@ -905,8 +914,8 @@ namespace CrusaderWars.unit_mapper
                                 }
                             }
                         }
-                        LoadedUnitMapper_FolderPath = mapperPath;
-                        ReadTerrainsFile();
+                        LoadedUnitMapper_FolderPath = mapperPath; // This will only store the last loaded mapper path.
+                        ReadTerrainsFile(); // This will only read terrains from the last loaded mapper path.
                     }
                     else
                     {

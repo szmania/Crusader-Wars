@@ -333,7 +333,7 @@ namespace CrusaderWars.mod_manager
                             if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == _playthroughTag)
                             {
                                 unitMapperDirectories.Add(dir);
-                                break; 
+                                // Removed 'break;' here to allow finding all directories with the same tag
                             }
                         }
                     }
@@ -810,16 +810,16 @@ namespace CrusaderWars.mod_manager
                                     Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
                                     result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
                                     modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
-                                }
                             }
-                            else // No hash provided, just check for existence
-                            {
+                        }
+                        else // No hash provided, just check for existence
+                        {
                                 Program.Logger.Debug($"Found required mod in workshop folder (no hash check): {fileName}");
                                 modsToFind.Remove(fileName);
-                            }
                         }
                     }
                 }
+            }
             }
 
             // Any mods remaining in modsToFind are missing from both locations.
