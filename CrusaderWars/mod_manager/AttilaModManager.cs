@@ -4,6 +4,7 @@ using System.Data.Odbc;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -53,6 +54,12 @@ namespace CrusaderWars.mod_manager
         public string GetFullPath() { return FullPath; }
 
         public void DisposeThumbnail() { Image?.Dispose(); Image = null; } // Used null-conditional operator
+    }
+
+    public class VerificationResult
+    {
+        public List<(string FileName, string? ScreenName, string? Url)> MissingFiles { get; } = new List<(string, string?, string?)>();
+        public List<(string FileName, string ExpectedSha, string? ScreenName, string? Url)> MismatchedFiles { get; } = new List<(string, string, string?, string?)>();
     }
 
     public static class AttilaModManager
@@ -484,6 +491,131 @@ namespace CrusaderWars.mod_manager
                     }
                 }
             }
+        }
+
+        public static string CalculateSHA256(string filePath)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    var hash = sha256.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+
+        public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress)
+        {
+            Program.Logger.Debug("Verifying mod files...");
+            var result = new VerificationResult();
+            var modsToFind = modsToVerifyList
+                .GroupBy(item => item.FileName)
+                .Select(group => group.First())
+                .ToDictionary(item => item.FileName, item => (Sha: item.Sha256, ScreenName: item.ScreenName, Url: item.Url));
+            Program.Logger.Debug($"Mods to verify: {string.Join(", ", modsToFind.Keys)}");
+
+
+            //Verify data folder
+            string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
+            Program.Logger.Debug($"Checking Attila data folder: {data_folder_path}");
+            if (Directory.Exists(data_folder_path))
+            {
+                var dataModsPaths = Directory.GetFiles(data_folder_path);
+                foreach (var file in dataModsPaths)
+                {
+                    var fileName = Path.GetFileName(file);
+                    if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
+                    {
+                        var screenName = modsToFind[fileName].ScreenName;
+                        string progressMessage = string.IsNullOrEmpty(screenName)
+                            ? $"Verifying: {fileName}"
+                            : $"Verifying: {screenName} - {fileName}";
+                        progress?.Report(progressMessage);
+                        string expectedSha = modsToFind[fileName].Sha;
+                        var url = modsToFind[fileName].Url;
+                        if (!string.IsNullOrEmpty(expectedSha))
+                        {
+                            string actualSha = CalculateSHA256(file);
+                            if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Program.Logger.Debug($"Found required mod in data folder with matching hash: {fileName}");
+                                modsToFind.Remove(fileName);
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"Found required mod '{fileName}' in data folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
+                                result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
+                                modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
+                            }
+                        }
+                        else // No hash provided, just check for existence
+                        {
+                            Program.Logger.Debug($"Found required mod in data folder (no hash check): {fileName}");
+                            modsToFind.Remove(fileName);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Error reading Attila data folder. This is caused by wrong Attila path.", "Crusader Conflicts: Game Paths Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+            }
+
+            //Verify workshop folder
+            string? workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
+            Program.Logger.Debug($"Checking Attila workshop folder: {workshop_folder_path}");
+            if (Directory.Exists(workshop_folder_path))
+            {
+                var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);
+                foreach (var folder in steamModsFoldersPaths)
+                {
+                    var files = Directory.GetFiles(folder);
+                    foreach (var file in files)
+                    {
+                        var fileName = Path.GetFileName(file);
+                        if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
+                        {
+                            var screenName = modsToFind[fileName].ScreenName;
+                            string progressMessage = string.IsNullOrEmpty(screenName)
+                                ? $"Verifying: {fileName}"
+                                : $"Verifying: {screenName} - {fileName}";
+                            progress?.Report(progressMessage);
+                            string expectedSha = modsToFind[fileName].Sha;
+                            var url = modsToFind[fileName].Url;
+                            if (!string.IsNullOrEmpty(expectedSha))
+                            {
+                                string actualSha = CalculateSHA256(file);
+                                if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Program.Logger.Debug($"Found required mod in workshop folder with matching hash: {fileName}");
+                                    modsToFind.Remove(fileName);
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
+                                    result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
+                                    modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
+                                }
+                            }
+                            else // No hash provided, just check for existence
+                            {
+                                Program.Logger.Debug($"Found required mod in workshop folder (no hash check): {fileName}");
+                                modsToFind.Remove(fileName);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Any mods remaining in modsToFind are missing from both locations.
+            result.MissingFiles.AddRange(modsToFind.Select(kvp => (kvp.Key, kvp.Value.ScreenName, kvp.Value.Url)));
+
+            if (result.MissingFiles.Any()) Program.Logger.Debug($"Mods not found: {string.Join(", ", result.MissingFiles.Select(f => f.FileName))}");
+            if (result.MismatchedFiles.Any()) Program.Logger.Debug($"Mismatched mods: {string.Join(", ", result.MismatchedFiles.Select(m => m.FileName))}");
+            if (!result.MissingFiles.Any() && !result.MismatchedFiles.Any()) Program.Logger.Debug("All required mods were found and hashes match.");
+            return result;
         }
     }
 }

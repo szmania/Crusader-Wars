@@ -679,11 +679,138 @@ namespace CrusaderWars
             await _updater.CheckAppVersion();
             // If an app update is found, the process will exit and the next line won't be reached.
             await _updater.CheckUnitMappersVersion();
+            await CheckForUnitMapperUpdateAndRevalidate();
             await CheckForCK3ModUpdatesAsync(); // MOVED TO Form1_Load
 
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
+
+        private async Task CheckForUnitMapperUpdateAndRevalidate()
+        {
+            Program.Logger.Debug("Checking for unit mapper update and revalidating if necessary...");
+            string versionFilePath = @".\settings\last_um_version.txt";
+            string lastKnownVersion = "0.0.0";
+
+            if (File.Exists(versionFilePath))
+            {
+                lastKnownVersion = File.ReadAllText(versionFilePath).Trim();
+            }
+            else
+            {
+                Program.Logger.Debug("last_um_version.txt not found. This is likely the first run with this feature. Creating file.");
+                File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
+                return; // Nothing to compare against, so exit.
+            }
+
+            if (_updater.IsNewerVersion(lastKnownVersion, _umVersion ?? "0.0.0"))
+            {
+                Program.Logger.Debug($"Newer unit mapper version detected. Old: {lastKnownVersion}, New: {_umVersion}. Re-validating active playthrough.");
+
+                string activePlaythroughTag = GetActivePlaythroughTag();
+                if (string.IsNullOrEmpty(activePlaythroughTag))
+                {
+                    Program.Logger.Debug("No active playthrough to re-validate.");
+                    File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
+                    return;
+                }
+
+                MessageBox.Show(this, $"The Unit Mappers have been updated to v{_umVersion}.\n\n" +
+                                      $"The application will now re-validate your currently selected playthrough ('{GetFriendlyPlaythroughName(activePlaythroughTag)}') to ensure compatibility.",
+                                      "Unit Mappers Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                var allErrors = new List<string>();
+                string playthroughFolderPath = "";
+                string unitMappersDir = @".\unit mappers";
+
+                // Find playthrough directory
+                if (Directory.Exists(unitMappersDir))
+                {
+                    string tagToFind = activePlaythroughTag == "Custom" ? ModOptions.GetSelectedCustomMapper() : activePlaythroughTag;
+                    foreach (var dir in Directory.GetDirectories(unitMappersDir))
+                    {
+                        string tagFile = Path.Combine(dir, "tag.txt");
+                        if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
+                        {
+                            playthroughFolderPath = dir;
+                            break;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(playthroughFolderPath))
+                {
+                    allErrors.Add("The directory for the active playthrough could not be found.");
+                }
+                else
+                {
+                    // 1. Schema Validation
+                    allErrors.AddRange(XmlValidator.ValidateUnitMapper(playthroughFolderPath));
+
+                    // 2. Mod Validation
+                    var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag);
+                    var modsToVerify = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
+                    var verificationResult = AttilaModManager.VerifyModFiles(modsToVerify, null);
+
+                    if (verificationResult.MissingFiles.Any())
+                    {
+                        allErrors.Add("Missing required mod files:");
+                        foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                        {
+                            allErrors.Add($"  - {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}" + (!string.IsNullOrEmpty(url) ? $" -> {url}" : ""));
+                        }
+                    }
+                    if (verificationResult.MismatchedFiles.Any())
+                    {
+                        allErrors.Add("Mismatched mod file versions (please update from Steam Workshop):");
+                        foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
+                        {
+                            allErrors.Add($"  - {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}" + (!string.IsNullOrEmpty(url) ? $" -> {url}" : ""));
+                        }
+                    }
+                }
+
+                // 3. Handle Results
+                if (allErrors.Any())
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"Your active playthrough '{GetFriendlyPlaythroughName(activePlaythroughTag)}' is no longer valid after the Unit Mapper update and has been disabled.");
+                    sb.AppendLine("Please resolve the following issues and then re-enable it in the Mod Settings:");
+                    sb.AppendLine();
+                    sb.AppendLine(string.Join("\n", allErrors));
+
+                    MessageBox.Show(this, sb.ToString(), "Playthrough Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                    // Deactivate playthrough
+                    string um_file = @".\settings\UnitMappers.xml";
+                    if (File.Exists(um_file))
+                    {
+                        XmlDocument xmlDoc = new XmlDocument();
+                        xmlDoc.Load(um_file);
+                        var node = xmlDoc.SelectSingleNode($"//UnitMappers[@name='{activePlaythroughTag}']");
+                        if (node != null)
+                        {
+                            node.InnerText = "False";
+                            xmlDoc.Save(um_file);
+                            Program.Logger.Debug($"Deactivated playthrough '{activePlaythroughTag}' due to validation failure.");
+                        }
+                    }
+
+                    // Deactivate submods
+                    SubmodManager.SetActiveSubmodsForPlaythrough(activePlaythroughTag, new List<string>());
+                    SubmodManager.SaveActiveSubmods();
+                    Program.Logger.Debug($"Cleared active submods for '{activePlaythroughTag}'.");
+                }
+                else
+                {
+                    MessageBox.Show(this, $"Your active playthrough '{GetFriendlyPlaythroughName(activePlaythroughTag)}' was successfully re-validated against the new Unit Mapper files.",
+                                    "Re-Validation Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+            // Always update the version file at the end
+            File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
         }
 
         private void UpdatePreReleaseLinkState()
