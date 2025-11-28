@@ -2043,7 +2043,7 @@ namespace CrusaderWars.unit_mapper
             }
             if (string.IsNullOrEmpty(HeritageName))
             {
-Logger.Debug("WARNING: HeritageName is null/empty");
+                Program.Logger.Debug("WARNING: HeritageName is null/empty");
             }
 
             (string faction, string file) heritage_mapping = ("", "");
