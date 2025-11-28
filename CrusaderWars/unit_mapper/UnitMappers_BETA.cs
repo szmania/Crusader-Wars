@@ -286,7 +286,33 @@ namespace CrusaderWars.unit_mapper
                             {
                                 var (mods, submods) = ParseModsFileFromMapperPath(mapper);
                                 allRequiredMods.AddRange(mods);
-                                allSubmods.AddRange(submods);
+                                foreach (var newSubmod in submods)
+                                {
+                                    var existingSubmod = allSubmods.FirstOrDefault(s => s.Tag == newSubmod.Tag);
+                                    if (existingSubmod != null)
+                                    {
+                                        // Merge Mods, ensuring no duplicates
+                                        foreach (var newModFile in newSubmod.Mods)
+                                        {
+                                            if (!existingSubmod.Mods.Any(m => m.FileName == newModFile.FileName))
+                                            {
+                                                existingSubmod.Mods.Add(newModFile);
+                                            }
+                                        }
+                                        // Merge Replaces, ensuring no duplicates
+                                        foreach (var newReplace in newSubmod.Replaces)
+                                        {
+                                            if (!existingSubmod.Replaces.Contains(newReplace))
+                                            {
+                                                existingSubmod.Replaces.Add(newReplace);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        allSubmods.Add(newSubmod);
+                                    }
+                                }
                             }
                         }
                     }
@@ -304,7 +330,33 @@ namespace CrusaderWars.unit_mapper
                         {
                             var (mods, submods) = ParseModsFileFromMapperPath(mapper);
                             allRequiredMods.AddRange(mods);
-                            allSubmods.AddRange(submods);
+                            foreach (var newSubmod in submods)
+                            {
+                                var existingSubmod = allSubmods.FirstOrDefault(s => s.Tag == newSubmod.Tag);
+                                if (existingSubmod != null)
+                                {
+                                    // Merge Mods, ensuring no duplicates
+                                    foreach (var newModFile in newSubmod.Mods)
+                                    {
+                                        if (!existingSubmod.Mods.Any(m => m.FileName == newModFile.FileName))
+                                        {
+                                            existingSubmod.Mods.Add(newModFile);
+                                        }
+                                    }
+                                    // Merge Replaces, ensuring no duplicates
+                                    foreach (var newReplace in newSubmod.Replaces)
+                                    {
+                                        if (!existingSubmod.Replaces.Contains(newReplace))
+                                        {
+                                            existingSubmod.Replaces.Add(newReplace);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    allSubmods.Add(newSubmod);
+                                }
+                            }
                         }
                     }
                 }
@@ -801,7 +853,7 @@ namespace CrusaderWars.unit_mapper
                     foreach (var mapperPath in matchingMappers)
                     {
                         var mods = ProcessMapper(mapperPath);
-                        if (mods.Any())
+                        if (mods.Any()) // ProcessMapper returns empty list on time period mismatch
                         {
                             requiredMods.AddRange(mods); // Aggregate mods
                         }
@@ -1991,7 +2043,7 @@ namespace CrusaderWars.unit_mapper
             }
             if (string.IsNullOrEmpty(HeritageName))
             {
-                Program.Logger.Debug("WARNING: HeritageName is null/empty");
+Logger.Debug("WARNING: HeritageName is null/empty");
             }
 
             (string faction, string file) heritage_mapping = ("", "");

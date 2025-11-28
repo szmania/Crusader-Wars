@@ -161,7 +161,7 @@ namespace CrusaderWars.mod_manager
             this.RequiredModsList = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
 
             this._availableSubmods.Clear();
-            this._availableSubmods.AddRange(modsCollection.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            this._availableSubmods.AddRange(modsCollection.submods);
 
             // 4. Update the UI
             BtnSubmods.Visible = this._availableSubmods.Any();
