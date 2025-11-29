@@ -228,6 +228,20 @@ namespace CrusaderWars.client
             }
         }
 
+        public static bool CombineKnightsEnabled()
+        {
+            if (optionsValuesCollection.TryGetValue("CombineKnights", out var value))
+            {
+                return value == "Enabled";
+            }
+            return false; // Default is Disabled
+        }
+
+        public static void SetCombineKnights(string value)
+        {
+            optionsValuesCollection["CombineKnights"] = value;
+        }
+
         public static int CulturalPreciseness()
         {
             int minumum = 5;

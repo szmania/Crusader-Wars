@@ -37,6 +37,12 @@ namespace CrusaderWars.client.Options
             SetDefaults();
         }
 
+        public string CombineKnightsValue
+        {
+            get { return comboCombineKnights.SelectedItem.ToString(); }
+            set { comboCombineKnights.SelectedItem = value; }
+        }
+
         public void UnsubscribeEventHandlers()
         {
             foreach (var control in commanderControls)
@@ -131,6 +137,9 @@ namespace CrusaderWars.client.Options
             numKnightSlain.Value = 8;
             numKnightPrisoner.Value = 60;
 
+            // Knight Settings Defaults
+            comboCombineKnights.SelectedItem = "Disabled";
+
             UpdateCommanderTotal();
             UpdateKnightTotal();
         }
@@ -150,7 +159,8 @@ namespace CrusaderWars.client.Options
         {
             // Add tooltips to group boxes
             toolTip1.SetToolTip(groupCommanders, "Configure the wound chances for commanders and knights when they fall in battle"); // Updated tooltip
-            
+            toolTip1.SetToolTip(groupKnightsSettings, "Configure how knights are represented on the battlefield.");
+
             // Add tooltips to labels
             toolTip1.SetToolTip(lblCommanderWounded, "Chance for commander to be wounded when fallen in battle");
             toolTip1.SetToolTip(lblCommanderSeverelyInjured, "Chance for commander to be severely injured when fallen in battle");
@@ -173,6 +183,7 @@ namespace CrusaderWars.client.Options
             toolTip1.SetToolTip(numCommanderPrisoner, "Chance for a character to be taken prisoner if they fall and survive the battle. This is a separate roll and is NOT part of the 100% total for wounds/death.\nCharacters on the losing side have the full chance shown here.\nCharacters on the winning side have a reduced chance (25% of this value).");
             toolTip1.SetToolTip(lblKnightPrisoner, "Chance for a character to be taken prisoner if they fall and survive the battle. This is a separate roll and is NOT part of the 100% total for wounds/death.\nCharacters on the losing side have the full chance shown here.\nCharacters on the winning side have a reduced chance (25% of this value).");
             toolTip1.SetToolTip(numKnightPrisoner, "Chance for a character to be taken prisoner if they fall and survive the battle. This is a separate roll and is NOT part of the 100% total for wounds/death.\nCharacters on the losing side have the full chance shown here.\nCharacters on the winning side have a reduced chance (25% of this value).");
+            toolTip1.SetToolTip(lblCombineKnights, "Determines how knights are represented.\n- Disabled (Default): High-prowess knights lead their own units or MAA squads. Other knights are grouped.\n- Enabled: All knights are combined into a single unit (classic behavior).");
             
             // Add tooltip to reset button
             toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");

@@ -75,6 +75,10 @@ namespace CrusaderWars.client.Options
             this.numCommanderPrisoner = new System.Windows.Forms.NumericUpDown();
             this.lblKnightPrisoner = new System.Windows.Forms.Label();
             this.numKnightPrisoner = new System.Windows.Forms.NumericUpDown();
+            this.groupKnightsSettings = new System.Windows.Forms.GroupBox();
+            this.tableKnightsSettings = new System.Windows.Forms.TableLayoutPanel();
+            this.lblCombineKnights = new System.Windows.Forms.Label();
+            this.comboCombineKnights = new System.Windows.Forms.ComboBox();
             this.mainTableLayout.SuspendLayout();
             this.groupCommanders.SuspendLayout();
             this.tableCommanders.SuspendLayout();
@@ -96,6 +100,8 @@ namespace CrusaderWars.client.Options
             ((System.ComponentModel.ISupportInitialize)(this.numKnightSlain)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderPrisoner)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightPrisoner)).BeginInit();
+            this.groupKnightsSettings.SuspendLayout();
+            this.tableKnightsSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainTableLayout
@@ -103,13 +109,15 @@ namespace CrusaderWars.client.Options
             this.mainTableLayout.ColumnCount = 1;
             this.mainTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.mainTableLayout.Controls.Add(this.groupCommanders, 0, 0);
-            this.mainTableLayout.Controls.Add(this.btnReset, 0, 1); // btnReset moves to row 1
+            this.mainTableLayout.Controls.Add(this.groupKnightsSettings, 0, 1);
+            this.mainTableLayout.Controls.Add(this.btnReset, 0, 2);
             this.mainTableLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainTableLayout.Location = new System.Drawing.Point(0, 0);
             this.mainTableLayout.Name = "mainTableLayout";
-            this.mainTableLayout.RowCount = 2; // Changed from 3
-            this.mainTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 90F)); // Changed from 45F
-            this.mainTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F)); // Changed from 45F and 10F
+            this.mainTableLayout.RowCount = 3;
+            this.mainTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.mainTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 15F));
+            this.mainTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.mainTableLayout.Size = new System.Drawing.Size(461, 437);
             this.mainTableLayout.TabIndex = 0;
             // 
@@ -121,14 +129,14 @@ namespace CrusaderWars.client.Options
             this.groupCommanders.ForeColor = System.Drawing.Color.White;
             this.groupCommanders.Location = new System.Drawing.Point(3, 3);
             this.groupCommanders.Name = "groupCommanders";
-            this.groupCommanders.Size = new System.Drawing.Size(455, 387); // Adjusted height to fill 90% of mainTableLayout
+            this.groupCommanders.Size = new System.Drawing.Size(455, 321);
             this.groupCommanders.TabIndex = 0;
             this.groupCommanders.TabStop = false;
-            this.groupCommanders.Text = "Commander/Knight Wound Chances When Fallen"; // Renamed
+            this.groupCommanders.Text = "Commander/Knight Wound Chances When Fallen";
             // 
             // tableCommanders
             // 
-            this.tableCommanders.ColumnCount = 4; // Changed from 2
+            this.tableCommanders.ColumnCount = 4;
             this.tableCommanders.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35F));
             this.tableCommanders.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 15F));
             this.tableCommanders.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35F));
@@ -189,7 +197,7 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableCommanders.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
             this.tableCommanders.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 9.090909F));
-            this.tableCommanders.Size = new System.Drawing.Size(449, 361);
+            this.tableCommanders.Size = new System.Drawing.Size(449, 295);
             this.tableCommanders.TabIndex = 0;
             // 
             // lblCommanderHeader
@@ -199,7 +207,7 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.SetColumnSpan(this.lblCommanderHeader, 2);
             this.lblCommanderHeader.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCommanderHeader.ForeColor = System.Drawing.Color.White;
-            this.lblCommanderHeader.Location = new System.Drawing.Point(3, 12);
+            this.lblCommanderHeader.Location = new System.Drawing.Point(3, 8);
             this.lblCommanderHeader.Name = "lblCommanderHeader";
             this.lblCommanderHeader.Size = new System.Drawing.Size(93, 19);
             this.lblCommanderHeader.TabIndex = 15;
@@ -213,7 +221,7 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.SetColumnSpan(this.lblKnightHeader, 2);
             this.lblKnightHeader.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblKnightHeader.ForeColor = System.Drawing.Color.White;
-            this.lblKnightHeader.Location = new System.Drawing.Point(227, 12);
+            this.lblKnightHeader.Location = new System.Drawing.Point(227, 8);
             this.lblKnightHeader.Name = "lblKnightHeader";
             this.lblKnightHeader.Size = new System.Drawing.Size(61, 19);
             this.lblKnightHeader.TabIndex = 16;
@@ -224,7 +232,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderWounded.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderWounded.AutoSize = true;
-            this.lblCommanderWounded.Location = new System.Drawing.Point(3, 76);
+            this.lblCommanderWounded.Location = new System.Drawing.Point(3, 60);
             this.lblCommanderWounded.Name = "lblCommanderWounded";
             this.lblCommanderWounded.Size = new System.Drawing.Size(72, 19);
             this.lblCommanderWounded.TabIndex = 0;
@@ -233,7 +241,7 @@ namespace CrusaderWars.client.Options
             // numCommanderWounded
             // 
             this.numCommanderWounded.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderWounded.Location = new System.Drawing.Point(160, 72);
+            this.numCommanderWounded.Location = new System.Drawing.Point(160, 56);
             this.numCommanderWounded.Name = "numCommanderWounded";
             this.numCommanderWounded.Size = new System.Drawing.Size(60, 27);
             this.numCommanderWounded.TabIndex = 1;
@@ -247,7 +255,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderSeverelyInjured.AutoSize = true;
-            this.lblCommanderSeverelyInjured.Location = new System.Drawing.Point(3, 108);
+            this.lblCommanderSeverelyInjured.Location = new System.Drawing.Point(3, 86);
             this.lblCommanderSeverelyInjured.Name = "lblCommanderSeverelyInjured";
             this.lblCommanderSeverelyInjured.Size = new System.Drawing.Size(117, 19);
             this.lblCommanderSeverelyInjured.TabIndex = 2;
@@ -256,7 +264,7 @@ namespace CrusaderWars.client.Options
             // numCommanderSeverelyInjured
             // 
             this.numCommanderSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderSeverelyInjured.Location = new System.Drawing.Point(160, 104);
+            this.numCommanderSeverelyInjured.Location = new System.Drawing.Point(160, 82);
             this.numCommanderSeverelyInjured.Name = "numCommanderSeverelyInjured";
             this.numCommanderSeverelyInjured.Size = new System.Drawing.Size(60, 27);
             this.numCommanderSeverelyInjured.TabIndex = 3;
@@ -270,7 +278,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderBrutallyMauled.AutoSize = true;
-            this.lblCommanderBrutallyMauled.Location = new System.Drawing.Point(3, 140);
+            this.lblCommanderBrutallyMauled.Location = new System.Drawing.Point(3, 112);
             this.lblCommanderBrutallyMauled.Name = "lblCommanderBrutallyMauled";
             this.lblCommanderBrutallyMauled.Size = new System.Drawing.Size(115, 19);
             this.lblCommanderBrutallyMauled.TabIndex = 4;
@@ -279,7 +287,7 @@ namespace CrusaderWars.client.Options
             // numCommanderBrutallyMauled
             // 
             this.numCommanderBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderBrutallyMauled.Location = new System.Drawing.Point(160, 136);
+            this.numCommanderBrutallyMauled.Location = new System.Drawing.Point(160, 108);
             this.numCommanderBrutallyMauled.Name = "numCommanderBrutallyMauled";
             this.numCommanderBrutallyMauled.Size = new System.Drawing.Size(60, 27);
             this.numCommanderBrutallyMauled.TabIndex = 5;
@@ -293,7 +301,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderMaimed.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderMaimed.AutoSize = true;
-            this.lblCommanderMaimed.Location = new System.Drawing.Point(3, 172);
+            this.lblCommanderMaimed.Location = new System.Drawing.Point(3, 138);
             this.lblCommanderMaimed.Name = "lblCommanderMaimed";
             this.lblCommanderMaimed.Size = new System.Drawing.Size(63, 19);
             this.lblCommanderMaimed.TabIndex = 6;
@@ -302,7 +310,7 @@ namespace CrusaderWars.client.Options
             // numCommanderMaimed
             // 
             this.numCommanderMaimed.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderMaimed.Location = new System.Drawing.Point(160, 168);
+            this.numCommanderMaimed.Location = new System.Drawing.Point(160, 134);
             this.numCommanderMaimed.Name = "numCommanderMaimed";
             this.numCommanderMaimed.Size = new System.Drawing.Size(60, 27);
             this.numCommanderMaimed.TabIndex = 7;
@@ -316,7 +324,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderOneLegged.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderOneLegged.AutoSize = true;
-            this.lblCommanderOneLegged.Location = new System.Drawing.Point(3, 204);
+            this.lblCommanderOneLegged.Location = new System.Drawing.Point(3, 164);
             this.lblCommanderOneLegged.Name = "lblCommanderOneLegged";
             this.lblCommanderOneLegged.Size = new System.Drawing.Size(88, 19);
             this.lblCommanderOneLegged.TabIndex = 8;
@@ -325,7 +333,7 @@ namespace CrusaderWars.client.Options
             // numCommanderOneLegged
             // 
             this.numCommanderOneLegged.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderOneLegged.Location = new System.Drawing.Point(160, 200);
+            this.numCommanderOneLegged.Location = new System.Drawing.Point(160, 160);
             this.numCommanderOneLegged.Name = "numCommanderOneLegged";
             this.numCommanderOneLegged.Size = new System.Drawing.Size(60, 27);
             this.numCommanderOneLegged.TabIndex = 9;
@@ -339,7 +347,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderOneEyed.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderOneEyed.AutoSize = true;
-            this.lblCommanderOneEyed.Location = new System.Drawing.Point(3, 236);
+            this.lblCommanderOneEyed.Location = new System.Drawing.Point(3, 190);
             this.lblCommanderOneEyed.Name = "lblCommanderOneEyed";
             this.lblCommanderOneEyed.Size = new System.Drawing.Size(77, 19);
             this.lblCommanderOneEyed.TabIndex = 10;
@@ -348,7 +356,7 @@ namespace CrusaderWars.client.Options
             // numCommanderOneEyed
             // 
             this.numCommanderOneEyed.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderOneEyed.Location = new System.Drawing.Point(160, 232);
+            this.numCommanderOneEyed.Location = new System.Drawing.Point(160, 186);
             this.numCommanderOneEyed.Name = "numCommanderOneEyed";
             this.numCommanderOneEyed.Size = new System.Drawing.Size(60, 27);
             this.numCommanderOneEyed.TabIndex = 11;
@@ -362,7 +370,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderDisfigured.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderDisfigured.AutoSize = true;
-            this.lblCommanderDisfigured.Location = new System.Drawing.Point(3, 268);
+            this.lblCommanderDisfigured.Location = new System.Drawing.Point(3, 216);
             this.lblCommanderDisfigured.Name = "lblCommanderDisfigured";
             this.lblCommanderDisfigured.Size = new System.Drawing.Size(81, 19);
             this.lblCommanderDisfigured.TabIndex = 12;
@@ -371,7 +379,7 @@ namespace CrusaderWars.client.Options
             // numCommanderDisfigured
             // 
             this.numCommanderDisfigured.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderDisfigured.Location = new System.Drawing.Point(160, 264);
+            this.numCommanderDisfigured.Location = new System.Drawing.Point(160, 212);
             this.numCommanderDisfigured.Name = "numCommanderDisfigured";
             this.numCommanderDisfigured.Size = new System.Drawing.Size(60, 27);
             this.numCommanderDisfigured.TabIndex = 13;
@@ -385,7 +393,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderSlain.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderSlain.AutoSize = true;
-            this.lblCommanderSlain.Location = new System.Drawing.Point(3, 300);
+            this.lblCommanderSlain.Location = new System.Drawing.Point(3, 242);
             this.lblCommanderSlain.Name = "lblCommanderSlain";
             this.lblCommanderSlain.Size = new System.Drawing.Size(65, 19);
             this.lblCommanderSlain.TabIndex = 17;
@@ -394,7 +402,7 @@ namespace CrusaderWars.client.Options
             // numCommanderSlain
             // 
             this.numCommanderSlain.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderSlain.Location = new System.Drawing.Point(160, 296);
+            this.numCommanderSlain.Location = new System.Drawing.Point(160, 238);
             this.numCommanderSlain.Name = "numCommanderSlain";
             this.numCommanderSlain.Size = new System.Drawing.Size(60, 27);
             this.numCommanderSlain.TabIndex = 18;
@@ -408,7 +416,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderTotal.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblCommanderTotal.AutoSize = true;
-            this.lblCommanderTotal.Location = new System.Drawing.Point(168, 332);
+            this.lblCommanderTotal.Location = new System.Drawing.Point(168, 269);
             this.lblCommanderTotal.Name = "lblCommanderTotal";
             this.lblCommanderTotal.Size = new System.Drawing.Size(53, 19);
             this.lblCommanderTotal.TabIndex = 14;
@@ -418,7 +426,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightWounded.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightWounded.AutoSize = true;
-            this.lblKnightWounded.Location = new System.Drawing.Point(227, 76);
+            this.lblKnightWounded.Location = new System.Drawing.Point(227, 60);
             this.lblKnightWounded.Name = "lblKnightWounded";
             this.lblKnightWounded.Size = new System.Drawing.Size(72, 19);
             this.lblKnightWounded.TabIndex = 0;
@@ -427,7 +435,7 @@ namespace CrusaderWars.client.Options
             // numKnightWounded
             // 
             this.numKnightWounded.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightWounded.Location = new System.Drawing.Point(384, 72);
+            this.numKnightWounded.Location = new System.Drawing.Point(384, 56);
             this.numKnightWounded.Name = "numKnightWounded";
             this.numKnightWounded.Size = new System.Drawing.Size(60, 27);
             this.numKnightWounded.TabIndex = 1;
@@ -441,7 +449,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightSeverelyInjured.AutoSize = true;
-            this.lblKnightSeverelyInjured.Location = new System.Drawing.Point(227, 108);
+            this.lblKnightSeverelyInjured.Location = new System.Drawing.Point(227, 86);
             this.lblKnightSeverelyInjured.Name = "lblKnightSeverelyInjured";
             this.lblKnightSeverelyInjured.Size = new System.Drawing.Size(117, 19);
             this.lblKnightSeverelyInjured.TabIndex = 2;
@@ -450,7 +458,7 @@ namespace CrusaderWars.client.Options
             // numKnightSeverelyInjured
             // 
             this.numKnightSeverelyInjured.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightSeverelyInjured.Location = new System.Drawing.Point(384, 104);
+            this.numKnightSeverelyInjured.Location = new System.Drawing.Point(384, 82);
             this.numKnightSeverelyInjured.Name = "numKnightSeverelyInjured";
             this.numKnightSeverelyInjured.Size = new System.Drawing.Size(60, 27);
             this.numKnightSeverelyInjured.TabIndex = 3;
@@ -464,7 +472,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightBrutallyMauled.AutoSize = true;
-            this.lblKnightBrutallyMauled.Location = new System.Drawing.Point(227, 140);
+            this.lblKnightBrutallyMauled.Location = new System.Drawing.Point(227, 112);
             this.lblKnightBrutallyMauled.Name = "lblKnightBrutallyMauled";
             this.lblKnightBrutallyMauled.Size = new System.Drawing.Size(115, 19);
             this.lblKnightBrutallyMauled.TabIndex = 4;
@@ -473,7 +481,7 @@ namespace CrusaderWars.client.Options
             // numKnightBrutallyMauled
             // 
             this.numKnightBrutallyMauled.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightBrutallyMauled.Location = new System.Drawing.Point(384, 136);
+            this.numKnightBrutallyMauled.Location = new System.Drawing.Point(384, 108);
             this.numKnightBrutallyMauled.Name = "numKnightBrutallyMauled";
             this.numKnightBrutallyMauled.Size = new System.Drawing.Size(60, 27);
             this.numKnightBrutallyMauled.TabIndex = 5;
@@ -487,7 +495,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightMaimed.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightMaimed.AutoSize = true;
-            this.lblKnightMaimed.Location = new System.Drawing.Point(227, 172);
+            this.lblKnightMaimed.Location = new System.Drawing.Point(227, 138);
             this.lblKnightMaimed.Name = "lblKnightMaimed";
             this.lblKnightMaimed.Size = new System.Drawing.Size(63, 19);
             this.lblKnightMaimed.TabIndex = 6;
@@ -496,7 +504,7 @@ namespace CrusaderWars.client.Options
             // numKnightMaimed
             // 
             this.numKnightMaimed.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightMaimed.Location = new System.Drawing.Point(384, 168);
+            this.numKnightMaimed.Location = new System.Drawing.Point(384, 134);
             this.numKnightMaimed.Name = "numKnightMaimed";
             this.numKnightMaimed.Size = new System.Drawing.Size(60, 27);
             this.numKnightMaimed.TabIndex = 7;
@@ -510,7 +518,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightOneLegged.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightOneLegged.AutoSize = true;
-            this.lblKnightOneLegged.Location = new System.Drawing.Point(227, 204);
+            this.lblKnightOneLegged.Location = new System.Drawing.Point(227, 164);
             this.lblKnightOneLegged.Name = "lblKnightOneLegged";
             this.lblKnightOneLegged.Size = new System.Drawing.Size(88, 19);
             this.lblKnightOneLegged.TabIndex = 8;
@@ -519,7 +527,7 @@ namespace CrusaderWars.client.Options
             // numKnightOneLegged
             // 
             this.numKnightOneLegged.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightOneLegged.Location = new System.Drawing.Point(384, 200);
+            this.numKnightOneLegged.Location = new System.Drawing.Point(384, 160);
             this.numKnightOneLegged.Name = "numKnightOneLegged";
             this.numKnightOneLegged.Size = new System.Drawing.Size(60, 27);
             this.numKnightOneLegged.TabIndex = 9;
@@ -533,7 +541,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightOneEyed.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightOneEyed.AutoSize = true;
-            this.lblKnightOneEyed.Location = new System.Drawing.Point(227, 236);
+            this.lblKnightOneEyed.Location = new System.Drawing.Point(227, 190);
             this.lblKnightOneEyed.Name = "lblKnightOneEyed";
             this.lblKnightOneEyed.Size = new System.Drawing.Size(77, 19);
             this.lblKnightOneEyed.TabIndex = 10;
@@ -542,7 +550,7 @@ namespace CrusaderWars.client.Options
             // numKnightOneEyed
             // 
             this.numKnightOneEyed.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightOneEyed.Location = new System.Drawing.Point(384, 232);
+            this.numKnightOneEyed.Location = new System.Drawing.Point(384, 186);
             this.numKnightOneEyed.Name = "numKnightOneEyed";
             this.numKnightOneEyed.Size = new System.Drawing.Size(60, 27);
             this.numKnightOneEyed.TabIndex = 11;
@@ -556,7 +564,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightDisfigured.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightDisfigured.AutoSize = true;
-            this.lblKnightDisfigured.Location = new System.Drawing.Point(227, 268);
+            this.lblKnightDisfigured.Location = new System.Drawing.Point(227, 216);
             this.lblKnightDisfigured.Name = "lblKnightDisfigured";
             this.lblKnightDisfigured.Size = new System.Drawing.Size(81, 19);
             this.lblKnightDisfigured.TabIndex = 12;
@@ -565,7 +573,7 @@ namespace CrusaderWars.client.Options
             // numKnightDisfigured
             // 
             this.numKnightDisfigured.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightDisfigured.Location = new System.Drawing.Point(384, 264);
+            this.numKnightDisfigured.Location = new System.Drawing.Point(384, 212);
             this.numKnightDisfigured.Name = "numKnightDisfigured";
             this.numKnightDisfigured.Size = new System.Drawing.Size(60, 27);
             this.numKnightDisfigured.TabIndex = 13;
@@ -579,7 +587,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightSlain.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightSlain.AutoSize = true;
-            this.lblKnightSlain.Location = new System.Drawing.Point(227, 300);
+            this.lblKnightSlain.Location = new System.Drawing.Point(227, 242);
             this.lblKnightSlain.Name = "lblKnightSlain";
             this.lblKnightSlain.Size = new System.Drawing.Size(65, 19);
             this.lblKnightSlain.TabIndex = 19;
@@ -588,7 +596,7 @@ namespace CrusaderWars.client.Options
             // numKnightSlain
             // 
             this.numKnightSlain.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightSlain.Location = new System.Drawing.Point(384, 296);
+            this.numKnightSlain.Location = new System.Drawing.Point(384, 238);
             this.numKnightSlain.Name = "numKnightSlain";
             this.numKnightSlain.Size = new System.Drawing.Size(60, 27);
             this.numKnightSlain.TabIndex = 20;
@@ -602,7 +610,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightTotal.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lblKnightTotal.AutoSize = true;
-            this.lblKnightTotal.Location = new System.Drawing.Point(391, 332);
+            this.lblKnightTotal.Location = new System.Drawing.Point(391, 269);
             this.lblKnightTotal.Name = "lblKnightTotal";
             this.lblKnightTotal.Size = new System.Drawing.Size(53, 19);
             this.lblKnightTotal.TabIndex = 14;
@@ -626,7 +634,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblCommanderPrisoner.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblCommanderPrisoner.AutoSize = true;
-            this.lblCommanderPrisoner.Location = new System.Drawing.Point(3, 44);
+            this.lblCommanderPrisoner.Location = new System.Drawing.Point(3, 34);
             this.lblCommanderPrisoner.Name = "lblCommanderPrisoner";
             this.lblCommanderPrisoner.Size = new System.Drawing.Size(123, 19);
             this.lblCommanderPrisoner.TabIndex = 21;
@@ -635,7 +643,7 @@ namespace CrusaderWars.client.Options
             // numCommanderPrisoner
             // 
             this.numCommanderPrisoner.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numCommanderPrisoner.Location = new System.Drawing.Point(160, 40);
+            this.numCommanderPrisoner.Location = new System.Drawing.Point(160, 30);
             this.numCommanderPrisoner.Name = "numCommanderPrisoner";
             this.numCommanderPrisoner.Size = new System.Drawing.Size(60, 27);
             this.numCommanderPrisoner.TabIndex = 22;
@@ -649,7 +657,7 @@ namespace CrusaderWars.client.Options
             // 
             this.lblKnightPrisoner.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblKnightPrisoner.AutoSize = true;
-            this.lblKnightPrisoner.Location = new System.Drawing.Point(227, 44);
+            this.lblKnightPrisoner.Location = new System.Drawing.Point(227, 34);
             this.lblKnightPrisoner.Name = "lblKnightPrisoner";
             this.lblKnightPrisoner.Size = new System.Drawing.Size(123, 19);
             this.lblKnightPrisoner.TabIndex = 23;
@@ -658,7 +666,7 @@ namespace CrusaderWars.client.Options
             // numKnightPrisoner
             // 
             this.numKnightPrisoner.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numKnightPrisoner.Location = new System.Drawing.Point(384, 40);
+            this.numKnightPrisoner.Location = new System.Drawing.Point(384, 30);
             this.numKnightPrisoner.Name = "numKnightPrisoner";
             this.numKnightPrisoner.Size = new System.Drawing.Size(60, 27);
             this.numKnightPrisoner.TabIndex = 24;
@@ -667,6 +675,57 @@ namespace CrusaderWars.client.Options
             0,
             0,
             0});
+            // 
+            // groupKnightsSettings
+            // 
+            this.groupKnightsSettings.Controls.Add(this.tableKnightsSettings);
+            this.groupKnightsSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupKnightsSettings.Font = new System.Drawing.Font("Paradox King Script", 12F);
+            this.groupKnightsSettings.ForeColor = System.Drawing.Color.White;
+            this.groupKnightsSettings.Location = new System.Drawing.Point(3, 330);
+            this.groupKnightsSettings.Name = "groupKnightsSettings";
+            this.groupKnightsSettings.Size = new System.Drawing.Size(455, 59);
+            this.groupKnightsSettings.TabIndex = 1;
+            this.groupKnightsSettings.TabStop = false;
+            this.groupKnightsSettings.Text = "Knight Settings";
+            // 
+            // tableKnightsSettings
+            // 
+            this.tableKnightsSettings.ColumnCount = 2;
+            this.tableKnightsSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35F));
+            this.tableKnightsSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 65F));
+            this.tableKnightsSettings.Controls.Add(this.lblCombineKnights, 0, 0);
+            this.tableKnightsSettings.Controls.Add(this.comboCombineKnights, 1, 0);
+            this.tableKnightsSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableKnightsSettings.Location = new System.Drawing.Point(3, 23);
+            this.tableKnightsSettings.Name = "tableKnightsSettings";
+            this.tableKnightsSettings.RowCount = 1;
+            this.tableKnightsSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableKnightsSettings.Size = new System.Drawing.Size(449, 33);
+            this.tableKnightsSettings.TabIndex = 0;
+            // 
+            // lblCombineKnights
+            // 
+            this.lblCombineKnights.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblCombineKnights.AutoSize = true;
+            this.lblCombineKnights.Location = new System.Drawing.Point(3, 7);
+            this.lblCombineKnights.Name = "lblCombineKnights";
+            this.lblCombineKnights.Size = new System.Drawing.Size(103, 19);
+            this.lblCombineKnights.TabIndex = 0;
+            this.lblCombineKnights.Text = "Combine Knights:";
+            // 
+            // comboCombineKnights
+            // 
+            this.comboCombineKnights.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.comboCombineKnights.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboCombineKnights.FormattingEnabled = true;
+            this.comboCombineKnights.Items.AddRange(new object[] {
+            "Disabled",
+            "Enabled"});
+            this.comboCombineKnights.Location = new System.Drawing.Point(160, 3);
+            this.comboCombineKnights.Name = "comboCombineKnights";
+            this.comboCombineKnights.Size = new System.Drawing.Size(121, 27);
+            this.comboCombineKnights.TabIndex = 1;
             // 
             // UC_CommandersAndKnightsOptions
             // 
@@ -698,6 +757,9 @@ namespace CrusaderWars.client.Options
             ((System.ComponentModel.ISupportInitialize)(this.numKnightSlain)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCommanderPrisoner)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numKnightPrisoner)).EndInit();
+            this.groupKnightsSettings.ResumeLayout(false);
+            this.tableKnightsSettings.ResumeLayout(false);
+            this.tableKnightsSettings.PerformLayout();
             this.ResumeLayout(false);
         }
 
@@ -747,5 +809,9 @@ namespace CrusaderWars.client.Options
         public System.Windows.Forms.NumericUpDown numCommanderPrisoner;
         private System.Windows.Forms.Label lblKnightPrisoner;
         public System.Windows.Forms.NumericUpDown numKnightPrisoner;
+        private System.Windows.Forms.GroupBox groupKnightsSettings;
+        private System.Windows.Forms.TableLayoutPanel tableKnightsSettings;
+        private System.Windows.Forms.Label lblCombineKnights;
+        public System.Windows.Forms.ComboBox comboCombineKnights;
     }
 }
