@@ -2988,7 +2988,7 @@ namespace CrusaderWars
             public string OldVersion { get; set; } = "0.0.0";
             public string NewVersion { get; set; } = "0.0.0";
             public string SourceModFile { get; set; } = "";
-            public string SourceModDir { get; set }  = "";
+            public string SourceModDir { get; set; }  = "";
             public string TargetModFile { get; set; } = "";
             public string TargetModDir { get; set; } = "";
             public string ModDirectoryName { get; set; } = "";
