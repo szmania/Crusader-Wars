@@ -37,6 +37,8 @@ namespace CrusaderWars.client.Options
             SetDefaults();
         }
 
+        [System.ComponentModel.Browsable(false)]
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public string CombineKnightsValue
         {
             get { return comboCombineKnights.SelectedItem.ToString(); }
