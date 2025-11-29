@@ -31,6 +31,7 @@ namespace CrusaderWars
         Culture CultureObj { get; set; }
         int Prowess { get; set; }
         int Soldiers { get; set; }
+        int BaseSoldiers { get; set; }
         public int Rank { get; private set; }
         List<(int Index, string Key)>? Traits { get; set; }
         BaseSkills? BaseSkills { get; set; }
@@ -39,6 +40,16 @@ namespace CrusaderWars
 
         bool isAccoladeKnight { get; set; }
         Accolade? Accolade { get; set; }
+        private bool _isProminent;
+        public bool IsProminent
+        {
+            get { return _isProminent; }
+            set
+            {
+                _isProminent = value;
+                Soldiers = SetStrengh(BaseSoldiers);
+            }
+        }
 
         public string GetName() {  return Name; }
         public string GetID() { return ID; }
@@ -65,6 +76,8 @@ namespace CrusaderWars
             ID = id;
             CultureObj = culture;
             Prowess = prowess;
+            BaseSoldiers = soldiers;
+            _isProminent = false;
             Soldiers = SetStrengh(soldiers);
             SetRank();
         }
@@ -133,7 +146,12 @@ namespace CrusaderWars
                 value += 4;
             }
 
-            return soldiers + value;
+            int finalSoldiers = soldiers + value;
+            if (_isProminent)
+            {
+                finalSoldiers *= 2;
+            }
+            return finalSoldiers;
         }
 
         public (bool isSlain, bool isCaptured, string newTraits) Health(string traits_line, bool wasOnLosingSide)
@@ -360,38 +378,40 @@ namespace CrusaderWars
         {
             if (hasKnights)
             {
-                //KilledKnights = new List<Knight>();
+                // Only consider standard knights for the combined unit casualty calculation
+                var standardKnights = Knights.Where(k => !k.IsProminent).ToList();
+                if (!standardKnights.Any()) return;
 
-                int totalSoldiers = UnitSoldiers;
+                int totalSoldiers = standardKnights.Sum(k => k.GetSoldiers());
                 int remainingSoldiers = remaining;
 
-
-                //random knight
                 int soldiers_lost = totalSoldiers - remainingSoldiers;
-                int weakest_knight_num = Knights.Select(x => x.GetSoldiers()).Min();
-                List<Knight> tempKnightsList = new List<Knight>();
-                tempKnightsList.AddRange(Knights);
-                while (soldiers_lost >= weakest_knight_num)
-                {
-                    if (tempKnightsList.Count == 0) break;
+                if (soldiers_lost <= 0) return;
 
+                // Find the weakest knight to ensure we can start removing knights
+                int weakest_knight_num = standardKnights.Any() ? standardKnights.Min(x => x.GetSoldiers()) : 0;
+                if (weakest_knight_num == 0) weakest_knight_num = 1; // Avoid infinite loop if a knight has 0 soldiers
+
+                List<Knight> tempKnightsList = new List<Knight>(standardKnights);
+                while (soldiers_lost >= weakest_knight_num && tempKnightsList.Any())
+                {
                     Random random = new Random();
                     int random_index = random.Next(tempKnightsList.Count);
                     var knight = tempKnightsList[random_index];
 
                     soldiers_lost -= knight.GetSoldiers();
-
-                    //if (soldiers_lost <= 0) break;
                     
                     knight.SetHasFallen(true);
                     tempKnightsList.Remove(knight);
 
+                    // Update weakest_knight_num in case the weakest was removed
+                    if (tempKnightsList.Any())
+                    {
+                        weakest_knight_num = tempKnightsList.Min(x => x.GetSoldiers());
+                        if (weakest_knight_num == 0) weakest_knight_num = 1;
+                    }
                 }
-
-
             }
-
-
         }
 
 
