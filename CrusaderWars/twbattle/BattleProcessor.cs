@@ -286,6 +286,7 @@ namespace CrusaderWars.twbattle
                         if (army.Units != null)
                         {
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
+                            bool knightsLogged = false; // Flag to ensure knights are logged only once per army
                             foreach (var unit in army.Units)
                             {
                                 string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
@@ -304,7 +305,34 @@ namespace CrusaderWars.twbattle
                                         leviesLogged = true;
                                     }
                                 }
-                                else
+                                else if (unit.GetRegimentType() == RegimentType.Knight)
+                                {
+                                    if (!knightsLogged)
+                                    {
+                                        var combinedKnightUnit = army.Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() == "Knight");
+                                        if (combinedKnightUnit != null)
+                                        {
+                                            string attilaKey = combinedKnightUnit.GetAttilaUnitKey();
+                                            if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            {
+                                                string combinedUnitDetails = $", Culture: {combinedKnightUnit.GetCulture()}, Heritage: {combinedKnightUnit.GetHeritage()}, Faction: {combinedKnightUnit.GetAttilaFaction()}";
+                                                string rankInfo = $", Rank: {combinedKnightUnit.CharacterRank}";
+                                                Program.Logger.Debug($"  - CK3 Unit: {combinedKnightUnit.GetName()}, Type: Knight, Attila Unit: {attilaKey}, Soldiers: {combinedKnightUnit.GetSoldiers()}{combinedUnitDetails}{rankInfo}");
+
+                                                var individualKnights = army.Units.Where(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() != "Knight");
+                                                foreach (var individualKnight in individualKnights)
+                                                {
+                                                    string knightAttilaKey = individualKnight.GetAttilaUnitKey();
+                                                    string knightUnitDetails = $", Culture: {individualKnight.GetCulture()}, Heritage: {individualKnight.GetHeritage()}, Faction: {individualKnight.GetAttilaFaction()}";
+                                                    string knightRankInfo = $", Rank: {individualKnight.CharacterRank}";
+                                                    Program.Logger.Debug($"    - CK3 Unit: {individualKnight.GetName()}, Type: Knight, Attila Unit: {knightAttilaKey}, Soldiers: {individualKnight.GetSoldiers()}{knightUnitDetails}{knightRankInfo}");
+                                                }
+                                            }
+                                        }
+                                        knightsLogged = true;
+                                    }
+                                }
+                                else // Commander and MenAtArms
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
                                     if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
@@ -315,22 +343,16 @@ namespace CrusaderWars.twbattle
                                     {
                                         if (unit.GetRegimentType() == RegimentType.Commander)
                                         {
-                                            // Only log the main commander, which is represented by the "General" unit.
                                             if (unit.GetName() == "General")
                                             {
                                                 string commanderName = army.Commander?.Name ?? "Unknown Commander";
                                                 string rankInfo = $", Rank: {unit.CharacterRank}";
                                                 Program.Logger.Debug($"  - CK3 Unit: General ({commanderName}), Type: Commander, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
                                             }
-                                            // Implicitly skip logging other commander-type units that might be in the list.
                                         }
-                                        else // Not a commander
+                                        else // MenAtArms
                                         {
                                             string rankInfo = "";
-                                            if (unit.GetRegimentType() == RegimentType.Knight)
-                                            {
-                                                rankInfo = $", Rank: {unit.CharacterRank}";
-                                            }
                                             Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
                                         }
                                     }
@@ -361,6 +383,7 @@ namespace CrusaderWars.twbattle
                         if (army.Units != null)
                         {
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
+                            bool knightsLogged = false; // Flag to ensure knights are logged only once per army
                             foreach (var unit in army.Units)
                             {
                                 string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
@@ -379,7 +402,34 @@ namespace CrusaderWars.twbattle
                                         leviesLogged = true;
                                     }
                                 }
-                                else
+                                else if (unit.GetRegimentType() == RegimentType.Knight)
+                                {
+                                    if (!knightsLogged)
+                                    {
+                                        var combinedKnightUnit = army.Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() == "Knight");
+                                        if (combinedKnightUnit != null)
+                                        {
+                                            string attilaKey = combinedKnightUnit.GetAttilaUnitKey();
+                                            if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            {
+                                                string combinedUnitDetails = $", Culture: {combinedKnightUnit.GetCulture()}, Heritage: {combinedKnightUnit.GetHeritage()}, Faction: {combinedKnightUnit.GetAttilaFaction()}";
+                                                string rankInfo = $", Rank: {combinedKnightUnit.CharacterRank}";
+                                                Program.Logger.Debug($"  - CK3 Unit: {combinedKnightUnit.GetName()}, Type: Knight, Attila Unit: {attilaKey}, Soldiers: {combinedKnightUnit.GetSoldiers()}{combinedUnitDetails}{rankInfo}");
+
+                                                var individualKnights = army.Units.Where(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() != "Knight");
+                                                foreach (var individualKnight in individualKnights)
+                                                {
+                                                    string knightAttilaKey = individualKnight.GetAttilaUnitKey();
+                                                    string knightUnitDetails = $", Culture: {individualKnight.GetCulture()}, Heritage: {individualKnight.GetHeritage()}, Faction: {individualKnight.GetAttilaFaction()}";
+                                                    string knightRankInfo = $", Rank: {individualKnight.CharacterRank}";
+                                                    Program.Logger.Debug($"    - CK3 Unit: {individualKnight.GetName()}, Type: Knight, Attila Unit: {knightAttilaKey}, Soldiers: {individualKnight.GetSoldiers()}{knightUnitDetails}{knightRankInfo}");
+                                                }
+                                            }
+                                        }
+                                        knightsLogged = true;
+                                    }
+                                }
+                                else // Commander and MenAtArms
                                 {
                                     string attilaKey = unit.GetAttilaUnitKey();
                                     if (string.IsNullOrEmpty(attilaKey) || attilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
@@ -390,22 +440,16 @@ namespace CrusaderWars.twbattle
                                     {
                                         if (unit.GetRegimentType() == RegimentType.Commander)
                                         {
-                                            // Only log the main commander, which is represented by the "General" unit.
                                             if (unit.GetName() == "General")
                                             {
                                                 string commanderName = army.Commander?.Name ?? "Unknown Commander";
                                                 string rankInfo = $", Rank: {unit.CharacterRank}";
                                                 Program.Logger.Debug($"  - CK3 Unit: General ({commanderName}), Type: Commander, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
                                             }
-                                            // Implicitly skip logging other commander-type units that might be in the list.
                                         }
-                                        else // Not a commander
+                                        else // MenAtArms
                                         {
                                             string rankInfo = "";
-                                            if (unit.GetRegimentType() == RegimentType.Knight)
-                                            {
-                                                rankInfo = $", Rank: {unit.CharacterRank}";
-                                            }
                                             Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
                                         }
                                     }
