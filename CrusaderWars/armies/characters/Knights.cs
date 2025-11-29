@@ -378,21 +378,21 @@ namespace CrusaderWars
         {
             if (hasKnights)
             {
-                // Only consider standard knights for the combined unit casualty calculation
-                var standardKnights = Knights.Where(k => !k.IsProminent).ToList();
-                if (!standardKnights.Any()) return;
+                // The combined unit consists of all knights not assigned to an MAA unit.
+                // This includes standard knights and any unassigned prominent knights.
+                if (!Knights.Any()) return;
 
-                int totalSoldiers = standardKnights.Sum(k => k.GetSoldiers());
+                int totalSoldiers = Knights.Sum(k => k.GetSoldiers());
                 int remainingSoldiers = remaining;
 
                 int soldiers_lost = totalSoldiers - remainingSoldiers;
                 if (soldiers_lost <= 0) return;
 
                 // Find the weakest knight to ensure we can start removing knights
-                int weakest_knight_num = standardKnights.Any() ? standardKnights.Min(x => x.GetSoldiers()) : 0;
+                int weakest_knight_num = Knights.Any() ? Knights.Min(x => x.GetSoldiers()) : 0;
                 if (weakest_knight_num == 0) weakest_knight_num = 1; // Avoid infinite loop if a knight has 0 soldiers
 
-                List<Knight> tempKnightsList = new List<Knight>(standardKnights);
+                List<Knight> tempKnightsList = new List<Knight>(Knights);
                 while (soldiers_lost >= weakest_knight_num && tempKnightsList.Any())
                 {
                     Random random = new Random();

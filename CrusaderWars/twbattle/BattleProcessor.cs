@@ -100,6 +100,8 @@ namespace CrusaderWars.twbattle
 
             BattleFile.SetArmiesSides(attacker_armies, defender_armies);
 
+            ProcessProminentKnights(attacker_armies, defender_armies);
+
             if (!BattleState.IsSiegeBattle)
             {
                 TerrainGenerator.CheckForSpecialCrossingBattle(attacker_armies, defender_armies);
@@ -1227,6 +1229,84 @@ namespace CrusaderWars.twbattle
 
 
             return true; // Success
+        }
+
+        public static void ProcessProminentKnights(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            if (ModOptions.CombineKnightsEnabled()) return;
+
+            Program.Logger.Debug("--- Processing Prominent Knights ---");
+
+            var allArmies = attacker_armies.Concat(defender_armies).ToList();
+
+            foreach (var army in allArmies)
+            {
+                if (army.Knights == null || !army.Knights.HasKnights())
+                {
+                    continue;
+                }
+
+                // Step 3.3: Identify prominent knights
+                var prominentKnights = army.Knights.GetKnightsList().Where(k => k.GetProwess() > 15).ToList();
+                if (!prominentKnights.Any())
+                {
+                    Program.Logger.Debug($"Army {army.ID} has no prominent knights (Prowess > 15).");
+                    continue;
+                }
+
+                Program.Logger.Debug($"Army {army.ID} has {prominentKnights.Count} prominent knights.");
+                foreach (var knight in prominentKnights)
+                {
+                    knight.IsProminent = true; // This also doubles their soldier count
+                }
+
+                // Step 3.4: Assign to MAA units
+                var assignableMAA = army.Units
+                    .Where(u => u.GetRegimentType() == RegimentType.MenAtArms && u.KnightCommander == null && !u.IsSiege())
+                    .ToList();
+
+                if (!assignableMAA.Any())
+                {
+                    Program.Logger.Debug($"Army {army.ID} has no assignable MAA units for prominent knights.");
+                    // They will become their own bodyguard units later.
+                    continue;
+                }
+
+                var assignedKnights = new List<Knight>();
+
+                // Prioritize knights with accolades
+                foreach (var knight in prominentKnights.OrderByDescending(k => k.IsAccolade()))
+                {
+                    // Find best unit for this knight
+                    Unit bestMAA = assignableMAA
+                        .OrderByDescending(u => u.GetObjCulture()?.ID == knight.GetCultureObj()?.ID) // Culture match first
+                        .ThenByDescending(u => u.GetSoldiers()) // Then strongest
+                        .FirstOrDefault();
+
+                    if (bestMAA != null)
+                    {
+                        bestMAA.KnightCommander = knight;
+                        assignedKnights.Add(knight);
+                        assignableMAA.Remove(bestMAA); // Unit is now taken
+                        Program.Logger.Debug($"Assigned prominent knight {knight.GetName()} ({knight.GetID()}) to command MAA unit {bestMAA.GetName()} in army {army.ID}.");
+
+                        if (!assignableMAA.Any())
+                        {
+                            break; // No more units to assign to
+                        }
+                    }
+                }
+
+                // Step 3.5: Remove assigned knights from the pool for the combined unit
+                if (assignedKnights.Any())
+                {
+                    int countBefore = army.Knights.GetKnightsList().Count;
+                    army.Knights.GetKnightsList().RemoveAll(k => assignedKnights.Contains(k));
+                    int countAfter = army.Knights.GetKnightsList().Count;
+                    Program.Logger.Debug($"Removed {countBefore - countAfter} assigned knights from KnightSystem in army {army.ID}. {countAfter} knights remain for combined unit.");
+                }
+            }
+            Program.Logger.Debug("--- Finished Processing Prominent Knights ---");
         }
 
         public static async Task CleanupAfterBattle()
