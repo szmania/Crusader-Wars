@@ -509,6 +509,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
             Options.ReadGamePaths();
+            ApplyEnvironmentVariableOverrides();
             SubmodManager.LoadActiveSubmods();
 
             // Set locations programmatically
@@ -685,6 +686,41 @@ namespace CrusaderWars
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
+
+        private void ApplyEnvironmentVariableOverrides()
+        {
+            Program.Logger.Debug("Checking for game path environment variable overrides...");
+
+            string ck3PathOverride = Environment.GetEnvironmentVariable("CW_CK3_PATH");
+            if (!string.IsNullOrEmpty(ck3PathOverride))
+            {
+                Program.Logger.Debug($"Found CW_CK3_PATH environment variable: {ck3PathOverride}");
+                if (File.Exists(ck3PathOverride))
+                {
+                    Properties.Settings.Default.VAR_ck3_path = ck3PathOverride;
+                    Program.Logger.Debug($"Successfully overrode CK3 path to: {Properties.Settings.Default.VAR_ck3_path}");
+                }
+                else
+                {
+                    Program.Logger.Debug($"Warning: CW_CK3_PATH ('{ck3PathOverride}') points to a non-existent file. Ignoring override.");
+                }
+            }
+
+            string attilaPathOverride = Environment.GetEnvironmentVariable("CW_ATTILA_PATH");
+            if (!string.IsNullOrEmpty(attilaPathOverride))
+            {
+                Program.Logger.Debug($"Found CW_ATTILA_PATH environment variable: {attilaPathOverride}");
+                if (File.Exists(attilaPathOverride))
+                {
+                    Properties.Settings.Default.VAR_attila_path = attilaPathOverride;
+                    Program.Logger.Debug($"Successfully overrode Attila path to: {Properties.Settings.Default.VAR_attila_path}");
+                }
+                else
+                {
+                    Program.Logger.Debug($"Warning: CW_ATTILA_PATH ('{attilaPathOverride}') points to a non-existent file. Ignoring override.");
+                }
+            }
         }
 
         private async Task CheckForUnitMapperUpdateAndRevalidate()
