@@ -23,7 +23,7 @@ namespace CrusaderWars
 {
     public static class BattleFile
     {
-
+        private static bool PlayerIsSiegeDefender { get; set; }
         public static string? Unit_Script_Name { get; set; }
 
         //Get User Path
@@ -79,6 +79,8 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Siege battle: Player side not explicitly found in log. Using fallback: playerIsDefender = {playerIsDefender}.");
                 }
 
+                PlayerIsSiegeDefender = playerIsDefender; // Store the player's role for siege battles
+
                 if (playerIsDefender)
                 {
                     Program.Logger.Debug("Siege battle: Player is defending. Assigning defender_armies as player side, attacker_armies as enemy side.");
@@ -94,6 +96,7 @@ namespace CrusaderWars
             }
             else
             {
+                PlayerIsSiegeDefender = false; // Reset for non-siege battles
                 // Original logic for field battles
                 string player_commander_id = CK3LogData.LeftSide.GetCommander().id;
 
@@ -794,11 +797,7 @@ namespace CrusaderWars
                 // Only add a deployment area for reinforcements in a siege battle, as requested.
                 if (twbattle.BattleState.IsSiegeBattle)
                 {
-                    string? reinforcementDeployment = Deployments.beta_GetReinforcementDeployment(deploymentDirection, total_soldiers);
-                    if (reinforcementDeployment != null)
-                    {
-                        File.AppendAllText(battlePath, reinforcementDeployment);
-                    }
+                    // Removed the reinforcementDeployment writing for siege battles.
                 }
             }
             else // Not a reinforcement army
@@ -811,8 +810,23 @@ namespace CrusaderWars
                     strategic_side = army.IsGarrison() ? "defender" : "attacker";
                 }
                 deploymentDirection = Deployments.beta_GeDirection(strategic_side);
-                SetDeploymentArea(strategic_side);
-                AddDeployablesDefenses(army);
+
+                if (twbattle.BattleState.IsSiegeBattle)
+                {
+                    if (PlayerIsSiegeDefender)
+                    {
+                        // For player-defended sieges, use deployment_area_alliance_index
+                        string allianceIndex = (strategic_side == "defender") ? "1" : "0";
+                        File.AppendAllText(battlePath, $"<deployment_area_alliance_index>{allianceIndex}</deployment_area_alliance_index>\n\n");
+                    }
+                    // If PlayerIsSiegeDefender is false (player is besieger), do nothing.
+                    AddDeployablesDefenses(army);
+                }
+                else // Not a siege battle (field battle)
+                {
+                    SetDeploymentArea(strategic_side);
+                    AddDeployablesDefenses(army);
+                }
             }
 
             SetPositions(total_soldiers, deploymentDirection, army.IsReinforcementArmy());
