@@ -288,7 +288,6 @@ namespace CrusaderWars.twbattle
                         if (army.Units != null)
                         {
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
-                            bool knightsLogged = false; // Flag to ensure knights are logged only once per army
                             foreach (var unit in army.Units)
                             {
                                 string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
@@ -309,29 +308,13 @@ namespace CrusaderWars.twbattle
                                 }
                                 else if (unit.GetRegimentType() == RegimentType.Knight)
                                 {
-                                    if (!knightsLogged)
+                                    string attilaKey = unit.GetAttilaUnitKey();
+                                    if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        var combinedKnightUnit = army.Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() == "Knight");
-                                        if (combinedKnightUnit != null)
-                                        {
-                                            string attilaKey = combinedKnightUnit.GetAttilaUnitKey();
-                                            if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                            {
-                                                string combinedUnitDetails = $", Culture: {combinedKnightUnit.GetCulture()}, Heritage: {combinedKnightUnit.GetHeritage()}, Faction: {combinedKnightUnit.GetAttilaFaction()}";
-                                                string rankInfo = $", Rank: {combinedKnightUnit.CharacterRank}";
-                                                Program.Logger.Debug($"  - CK3 Unit: {combinedKnightUnit.GetName()}, Type: Knight, Attila Unit: {attilaKey}, Soldiers: {combinedKnightUnit.GetSoldiers()}{combinedUnitDetails}{rankInfo}");
-
-                                                var individualKnights = army.Units.Where(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() != "Knight");
-                                                foreach (var individualKnight in individualKnights)
-                                                {
-                                                    string knightAttilaKey = individualKnight.GetAttilaUnitKey();
-                                                    string knightUnitDetails = $", Culture: {individualKnight.GetCulture()}, Heritage: {individualKnight.GetHeritage()}, Faction: {individualKnight.GetAttilaFaction()}";
-                                                    string knightRankInfo = $", Rank: {individualKnight.CharacterRank}";
-                                                    Program.Logger.Debug($"    - CK3 Unit: {individualKnight.GetName()}, Type: Knight, Attila Unit: {knightAttilaKey}, Soldiers: {individualKnight.GetSoldiers()}{knightUnitDetails}{knightRankInfo}");
-                                                }
-                                            }
-                                        }
-                                        knightsLogged = true;
+                                        string knightUnitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                        string rankInfo = $", Rank: {unit.CharacterRank}";
+                                        string unitRole = (unit.GetName() == "Knight") ? " (Combined)" : " (Bodyguard)";
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}{unitRole}, Type: Knight, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{knightUnitDetails}{rankInfo}");
                                     }
                                 }
                                 else // Commander and MenAtArms
@@ -355,7 +338,12 @@ namespace CrusaderWars.twbattle
                                         else // MenAtArms
                                         {
                                             string rankInfo = "";
-                                            Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                            string knightCommanderInfo = "";
+                                            if (unit.KnightCommander != null)
+                                            {
+                                                knightCommanderInfo = $", Led by: {unit.KnightCommander.GetName()} (Prowess: {unit.KnightCommander.GetProwess()})";
+                                            }
+                                            Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}{knightCommanderInfo}");
                                         }
                                     }
                                 }
@@ -385,7 +373,6 @@ namespace CrusaderWars.twbattle
                         if (army.Units != null)
                         {
                             bool leviesLogged = false; // Flag to ensure levies are logged only once per army
-                            bool knightsLogged = false; // Flag to ensure knights are logged only once per army
                             foreach (var unit in army.Units)
                             {
                                 string unitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
@@ -406,29 +393,13 @@ namespace CrusaderWars.twbattle
                                 }
                                 else if (unit.GetRegimentType() == RegimentType.Knight)
                                 {
-                                    if (!knightsLogged)
+                                    string attilaKey = unit.GetAttilaUnitKey();
+                                    if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
-                                        var combinedKnightUnit = army.Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() == "Knight");
-                                        if (combinedKnightUnit != null)
-                                        {
-                                            string attilaKey = combinedKnightUnit.GetAttilaUnitKey();
-                                            if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                            {
-                                                string combinedUnitDetails = $", Culture: {combinedKnightUnit.GetCulture()}, Heritage: {combinedKnightUnit.GetHeritage()}, Faction: {combinedKnightUnit.GetAttilaFaction()}";
-                                                string rankInfo = $", Rank: {combinedKnightUnit.CharacterRank}";
-                                                Program.Logger.Debug($"  - CK3 Unit: {combinedKnightUnit.GetName()}, Type: Knight, Attila Unit: {attilaKey}, Soldiers: {combinedKnightUnit.GetSoldiers()}{combinedUnitDetails}{rankInfo}");
-
-                                                var individualKnights = army.Units.Where(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() != "Knight");
-                                                foreach (var individualKnight in individualKnights)
-                                                {
-                                                    string knightAttilaKey = individualKnight.GetAttilaUnitKey();
-                                                    string knightUnitDetails = $", Culture: {individualKnight.GetCulture()}, Heritage: {individualKnight.GetHeritage()}, Faction: {individualKnight.GetAttilaFaction()}";
-                                                    string knightRankInfo = $", Rank: {individualKnight.CharacterRank}";
-                                                    Program.Logger.Debug($"    - CK3 Unit: {individualKnight.GetName()}, Type: Knight, Attila Unit: {knightAttilaKey}, Soldiers: {individualKnight.GetSoldiers()}{knightUnitDetails}{knightRankInfo}");
-                                                }
-                                            }
-                                        }
-                                        knightsLogged = true;
+                                        string knightUnitDetails = $", Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                                        string rankInfo = $", Rank: {unit.CharacterRank}";
+                                        string unitRole = (unit.GetName() == "Knight") ? " (Combined)" : " (Bodyguard)";
+                                        Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}{unitRole}, Type: Knight, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{knightUnitDetails}{rankInfo}");
                                     }
                                 }
                                 else // Commander and MenAtArms
@@ -452,7 +423,12 @@ namespace CrusaderWars.twbattle
                                         else // MenAtArms
                                         {
                                             string rankInfo = "";
-                                            Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                            string knightCommanderInfo = "";
+                                            if (unit.KnightCommander != null)
+                                            {
+                                                knightCommanderInfo = $", Led by: {unit.KnightCommander.GetName()} (Prowess: {unit.KnightCommander.GetProwess()})";
+                                            }
+                                            Program.Logger.Debug($"  - CK3 Unit: {unit.GetName()}, Type: {unit.GetRegimentType()}, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}{knightCommanderInfo}");
                                         }
                                     }
                                 }
