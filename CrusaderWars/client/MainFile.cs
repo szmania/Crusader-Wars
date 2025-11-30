@@ -692,10 +692,10 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Checking for game path environment variable overrides...");
 
-            string ck3PathOverride = Environment.GetEnvironmentVariable("CW_CK3_PATH");
+            string ck3PathOverride = Environment.GetEnvironmentVariable("CC_CK3_PATH");
             if (!string.IsNullOrEmpty(ck3PathOverride))
             {
-                Program.Logger.Debug($"Found CW_CK3_PATH environment variable: {ck3PathOverride}");
+                Program.Logger.Debug($"Found CC_CK3_PATH environment variable: {ck3PathOverride}");
                 if (File.Exists(ck3PathOverride))
                 {
                     Properties.Settings.Default.VAR_ck3_path = ck3PathOverride;
@@ -703,14 +703,14 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    Program.Logger.Debug($"Warning: CW_CK3_PATH ('{ck3PathOverride}') points to a non-existent file. Ignoring override.");
+                    Program.Logger.Debug($"Warning: CC_CK3_PATH ('{ck3PathOverride}') points to a non-existent file. Ignoring override.");
                 }
             }
 
-            string attilaPathOverride = Environment.GetEnvironmentVariable("CW_ATTILA_PATH");
+            string attilaPathOverride = Environment.GetEnvironmentVariable("CC_ATTILA_PATH");
             if (!string.IsNullOrEmpty(attilaPathOverride))
             {
-                Program.Logger.Debug($"Found CW_ATTILA_PATH environment variable: {attilaPathOverride}");
+                Program.Logger.Debug($"Found CC_ATTILA_PATH environment variable: {attilaPathOverride}");
                 if (File.Exists(attilaPathOverride))
                 {
                     Properties.Settings.Default.VAR_attila_path = attilaPathOverride;
@@ -718,7 +718,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    Program.Logger.Debug($"Warning: CW_ATTILA_PATH ('{attilaPathOverride}') points to a non-existent file. Ignoring override.");
+                    Program.Logger.Debug($"Warning: CC_ATTILA_PATH ('{attilaPathOverride}') points to a non-existent file. Ignoring override.");
                 }
             }
         }

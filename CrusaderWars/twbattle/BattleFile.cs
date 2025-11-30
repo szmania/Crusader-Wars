@@ -1001,7 +1001,7 @@ namespace CrusaderWars
         }
 
 
-        public static void AddUnit(string troopKey, int numSoldiers, int numUnits, int numRest, string unitScript, string unit_experience, string direction)
+        public static void AddUnit(string troopKey, int numSoldiers, int numUnits, int numRest, string unitScript, string unit_experience, string direction, Knight? knightCommander = null)
         {
             if (Position == null)
             {
@@ -1026,8 +1026,34 @@ namespace CrusaderWars
                  $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                  $"<orientation radians=\"{Rotation}\"/>\n" +
                  "<width metres=\"21.70\"/>\n" +
-                 $"<unit_experience level=\"{unit_experience}\"/>\n" +
-                 "</unit>\n\n";
+                 $"<unit_experience level=\"{unit_experience}\"/>\n";
+
+                if (knightCommander != null)
+                {
+                    PR_Unit += "<unit_capabilities>\n";
+                    PR_Unit += "<special_ability></special_ability>\n"; //dummy
+                    var accolade = knightCommander.GetAccolade();
+                    if (accolade != null)
+                    {
+                        var special_ability = AccoladesAbilities.ReturnAbilitiesKeys(accolade);
+                        if (special_ability.primaryKey != "null")
+                        {
+                            PR_Unit += $"<special_ability>{special_ability.primaryKey}</special_ability>\n";
+                        }
+                        if (special_ability.secundaryKey != "null")
+                        {
+                            PR_Unit += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
+                        }
+                    }
+                    PR_Unit += "</unit_capabilities>\n";
+                    PR_Unit += "<general>\n" +
+                               $"<name>{knightCommander.GetName()}</name>\n" +
+                               "<star_rating level=\"0\"/>\n" + // Knights don't have a star rating
+                               "</general>\n";
+                }
+
+                PR_Unit += "</unit>\n\n";
+
 
                 //Add horizontal spacing between units
                 if(direction is "N" || direction is "S")

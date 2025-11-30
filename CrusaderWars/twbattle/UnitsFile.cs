@@ -185,63 +185,59 @@ namespace CrusaderWars
             //     KNIGHTS     #
             //                 #
             //##################
-            if (army.Knights != null && army.Knights?.GetKnightsList()?.Count > 0)
+            if (army.Knights != null && army.Knights.GetKnightsList()?.Count > 0)
             {
-                Unit knights_unit;
-                if (army.Knights.GetMajorCulture() != null)
-                    // Set major culture on the knights unit
-                    knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Knights.GetMajorCulture(), RegimentType.Knight,false, army.Owner);
-                else
-                    // Set owner culture if it doesn't have a major culture
-                    knights_unit = new Unit("Knight", army.Knights.GetKnightsSoldiers(), army.Owner.GetCulture(), RegimentType.Knight, false, army.Owner);
+                // The KnightSystem now contains the correct mix of standard knights and unassigned prominent knights.
+                // We process them all together into a single unit.
+                var knightSystem = army.Knights;
+                knightSystem.SetMajorCulture();
 
+                Unit knights_unit;
+                if (knightSystem.GetMajorCulture() != null)
+                    knights_unit = new Unit("Knight", knightSystem.GetKnightsSoldiers(), knightSystem.GetMajorCulture(), RegimentType.Knight, false, army.Owner);
+                else
+                    knights_unit = new Unit("Knight", knightSystem.GetKnightsSoldiers(), army.Owner.GetCulture(), RegimentType.Knight, false, army.Owner);
 
                 knights_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(knights_unit.GetCulture(), knights_unit.GetHeritage()));
                 var (knightKey, isSiegeKnight) = UnitMappers_BETA.GetUnitKey(knights_unit);
 
-                // Check for autofix replacement
                 if (twbattle.BattleProcessor.AutofixReplacements.TryGetValue(knightKey, out var replacement))
                 {
-                    Program.Logger.Debug($"Autofix: Applying knight unit replacement for '{knightKey}' with '{replacement.replacementKey}'.");
                     knightKey = replacement.replacementKey;
                     isSiegeKnight = replacement.isSiege;
                 }
 
                 knights_unit.SetUnitKey(knightKey);
                 knights_unit.SetIsSiege(isSiegeKnight);
-                
+
                 string knightAttilaKey = knights_unit.GetAttilaUnitKey();
                 if (string.IsNullOrEmpty(knightAttilaKey) || knightAttilaKey == UnitMappers_BETA.NOT_FOUND_KEY)
                 {
-                    Program.Logger.Debug($"  - WARNING: Could not map Knights unit for army {army.ID}. It will be dropped from the battle.");
                     BattleLog.AddUnmappedUnit(knights_unit, army.ID);
                 }
                 else
                 {
-                    army.Units.Insert(1, knights_unit);
+                    army.Units.Insert(1, knights_unit); // Insert near commander
 
                     string knights_script_name;
-                    if (army.Knights.GetMajorCulture() != null)
-                        knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture()?.ID ?? "unknown"}_";
+                    if (knightSystem.GetMajorCulture() != null)
+                        knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{knightSystem.GetMajorCulture()?.ID ?? "unknown"}_";
                     else
                         knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture()?.ID ?? "unknown"}_";
 
-
-                    // Determine if the knight unit should be the general
                     string? knightNameToDisplay = null;
-                    if (army.Commander == null)
+                    if (army.Commander == null && !army.Units.Any(u => u.KnightCommander != null))
                     {
-                        var bestKnight = army.Knights.GetKnightsList()
-                                                    .OrderByDescending(k => k.GetProwess())
-                                                    .FirstOrDefault();
+                        var bestKnight = knightSystem.GetKnightsList()
+                                                            .OrderByDescending(k => k.GetProwess())
+                                                            .FirstOrDefault();
                         if (bestKnight != null)
                         {
                             knightNameToDisplay = bestKnight.GetName();
-                            Program.Logger.Debug($"Army {army.ID} has no commander. Promoting knight unit to general, named after '{knightNameToDisplay}'.");
                         }
                     }
 
-                    BattleFile.AddKnightUnit(army.Knights, knightAttilaKey, knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide), knightNameToDisplay);
+                    BattleFile.AddKnightUnit(knightSystem, knightAttilaKey, knights_script_name, knightSystem.SetExperience(), Deployments.beta_GeDirection(army.CombatSide), knightNameToDisplay);
                     i++;
                 }
             }
@@ -482,20 +478,31 @@ namespace CrusaderWars
                         }
                     }
 
+                    int final_xp = army_xp;
+                    if (unit.KnightCommander != null)
+                    {
+                        int prowess = unit.KnightCommander.GetProwess();
+                        if (prowess <= 8) final_xp += 1;
+                        else if (prowess <= 16) final_xp += 2;
+                        else final_xp += 3;
+                    }
+
                     //If is retinue maa, increase 2xp.
                     if (unitName.Contains("accolade"))
                     {
                         string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                        int accolade_xp = army_xp + 2;
+                        int accolade_xp = final_xp + 2;
                         if (accolade_xp < 0) accolade_xp = 0;
                         if (accolade_xp > 9) accolade_xp = 9;
-                        BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                        BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide), unit.KnightCommander);
                     }
                     //If is normal maa
                     else
                     {
+                        if (final_xp < 0) final_xp = 0;
+                        if (final_xp > 9) final_xp = 9;
                         string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                        BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                        BattleFile.AddUnit(attilaUnitKey, MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, final_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide), unit.KnightCommander);
                     }
                 }
                 i++;

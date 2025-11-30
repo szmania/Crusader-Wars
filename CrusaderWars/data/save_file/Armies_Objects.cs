@@ -90,6 +90,7 @@ namespace CrusaderWars.data.save_file
         private bool IsSiegeEnginePerUnitBool { get; set; }
         private int NumGuns { get; set; }
         private bool IsPlayerUnitBool { get; set; }
+        public Knight? KnightCommander { get; set; }
 
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
@@ -106,6 +107,7 @@ namespace CrusaderWars.data.save_file
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
+            KnightCommander = null;
         }
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
@@ -123,6 +125,7 @@ namespace CrusaderWars.data.save_file
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
+            KnightCommander = null;
         }
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
         {
@@ -140,6 +143,7 @@ namespace CrusaderWars.data.save_file
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
+            KnightCommander = null;
         }
 
 
