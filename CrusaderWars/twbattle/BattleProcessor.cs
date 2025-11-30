@@ -303,14 +303,14 @@ namespace CrusaderWars.twbattle
                                         var bodyguardUnits = allKnightUnits.Where(u => u.GetName() != "Knight").ToList();
                                         int totalKnightSoldiers = allKnightUnits.Sum(u => u.GetSoldiers());
 
-                                        Program.Logger.Debug($"  - CK3 Unit: Knights, Total Soldiers: {totalKnightSoldiers}");
+                                        Program.Logger.Debug($"  - Knight Units (Total Soldiers: {totalKnightSoldiers})");
 
                                         if (combinedUnit != null)
                                         {
                                             string attilaKey = combinedUnit.GetAttilaUnitKey();
                                             if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                             {
-                                                Program.Logger.Debug($"    - Combined Unit, Attila Unit: {attilaKey}, Soldiers: {combinedUnit.GetSoldiers()}{unitDetails}, Rank: {combinedUnit.CharacterRank}");
+                                                Program.Logger.Debug($"    - Combined Standard Knights, Attila Unit: {attilaKey}, Soldiers: {combinedUnit.GetSoldiers()}{unitDetails}, Rank: {combinedUnit.CharacterRank}");
                                             }
                                         }
 
@@ -319,7 +319,7 @@ namespace CrusaderWars.twbattle
                                             string attilaKey = bodyguardUnit.GetAttilaUnitKey();
                                             if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                             {
-                                                Program.Logger.Debug($"    - Bodyguard: {bodyguardUnit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {bodyguardUnit.GetSoldiers()}{unitDetails}, Rank: {bodyguardUnit.CharacterRank}");
+                                                Program.Logger.Debug($"    - Prominent Knight Bodyguard: {bodyguardUnit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {bodyguardUnit.GetSoldiers()}{unitDetails}, Rank: {bodyguardUnit.CharacterRank}");
                                             }
                                         }
                                         knightsLogged = true;
@@ -411,14 +411,14 @@ namespace CrusaderWars.twbattle
                                         var bodyguardUnits = allKnightUnits.Where(u => u.GetName() != "Knight").ToList();
                                         int totalKnightSoldiers = allKnightUnits.Sum(u => u.GetSoldiers());
 
-                                        Program.Logger.Debug($"  - CK3 Unit: Knights, Total Soldiers: {totalKnightSoldiers}");
+                                        Program.Logger.Debug($"  - Knight Units (Total Soldiers: {totalKnightSoldiers})");
 
                                         if (combinedUnit != null)
                                         {
                                             string attilaKey = combinedUnit.GetAttilaUnitKey();
                                             if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                             {
-                                                Program.Logger.Debug($"    - Combined Unit, Attila Unit: {attilaKey}, Soldiers: {combinedUnit.GetSoldiers()}{unitDetails}, Rank: {combinedUnit.CharacterRank}");
+                                                Program.Logger.Debug($"    - Combined Standard Knights, Attila Unit: {attilaKey}, Soldiers: {combinedUnit.GetSoldiers()}{unitDetails}, Rank: {combinedUnit.CharacterRank}");
                                             }
                                         }
 
@@ -427,7 +427,7 @@ namespace CrusaderWars.twbattle
                                             string attilaKey = bodyguardUnit.GetAttilaUnitKey();
                                             if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                             {
-                                                Program.Logger.Debug($"    - Bodyguard: {bodyguardUnit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {bodyguardUnit.GetSoldiers()}{unitDetails}, Rank: {bodyguardUnit.CharacterRank}");
+                                                Program.Logger.Debug($"    - Prominent Knight Bodyguard: {bodyguardUnit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {bodyguardUnit.GetSoldiers()}{unitDetails}, Rank: {bodyguardUnit.CharacterRank}");
                                             }
                                         }
                                         knightsLogged = true;
@@ -1268,64 +1268,63 @@ namespace CrusaderWars.twbattle
                     continue;
                 }
 
-                // Step 3.3: Identify prominent knights
-                var prominentKnights = army.Knights.GetKnightsList().Where(k => k.GetProwess() > 15).ToList();
+                var allKnights = army.Knights.GetKnightsList();
+                var prominentKnights = allKnights.Where(k => k.GetProwess() > 15).ToList();
+
                 if (!prominentKnights.Any())
                 {
-                    Program.Logger.Debug($"Army {army.ID} has no prominent knights (Prowess > 15).");
+                    // No prominent knights, so all knights get the bodyguard bonus
+                    foreach (var knight in allKnights) { knight.IsProminent = true; }
+                    Program.Logger.Debug($"Army {army.ID} has no prominent knights. All {allKnights.Count} knights will form the combined bodyguard unit.");
                     continue;
                 }
 
-                Program.Logger.Debug($"Army {army.ID} has {prominentKnights.Count} prominent knights.");
-                foreach (var knight in prominentKnights)
-                {
-                    knight.IsProminent = true; // This also doubles their soldier count
-                }
+                Program.Logger.Debug($"Army {army.ID} has {prominentKnights.Count} prominent knights to process.");
 
-                // Step 3.4: Assign to MAA units
                 var assignableMAA = army.Units
                     .Where(u => u.GetRegimentType() == RegimentType.MenAtArms && u.KnightCommander == null && !u.IsSiege())
                     .ToList();
 
-                if (!assignableMAA.Any())
-                {
-                    Program.Logger.Debug($"Army {army.ID} has no assignable MAA units for prominent knights.");
-                    // They will become their own bodyguard units later.
-                    continue;
-                }
-
                 var assignedKnights = new List<Knight>();
 
-                // Prioritize knights with accolades
-                foreach (var knight in prominentKnights.OrderByDescending(k => k.IsAccolade()))
+                if (assignableMAA.Any())
                 {
-                    // Find best unit for this knight
-                    Unit bestMAA = assignableMAA
-                        .OrderByDescending(u => u.GetObjCulture()?.ID == knight.GetCultureObj()?.ID) // Culture match first
-                        .ThenByDescending(u => u.GetSoldiers()) // Then strongest
-                        .FirstOrDefault();
-
-                    if (bestMAA != null)
+                    // Assign prominent knights to MAA units
+                    foreach (var knight in prominentKnights.OrderByDescending(k => k.IsAccolade()))
                     {
-                        bestMAA.KnightCommander = knight;
-                        assignedKnights.Add(knight);
-                        assignableMAA.Remove(bestMAA); // Unit is now taken
-                        Program.Logger.Debug($"Assigned prominent knight {knight.GetName()} ({knight.GetID()}) to command MAA unit {bestMAA.GetName()} in army {army.ID}.");
+                        Unit bestMAA = assignableMAA
+                            .OrderByDescending(u => u.GetObjCulture()?.ID == knight.GetCultureObj()?.ID) // Culture match first
+                            .ThenByDescending(u => u.GetSoldiers()) // Then strongest
+                            .FirstOrDefault();
 
-                        if (!assignableMAA.Any())
+                        if (bestMAA != null)
                         {
-                            break; // No more units to assign to
+                            bestMAA.KnightCommander = knight;
+                            assignedKnights.Add(knight);
+                            assignableMAA.Remove(bestMAA); // Unit is now taken
+                            Program.Logger.Debug($"Assigned prominent knight {knight.GetName()} ({knight.GetID()}) to command MAA unit {bestMAA.GetName()} in army {army.ID}.");
+
+                            if (!assignableMAA.Any())
+                            {
+                                break; // No more units to assign to
+                            }
                         }
                     }
                 }
 
-                // Step 3.5: Remove assigned knights from the pool for the combined unit
+                // All knights NOT assigned to an MAA unit get the 4x bodyguard multiplier.
+                var unassignedKnights = allKnights.Except(assignedKnights).ToList();
+                foreach (var knight in unassignedKnights)
+                {
+                    knight.IsProminent = true; // This triggers the 4x soldier calculation
+                }
+                Program.Logger.Debug($"{unassignedKnights.Count} knights (standard and unassigned prominent) will form the combined bodyguard unit for army {army.ID}.");
+
+
+                // Finally, remove the assigned knights from the main KnightSystem list.
                 if (assignedKnights.Any())
                 {
-                    int countBefore = army.Knights.GetKnightsList().Count;
                     army.Knights.GetKnightsList().RemoveAll(k => assignedKnights.Contains(k));
-                    int countAfter = army.Knights.GetKnightsList().Count;
-                    Program.Logger.Debug($"Removed {countBefore - countAfter} assigned knights from KnightSystem in army {army.ID}. {countAfter} knights remain for combined unit.");
                 }
             }
             Program.Logger.Debug("--- Finished Processing Prominent Knights ---");
