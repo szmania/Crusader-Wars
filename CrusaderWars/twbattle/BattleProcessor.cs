@@ -298,28 +298,23 @@ namespace CrusaderWars.twbattle
                                 {
                                     if (!knightsLogged)
                                     {
-                                        var allKnightUnits = army.Units.Where(u => u.GetRegimentType() == RegimentType.Knight).ToList();
-                                        var combinedUnit = allKnightUnits.FirstOrDefault(u => u.GetName() == "Knight");
-                                        var bodyguardUnits = allKnightUnits.Where(u => u.GetName() != "Knight").ToList();
-                                        int totalKnightSoldiers = allKnightUnits.Sum(u => u.GetSoldiers());
-
-                                        Program.Logger.Debug($"  - Knight Units (Total Soldiers: {totalKnightSoldiers})");
-
-                                        if (combinedUnit != null)
+                                        // This block will now execute only once when it sees the combined "Knight" unit.
+                                        if (army.Knights != null && army.Knights.HasKnights())
                                         {
-                                            string attilaKey = combinedUnit.GetAttilaUnitKey();
+                                            var bodyguardKnights = army.Knights.GetKnightsList();
+                                            int totalBodyguardSoldiers = army.Knights.GetKnightsSoldiers();
+                                            string attilaKey = unit.GetAttilaUnitKey();
+                                            string faction = unit.GetAttilaFaction();
+
+                                            Program.Logger.Debug($"  - Knight Bodyguard Unit (Total Soldiers: {totalBodyguardSoldiers})");
+
                                             if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                             {
-                                                Program.Logger.Debug($"    - Combined Standard Knights, Attila Unit: {attilaKey}, Soldiers: {combinedUnit.GetSoldiers()}{unitDetails}, Rank: {combinedUnit.CharacterRank}");
-                                            }
-                                        }
-
-                                        foreach (var bodyguardUnit in bodyguardUnits)
-                                        {
-                                            string attilaKey = bodyguardUnit.GetAttilaUnitKey();
-                                            if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                            {
-                                                Program.Logger.Debug($"    - Prominent Knight Bodyguard: {bodyguardUnit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {bodyguardUnit.GetSoldiers()}{unitDetails}, Rank: {bodyguardUnit.CharacterRank}");
+                                                foreach (var knight in bodyguardKnights.OrderByDescending(k => k.GetProwess()))
+                                                {
+                                                    string knightUnitDetails = $", Culture: {knight.GetCultureName()}, Heritage: {knight.GetHeritageName()}, Faction: {faction}";
+                                                    Program.Logger.Debug($"    - Knight: {knight.GetName()}, Attila Unit: {attilaKey}, Soldiers: {knight.GetSoldiers()}{knightUnitDetails}, Prowess: {knight.GetProwess()}");
+                                                }
                                             }
                                         }
                                         knightsLogged = true;
@@ -406,28 +401,23 @@ namespace CrusaderWars.twbattle
                                 {
                                     if (!knightsLogged)
                                     {
-                                        var allKnightUnits = army.Units.Where(u => u.GetRegimentType() == RegimentType.Knight).ToList();
-                                        var combinedUnit = allKnightUnits.FirstOrDefault(u => u.GetName() == "Knight");
-                                        var bodyguardUnits = allKnightUnits.Where(u => u.GetName() != "Knight").ToList();
-                                        int totalKnightSoldiers = allKnightUnits.Sum(u => u.GetSoldiers());
-
-                                        Program.Logger.Debug($"  - Knight Units (Total Soldiers: {totalKnightSoldiers})");
-
-                                        if (combinedUnit != null)
+                                        // This block will now execute only once when it sees the combined "Knight" unit.
+                                        if (army.Knights != null && army.Knights.HasKnights())
                                         {
-                                            string attilaKey = combinedUnit.GetAttilaUnitKey();
+                                            var bodyguardKnights = army.Knights.GetKnightsList();
+                                            int totalBodyguardSoldiers = army.Knights.GetKnightsSoldiers();
+                                            string attilaKey = unit.GetAttilaUnitKey();
+                                            string faction = unit.GetAttilaFaction();
+
+                                            Program.Logger.Debug($"  - Knight Bodyguard Unit (Total Soldiers: {totalBodyguardSoldiers})");
+
                                             if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
                                             {
-                                                Program.Logger.Debug($"    - Combined Standard Knights, Attila Unit: {attilaKey}, Soldiers: {combinedUnit.GetSoldiers()}{unitDetails}, Rank: {combinedUnit.CharacterRank}");
-                                            }
-                                        }
-
-                                        foreach (var bodyguardUnit in bodyguardUnits)
-                                        {
-                                            string attilaKey = bodyguardUnit.GetAttilaUnitKey();
-                                            if (!string.IsNullOrEmpty(attilaKey) && attilaKey != UnitMappers_BETA.NOT_FOUND_KEY)
-                                            {
-                                                Program.Logger.Debug($"    - Prominent Knight Bodyguard: {bodyguardUnit.GetName()}, Attila Unit: {attilaKey}, Soldiers: {bodyguardUnit.GetSoldiers()}{unitDetails}, Rank: {bodyguardUnit.CharacterRank}");
+                                                foreach (var knight in bodyguardKnights.OrderByDescending(k => k.GetProwess()))
+                                                {
+                                                    string knightUnitDetails = $", Culture: {knight.GetCultureName()}, Heritage: {knight.GetHeritageName()}, Faction: {faction}";
+                                                    Program.Logger.Debug($"    - Knight: {knight.GetName()}, Attila Unit: {attilaKey}, Soldiers: {knight.GetSoldiers()}{knightUnitDetails}, Prowess: {knight.GetProwess()}");
+                                                }
                                             }
                                         }
                                         knightsLogged = true;
