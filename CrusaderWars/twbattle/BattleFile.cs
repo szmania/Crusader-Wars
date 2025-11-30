@@ -1420,17 +1420,39 @@ namespace CrusaderWars
             string subcultureTag = "";
             string battleScript = "tut_start.lua";
 
+            if (TerrainGenerator.isCoastal)
+            {
+                var coastalMap = UnitMappers_BETA.GetCoastalMap(BattleResult.ProvinceName ?? "");
+                if (coastalMap != null && !string.IsNullOrEmpty(coastalMap.BattleType))
+                {
+                    battleType = coastalMap.BattleType;
+                    Program.Logger.Debug($"Coastal battle detected. Setting battle type to '{battleType}' from mapper.");
+                }
+            }
+
             if (twbattle.BattleState.IsSiegeBattle)
             {
                 DeclarationsFile.DeclareSiegeVariables();
-                int holdingLevel = twbattle.Sieges.GetHoldingLevel();
-                if (holdingLevel > 1)
+
+                string defenderAttilaFaction = UnitMappers_BETA.GetAttilaFaction(twbattle.Sieges.GetGarrisonCulture(), twbattle.Sieges.GetGarrisonHeritage());
+                string provinceName = BattleResult.ProvinceName ?? "";
+                
+                // This is used as a search parameter and a fallback
+                string searchBattleType = (twbattle.Sieges.GetHoldingLevel() > 1) ? "settlement_standard" : "settlement_unfortified";
+
+                // Try to get the specific battle type from the mapper
+                string? mapperBattleType = UnitMappers_BETA.GetSiegeBattleType(defenderAttilaFaction, searchBattleType, provinceName);
+
+                if (!string.IsNullOrEmpty(mapperBattleType))
                 {
-                    battleType = "settlement_standard";
+                    battleType = mapperBattleType;
+                    Program.Logger.Debug($"Siege battle detected. Setting battle type to '{battleType}' from mapper.");
                 }
                 else
                 {
-                    battleType = "settlement_unfortified";
+                    // Fallback to original logic if mapper doesn't specify a type
+                    battleType = searchBattleType;
+                    Program.Logger.Debug($"Siege battle detected. No specific battle type in mapper. Falling back to '{battleType}'.");
                 }
 
                 string escalationLevel = twbattle.Sieges.GetHoldingEscalation();

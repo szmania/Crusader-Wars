@@ -2335,6 +2335,99 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
+        public static string? GetSiegeBattleType(string faction, string battleType, string provinceName)
+        {
+            Program.Logger.Debug($"Attempting to get siege battle type for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
+
+            bool forceGeneric = BattleState.AutofixForceGenericMap;
+
+            // Priority 1: Unique Map by province_names attribute
+            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
+            {
+                var uniqueMapByProvName = Terrains.UniqueSettlementMaps
+                    .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+                
+                if (uniqueMapByProvName != null)
+                {
+                    Program.Logger.Debug($"Found siege battle type '{uniqueMapByProvName.BattleType}' from unique map by province name.");
+                    return uniqueMapByProvName.BattleType;
+                }
+            }
+
+            // Priority 2: Unique Map by Variant key (existing logic)
+            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
+            {
+                var matchingUniqueMaps = Terrains.UniqueSettlementMaps
+                                         .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                         .ToList();
+
+                foreach (var uniqueMap in matchingUniqueMaps)
+                {
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                    if (uniqueMatch != null)
+                    {
+                        Program.Logger.Debug($"Found siege battle type '{uniqueMap.BattleType}' from unique map by variant key '{uniqueMatch.Key}'.");
+                        return uniqueMap.BattleType;
+                    }
+                }
+            }
+
+            // Priority 3: Generic Map by province_names attribute (Specific Faction then Default)
+            if (Terrains?.SettlementMaps != null)
+            {
+                var genericMapByProvName = Terrains.SettlementMaps
+                    .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+                
+                if (genericMapByProvName == null)
+                {
+                    genericMapByProvName = Terrains.SettlementMaps
+                        .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                               sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                               sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+                }
+
+                if (genericMapByProvName != null)
+                {
+                    Program.Logger.Debug($"Found siege battle type '{genericMapByProvName.BattleType}' from generic map by province name for faction '{genericMapByProvName.Faction}'.");
+                    return genericMapByProvName.BattleType;
+                }
+            }
+
+            // Priority 4 & 5: Generic Map by faction (existing logic, excluding those with province_names)
+            if (Terrains?.SettlementMaps != null)
+            {
+                var matchingGenericMaps = Terrains.SettlementMaps
+                                          .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                       !sm.ProvinceNames.Any())
+                                          .ToList();
+
+                if (matchingGenericMaps.Any())
+                {
+                    Program.Logger.Debug($"Found siege battle type '{matchingGenericMaps.First().BattleType}' from generic map for faction '{faction}'.");
+                    return matchingGenericMaps.First().BattleType;
+                }
+
+                matchingGenericMaps = Terrains.SettlementMaps
+                                          .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                       !sm.ProvinceNames.Any())
+                                          .ToList();
+                
+                if (matchingGenericMaps.Any())
+                {
+                    Program.Logger.Debug($"Found siege battle type '{matchingGenericMaps.First().BattleType}' from generic map for 'Default' faction.");
+                    return matchingGenericMaps.First().BattleType;
+                }
+            }
+
+            Program.Logger.Debug($"No specific siege battle type found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
+            return null; // Fallback
+        }
+
         public static string GetSettlementMapDescription(string faction, string battleType, string provinceName)
         {
             if (Terrains == null) return "Unknown Map";
