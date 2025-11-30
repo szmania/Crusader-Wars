@@ -197,9 +197,9 @@ namespace CrusaderWars.locs
                                     // Combined Unit
                                     if (unitToApply.GetName() == "Knight")
                                     {
-                                        var standardKnights = army.Knights?.GetKnightsList()?.Where(k => !k.IsProminent).OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
-                                        var knightNames = standardKnights.Select(k => k.GetName()).Take(5).ToList();
-                                        if (standardKnights.Count > 5)
+                                        var knightsInUnit = army.Knights?.GetKnightsList()?.OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
+                                        var knightNames = knightsInUnit.Select(k => k.GetName()).Take(5).ToList();
+                                        if (knightsInUnit.Count > 5)
                                         {
                                             knightNames.Add("etc...");
                                         }
