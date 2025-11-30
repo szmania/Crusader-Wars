@@ -2279,6 +2279,77 @@ namespace CrusaderWars.data.battle_results
             return (false, null, null);
         }
 
+        public static void EditSiegesFile(string path_attila_log, string left_side_combat_side, string right_side_combat_side, List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Editing Sieges file...");
+
+            string siegesPath = Writter.DataFilesPaths.Sieges_Path();
+            string siegesTempPath = Writter.DataTEMPFilesPaths.Sieges_Path();
+
+            if (string.IsNullOrEmpty(BattleResult.SiegeID))
+            {
+                Program.Logger.Debug("SiegeID is not set. Copying original Sieges.txt to temp and returning.");
+                if (File.Exists(siegesPath))
+                {
+                    File.Copy(siegesPath, siegesTempPath, true);
+                }
+                return;
+            }
+
+            if (!BattleResult.IsAttackerVictorious)
+            {
+                Program.Logger.Debug("Attacker did not win the siege. Siege continues. Copying original Sieges.txt to temp and returning.");
+                if (File.Exists(siegesPath))
+                {
+                    File.Copy(siegesPath, siegesTempPath, true);
+                }
+                return;
+            }
+
+            // Attacker won, so remove the siege block
+            Program.Logger.Debug($"Attacker won the siege. Removing siege block for SiegeID: {BattleResult.SiegeID}");
+
+            StringBuilder modifiedContent = new StringBuilder();
+            bool inSiegeBlockToRemove = false;
+            int braceCount = 0;
+
+            using (StreamReader reader = new StreamReader(siegesPath))
+            {
+                string? line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (!inSiegeBlockToRemove && Regex.IsMatch(line, $@"\t\t{BattleResult.SiegeID}={{"))
+                    {
+                        Program.Logger.Debug($"Found siege block to remove: {BattleResult.SiegeID}");
+                        inSiegeBlockToRemove = true;
+                        braceCount = 1; // Start counting braces for this block
+                        continue; // Skip this line (the start of the block)
+                    }
+
+                    if (inSiegeBlockToRemove)
+                    {
+                        braceCount += line.Count(c => c == '{');
+                        braceCount -= line.Count(c => c == '}');
+
+                        if (braceCount == 0)
+                        {
+                            // End of the block to remove
+                            inSiegeBlockToRemove = false;
+                            Program.Logger.Debug($"Finished removing siege block: {BattleResult.SiegeID}");
+                            continue; // Skip this line (the end of the block)
+                        }
+                        // If braceCount is not 0, we are still inside the block, so skip the line
+                        continue;
+                    }
+
+                    modifiedContent.AppendLine(line);
+                }
+            }
+
+            File.WriteAllText(siegesTempPath, modifiedContent.ToString().TrimEnd()); // TrimEnd to remove trailing newline if any
+            Program.Logger.Debug("Finished editing Sieges file: Siege block removed.");
+        }
+
 
         public static bool HasBattleEnded(string path_attila_log)
         {
