@@ -1282,7 +1282,7 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug($"Army {army.ID} has {prominentKnights.Count} prominent knights to process.");
 
                 var assignableMAA = army.Units
-                    .Where(u => u.GetRegimentType() == RegimentType.MenAtArms && u.KnightCommander == null && !u.IsSiege())
+                    .Where(u => u.GetRegimentType() == RegimentType.MenAtArms && u.KnightCommander == null && !UnitMappers_BETA.IsUnitTypeSiege(u.GetRegimentType(), u.GetName(), u.GetAttilaFaction()))
                     .ToList();
 
                 var assignedKnights = new List<Knight>();
