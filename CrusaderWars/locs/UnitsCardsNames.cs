@@ -46,37 +46,35 @@ namespace CrusaderWars.locs
             SearchMAANamesInLocalizationFiles(attacker_armies);
             SearchMAANamesInLocalizationFiles(defender_armies);
 
-            var unitsCollection = new List<Unit>();
-            foreach(Army army in attacker_armies) { unitsCollection.AddRange(army.Units); }
-            foreach (Army army in defender_armies) { unitsCollection.AddRange(army.Units); }
+            var armiesCollection = attacker_armies.Concat(defender_armies).ToList();
 
             switch (Mapper_Name)
             {
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), armiesCollection);
                     break;
                 case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
                 case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
                 case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("mk1212"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("mk1212"), armiesCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_AgeOfJustinian":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), armiesCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), armiesCollection);
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), armiesCollection);
                     break;
                 case "OfficialCC_AGOT_SevenKingdoms":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), armiesCollection);
                     break;
                 case "Custom":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), armiesCollection);
                     break;
             }
 
@@ -117,7 +115,7 @@ namespace CrusaderWars.locs
             return allLocFiles.ToArray();
         }
 
-        private static void EditUnitCardsFiles(string[] unit_cards_files, List<Unit> allUnits)
+        private static void EditUnitCardsFiles(string[] unit_cards_files, List<Army> allArmies)
         {
             for (int i = 0; i < unit_cards_files.Length; i++)
             {
@@ -151,53 +149,68 @@ namespace CrusaderWars.locs
                         if (keyMatch.Success)
                         {
                             string currentAttilaKey = keyMatch.Groups[1].Value;
-                            var matchingUnits = allUnits.Where(u => u.GetAttilaUnitKey() == currentAttilaKey).ToList();
+                            var matchingUnitsFromAllArmies = allArmies
+                                .SelectMany(a => a.Units.Select(u => new { Unit = u, Army = a }))
+                                .Where(x => x.Unit.GetAttilaUnitKey() == currentAttilaKey)
+                                .ToList();
 
-                            if (matchingUnits.Any())
+                            if (matchingUnitsFromAllArmies.Any())
                             {
-                                var distinctOwnerIds = matchingUnits
-                                    .Where(u => u.GetOwner() != null && !string.IsNullOrEmpty(u.GetOwner().GetID()))
-                                    .Select(u => u.GetOwner().GetID())
-                                    .Distinct()
-                                    .ToList();
+                                var representative = matchingUnitsFromAllArmies.FirstOrDefault(x => x.Army.IsPlayer()) ?? matchingUnitsFromAllArmies.First();
+                                var army = representative.Army;
+                                var unitToApply = representative.Unit;
 
-                                string ownerNameSuffix = "";
-                                if (distinctOwnerIds.Count == 1)
+                                string commanderName = "";
+                                if (army.Commander != null)
                                 {
-                                    string ownerId = distinctOwnerIds.First();
-                                    string? displayName = null;
-
-                                    if (ownerId == DataSearch.Player_Character.GetID())
+                                    if (army.Commander.ID == DataSearch.Player_Character.GetID())
                                     {
-                                        displayName = Reader.GetMetaPlayerName();
+                                        commanderName = Reader.GetMetaPlayerName();
                                     }
                                     else
                                     {
-                                        var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(ownerId);
+                                        var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(army.Commander.ID);
                                         if (!string.IsNullOrEmpty(firstName))
                                         {
-                                            displayName = !string.IsNullOrEmpty(nickname) ? $"{firstName} \"{nickname}\"" : firstName;
+                                            commanderName = !string.IsNullOrEmpty(nickname) ? $"{firstName} \"{nickname}\"" : firstName;
                                         }
                                     }
-                                    if (!string.IsNullOrEmpty(displayName))
-                                        ownerNameSuffix = $" ({displayName})";
+                                }
+                                if (string.IsNullOrEmpty(commanderName))
+                                {
+                                    commanderName = army.Commander?.Name ?? "Unknown Commander";
                                 }
 
-                                // Use the first unit as a representative for naming logic
-                                Unit unitToApply = matchingUnits.First();
+                                string commanderNameSuffix = $" ({commanderName})";
                                 string newName = "";
                                 bool shouldReplace = false;
 
                                 //Commander
                                 if (unitToApply.GetRegimentType() == RegimentType.Commander)
                                 {
-                                    newName = $"Commander{ownerNameSuffix}";
+                                    newName = $"Commander{commanderNameSuffix}";
                                     shouldReplace = true;
                                 }
                                 //Knights
                                 else if (unitToApply.GetRegimentType() == RegimentType.Knight && unitToApply.GetSoldiers() > 0)
                                 {
-                                    newName = $"Knights{ownerNameSuffix}";
+                                    // Combined Unit
+                                    if (unitToApply.GetName() == "Knight")
+                                    {
+                                        var standardKnights = army.Knights?.GetKnightsList()?.Where(k => !k.IsProminent).OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
+                                        var knightNames = standardKnights.Select(k => k.GetName()).Take(5).ToList();
+                                        if (standardKnights.Count > 5)
+                                        {
+                                            knightNames.Add("etc...");
+                                        }
+                                        string knightList = string.Join(" | ", knightNames);
+                                        newName = $"Knights ({knightList} | {commanderName})";
+                                    }
+                                    // Bodyguard Unit
+                                    else
+                                    {
+                                        newName = $"Knights ({unitToApply.GetName()} | {commanderName})";
+                                    }
                                     shouldReplace = true;
                                 }
                                 //Men-At-Arms
@@ -209,19 +222,11 @@ namespace CrusaderWars.locs
                                     if (unitToApply.KnightCommander != null)
                                     {
                                         string knightName = unitToApply.KnightCommander.GetName();
-                                        string commanderName = ownerNameSuffix.Trim(' ', '(', ')');
-                                        if (!string.IsNullOrEmpty(commanderName))
-                                        {
-                                            newName = $"MAA {maaName} ({knightName} | {commanderName})";
-                                        }
-                                        else
-                                        {
-                                            newName = $"MAA {maaName} ({knightName})";
-                                        }
+                                        newName = $"MAA {maaName} ({knightName} | {commanderName})";
                                     }
                                     else
                                     {
-                                        newName = $"MAA {maaName}{ownerNameSuffix}";
+                                        newName = $"MAA {maaName}{commanderNameSuffix}";
                                     }
                                     shouldReplace = true;
                                 }
@@ -232,11 +237,11 @@ namespace CrusaderWars.locs
                                     if (match.Success)
                                     {
                                         string originalName = match.Groups["UnitName"].Value;
-                                        while (originalName.StartsWith("Levy "))
+                                        if (originalName.StartsWith("Levy "))
                                         {
                                             originalName = originalName.Substring("Levy ".Length);
                                         }
-                                        newName = $"Levy {originalName}{ownerNameSuffix}";
+                                        newName = $"Levy {originalName}{commanderNameSuffix}";
                                         shouldReplace = true;
                                     }
                                 }
@@ -247,11 +252,11 @@ namespace CrusaderWars.locs
                                     if (match.Success)
                                     {
                                         string originalName = match.Groups["UnitName"].Value;
-                                        while (originalName.StartsWith("Garrison "))
+                                        if (originalName.StartsWith("Garrison "))
                                         {
                                             originalName = originalName.Substring("Garrison ".Length);
                                         }
-                                        newName = $"Garrison {originalName}{ownerNameSuffix}";
+                                        newName = $"Garrison {originalName}{commanderNameSuffix}";
                                         shouldReplace = true;
                                     }
                                 }
