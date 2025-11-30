@@ -154,6 +154,35 @@ namespace CrusaderWars
             return finalSoldiers;
         }
 
+        public void CalculateMAACommanderFate(double casualty_percentage)
+        {
+            if (casualty_percentage <= 0) return;
+
+            // Prowess provides a survival bonus (reduces chance of falling)
+            double prowess_survival_bonus = 0.0;
+            if (Prowess >= 17) prowess_survival_bonus = 0.15;       // 15% bonus for Excellent
+            else if (Prowess >= 13) prowess_survival_bonus = 0.10;  // 10% bonus for Good
+            else if (Prowess >= 9) prowess_survival_bonus = 0.05;   // 5% bonus for Average
+            
+            double final_chance_to_fall = casualty_percentage - prowess_survival_bonus;
+
+            // Ensure chance is not negative
+            if (final_chance_to_fall < 0) final_chance_to_fall = 0;
+
+            // Roll the dice
+            var random_roll = CharacterSharedRandom.Rng.NextDouble(); // Returns a value between 0.0 and 1.0
+
+            if (random_roll <= final_chance_to_fall)
+            {
+                hasFallen = true;
+                Program.Logger.Debug($"Knight {Name} ({ID}) commanding an MAA unit has fallen. Unit Casualties: {casualty_percentage:P2}, Prowess: {Prowess}, Survival Bonus: {prowess_survival_bonus:P2}, Final Chance: {final_chance_to_fall:P2}, Roll: {random_roll:P2}.");
+            }
+            else
+            {
+                Program.Logger.Debug($"Knight {Name} ({ID}) commanding an MAA unit survived. Unit Casualties: {casualty_percentage:P2}, Prowess: {Prowess}, Survival Bonus: {prowess_survival_bonus:P2}, Final Chance: {final_chance_to_fall:P2}, Roll: {random_roll:P2}.");
+            }
+        }
+
         public (bool isSlain, bool isCaptured, string newTraits) Health(string traits_line, bool wasOnLosingSide)
         {
             if (hasFallen)

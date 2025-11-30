@@ -181,7 +181,7 @@ namespace CrusaderWars.locs
                                     commanderName = army.Commander?.Name ?? "Unknown Commander";
                                 }
 
-                                string commanderNameSuffix = $" ({commanderName})";
+                                string commanderNameSuffix = $" [Cmdr. {commanderName}]";
                                 string newName = "";
                                 bool shouldReplace = false;
 
@@ -204,12 +204,12 @@ namespace CrusaderWars.locs
                                             knightNames.Add("etc...");
                                         }
                                         string knightList = string.Join(" | ", knightNames);
-                                        newName = $"Knights ({knightList} | {commanderName})";
+                                        newName = $"Knights ({knightList}) [Cmdr. {commanderName}]";
                                     }
                                     // Bodyguard Unit
                                     else
                                     {
-                                        newName = $"Knights ({unitToApply.GetName()} | {commanderName})";
+                                        newName = $"Knights ({unitToApply.GetName()}) [Cmdr. {commanderName}]";
                                     }
                                     shouldReplace = true;
                                 }
@@ -222,7 +222,7 @@ namespace CrusaderWars.locs
                                     if (unitToApply.KnightCommander != null)
                                     {
                                         string knightName = unitToApply.KnightCommander.GetName();
-                                        newName = $"MAA {maaName} ({knightName} | {commanderName})";
+                                        newName = $"MAA {maaName} ({knightName}) [Cmdr. {commanderName}]";
                                     }
                                     else
                                     {

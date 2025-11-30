@@ -887,13 +887,14 @@ namespace CrusaderWars.data.battle_results
                         r.GetTypeName() == unit.GetName() &&
                         r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
 
-                    if (report != null)
+                    if (report != null && report.GetStarting() > 0)
                     {
                         int finalSoldiers = report.GetAliveAfterPursuit() != -1 ? report.GetAliveAfterPursuit() : report.GetAliveBeforePursuit();
-                        if (finalSoldiers == 0)
-                        {
-                            unit.KnightCommander.SetHasFallen(true);
-                        }
+                        int casualties = report.GetStarting() - finalSoldiers;
+                        double casualtyPercentage = (double)casualties / report.GetStarting();
+
+                        // New probabilistic logic
+                        unit.KnightCommander.CalculateMAACommanderFate(casualtyPercentage);
                     }
                 }
             }
