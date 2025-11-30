@@ -250,7 +250,7 @@ namespace CrusaderWars
         private List<Accolade>? Accolades { get; set; }
         private int UnitSoldiers { get; set; }
 
-        private int Effectiveness { get; set; }
+        public int Effectiveness { get; private set; }
 
         //private List<Knight> KilledKnights { get; set; }
         private bool hasKnights { get; set; }
@@ -378,21 +378,21 @@ namespace CrusaderWars
         {
             if (hasKnights)
             {
-                // The combined unit consists of all knights not assigned to an MAA unit.
-                // This includes standard knights and any unassigned prominent knights.
-                if (!Knights.Any()) return;
+                // This method is now only for the combined, standard knights unit.
+                var standardKnights = Knights.Where(k => !k.IsProminent && !k.HasFallen()).ToList();
+                if (!standardKnights.Any()) return;
 
-                int totalSoldiers = Knights.Sum(k => k.GetSoldiers());
+                int totalSoldiers = standardKnights.Sum(k => k.GetSoldiers());
                 int remainingSoldiers = remaining;
 
                 int soldiers_lost = totalSoldiers - remainingSoldiers;
                 if (soldiers_lost <= 0) return;
 
                 // Find the weakest knight to ensure we can start removing knights
-                int weakest_knight_num = Knights.Any() ? Knights.Min(x => x.GetSoldiers()) : 0;
+                int weakest_knight_num = standardKnights.Min(x => x.GetSoldiers());
                 if (weakest_knight_num == 0) weakest_knight_num = 1; // Avoid infinite loop if a knight has 0 soldiers
 
-                List<Knight> tempKnightsList = new List<Knight>(Knights);
+                List<Knight> tempKnightsList = new List<Knight>(standardKnights);
                 while (soldiers_lost >= weakest_knight_num && tempKnightsList.Any())
                 {
                     Random random = new Random();

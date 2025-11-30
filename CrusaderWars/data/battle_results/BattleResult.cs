@@ -575,10 +575,13 @@ namespace CrusaderWars.data.battle_results
 
                 // Find a corresponding Unit object. We use the culture of the first regiment for matching,
                 // assuming all regiments within an ArmyRegiment share the same base unit type and culture for siege status.
+                var firstRegiment = armyRegiment.Regiments.FirstOrDefault();
+                string? cultureId = firstRegiment?.Culture?.ID;
+
                 Unit? correspondingUnit = army.Units.FirstOrDefault(u =>
                     u.GetRegimentType() == armyRegiment.Type &&
                     u.GetName() == unitNameToMatch &&
-                    u.GetObjCulture()?.ID == armyRegiment.Regiments.FirstOrDefault()?.Culture?.ID
+                    u.GetObjCulture()?.ID == cultureId
                 );
 
                 if (correspondingUnit != null && correspondingUnit.IsSiege())
@@ -734,7 +737,7 @@ namespace CrusaderWars.data.battle_results
                         unitType = RegimentType.Levy;
                         type = "Levy"; // Match against the generic unit name "Levy"
                     }
-                    else if (group.Key.Type.Contains("commander") || group.Key.Type == "knights")
+                    else if (group.Key.Type.Contains("commander") || group.Key.Type.StartsWith("knight"))
                     {
                         continue;
                     }
@@ -872,35 +875,72 @@ namespace CrusaderWars.data.battle_results
         public static void CheckForSlainKnights(Army army)
         {
             Program.Logger.Debug($"Checking for slain knights in army {army.ID}");
-            if (army.Knights != null && army.Knights.HasKnights())
+            if (army.Knights == null || !army.Knights.HasKnights()) return;
+
+            // --- Part 1: Handle prominent knights leading MAA units ---
+            if (army.Units != null && army.CasualitiesReports != null)
             {
-                if (army.UnitsResults == null) return;
-
-                int remaining = 0;
-                var knightReport = default((string Script, string Type, string CultureID, string Remaining));
-
-                if (army.UnitsResults.Alive_PursuitPhase != null)
+                foreach (var unit in army.Units.Where(u => u.KnightCommander != null))
                 {
-                    knightReport = army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
+                    var report = army.CasualitiesReports.FirstOrDefault(r =>
+                        r.GetUnitType() == unit.GetRegimentType() &&
+                        r.GetTypeName() == unit.GetName() &&
+                        r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
+
+                    if (report != null)
+                    {
+                        int finalSoldiers = report.GetAliveAfterPursuit() != -1 ? report.GetAliveAfterPursuit() : report.GetAliveBeforePursuit();
+                        if (finalSoldiers == 0)
+                        {
+                            unit.KnightCommander.SetHasFallen(true);
+                        }
+                    }
+                }
+            }
+
+            // --- Part 2: Handle the combined knights unit AND prominent bodyguard units ---
+            if (army.UnitsResults != null)
+            {
+                var allKnightUnitReports = army.UnitsResults.Alive_PursuitPhase?.Where(x => x.Type.StartsWith("knight")).ToList() ??
+                                           army.UnitsResults.Alive_MainPhase?.Where(x => x.Type.StartsWith("knight")).ToList() ??
+                                           new List<(string Script, string Type, string CultureID, string Remaining)>();
+
+                // Handle combined unit first
+                var combinedUnitReport = allKnightUnitReports.FirstOrDefault(r => r.Type == "knights");
+                if (combinedUnitReport != default)
+                {
+                    int remaining = 0;
+                    Int32.TryParse(combinedUnitReport.Remaining, out remaining);
+                    army.Knights.GetKilled(remaining);
                 }
 
-                // If no report in pursuit phase, check main phase
-                if (knightReport.Remaining == null && army.UnitsResults.Alive_MainPhase != null)
+                // Handle individual prominent knight units
+                var prominentUnitReports = allKnightUnitReports.Where(r => r.Type.StartsWith("knight_"));
+                foreach (var report in prominentUnitReports)
                 {
-                    knightReport = army.UnitsResults.Alive_MainPhase.FirstOrDefault(x => x.Type == "knights");
+                    var match = Regex.Match(report.Type, @"knight_(\d+)");
+                    if (match.Success)
+                    {
+                        string knightId = match.Groups[1].Value;
+                        var knight = army.Knights.GetKnightsList().FirstOrDefault(k => k.GetID() == knightId);
+                        if (knight != null)
+                        {
+                            int remaining = 0;
+                            Int32.TryParse(report.Remaining, out remaining);
+                            if (remaining == 0)
+                            {
+                                knight.SetHasFallen(true);
+                            }
+                        }
+                    }
                 }
+            }
 
-                // If we found a report in either phase, parse it
-                if (knightReport.Remaining != null)
-                {
-                    Int32.TryParse(knightReport.Remaining, out remaining);
-                }
 
-                army.Knights.GetKilled(remaining);
-                foreach (var knight in army.Knights.GetKnightsList().Where(k => k.HasFallen()))
-                {
-                    Program.Logger.Debug($"Knight {knight.GetID()} ({knight.GetName()}) in army {army.ID} has fallen.");
-                }
+            // --- Final Log ---
+            foreach (var knight in army.Knights.GetKnightsList().Where(k => k.HasFallen()))
+            {
+                Program.Logger.Debug($"Knight {knight.GetID()} ({knight.GetName()}) in army {army.ID} has fallen.");
             }
         }
 
