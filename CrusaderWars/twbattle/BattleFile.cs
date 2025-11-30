@@ -1462,6 +1462,7 @@ namespace CrusaderWars
                                           subcultureTag +
                                           ModOptions.TimeLimit() +
                                           $"<timeout_winning_alliance_index>{combat_side}</timeout_winning_alliance_index>\n" +
+                                          $"<battlefield_owner_alliance_index>{combat_side}</battlefield_owner_alliance_index>\n" +
                                           "<boiling_oil></boiling_oil>\n" +
                                           fortificationDamageTags +
                                           "</battle_description>\n\n";
