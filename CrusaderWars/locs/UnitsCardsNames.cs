@@ -205,7 +205,24 @@ namespace CrusaderWars.locs
                                 {
                                     string maaName = unitToApply.GetLocName();
                                     if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
-                                    newName = $"MAA {maaName}{ownerNameSuffix}";
+
+                                    if (unitToApply.KnightCommander != null)
+                                    {
+                                        string knightName = unitToApply.KnightCommander.GetName();
+                                        string commanderName = ownerNameSuffix.Trim(' ', '(', ')');
+                                        if (!string.IsNullOrEmpty(commanderName))
+                                        {
+                                            newName = $"MAA {maaName} ({knightName} | {commanderName})";
+                                        }
+                                        else
+                                        {
+                                            newName = $"MAA {maaName} ({knightName})";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        newName = $"MAA {maaName}{ownerNameSuffix}";
+                                    }
                                     shouldReplace = true;
                                 }
                                 //Levies
