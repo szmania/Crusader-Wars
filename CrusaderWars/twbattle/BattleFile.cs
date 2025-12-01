@@ -778,12 +778,7 @@ namespace CrusaderWars
                 AddArmyName(enemyRealmName);     
             else
                 AddArmyName("Allied Army");
-
-            // Add <can_withdraw> tag for attacking armies in field battles
-            if (!twbattle.BattleState.IsSiegeBattle && army.CombatSide == "attacker")
-            {
-                File.AppendAllText(battlePath, "<can_withdraw>true</can_withdraw>\n\n");
-            }
+            
 
             //Write essential data
             if (x == "stark")
@@ -791,6 +786,12 @@ namespace CrusaderWars
             else
                 SetEnemyFaction(army);
 
+            // Add <can_withdraw> tag for attacking armies in field battles
+            if (!twbattle.BattleState.IsSiegeBattle && army.CombatSide == "attacker")
+            {
+                File.AppendAllText(battlePath, "<can_withdraw>true</can_withdraw>\n\n");
+            }
+            
             // Set deployment area and unit positions
             string deploymentDirection;
 
@@ -1106,10 +1107,6 @@ namespace CrusaderWars
                         }
                     }
                     PR_Unit += "</unit_capabilities>\n";
-                    PR_Unit += "<general>\n" +
-                               $"<name>{knightCommander.GetName()}</name>\n" +
-                               "<star_rating level=\"0\"/>\n" + // Knights don't have a star rating
-                               "</general>\n";
                 }
 
                 PR_Unit += "</unit>\n\n";
@@ -1273,16 +1270,6 @@ namespace CrusaderWars
 
 
                 PR_Unit += "</unit_capabilities>\n";
-
-                // Conditionally add the general block if a name is provided
-                if (!string.IsNullOrEmpty(knightNameToDisplay))
-                {
-                    PR_Unit += "<general>\n" +
-                               $"<name>{knightNameToDisplay}</name>\n" +
-                               "<star_rating level=\"0\"/>\n" + // Knights don't have a star rating like commanders
-                               "</general>\n";
-                }
-
                 PR_Unit += "</unit>\n\n";
 
                 //Add vertical spacing between units
