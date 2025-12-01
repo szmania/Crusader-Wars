@@ -779,6 +779,11 @@ namespace CrusaderWars
             else
                 AddArmyName("Allied Army");
 
+            // Add <can_withdraw> tag for attacking armies in field battles
+            if (!twbattle.BattleState.IsSiegeBattle && army.CombatSide == "attacker")
+            {
+                File.AppendAllText(battlePath, "<can_withdraw>true</can_withdraw>\n\n");
+            }
 
             //Write essential data
             if (x == "stark")
