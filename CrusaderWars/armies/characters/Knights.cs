@@ -149,7 +149,7 @@ namespace CrusaderWars
             int finalSoldiers = soldiers + value;
             if (_isProminent)
             {
-                finalSoldiers *= 4;
+                finalSoldiers *= 2;
             }
             return finalSoldiers;
         }
