@@ -1073,8 +1073,17 @@ namespace CrusaderWars
             if(numSoldiers <= 1 || numUnits == 0) return;
 
 
-            if (Int32.Parse(unit_experience) < 0) unit_experience = "0";
-            if (Int32.Parse(unit_experience) > 9) unit_experience = "9";
+            int experience = 0;
+            int.TryParse(unit_experience, out experience); // Safely parse
+
+            if (knightCommander != null && knightCommander.IsProminent)
+            {
+                experience += knightCommander.GetProminentKnightExperienceBoost();
+            }
+
+            if (experience < 0) experience = 0;
+            if (experience > 9) experience = 9;
+            unit_experience = experience.ToString();
 
             for (int i = 0; i < numUnits; i++)
             {

@@ -280,6 +280,34 @@ namespace CrusaderWars
             return (false, false, traits_line);
         }
 
+        public int GetProminentKnightExperienceBoost()
+        {
+            double prowess_contribution = 0.0;
+            if (Prowess <= 4) prowess_contribution = 0.0;
+            else if (Prowess >= 5 && Prowess <= 8) prowess_contribution = 0.1;
+            else if (Prowess >= 9 && Prowess <= 12) prowess_contribution = 0.2;
+            else if (Prowess >= 13 && Prowess <= 16) prowess_contribution = 0.3;
+            else if (Prowess >= 17) prowess_contribution = 0.4;
+
+            // A prominent knight's prowess has a greater impact on a single unit's experience.
+            // We scale the contribution to make it significant after rounding.
+            // A scaling factor of 5 makes an excellent knight contribute 2 points before effectiveness.
+            double scaled_prowess_value = prowess_contribution * 5;
+
+            int prowess_level = (int)Math.Round(scaled_prowess_value);
+
+            int effectiveness = ModOptions.GetKnightEffectiveness();
+            double effectiveness_bonus = 0;
+            if (prowess_level > 0)
+            {
+                double multiplier = (double)effectiveness / 100.0;
+                effectiveness_bonus = prowess_level * multiplier;
+            }
+
+            int final_level = (int)Math.Round(prowess_level + effectiveness_bonus);
+            return final_level;
+        }
+
     }
     public class KnightSystem
     {
