@@ -159,6 +159,14 @@ namespace CrusaderWars
         {
             if (casualty_percentage <= 0) return;
 
+            // NEW: Guarantee fall if unit is 100% wiped out
+            if (casualty_percentage >= 1.0)
+            {
+                hasFallen = true;
+                Program.Logger.Debug($"Knight {Name} ({ID}) commanding an MAA unit has fallen. Unit Casualties: 100%.");
+                return;
+            }
+
             // Prowess provides a survival bonus (reduces chance of falling)
             double prowess_survival_bonus = 0.0;
             if (Prowess >= 17) prowess_survival_bonus = 0.15;       // 15% bonus for Excellent
