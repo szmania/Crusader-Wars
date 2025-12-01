@@ -458,20 +458,23 @@ namespace CrusaderWars
             if (hasKnights)
             {
                 // This method is now only for the combined, standard knights unit.
-                var standardKnights = Knights.Where(k => !k.IsProminent && !k.HasFallen()).ToList();
-                if (!standardKnights.Any()) return;
+                // All knights in the KnightSystem (who are not already fallen) are part of the combined bodyguard unit
+                // unless they are explicitly leading an MAA unit (which is handled in BattleProcessor.ProcessProminentKnights).
+                // Therefore, all remaining knights are subject to casualties.
+                var eligibleKnights = Knights.Where(k => !k.HasFallen()).ToList();
+                if (!eligibleKnights.Any()) return;
 
-                int totalSoldiers = standardKnights.Sum(k => k.GetSoldiers());
+                int totalSoldiers = eligibleKnights.Sum(k => k.GetSoldiers());
                 int remainingSoldiers = remaining;
 
                 int soldiers_lost = totalSoldiers - remainingSoldiers;
                 if (soldiers_lost <= 0) return;
 
                 // Find the weakest knight to ensure we can start removing knights
-                int weakest_knight_num = standardKnights.Min(x => x.GetSoldiers());
+                int weakest_knight_num = eligibleKnights.Min(x => x.GetSoldiers());
                 if (weakest_knight_num == 0) weakest_knight_num = 1; // Avoid infinite loop if a knight has 0 soldiers
 
-                List<Knight> tempKnightsList = new List<Knight>(standardKnights);
+                List<Knight> tempKnightsList = new List<Knight>(eligibleKnights);
                 while (soldiers_lost >= weakest_knight_num && tempKnightsList.Any())
                 {
                     Random random = new Random();

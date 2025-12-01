@@ -902,9 +902,21 @@ namespace CrusaderWars.data.battle_results
             // --- Part 2: Handle the combined knights unit AND prominent bodyguard units ---
             if (army.UnitsResults != null)
             {
-                var allKnightUnitReports = army.UnitsResults.Alive_PursuitPhase?.Where(x => x.Type.StartsWith("knight")).ToList() ??
-                                           army.UnitsResults.Alive_MainPhase?.Where(x => x.Type.StartsWith("knight")).ToList() ??
-                                           new List<(string Script, string Type, string CultureID, string Remaining)>();
+                List<(string Script, string Type, string CultureID, string Remaining)> allKnightUnitReports = new();
+
+                // First, try to get reports from the pursuit phase
+                if (army.UnitsResults.Alive_PursuitPhase != null && army.UnitsResults.Alive_PursuitPhase.Any())
+                {
+                    allKnightUnitReports = army.UnitsResults.Alive_PursuitPhase.Where(x => x.Type.StartsWith("knight")).ToList();
+                    Program.Logger.Debug($"Found {allKnightUnitReports.Count} knight reports in pursuit phase for army {army.ID}.");
+                }
+
+                // If no reports in pursuit phase, try the main phase
+                if (!allKnightUnitReports.Any() && army.UnitsResults.Alive_MainPhase != null && army.UnitsResults.Alive_MainPhase.Any())
+                {
+                    allKnightUnitReports = army.UnitsResults.Alive_MainPhase.Where(x => x.Type.StartsWith("knight")).ToList();
+                    Program.Logger.Debug($"Found {allKnightUnitReports.Count} knight reports in main phase for army {army.ID}.");
+                }
 
                 // Handle combined unit first
                 var combinedUnitReport = allKnightUnitReports.FirstOrDefault(r => r.Type == "knights");
