@@ -52,6 +52,8 @@ namespace CrusaderWars
             }
         }
 
+        private KnightSystem? _knightSystem; // Added: Reference to parent KnightSystem
+
         public string GetName() {  return Name; }
         public string GetID() { return ID; }
         public string GetCultureName() { return CultureObj?.GetCultureName() ?? "unknown_culture"; }
@@ -70,6 +72,7 @@ namespace CrusaderWars
         public void SetTraits(List<(int, string)> list_trait) { Traits = list_trait; }
         public void IsAccolade(bool yn, Accolade accolade) { isAccoladeKnight = yn; Accolade = accolade; Soldiers += 4; }
         public void SetBaseSkills(BaseSkills t) { BaseSkills =  t; }
+        public void SetKnightSystem(KnightSystem ks) { _knightSystem = ks; } // Added: Setter for KnightSystem
 
 
         internal Knight(string name, string id, Culture culture, int prowess, int soldiers) { 
@@ -296,11 +299,17 @@ namespace CrusaderWars
 
             int prowess_level = (int)Math.Round(scaled_prowess_value);
 
-            int effectiveness = ModOptions.GetKnightEffectiveness();
+            // Safely get effectiveness from the KnightSystem
+            if (_knightSystem == null)
+            {
+                Program.Logger.Debug("WARNING: Knight's KnightSystem is not set. Cannot calculate effectiveness boost.");
+                return prowess_level;
+            }
+            int effectiveness = _knightSystem.Effectiveness; // Modified: Get from _knightSystem
             double effectiveness_bonus = 0;
             if (prowess_level > 0)
             {
-                double multiplier = (double)effectiveness / 100.0;
+                double multiplier = (double)effectiveness / 100.0; // Fixed: Integer division
                 effectiveness_bonus = prowess_level * multiplier;
             }
 
@@ -330,6 +339,10 @@ namespace CrusaderWars
                 Effectiveness = effectiveness;
                 hasKnights = true;
                 SetKnightsCount();
+                foreach(var knight in Knights) // Added: Set back-reference to KnightSystem
+                {
+                    knight.SetKnightSystem(this);
+                }
             }
             else
             {
@@ -390,7 +403,7 @@ namespace CrusaderWars
         {
             if (level > 0)
             {
-                double mulltiplier = Effectiveness / 100;
+                double mulltiplier = Effectiveness / 100.0; // Fixed: Integer division
 
                 double value_to_increase = level * mulltiplier;
                 return value_to_increase;
