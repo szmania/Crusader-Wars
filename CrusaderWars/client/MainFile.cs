@@ -1750,7 +1750,6 @@ namespace CrusaderWars
                 if (battleJustCompleted)
                 {
                     await BattleProcessor.CleanupAfterBattle();
-                    battleJustCompleted = false; // Reset the flag
                 }
 
                 bool filesCleared = false;
