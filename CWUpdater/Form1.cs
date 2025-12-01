@@ -463,6 +463,14 @@ del ""%~f0""
                             {
                                 string dirName = Path.GetFileName(dir);
                                 string destination = Path.Combine(applicationPath, dirName);
+                                
+                                // NEW: Check if a directory with the same name exists in the destination (from the update package)
+                                if (Directory.Exists(destination))
+                                {
+                                    Logger.Log($"Conflicting directory '{destination}' found from update package. Deleting to prioritize user's custom mapper.");
+                                    await RetryActionAsync(() => Directory.Delete(destination, true), $"Delete conflicting custom mapper {dirName}");
+                                }
+
                                 Logger.Log($"Restoring custom mapper: {dir} to {destination}");
                                 await RetryActionAsync(() => Directory.Move(dir, destination), $"Restore custom mapper {dirName}");
                             }
@@ -581,22 +589,22 @@ del ""%~f0""
             }
             catch (IOException ioEx)
             {
-                Logger.Log($"I/O Error during update after multiple retries: {ioEx.ToString()}");
-                MessageBox.Show(
-                    "The updater could not access a file or directory because it is locked by another process.\n\n" +
-                    "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
-                    "Please try the following:\n" +
-                    "1. Temporarily pause your cloud sync client.\n" +
-                    "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
-                    "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
-                    $"Error details: {ioEx.Message}",
-                    "Crusader Conflicts: Update Failed (File Locked)",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
-                Logger.Log("Rolling back to backup due to IOException.");
-                RestoreBackup(backupPath, applicationPath);
-                this.Close();
+                    Logger.Log($"I/O Error during update after multiple retries: {ioEx.ToString()}");
+                    MessageBox.Show(
+                        "The updater could not access a file or directory because it is locked by another process.\n\n" +
+                        "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
+                        "Please try the following:\n" +
+                        "1. Temporarily pause your cloud sync client.\n" +
+                        "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                        "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
+                        $"Error details: {ioEx.Message}",
+                        "Crusader Conflicts: Update Failed (File Locked)",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    Logger.Log("Rolling back to backup due to IOException.");
+                    RestoreBackup(backupPath, applicationPath);
+                    this.Close();
             }
             catch (Exception ex) // Existing general catch
             {
