@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CrusaderWars.data.save_file;
+using CrusaderWars.client; // Added for ModOptions
 
 namespace CrusaderWars
 {
@@ -147,7 +148,7 @@ namespace CrusaderWars
             }
 
             int finalSoldiers = soldiers + value;
-            if (_isProminent)
+            if (_isProminent && !ModOptions.CombineKnightsEnabled())
             {
                 finalSoldiers *= 2;
             }
