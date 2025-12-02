@@ -156,114 +156,120 @@ namespace CrusaderWars.locs
 
                             if (matchingUnitsFromAllArmies.Any())
                             {
-                                var representative = matchingUnitsFromAllArmies.FirstOrDefault(x => x.Army.IsPlayer()) ?? matchingUnitsFromAllArmies.First();
-                                var army = representative.Army;
-                                var unitToApply = representative.Unit;
+                                bool isPresentInPlayerArmy = matchingUnitsFromAllArmies.Any(x => x.Army.IsPlayer());
+                                bool isPresentInEnemyArmy = matchingUnitsFromAllArmies.Any(x => !x.Army.IsPlayer());
 
-                                string commanderName = "";
-                                if (army.Commander != null)
+                                if (!(isPresentInPlayerArmy && isPresentInEnemyArmy))
                                 {
-                                    if (army.Commander.ID == DataSearch.Player_Character.GetID())
+                                    var representative = matchingUnitsFromAllArmies.First();
+                                    var army = representative.Army;
+                                    var unitToApply = representative.Unit;
+
+                                    string commanderName = "";
+                                    if (army.Commander != null)
                                     {
-                                        commanderName = Reader.GetMetaPlayerName();
-                                    }
-                                    else
-                                    {
-                                        var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(army.Commander.ID);
-                                        if (!string.IsNullOrEmpty(firstName))
+                                        if (army.Commander.ID == DataSearch.Player_Character.GetID())
                                         {
-                                            commanderName = !string.IsNullOrEmpty(nickname) ? $"{firstName} \"{nickname}\"" : firstName;
+                                            commanderName = Reader.GetMetaPlayerName();
+                                        }
+                                        else
+                                        {
+                                            var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(army.Commander.ID);
+                                            if (!string.IsNullOrEmpty(firstName))
+                                            {
+                                                commanderName = !string.IsNullOrEmpty(nickname) ? $"{firstName} \"{nickname}\"" : firstName;
+                                            }
                                         }
                                     }
-                                }
-                                if (string.IsNullOrEmpty(commanderName))
-                                {
-                                    commanderName = army.Commander?.Name ?? "Unknown Commander";
-                                }
+                                    if (string.IsNullOrEmpty(commanderName))
+                                    {
+                                        commanderName = army.Commander?.Name ?? "Unknown Commander";
+                                    }
 
-                                string commanderNameSuffix = $" [Cmdr. {commanderName}]";
-                                string newName = "";
-                                bool shouldReplace = false;
+                                    string commanderNameSuffix = $" [Cmdr. {commanderName}]";
+                                    string newName = "";
+                                    bool shouldReplace = false;
 
-                                //Commander
-                                if (unitToApply.GetRegimentType() == RegimentType.Commander)
-                                {
-                                    newName = $"Commander{commanderNameSuffix}";
-                                    shouldReplace = true;
-                                }
-                                //Knights
-                                else if (unitToApply.GetRegimentType() == RegimentType.Knight && unitToApply.GetSoldiers() > 0)
-                                {
-                                    // Combined Unit
-                                    if (unitToApply.GetName() == "Knight")
+                                    //Commander
+                                    if (unitToApply.GetRegimentType() == RegimentType.Commander)
                                     {
-                                        var knightsInUnit = army.Knights?.GetKnightsList()?.OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
-                                        var knightNames = knightsInUnit.Select(k => k.GetName()).Take(5).ToList();
-                                        if (knightsInUnit.Count > 5)
-                                        {
-                                            knightNames.Add("etc...");
-                                        }
-                                        string knightList = string.Join(" | ", knightNames);
-                                        newName = $"Knights ({knightList}) [Cmdr. {commanderName}]";
-                                    }
-                                    // Bodyguard Unit
-                                    else
-                                    {
-                                        newName = $"Knights ({unitToApply.GetName()}) [Cmdr. {commanderName}]";
-                                    }
-                                    shouldReplace = true;
-                                }
-                                //Men-At-Arms
-                                else if (unitToApply.GetRegimentType() == RegimentType.MenAtArms)
-                                {
-                                    string maaName = unitToApply.GetLocName();
-                                    if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
-
-                                    if (unitToApply.KnightCommander != null)
-                                    {
-                                        string knightName = unitToApply.KnightCommander.GetName();
-                                        newName = $"MAA {maaName} ({knightName}) [Cmdr. {commanderName}]";
-                                    }
-                                    else
-                                    {
-                                        newName = $"MAA {maaName}{commanderNameSuffix}";
-                                    }
-                                    shouldReplace = true;
-                                }
-                                //Levies
-                                else if (unitToApply.GetRegimentType() == RegimentType.Levy)
-                                {
-                                    var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
-                                    if (match.Success)
-                                    {
-                                        string originalName = match.Groups["UnitName"].Value;
-                                        if (originalName.StartsWith("Levy "))
-                                        {
-                                            originalName = originalName.Substring("Levy ".Length);
-                                        }
-                                        newName = $"Levy {originalName}{commanderNameSuffix}";
+                                        newName = $"Commander{commanderNameSuffix}";
                                         shouldReplace = true;
                                     }
-                                }
-                                //Garrisons
-                                else if (unitToApply.GetRegimentType() == RegimentType.Garrison)
-                                {
-                                    var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
-                                    if (match.Success)
+                                    //Knights
+                                    else if (unitToApply.GetRegimentType() == RegimentType.Knight && unitToApply.GetSoldiers() > 0)
                                     {
-                                        string originalName = match.Groups["UnitName"].Value;
-                                        if (originalName.StartsWith("Garrison "))
+                                        // Combined Unit
+                                        if (unitToApply.GetName() == "Knight")
                                         {
-                                            originalName = originalName.Substring("Garrison ".Length);
+                                            var knightsInUnit = army.Knights?.GetKnightsList()?.OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
+                                            var knightNames = knightsInUnit.Select(k => k.GetName()).Take(5).ToList();
+                                            if (knightsInUnit.Count > 5)
+                                            {
+                                                knightNames.Add("etc...");
+                                            }
+                                            string knightList = string.Join(" | ", knightNames);
+                                            newName = $"Knights ({knightList}) [Cmdr. {commanderName}]";
                                         }
-                                        newName = $"Garrison {originalName}{commanderNameSuffix}";
+                                        // Bodyguard Unit
+                                        else
+                                        {
+                                            newName = $"Knights ({unitToApply.GetName()}) [Cmdr. {commanderName}]";
+                                        }
                                         shouldReplace = true;
                                     }
-                                }
+                                    //Men-At-Arms
+                                    else if (unitToApply.GetRegimentType() == RegimentType.MenAtArms)
+                                    {
+                                        string maaName = unitToApply.GetLocName();
+                                        if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
 
-                                if (shouldReplace)
-                                {
-                                    line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{newName}\t");
+                                        if (unitToApply.KnightCommander != null)
+                                        {
+                                            string knightName = unitToApply.KnightCommander.GetName();
+                                            newName = $"MAA {maaName} ({knightName}) [Cmdr. {commanderName}]";
+                                        }
+                                        else
+                                        {
+                                            newName = $"MAA {maaName}{commanderNameSuffix}";
+                                        }
+                                        shouldReplace = true;
+                                    }
+                                    //Levies
+                                    else if (unitToApply.GetRegimentType() == RegimentType.Levy)
+                                    {
+                                        var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                        if (match.Success)
+                                        {
+                                            string originalName = match.Groups["UnitName"].Value;
+                                            if (originalName.StartsWith("Levy "))
+                                            {
+                                                originalName = originalName.Substring("Levy ".Length);
+                                            }
+                                            newName = $"Levy {originalName}{commanderNameSuffix}";
+                                            shouldReplace = true;
+                                        }
+                                    }
+                                    //Garrisons
+                                    else if (unitToApply.GetRegimentType() == RegimentType.Garrison)
+                                    {
+                                        var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                        if (match.Success)
+                                        {
+                                            string originalName = match.Groups["UnitName"].Value;
+                                            if (originalName.StartsWith("Garrison "))
+                                            {
+                                                originalName = originalName.Substring("Garrison ".Length);
+                                            }
+                                            newName = $"Garrison {originalName}{commanderNameSuffix}";
+                                            shouldReplace = true;
+                                        }
+                                    }
+
+                                    if (shouldReplace)
+                                    {
+                                        line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{newName}\t");
+                                    }
                                 }
                             }
                         }
