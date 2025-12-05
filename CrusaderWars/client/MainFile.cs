@@ -1428,7 +1428,12 @@ namespace CrusaderWars
         List<Army> defender_armies = null!;
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
-            if (await ValidateActiveUnitMapper() == false) { return; }
+            SetBattleButtonsEnabled(false);
+            if (await ValidateActiveUnitMapper() == false)
+            {
+                SetBattleButtonsEnabled(true);
+                return;
+            }
             Program.Logger.Debug("Execute button clicked.");
 
             // Check if Crusader Conflicts mod is enabled in the playset
@@ -2269,11 +2274,13 @@ namespace CrusaderWars
 
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
-            if (await ValidateActiveUnitMapper() == false) { return; }
+            SetBattleButtonsEnabled(false);
+            if (await ValidateActiveUnitMapper() == false)
+            {
+                SetBattleButtonsEnabled(true);
+                return;
+            }
             Program.Logger.Debug("Continue Battle button clicked.");
-            ContinueBattleButton.Enabled = false;
-            ExecuteButton.Enabled = false;
-            LaunchAutoFixerButton.Enabled = false;
 
             // Cancel any previous monitoring operation
             _battleMonitoringCts?.Cancel();
@@ -2283,8 +2290,6 @@ namespace CrusaderWars
 
             PlaySound(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
             _myVariable = 1;
-            ExecuteButton.Enabled = false;
-            ContinueBattleButton.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
 
             // Update status label immediately
@@ -2449,6 +2454,10 @@ namespace CrusaderWars
                     if (ContinueBattleButton != null && !ContinueBattleButton.IsDisposed)
                     {
                         ContinueBattleButton.Enabled = enabled;
+                    }
+                    if (LaunchAutoFixerButton != null && !LaunchAutoFixerButton.IsDisposed)
+                    {
+                        LaunchAutoFixerButton.Enabled = enabled;
                     }
                 }));
             }
