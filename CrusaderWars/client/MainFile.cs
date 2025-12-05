@@ -3029,7 +3029,7 @@ namespace CrusaderWars
 
         private class ModUpdateInfo
         {
-            public string Name { get; set; = "";
+            public string Name { get; set; } = "";
             public string OldVersion { get; set; } = "0.0.0";
             public string NewVersion { get; set; } = "0.0.0";
             public string SourceModFile { get; set; } = "";
