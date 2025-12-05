@@ -1515,11 +1515,11 @@ namespace CrusaderWars
                                                                   "Compatibility Patch Not Enabled",
                                                                   MessageBoxButtons.YesNo,
                                                                   MessageBoxIcon.Warning);
-                                     if (result == DialogResult.No)
-                                     {
-                                         Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
-                                         return; // Stop execution
-                                     }
+                                 if (result == DialogResult.No)
+                                 {
+                                     Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
+                                     return; // Stop execution
+                                 }
                                  }
                                  else
                                  {
@@ -1698,6 +1698,7 @@ namespace CrusaderWars
                                                      MessageBoxIcon.Warning);
                 if (confirmResult == DialogResult.No)
                 {
+                    SetBattleButtonsEnabled(true); // Re-enable buttons if user cancels
                     _battleMonitoringCts.Cancel(); // Cancel the newly created CTS if user aborts
                     return;
                 }
