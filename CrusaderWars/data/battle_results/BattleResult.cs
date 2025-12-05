@@ -2136,12 +2136,11 @@ namespace CrusaderWars.data.battle_results
         {
             Program.Logger.Debug("Editing Regiments file...");
             bool editStarted = false;
-            //bool editIndex = false; // Removed: No longer needed
+            bool editIndex = false;
             Regiment? editRegiment = null;
             ArmyRegiment? parentArmyRegiment = null; // Declare new variable
 
             int index = -1;
-            //int reg_chunk_index = 0; // Removed: No longer needed
             bool isNewData = false;
 
 
@@ -2216,31 +2215,28 @@ namespace CrusaderWars.data.battle_results
                         }
                     }
 
-                    // New: Increment chunk index when a new chunk block starts
-                    else if (editStarted && line == "\t\t\t\t{")
+                    //Index Counter
+                    else if(!isNewData && editStarted && line == "\t\t\t\t{")
                     {
                         index++;
-                        streamWriter.WriteLine(line); // Write the original line
-                        continue;
-                    }
-                    // New: Write current soldiers for the correct chunk
-                    else if (editStarted && line.Contains("\t\t\t\t\tcurrent="))
-                    {
-                        if (parentArmyRegiment != null && parentArmyRegiment.Regiments != null && index >= 0 && index < parentArmyRegiment.Regiments.Count)
+                        if (editRegiment != null && editRegiment.Index == "") 
+                            editRegiment.ChangeIndex(0.ToString());
+                        if(editRegiment != null && index.ToString() == editRegiment.Index)
                         {
-                            Regiment currentChunkRegiment = parentArmyRegiment.Regiments[index];
-                            string currentNum = currentChunkRegiment.CurrentNum ?? "0";
+                            editIndex = true;
+                        }
+                    }
+
+                    else if(!isNewData && (editStarted==true && editIndex==true) && line.Contains("\t\t\t\t\tcurrent="))
+                    {
+                        if (editRegiment != null) // Added null check
+                        {
+                            string currentNum = editRegiment.CurrentNum ?? "0";
                             string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
                             streamWriter.WriteLine(edited_line);
-                            string regId = currentChunkRegiment.ID ?? "N/A";
-                            Program.Logger.Debug($"Regiment {regId} (Chunk {index}): Updating current soldiers to {currentNum}.");
-                            continue;
-                        }
-                        else
-                        {
-                            // Fallback if something goes wrong, write original line
-                            Program.Logger.Debug($"Warning: Could not find regiment chunk for index {index}. Writing original line: {line}");
-                            streamWriter.WriteLine(line);
+                            string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
+                            string logMessage = string.Format("Regiment {0}: Updating old data format with current soldiers {1}.", regId, currentNum);
+                            Program.Logger.Debug(logMessage);
                             continue;
                         }
                     }
@@ -2248,7 +2244,7 @@ namespace CrusaderWars.data.battle_results
                     //End Line
                     else if(editStarted && line == "\t\t}")
                     {
-                        editStarted = false; editRegiment = null; /*editIndex = false;*/ index = -1; isNewData = false;
+                        editStarted = false; editRegiment = null; editIndex = false; index = -1; isNewData = false;
                         parentArmyRegiment = null; // Reset parent ArmyRegiment
                     }
 
