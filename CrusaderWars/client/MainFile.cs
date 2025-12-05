@@ -1698,6 +1698,7 @@ namespace CrusaderWars
                                                      MessageBoxIcon.Warning);
                 if (confirmResult == DialogResult.No)
                 {
+                    SetBattleButtonsEnabled(true); // Re-enable buttons if user cancels
                     _battleMonitoringCts.Cancel(); // Cancel the newly created CTS if user aborts
                     return;
                 }
@@ -3028,7 +3029,7 @@ namespace CrusaderWars
 
         private class ModUpdateInfo
         {
-            public string Name { get; set; } = "";
+            public string Name { get; set; = "";
             public string OldVersion { get; set; } = "0.0.0";
             public string NewVersion { get; set; } = "0.0.0";
             public string SourceModFile { get; set; } = "";
