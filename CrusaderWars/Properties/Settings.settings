@@ -8,43 +8,13 @@
     <Setting Name="VAR_attila_path" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="VAR_log_attila" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="VAR_attila_close" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="VAR_ck3_close" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="BattleScale" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">100</Value>
-    </Setting>
-    <Setting Name="SiegeEnginesInFieldBattles" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Enabled</Value>
-    </Setting>
-    <Setting Name="DeploymentsZones" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Dynamic</Value>
-    </Setting>
-    <Setting Name="ArmiesControl" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Player Only</Value>
-    </Setting>
-    <Setting Name="CombineKnights" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Enabled</Value>
-    </Setting>
-    <Setting Name="ShowPostBattleReport" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Enabled</Value>
-    </Setting>
-    <Setting Name="VAR_dir_save" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="VAR_log_ck3" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LastNotifiedVersion" Type="System.String" Scope="User">
+    <Setting Name="VAR_log_attila" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LastNotifiedUMVersion" Type="System.String" Scope="User">
+    <Setting Name="VAR_dir_save" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

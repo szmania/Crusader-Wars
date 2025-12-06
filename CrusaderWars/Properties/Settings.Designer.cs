@@ -12,7 +12,7 @@ namespace CrusaderWars.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.8.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -61,102 +61,6 @@ namespace CrusaderWars.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool VAR_attila_close {
-            get {
-                return ((bool)(this["VAR_attila_close"]));
-            }
-            set {
-                this["VAR_attila_close"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool VAR_ck3_close {
-            get {
-                return ((bool)(this["VAR_ck3_close"]));
-            }
-            set {
-                this["VAR_ck3_close"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int BattleScale {
-            get {
-                return ((int)(this["BattleScale"]));
-            }
-            set {
-                this["BattleScale"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Enabled")]
-        public string SiegeEnginesInFieldBattles {
-            get {
-                return ((string)(this["SiegeEnginesInFieldBattles"]));
-            }
-            set {
-                this["SiegeEnginesInFieldBattles"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Dynamic")]
-        public string DeploymentsZones {
-            get {
-                return ((string)(this["DeploymentsZones"]));
-            }
-            set {
-                this["DeploymentsZones"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Player Only")]
-        public string ArmiesControl {
-            get {
-                return ((string)(this["ArmiesControl"]));
-            }
-            set {
-                this["ArmiesControl"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Enabled")]
-        public string CombineKnights {
-            get {
-                return ((string)(this["CombineKnights"]));
-            }
-            set {
-                this["CombineKnights"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Enabled")]
-        public string ShowPostBattleReport {
-            get {
-                return ((string)(this["ShowPostBattleReport"]));
-            }
-            set {
-                this["ShowPostBattleReport"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string VAR_dir_save {
             get {
@@ -181,25 +85,13 @@ namespace CrusaderWars.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.0.0")]
         public string LastNotifiedVersion {
             get {
                 return ((string)(this["LastNotifiedVersion"]));
             }
             set {
                 this["LastNotifiedVersion"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastNotifiedUMVersion {
-            get {
-                return ((string)(this["LastNotifiedUMVersion"]));
-            }
-            set {
-                this["LastNotifiedUMVersion"] = value;
             }
         }
     }

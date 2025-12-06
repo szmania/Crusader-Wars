@@ -166,8 +166,8 @@ namespace CrusaderWars
          *####          Mod options section         ####
          *##############################################
          */
-        UserControl General_Tab = null!;
-        UserControl Units_Tab = null!;
+        UC_GeneralOptions General_Tab = null!;
+        UC_UnitsOptions Units_Tab = null!;
         UC_CommandersAndKnightsOptions CandK_Tab = null!; // Changed type to UC_CommandersAndKnightsOptions
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
@@ -356,25 +356,29 @@ namespace CrusaderWars
             Program.Logger.Debug("Setting options UI data...");
             try
             {
-                var generalOptions = General_Tab as UC_GeneralOptions;
-
-                // General Tab Toggles
-                if (generalOptions != null)
+                // General Tab
+                if (General_Tab != null)
                 {
-                    generalOptions.SetSiegeEnginesInFieldState(ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"] == "Enabled");
-                    generalOptions.SetDeploymentZonesState(ModOptions.optionsValuesCollection["BattleMapsSize"] == "Dynamic");
-                    generalOptions.SetArmiesControlState(ModOptions.optionsValuesCollection["SeparateArmies"] == "All Controled");
-                    generalOptions.SetShowPostBattleReportState(ModOptions.optionsValuesCollection["ShowPostBattleReport"] == "Enabled");
+                    General_Tab.SetCloseCK3(ModOptions.optionsValuesCollection["CloseCK3"]);
+                    General_Tab.SetCloseAttila(ModOptions.optionsValuesCollection["CloseAttila"]);
+                    General_Tab.SetFullArmies(ModOptions.optionsValuesCollection["FullArmies"]);
+                    General_Tab.SetTimeLimit(ModOptions.optionsValuesCollection["TimeLimit"]);
+                    General_Tab.SetBattleMapsSize(ModOptions.optionsValuesCollection["BattleMapsSize"]);
+                    General_Tab.SetDefensiveDeployables(ModOptions.optionsValuesCollection["DefensiveDeployables"]);
+                    General_Tab.SetUnitCards(ModOptions.optionsValuesCollection["UnitCards"]);
+                    General_Tab.SetSeparateArmies(ModOptions.optionsValuesCollection["SeparateArmies"]);
+                    General_Tab.SetSiegeEnginesInFieldBattles(ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"]);
+                    General_Tab.SetShowPostBattleReport(ModOptions.optionsValuesCollection["ShowPostBattleReport"]);
                 }
 
 
-                var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
-                var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
-                var InfantryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
-                var CavalryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
+                var LeviesMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
+                var RangedMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
+                var InfantryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
+                var CavalryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
 
-                var BattleScale_ComboBox = Units_Tab.Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
-                var AutoScaleUnits_ComboBox = Units_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
+                var BattleScale_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
+                var AutoScaleUnits_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
                 // Commander NumericUpDowns
                 var numCommanderWounded = CandK_Tab.numCommanderWounded;
@@ -399,13 +403,13 @@ namespace CrusaderWars
                 var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
 
-                if (LeviesMax_ComboBox != null) LeviesMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
-                if (RangedMax_ComboBox != null) RangedMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
-                if (InfantryMax_ComboBox != null) InfantryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
-                if (CavalryMax_ComboBox != null) CavalryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
+                LeviesMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
+                RangedMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
+                InfantryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
+                CavalryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
 
-                if (BattleScale_ComboBox != null) BattleScale_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
-                if (AutoScaleUnits_ComboBox != null) AutoScaleUnits_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
+                BattleScale_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
+                AutoScaleUnits_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
 
                 // Temporarily disable event handlers in CandK_Tab to prevent validation logic from firing
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptionsForEvents)
@@ -540,22 +544,37 @@ namespace CrusaderWars
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
-                var generalOptions = General_Tab as UC_GeneralOptions;
-
-                if (generalOptions != null)
+                if (General_Tab != null)
                 {
-                    // General Tab Toggles
-                    var SiegeEnginesInFieldBattles_Node = xmlDoc.SelectSingleNode("//Option [@name='SiegeEnginesInFieldBattles']");
-                    if (SiegeEnginesInFieldBattles_Node != null) SiegeEnginesInFieldBattles_Node.InnerText = generalOptions.SiegeEnginesInFieldState ? "Enabled" : "Disabled";
+                    var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
+                    if (CloseCK3_Node != null) CloseCK3_Node.InnerText = General_Tab.GetCloseCK3();
+
+                    var CloseAttila_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']");
+                    if (CloseAttila_Node != null) CloseAttila_Node.InnerText = General_Tab.GetCloseAttila();
+
+                    var FullArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']");
+                    if (FullArmies_Node != null) FullArmies_Node.InnerText = General_Tab.GetFullArmies();
+
+                    var TimeLimit_Node = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']");
+                    if (TimeLimit_Node != null) TimeLimit_Node.InnerText = General_Tab.GetTimeLimit();
 
                     var BattleMapsSize_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']");
-                    if (BattleMapsSize_Node != null) BattleMapsSize_Node.InnerText = generalOptions.DeploymentZonesState ? "Dynamic" : "Medium";
+                    if (BattleMapsSize_Node != null) BattleMapsSize_Node.InnerText = General_Tab.GetBattleMapsSize();
+
+                    var DefensiveDeployables_Node = xmlDoc.SelectSingleNode("//Option [@name='DefensiveDeployables']");
+                    if (DefensiveDeployables_Node != null) DefensiveDeployables_Node.InnerText = General_Tab.GetDefensiveDeployables();
+
+                    var UnitCards_Node = xmlDoc.SelectSingleNode("//Option [@name='UnitCards']");
+                    if (UnitCards_Node != null) UnitCards_Node.InnerText = General_Tab.GetUnitCards();
 
                     var SeparateArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']");
-                    if (SeparateArmies_Node != null) SeparateArmies_Node.InnerText = generalOptions.ArmiesControlState ? "All Controled" : "Friendly Only";
+                    if (SeparateArmies_Node != null) SeparateArmies_Node.InnerText = General_Tab.GetSeparateArmies();
+
+                    var SiegeEnginesInFieldBattles_Node = xmlDoc.SelectSingleNode("//Option [@name='SiegeEnginesInFieldBattles']");
+                    if (SiegeEnginesInFieldBattles_Node != null) SiegeEnginesInFieldBattles_Node.InnerText = General_Tab.GetSiegeEnginesInFieldBattles();
 
                     var ShowPostBattleReport_Node = xmlDoc.SelectSingleNode("//Option [@name='ShowPostBattleReport']");
-                    if (ShowPostBattleReport_Node != null) ShowPostBattleReport_Node.InnerText = generalOptions.ShowPostBattleReportState ? "Enabled" : "Disabled";
+                    if (ShowPostBattleReport_Node != null) ShowPostBattleReport_Node.InnerText = General_Tab.GetShowPostBattleReport();
                 }
 
 

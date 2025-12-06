@@ -1,4 +1,4 @@
-﻿using CrusaderWars.terrain;
+using CrusaderWars.terrain;
 using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
@@ -242,15 +242,6 @@ namespace CrusaderWars.client
             optionsValuesCollection["CombineKnights"] = value;
         }
 
-        public static bool ShowPostBattleReportEnabled()
-        {
-            if (optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var value))
-            {
-                return value == "Enabled";
-            }
-            return true; // Default is Enabled
-        }
-
         public static int CulturalPreciseness()
         {
             int minumum = 5;
@@ -325,6 +316,15 @@ namespace CrusaderWars.client
         public static bool GetOptInPreReleases()
         {
             return optionsValuesCollection.TryGetValue("OptInPreReleases", out var value) && bool.TryParse(value, out bool result) && result;
+        }
+
+        public static bool ShowPostBattleReport()
+        {
+            if (optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var value))
+            {
+                return value == "Enabled";
+            }
+            return true; // Default to enabled
         }
     }
 }

@@ -1,51 +1,44 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CrusaderWars.client.Options
+namespace CrusaderWars.client
 {
     public partial class UC_GeneralOptions : UserControl
     {
-        public UC_Toggle ToggleSiegeEnginesInField => Toggle_SiegeEnginesInField;
-        public UC_Toggle ToggleDeploymentZones => Toggle_DeploymentZones;
-        public UC_Toggle ToggleArmiesControl => Toggle_ArmiesControl;
-        public UC_Toggle ToggleShowPostBattleReport => Toggle_ShowPostBattleReport;
-
-        // State tracking properties
-        public bool SiegeEnginesInFieldState { get; private set; }
-        public bool DeploymentZonesState { get; private set; }
-        public bool ArmiesControlState { get; private set; }
-        public bool ShowPostBattleReportState { get; private set; }
-
-
         public UC_GeneralOptions()
         {
             InitializeComponent();
-            // Add event handlers to track state changes
-            Toggle_SiegeEnginesInField.Click += (s, e) => SiegeEnginesInFieldState = !SiegeEnginesInFieldState;
-            Toggle_DeploymentZones.Click += (s, e) => DeploymentZonesState = !DeploymentZonesState;
-            Toggle_ArmiesControl.Click += (s, e) => ArmiesControlState = !ArmiesControlState;
-            Toggle_ShowPostBattleReport.Click += (s, e) => ShowPostBattleReportState = !ShowPostBattleReportState;
         }
 
-        // Methods to set initial state
-        public void SetSiegeEnginesInFieldState(bool state)
-        {
-            Toggle_SiegeEnginesInField.SetState(state);
-            SiegeEnginesInFieldState = state;
-        }
-        public void SetDeploymentZonesState(bool state)
-        {
-            Toggle_DeploymentZones.SetState(state);
-            DeploymentZonesState = state;
-        }
-        public void SetArmiesControlState(bool state)
-        {
-            Toggle_ArmiesControl.SetState(state);
-            ArmiesControlState = state;
-        }
-        public void SetShowPostBattleReportState(bool state)
-        {
-            Toggle_ShowPostBattleReport.SetState(state);
-            ShowPostBattleReportState = state;
-        }
+        // Methods to get values from controls
+        public string GetCloseCK3() => OptionSelection_CloseCK3.SelectedItem.ToString();
+        public string GetCloseAttila() => OptionSelection_CloseAttila.SelectedItem.ToString();
+        public string GetFullArmies() => OptionSelection_FullArmies.SelectedItem.ToString();
+        public string GetTimeLimit() => OptionSelection_TimeLimit.SelectedItem.ToString();
+        public string GetBattleMapsSize() => OptionSelection_BattleMapsSize.SelectedItem.ToString();
+        public string GetDefensiveDeployables() => OptionSelection_DefensiveDeployables.SelectedItem.ToString();
+        public string GetUnitCards() => OptionSelection_UnitCards.SelectedItem.ToString();
+        public string GetSeparateArmies() => OptionSelection_SeparateArmies.SelectedItem.ToString();
+        public string GetSiegeEnginesInFieldBattles() => OptionSelection_SiegeEngines.SelectedItem.ToString();
+        public string GetShowPostBattleReport() => OptionSelection_ShowPostBattleReport.SelectedItem.ToString();
+
+        // Methods to set values of controls
+        public void SetCloseCK3(string value) { OptionSelection_CloseCK3.SelectedItem = value; }
+        public void SetCloseAttila(string value) { OptionSelection_CloseAttila.SelectedItem = value; }
+        public void SetFullArmies(string value) { OptionSelection_FullArmies.SelectedItem = value; }
+        public void SetTimeLimit(string value) { OptionSelection_TimeLimit.SelectedItem = value; }
+        public void SetBattleMapsSize(string value) { OptionSelection_BattleMapsSize.SelectedItem = value; }
+        public void SetDefensiveDeployables(string value) { OptionSelection_DefensiveDeployables.SelectedItem = value; }
+        public void SetUnitCards(string value) { OptionSelection_UnitCards.SelectedItem = value; }
+        public void SetSeparateArmies(string value) { OptionSelection_SeparateArmies.SelectedItem = value; }
+        public void SetSiegeEnginesInFieldBattles(string value) { OptionSelection_SiegeEngines.SelectedItem = value; }
+        public void SetShowPostBattleReport(string value) { OptionSelection_ShowPostBattleReport.SelectedItem = value; }
     }
 }

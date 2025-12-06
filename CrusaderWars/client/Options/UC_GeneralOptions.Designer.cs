@@ -33,8 +33,6 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label_CloseCK3 = new System.Windows.Forms.Label();
             this.OptionSelection_CloseCK3 = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.OptionSelection_SeparateArmies = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.OptionSelection_TimeLimit = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -47,6 +45,8 @@ namespace CrusaderWars.client
             this.OptionSelection_BattleMapsSize = new System.Windows.Forms.ComboBox();
             this.OptionSelection_DefensiveDeployables = new System.Windows.Forms.ComboBox();
             this.OptionSelection_UnitCards = new System.Windows.Forms.ComboBox();
+            this.OptionSelection_SeparateArmies = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.label_SiegeEngines = new System.Windows.Forms.Label();
             this.OptionSelection_SiegeEngines = new System.Windows.Forms.ComboBox();
             this.label_ShowPostBattleReport = new System.Windows.Forms.Label();
@@ -128,36 +128,6 @@ namespace CrusaderWars.client
             this.OptionSelection_CloseCK3.TabIndex = 15;
             this.General_ToopTip.SetToolTip(this.OptionSelection_CloseCK3, "Enabled: Crusader Kings 3 will close during TW:Attila battles\r\nDisabled: CK3 will" +
         " stay open but suspended during battles");
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(3, 256);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(129, 19);
-            this.label2.TabIndex = 12;
-            this.label2.Text = "Armies Control:";
-            // 
-            // OptionSelection_SeparateArmies
-            // 
-            this.OptionSelection_SeparateArmies.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.OptionSelection_SeparateArmies.BackColor = System.Drawing.Color.White;
-            this.OptionSelection_SeparateArmies.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.OptionSelection_SeparateArmies.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.OptionSelection_SeparateArmies.FormattingEnabled = true;
-            this.OptionSelection_SeparateArmies.Items.AddRange(new object[] {
-            "All Controled",
-            "Friendly Only",
-            "All Separate"});
-            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(360, 259);
-            this.OptionSelection_SeparateArmies.Name = "OptionSelection_SeparateArmies";
-            this.OptionSelection_SeparateArmies.Size = new System.Drawing.Size(181, 26);
-            this.OptionSelection_SeparateArmies.TabIndex = 13;
-            this.General_ToopTip.SetToolTip(this.OptionSelection_SeparateArmies, resources.GetString("OptionSelection_SeparateArmies.ToolTip"));
             // 
             // label1
             // 
@@ -341,6 +311,36 @@ namespace CrusaderWars.client
             this.OptionSelection_UnitCards.TabIndex = 11;
             this.General_ToopTip.SetToolTip(this.OptionSelection_UnitCards, "Disabled: Unit card names will be from the Attila mods.\r\nEnabled: Unit card names" +
         " will use the names from CK3.");
+            // 
+            // OptionSelection_SeparateArmies
+            // 
+            this.OptionSelection_SeparateArmies.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.OptionSelection_SeparateArmies.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_SeparateArmies.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OptionSelection_SeparateArmies.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_SeparateArmies.FormattingEnabled = true;
+            this.OptionSelection_SeparateArmies.Items.AddRange(new object[] {
+            "All Controled",
+            "Friendly Only",
+            "All Separate"});
+            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(360, 259);
+            this.OptionSelection_SeparateArmies.Name = "OptionSelection_SeparateArmies";
+            this.OptionSelection_SeparateArmies.Size = new System.Drawing.Size(181, 26);
+            this.OptionSelection_SeparateArmies.TabIndex = 13;
+            this.General_ToopTip.SetToolTip(this.OptionSelection_SeparateArmies, resources.GetString("OptionSelection_SeparateArmies.ToolTip"));
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(3, 256);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(129, 19);
+            this.label2.TabIndex = 12;
+            this.label2.Text = "Armies Control:";
             // 
             // label_SiegeEngines
             // 
