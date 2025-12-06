@@ -35,7 +35,7 @@ namespace CrusaderWars.twbattle
             public int MapVariantOffset { get; set; }  = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
-            public string OriginalFieldMapDescription { get; set; } = "";
+            public string OriginalFieldMapDescription { get; set; = "";
 
             // New properties for strategy-based autofix
             public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant, ManualUnitReplacement, DeploymentZoneEditor }
@@ -2313,17 +2313,17 @@ namespace CrusaderWars.twbattle
             }
 
             // Check for wound traits
-            var traits = character.GetTraits();
-            if (traits.Any(t => t.Item1 == WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
-            else if (traits.Any(t => t.Item1 == WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
-            else if (traits.Any(t => t.Item1 == WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
+            List<(int, string)> traits = character.GetTraits(); // Explicitly cast to List<(int, string)>
+            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Brutally_Mauled()))) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
+            else if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Severely_Injured()))) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
+            else if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Wounded()))) { report.Status = "Wounded"; report.Details = "Wounded"; }
 
             // Check for physical traits (these can be combined with a wound)
             string physicalTraits = "";
-            if (traits.Any(t => t.Item1 == WoundedTraits.Maimed())) { physicalTraits += "Maimed, "; }
-            if (traits.Any(t => t.Item1 == WoundedTraits.One_Legged())) { physicalTraits += "One-Legged, "; }
-            if (traits.Any(t => t.Item1 == WoundedTraits.One_Eyed())) { physicalTraits += "One-Eyed, "; }
-            if (traits.Any(t => t.Item1 == WoundedTraits.Disfigured())) { physicalTraits += "Disfigured, "; }
+            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Maimed()))) { physicalTraits += "Maimed, "; }
+            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.One_Legged()))) { physicalTraits += "One-Legged, "; }
+            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.One_Eyed()))) { physicalTraits += "One-Eyed, "; }
+            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Disfigured()))) { physicalTraits += "Disfigured, "; }
 
             if (!string.IsNullOrEmpty(physicalTraits))
             {
