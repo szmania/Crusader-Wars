@@ -154,5 +154,53 @@ namespace CrusaderWars.Properties {
                 this["ShowPostBattleReport"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VAR_dir_save {
+            get {
+                return ((string)(this["VAR_dir_save"]));
+            }
+            set {
+                this["VAR_dir_save"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VAR_log_ck3 {
+            get {
+                return ((string)(this["VAR_log_ck3"]));
+            }
+            set {
+                this["VAR_log_ck3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastNotifiedVersion {
+            get {
+                return ((string)(this["LastNotifiedVersion"]));
+            }
+            set {
+                this["LastNotifiedVersion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastNotifiedUMVersion {
+            get {
+                return ((string)(this["LastNotifiedUMVersion"]));
+            }
+            set {
+                this["LastNotifiedUMVersion"] = value;
+            }
+        }
     }
 }

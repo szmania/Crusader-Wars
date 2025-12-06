@@ -35,5 +35,17 @@
     <Setting Name="ShowPostBattleReport" Type="System.String" Scope="User">
       <Value Profile="(Default)">Enabled</Value>
     </Setting>
+    <Setting Name="VAR_dir_save" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="VAR_log_ck3" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="LastNotifiedVersion" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="LastNotifiedUMVersion" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>
