@@ -270,6 +270,7 @@ namespace CrusaderWars
                 var AutoScaleUnits_Value = GetOptionValue(xmlDoc, "AutoScaleUnits", "Enabled");
                 var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
                 var SiegeEnginesInFieldBattles_Value = GetOptionValue(xmlDoc, "SiegeEnginesInFieldBattles", "Enabled");
+                var ShowPostBattleReport_Value = GetOptionValue(xmlDoc, "ShowPostBattleReport", "Enabled");
 
                 // New Commander and Knight wound chances
                 var CommanderWoundedChance_Value = GetOptionValue(xmlDoc, "CommanderWoundedChance", "65");
@@ -315,6 +316,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("BattleScale", BattleScale_Value);
                 ModOptions.optionsValuesCollection.Add("AutoScaleUnits", AutoScaleUnits_Value);
                 ModOptions.optionsValuesCollection.Add("SiegeEnginesInFieldBattles", SiegeEnginesInFieldBattles_Value);
+                ModOptions.optionsValuesCollection.Add("ShowPostBattleReport", ShowPostBattleReport_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderWoundedChance", CommanderWoundedChance_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderSeverelyInjuredChance", CommanderSeverelyInjuredChance_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderBrutallyMauledChance", CommanderBrutallyMauledChance_Value);
@@ -365,6 +367,7 @@ namespace CrusaderWars
                 var UnitCards_ComboBox = generalOptions?.OptionSelection_UnitCards;
                 var SeparateArmies_ComboBox = generalOptions?.OptionSelection_SeparateArmies;
                 var SiegeEnginesInFieldBattles_ComboBox = generalOptions?.OptionSelection_SiegeEngines;
+                var ShowPostBattleReport_ComboBox = generalOptions?.OptionSelection_ShowPostBattleReport;
 
                 var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
                 var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
@@ -406,6 +409,7 @@ namespace CrusaderWars
                 if (UnitCards_ComboBox != null) UnitCards_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["UnitCards"];
                 if (SeparateArmies_ComboBox != null) SeparateArmies_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["SeparateArmies"];
                 if (SiegeEnginesInFieldBattles_ComboBox != null) SiegeEnginesInFieldBattles_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"];
+                if (ShowPostBattleReport_ComboBox != null) ShowPostBattleReport_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["ShowPostBattleReport"];
 
                 if (LeviesMax_ComboBox != null) LeviesMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
                 if (RangedMax_ComboBox != null) RangedMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
@@ -559,6 +563,7 @@ namespace CrusaderWars
                 var UnitCards_ComboBox = generalOptions?.OptionSelection_UnitCards;
                 var SeparateArmies_ComboBox = generalOptions?.OptionSelection_SeparateArmies;
                 var SiegeEnginesInFieldBattles_ComboBox = generalOptions?.OptionSelection_SiegeEngines;
+                var ShowPostBattleReport_ComboBox = generalOptions?.OptionSelection_ShowPostBattleReport;
 
                 var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
                 var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
@@ -609,6 +614,8 @@ namespace CrusaderWars
                 if (SeparateArmies_Node != null && SeparateArmies_ComboBox != null) SeparateArmies_Node.InnerText = SeparateArmies_ComboBox.Text;
                 var SiegeEnginesInFieldBattles_Node = xmlDoc.SelectSingleNode("//Option [@name='SiegeEnginesInFieldBattles']");
                 if (SiegeEnginesInFieldBattles_Node != null && SiegeEnginesInFieldBattles_ComboBox != null) SiegeEnginesInFieldBattles_Node.InnerText = SiegeEnginesInFieldBattles_ComboBox.Text;
+                var ShowPostBattleReport_Node = xmlDoc.SelectSingleNode("//Option [@name='ShowPostBattleReport']");
+                if (ShowPostBattleReport_Node != null && ShowPostBattleReport_ComboBox != null) ShowPostBattleReport_Node.InnerText = ShowPostBattleReport_ComboBox.Text;
 
                 var LeviesMax_Node = xmlDoc.SelectSingleNode("//Option [@name='LeviesMax']");
                 if (LeviesMax_Node != null && LeviesMax_ComboBox != null) LeviesMax_Node.InnerText = LeviesMax_ComboBox.Text;

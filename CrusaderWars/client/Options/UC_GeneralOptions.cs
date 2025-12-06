@@ -15,6 +15,7 @@ namespace CrusaderWars.client.Options
         public ComboBox OptionSelection_UnitCards { get; private set; }
         public ComboBox OptionSelection_SeparateArmies { get; private set; }
         public ComboBox OptionSelection_SiegeEngines { get; private set; }
+        public ComboBox OptionSelection_ShowPostBattleReport { get; private set; }
 
         public UC_GeneralOptions()
         {
@@ -31,6 +32,22 @@ namespace CrusaderWars.client.Options
             OptionSelection_UnitCards = this.Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
             OptionSelection_SeparateArmies = this.Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
             OptionSelection_SiegeEngines = this.Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
+            OptionSelection_ShowPostBattleReport = this.Controls.Find("OptionSelection_ShowPostBattleReport", true).FirstOrDefault() as ComboBox;
+        }
+
+        // NOTE: The following Dispose method is added to fix the CS0115 error.
+        // It seems the Dispose method in the associated .Designer.cs file is incorrect.
+        // This method provides a valid override for the base UserControl.Dispose method.
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            // The designer file should contain the 'components' field and dispose it.
+            // This is a minimal implementation to resolve the compile error.
+            // If you have components to dispose, ensure they are handled correctly in the designer file.
+            base.Dispose(disposing);
         }
     }
 }
