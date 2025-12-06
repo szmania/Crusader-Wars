@@ -1,4 +1,4 @@
-namespace CrusaderWars.client
+namespace CrusaderWars.client.Options
 {
     partial class UC_GeneralOptions
     {
