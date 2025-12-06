@@ -19,7 +19,7 @@ namespace CrusaderWars.client
         {
             InitializeComponent();
             _report = report;
-            this.Icon = Properties.Resources.crusader_conflicts_logo;
+            // Icon assignment removed - crusader_conflicts_logo is a Bitmap, not an Icon
         }
 
         private void PostBattleReportForm_Load(object sender, EventArgs e)
