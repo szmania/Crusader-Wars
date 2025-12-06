@@ -359,17 +359,13 @@ namespace CrusaderWars
                 var generalOptions = General_Tab as UC_GeneralOptions;
 
                 // General Tab Toggles
-                var SiegeEnginesInFieldBattles_Toggle = generalOptions?.ToggleSiegeEnginesInField;
-                if (SiegeEnginesInFieldBattles_Toggle != null) SiegeEnginesInFieldBattles_Toggle.SetState(ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"] == "Enabled");
-
-                var DeploymentZones_Toggle = generalOptions?.ToggleDeploymentZones;
-                if (DeploymentZones_Toggle != null) DeploymentZones_Toggle.SetState(ModOptions.optionsValuesCollection["BattleMapsSize"] == "Dynamic");
-
-                var ArmiesControl_Toggle = generalOptions?.ToggleArmiesControl;
-                if (ArmiesControl_Toggle != null) ArmiesControl_Toggle.SetState(ModOptions.optionsValuesCollection["SeparateArmies"] == "All Controled");
-
-                var ShowPostBattleReport_Toggle = generalOptions?.ToggleShowPostBattleReport;
-                if (ShowPostBattleReport_Toggle != null) ShowPostBattleReport_Toggle.SetState(ModOptions.optionsValuesCollection["ShowPostBattleReport"] == "Enabled");
+                if (generalOptions != null)
+                {
+                    generalOptions.SetSiegeEnginesInFieldState(ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"] == "Enabled");
+                    generalOptions.SetDeploymentZonesState(ModOptions.optionsValuesCollection["BattleMapsSize"] == "Dynamic");
+                    generalOptions.SetArmiesControlState(ModOptions.optionsValuesCollection["SeparateArmies"] == "All Controled");
+                    generalOptions.SetShowPostBattleReportState(ModOptions.optionsValuesCollection["ShowPostBattleReport"] == "Enabled");
+                }
 
 
                 var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
@@ -546,22 +542,21 @@ namespace CrusaderWars
 
                 var generalOptions = General_Tab as UC_GeneralOptions;
 
-                // General Tab Toggles
-                var SiegeEnginesInFieldBattles_Toggle = generalOptions?.ToggleSiegeEnginesInField;
-                var SiegeEnginesInFieldBattles_Node = xmlDoc.SelectSingleNode("//Option [@name='SiegeEnginesInFieldBattles']");
-                if (SiegeEnginesInFieldBattles_Node != null && SiegeEnginesInFieldBattles_Toggle != null) SiegeEnginesInFieldBattles_Node.InnerText = SiegeEnginesInFieldBattles_Toggle.GetState() ? "Enabled" : "Disabled";
+                if (generalOptions != null)
+                {
+                    // General Tab Toggles
+                    var SiegeEnginesInFieldBattles_Node = xmlDoc.SelectSingleNode("//Option [@name='SiegeEnginesInFieldBattles']");
+                    if (SiegeEnginesInFieldBattles_Node != null) SiegeEnginesInFieldBattles_Node.InnerText = generalOptions.SiegeEnginesInFieldState ? "Enabled" : "Disabled";
 
-                var DeploymentZones_Toggle = generalOptions?.ToggleDeploymentZones;
-                var BattleMapsSize_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']");
-                if (BattleMapsSize_Node != null && DeploymentZones_Toggle != null) BattleMapsSize_Node.InnerText = DeploymentZones_Toggle.GetState() ? "Dynamic" : "Medium";
+                    var BattleMapsSize_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']");
+                    if (BattleMapsSize_Node != null) BattleMapsSize_Node.InnerText = generalOptions.DeploymentZonesState ? "Dynamic" : "Medium";
 
-                var ArmiesControl_Toggle = generalOptions?.ToggleArmiesControl;
-                var SeparateArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']");
-                if (SeparateArmies_Node != null && ArmiesControl_Toggle != null) SeparateArmies_Node.InnerText = ArmiesControl_Toggle.GetState() ? "All Controled" : "Friendly Only";
+                    var SeparateArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']");
+                    if (SeparateArmies_Node != null) SeparateArmies_Node.InnerText = generalOptions.ArmiesControlState ? "All Controled" : "Friendly Only";
 
-                var ShowPostBattleReport_Toggle = generalOptions?.ToggleShowPostBattleReport;
-                var ShowPostBattleReport_Node = xmlDoc.SelectSingleNode("//Option [@name='ShowPostBattleReport']");
-                if (ShowPostBattleReport_Node != null && ShowPostBattleReport_Toggle != null) ShowPostBattleReport_Node.InnerText = ShowPostBattleReport_Toggle.GetState() ? "Enabled" : "Disabled";
+                    var ShowPostBattleReport_Node = xmlDoc.SelectSingleNode("//Option [@name='ShowPostBattleReport']");
+                    if (ShowPostBattleReport_Node != null) ShowPostBattleReport_Node.InnerText = generalOptions.ShowPostBattleReportState ? "Enabled" : "Disabled";
+                }
 
 
                 var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
