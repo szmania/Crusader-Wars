@@ -32,7 +32,7 @@ namespace CrusaderWars.twbattle
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
-            public int MapVariantOffset { get; set; = 0;
+            public int MapVariantOffset { get; set; }  = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
             public string OriginalFieldMapDescription { get; set; } = "";
@@ -1115,7 +1115,7 @@ namespace CrusaderWars.twbattle
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
                         Program.Logger.Debug("Editing Sieges.txt file...");
-                        BattleResult.EditSiegesFile(path_log_attila, left_side_combat_side, right_side_combat_side, attacker_armies, defender_armies);
+                        BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, attacker_armies, defender_armies);
                     }
                     else
                     {
