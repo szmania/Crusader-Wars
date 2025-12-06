@@ -95,7 +95,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void treeViewReport_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void treeViewReport_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             var node = e.Node;
             // Check if it's a unit node with details
@@ -158,6 +158,21 @@ namespace CrusaderWars.client
                         }
                         node.Nodes.Add(charactersNode);
                     }
+                }
+            }
+        }
+
+        private void treeViewReport_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            var node = e.Node;
+            // Check if it's a unit node with details
+            if (node.Tag is UnitReport unitReport)
+            {
+                // If it has the dummy node, it hasn't been populated yet
+                if (node.Nodes.Count == 1 && node.Nodes[0].Text == "...")
+                {
+                    // Trigger expansion which will populate the node
+                    node.Expand();
                 }
                 else if (node.Nodes.Count > 0)
                 {

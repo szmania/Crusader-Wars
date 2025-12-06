@@ -72,6 +72,7 @@ namespace CrusaderWars.client
             this.treeViewReport.Name = "treeViewReport";
             this.treeViewReport.Size = new System.Drawing.Size(960, 420);
             this.treeViewReport.TabIndex = 2;
+            this.treeViewReport.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewReport_BeforeExpand);
             this.treeViewReport.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeViewReport_NodeMouseDoubleClick);
             // 
             // btnContinue
