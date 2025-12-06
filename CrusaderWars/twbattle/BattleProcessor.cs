@@ -936,7 +936,7 @@ namespace CrusaderWars.twbattle
 
                     // --- START: Capture pre-battle state for report ---
                     Dictionary<Unit, int> deployedCounts = new Dictionary<Unit, int>();
-                    if (ModOptions.ShowPostBattleReportEnabled())
+                    if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReportPre) && showReportPre == "Enabled")
                     {
                         foreach (var army in attacker_armies.Concat(defender_armies))
                         {
@@ -1053,7 +1053,7 @@ namespace CrusaderWars.twbattle
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
 
                     // SHOW POST-BATTLE REPORT
-                    if (ModOptions.ShowPostBattleReportEnabled())
+                    if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
                     {
                         var report = GenerateBattleReportData(attacker_armies, defender_armies, winner, deployedCounts);
                         if (form != null && !form.IsDisposed)
@@ -2174,9 +2174,13 @@ namespace CrusaderWars.twbattle
 
             if (BattleState.IsSiegeBattle)
             {
-                // This information is not readily available. Using placeholders.
-                report.SiegeResult = "N/A";
-                report.WallDamage = "N/A";
+                string path_log_attila = Properties.Settings.Default.VAR_log_attila;
+                var left_side_combat_side = attacker_armies[0].CombatSide;
+                var right_side_combat_side = defender_armies[0].CombatSide;
+                var (outcome, wall_damage) = BattleResult.GetSiegeOutcome(path_log_attila, left_side_combat_side, right_side_combat_side);
+                
+                report.SiegeResult = outcome;
+                report.WallDamage = wall_damage;
             }
             else
             {
@@ -2195,7 +2199,7 @@ namespace CrusaderWars.twbattle
 
                 var armyReport = new ArmyReport
                 {
-                    ArmyName = $"Army of {army.Commander.Name}",
+                    ArmyName = army.IsGarrison() ? $"{army.Commander.Name}'s Garrison" : $"Army of {army.Commander.Name}",
                     CommanderName = army.Commander.Name
                 };
 
@@ -2214,20 +2218,14 @@ namespace CrusaderWars.twbattle
                             Deployed = deployed,
                             Remaining = remaining,
                             Losses = Math.Max(0, deployed - remaining),
-                            Kills = 0, // Placeholder: Kill data is not available here.
+                            Kills = unit.Kills,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
                         };
 
                         if (unit.GetRegimentType() == RegimentType.Commander)
                         {
-                            var characterReport = new CharacterReport
-                            {
-                                Name = army.Commander.Name,
-                                Status = "Unknown", // Placeholder: Status data is not available here.
-                                Details = ""       // Placeholder
-                            };
-                            unitReport.Characters.Add(characterReport);
+                            unitReport.Characters.Add(GetCharacterReport(army.Commander));
                         }
                         else if (unit.GetRegimentType() == RegimentType.Knight)
                         {
@@ -2235,13 +2233,7 @@ namespace CrusaderWars.twbattle
                             {
                                 foreach (var knight in army.Knights.GetKnightsList())
                                 {
-                                    var characterReport = new CharacterReport
-                                    {
-                                        Name = knight.GetName(),
-                                        Status = "Unknown", // Placeholder: Status data is not available here.
-                                        Details = ""       // Placeholder
-                                    };
-                                    unitReport.Characters.Add(characterReport);
+                                    unitReport.Characters.Add(GetCharacterReport(knight));
                                 }
                             }
                         }
@@ -2251,6 +2243,50 @@ namespace CrusaderWars.twbattle
                 }
                 sideReport.Armies.Add(armyReport);
             }
+        }
+
+        private static CharacterReport GetCharacterReport(dynamic character)
+        {
+            var report = new CharacterReport { Name = character.Name, Status = "Unharmed", Details = "Survived the battle without any negative effects." };
+
+            if (character.IsPrisoner) { 
+                report.Status = "Captured"; 
+                report.Details = "Taken prisoner by the enemy."; 
+                return report;
+            }
+            if (character.IsSlain) { 
+                report.Status = "Slain"; 
+                report.Details = "Killed in action.";
+                return report;
+            }
+
+            // Check for wound traits
+            var traits = character.GetTraits();
+            if (traits.Contains(WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
+            else if (traits.Contains(WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
+            else if (traits.Contains(WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
+
+            // Check for physical traits (these can be combined with a wound)
+            string physicalTraits = "";
+            if (traits.Contains(WoundedTraits.Maimed())) { physicalTraits += "Maimed, "; }
+            if (traits.Contains(WoundedTraits.One_Legged())) { physicalTraits += "One-Legged, "; }
+            if (traits.Contains(WoundedTraits.One_Eyed())) { physicalTraits += "One-Eyed, "; }
+            if (traits.Contains(WoundedTraits.Disfigured())) { physicalTraits += "Disfigured, "; }
+
+            if (!string.IsNullOrEmpty(physicalTraits))
+            {
+                if(report.Status == "Unharmed") // Only has a physical trait, not a fresh wound
+                {
+                    report.Status = "Wounded";
+                    report.Details = physicalTraits.TrimEnd(' ', ',');
+                }
+                else // Has a wound AND a physical trait
+                {
+                    report.Details += " and became " + physicalTraits.TrimEnd(' ', ',');
+                }
+            }
+            
+            return report;
         }
     }
 }

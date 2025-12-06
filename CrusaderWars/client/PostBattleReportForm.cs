@@ -1,3 +1,4 @@
+using CrusaderWars.data.save_file;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +19,7 @@ namespace CrusaderWars.client
         {
             InitializeComponent();
             _report = report;
+            this.Icon = Properties.Resources.logo;
         }
 
         private void PostBattleReportForm_Load(object sender, EventArgs e)
@@ -31,19 +33,19 @@ namespace CrusaderWars.client
             treeViewReport.Nodes.Clear();
 
             // Add Header
-            var headerNode = new TreeNode("Unit | Deployed | Losses | Remaining | Kills");
+            var headerNode = new TreeNode("Unit                                            | Deployed | Losses | Remaining | Kills");
             headerNode.ForeColor = Color.LightGray;
-            //treeViewReport.Nodes.Add(headerNode); // Header as a node is tricky to align, will use column headers if switching to ListView
+            treeViewReport.Nodes.Add(headerNode);
 
             // Attacker Side
             var attackerSideNode = new TreeNode(_report.AttackerSide.SideName);
-            attackerSideNode.ForeColor = Color.Green;
+            attackerSideNode.ForeColor = Color.LightGreen;
             PopulateSide(attackerSideNode, _report.AttackerSide);
             treeViewReport.Nodes.Add(attackerSideNode);
 
             // Defender Side
             var defenderSideNode = new TreeNode(_report.DefenderSide.SideName);
-            defenderSideNode.ForeColor = Color.Red;
+            defenderSideNode.ForeColor = Color.OrangeRed;
             PopulateSide(defenderSideNode, _report.DefenderSide);
             treeViewReport.Nodes.Add(defenderSideNode);
 
@@ -76,9 +78,9 @@ namespace CrusaderWars.client
             foreach (var army in sideReport.Armies)
             {
                 var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName})");
-                foreach (var unit in army.Units)
+                foreach (var unit in army.Units.OrderByDescending(u => u.Ck3UnitType == "Commander").ThenByDescending(u => u.Ck3UnitType == "Knight"))
                 {
-                    string unitText = $"{unit.AttilaUnitName,-40} | {unit.Deployed,8} | {unit.Losses,6} | {unit.Remaining,9} | {unit.Kills,5}";
+                    string unitText = String.Format("{0,-47} | {1,8} | {2,6} | {3,9} | {4,5}", unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
                     var unitNode = new TreeNode(unitText);
                     unitNode.Tag = unit; // Store the full unit report object
                     
@@ -116,12 +118,13 @@ namespace CrusaderWars.client
                     {
                         var charactersNode = new TreeNode("Characters");
                         charactersNode.ForeColor = Color.Yellow;
-                        foreach (var character in unitReport.Characters)
+                        foreach (var character in unitReport.Characters.OrderBy(c => c.Name))
                         {
                             var charNode = new TreeNode($"{character.Name}: {character.Status}");
                             if(character.Status != "Unharmed")
                             {
-                                charNode.Nodes.Add(new TreeNode(character.Details) { ForeColor = Color.LightCoral });
+                                charNode.ForeColor = Color.LightCoral;
+                                charNode.Nodes.Add(new TreeNode(character.Details) { ForeColor = Color.Tomato });
                             }
                             charactersNode.Nodes.Add(charNode);
                         }

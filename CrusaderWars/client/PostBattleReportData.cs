@@ -39,8 +39,6 @@ namespace CrusaderWars.client
         // Detailed Info
         public string Ck3UnitType { get; set; }
         public string AttilaUnitKey { get; set; }
-        public string UnitExperience { get; set; } // Placeholder
-        public string SpecialAbilities { get; set; } // Placeholder
         public List<CharacterReport> Characters { get; set; } = new List<CharacterReport>();
     }
 
