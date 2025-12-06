@@ -1,15 +1,15 @@
-﻿namespace CrusaderWars.Properties {
+namespace CrusaderWars.Properties {
     
     
-    // Esta classe permite que você trate eventos específicos na classe de configurações:
-    //  O evento SettingChanging é gerado antes da alteração de um valor de configuração.
-    //  O evento PropertyChanged é gerado depois da alteração de um valor de configuração.
-    //  O evento SettingsLoaded é gerado depois do carregamento dos valores de configuração.
-    //  O evento SettingsSaving é gerado antes de salvar os valores de configuração.
+    // This class allows you to handle specific events on the settings class:
+    //  The SettingChanging event is raised before a setting's value is changed.
+    //  The PropertyChanged event is raised after a setting's value is changed.
+    //  The SettingsLoaded event is raised after the setting values are loaded.
+    //  The SettingsSaving event is raised before the setting values are saved.
     internal sealed partial class Settings {
         
         public Settings() {
-            // // Para adicionar manipuladores de eventos para salvar e alterar configurações, remova os comentários das linhas abaixo:
+            // // To add event handlers for saving and changing settings, uncomment the lines below:
             //
             // this.SettingChanging += this.SettingChangingEventHandler;
             //
@@ -17,24 +17,12 @@
             //
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastNotifiedUMVersion {
-            get {
-                return ((string)(this["LastNotifiedUMVersion"]));
-            }
-            set {
-                this["LastNotifiedUMVersion"] = value;
-            }
-        }
-
         private void SettingChangingEventHandler(object sender, System.Configuration.SettingChangingEventArgs e) {
-            // Adicione código para manipular o evento SettingChangingEvent aqui.
+            // Add code to handle the SettingChangingEvent event here.
         }
         
         private void SettingsSavingEventHandler(object sender, System.ComponentModel.CancelEventArgs e) {
-            // Adicione código para manipular o evento SettingsSaving aqui.
+            // Add code to handle the SettingsSaving event here.
         }
     }
 }
