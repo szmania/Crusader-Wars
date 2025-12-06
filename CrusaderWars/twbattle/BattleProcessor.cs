@@ -35,7 +35,7 @@ namespace CrusaderWars.twbattle
             public int MapVariantOffset { get; set; }  = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
-            public string OriginalFieldMapDescription { get; set; = "";
+            public string OriginalFieldMapDescription { get; set; } = "";
 
             // New properties for strategy-based autofix
             public enum AutofixStrategy { MapSize, Deployment, Units, MapVariant, ManualUnitReplacement, DeploymentZoneEditor }
