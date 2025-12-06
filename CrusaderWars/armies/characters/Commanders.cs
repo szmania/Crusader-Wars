@@ -32,13 +32,15 @@ namespace CrusaderWars
         public int Martial { get; private set; }
         public int Prowess { get; private set; }
         private Culture? CultureObj { get; set; }
-        public List<(int Index, string Key)> Traits_List { get; private set; } = new List<(int, string)>(); // INITIALIZED HERE
+        public List<(int, string)> Traits_List { get; private set; } = new List<(int, string)>(); // INITIALIZED HERE
 
         public BaseSkills? BaseSkills { get; private set; }
         public CommanderTraits? CommanderTraits { get; private set; }
         private List<CourtPosition>? Employees { get; set; }
 
         public bool hasFallen { get; private set; }
+        public bool IsSlain { get; private set; }
+        public bool IsPrisoner { get; private set; }
         private bool MainCommander {  get; set; }
         private Accolade? Accolade { get; set; }
         private bool IsAccoladeCommander { get; set; }
@@ -81,6 +83,7 @@ namespace CrusaderWars
         public bool IsMainCommander() { return MainCommander; }
         public Accolade? GetAccolade() { return Accolade; }
         public bool IsAccolade() { return IsAccoladeCommander; }
+        public List<(int, string)> GetTraits() { return Traits_List; }
 
 
 
@@ -185,13 +188,13 @@ namespace CrusaderWars
             //Health soldiers debuff
             foreach(var trait in Traits_List)
             {
-                if (trait.Index == WoundedTraits.Wounded()) soldiers += -5;
-                if (trait.Index == WoundedTraits.Severely_Injured()) soldiers += -10;
-                if (trait.Index == WoundedTraits.Brutally_Mauled()) soldiers += -15;
-                if (trait.Index == WoundedTraits.Maimed()) soldiers += -10;
-                if (trait.Index == WoundedTraits.One_Eyed()) soldiers += -5;
-                if (trait.Index == WoundedTraits.One_Legged()) soldiers += -10;
-                if (trait.Index == WoundedTraits.Disfigured()) soldiers += -5;
+                if (trait.Item1 == WoundedTraits.Wounded()) soldiers += -5;
+                if (trait.Item1 == WoundedTraits.Severely_Injured()) soldiers += -10;
+                if (trait.Item1 == WoundedTraits.Brutally_Mauled()) soldiers += -15;
+                if (trait.Item1 == WoundedTraits.Maimed()) soldiers += -10;
+                if (trait.Item1 == WoundedTraits.One_Eyed()) soldiers += -5;
+                if (trait.Item1 == WoundedTraits.One_Legged()) soldiers += -10;
+                if (trait.Item1 == WoundedTraits.Disfigured()) soldiers += -5;
             }
 
             
@@ -385,6 +388,7 @@ namespace CrusaderWars
                 if (RandomNumber <= slainThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} has been slain in battle (chance: {slainChance}%).");
+                    IsSlain = true;
                     return (true, false, traits_line);
                 }
 
@@ -432,6 +436,7 @@ namespace CrusaderWars
                 isCaptured = prisonerRng <= effectivePrisonerChance;
                 if (isCaptured)
                 {
+                    IsPrisoner = true;
                     string side = wasOnLosingSide ? "losing" : "winning";
                     Program.Logger.Debug($"Commander {ID} has been captured from the {side} side (chance: {effectivePrisonerChance}%).");
                 }

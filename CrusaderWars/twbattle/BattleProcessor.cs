@@ -2314,16 +2314,16 @@ namespace CrusaderWars.twbattle
 
             // Check for wound traits
             var traits = character.GetTraits();
-            if (traits.Contains(WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
-            else if (traits.Contains(WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
-            else if (traits.Contains(WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
+            else if (traits.Any(t => t.Item1 == WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
+            else if (traits.Any(t => t.Item1 == WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
 
             // Check for physical traits (these can be combined with a wound)
             string physicalTraits = "";
-            if (traits.Contains(WoundedTraits.Maimed())) { physicalTraits += "Maimed, "; }
-            if (traits.Contains(WoundedTraits.One_Legged())) { physicalTraits += "One-Legged, "; }
-            if (traits.Contains(WoundedTraits.One_Eyed())) { physicalTraits += "One-Eyed, "; }
-            if (traits.Contains(WoundedTraits.Disfigured())) { physicalTraits += "Disfigured, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.Maimed())) { physicalTraits += "Maimed, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.One_Legged())) { physicalTraits += "One-Legged, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.One_Eyed())) { physicalTraits += "One-Eyed, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.Disfigured())) { physicalTraits += "Disfigured, "; }
 
             if (!string.IsNullOrEmpty(physicalTraits))
             {

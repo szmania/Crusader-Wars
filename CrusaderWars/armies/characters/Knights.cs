@@ -34,9 +34,11 @@ namespace CrusaderWars
         int Soldiers { get; set; }
         int BaseSoldiers { get; set; }
         public int Rank { get; private set; }
-        List<(int Index, string Key)>? Traits { get; set; }
+        List<(int, string)>? Traits { get; set; }
         BaseSkills? BaseSkills { get; set; }
         bool hasFallen { get; set; }
+        public bool IsSlain { get; private set; }
+        public bool IsPrisoner { get; private set; }
         int Kills { get; set; }
 
         bool isAccoladeKnight { get; set; }
@@ -65,6 +67,7 @@ namespace CrusaderWars
         public Accolade? GetAccolade() { return Accolade; } 
         public bool HasFallen() { return hasFallen; }
         public int GetKills() { return Kills; }
+        public List<(int, string)> GetTraits() { return Traits ?? new List<(int, string)>(); }
 
         internal void SetHasFallen(bool yn) { hasFallen = yn; }
         public void SetKills(int kills) { Kills = kills; }
@@ -111,13 +114,13 @@ namespace CrusaderWars
             {
                 foreach(var trait in Traits)
                 {
-                    if (trait.Index == WoundedTraits.Wounded()) debuff += -1;
-                    if (trait.Index == WoundedTraits.Severely_Injured()) debuff += -2;
-                    if (trait.Index == WoundedTraits.Brutally_Mauled()) debuff += -3;
-                    if (trait.Index == WoundedTraits.Maimed()) debuff += -2;
-                    if (trait.Index == WoundedTraits.One_Eyed()) debuff += -1;
-                    if (trait.Index == WoundedTraits.One_Legged()) debuff += -2;
-                    if (trait.Index == WoundedTraits.Disfigured()) debuff += -1;
+                    if (trait.Item1 == WoundedTraits.Wounded()) debuff += -1;
+                    if (trait.Item1 == WoundedTraits.Severely_Injured()) debuff += -2;
+                    if (trait.Item1 == WoundedTraits.Brutally_Mauled()) debuff += -3;
+                    if (trait.Item1 == WoundedTraits.Maimed()) debuff += -2;
+                    if (trait.Item1 == WoundedTraits.One_Eyed()) debuff += -1;
+                    if (trait.Item1 == WoundedTraits.One_Legged()) debuff += -2;
+                    if (trait.Item1 == WoundedTraits.Disfigured()) debuff += -1;
                 }
             }
 
@@ -226,6 +229,7 @@ namespace CrusaderWars
                 if (RandomNumber <= slainThreshold)
                 {
                     Program.Logger.Debug($"Knight {ID} has been slain in battle (chance: {slainChance}%).");
+                    IsSlain = true;
                     return (true, false, traits_line);
                 }
 
@@ -273,6 +277,7 @@ namespace CrusaderWars
                 isCaptured = prisonerRng <= effectivePrisonerChance;
                 if (isCaptured)
                 {
+                    IsPrisoner = true;
                     string side = wasOnLosingSide ? "losing" : "winning";
                     Program.Logger.Debug($"Knight {ID} has been captured from the {side} side (chance: {effectivePrisonerChance}%).");
                 }
