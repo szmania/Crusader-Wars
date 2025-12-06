@@ -242,6 +242,15 @@ namespace CrusaderWars.client
             optionsValuesCollection["CombineKnights"] = value;
         }
 
+        public static bool ShowPostBattleReportEnabled()
+        {
+            if (optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var value))
+            {
+                return value == "Enabled";
+            }
+            return true; // Default is Enabled
+        }
+
         public static int CulturalPreciseness()
         {
             int minumum = 5;

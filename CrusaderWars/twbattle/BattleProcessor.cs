@@ -934,7 +934,26 @@ namespace CrusaderWars.twbattle
 
                     string path_log_attila = Properties.Settings.Default.VAR_log_attila;
 
-                    // --- START: Capture pre-battle state ---
+                    // --- START: Capture pre-battle state for report ---
+                    Dictionary<string, int> deployedCounts = new Dictionary<string, int>();
+                    if (ModOptions.ShowPostBattleReportEnabled())
+                    {
+                        foreach (var army in attacker_armies.Concat(defender_armies))
+                        {
+                            if (army.Units == null) continue;
+                            foreach (var unit in army.Units)
+                            {
+                                if (unit != null && !string.IsNullOrEmpty(unit.ScriptID))
+                                {
+                                    deployedCounts[unit.ScriptID] = unit.GetSoldiers();
+                                }
+                            }
+                        }
+                    }
+                    // --- END: Capture pre-battle state for report ---
+
+
+                    // --- START: Capture pre-battle state for logging ---
                     Dictionary<string, int> originalAttackerSizes = new Dictionary<string, int>();
                     foreach (var army in attacker_armies)
                     {
@@ -982,7 +1001,7 @@ namespace CrusaderWars.twbattle
                             }
                         }
                     }
-                    // --- END: Capture pre-battle state ---
+                    // --- END: Capture pre-battle state for logging ---
                     int originalTotalAttackerSoldiers = attacker_armies.Sum(a => a.GetTotalSoldiers());
 
                     //  SET CASUALITIES
@@ -1032,6 +1051,22 @@ namespace CrusaderWars.twbattle
                     //  EDIT LIVING FILE
                     Program.Logger.Debug("Editing Living.txt file...");
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
+
+                    // SHOW POST-BATTLE REPORT
+                    if (ModOptions.ShowPostBattleReportEnabled())
+                    {
+                        var report = GenerateBattleReportData(attacker_armies, defender_armies, winner, deployedCounts);
+                        if (form != null && !form.IsDisposed)
+                        {
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                using (var reportForm = new PostBattleReportForm(report))
+                                {
+                                    reportForm.ShowDialog(form);
+                                }
+                            });
+                        }
+                    }
 
                     if (!twbattle.BattleState.IsSiegeBattle || (twbattle.BattleState.IsSiegeBattle && twbattle.BattleState.HasReliefArmy))
                     {
@@ -2112,6 +2147,109 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug($"Error in TryDeploymentZoneEditorFix: {ex.Message}");
                 MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
+            }
+        }
+
+        private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner, Dictionary<string, int> deployedCounts)
+        {
+            var report = new BattleReport();
+
+            var playerArmy = attacker_armies.FirstOrDefault(a => a.IsPlayer()) ?? defender_armies.FirstOrDefault(a => a.IsPlayer());
+            bool isPlayerAttacker = playerArmy != null && attacker_armies.Contains(playerArmy);
+
+            if (winner == "attacker")
+            {
+                report.BattleResult = isPlayerAttacker ? "Victory" : "Defeat";
+            }
+            else // defender wins or draw
+            {
+                report.BattleResult = !isPlayerAttacker ? "Victory" : "Defeat";
+            }
+
+            report.AttackerSide = new SideReport { SideName = "Attackers" };
+            PopulateSideReport(report.AttackerSide, attacker_armies, deployedCounts);
+
+            report.DefenderSide = new SideReport { SideName = "Defenders" };
+            PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts);
+
+            if (BattleState.IsSiegeBattle)
+            {
+                // This information is not readily available. Using placeholders.
+                report.SiegeResult = "N/A";
+                report.WallDamage = "N/A";
+            }
+            else
+            {
+                report.SiegeResult = "N/A";
+                report.WallDamage = "N/A";
+            }
+
+            return report;
+        }
+
+        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<string, int> deployedCounts)
+        {
+            foreach (var army in armies)
+            {
+                if (army.Commander == null) continue;
+
+                var armyReport = new ArmyReport
+                {
+                    ArmyName = $"Army of {army.Commander.GetName()}",
+                    CommanderName = army.Commander.GetName()
+                };
+
+                if (army.Units != null)
+                {
+                    foreach (var unit in army.Units)
+                    {
+                        if (unit == null || string.IsNullOrEmpty(unit.ScriptID)) continue;
+
+                        int deployed = deployedCounts.TryGetValue(unit.ScriptID, out var count) ? count : 0;
+                        int remaining = unit.GetSoldiers();
+
+                        var unitReport = new UnitReport
+                        {
+                            AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
+                            Deployed = deployed,
+                            Remaining = remaining,
+                            Losses = Math.Max(0, deployed - remaining),
+                            Kills = 0, // Placeholder: Kill data is not available here.
+                            Ck3UnitType = unit.GetRegimentType().ToString(),
+                            AttilaUnitKey = unit.GetAttilaUnitKey(),
+                        };
+
+                        if (unit.GetRegimentType() == RegimentType.Commander)
+                        {
+                            var characterReport = new CharacterReport
+                            {
+                                Name = army.Commander.GetName(),
+                                Status = "Unknown", // Placeholder: Status data is not available here.
+                                Details = ""       // Placeholder
+                            };
+                            unitReport.Characters.Add(characterReport);
+                        }
+                        else if (unit.GetRegimentType() == RegimentType.Knight)
+                        {
+                            if (army.Knights != null)
+                            {
+                                foreach (var knight in army.Knights.GetKnightsList())
+                                {
+                                    var characterReport = new CharacterReport
+                                    {
+                                        Name = knight.GetName(),
+                                        Status = "Unknown", // Placeholder: Status data is not available here.
+                                        Details = ""       // Placeholder
+                                    };
+                                    unitReport.Characters.Add(characterReport);
+                                }
+                            }
+                        }
+
+                        armyReport.Units.Add(unitReport);
+                    }
+                }
+                sideReport.Armies.Add(armyReport);
             }
         }
     }
