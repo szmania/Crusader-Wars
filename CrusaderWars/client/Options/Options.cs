@@ -354,23 +354,23 @@ namespace CrusaderWars
             Program.Logger.Debug("Setting options UI data...");
             try
             {
-                var CloseCK3_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
-                var CloseAttila_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
-                var FullArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
-                var TimeLimit_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
-                var BattleMapsSize_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
-                var DefensiveDeployables_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
-                var UnitCards_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
-                var SeparateArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
-                var SiegeEnginesInFieldBattles_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
+                var CloseCK3_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
+                var CloseAttila_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
+                var FullArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
+                var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
+                var BattleMapsSize_ComboBox = General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
+                var DefensiveDeployables_ComboBox = General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
+                var UnitCards_ComboBox = General_Tab.Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
+                var SeparateArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
+                var SiegeEnginesInFieldBattles_ComboBox = General_Tab.Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
 
-                var LeviesMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
-                var RangedMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
-                var InfantryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
-                var CavalryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
+                var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
+                var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
+                var InfantryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
+                var CavalryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
 
-                var BattleScale_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
-                var AutoScaleUnits_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
+                var BattleScale_ComboBox = Units_Tab.Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
+                var AutoScaleUnits_ComboBox = Units_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
                 // Commander NumericUpDowns
                 var numCommanderWounded = CandK_Tab.numCommanderWounded;
@@ -552,7 +552,7 @@ namespace CrusaderWars
                 var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
                 var BattleMapsSize_ComboBox = General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
                 var DefensiveDeployables_ComboBox = General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
-                var UnitCards_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
+                var UnitCards_ComboBox = General_Tab.Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
                 var SeparateArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
                 var SiegeEnginesInFieldBattles_ComboBox = General_Tab.Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
 
