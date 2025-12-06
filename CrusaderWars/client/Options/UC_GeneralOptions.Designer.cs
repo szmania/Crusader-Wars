@@ -49,6 +49,8 @@ namespace CrusaderWars.client
             this.OptionSelection_UnitCards = new System.Windows.Forms.ComboBox();
             this.label_SiegeEngines = new System.Windows.Forms.Label();
             this.OptionSelection_SiegeEngines = new System.Windows.Forms.ComboBox();
+            this.label_ShowPostBattleReport = new System.Windows.Forms.Label();
+            this.OptionSelection_ShowPostBattleReport = new System.Windows.Forms.ComboBox();
             this.General_ToopTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -78,6 +80,8 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 8);
             this.tableLayoutPanel1.Controls.Add(this.label_SiegeEngines, 0, 7);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SiegeEngines, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label_ShowPostBattleReport, 0, 9);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_ShowPostBattleReport, 1, 9);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -369,6 +373,36 @@ namespace CrusaderWars.client
         "\nDisabled: Siege engines will be excluded from field battles. This does not aff" +
         "ect sieges.");
             // 
+            // label_ShowPostBattleReport
+            // 
+            this.label_ShowPostBattleReport.AutoSize = true;
+            this.label_ShowPostBattleReport.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_ShowPostBattleReport.ForeColor = System.Drawing.Color.White;
+            this.label_ShowPostBattleReport.Location = new System.Drawing.Point(3, 288);
+            this.label_ShowPostBattleReport.Name = "label_ShowPostBattleReport";
+            this.label_ShowPostBattleReport.Size = new System.Drawing.Size(208, 19);
+            this.label_ShowPostBattleReport.TabIndex = 18;
+            this.label_ShowPostBattleReport.Text = "Show Post-Battle Report:";
+            // 
+            // OptionSelection_ShowPostBattleReport
+            // 
+            this.OptionSelection_ShowPostBattleReport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.OptionSelection_ShowPostBattleReport.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_ShowPostBattleReport.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OptionSelection_ShowPostBattleReport.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_ShowPostBattleReport.FormattingEnabled = true;
+            this.OptionSelection_ShowPostBattleReport.Items.AddRange(new object[] {
+            "Enabled",
+            "Disabled"});
+            this.OptionSelection_ShowPostBattleReport.Location = new System.Drawing.Point(360, 291);
+            this.OptionSelection_ShowPostBattleReport.Name = "OptionSelection_ShowPostBattleReport";
+            this.OptionSelection_ShowPostBattleReport.Size = new System.Drawing.Size(181, 26);
+            this.OptionSelection_ShowPostBattleReport.TabIndex = 19;
+            this.General_ToopTip.SetToolTip(this.OptionSelection_ShowPostBattleReport, "Enabled: Shows a detailed report screen after each battle.\r\nDisabled: Skips the r" +
+        "eport screen and returns directly to CK3.");
+            // 
             // General_ToopTip
             // 
             this.General_ToopTip.AutoPopDelay = 1000000;
@@ -414,5 +448,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.ComboBox OptionSelection_CloseCK3;
         private System.Windows.Forms.Label label_SiegeEngines;
         private System.Windows.Forms.ComboBox OptionSelection_SiegeEngines;
+        private System.Windows.Forms.Label label_ShowPostBattleReport;
+        private System.Windows.Forms.ComboBox OptionSelection_ShowPostBattleReport;
     }
 }
