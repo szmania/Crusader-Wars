@@ -80,15 +80,13 @@ namespace CrusaderWars.client
                 var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName})");
                 foreach (var unit in army.Units.OrderByDescending(u => u.Ck3UnitType == "Commander").ThenByDescending(u => u.Ck3UnitType == "Knight"))
                 {
-                    string unitText = String.Format("{0,-47} | {1,8} | {2,6} | {3,9} | {4,5}", unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
+                    string unitText = String.Format("{0,-47} | {1,8} | {2,6} | {3,9} | {4,5}", 
+                        unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
                     var unitNode = new TreeNode(unitText);
                     unitNode.Tag = unit; // Store the full unit report object
                     
-                    // Add dummy node to make it expandable
-                    if(!string.IsNullOrEmpty(unit.Ck3UnitType) || unit.Characters.Any())
-                    {
-                        unitNode.Nodes.Add(new TreeNode("..."));
-                    }
+                    // Always add dummy node to make ALL units expandable for detailed information
+                    unitNode.Nodes.Add(new TreeNode("..."));
 
                     armyNode.Nodes.Add(unitNode);
                 }
@@ -108,10 +106,22 @@ namespace CrusaderWars.client
                 {
                     node.Nodes.Clear(); // Remove dummy node
 
-                    if (!string.IsNullOrEmpty(unitReport.Ck3UnitType))
+                    // Always show basic unit information
+                    node.Nodes.Add(new TreeNode($"CK3 Unit Type: {unitReport.Ck3UnitType ?? "N/A"}") { ForeColor = Color.Cyan });
+                    node.Nodes.Add(new TreeNode($"Attila Unit Key: {unitReport.AttilaUnitKey ?? "N/A"}") { ForeColor = Color.Cyan });
+                    node.Nodes.Add(new TreeNode($"Deployed: {unitReport.Deployed}") { ForeColor = Color.LightGray });
+                    node.Nodes.Add(new TreeNode($"Losses: {unitReport.Losses}") { ForeColor = Color.LightCoral });
+                    node.Nodes.Add(new TreeNode($"Remaining: {unitReport.Remaining}") { ForeColor = Color.LightGreen });
+                    node.Nodes.Add(new TreeNode($"Kills: {unitReport.Kills}") { ForeColor = Color.Gold });
+
+                    // Add conversion information
+                    if (unitReport.Ck3UnitType == "Levy")
                     {
-                        node.Nodes.Add(new TreeNode($"CK3 Unit Type: {unitReport.Ck3UnitType}") { ForeColor = Color.Cyan });
-                        node.Nodes.Add(new TreeNode($"Attila Unit Key: {unitReport.AttilaUnitKey}") { ForeColor = Color.Cyan });
+                        node.Nodes.Add(new TreeNode("Note: This unit represents combined levies from CK3") { ForeColor = Color.LightBlue });
+                    }
+                    else if (unitReport.Ck3UnitType == "Knight")
+                    {
+                        node.Nodes.Add(new TreeNode("Note: This unit represents combined knights from CK3") { ForeColor = Color.LightBlue });
                     }
 
                     if (unitReport.Characters.Any())
@@ -124,16 +134,22 @@ namespace CrusaderWars.client
                             if(character.Status != "Unharmed")
                             {
                                 charNode.ForeColor = Color.LightCoral;
-                                charNode.Nodes.Add(new TreeNode(character.Details) { ForeColor = Color.Tomato });
+                                charNode.Nodes.Add(new TreeNode($"Details: {character.Details}") { ForeColor = Color.Tomato });
+                            }
+                            else
+                            {
+                                charNode.ForeColor = Color.LightGreen;
                             }
                             charactersNode.Nodes.Add(charNode);
                         }
                         node.Nodes.Add(charactersNode);
-                        charactersNode.ExpandAll();
                     }
                 }
-
-                node.Toggle();
+                else if (node.Nodes.Count > 0)
+                {
+                    // If already populated, just toggle expansion
+                    node.Toggle();
+                }
             }
         }
 
