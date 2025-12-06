@@ -19,7 +19,7 @@ namespace CrusaderWars.client
         {
             InitializeComponent();
             _report = report;
-            this.Icon = Properties.Resources.logo;
+            this.Icon = Properties.Resources.crusader_conflicts_logo;
         }
 
         private void PostBattleReportForm_Load(object sender, EventArgs e)

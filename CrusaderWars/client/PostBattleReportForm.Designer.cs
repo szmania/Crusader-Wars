@@ -138,7 +138,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.pictureBox1);
             // Use the logo from Properties.Resources directly instead of trying to get it from resources object
-            this.Icon = Properties.Resources.logo;
+            this.Icon = Properties.Resources.crusader_conflicts_logo;
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "PostBattleReportForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
