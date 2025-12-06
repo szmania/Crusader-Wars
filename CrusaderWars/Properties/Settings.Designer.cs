@@ -12,7 +12,7 @@ namespace CrusaderWars.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.9.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.8.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -26,24 +26,24 @@ namespace CrusaderWars.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string VAR_ck3_path {
+        public string VAR_path_ck3 {
             get {
-                return ((string)(this["VAR_ck3_path"]));
+                return ((string)(this["VAR_path_ck3"]));
             }
             set {
-                this["VAR_ck3_path"] = value;
+                this["VAR_path_ck3"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string VAR_attila_path {
+        public string VAR_path_attila {
             get {
-                return ((string)(this["VAR_attila_path"]));
+                return ((string)(this["VAR_path_attila"]));
             }
             set {
-                this["VAR_attila_path"] = value;
+                this["VAR_path_attila"] = value;
             }
         }
         
@@ -61,37 +61,97 @@ namespace CrusaderWars.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string VAR_dir_save {
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool VAR_attila_close {
             get {
-                return ((string)(this["VAR_dir_save"]));
+                return ((bool)(this["VAR_attila_close"]));
             }
             set {
-                this["VAR_dir_save"] = value;
+                this["VAR_attila_close"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string VAR_log_ck3 {
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool VAR_ck3_close {
             get {
-                return ((string)(this["VAR_log_ck3"]));
+                return ((bool)(this["VAR_ck3_close"]));
             }
             set {
-                this["VAR_log_ck3"] = value;
+                this["VAR_ck3_close"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.0.0")]
-        public string LastNotifiedVersion {
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int BattleScale {
             get {
-                return ((string)(this["LastNotifiedVersion"]));
+                return ((int)(this["BattleScale"]));
             }
             set {
-                this["LastNotifiedVersion"] = value;
+                this["BattleScale"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Enabled")]
+        public string SiegeEnginesInFieldBattles {
+            get {
+                return ((string)(this["SiegeEnginesInFieldBattles"]));
+            }
+            set {
+                this["SiegeEnginesInFieldBattles"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Dynamic")]
+        public string DeploymentsZones {
+            get {
+                return ((string)(this["DeploymentsZones"]));
+            }
+            set {
+                this["DeploymentsZones"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Player Only")]
+        public string ArmiesControl {
+            get {
+                return ((string)(this["ArmiesControl"]));
+            }
+            set {
+                this["ArmiesControl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Enabled")]
+        public string CombineKnights {
+            get {
+                return ((string)(this["CombineKnights"]));
+            }
+            set {
+                this["CombineKnights"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Enabled")]
+        public string ShowPostBattleReport {
+            get {
+                return ((string)(this["ShowPostBattleReport"]));
+            }
+            set {
+                this["ShowPostBattleReport"] = value;
             }
         }
     }
