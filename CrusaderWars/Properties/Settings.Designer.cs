@@ -26,24 +26,24 @@ namespace CrusaderWars.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string VAR_path_ck3 {
+        public string VAR_ck3_path {
             get {
-                return ((string)(this["VAR_path_ck3"]));
+                return ((string)(this["VAR_ck3_path"]));
             }
             set {
-                this["VAR_path_ck3"] = value;
+                this["VAR_ck3_path"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string VAR_path_attila {
+        public string VAR_attila_path {
             get {
-                return ((string)(this["VAR_path_attila"]));
+                return ((string)(this["VAR_attila_path"]));
             }
             set {
-                this["VAR_path_attila"] = value;
+                this["VAR_attila_path"] = value;
             }
         }
         
