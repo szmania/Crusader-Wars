@@ -2273,6 +2273,9 @@ namespace CrusaderWars.twbattle
                             Kills = unitKills.TryGetValue(unit, out var kills) ? kills : 0,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
+                            Ck3Heritage = unit.GetHeritage(),
+                            Ck3Culture = unit.GetCulture(),
+                            AttilaFaction = unit.GetAttilaFaction(),
                         };
 
                         if (unit.GetRegimentType() == RegimentType.Commander)
