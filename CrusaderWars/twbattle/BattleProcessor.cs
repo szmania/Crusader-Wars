@@ -935,7 +935,7 @@ namespace CrusaderWars.twbattle
                     string path_log_attila = Properties.Settings.Default.VAR_log_attila;
 
                     // --- START: Capture pre-battle state for report ---
-                    Dictionary<string, int> deployedCounts = new Dictionary<string, int>();
+                    Dictionary<Unit, int> deployedCounts = new Dictionary<Unit, int>();
                     if (ModOptions.ShowPostBattleReportEnabled())
                     {
                         foreach (var army in attacker_armies.Concat(defender_armies))
@@ -943,9 +943,9 @@ namespace CrusaderWars.twbattle
                             if (army.Units == null) continue;
                             foreach (var unit in army.Units)
                             {
-                                if (unit != null && !string.IsNullOrEmpty(unit.ScriptID))
+                                if (unit != null)
                                 {
-                                    deployedCounts[unit.ScriptID] = unit.GetSoldiers();
+                                    deployedCounts[unit] = unit.GetSoldiers();
                                 }
                             }
                         }
@@ -2150,7 +2150,7 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner, Dictionary<string, int> deployedCounts)
+        private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner, Dictionary<Unit, int> deployedCounts)
         {
             var report = new BattleReport();
 
@@ -2187,7 +2187,7 @@ namespace CrusaderWars.twbattle
             return report;
         }
 
-        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<string, int> deployedCounts)
+        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts)
         {
             foreach (var army in armies)
             {
@@ -2195,17 +2195,17 @@ namespace CrusaderWars.twbattle
 
                 var armyReport = new ArmyReport
                 {
-                    ArmyName = $"Army of {army.Commander.GetName()}",
-                    CommanderName = army.Commander.GetName()
+                    ArmyName = $"Army of {army.Commander.Name}",
+                    CommanderName = army.Commander.Name
                 };
 
                 if (army.Units != null)
                 {
                     foreach (var unit in army.Units)
                     {
-                        if (unit == null || string.IsNullOrEmpty(unit.ScriptID)) continue;
+                        if (unit == null) continue;
 
-                        int deployed = deployedCounts.TryGetValue(unit.ScriptID, out var count) ? count : 0;
+                        int deployed = deployedCounts.TryGetValue(unit, out var count) ? count : 0;
                         int remaining = unit.GetSoldiers();
 
                         var unitReport = new UnitReport
@@ -2223,7 +2223,7 @@ namespace CrusaderWars.twbattle
                         {
                             var characterReport = new CharacterReport
                             {
-                                Name = army.Commander.GetName(),
+                                Name = army.Commander.Name,
                                 Status = "Unknown", // Placeholder: Status data is not available here.
                                 Details = ""       // Placeholder
                             };
