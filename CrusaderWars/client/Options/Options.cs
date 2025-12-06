@@ -354,23 +354,25 @@ namespace CrusaderWars
             Program.Logger.Debug("Setting options UI data...");
             try
             {
-                var CloseCK3_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
-                var CloseAttila_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
-                var FullArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
-                var TimeLimit_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
-                var BattleMapsSize_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
-                var DefensiveDeployables_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
-                var UnitCards_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
-                var SeparateArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
-                var SiegeEnginesInFieldBattles_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
+                var generalOptions = General_Tab as UC_GeneralOptions;
 
-                var LeviesMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
-                var RangedMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
-                var InfantryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
-                var CavalryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
+                var CloseCK3_ComboBox = generalOptions?.OptionSelection_CloseCK3;
+                var CloseAttila_ComboBox = generalOptions?.OptionSelection_CloseAttila;
+                var FullArmies_ComboBox = generalOptions?.OptionSelection_FullArmies;
+                var TimeLimit_ComboBox = generalOptions?.OptionSelection_TimeLimit;
+                var BattleMapsSize_ComboBox = generalOptions?.OptionSelection_BattleMapsSize;
+                var DefensiveDeployables_ComboBox = generalOptions?.OptionSelection_DefensiveDeployables;
+                var UnitCards_ComboBox = generalOptions?.OptionSelection_UnitCards;
+                var SeparateArmies_ComboBox = generalOptions?.OptionSelection_SeparateArmies;
+                var SiegeEnginesInFieldBattles_ComboBox = generalOptions?.OptionSelection_SiegeEngines;
 
-                var BattleScale_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
-                var AutoScaleUnits_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
+                var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
+                var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
+                var InfantryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
+                var CavalryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
+
+                var BattleScale_ComboBox = Units_Tab.Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;
+                var AutoScaleUnits_ComboBox = Units_Tab.Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
 
                 // Commander NumericUpDowns
                 var numCommanderWounded = CandK_Tab.numCommanderWounded;
@@ -395,23 +397,23 @@ namespace CrusaderWars
                 var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
 
-                CloseCK3_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseCK3"];
-                CloseAttila_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseAttila"];
-                FullArmies_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["FullArmies"];
-                TimeLimit_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["TimeLimit"];
-                BattleMapsSize_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleMapsSize"];
-                DefensiveDeployables_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["DefensiveDeployables"];
-                UnitCards_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["UnitCards"];
-                SeparateArmies_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["SeparateArmies"];
-                SiegeEnginesInFieldBattles_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"];
+                if (CloseCK3_ComboBox != null) CloseCK3_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["CloseCK3"];
+                if (CloseAttila_ComboBox != null) CloseAttila_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["CloseAttila"];
+                if (FullArmies_ComboBox != null) FullArmies_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["FullArmies"];
+                if (TimeLimit_ComboBox != null) TimeLimit_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["TimeLimit"];
+                if (BattleMapsSize_ComboBox != null) BattleMapsSize_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["BattleMapsSize"];
+                if (DefensiveDeployables_ComboBox != null) DefensiveDeployables_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["DefensiveDeployables"];
+                if (UnitCards_ComboBox != null) UnitCards_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["UnitCards"];
+                if (SeparateArmies_ComboBox != null) SeparateArmies_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["SeparateArmies"];
+                if (SiegeEnginesInFieldBattles_ComboBox != null) SiegeEnginesInFieldBattles_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"];
 
-                LeviesMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
-                RangedMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
-                InfantryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
-                CavalryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
+                if (LeviesMax_ComboBox != null) LeviesMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
+                if (RangedMax_ComboBox != null) RangedMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
+                if (InfantryMax_ComboBox != null) InfantryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
+                if (CavalryMax_ComboBox != null) CavalryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
 
-                BattleScale_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
-                AutoScaleUnits_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
+                if (BattleScale_ComboBox != null) BattleScale_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
+                if (AutoScaleUnits_ComboBox != null) AutoScaleUnits_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
 
                 // Temporarily disable event handlers in CandK_Tab to prevent validation logic from firing
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptionsForEvents)
@@ -546,15 +548,17 @@ namespace CrusaderWars
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
-                var CloseCK3_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
-                var CloseAttila_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
-                var FullArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
-                var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
-                var BattleMapsSize_ComboBox = General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
-                var DefensiveDeployables_ComboBox = General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
-                var UnitCards_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
-                var SeparateArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
-                var SiegeEnginesInFieldBattles_ComboBox = General_Tab.Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
+                var generalOptions = General_Tab as UC_GeneralOptions;
+
+                var CloseCK3_ComboBox = generalOptions?.OptionSelection_CloseCK3;
+                var CloseAttila_ComboBox = generalOptions?.OptionSelection_CloseAttila;
+                var FullArmies_ComboBox = generalOptions?.OptionSelection_FullArmies;
+                var TimeLimit_ComboBox = generalOptions?.OptionSelection_TimeLimit;
+                var BattleMapsSize_ComboBox = generalOptions?.OptionSelection_BattleMapsSize;
+                var DefensiveDeployables_ComboBox = generalOptions?.OptionSelection_DefensiveDeployables;
+                var UnitCards_ComboBox = generalOptions?.OptionSelection_UnitCards;
+                var SeparateArmies_ComboBox = generalOptions?.OptionSelection_SeparateArmies;
+                var SiegeEnginesInFieldBattles_ComboBox = generalOptions?.OptionSelection_SiegeEngines;
 
                 var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
                 var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
