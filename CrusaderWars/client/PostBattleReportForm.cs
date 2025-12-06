@@ -114,6 +114,20 @@ namespace CrusaderWars.client
                     node.Nodes.Add(new TreeNode($"Remaining: {unitReport.Remaining}") { ForeColor = Color.LightGreen });
                     node.Nodes.Add(new TreeNode($"Kills: {unitReport.Kills}") { ForeColor = Color.Gold });
 
+                    // Add CK3 heritage, culture, and Attila faction information if available
+                    if (!string.IsNullOrEmpty(unitReport.Ck3Heritage))
+                    {
+                        node.Nodes.Add(new TreeNode($"CK3 Heritage: {unitReport.Ck3Heritage}") { ForeColor = Color.LightSteelBlue });
+                    }
+                    if (!string.IsNullOrEmpty(unitReport.Ck3Culture))
+                    {
+                        node.Nodes.Add(new TreeNode($"CK3 Culture: {unitReport.Ck3Culture}") { ForeColor = Color.LightSteelBlue });
+                    }
+                    if (!string.IsNullOrEmpty(unitReport.AttilaFaction))
+                    {
+                        node.Nodes.Add(new TreeNode($"Attila Faction: {unitReport.AttilaFaction}") { ForeColor = Color.LightSteelBlue });
+                    }
+
                     // Add conversion information
                     if (unitReport.Ck3UnitType == "Levy")
                     {
