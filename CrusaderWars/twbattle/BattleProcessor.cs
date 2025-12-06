@@ -2166,11 +2166,63 @@ namespace CrusaderWars.twbattle
                 report.BattleResult = !isPlayerAttacker ? "Victory" : "Defeat";
             }
 
+            // --- Calculate Kills ---
+            var unitKills = new Dictionary<Unit, int>();
+            foreach (var army in attacker_armies.Concat(defender_armies))
+            {
+                if (army.Units == null || army.UnitsResults == null) continue;
+
+                var groupedUnits = army.Units.Where(u => u != null).GroupBy(u => new {
+                    Type = army.IsGarrison() ? u.GetAttilaUnitKey() : (u.GetRegimentType() == RegimentType.Levy ? "Levy" : u.GetName()),
+                    CultureID = u.GetObjCulture()?.ID
+                });
+
+                foreach (var group in groupedUnits)
+                {
+                    if (string.IsNullOrEmpty(group.Key.Type)) continue;
+
+                    int groupMainKills = army.UnitsResults.Kills_MainPhase?
+                        .Where(k => k.Type == group.Key.Type && k.CultureID == group.Key.CultureID)
+                        .Sum(k => int.TryParse(k.Kills, out int val) ? val : 0) ?? 0;
+
+                    int groupPursuitKills = army.UnitsResults.Kills_PursuitPhase?
+                        .Where(k => k.Type == group.Key.Type && k.CultureID == group.Key.CultureID)
+                        .Sum(k => int.TryParse(k.Kills, out int val) ? val : 0) ?? 0;
+
+                    int totalGroupKills = groupMainKills + groupPursuitKills;
+
+                    double totalDeployedInGroup = group.Sum(u => deployedCounts.TryGetValue(u, out var c) ? c : 0);
+
+                    if (totalDeployedInGroup > 0)
+                    {
+                        foreach (var unit in group)
+                        {
+                            double deployedForThisUnit = deployedCounts.TryGetValue(unit, out var c) ? c : 0;
+                            int kills = 0;
+                            if (deployedForThisUnit > 0)
+                            {
+                                kills = (int)Math.Round(totalGroupKills * (deployedForThisUnit / totalDeployedInGroup));
+                            }
+                            unitKills[unit] = kills;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var unit in group)
+                        {
+                            unitKills[unit] = 0;
+                        }
+                    }
+                }
+            }
+            // --- End Calculate Kills ---
+
+
             report.AttackerSide = new SideReport { SideName = "Attackers" };
-            PopulateSideReport(report.AttackerSide, attacker_armies, deployedCounts);
+            PopulateSideReport(report.AttackerSide, attacker_armies, deployedCounts, unitKills);
 
             report.DefenderSide = new SideReport { SideName = "Defenders" };
-            PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts);
+            PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts, unitKills);
 
             if (BattleState.IsSiegeBattle)
             {
@@ -2191,7 +2243,7 @@ namespace CrusaderWars.twbattle
             return report;
         }
 
-        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts)
+        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts, Dictionary<Unit, int> unitKills)
         {
             foreach (var army in armies)
             {
@@ -2218,7 +2270,7 @@ namespace CrusaderWars.twbattle
                             Deployed = deployed,
                             Remaining = remaining,
                             Losses = Math.Max(0, deployed - remaining),
-                            Kills = unit.Kills,
+                            Kills = unitKills.TryGetValue(unit, out var kills) ? kills : 0,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
                         };

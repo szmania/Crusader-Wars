@@ -2362,6 +2362,76 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug("Finished editing Sieges file: Siege block removed.");
         }
 
+        public static (string outcome, string wall_damage) GetSiegeOutcome(string path_attila_log, string left_side_combat_side, string right_side_combat_side)
+        {
+            Program.Logger.Debug($"Entering GetSiegeOutcome for log file: {path_attila_log}");
+            string outcome = "Successfully Defended"; // Default for defender
+            string wall_damage = "No Damage";
+
+            try
+            {
+                if (!File.Exists(path_attila_log))
+                {
+                    Program.Logger.Debug($"Attila log file not found at: {path_attila_log}. Returning default siege outcome.");
+                    return (outcome, wall_damage);
+                }
+
+                string logContent;
+                using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader reader = new StreamReader(logFile))
+                {
+                    logContent = reader.ReadToEnd();
+                }
+
+                logContent = logContent.Replace("\r\n", "\n");
+
+                const string battleReportHeader =
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------\n" +
+                    "--\n" +
+                    "--\t                    CRUSADER CONFLICTS               \n" +
+                    "--\n" +
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------";
+                string normalizedHeader = battleReportHeader.Replace("\r\n", "\n");
+
+                string relevantLogSection;
+                int lastHeaderIndex = logContent.LastIndexOf(normalizedHeader);
+
+                if (lastHeaderIndex != -1)
+                {
+                    relevantLogSection = logContent.Substring(lastHeaderIndex);
+                }
+                else
+                {
+                    relevantLogSection = logContent;
+                }
+
+                // Determine outcome - Attacker victory means settlement captured
+                if (relevantLogSection.Contains("Victory"))
+                {
+                    outcome = "Settlement Captured";
+                }
+
+                // Determine wall damage
+                if (relevantLogSection.Contains("wall has been breached"))
+                {
+                    wall_damage = "Breached";
+                }
+                else if (relevantLogSection.Contains("wall is damaged"))
+                {
+                    wall_damage = "Damaged";
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error determining siege outcome: {ex.Message}. Returning default values.");
+            }
+
+            Program.Logger.Debug($"Determined Siege Outcome: {outcome}, Wall Damage: {wall_damage}");
+            return (outcome, wall_damage);
+        }
+
 
         public static bool HasBattleEnded(string path_attila_log)
         {
