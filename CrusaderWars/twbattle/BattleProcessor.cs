@@ -2299,7 +2299,28 @@ namespace CrusaderWars.twbattle
 
         private static CharacterReport GetCharacterReport(dynamic character)
         {
-            var report = new CharacterReport { Name = character.GetName(), Status = "Unharmed", Details = "Survived the battle without any negative effects." };
+            string characterName;
+            
+            // Handle different character types
+            try
+            {
+                // Try to access as CommanderSystem (has Name property)
+                characterName = character.Name;
+            }
+            catch
+            {
+                try
+                {
+                    // Try to access as Knight (has GetName() method)
+                    characterName = character.GetName();
+                }
+                catch
+                {
+                    characterName = "Unknown Character";
+                }
+            }
+            
+            var report = new CharacterReport { Name = characterName, Status = "Unharmed", Details = "Survived the battle without any negative effects." };
 
             if (character.IsPrisoner) { 
                 report.Status = "Captured"; 
