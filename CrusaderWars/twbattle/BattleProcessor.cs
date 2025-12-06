@@ -31,7 +31,7 @@ namespace CrusaderWars.twbattle
             public List<string> ProblematicUnitKeys { get; set; }  = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
-            public string LastAppliedFixDescription { get; set; } = "";
+            public string LastAppliedFixDescription { get; set; = "";
             public int MapVariantOffset { get; set; }  = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
             public string OriginalMapDescription { get; set; } = "";
@@ -1098,7 +1098,7 @@ namespace CrusaderWars.twbattle
                         string combatResultsDestPath = CrusaderWars.data.save_file.Writter.DataTEMPFilesPaths.CombatResults_Path();
                         if (File.Exists(combatResultsSourcePath))
                         {
-                            File.Copy(combatResultsSourcePath, combatResultsDestPath, true);
+                            File.Copy(combatsSourcePath, combatResultsDestPath, true);
                             Program.Logger.Debug("Copied original CombatResults.txt to temp folder.");
                         }
                     }
@@ -2166,6 +2166,15 @@ namespace CrusaderWars.twbattle
                 report.BattleResult = !isPlayerAttacker ? "Victory" : "Defeat";
             }
 
+            // Populate new battle details
+            report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle";
+            report.BattleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
+            report.LocationDetails = TerrainGenerator.TerrainType ?? "Unknown Terrain";
+            report.TimeOfDay = "Day"; // Currently hardcoded in BattleFile.SetBattleDescription
+            report.Season = Date.GetSeason();
+            report.Weather = Weather.GetWeather();
+
+
             // --- Calculate Kills ---
             var unitKills = new Dictionary<Unit, int>();
             foreach (var army in attacker_armies.Concat(defender_armies))
@@ -2245,6 +2254,11 @@ namespace CrusaderWars.twbattle
 
         private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts, Dictionary<Unit, int> unitKills)
         {
+            int sideTotalDeployed = 0;
+            int sideTotalLosses = 0;
+            int sideTotalRemaining = 0;
+            int sideTotalKills = 0;
+
             foreach (var army in armies)
             {
                 if (army.Commander == null) continue;
@@ -2255,6 +2269,11 @@ namespace CrusaderWars.twbattle
                     CommanderName = army.Commander.Name
                 };
 
+                int armyTotalDeployed = 0;
+                int armyTotalLosses = 0;
+                int armyTotalRemaining = 0;
+                int armyTotalKills = 0;
+
                 if (army.Units != null)
                 {
                     foreach (var unit in army.Units)
@@ -2263,14 +2282,16 @@ namespace CrusaderWars.twbattle
 
                         int deployed = deployedCounts.TryGetValue(unit, out var count) ? count : 0;
                         int remaining = unit.GetSoldiers();
+                        int losses = Math.Max(0, deployed - remaining);
+                        int kills = unitKills.TryGetValue(unit, out var k) ? k : 0;
 
                         var unitReport = new UnitReport
                         {
                             AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
                             Deployed = deployed,
                             Remaining = remaining,
-                            Losses = Math.Max(0, deployed - remaining),
-                            Kills = unitKills.TryGetValue(unit, out var kills) ? kills : 0,
+                            Losses = losses,
+                            Kills = kills,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
                             Ck3Heritage = unit.GetHeritage(),
@@ -2294,10 +2315,31 @@ namespace CrusaderWars.twbattle
                         }
 
                         armyReport.Units.Add(unitReport);
+
+                        armyTotalDeployed += deployed;
+                        armyTotalLosses += losses;
+                        armyTotalRemaining += remaining;
+                        armyTotalKills += kills;
                     }
                 }
+
+                armyReport.TotalDeployed = armyTotalDeployed;
+                armyReport.TotalLosses = armyTotalLosses;
+                armyReport.TotalRemaining = armyTotalRemaining;
+                armyReport.TotalKills = armyTotalKills;
+
                 sideReport.Armies.Add(armyReport);
+
+                sideTotalDeployed += armyTotalDeployed;
+                sideTotalLosses += armyTotalLosses;
+                sideTotalRemaining += armyTotalRemaining;
+                sideTotalKills += armyTotalKills;
             }
+
+            sideReport.TotalDeployed = sideTotalDeployed;
+            sideReport.TotalLosses = sideTotalLosses;
+            sideReport.TotalRemaining = sideTotalRemaining;
+            sideReport.TotalKills = sideTotalKills;
         }
 
         private static CharacterReport GetCharacterReport(dynamic character)

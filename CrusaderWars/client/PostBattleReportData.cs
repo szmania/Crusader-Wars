@@ -13,12 +13,26 @@ namespace CrusaderWars.client
         public string BattleResult { get; set; } // "Victory", "Defeat"
         public string SiegeResult { get; set; } // "Settlement Captured", "Successfully Defended", "N/A"
         public string WallDamage { get; set; } // "No Damage", "Damaged", "Breached", "N/A"
+
+        // New Battle Details
+        public string BattleName { get; set; }
+        public string BattleDate { get; set; }
+        public string LocationDetails { get; set; }
+        public string TimeOfDay { get; set; }
+        public string Season { get; set; }
+        public string Weather { get; set; }
     }
 
     public class SideReport
     {
         public string SideName { get; set; } // "Attackers", "Defenders"
         public List<ArmyReport> Armies { get; set; } = new List<ArmyReport>();
+
+        // New Summary Stats for the Side
+        public int TotalDeployed { get; set; }
+        public int TotalLosses { get; set; }
+        public int TotalRemaining { get; set; }
+        public int TotalKills { get; set; }
     }
 
     public class ArmyReport
@@ -26,6 +40,12 @@ namespace CrusaderWars.client
         public string ArmyName { get; set; } // e.g., "Army of Duke Antso III"
         public string CommanderName { get; set; }
         public List<UnitReport> Units { get; set; } = new List<UnitReport>();
+
+        // New Summary Stats for the Army
+        public int TotalDeployed { get; set; }
+        public int TotalLosses { get; set; }
+        public int TotalRemaining { get; set; }
+        public int TotalKills { get; set; }
     }
 
     public class UnitReport

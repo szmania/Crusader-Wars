@@ -32,19 +32,28 @@ namespace CrusaderWars.client
             treeViewReport.BeginUpdate();
             treeViewReport.Nodes.Clear();
 
-            // Add Header
+            // Add Battle Header Details
+            lblBattleName.Text = $"Battle Name: {_report.BattleName}";
+            lblBattleDate.Text = $"Battle Date: {_report.BattleDate}";
+            lblLocationDetails.Text = $"Location Details: {_report.LocationDetails}";
+            lblTimeOfDay.Text = $"Time of Day: {_report.TimeOfDay}";
+            lblSeason.Text = $"Season: {_report.Season}";
+            lblWeather.Text = $"Weather: {_report.Weather}";
+
+
+            // Add Header for units
             var headerNode = new TreeNode("Unit                                            | Deployed | Losses | Remaining | Kills");
             headerNode.ForeColor = Color.LightGray;
             treeViewReport.Nodes.Add(headerNode);
 
             // Attacker Side
-            var attackerSideNode = new TreeNode(_report.AttackerSide.SideName);
+            var attackerSideNode = new TreeNode($"{_report.AttackerSide.SideName} (Deployed: {_report.AttackerSide.TotalDeployed}, Losses: {_report.AttackerSide.TotalLosses}, Remaining: {_report.AttackerSide.TotalRemaining}, Kills: {_report.AttackerSide.TotalKills})");
             attackerSideNode.ForeColor = Color.LightGreen;
             PopulateSide(attackerSideNode, _report.AttackerSide);
             treeViewReport.Nodes.Add(attackerSideNode);
 
             // Defender Side
-            var defenderSideNode = new TreeNode(_report.DefenderSide.SideName);
+            var defenderSideNode = new TreeNode($"{_report.DefenderSide.SideName} (Deployed: {_report.DefenderSide.TotalDeployed}, Losses: {_report.DefenderSide.TotalLosses}, Remaining: {_report.DefenderSide.TotalRemaining}, Kills: {_report.DefenderSide.TotalKills})");
             defenderSideNode.ForeColor = Color.OrangeRed;
             PopulateSide(defenderSideNode, _report.DefenderSide);
             treeViewReport.Nodes.Add(defenderSideNode);
@@ -77,7 +86,7 @@ namespace CrusaderWars.client
         {
             foreach (var army in sideReport.Armies)
             {
-                var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName})");
+                var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName}) (Deployed: {army.TotalDeployed}, Losses: {army.TotalLosses}, Remaining: {army.TotalRemaining}, Kills: {army.TotalKills})");
                 foreach (var unit in army.Units.OrderByDescending(u => u.Ck3UnitType == "Commander").ThenByDescending(u => u.Ck3UnitType == "Knight"))
                 {
                     string unitText = String.Format("{0,-47} | {1,8} | {2,6} | {3,9} | {4,5}", 
