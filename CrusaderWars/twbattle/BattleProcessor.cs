@@ -2313,7 +2313,7 @@ namespace CrusaderWars.twbattle
             }
 
             // Check for wound traits
-            var traits = (List<(int, string)>)character.GetTraits();
+            var traits = character.GetTraits();
             if (traits.Any(t => t.Item1 == WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
             else if (traits.Any(t => t.Item1 == WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
             else if (traits.Any(t => t.Item1 == WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
