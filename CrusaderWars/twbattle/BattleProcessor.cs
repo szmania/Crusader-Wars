@@ -19,6 +19,7 @@ using CrusaderWars.terrain;
 using CrusaderWars.unit_mapper;
 using static CrusaderWars.HomePage; // To access nested static classes like Games, ProcessCommands
 using System.Globalization; // Added for CultureInfo
+using System.Text.RegularExpressions; // Added for Regex
 
 namespace CrusaderWars.twbattle
 {
@@ -533,7 +534,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, "Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
                     form.infoLabel.Text = "Ready to start!";
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -569,7 +570,7 @@ namespace CrusaderWars.twbattle
             {
                         Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                         MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                        MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
                         await Games.CloseTotalWarAttilaProcess();
                         if (ModOptions.CloseCK3DuringBattle())
                         {
@@ -1116,7 +1117,7 @@ namespace CrusaderWars.twbattle
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
                         Program.Logger.Debug("Editing Sieges.txt file...");
-                        BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, attacker_armies, defender_armies);
+                        BattleResult.EditSiegesFile(path_attila_log, left_side_combat_side, right_side_combat_side, attacker_armies, defender_armies);
                     }
                     else
                     {
@@ -1257,7 +1258,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -1581,13 +1582,13 @@ namespace CrusaderWars.twbattle
             if (unitScreenNames is null)
             {
                 Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
-                MessageBox.Show(form, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(form, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
                 return (false, "");
             }
             if (allAvailableUnits is null)
             {
                 Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
-                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
                 return (false, "");
             }
 
@@ -2146,7 +2147,7 @@ namespace CrusaderWars.twbattle
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in TryDeploymentZoneEditorFix: {ex.Message}");
-                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, Icon.Error);
                 return (false, "");
             }
         }
@@ -2168,10 +2169,27 @@ namespace CrusaderWars.twbattle
             }
 
             // Populate new battle details
-            report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle"; // Use ProvinceName as BattleName
+            report.BattleName = BattleDetails.BattleName ?? "Unknown Battle"; // Use actual battle name
             report.BattleDate = $"{Date.Year}-{Date.Month:D2}-{Date.Day:D2}"; // YYYY-MM-DD format
             report.LocationDetails = CultureInfo.CurrentCulture.TextInfo.ToTitleCase((TerrainGenerator.TerrainType ?? "Unknown Terrain").Replace("_", " ")); // Title case and replace underscores
-            report.ProvinceName = BattleResult.ProvinceName ?? "Unknown Province";
+            report.ProvinceName = BattleResult.ProvinceName ?? "Unknown Province"; // Initial attempt from DataSearch
+
+            // If ProvinceName is still "Unknown Province" (meaning it wasn't found in DataSearch for field battles),
+            // try to extract it from the BattleName.
+            if (report.ProvinceName == "Unknown Province" && !string.IsNullOrEmpty(report.BattleName))
+            {
+                Match match = Regex.Match(report.BattleName, @"Battle of (the )?(?<ProvinceName>.+)");
+                if (match.Success)
+                {
+                    string extractedProvinceName = match.Groups["ProvinceName"].Value.Trim();
+                    if (!string.IsNullOrEmpty(extractedProvinceName))
+                    {
+                        report.ProvinceName = extractedProvinceName;
+                        Program.Logger.Debug($"Extracted ProvinceName '{report.ProvinceName}' from BattleName '{report.BattleName}'.");
+                    }
+                }
+            }
+
             report.TimeOfDay = "Day"; // Currently hardcoded in BattleFile.SetBattleDescription
             report.Season = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Date.GetSeason()); // Capitalize season
             report.Weather = Weather.GetWeather(); // Still generate, but not displayed in UI
