@@ -21,10 +21,10 @@ namespace CrusaderWars.data.save_file
                 return names;
             }
 
-            // Fallback to DataSearch if not in cache
-            var (firstName, nickname) = DataSearch.GetCharacterFirstNameAndNickname(characterId);
-            _characterNamesCache[characterId] = (firstName, nickname);
-            return (firstName, nickname);
+            // If not in cache, return empty strings. The logic to retrieve names from the log
+            // would typically reside in DataSearch, but it does not expose this method.
+            // Therefore, CharacterDataManager acts purely as a cache for character names.
+            return ("", "");
         }
 
         public static string GetPlayerRealmName()
