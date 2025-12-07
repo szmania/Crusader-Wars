@@ -13,7 +13,7 @@ namespace CrusaderWars.locs
     static class BattleDetails
     {
         // Line 15 - Initialize property
-        static string Name { get; set; } = string.Empty;
+        public static string? Name { get; private set; }
         
         public static void SetBattleName(string a)
         {

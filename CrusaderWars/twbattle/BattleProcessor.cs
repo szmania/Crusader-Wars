@@ -35,7 +35,7 @@ namespace CrusaderWars.twbattle
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; }  = "";
             public int MapVariantOffset { get; set; }  = 0;
-            public bool HasTriedSwitchingToGeneric { get; set; } = false;
+            public bool HasTriedSwitchingToGeneric { get; set; = false;
             public string OriginalMapDescription { get; set; } = "";
             public string OriginalFieldMapDescription { get; set; = "";
 
@@ -2169,7 +2169,7 @@ namespace CrusaderWars.twbattle
             }
 
             // Populate new battle details
-            report.BattleName = BattleDetails.BattleName ?? "Unknown Battle"; // Use actual battle name
+            report.BattleName = locs.BattleDetails.Name ?? "Unknown Battle"; // Use actual battle name
             report.BattleDate = $"{Date.Year}-{Date.Month:D2}-{Date.Day:D2}"; // YYYY-MM-DD format
             report.LocationDetails = CultureInfo.CurrentCulture.TextInfo.ToTitleCase((TerrainGenerator.TerrainType ?? "Unknown Terrain").Replace("_", " ")); // Title case and replace underscores
             report.ProvinceName = BattleResult.ProvinceName ?? "Unknown Province"; // Initial attempt from DataSearch
