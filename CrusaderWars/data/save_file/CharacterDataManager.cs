@@ -1,4 +1,4 @@
-using CrusaderWars.data.ck3_log;
+using CrusaderWars; // Changed from CrusaderWars.data.ck3_log
 using CrusaderWars.data.save_file;
 using System;
 using System.Collections.Generic;
@@ -91,4 +91,3 @@ namespace CrusaderWars.data.save_file
         }
     }
 }
-
