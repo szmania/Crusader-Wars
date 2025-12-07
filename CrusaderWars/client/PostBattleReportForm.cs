@@ -35,11 +35,11 @@ namespace CrusaderWars.client
             // Add Battle Header Details
             lblBattleName.Text = $"Battle Name: {_report.BattleName}";
             lblBattleDate.Text = $"Battle Date: {_report.BattleDate}";
-            lblLocationDetails.Text = $"Location Details: {_report.LocationDetails}";
+            lblLocationDetails.Text = $"Terrain: {_report.LocationDetails}";
+            lblProvinceName.Text = $"Province: {_report.ProvinceName}";
             lblTimeOfDay.Text = $"Time of Day: {_report.TimeOfDay}";
             lblSeason.Text = $"Season: {_report.Season}";
-            lblWeather.Text = $"Weather: {_report.Weather}";
-
+            // lblWeather.Text = $"Weather: {_report.Weather}"; // Removed weather display
 
             // Add Header for units
             var headerNode = new TreeNode("Unit                                            | Deployed | Losses | Remaining | Kills");

@@ -62,10 +62,8 @@ namespace CrusaderWars.locs
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), armiesCollection);
-                    break;
                 case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), armiesCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), armiesCollection);
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), armiesCollection);
@@ -262,9 +260,9 @@ namespace CrusaderWars.locs
                                                 originalName = originalName.Substring("Garrison ".Length);
                                             }
                                             newName = $"Garrison {originalName}{commanderNameSuffix}";
-                                            shouldReplace = true;
-                                        }
+                                        shouldReplace = true;
                                     }
+                                }
 
                                     if (shouldReplace)
                                     {
@@ -388,10 +386,8 @@ namespace CrusaderWars.locs
                     locFiles = GetLocFilesForPlaythrough("age of justinian");
                     break;
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                    locFiles = GetLocFilesForPlaythrough("fall of the eagles");
-                    break;
                 case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    locFiles = GetLocFilesForPlaythrough("fireforged empire");
+                    locFiles = GetLocFilesForPlaythrough("fall of the eagles");
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     locFiles = GetLocFilesForPlaythrough("dawnless days");

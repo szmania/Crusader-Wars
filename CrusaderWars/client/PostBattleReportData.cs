@@ -18,6 +18,7 @@ namespace CrusaderWars.client
         public string BattleName { get; set; }
         public string BattleDate { get; set; }
         public string LocationDetails { get; set; }
+        public string ProvinceName { get; set; }
         public string TimeOfDay { get; set; }
         public string Season { get; set; }
         public string Weather { get; set; }

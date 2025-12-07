@@ -18,6 +18,7 @@ using CrusaderWars.sieges;
 using CrusaderWars.terrain;
 using CrusaderWars.unit_mapper;
 using static CrusaderWars.HomePage; // To access nested static classes like Games, ProcessCommands
+using System.Globalization; // Added for CultureInfo
 
 namespace CrusaderWars.twbattle
 {
@@ -566,24 +567,24 @@ namespace CrusaderWars.twbattle
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
-                MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-                await Games.CloseTotalWarAttilaProcess();
-                if (ModOptions.CloseCK3DuringBattle())
-                {
-                    Games.StartCrusaderKingsProcess();
-                }
-                else
-                {
-                    ProcessCommands.ResumeProcess();
-                }
-                form.infoLabel.Text = "Waiting for CK3 battle...";
-                form.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
+                        Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
+                        MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                        await Games.CloseTotalWarAttilaProcess();
+                        if (ModOptions.CloseCK3DuringBattle())
+                        {
+                            Games.StartCrusaderKingsProcess();
+                        }
+                        else
+                        {
+                            ProcessCommands.ResumeProcess();
+                        }
+                        form.infoLabel.Text = "Waiting for CK3 battle...";
+                        form.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
-                //Data Clear
-                Data.Reset();
-                return true; // Continue
+                        //Data Clear
+                        Data.Reset();
+                        return true; // Continue
             }
 
 
@@ -2167,12 +2168,13 @@ namespace CrusaderWars.twbattle
             }
 
             // Populate new battle details
-            report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle";
-            report.BattleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
-            report.LocationDetails = TerrainGenerator.TerrainType ?? "Unknown Terrain";
+            report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle"; // Use ProvinceName as BattleName
+            report.BattleDate = $"{Date.Year}-{Date.Month:D2}-{Date.Day:D2}"; // YYYY-MM-DD format
+            report.LocationDetails = CultureInfo.CurrentCulture.TextInfo.ToTitleCase((TerrainGenerator.TerrainType ?? "Unknown Terrain").Replace("_", " ")); // Title case and replace underscores
+            report.ProvinceName = BattleResult.ProvinceName ?? "Unknown Province";
             report.TimeOfDay = "Day"; // Currently hardcoded in BattleFile.SetBattleDescription
-            report.Season = Date.GetSeason();
-            report.Weather = Weather.GetWeather();
+            report.Season = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Date.GetSeason()); // Capitalize season
+            report.Weather = Weather.GetWeather(); // Still generate, but not displayed in UI
 
 
             // --- Calculate Kills ---
@@ -2263,9 +2265,24 @@ namespace CrusaderWars.twbattle
             {
                 if (army.Commander == null) continue;
 
+                // Determine the correct army name based on BattleFile.AddArmyName logic
+                string armyDisplayName;
+                if (army.IsPlayer() && army.isMainArmy)
+                {
+                    armyDisplayName = CharacterDataManager.GetPlayerRealmName();
+                }
+                else if (army.IsEnemy() && army.isMainArmy)
+                {
+                    armyDisplayName = CharacterDataManager.GetEnemyRealmName();
+                }
+                else
+                {
+                    armyDisplayName = "Allied Army";
+                }
+
                 var armyReport = new ArmyReport
                 {
-                    ArmyName = army.IsGarrison() ? $"{army.Commander.Name}'s Garrison" : $"Army of {army.Commander.Name}",
+                    ArmyName = armyDisplayName,
                     CommanderName = army.Commander.Name
                 };
 

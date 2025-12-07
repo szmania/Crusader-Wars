@@ -42,6 +42,7 @@ namespace CrusaderWars.client
             this.lblTimeOfDay = new System.Windows.Forms.Label();
             this.lblSeason = new System.Windows.Forms.Label();
             this.lblWeather = new System.Windows.Forms.Label();
+            this.lblProvinceName = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -196,6 +197,18 @@ namespace CrusaderWars.client
             this.lblWeather.Size = new System.Drawing.Size(79, 18);
             this.lblWeather.TabIndex = 12;
             this.lblWeather.Text = "Weather: ";
+            this.lblWeather.Visible = false;
+            // 
+            // lblProvinceName
+            // 
+            this.lblProvinceName.AutoSize = true;
+            this.lblProvinceName.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblProvinceName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(212)))), ((int)(((byte)(164)))));
+            this.lblProvinceName.Location = new System.Drawing.Point(700, 55);
+            this.lblProvinceName.Name = "lblProvinceName";
+            this.lblProvinceName.Size = new System.Drawing.Size(123, 18);
+            this.lblProvinceName.TabIndex = 13;
+            this.lblProvinceName.Text = "Province Name:";
             // 
             // PostBattleReportForm
             // 
@@ -203,6 +216,7 @@ namespace CrusaderWars.client
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.ClientSize = new System.Drawing.Size(984, 634);
+            this.Controls.Add(this.lblProvinceName);
             this.Controls.Add(this.lblWeather);
             this.Controls.Add(this.lblSeason);
             this.Controls.Add(this.lblTimeOfDay);
@@ -244,5 +258,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Label lblTimeOfDay;
         private System.Windows.Forms.Label lblSeason;
         private System.Windows.Forms.Label lblWeather;
+        private System.Windows.Forms.Label lblProvinceName;
     }
 }
