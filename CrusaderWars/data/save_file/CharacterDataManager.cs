@@ -1,175 +1,94 @@
+using CrusaderWars.data.ck3_log;
+using CrusaderWars.data.save_file;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CrusaderWars.data.save_file
 {
     public static class CharacterDataManager
     {
-        private static Dictionary<string, string?> characterDynastyNameCache = new Dictionary<string, string?>();
+        private static Dictionary<string, (string firstName, string nickname)> _characterNamesCache = new Dictionary<string, (string, string)>();
+        private static string? _playerRealmNameCache;
+        private static string? _enemyRealmNameCache;
 
-        public static void ClearCache()
+        public static (string firstName, string nickname) GetCharacterFirstNameAndNickname(string characterId)
         {
-            characterDynastyNameCache.Clear();
-        }
-
-        public static string? GetCharacterDynastyName(string characterId)
-        {
-            if (string.IsNullOrEmpty(characterId)) return null;
-            if (characterDynastyNameCache.TryGetValue(characterId, out var cachedName))
+            if (_characterNamesCache.TryGetValue(characterId, out var names))
             {
-                return cachedName;
+                return names;
             }
 
-            string? dynastyId = GetDynastyIdForCharacter(characterId);
-            if (dynastyId == null)
-            {
-                characterDynastyNameCache[characterId] = null; // Cache failure
-                return null;
-            }
-
-            string? dynastyName = GetDynastyNameForId(dynastyId);
-            characterDynastyNameCache[characterId] = dynastyName;
-            return dynastyName;
-        }
-
-        public static (string? FirstName, string? Nickname) GetCharacterFirstNameAndNickname(string characterId)
-        {
-            if (string.IsNullOrEmpty(characterId)) return (null, null);
-
-            string? firstName = null;
-            string? nickname = null;
-            try
-            {
-                using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Living_Path()))
-                {
-                    string? line;
-                    bool inCharacterBlock = false;
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        if (!inCharacterBlock && line.Trim() == $"{characterId}={{")
-                        {
-                            inCharacterBlock = true;
-                            continue;
-                        }
-
-                        if (inCharacterBlock)
-                        {
-                            if (line.Trim().StartsWith("first_name="))
-                            {
-                                var match = Regex.Match(line, @"""(.+)""");
-                                if (match.Success)
-                                {
-                                    firstName = match.Groups[1].Value;
-                                }
-                            }
-                            else if (line.Trim().StartsWith("nickname_text="))
-                            {
-                                var match = Regex.Match(line, @"nickname_text=""(.+)""");
-                                if (match.Success && !string.IsNullOrWhiteSpace(match.Groups[1].Value) && match.Groups[1].Value != "\"\"")
-                                {
-                                    nickname = match.Groups[1].Value;
-                                }
-                            }
-
-                            if (firstName != null && nickname != null) break; // Optimization
-
-                            if (line.Trim() == "}")
-                            {
-                                break; // End of character block
-                            }
-                        }
-                    }
-                }
-            }
-            catch (IOException ex)
-            {
-                Program.Logger.Debug($"Error reading Living.txt for first name/nickname: {ex.Message}");
-            }
+            // Fallback to DataSearch if not in cache
+            var (firstName, nickname) = DataSearch.GetCharacterFirstNameAndNickname(characterId);
+            _characterNamesCache[characterId] = (firstName, nickname);
             return (firstName, nickname);
         }
 
-        private static string? GetDynastyIdForCharacter(string characterId)
+        public static string GetPlayerRealmName()
         {
-            try
+            if (_playerRealmNameCache != null)
             {
-                using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Living_Path()))
-                {
-                    string? line;
-                    bool inCharacterBlock = false;
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        if (!inCharacterBlock && line.Trim() == $"{characterId}={{")
-                        {
-                            inCharacterBlock = true;
-                            continue;
-                        }
+                return _playerRealmNameCache;
+            }
 
-                        if (inCharacterBlock)
-                        {
-                            if (line.Trim().StartsWith("dynasty_house="))
-                            {
-                                return Regex.Match(line, @"\d+").Value;
-                            }
-                            if (line.Trim() == "}")
-                            {
-                                return null; // End of character block
-                            }
-                        }
-                    }
-                }
-            }
-            catch (IOException ex)
+            string playerCharId = DataSearch.Player_Character.GetID();
+            string playerRealmName = "";
+
+            // Determine if player is on LeftSide or RightSide from CK3LogData
+            bool playerIsOnLeftSide = CK3LogData.LeftSide.GetMainParticipant().id == playerCharId ||
+                                      CK3LogData.LeftSide.GetCommander().id == playerCharId ||
+                                      CK3LogData.LeftSide.CheckIfHasKnight(playerCharId);
+
+            if (playerIsOnLeftSide)
             {
-                Program.Logger.Debug($"Error reading Living.txt: {ex.Message}");
+                playerRealmName = CK3LogData.LeftSide.GetRealmName();
             }
-            return null;
+            else
+            {
+                playerRealmName = CK3LogData.RightSide.GetRealmName();
+            }
+
+            _playerRealmNameCache = playerRealmName;
+            return playerRealmName;
         }
 
-        private static string? GetDynastyNameForId(string dynastyId)
+        public static string GetEnemyRealmName()
         {
-            try
+            if (_enemyRealmNameCache != null)
             {
-                using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Dynasties_Path()))
-                {
-                    string? line;
-                    bool inDynastyBlock = false;
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        if (!inDynastyBlock && line.Trim() == $"{dynastyId}={{")
-                        {
-                            inDynastyBlock = true;
-                            continue;
-                        }
+                return _enemyRealmNameCache;
+            }
 
-                        if (inDynastyBlock)
-                        {
-                            if (line.Trim().StartsWith("name="))
-                            {
-                                var match = Regex.Match(line, @"""(.+)""");
-                                if (match.Success)
-                                {
-                                    string dynastyName = match.Groups[1].Value;
-                                    if (dynastyName.StartsWith("dynn_"))
-                                    {
-                                        return dynastyName.Substring(5); // Remove "dynn_" prefix
-                                    }
-                                    return dynastyName;
-                                }
-                            }
-                            if (line.Trim() == "}")
-                            {
-                                return null; // End of dynasty block
-                            }
-                        }
-                    }
-                }
-            }
-            catch (IOException ex)
+            string playerCharId = DataSearch.Player_Character.GetID();
+            string enemyRealmName = "";
+
+            // Determine if player is on LeftSide or RightSide from CK3LogData
+            bool playerIsOnLeftSide = CK3LogData.LeftSide.GetMainParticipant().id == playerCharId ||
+                                      CK3LogData.LeftSide.GetCommander().id == playerCharId ||
+                                      CK3LogData.LeftSide.CheckIfHasKnight(playerCharId);
+
+            if (playerIsOnLeftSide)
             {
-                Program.Logger.Debug($"Error reading Dynasties.txt: {ex.Message}");
+                enemyRealmName = CK3LogData.RightSide.GetRealmName();
             }
-            return null;
+            else
+            {
+                enemyRealmName = CK3LogData.LeftSide.GetRealmName();
+            }
+
+            _enemyRealmNameCache = enemyRealmName;
+            return enemyRealmName;
+        }
+
+        public static void ClearCache()
+        {
+            _characterNamesCache.Clear();
+            _playerRealmNameCache = null;
+            _enemyRealmNameCache = null;
         }
     }
 }
+
