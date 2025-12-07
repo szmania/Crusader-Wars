@@ -534,7 +534,7 @@ namespace CrusaderWars.twbattle
                     form.Show();
                     form.CloseLoadingScreen();
                     MessageBox.Show(form, "Couldn't find 'Attila.exe'. Change the Total War Attila path. ", "Crusader Conflicts: Path Error",
-                    MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                     form.infoLabel.Text = "Ready to start!";
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -570,7 +570,7 @@ namespace CrusaderWars.twbattle
             {
                         Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                         MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                        MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
+                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                         await Games.CloseTotalWarAttilaProcess();
                         if (ModOptions.CloseCK3DuringBattle())
                         {
@@ -1117,7 +1117,7 @@ namespace CrusaderWars.twbattle
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
                         Program.Logger.Debug("Editing Sieges.txt file...");
-                        BattleResult.EditSiegesFile(path_attila_log, left_side_combat_side, right_side_combat_side, attacker_armies, defender_armies);
+                        BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, attacker_armies, defender_armies);
                     }
                     else
                     {
@@ -1258,7 +1258,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -1582,13 +1582,13 @@ namespace CrusaderWars.twbattle
             if (unitScreenNames is null)
             {
                 Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
-                MessageBox.Show(form, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show(form, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
             }
             if (allAvailableUnits is null)
             {
                 Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
-                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
             }
 
@@ -2147,7 +2147,7 @@ namespace CrusaderWars.twbattle
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in TryDeploymentZoneEditorFix: {ex.Message}");
-                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
             }
         }
