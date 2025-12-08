@@ -2212,6 +2212,11 @@ namespace CrusaderWars.twbattle
                         r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
                     
                     int kills = casualtyReport != null ? casualtyReport.GetKilled() : 0;
+                    if (kills == 0 && unitReport.GetRegimentType() == RegimentType.Levy)
+                    {
+                        // For levies, if no kills were recorded, derive kills from the opponent's losses
+                        kills = opponentTotalLosses;
+                    }
                     unitKills[unit] = kills;
                 }
             }

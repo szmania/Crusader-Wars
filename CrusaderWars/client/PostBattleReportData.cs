@@ -67,7 +67,7 @@ namespace CrusaderWars.client
         public int Deployed { get; set; }
         public int Remaining { get; set; }
         public int Kills { get; set; }
-        public int Losses { get; set; }
+        public int Losses => Deployed - Remaining;
 
         // Detailed Info
         public string Ck3UnitType { get; set; }
