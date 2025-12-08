@@ -2212,10 +2212,17 @@ namespace CrusaderWars.twbattle
                         r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
                     
                     int kills = casualtyReport != null ? casualtyReport.GetKilled() : 0;
-                    if (kills == 0 && unitReport.GetRegimentType() == RegimentType.Levy)
+                    if (kills == 0 && unit.GetRegimentType() == RegimentType.Levy)
                     {
                         // For levies, if no kills were recorded, derive kills from the opponent's losses
-                        kills = opponentTotalLosses;
+                        // opponentTotalLosses is not available here, so we'll use a different approach
+                        // We'll calculate kills based on the army's contribution to total losses
+                        int sideTotalLosses = armies.Sum(a => a.GetTotalLosses());
+                        if (sideTotalLosses > 0)
+                        {
+                            double unitContribution = (double)unit.GetOriginalSoldiers() / sideTotalDeployed;
+                            kills = (int)Math.Round(sideTotalKills * unitContribution);
+                        }
                     }
                     unitKills[unit] = kills;
                 }
@@ -2233,9 +2240,16 @@ namespace CrusaderWars.twbattle
             report.DefenderSide = new SideReport { SideName = "Defenders" };
             PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts, unitKills, attackerTotalKills);
 
-            // Ensure kills match losses
+            // Ensure kills match losses by setting the properties directly
             report.AttackerSide.TotalKills = attackerTotalKills;
             report.DefenderSide.TotalKills = defenderTotalKills;
+            report.AttackerSide.TotalDeployed = report.AttackerSide.Armies.Sum(a => a.TotalDeployed);
+            report.AttackerSide.TotalLosses = report.AttackerSide.Armies.Sum(a => a.TotalLosses);
+            report.AttackerSide.TotalRemaining = report.AttackerSide.Armies.Sum(a => a.TotalRemaining);
+            
+            report.DefenderSide.TotalDeployed = report.DefenderSide.Armies.Sum(a => a.TotalDeployed);
+            report.DefenderSide.TotalLosses = report.DefenderSide.Armies.Sum(a => a.TotalLosses);
+            report.DefenderSide.TotalRemaining = report.DefenderSide.Armies.Sum(a => a.TotalRemaining);
 
             if (BattleState.IsSiegeBattle)
             {
@@ -2324,7 +2338,7 @@ namespace CrusaderWars.twbattle
                             AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
                             Deployed = deployed,
                             Remaining = remaining,
-                            Losses = deployed - remaining,
+                            Losses = deployed - remaining, // Now this assignment works since Losses is writable
                             Kills = kills,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
@@ -2374,9 +2388,12 @@ namespace CrusaderWars.twbattle
                 sideReport.Armies.Add(armyReport);
 
                 sideTotalDeployed += armyTotalDeployed;
+                sideTotalLosses += armyTotalLosses;
                 sideTotalRemaining += armyTotalRemaining;
+                sideTotalKills += armyTotalKills;
             }
 
+            // Set the side-level totals directly (since properties are now writable)
             sideReport.TotalDeployed = sideTotalDeployed;
             sideReport.TotalLosses = sideTotalLosses;
             sideReport.TotalRemaining = sideTotalRemaining;
@@ -2420,17 +2437,17 @@ namespace CrusaderWars.twbattle
             }
 
             // Check for wound traits
-            List<(int, string)> traits = character.GetTraits(); // Explicitly cast to List<(int, string)>
-            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Brutally_Mauled()))) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
-            else if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Severely_Injured()))) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
-            else if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Wounded()))) { report.Status = "Wounded"; report.Details = "Wounded"; }
+            List<(int, string)> traits = character.GetTraits(); 
+            if (traits.Any(t => t.Item1 == WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
+            else if (traits.Any(t => t.Item1 == WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
+            else if (traits.Any(t => t.Item1 == WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
 
             // Check for physical traits (these can be combined with a wound)
             string physicalTraits = "";
-            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Maimed()))) { physicalTraits += "Maimed, "; }
-            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.One_Legged()))) { physicalTraits += "One-Legged, "; }
-            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.One_Eyed()))) { physicalTraits += "One-Eyed, "; }
-            if (traits.Any((Func<(int, string), bool>)(t => t.Item1 == WoundedTraits.Disfigured()))) { physicalTraits += "Disfigured, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.Maimed())) { physicalTraits += "Maimed, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.One_Legged())) { physicalTraits += "One-Legged, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.One_Eyed())) { physicalTraits += "One-Eyed, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.Disfigured())) { physicalTraits += "Disfigured, "; }
 
             if (!string.IsNullOrEmpty(physicalTraits))
             {

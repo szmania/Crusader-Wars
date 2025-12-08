@@ -29,11 +29,11 @@ namespace CrusaderWars.client
         public string SideName { get; set; } // "Attackers", "Defenders"
         public List<ArmyReport> Armies { get; set; } = new List<ArmyReport>();
 
-        // New Summary Stats for the Side
-        public int TotalDeployed => Armies.Sum(a => a.TotalDeployed);
-        public int TotalLosses => Armies.Sum(a => a.TotalLosses);
-        public int TotalRemaining => Armies.Sum(a => a.TotalRemaining);
-        public int TotalKills => Armies.Sum(a => a.TotalKills);
+        // Changed from computed properties to regular properties with backing fields
+        public int TotalDeployed { get; set; }
+        public int TotalLosses { get; set; }
+        public int TotalRemaining { get; set; }
+        public int TotalKills { get; set; }
         
         // Add consistency check
         public bool IsConsistent => TotalLosses == TotalKills;
@@ -65,7 +65,7 @@ namespace CrusaderWars.client
         public int Deployed { get; set; }
         public int Remaining { get; set; }
         public int Kills { get; set; }
-        public int Losses => Deployed - Remaining;
+        public int Losses { get; set; } // Changed from computed property to regular property
 
         // Detailed Info
         public string Ck3UnitType { get; set; }
