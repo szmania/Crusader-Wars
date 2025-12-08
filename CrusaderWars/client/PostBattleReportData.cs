@@ -62,9 +62,7 @@ namespace CrusaderWars.client
         public int Deployed { get; set; }
         public int Remaining { get; set; }
         public int Kills { get; set; }
-
-        // Calculated Losses property
-        public int Losses => Math.Max(0, Deployed - Remaining);
+        public int Losses { get; set; }
 
         // Detailed Info
         public string Ck3UnitType { get; set; }

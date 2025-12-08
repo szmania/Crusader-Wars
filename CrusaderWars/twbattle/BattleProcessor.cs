@@ -2199,49 +2199,20 @@ namespace CrusaderWars.twbattle
             var unitKills = new Dictionary<Unit, int>();
             foreach (var army in attacker_armies.Concat(defender_armies))
             {
-                if (army.Units == null || army.UnitsResults == null) continue;
+                if (army.CasualitiesReports == null) continue;
 
-                var groupedUnits = army.Units.Where(u => u != null).GroupBy(u => new {
-                    Type = army.IsGarrison() ? u.GetAttilaUnitKey() : (u.GetRegimentType() == RegimentType.Levy ? "Levy" : u.GetName()),
-                    CultureID = u.GetObjCulture()?.ID
-                });
-
-                foreach (var group in groupedUnits)
+                foreach (var unit in army.Units)
                 {
-                    if (string.IsNullOrEmpty(group.Key.Type)) continue;
+                    if (unit == null) continue;
 
-                    int groupMainKills = army.UnitsResults.Kills_MainPhase?
-                        .Where(k => k.Type == group.Key.Type && k.CultureID == group.Key.CultureID)
-                        .Sum(k => int.TryParse(k.Kills, out int val) ? val : 0) ?? 0;
-
-                    int groupPursuitKills = army.UnitsResults.Kills_PursuitPhase?
-                        .Where(k => k.Type == group.Key.Type && k.CultureID == group.Key.CultureID)
-                        .Sum(k => int.TryParse(k.Kills, out int val) ? val : 0) ?? 0;
-
-                    int totalGroupKills = groupMainKills + groupPursuitKills;
-
-                    double totalDeployedInGroup = group.Sum(u => deployedCounts.TryGetValue(u, out var c) ? c : 0);
-
-                    if (totalDeployedInGroup > 0)
-                    {
-                        foreach (var unit in group)
-                        {
-                            double deployedForThisUnit = deployedCounts.TryGetValue(unit, out var c) ? c : 0;
-                            int kills = 0;
-                            if (deployedForThisUnit > 0)
-                            {
-                                kills = (int)Math.Round(totalGroupKills * (deployedForThisUnit / totalDeployedInGroup));
-                            }
-                            unitKills[unit] = kills;
-                        }
-                    }
-                    else
-                    {
-                        foreach (var unit in group)
-                        {
-                            unitKills[unit] = 0;
-                        }
-                    }
+                    // Find matching report
+                    var report = army.CasualitiesReports.FirstOrDefault(r =>
+                        r.GetUnitType() == unit.GetRegimentType() &&
+                        r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy ? "Levy" : unit.GetName()) &&
+                        r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
+                    
+                    int kills = report != null ? report.GetKilled() : 0;
+                    unitKills[unit] = kills;
                 }
             }
             // --- End Calculate Kills ---
@@ -2348,6 +2319,7 @@ namespace CrusaderWars.twbattle
                             AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
                             Deployed = deployed,
                             Remaining = remaining,
+                            Losses = deployed - remaining,
                             Kills = kills,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
