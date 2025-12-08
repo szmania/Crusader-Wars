@@ -1900,158 +1900,6 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, string reportContent)
-        {
-            using (Form prompt = new Form())
-            {
-                prompt.Width = 600;
-                prompt.Height = 450;
-                prompt.Text = title;
-                prompt.StartPosition = FormStartPosition.CenterParent;
-                prompt.FormBorderStyle = FormBorderStyle.Sizable;
-                prompt.MaximizeBox = false;
-                prompt.MinimizeBox = false;
-
-                Label textLabel = new Label()
-                {
-                    Left = 20,
-                    Top = 20,
-                    Width = 550,
-                    Height = 60,
-                    Text = text,
-                };
-
-                TextBox reportBox = new TextBox()
-                {
-                    Left = 20,
-                    Top = 80,
-                    Width = 550,
-                    Height = 220,
-                    Multiline = true,
-                    ScrollBars = ScrollBars.Vertical,
-                    ReadOnly = true,
-                    Text = reportContent,
-                    Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)))
-                };
-
-                LinkLabel linkLabel = new LinkLabel()
-                {
-                    Left = 20,
-                    Top = 310,
-                    Width = 550,
-                    Text = linkText,
-                    AutoSize = true
-                };
-                linkLabel.LinkClicked += (sender, e) => {
-                    try
-                    {
-                        Process.Start(new ProcessStartInfo(linkUrl) { UseShellExecute = true });
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Could not open link: {ex.Message}");
-                    }
-                };
-
-                Button copyButton = new Button()
-                {
-                    Text = "Copy Details",
-                    Left = 20,
-                    Width = 120,
-                    Top = 340,
-                };
-                copyButton.Click += (sender, e) => {
-                    Clipboard.SetText(reportBox.Text);
-                };
-
-
-                Button confirmation = new Button()
-                {
-                    Text = "OK",
-                    Left = 450,
-                    Width = 120,
-                    Top = 340,
-                    DialogResult = DialogResult.OK
-                };
-
-                prompt.Controls.Add(textLabel);
-                prompt.Controls.Add(reportBox);
-                prompt.Controls.Add(linkLabel);
-                prompt.Controls.Add(copyButton);
-                prompt.Controls.Add(confirmation);
-                prompt.AcceptButton = confirmation;
-
-                prompt.ShowDialog(owner);
-            }
-        }
-        private static (bool isUnique, int variantCount) IsUsingUniqueMapAndGetVariantCount(string faction, string battleType, string provinceName)
-        {
-            if (UnitMappers_BETA.Terrains == null) return (false, 0);
-
-            // Check for unique map match first (mirrors GetSettlementMap logic)
-            var uniqueMapByProvName = UnitMappers_BETA.Terrains.UniqueSettlementMaps
-                .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-            if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
-            {
-                return (true, uniqueMapByProvName.Variants.Count);
-            }
-
-            var matchingUniqueMaps = UnitMappers_BETA.Terrains.UniqueSettlementMaps
-                                     .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
-                                     .ToList();
-            foreach (var uniqueMap in matchingUniqueMaps)
-            {
-                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
-                if (uniqueMatch != null)
-                {
-                    return (true, uniqueMap.Variants.Count);
-                }
-            }
-
-            // If no unique map, check for generic map and get its variant count
-            var genericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
-                .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-            if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
-            {
-                return (false, genericMapByProvName.Variants.Count);
-            }
-
-            var defaultGenericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
-                .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-            if (defaultGenericMapByProvName != null && defaultGenericMapByProvName.Variants.Any())
-            {
-                return (false, defaultGenericMapByProvName.Variants.Count);
-            }
-
-            var matchingGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
-                                      .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
-                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                                   !sm.ProvinceNames.Any())
-                                      .ToList();
-            if (matchingGenericMaps.Any())
-            {
-                return (false, matchingGenericMaps.SelectMany(sm => sm.Variants).Count());
-            }
-
-            var matchingDefaultGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
-                                              .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                                           !sm.ProvinceNames.Any())
-                                              .ToList();
-            if (matchingDefaultGenericMaps.Any())
-            {
-                return (false, matchingDefaultGenericMaps.SelectMany(sm => sm.Variants).Count());
-            }
-
-            return (false, 0);
-        }
-
-
         private static (bool, string) TryDeploymentZoneEditorFix(AutofixState autofixState, HomePage form)
         {
             Program.Logger.Debug("--- Autofix: Initiating Deployment Zone Editor ---");
@@ -2263,12 +2111,12 @@ namespace CrusaderWars.twbattle
 
         private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts, Dictionary<Unit, int> unitKills, int sideTotalKills)
         {
-            // Calculate side totals first
+            // Calculate actual side totals from battle results
             int sideTotalDeployed = armies.Sum(a => a.GetTotalDeployed());
             int sideTotalLosses = armies.Sum(a => a.GetTotalLosses());
             int sideTotalRemaining = armies.Sum(a => a.GetTotalRemaining());
-            // Note: sideTotalKills is passed as a parameter, so we don't need to calculate it again
-
+            
+            // Use actual battle results instead of proportional calculations
             foreach (var army in armies)
             {
                 if (army.Commander == null) continue;
@@ -2299,14 +2147,6 @@ namespace CrusaderWars.twbattle
                 int armyTotalRemaining = army.GetTotalRemaining();
                 int armyTotalDeployed = army.GetTotalDeployed();
 
-                // Calculate kills for this army (proportional to its contribution to the side's total losses)
-                int armyTotalKills = 0;
-                if (sideTotalLosses > 0)
-                {
-                    double armyContribution = (double)armyTotalLosses / sideTotalLosses;
-                    armyTotalKills = (int)Math.Round(sideTotalKills * armyContribution);
-                }
-
                 // Process unit-level data
                 if (army.Units != null)
                 {
@@ -2317,9 +2157,20 @@ namespace CrusaderWars.twbattle
                         int deployed = deployedCounts.TryGetValue(unit, out var count) ? count : 0;
                         int remaining = unit.GetSoldiers();
                         int losses = Math.Max(0, deployed - remaining);
-                        int kills = unitKills.TryGetValue(unit, out var k) ? k : 0;
+                        
+                        // Find matching battle result for this unit
+                        int kills = 0;
+                        var unitReport = army.CasualitiesReports?.FirstOrDefault(r => 
+                            r.GetUnitType() == unit.GetRegimentType() &&
+                            r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy ? "Levy" : unit.GetName()) &&
+                            r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
+                        
+                        if (unitReport != null)
+                        {
+                            kills = unitReport.GetKilled();
+                        }
 
-                        var unitReport = new UnitReport
+                        var unitReportObj = new UnitReport
                         {
                             AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
                             Deployed = deployed,
@@ -2335,7 +2186,7 @@ namespace CrusaderWars.twbattle
 
                         if (unit.GetRegimentType() == RegimentType.Commander)
                         {
-                            unitReport.Characters.Add(GetCharacterReport(army.Commander));
+                            unitReportObj.Characters.Add(GetCharacterReport(army.Commander));
                         }
                         else if (unit.GetRegimentType() == RegimentType.Knight)
                         {
@@ -2343,16 +2194,16 @@ namespace CrusaderWars.twbattle
                             {
                                 foreach (var knight in army.Knights.GetKnightsList())
                                 {
-                                    unitReport.Characters.Add(GetCharacterReport(knight));
+                                    unitReportObj.Characters.Add(GetCharacterReport(knight));
                                 }
                             }
                         }
 
-                        armyReport.Units.Add(unitReport);
+                        armyReport.Units.Add(unitReportObj);
                     }
                 }
 
-                // Add siege engines to the army report (only for attacker armies in siege battles)
+                // Add siege engines to the army report
                 if (army.SiegeEngines != null && army.SiegeEngines.Any())
                 {
                     foreach (var siegeEngine in army.SiegeEngines)
@@ -2369,17 +2220,169 @@ namespace CrusaderWars.twbattle
                 armyReport.TotalDeployed = armyTotalDeployed;
                 armyReport.TotalLosses = armyTotalLosses;
                 armyReport.TotalRemaining = armyTotalRemaining;
-                armyReport.TotalKills = armyTotalKills;
+                armyReport.TotalKills = army.GetTotalKills(); // Use actual kills from army
 
                 sideReport.Armies.Add(armyReport);
             }
 
-            // Set the side-level totals directly (since properties are now writable)
+            // Set the side-level totals directly
             sideReport.TotalDeployed = sideTotalDeployed;
             sideReport.TotalLosses = sideTotalLosses;
             sideReport.TotalRemaining = sideTotalRemaining;
             sideReport.TotalKills = sideTotalKills;
         }
+
+        private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, string reportContent)
+        {
+            using (Form prompt = new Form())
+            {
+                prompt.Width = 600;
+                prompt.Height = 450;
+                prompt.Text = title;
+                prompt.StartPosition = FormStartPosition.CenterParent;
+                prompt.FormBorderStyle = FormBorderStyle.Sizable;
+                prompt.MaximizeBox = false;
+                prompt.MinimizeBox = false;
+
+                Label textLabel = new Label()
+                {
+                    Left = 20,
+                    Top = 20,
+                    Width = 550,
+                    Height = 60,
+                    Text = text,
+                };
+
+                TextBox reportBox = new TextBox()
+                {
+                    Left = 20,
+                    Top = 80,
+                    Width = 550,
+                    Height = 220,
+                    Multiline = true,
+                    ScrollBars = ScrollBars.Vertical,
+                    ReadOnly = true,
+                    Text = reportContent,
+                    Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)))
+                };
+
+                LinkLabel linkLabel = new LinkLabel()
+                {
+                    Left = 20,
+                    Top = 310,
+                    Width = 550,
+                    Text = linkText,
+                    AutoSize = true
+                };
+                linkLabel.LinkClicked += (sender, e) => {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(linkUrl) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Could not open link: {ex.Message}");
+                    }
+                };
+
+                Button copyButton = new Button()
+                {
+                    Text = "Copy Details",
+                    Left = 20,
+                    Width = 120,
+                    Top = 340,
+                };
+                copyButton.Click += (sender, e) => {
+                    Clipboard.SetText(reportBox.Text);
+                };
+
+
+                Button confirmation = new Button()
+                {
+                    Text = "OK",
+                    Left = 450,
+                    Width = 120,
+                    Top = 340,
+                    DialogResult = DialogResult.OK
+                };
+
+                prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(reportBox);
+                prompt.Controls.Add(linkLabel);
+                prompt.Controls.Add(copyButton);
+                prompt.Controls.Add(confirmation);
+                prompt.AcceptButton = confirmation;
+
+                prompt.ShowDialog(owner);
+            }
+        }
+        private static (bool isUnique, int variantCount) IsUsingUniqueMapAndGetVariantCount(string faction, string battleType, string provinceName)
+        {
+            if (UnitMappers_BETA.Terrains == null) return (false, 0);
+
+            // Check for unique map match first (mirrors GetSettlementMap logic)
+            var uniqueMapByProvName = UnitMappers_BETA.Terrains.UniqueSettlementMaps
+                .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
+            {
+                return (true, uniqueMapByProvName.Variants.Count);
+            }
+
+            var matchingUniqueMaps = UnitMappers_BETA.Terrains.UniqueSettlementMaps
+                                     .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                     .ToList();
+            foreach (var uniqueMap in matchingUniqueMaps)
+            {
+                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (uniqueMatch != null)
+                {
+                    return (true, uniqueMap.Variants.Count);
+                }
+            }
+
+            // If no unique map, check for generic map and get its variant count
+            var genericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (genericMapByProvName != null && genericMapByProvName.Variants.Any())
+            {
+                return (false, genericMapByProvName.Variants.Count);
+            }
+
+            var defaultGenericMapByProvName = UnitMappers_BETA.Terrains.SettlementMaps
+                .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                       sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+            if (defaultGenericMapByProvName != null && defaultGenericMapByProvName.Variants.Any())
+            {
+                return (false, defaultGenericMapByProvName.Variants.Count);
+            }
+
+            var matchingGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
+                                      .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                   !sm.ProvinceNames.Any())
+                                      .ToList();
+            if (matchingGenericMaps.Any())
+            {
+                return (false, matchingGenericMaps.SelectMany(sm => sm.Variants).Count());
+            }
+
+            var matchingDefaultGenericMaps = UnitMappers_BETA.Terrains.SettlementMaps
+                                              .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                           !sm.ProvinceNames.Any())
+                                              .ToList();
+            if (matchingDefaultGenericMaps.Any())
+            {
+                return (false, matchingDefaultGenericMaps.SelectMany(sm => sm.Variants).Count());
+            }
+
+            return (false, 0);
+        }
+
 
         private static CharacterReport GetCharacterReport(dynamic character)
         {
