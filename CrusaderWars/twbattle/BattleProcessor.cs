@@ -2388,3 +2388,62 @@ namespace CrusaderWars.twbattle
             // Handle different character types
             try
             {
+                // Try to access as CommanderSystem (has Name property)
+                characterName = character.Name;
+            }
+            catch
+            {
+                try
+                {
+                    // Try to access as Knight (has GetName() method)
+                    characterName = character.GetName();
+                }
+                catch
+                {
+                    characterName = "Unknown Character";
+                }
+            }
+            
+            var report = new CharacterReport { Name = characterName, Status = "Unharmed", Details = "Survived the battle without any negative effects." };
+
+            if (character.IsPrisoner) { 
+                report.Status = "Captured"; 
+                report.Details = "Taken prisoner by the enemy."; 
+                return report;
+            }
+            if (character.IsSlain) { 
+                report.Status = "Slain"; 
+                report.Details = "Killed in action.";
+                return report;
+            }
+
+            // Check for wound traits
+            List<(int, string)> traits = character.GetTraits(); 
+            if (traits.Any(t => t.Item1 == WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
+            else if (traits.Any(t => t.Item1 == WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
+            else if (traits.Any(t => t.Item1 == WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
+
+            // Check for physical traits (these can be combined with a wound)
+            string physicalTraits = "";
+            if (traits.Any(t => t.Item1 == WoundedTraits.Maimed())) { physicalTraits += "Maimed, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.One_Legged())) { physicalTraits += "One-Legged, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.One_Eyed())) { physicalTraits += "One-Eyed, "; }
+            if (traits.Any(t => t.Item1 == WoundedTraits.Disfigured())) { physicalTraits += "Disfigured, "; }
+
+            if (!string.IsNullOrEmpty(physicalTraits))
+            {
+                if(report.Status == "Unharmed") // Only has a physical trait, not a fresh wound
+                {
+                    report.Status = "Wounded";
+                    report.Details = physicalTraits.TrimEnd(' ', ',');
+                }
+                else // Has a wound AND a physical trait
+                {
+                    report.Details += " and became " + physicalTraits.TrimEnd(' ', ',');
+                }
+            }
+            
+            return report;
+        }
+    }
+}
