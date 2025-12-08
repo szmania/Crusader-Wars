@@ -1449,13 +1449,14 @@ namespace CrusaderWars
             Program.Logger.Debug("Options form closing event triggered.");
 
             // Save Combine Knights setting before closing
-            if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
+            UC_CommandersAndKnightsOptions? candKOptions = CandK_Tab as UC_CommandersAndKnightsOptions;
+            if (candKOptions != null)
             {
                 candKOptions.SaveCombineKnightsSetting();
             }
 
             // Perform validation for Commander and Knight wound chances
-            if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
+            if (candKOptions != null)
             {
                 bool commanderValid = candKOptions.IsCommanderTotalValid();
                 bool knightValid = candKOptions.IsKnightTotalValid();
