@@ -1458,7 +1458,8 @@ namespace CrusaderWars.twbattle
                 string originalFaction = representativeUnit.GetAttilaFaction();
                 var heritageFactions = unit_mapper.UnitMappers_BETA.GetFactionsByHeritage(heritage)
                     .Where(f => f != originalFaction && f != "Default" && f != "DEFAULT")
-                    .Distinct().ToList();
+                    .Distinct()
+                    .ToList();
 
                 foreach (var replacementFaction in heritageFactions)
                 {
@@ -2192,8 +2193,19 @@ namespace CrusaderWars.twbattle
                         {
                             if (army.Knights != null)
                             {
+                                // Add combined knight unit details
                                 foreach (var knight in army.Knights.GetKnightsList())
                                 {
+                                    unitReportObj.KnightDetails.Add(new KnightDetailReport
+                                    {
+                                        Name = knight.GetName(),
+                                        BodyguardSize = knight.GetSoldiers(),
+                                        Kills = knight.GetKills(),
+                                        Fallen = knight.HasFallen(),
+                                        Status = GetCharacterReport(knight).Status // Use existing logic to determine status
+                                    });
+                                    
+                                    // Also add to Characters list for detailed status display
                                     unitReportObj.Characters.Add(GetCharacterReport(knight));
                                 }
                             }

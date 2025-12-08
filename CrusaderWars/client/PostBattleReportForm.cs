@@ -181,6 +181,31 @@ namespace CrusaderWars.client
                     else if (unitReport.Ck3UnitType == "Knight")
                     {
                         node.Nodes.Add(new TreeNode("Note: This unit represents combined knights from CK3") { ForeColor = Color.LightBlue });
+                        
+                        // NEW: Add individual knight details
+                        if (unitReport.KnightDetails.Any())
+                        {
+                            var knightsNode = new TreeNode("Individual Knights (Bodyguard Size | Kills | Status)");
+                            knightsNode.ForeColor = Color.Yellow;
+                            foreach (var knight in unitReport.KnightDetails.OrderByDescending(k => k.BodyguardSize))
+                            {
+                                var knightDetailNode = new TreeNode($"{knight.Name}: {knight.BodyguardSize} | {knight.Kills} | {knight.Status}");
+                                if (knight.Fallen)
+                                {
+                                    knightDetailNode.ForeColor = Color.Red;
+                                }
+                                else if (knight.Status != "Unharmed")
+                                {
+                                    knightDetailNode.ForeColor = Color.Orange;
+                                }
+                                else
+                                {
+                                    knightDetailNode.ForeColor = Color.LightGreen;
+                                }
+                                knightsNode.Nodes.Add(knightDetailNode);
+                            }
+                            node.Nodes.Add(knightsNode);
+                        }
                     }
 
                     if (unitReport.Characters.Any())

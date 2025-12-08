@@ -74,6 +74,9 @@ namespace CrusaderWars.client
         public string Ck3Culture { get; set; }
         public string AttilaFaction { get; set; }
         public List<CharacterReport> Characters { get; set; } = new List<CharacterReport>();
+        
+        // New property for combined knight unit details
+        public List<KnightDetailReport> KnightDetails { get; set; } = new List<KnightDetailReport>();
     }
 
     public class CharacterReport
@@ -81,5 +84,15 @@ namespace CrusaderWars.client
         public string Name { get; set; }
         public string Status { get; set; } // "Unharmed", "Wounded", "Slain", "Captured"
         public string Details { get; set; } // e.g., "Wounded (Severely Injured)", "Gained trait: Scarred"
+    }
+
+    // New class to hold individual knight details for the combined unit
+    public class KnightDetailReport
+    {
+        public string Name { get; set; }
+        public int BodyguardSize { get; set; }
+        public int Kills { get; set; }
+        public bool Fallen { get; set; }
+        public string Status { get; set; } // "Unharmed", "Wounded", "Slain", "Captured"
     }
 }
