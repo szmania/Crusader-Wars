@@ -2241,15 +2241,15 @@ namespace CrusaderWars.twbattle
             PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts, unitKills, attackerTotalKills);
 
             // Ensure kills match losses by setting the properties directly
-            report.AttackerSide.TotalKills = attackerTotalKills;
-            report.DefenderSide.TotalKills = defenderTotalKills;
             report.AttackerSide.TotalDeployed = report.AttackerSide.Armies.Sum(a => a.TotalDeployed);
             report.AttackerSide.TotalLosses = report.AttackerSide.Armies.Sum(a => a.TotalLosses);
             report.AttackerSide.TotalRemaining = report.AttackerSide.Armies.Sum(a => a.TotalRemaining);
+            report.AttackerSide.TotalKills = defenderTotalKills; // Attacker kills = defender losses
             
             report.DefenderSide.TotalDeployed = report.DefenderSide.Armies.Sum(a => a.TotalDeployed);
             report.DefenderSide.TotalLosses = report.DefenderSide.Armies.Sum(a => a.TotalLosses);
             report.DefenderSide.TotalRemaining = report.DefenderSide.Armies.Sum(a => a.TotalRemaining);
+            report.DefenderSide.TotalKills = attackerTotalKills; // Defender kills = attacker losses
 
             if (BattleState.IsSiegeBattle)
             {
@@ -2272,16 +2272,10 @@ namespace CrusaderWars.twbattle
 
         private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts, Dictionary<Unit, int> unitKills, int sideTotalKills)
         {
-            int sideTotalDeployed = 0;
-            int sideTotalLosses = 0;
-            int sideTotalRemaining = 0;
-
-            // First, calculate total losses for the side
-            foreach (var army in armies)
-            {
-                int armyTotalLosses = army.GetTotalLosses();
-                sideTotalLosses += armyTotalLosses;
-            }
+            // Calculate side totals first
+            int sideTotalDeployed = armies.Sum(a => a.GetTotalDeployed());
+            int sideTotalLosses = armies.Sum(a => a.GetTotalLosses());
+            int sideTotalRemaining = armies.Sum(a => a.GetTotalRemaining());
 
             foreach (var army in armies)
             {
@@ -2310,8 +2304,8 @@ namespace CrusaderWars.twbattle
 
                 // Calculate actual losses for this army
                 int armyTotalLosses = army.GetTotalLosses();
-                int armyTotalRemaining = army.GetTotalSoldiersAfterBattle();
-                int armyTotalDeployed = armyTotalLosses + armyTotalRemaining;
+                int armyTotalRemaining = army.GetTotalRemaining();
+                int armyTotalDeployed = army.GetTotalDeployed();
 
                 // Calculate kills for this army (proportional to its contribution to the side's total losses)
                 int armyTotalKills = 0;
@@ -2338,7 +2332,7 @@ namespace CrusaderWars.twbattle
                             AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
                             Deployed = deployed,
                             Remaining = remaining,
-                            Losses = deployed - remaining, // Now this assignment works since Losses is writable
+                            Losses = losses,
                             Kills = kills,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
@@ -2386,11 +2380,6 @@ namespace CrusaderWars.twbattle
                 armyReport.TotalKills = armyTotalKills;
 
                 sideReport.Armies.Add(armyReport);
-
-                sideTotalDeployed += armyTotalDeployed;
-                sideTotalLosses += armyTotalLosses;
-                sideTotalRemaining += armyTotalRemaining;
-                sideTotalKills += armyTotalKills;
             }
 
             // Set the side-level totals directly (since properties are now writable)
