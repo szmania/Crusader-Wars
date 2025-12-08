@@ -85,7 +85,6 @@ namespace CrusaderWars.client
             int totalDeployed = _report.AttackerSide.TotalDeployed + _report.DefenderSide.TotalDeployed;
             int totalLosses = _report.AttackerSide.TotalLosses + _report.DefenderSide.TotalLosses;
             int totalKills = _report.AttackerSide.TotalKills + _report.DefenderSide.TotalKills;
-            int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;
 
             // Calculate total remaining soldiers
             int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;

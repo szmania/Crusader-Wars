@@ -87,7 +87,6 @@ namespace CrusaderWars
             Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
             CreateRequiredDirectories();
-            BattleDetails.BackupOriginalBattleTextFiles(); // Backup original battle text files
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
@@ -1765,7 +1764,6 @@ namespace CrusaderWars
                 {
                     try
                     {
-                        BattleDetails.RestoreOriginalBattleTextFiles(); // Restore original battle text files
                         DataSearch.ClearLogFile();
                         // DeclarationsFile.Erase(); // Moved to ProcessBattle
                         // BattleScript.EraseScript(); // Moved to ProcessBattle
@@ -2319,7 +2317,6 @@ namespace CrusaderWars
                 this.Text = "Crusader Conflicts"; // Reset status on early exit
                 return;
             }
-            BattleDetails.RestoreOriginalBattleTextFiles(); // Restore original battle text files
             Data.Reset(); // ADDED as per plan
             Reader.ReadMetaData();
             DataSearch.Search(logSnippet);
