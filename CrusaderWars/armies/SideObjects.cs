@@ -107,8 +107,10 @@ namespace CrusaderWars
             this.ArmyRegiments.SelectMany(armyRegiment => armyRegiment.Regiments).ToList().RemoveAll(x => x.IsGarrison());
             this.ArmyRegiments.RemoveAll(x => (x.Regiments == null || x.Regiments.Count == 0) && x.Type == RegimentType.Levy);
         }
+        
 
-        public int GetTotalDeployed()
+        
+        public int GetTotalSoldiers()
         {
             if (IsGarrison())
             {
@@ -121,7 +123,12 @@ namespace CrusaderWars
                 return ArmyRegiments.Sum(ar => ar.StartingNum);
             }
         }
-
+        
+        public int GetTotalDeployed()
+        {
+            return GetTotalSoldiers();
+        }
+        
         public int GetTotalRemaining()
         {
             if (IsGarrison())
@@ -139,6 +146,12 @@ namespace CrusaderWars
         public int GetTotalLosses()
         {
             return GetTotalDeployed() - GetTotalRemaining();
+        }
+        
+        public int GetTotalSoldiersAfterBattle()
+        {
+            if (ArmyRegiments == null) return 0;
+            return ArmyRegiments.Sum(ar => ar.CurrentNum);
         }
         
         public void ScaleUnits(int ratio)
