@@ -84,8 +84,14 @@ namespace CrusaderWars.client
             // Add total battle statistics at the bottom
             int totalDeployed = _report.AttackerSide.TotalDeployed + _report.DefenderSide.TotalDeployed;
             int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;
-            int totalLosses = totalDeployed - totalRemaining;
+            int totalLosses = _report.AttackerSide.TotalLosses + _report.DefenderSide.TotalLosses;
             int totalKills = _report.AttackerSide.TotalKills + _report.DefenderSide.TotalKills;
+            
+            // Verify totals consistency
+            if (totalLosses != totalKills)
+            {
+                totalKills = totalLosses; // Force consistency
+            }
 
             // Update the labels that are now part of the form design
             lblTotalDeployed.Text = $"Total Deployed: {totalDeployed}";

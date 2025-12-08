@@ -30,10 +30,15 @@ namespace CrusaderWars.client
         public List<ArmyReport> Armies { get; set; } = new List<ArmyReport>();
 
         // New Summary Stats for the Side
-        public int TotalDeployed { get; set; }
+        public int TotalDeployed => Armies.Sum(a => a.TotalDeployed);
+        public int TotalLosses => Armies.Sum(a => a.TotalLosses);
+        public int TotalRemaining => Armies.Sum(a => a.TotalRemaining);
+        public int TotalKills => Armies.Sum(a => a.TotalKills);
+        
+        // Add consistency check
+        public bool IsConsistent => TotalLosses == TotalKills;
         public int TotalLosses { get; set; }
         public int TotalRemaining { get; set; }
-        public int TotalKills { get; set; }
     }
 
     public class SiegeEngineReport
