@@ -296,6 +296,7 @@ namespace CrusaderWars
                 // Add new OptInPreReleases option
                 var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
                 var SelectedCustomMapper_Value = GetOptionValue(xmlDoc, "SelectedCustomMapper", "");
+                var CombineKnights_Value = GetOptionValue(xmlDoc, "CombineKnights", "Disabled");
 
 
                 xmlDoc.Save(file);
@@ -337,6 +338,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("KnightPrisonerChance", KnightPrisonerChance_Value);
                 ModOptions.optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
                 ModOptions.optionsValuesCollection.Add("SelectedCustomMapper", SelectedCustomMapper_Value);
+                ModOptions.optionsValuesCollection.Add("CombineKnights", CombineKnights_Value);
                 ModOptions.SelectedCustomMapper = SelectedCustomMapper_Value;
                 Program.Logger.Debug("Options collection populated.");
 
@@ -513,6 +515,9 @@ namespace CrusaderWars
                     numKnightPrisoner.Value = Math.Max(numKnightPrisoner.Minimum, Math.Min(numKnightPrisoner.Maximum, val));
                 }
 
+                // Set CombineKnights dropdown value
+                CandK_Tab.comboCombineKnights.SelectedItem = ModOptions.optionsValuesCollection["CombineKnights"];
+
                 // Manually trigger UpdateTotal for CandK_Tab after setting values
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
                 {
@@ -666,6 +671,16 @@ namespace CrusaderWars
                 var SelectedCustomMapper_Node = xmlDoc.SelectSingleNode("//Option [@name='SelectedCustomMapper']");
                 if (SelectedCustomMapper_Node != null) SelectedCustomMapper_Node.InnerText = ModOptions.SelectedCustomMapper;
 
+                var CombineKnights_Node = xmlDoc.SelectSingleNode("//Option [@name='CombineKnights']");
+                if (CombineKnights_Node != null) 
+                    CombineKnights_Node.InnerText = ModOptions.optionsValuesCollection["CombineKnights"];
+                else
+                {
+                    XmlElement newOption = xmlDoc.CreateElement("Option");
+                    newOption.SetAttribute("name", "CombineKnights");
+                    newOption.InnerText = ModOptions.optionsValuesCollection["CombineKnights"];
+                    xmlDoc.DocumentElement?.AppendChild(newOption);
+                }
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("Options saved to file.");
@@ -1432,6 +1447,12 @@ namespace CrusaderWars
         private void Options_FormClosing(object sender, FormClosingEventArgs e)
         {
             Program.Logger.Debug("Options form closing event triggered.");
+
+            // Save Combine Knights setting before closing
+            if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
+            {
+                candKOptions.SaveCombineKnightsSetting();
+            }
 
             // Perform validation for Commander and Knight wound chances
             if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)

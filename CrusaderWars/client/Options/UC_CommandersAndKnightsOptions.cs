@@ -30,11 +30,29 @@ namespace CrusaderWars.client.Options
                 numKnightMaimed, numKnightOneLegged, numKnightOneEyed, numKnightDisfigured, numKnightSlain
             };
 
+            // Add event handler for CombineKnights dropdown
+            comboCombineKnights.SelectedIndexChanged += comboCombineKnights_SelectedIndexChanged;
+
             // Initial subscription
             SubscribeEventHandlers();
             
             // Set default values
             SetDefaults();
+        }
+
+        private bool _combineKnightsChanged = false;
+
+        private void comboCombineKnights_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _combineKnightsChanged = true;
+        }
+
+        public void SaveCombineKnightsSetting()
+        {
+            if (_combineKnightsChanged)
+            {
+                ModOptions.optionsValuesCollection["CombineKnights"] = comboCombineKnights.SelectedItem.ToString();
+            }
         }
 
         [System.ComponentModel.Browsable(false)]

@@ -726,6 +726,7 @@ namespace CrusaderWars.client.Options
             this.comboCombineKnights.Name = "comboCombineKnights";
             this.comboCombineKnights.Size = new System.Drawing.Size(121, 27);
             this.comboCombineKnights.TabIndex = 1;
+            this.comboCombineKnights.SelectedIndexChanged += new System.EventHandler(this.comboCombineKnights_SelectedIndexChanged);
             // 
             // UC_CommandersAndKnightsOptions
             // 
