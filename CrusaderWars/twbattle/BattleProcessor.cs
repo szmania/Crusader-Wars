@@ -2247,11 +2247,19 @@ namespace CrusaderWars.twbattle
             // --- End Calculate Kills ---
 
 
+            // Calculate actual kills from battle results
+            int attackerTotalKills = defender_armies.Sum(a => a.GetTotalLosses());
+            int defenderTotalKills = attacker_armies.Sum(a => a.GetTotalLosses());
+
             report.AttackerSide = new SideReport { SideName = "Attackers" };
-            PopulateSideReport(report.AttackerSide, attacker_armies, deployedCounts, unitKills);
+            PopulateSideReport(report.AttackerSide, attacker_armies, deployedCounts, unitKills, defenderTotalKills);
 
             report.DefenderSide = new SideReport { SideName = "Defenders" };
-            PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts, unitKills);
+            PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts, unitKills, attackerTotalKills);
+
+            // Ensure kills match losses
+            report.AttackerSide.TotalKills = attackerTotalKills;
+            report.DefenderSide.TotalKills = defenderTotalKills;
 
             if (BattleState.IsSiegeBattle)
             {
@@ -2272,12 +2280,18 @@ namespace CrusaderWars.twbattle
             return report;
         }
 
-        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts, Dictionary<Unit, int> unitKills)
+        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts, Dictionary<Unit, int> unitKills, int sideTotalKills)
         {
             int sideTotalDeployed = 0;
             int sideTotalLosses = 0;
             int sideTotalRemaining = 0;
-            int sideTotalKills = 0;
+
+            // First, calculate total losses for the side
+            foreach (var army in armies)
+            {
+                int armyTotalLosses = army.GetTotalLosses();
+                sideTotalLosses += armyTotalLosses;
+            }
 
             foreach (var army in armies)
             {
@@ -2304,11 +2318,20 @@ namespace CrusaderWars.twbattle
                     CommanderName = army.Commander.Name
                 };
 
-                int armyTotalDeployed = 0;
-                int armyTotalLosses = 0;
-                int armyTotalRemaining = 0;
-                int armyTotalKills = 0;
+                // Calculate actual losses for this army
+                int armyTotalLosses = army.GetTotalLosses();
+                int armyTotalRemaining = army.GetTotalSoldiersAfterBattle();
+                int armyTotalDeployed = armyTotalLosses + armyTotalRemaining;
 
+                // Calculate kills for this army (proportional to its contribution to the side's total losses)
+                int armyTotalKills = 0;
+                if (sideTotalLosses > 0)
+                {
+                    double armyContribution = (double)armyTotalLosses / sideTotalLosses;
+                    armyTotalKills = (int)Math.Round(sideTotalKills * armyContribution);
+                }
+
+                // Process unit-level data
                 if (army.Units != null)
                 {
                     foreach (var unit in army.Units)
@@ -2349,25 +2372,19 @@ namespace CrusaderWars.twbattle
                         }
 
                         armyReport.Units.Add(unitReport);
-
-                        armyTotalDeployed += deployed;
-                        armyTotalLosses += losses;
-                        armyTotalRemaining += remaining;
-                        armyTotalKills += kills;
                     }
                 }
 
+                // Assign army-level totals
                 armyReport.TotalDeployed = armyTotalDeployed;
+                armyReport.TotalLosses = armyTotalLosses;
                 armyReport.TotalRemaining = armyTotalRemaining;
-                armyReport.TotalLosses = armyTotalDeployed - armyTotalRemaining;  // Losses = Deployed - Remaining
                 armyReport.TotalKills = armyTotalKills;
 
                 sideReport.Armies.Add(armyReport);
 
                 sideTotalDeployed += armyTotalDeployed;
                 sideTotalRemaining += armyTotalRemaining;
-                sideTotalLosses += armyReport.TotalLosses;
-                sideTotalKills += armyTotalKills;
             }
 
             sideReport.TotalDeployed = sideTotalDeployed;
