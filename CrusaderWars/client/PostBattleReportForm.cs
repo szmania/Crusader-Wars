@@ -88,7 +88,7 @@ namespace CrusaderWars.client
             int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;
 
             // Calculate total remaining soldiers
-            int totalRemaining = report.AttackerSide.TotalRemaining + report.DefenderSide.TotalRemaining;
+            int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;
 
             // Update the labels that are now part of the form design
             lblTotalDeployed.Text = $"Total Deployed: {totalDeployed}";

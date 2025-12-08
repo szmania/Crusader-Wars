@@ -2325,7 +2325,6 @@ namespace CrusaderWars.twbattle
                             AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
                             Deployed = deployed,
                             Remaining = remaining,
-                            Losses = losses,
                             Kills = kills,
                             Ck3UnitType = unit.GetRegimentType().ToString(),
                             AttilaUnitKey = unit.GetAttilaUnitKey(),
