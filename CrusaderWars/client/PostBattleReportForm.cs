@@ -86,70 +86,25 @@ namespace CrusaderWars.client
             int totalLosses = _report.AttackerSide.TotalLosses + _report.DefenderSide.TotalLosses;
             int totalKills = _report.AttackerSide.TotalKills + _report.DefenderSide.TotalKills;
             int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;
-            
-            // Create a panel to hold the totals at the bottom
-            var totalsPanel = new Panel();
-            totalsPanel.Size = new Size(this.ClientSize.Width - 40, 100);
-            totalsPanel.Location = new Point(20, this.ClientSize.Height - 120);
-            totalsPanel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            
-            var lblTotalsTitle = new Label();
-            lblTotalsTitle.Text = "TOTAL BATTLE STATISTICS";
-            lblTotalsTitle.Font = new Font("Georgia", 12, FontStyle.Bold);
-            lblTotalsTitle.ForeColor = Color.White;
-            lblTotalsTitle.Location = new Point(0, 0);
-            lblTotalsTitle.AutoSize = true;
-            
-            var lblTotalDeployed = new Label();
-            lblTotalDeployed.Text = $"Total Deployed: {totalDeployed}";
-            lblTotalDeployed.Font = new Font("Georgia", 10);
-            lblTotalDeployed.ForeColor = Color.White;
-            lblTotalDeployed.Location = new Point(0, 25);
-            lblTotalDeployed.AutoSize = true;
-            
-            var lblTotalLosses = new Label();
-            lblTotalLosses.Text = $"Total Losses: {totalLosses}";
-            lblTotalLosses.Font = new Font("Georgia", 10);
-            lblTotalLosses.ForeColor = Color.OrangeRed;
-            lblTotalLosses.Location = new Point(150, 25);
-            lblTotalLosses.AutoSize = true;
-            
-            var lblTotalRemaining = new Label();
-            lblTotalRemaining.Text = $"Total Remaining: {totalRemaining}";
-            lblTotalRemaining.Font = new Font("Georgia", 10);
-            lblTotalRemaining.ForeColor = Color.LightGreen;
-            lblTotalRemaining.Location = new Point(300, 25);
-            lblTotalRemaining.AutoSize = true;
-            
-            var lblTotalKills = new Label();
-            lblTotalKills.Text = $"Total Kills: {totalKills}";
-            lblTotalKills.Font = new Font("Georgia", 10);
-            lblTotalKills.ForeColor = Color.Gold;
-            lblTotalKills.Location = new Point(450, 25);
-            lblTotalKills.AutoSize = true;
-            
+
             // Add kill/loss discrepancy check
             string discrepancyText = "";
             if (Math.Abs(totalKills - totalLosses) > 5) { // Allow small discrepancy due to rounding
                 discrepancyText = $" (Discrepancy: {Math.Abs(totalKills - totalLosses)})";
             }
-            
-            var lblKillLossDiscrepancy = new Label();
+
+            // Update the labels that are now part of the form design
+            lblTotalDeployed.Text = $"Total Deployed: {totalDeployed}";
+            lblTotalLosses.Text = $"Total Losses: {totalLosses}";
+            lblTotalKills.Text = $"Total Kills: {totalKills}";
             lblKillLossDiscrepancy.Text = $"Kill/Loss Balance: {totalKills} kills vs {totalLosses} losses{discrepancyText}";
-            lblKillLossDiscrepancy.Font = new Font("Georgia", 10);
             lblKillLossDiscrepancy.ForeColor = string.IsNullOrEmpty(discrepancyText) ? Color.LightGreen : Color.OrangeRed;
-            lblKillLossDiscrepancy.Location = new Point(0, 50);
-            lblKillLossDiscrepancy.AutoSize = true;
-            
-            totalsPanel.Controls.Add(lblTotalsTitle);
-            totalsPanel.Controls.Add(lblTotalDeployed);
-            totalsPanel.Controls.Add(lblTotalLosses);
-            totalsPanel.Controls.Add(lblTotalRemaining);
-            totalsPanel.Controls.Add(lblTotalKills);
-            totalsPanel.Controls.Add(lblKillLossDiscrepancy);
-            
-            this.Controls.Add(totalsPanel);
-            totalsPanel.BringToFront();
+
+            // Make the labels visible
+            lblTotalDeployed.Visible = true;
+            lblTotalLosses.Visible = true;
+            lblTotalKills.Visible = true;
+            lblKillLossDiscrepancy.Visible = true;
         }
 
         private void PopulateSide(TreeNode sideNode, SideReport sideReport)
