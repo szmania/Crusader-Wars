@@ -40,6 +40,7 @@ namespace CrusaderWars
         public string CombatSide { get; set; }
         public UnitsResults? UnitsResults { get; set; }
         public List<UnitCasualitiesReport> CasualitiesReports { get; private set; } = new List<UnitCasualitiesReport>();
+        public Dictionary<string, int> SiegeEngines { get; set; } = new Dictionary<string, int>();
 
 
         public Army(string id, string combat_side, bool is_main)

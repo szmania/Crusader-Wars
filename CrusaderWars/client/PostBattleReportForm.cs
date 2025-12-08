@@ -117,6 +117,18 @@ namespace CrusaderWars.client
 
                     armyNode.Nodes.Add(unitNode);
                 }
+
+                // Add siege engines node if there are any
+                if (army.SiegeEngines.Any())
+                {
+                    var siegeNode = new TreeNode("Siege Engines");
+                    foreach (var siegeEngine in army.SiegeEngines)
+                    {
+                        siegeNode.Nodes.Add($"{siegeEngine.Name}: {siegeEngine.Quantity}");
+                    }
+                    armyNode.Nodes.Add(siegeNode);
+                }
+
                 sideNode.Nodes.Add(armyNode);
                 armyNode.Expand();
             }

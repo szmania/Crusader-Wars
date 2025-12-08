@@ -36,11 +36,18 @@ namespace CrusaderWars.client
         public int TotalKills { get; set; }
     }
 
+    public class SiegeEngineReport
+    {
+        public string Name { get; set; }
+        public int Quantity { get; set; }
+    }
+
     public class ArmyReport
     {
         public string ArmyName { get; set; } // e.g., "Army of Duke Antso III"
         public string CommanderName { get; set; }
         public List<UnitReport> Units { get; set; } = new List<UnitReport>();
+        public List<SiegeEngineReport> SiegeEngines { get; set; } = new List<SiegeEngineReport>();
 
         // New Summary Stats for the Army
         public int TotalDeployed { get; set; }

@@ -2375,6 +2375,19 @@ namespace CrusaderWars.twbattle
                     }
                 }
 
+                // Add siege engines to the army report (only for attacker armies in siege battles)
+                if (army.SiegeEngines != null && army.SiegeEngines.Any())
+                {
+                    foreach (var siegeEngine in army.SiegeEngines)
+                    {
+                        armyReport.SiegeEngines.Add(new SiegeEngineReport
+                        {
+                            Name = siegeEngine.Key,
+                            Quantity = siegeEngine.Value
+                        });
+                    }
+                }
+
                 // Assign army-level totals
                 armyReport.TotalDeployed = armyTotalDeployed;
                 armyReport.TotalLosses = armyTotalLosses;
