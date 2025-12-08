@@ -159,7 +159,7 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Previous battle files cleared.");
 
                     Program.Logger.Debug("Creating TW:Attila battle files.");
-                    // BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side[0].CombatSide);
+                    BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side[0].CombatSide);
 
                     await Games.CloseTotalWarAttilaProcess();
                     form.UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");
