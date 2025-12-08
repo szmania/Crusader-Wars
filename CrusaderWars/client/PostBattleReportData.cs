@@ -37,8 +37,6 @@ namespace CrusaderWars.client
         
         // Add consistency check
         public bool IsConsistent => TotalLosses == TotalKills;
-        public int TotalLosses { get; set; }
-        public int TotalRemaining { get; set; }
     }
 
     public class SiegeEngineReport
