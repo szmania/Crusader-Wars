@@ -12,22 +12,85 @@ namespace CrusaderWars.locs
 {
     static class BattleDetails
     {
-        // Line 15 - Initialize property
         public static string? Name { get; private set; }
-        
+
+        private static readonly string BattleTextFilesPath = @".\data\battle files\text\db\";
+        private static readonly string BackupFolderPath = @".\data\battle files\text\db_original_backup\";
+        private static readonly List<string> FilesToBackup = new List<string>()
+        {
+            "tutorial_historical_battles.loc.tsv",
+            "tutorial_historical_battles_factions.loc.tsv",
+            "tutorial_historical_battles_uied_component_texts.loc.tsv"
+        };
+
         public static void SetBattleName(string a)
         {
             Name = a;
         }
 
+        public static void BackupOriginalBattleTextFiles()
+        {
+            Program.Logger.Debug("Backing up original battle text files...");
+            if (!Directory.Exists(BackupFolderPath))
+            {
+                Directory.CreateDirectory(BackupFolderPath);
+            }
+
+            foreach (var fileName in FilesToBackup)
+            {
+                string sourcePath = Path.Combine(BattleTextFilesPath, fileName);
+                string destPath = Path.Combine(BackupFolderPath, fileName);
+                if (File.Exists(sourcePath))
+                {
+                    File.Copy(sourcePath, destPath, true);
+                    Program.Logger.Debug($"Backed up: {fileName}");
+                }
+                else
+                {
+                    Program.Logger.Debug($"Warning: Original battle text file not found for backup: {fileName}");
+                }
+            }
+            Program.Logger.Debug("Original battle text files backup complete.");
+        }
+
+        public static void RestoreOriginalBattleTextFiles()
+        {
+            Program.Logger.Debug("Restoring original battle text files...");
+            foreach (var fileName in FilesToBackup)
+            {
+                string sourcePath = Path.Combine(BackupFolderPath, fileName);
+                string destPath = Path.Combine(BattleTextFilesPath, fileName);
+                if (File.Exists(sourcePath))
+                {
+                    // Ensure the target file is not locked before attempting to overwrite
+                    try
+                    {
+                        if (File.Exists(destPath))
+                        {
+                            File.Delete(destPath);
+                        }
+                        File.Copy(sourcePath, destPath, true);
+                        Program.Logger.Debug($"Restored: {fileName}");
+                    }
+                    catch (IOException ex)
+                    {
+                        Program.Logger.Debug($"Error restoring {fileName}: {ex.Message}. File might be in use. Skipping restore for this file.");
+                    }
+                }
+                else
+                {
+                    Program.Logger.Debug($"Warning: Backup file not found for restore: {fileName}");
+                }
+            }
+            Program.Logger.Debug("Original battle text files restore complete.");
+        }
+
         public static void ChangeBattleDetails(int left_total, int right_total, string playerCombatSide, string enemyCombatSide)
         {
-
             EditButtonVersion();
             EditBattleTextDetails(left_total, right_total);
             EditCombatSidesDetails(playerCombatSide, enemyCombatSide);
             EditTerrainImage();
-
         }
 
         private static void EditButtonVersion()
@@ -50,13 +113,11 @@ namespace CrusaderWars.locs
             // If parsing fails, 'version' remains "v1.0.0"
 
             
-            string original_buttonVersion_path = @".\data\battle files\text\db\tutorial_historical_battles_uied_component_texts.loc.tsv";
-            string copy_path = @".\data\tutorial_historical_battles_uied_component_texts.loc.tsv";
-            File.Copy(original_buttonVersion_path, copy_path);
-            File.WriteAllText(copy_path, string.Empty);
+            string original_buttonVersion_path = Path.Combine(BattleTextFilesPath, "tutorial_historical_battles_uied_component_texts.loc.tsv");
+            string temp_path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".loc.tsv"); // Use temp path
 
             string new_data = "";
-            using (FileStream btnVersion = File.Open(original_buttonVersion_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (FileStream btnVersion = File.Open(original_buttonVersion_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) // Read only
             using (StreamReader reader = new StreamReader(btnVersion))
             {
                 string? line;
@@ -82,28 +143,22 @@ namespace CrusaderWars.locs
                     }
                     new_data += line + "\n";
                 }
+            } // Files are closed here
 
-                reader.Close();
-                btnVersion.Close();
-            }
-
-            File.WriteAllText(copy_path, new_data);
-            if (File.Exists(original_buttonVersion_path)) File.Delete(original_buttonVersion_path);
-            File.Move(copy_path, original_buttonVersion_path);
+            File.WriteAllText(temp_path, new_data);
+            File.Delete(original_buttonVersion_path); // Delete original
+            File.Move(temp_path, original_buttonVersion_path); // Move temp to original
         }
 
         private static void EditBattleTextDetails(int left_side_total, int right_side_total)
         {
             string patreon_text = "Special thanks to our patreons for supporting the development of the mod: Grant Swift, Galahad, Kieran Britt, Chris Kelly, Kyle T David, Oron Gabay, I Regret This Already, TheRagingMagnus, Gav, Kyra, Michael Nathan Chananja Klaassen, Lightmare Studios, PTOLEMY, wanderinghobo49, Nico Mangold, Thierry La Fraude, Cameron Alexander Booth and Braden!";
 
-            string original_battle_details_path = @".\data\battle files\text\db\tutorial_historical_battles.loc.tsv";
-            string copy_path = @".\data\tutorial_historical_battles.loc.tsv";
-            File.Copy(original_battle_details_path, copy_path);
-            File.WriteAllText(copy_path, string.Empty);
-
+            string original_battle_details_path = Path.Combine(BattleTextFilesPath, "tutorial_historical_battles.loc.tsv");
+            string temp_path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".loc.tsv"); // Use temp path
 
             string new_data = "";
-            using (FileStream battle_details_file = File.Open(original_battle_details_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (FileStream battle_details_file = File.Open(original_battle_details_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) // Read only
             using (StreamReader reader = new StreamReader(battle_details_file))
             {
                 string? line;
@@ -134,25 +189,20 @@ namespace CrusaderWars.locs
                     }
                     new_data += line + "\n";
                 }
+            } // Files are closed here
 
-                reader.Close();
-                battle_details_file.Close();
-            }
-
-            File.WriteAllText(copy_path, new_data);
-            if(File.Exists(original_battle_details_path))File.Delete(original_battle_details_path);
-            File.Move(copy_path, original_battle_details_path);
+            File.WriteAllText(temp_path, new_data);
+            File.Delete(original_battle_details_path); // Delete original
+            File.Move(temp_path, original_battle_details_path); // Move temp to original
         }
 
         private static void EditCombatSidesDetails(string playerCombatSide, string enemyCombatSide)
         {
-            string original_attila_file_path = @".\data\battle files\text\db\tutorial_historical_battles_factions.loc.tsv";
-            string copy_path = @".\data\tutorial_historical_battles_factions.loc.tsv";
-            File.Copy(original_attila_file_path, copy_path);
-            File.WriteAllText(copy_path, string.Empty);
+            string original_attila_file_path = Path.Combine(BattleTextFilesPath, "tutorial_historical_battles_factions.loc.tsv");
+            string temp_path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".loc.tsv"); // Use temp path
 
             string new_data = "";
-            using (FileStream battle_side_file = File.Open(original_attila_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (FileStream battle_side_file = File.Open(original_attila_file_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) // Read only
             using (StreamReader reader = new StreamReader(battle_side_file))
             {
                 string? line;
@@ -172,14 +222,11 @@ namespace CrusaderWars.locs
 
                     new_data += line + "\n";
                 }
+            } // Files are closed here
 
-                reader.Close();
-                battle_side_file.Close();
-            }
-
-            File.WriteAllText(copy_path, new_data);
-            if(File.Exists(original_attila_file_path))File.Delete(original_attila_file_path);
-            File.Move(copy_path, original_attila_file_path);
+            File.WriteAllText(temp_path, new_data);
+            File.Delete(original_attila_file_path); // Delete original
+            File.Move(temp_path, original_attila_file_path); // Move temp to original
         }
 
         private static void EditTerrainImage()

@@ -87,6 +87,7 @@ namespace CrusaderWars
             Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
             CreateRequiredDirectories();
+            BattleDetails.BackupOriginalBattleTextFiles(); // Backup original battle text files
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
@@ -329,7 +330,7 @@ namespace CrusaderWars
             string activePlaythroughTag = GetActivePlaythroughTag();
             if (string.IsNullOrEmpty(activePlaythroughTag))
             {
-                MessageBox.Show("No Unit Mapper has been selected. Please select a playthrough in the Mod Settings.", "No Playthrough Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("No Unit Mapper has been selected. Please select a playthrough in the Mod Settings.", "No Playthrough Selected", MessageBoxButtons.OK, Icon.Warning);
                 return false;
             }
 
@@ -338,7 +339,7 @@ namespace CrusaderWars
                 string customMapperTag = client.ModOptions.GetSelectedCustomMapper();
                 if (string.IsNullOrEmpty(customMapperTag))
                 {
-                    MessageBox.Show("The 'Custom' playthrough is active, but no custom unit mapper has been selected from the dropdown in Mod Settings.", "Custom Mapper Not Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("The 'Custom' playthrough is active, but no custom unit mapper has been selected from the dropdown in Mod Settings.", "Custom Mapper Not Selected", MessageBoxButtons.OK, Icon.Warning);
                     return false;
                 }
             }
@@ -442,7 +443,7 @@ namespace CrusaderWars
                         sb.AppendLine();
                     }
 
-                    MessageBox.Show(sb.ToString(), "Unit Mapper Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(sb.ToString(), "Unit Mapper Validation Failed", MessageBoxButtons.OK, Icon.Error);
                     return false;
                 }
             }
@@ -754,7 +755,7 @@ namespace CrusaderWars
 
                 MessageBox.Show(this, $"The Unit Mappers have been updated to v{_umVersion}.\n\n" +
                                       $"The application will now re-validate your currently selected playthrough ('{GetFriendlyPlaythroughName(activePlaythroughTag)}') to ensure compatibility.",
-                                      "Unit Mappers Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                      "Unit Mappers Updated", MessageBoxButtons.OK, Icon.Information);
 
                 var allErrors = new List<string>();
                 string playthroughFolderPath = "";
@@ -849,7 +850,7 @@ namespace CrusaderWars
                     sb.AppendLine();
                     sb.AppendLine(string.Join("\n", allErrors));
 
-                    MessageBox.Show(this, sb.ToString(), "Playthrough Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, sb.ToString(), "Playthrough Validation Failed", MessageBoxButtons.OK, Icon.Warning);
 
                     // Deactivate playthrough
                     string um_file = @".\settings\UnitMappers.xml";
@@ -874,7 +875,7 @@ namespace CrusaderWars
                 else
                 {
                     MessageBox.Show(this, $"Your active playthrough '{GetFriendlyPlaythroughName(activePlaythroughTag)}' was successfully re-validated against the new Unit Mapper files.",
-                                    "Re-Validation Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    "Re-Validation Successful", MessageBoxButtons.OK, Icon.Information);
                 }
             }
 
@@ -1476,7 +1477,7 @@ namespace CrusaderWars
                                                  "Please unsubscribe from the Paradox Plaza version and enable the local 'crusader_conflicts.mod' provided with this application instead.",
                                                  "Incompatible Mod Version Detected",
                                                  MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Error);
+                                                 Icon.Error);
                                  return; // Stop execution
                              }
 
@@ -1487,7 +1488,7 @@ namespace CrusaderWars
                                  var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
                                                               "Crusader Conflicts Mod Not Enabled",
                                                               MessageBoxButtons.YesNo,
-                                                              MessageBoxIcon.Warning);
+                                                              Icon.Warning);
                                  if (result == DialogResult.No)
                                  {
                                      Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
@@ -1514,7 +1515,7 @@ namespace CrusaderWars
                                      var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
                                                                   "Compatibility Patch Not Enabled",
                                                                   MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
+                                                                  Icon.Warning);
                                  if (result == DialogResult.No)
                                  {
                                      Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
@@ -1536,7 +1537,7 @@ namespace CrusaderWars
                                      var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
                                                                   "Compatibility Patch Not Enabled",
                                                                   MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
+                                                                  Icon.Warning);
                                      if (result == DialogResult.No)
                                      {
                                          Program.Logger.Debug("User cancelled execution because Realms in Exile compatibility patch is not enabled.");
@@ -1559,7 +1560,7 @@ namespace CrusaderWars
                                  MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
                                                  "Incorrect Compatibility Patch Enabled",
                                                  MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
+                                                 Icon.Warning);
                                  return;
                              }
  
@@ -1569,7 +1570,7 @@ namespace CrusaderWars
                                  MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
                                                  "Incorrect Compatibility Patch Enabled",
                                                  MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
+                                                 Icon.Warning);
                                  return;
                              }
  
@@ -1581,7 +1582,7 @@ namespace CrusaderWars
                                      MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
                                                      "Incorrect Compatibility Patch Enabled",
                                                      MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
+                                                     Icon.Warning);
                                      return;
                                  }
                                  if (enabledMods.Contains(lotrPatch))
@@ -1590,7 +1591,7 @@ namespace CrusaderWars
                                      MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
                                                      "Incorrect Compatibility Patch Enabled",
                                                      MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
+                                                     Icon.Warning);
                                      return;
                                  }
                              }
@@ -1660,7 +1661,7 @@ namespace CrusaderWars
                                      var result = MessageBox.Show($"{expectedOrderMessage}\n\nYour current load order might cause issues.\n\nDo you still want to continue?",
                                                                   "Mod Load Order Warning",
                                                                   MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
+                                                                  Icon.Warning);
                                      if (result == DialogResult.No)
                                      {
                                          Program.Logger.Debug("User cancelled execution due to incorrect mod load order.");
@@ -1695,7 +1696,7 @@ namespace CrusaderWars
                 var confirmResult = MessageBox.Show("Starting a new battle will discard your progress from the current one in TW:Attila. Are you sure you want to continue?",
                                                      "Confirm Start CK3",
                                                      MessageBoxButtons.YesNo,
-                                                     MessageBoxIcon.Warning);
+                                                     Icon.Warning);
                 if (confirmResult == DialogResult.No)
                 {
                     SetBattleButtonsEnabled(true); // Re-enable buttons if user cancels
@@ -1764,6 +1765,7 @@ namespace CrusaderWars
                 {
                     try
                     {
+                        BattleDetails.RestoreOriginalBattleTextFiles(); // Restore original battle text files
                         DataSearch.ClearLogFile();
                         // DeclarationsFile.Erase(); // Moved to ProcessBattle
                         // BattleScript.EraseScript(); // Moved to ProcessBattle
@@ -1779,7 +1781,7 @@ namespace CrusaderWars
                         {
                             Program.Logger.Debug("Final attempt to clear log files failed.");
                             MessageBox.Show($"Could not clear temporary battle files. Another process may be locking them. Please restart the application.\n\nError: {ex.Message}", "Crusader Conflicts: File Lock Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         }
                         else
                         {
@@ -1791,7 +1793,7 @@ namespace CrusaderWars
                     {
                         Program.Logger.Debug($"Error clearing log files: {ex.Message}");
                         MessageBox.Show("An unexpected error occurred while clearing log files!", "Crusader Conflicts: Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                            MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         break; // Exit retry loop on unexpected error
                     }
                 }
@@ -1814,7 +1816,7 @@ namespace CrusaderWars
                 {
                     Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
                     MessageBox.Show("Error creating Attila shortcut!", "Crusader Conflicts: File Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
                     ExecuteButton.Enabled = true;
                     this.Text = "Crusader Conflicts";
@@ -1831,7 +1833,7 @@ namespace CrusaderWars
                 {
                     Program.Logger.Debug($"Error starting CK3: {ex.Message}");
                     MessageBox.Show("Couldn't find 'ck3.exe'. Change the Crusader Kings 3 path. ", "Crusader Conflicts: Path Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     infoLabel.Text = "Ready to start!";
                     ExecuteButton.Enabled = true;
                     this.Text = "Crusader Conflicts";
@@ -1917,7 +1919,7 @@ namespace CrusaderWars
                         {
                             Program.Logger.Debug($"Error searching for battle in log: {ex.Message}");
                             MessageBox.Show("Error searching for battle. ", "Crusader Conflicts: Critical Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                            MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Ready to start!";
                             ExecuteButton.Enabled = true;
                             this.Text = "Crusader Conflicts";
@@ -1968,7 +1970,7 @@ namespace CrusaderWars
                             this.Show();
                             if (loadingScreen != null) CloseLoadingScreen();
                             MessageBox.Show($"Error reading TW:Attila battle data: {ex.Message}", "Crusader Conflicts: Data Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                            MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Waiting for CK3 battle...";
                             this.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
@@ -2050,7 +2052,7 @@ namespace CrusaderWars
                                           "3. Ensure the game has fully saved before a battle starts.\n" +
                                           "4. Verify game files in Steam.";
                     MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Crusader Conflicts: Invalid Save File",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 
                     if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -2073,7 +2075,7 @@ namespace CrusaderWars
                     this.Show();
                     if (loadingScreen != null) CloseLoadingScreen();
                     MessageBox.Show($"Error reading the save file: {ex.Message}", "Crusader Conflicts: Save File Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.StartCrusaderKingsProcess();
@@ -2146,7 +2148,7 @@ namespace CrusaderWars
                             "6. Place Crusader Conflicts at the bottom of your playset";
 
                     MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Crusader Conflicts: Army Data Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.StartCrusaderKingsProcess();
@@ -2307,7 +2309,7 @@ namespace CrusaderWars
             if (string.IsNullOrEmpty(logSnippet))
             {
                 Program.Logger.Debug("Failed to load battle context. Log snippet is missing or empty.");
-                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Could not continue the battle. The battle context file is missing.", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
@@ -2317,6 +2319,7 @@ namespace CrusaderWars
                 this.Text = "Crusader Conflicts"; // Reset status on early exit
                 return;
             }
+            BattleDetails.RestoreOriginalBattleTextFiles(); // Restore original battle text files
             Data.Reset(); // ADDED as per plan
             Reader.ReadMetaData();
             DataSearch.Search(logSnippet);
@@ -2348,7 +2351,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Failed to re-load army data: {ex.Message}");
-                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Could not continue the battle. Failed to load army data.\n\nError: {ex.Message}", "Crusader Conflicts: Continue Battle Error", MessageBoxButtons.OK, Icon.Error);
                 // Reset UI state
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
@@ -2371,7 +2374,7 @@ namespace CrusaderWars
                                  "• No: Continue with the current session. (If the CC launcher closed unexpectedly)\n" +
                                  "• Cancel: Do nothing.";
                 string title = "Attila is Running";
-                DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNoCancel, Icon.Question);
 
                 if (result == DialogResult.Yes)
                 {
@@ -2862,7 +2865,7 @@ namespace CrusaderWars
                     MessageBox.Show("Log folder not found! Please report this to developers.",
                                     "Crusader Conflicts: Log Location Error",
                                     MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
+                                    Icon.Information);
                 }
             }
         }
@@ -3172,7 +3175,7 @@ namespace CrusaderWars
                 sb.AppendLine();
                 sb.AppendLine("Do you want to update these mods now?");
 
-                var result = MessageBox.Show(sb.ToString(), "CK3 Mod Updates Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                var result = MessageBox.Show(sb.ToString(), "CK3 Mod Updates Available", MessageBoxButtons.YesNo, Icon.Information);
 
                 if (result == DialogResult.Yes)
                 {
@@ -3197,7 +3200,7 @@ namespace CrusaderWars
 
             if (Process.GetProcessesByName("ck3").Length > 0)
             {
-                var closeResult = MessageBox.Show("Crusader Kings III is currently running. It must be closed to update the mods.\n\nDo you want to close it now?", "Close Crusader Kings III?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                var closeResult = MessageBox.Show("Crusader Kings III is currently running. It must be closed to update the mods.\n\nDo you want to close it now?", "Close Crusader Kings III?", MessageBoxButtons.YesNo, Icon.Warning);
                 if (closeResult == DialogResult.Yes)
                 {
                     Games.CloseCrusaderKingsProcess();
@@ -3205,7 +3208,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    MessageBox.Show("Mod update cancelled because Crusader Kings III was not closed.", "Update Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Mod update cancelled because Crusader Kings III was not closed.", "Update Cancelled", MessageBoxButtons.OK, Icon.Information);
                     Program.Logger.Debug("Mod update cancelled by user because CK3 is running.");
                     return false; // User cancelled
                 }
@@ -3243,7 +3246,7 @@ namespace CrusaderWars
                 catch (Exception ex)
                 {
                     Program.Logger.Debug($"Failed to update mod '{mod.Name}'. Error: {ex.Message}");
-                    MessageBox.Show($"Failed to update the mod '{mod.Name}'.\n\nPlease ensure you have the correct permissions for the CK3 mod directory and that no other programs (like antivirus) are blocking access.\n\nError: {ex.Message}", "Mod Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Failed to update the mod '{mod.Name}'.\n\nPlease ensure you have the correct permissions for the CK3 mod directory and that no other programs (like antivirus) are blocking access.\n\nError: {ex.Message}", "Mod Update Failed", MessageBoxButtons.OK, Icon.Error);
                     // Stop on first error to prevent further issues
                     return false; // Update failed
                 }
@@ -3251,7 +3254,7 @@ namespace CrusaderWars
 
             if (successCount == modsToUpdate.Count)
             {
-                MessageBox.Show("The selected CK3 mods have been successfully updated.", "Update Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("The selected CK3 mods have been successfully updated.", "Update Complete", MessageBoxButtons.OK, Icon.Information);
                 Program.Logger.Debug("CK3 mod update process completed successfully.");
                 return true; // All updates successful
             }
@@ -3292,7 +3295,7 @@ namespace CrusaderWars
             string? logSnippet = BattleState.LoadLogSnippet();
             if (logSnippet == null)
             {
-                MessageBox.Show(this, "Could not find saved battle information. The tools cannot be used until a battle has been started and saved.", "Battle Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Could not find saved battle information. The tools cannot be used until a battle has been started and saved.", "Battle Not Found", MessageBoxButtons.OK, Icon.Warning);
                 infoLabel.Text = originalInfoText;
                 return;
             }
@@ -3328,19 +3331,19 @@ namespace CrusaderWars
                     // For now, cycle through Big -> Huge -> default
                     string nextSize = BattleState.AutofixDeploymentSizeOverride == "Big" ? "Huge" : "Big";
                     BattleState.AutofixDeploymentSizeOverride = nextSize;
-                    MessageBox.Show($"Autofix setting applied: Map size will be forced to '{nextSize}' for the next battle.", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Autofix setting applied: Map size will be forced to '{nextSize}' for the next battle.", "Autofix Applied", MessageBoxButtons.OK, Icon.Information);
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.Deployment:
                     BattleState.AutofixDeploymentRotationOverride = !(BattleState.AutofixDeploymentRotationOverride ?? false);
                     string rotationState = BattleState.AutofixDeploymentRotationOverride == true ? "enabled" : "disabled";
-                    MessageBox.Show($"Autofix setting applied: Deployment rotation is now {rotationState} for the next battle.", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Autofix setting applied: Deployment rotation is now {rotationState} for the next battle.", "Autofix Applied", MessageBoxButtons.OK, Icon.Information);
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.MapVariant:
                     BattleState.AutofixMapVariantOffset++;
-                    MessageBox.Show($"Autofix setting applied: Map variant offset will be increased by 1 for the next battle (current offset: {BattleState.AutofixMapVariantOffset}).", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Autofix setting applied: Map variant offset will be increased by 1 for the next battle (current offset: {BattleState.AutofixMapVariantOffset}).", "Autofix Applied", MessageBoxButtons.OK, Icon.Information);
                     break;
                 case BattleProcessor.AutofixState.AutofixStrategy.Units:
-                    MessageBox.Show("The 'Change Units' strategy is an automatic process that runs after a crash and cannot be configured beforehand. Please use the 'Unit Replacer Tool' for manual changes.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("The 'Change Units' strategy is an automatic process that runs after a crash and cannot be configured beforehand. Please use the 'Unit Replacer Tool' for manual changes.", "Information", MessageBoxButtons.OK, Icon.Information);
                     break;
             }
             infoLabel.Text = originalInfoText; // Reset label after tool is used or cancelled
@@ -3357,7 +3360,7 @@ namespace CrusaderWars
                 string? logSnippet = BattleState.LoadLogSnippet();
                 if (logSnippet == null)
                 {
-                    MessageBox.Show("Could not find the saved battle information (log snippet). The AutoFixer cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Could not find the saved battle information (log snippet). The AutoFixer cannot run without it.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
                 DataSearch.Search(logSnippet);
@@ -3381,7 +3384,7 @@ namespace CrusaderWars
                 string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
                 if (string.IsNullOrEmpty(selectedPlaythrough))
                 {
-                    MessageBox.Show("No playthrough is selected. The AutoFixer cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No playthrough is selected. The AutoFixer cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
 
@@ -3391,7 +3394,7 @@ namespace CrusaderWars
 
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
-                    MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
                 Program.Logger.Debug($"LaunchAutoFixer: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
@@ -3401,7 +3404,7 @@ namespace CrusaderWars
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
-                    MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
                 DataSearch.FindSiegeCombatID();
@@ -3423,13 +3426,13 @@ namespace CrusaderWars
                 if (unitScreenNames is null)
                 {
                     Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
-                    MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
                 if (allAvailableUnits is null)
                 {
                     Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
-                    MessageBox.Show(this, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
 
@@ -3459,7 +3462,7 @@ namespace CrusaderWars
                                 BattleState.ManualUnitReplacements[replacement.Key] = replacement.Value;
                                 Program.Logger.Debug($"  - Storing replacement for '{replacement.Key.originalKey}' with '{replacement.Value.replacementKey}' for {(replacement.Key.isPlayerAlliance ? "Player" : "Enemy")}");
                             }
-                            MessageBox.Show("Unit replacements have been saved. They will be applied when you click 'Continue Battle'.", "Replacements Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show("Unit replacements have been saved. They will be applied when you click 'Continue Battle'.", "Replacements Saved", MessageBoxButtons.OK, Icon.Information);
                         }
                         else
                         {
@@ -3476,7 +3479,7 @@ namespace CrusaderWars
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in LaunchUnitReplacerTool: {ex.Message}\n{ex.StackTrace}");
-                MessageBox.Show($"An unexpected error occurred while launching the Unit Replacer: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An unexpected error occurred while launching the Unit Replacer: {ex.Message}", "Error", MessageBoxButtons.OK, Icon.Error);
             }
         }
 
@@ -3491,7 +3494,7 @@ namespace CrusaderWars
                 string? logSnippet = BattleState.LoadLogSnippet();
                 if (logSnippet == null)
                 {
-                    MessageBox.Show("Could not find the saved battle information (log snippet). The tool cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Could not find the saved battle information (log snippet). The tool cannot run without it.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
                 DataSearch.Search(logSnippet);
@@ -3514,7 +3517,7 @@ namespace CrusaderWars
                 string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
                 if (string.IsNullOrEmpty(selectedPlaythrough))
                 {
-                    MessageBox.Show("No playthrough is selected. The tool cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No playthrough is selected. The tool cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
 
@@ -3524,7 +3527,7 @@ namespace CrusaderWars
 
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
-                    MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
                 Program.Logger.Debug($"LaunchDeploymentZoneEditor: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
@@ -3534,7 +3537,7 @@ namespace CrusaderWars
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
-                    MessageBox.Show("Could not read army data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Could not read army data.", "Error", MessageBoxButtons.OK, Icon.Error);
                     return;
                 }
                 DataSearch.FindSiegeCombatID();
@@ -3596,14 +3599,14 @@ namespace CrusaderWars
                             Height = (float)defenderValues.Height
                         };
 
-                        MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, Icon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in LaunchDeploymentZoneEditor: {ex.Message}");
-                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, Icon.Error);
             }
         }
         #endregion
