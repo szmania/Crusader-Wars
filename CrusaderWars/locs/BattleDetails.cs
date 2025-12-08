@@ -13,11 +13,85 @@ namespace CrusaderWars.locs
     static class BattleDetails
     {
         // Line 15 - Initialize property
-        static string Name { get; set; } = string.Empty;
+        public static string Name { get; set; } = string.Empty;
         
         public static void SetBattleName(string a)
         {
             Name = a;
+        }
+
+        public static void BackupOriginalBattleTextFiles()
+        {
+            string dbPath = @".\data\battle files\text\db";
+            string backupPath = @".\data\battle files\text\db_original";
+            
+            // Create backup directory if it doesn't exist
+            if (!Directory.Exists(backupPath))
+            {
+                Directory.CreateDirectory(backupPath);
+            }
+            
+            // Copy all files from db to db_original
+            if (Directory.Exists(dbPath))
+            {
+                foreach (string file in Directory.GetFiles(dbPath))
+                {
+                    string fileName = Path.GetFileName(file);
+                    string backupFile = Path.Combine(backupPath, fileName);
+                    try
+                    {
+                        File.Copy(file, backupFile, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Failed to backup battle text file {fileName}: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        public static void RestoreOriginalBattleTextFiles()
+        {
+            string dbPath = @".\data\battle files\text\db";
+            string backupPath = @".\data\battle files\text\db_original";
+            
+            // Clear current db directory
+            if (Directory.Exists(dbPath))
+            {
+                foreach (string file in Directory.GetFiles(dbPath))
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Failed to delete battle text file {file}: {ex.Message}");
+                    }
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(dbPath);
+            }
+            
+            // Restore files from backup
+            if (Directory.Exists(backupPath))
+            {
+                foreach (string file in Directory.GetFiles(backupPath))
+                {
+                    string fileName = Path.GetFileName(file);
+                    string dbFile = Path.Combine(dbPath, fileName);
+                    try
+                    {
+                        File.Copy(file, dbFile, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Failed to restore battle text file {fileName}: {ex.Message}");
+                    }
+                }
+            }
         }
 
         public static void ChangeBattleDetails(int left_total, int right_total, string playerCombatSide, string enemyCombatSide)
