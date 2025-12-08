@@ -87,24 +87,20 @@ namespace CrusaderWars.client
             int totalKills = _report.AttackerSide.TotalKills + _report.DefenderSide.TotalKills;
             int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;
 
-            // Add kill/loss discrepancy check
-            string discrepancyText = "";
-            if (Math.Abs(totalKills - totalLosses) > 5) { // Allow small discrepancy due to rounding
-                discrepancyText = $" (Discrepancy: {Math.Abs(totalKills - totalLosses)})";
-            }
+            // Calculate total remaining soldiers
+            int totalRemaining = report.AttackerSide.TotalRemaining + report.DefenderSide.TotalRemaining;
 
             // Update the labels that are now part of the form design
             lblTotalDeployed.Text = $"Total Deployed: {totalDeployed}";
             lblTotalLosses.Text = $"Total Losses: {totalLosses}";
+            lblTotalRemaining.Text = $"Total Remaining: {totalRemaining}";
             lblTotalKills.Text = $"Total Kills: {totalKills}";
-            lblKillLossDiscrepancy.Text = $"Kill/Loss Balance: {totalKills} kills vs {totalLosses} losses{discrepancyText}";
-            lblKillLossDiscrepancy.ForeColor = string.IsNullOrEmpty(discrepancyText) ? Color.LightGreen : Color.OrangeRed;
 
             // Make the labels visible
             lblTotalDeployed.Visible = true;
             lblTotalLosses.Visible = true;
+            lblTotalRemaining.Visible = true;
             lblTotalKills.Visible = true;
-            lblKillLossDiscrepancy.Visible = true;
         }
 
         private void PopulateSide(TreeNode sideNode, SideReport sideReport)

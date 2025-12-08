@@ -48,7 +48,7 @@ namespace CrusaderWars.client
             this.lblTotalDeployed = new System.Windows.Forms.Label();
             this.lblTotalLosses = new System.Windows.Forms.Label();
             this.lblTotalKills = new System.Windows.Forms.Label();
-            this.lblKillLossDiscrepancy = new System.Windows.Forms.Label();
+            this.lblTotalRemaining = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -248,25 +248,25 @@ namespace CrusaderWars.client
             this.lblTotalKills.AutoSize = true;
             this.lblTotalKills.Font = new System.Drawing.Font("Georgia", 10F);
             this.lblTotalKills.ForeColor = System.Drawing.Color.Gold;
-            this.lblTotalKills.Location = new System.Drawing.Point(300, 540);
+            this.lblTotalKills.Location = new System.Drawing.Point(450, 540);
             this.lblTotalKills.Name = "lblTotalKills";
             this.lblTotalKills.Size = new System.Drawing.Size(85, 17);
             this.lblTotalKills.TabIndex = 16;
             this.lblTotalKills.Text = "Total Kills:";
             this.lblTotalKills.Visible = false;
             // 
-            // lblKillLossDiscrepancy
+            // lblTotalRemaining
             // 
-            this.lblKillLossDiscrepancy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblKillLossDiscrepancy.AutoSize = true;
-            this.lblKillLossDiscrepancy.Font = new System.Drawing.Font("Georgia", 10F);
-            this.lblKillLossDiscrepancy.ForeColor = System.Drawing.Color.LightGreen;
-            this.lblKillLossDiscrepancy.Location = new System.Drawing.Point(450, 540);
-            this.lblKillLossDiscrepancy.Name = "lblKillLossDiscrepancy";
-            this.lblKillLossDiscrepancy.Size = new System.Drawing.Size(145, 17);
-            this.lblKillLossDiscrepancy.TabIndex = 17;
-            this.lblKillLossDiscrepancy.Text = "Kill/Loss Balance: ";
-            this.lblKillLossDiscrepancy.Visible = false;
+            this.lblTotalRemaining.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTotalRemaining.AutoSize = true;
+            this.lblTotalRemaining.Font = new System.Drawing.Font("Georgia", 10F);
+            this.lblTotalRemaining.ForeColor = System.Drawing.Color.LightGreen;
+            this.lblTotalRemaining.Location = new System.Drawing.Point(300, 540);
+            this.lblTotalRemaining.Name = "lblTotalRemaining";
+            this.lblTotalRemaining.Size = new System.Drawing.Size(119, 17);
+            this.lblTotalRemaining.TabIndex = 17;
+            this.lblTotalRemaining.Text = "Total Remaining:";
+            this.lblTotalRemaining.Visible = false;
             // 
             // PostBattleReportForm
             // 
@@ -274,7 +274,7 @@ namespace CrusaderWars.client
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.ClientSize = new System.Drawing.Size(984, 634);
-            this.Controls.Add(this.lblKillLossDiscrepancy);
+            this.Controls.Add(this.lblTotalRemaining);
             this.Controls.Add(this.lblTotalKills);
             this.Controls.Add(this.lblTotalLosses);
             this.Controls.Add(this.lblTotalDeployed);
@@ -324,6 +324,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Label lblTotalDeployed;
         private System.Windows.Forms.Label lblTotalLosses;
         private System.Windows.Forms.Label lblTotalKills;
-        private System.Windows.Forms.Label lblKillLossDiscrepancy;
+        private System.Windows.Forms.Label lblTotalRemaining;
     }
 }
