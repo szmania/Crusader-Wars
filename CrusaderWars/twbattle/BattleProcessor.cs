@@ -2276,6 +2276,7 @@ namespace CrusaderWars.twbattle
             int sideTotalDeployed = armies.Sum(a => a.GetTotalDeployed());
             int sideTotalLosses = armies.Sum(a => a.GetTotalLosses());
             int sideTotalRemaining = armies.Sum(a => a.GetTotalRemaining());
+            int sideTotalKills = armies.Sum(a => a.GetTotalKills());
 
             foreach (var army in armies)
             {
