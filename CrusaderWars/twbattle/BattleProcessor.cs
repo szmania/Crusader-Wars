@@ -2358,15 +2358,15 @@ namespace CrusaderWars.twbattle
                 }
 
                 armyReport.TotalDeployed = armyTotalDeployed;
-                armyReport.TotalLosses = armyTotalLosses;
                 armyReport.TotalRemaining = armyTotalRemaining;
+                armyReport.TotalLosses = armyTotalDeployed - armyTotalRemaining;  // Losses = Deployed - Remaining
                 armyReport.TotalKills = armyTotalKills;
 
                 sideReport.Armies.Add(armyReport);
 
                 sideTotalDeployed += armyTotalDeployed;
-                sideTotalLosses += armyTotalLosses;
                 sideTotalRemaining += armyTotalRemaining;
+                sideTotalLosses += armyReport.TotalLosses;
                 sideTotalKills += armyTotalKills;
             }
 
