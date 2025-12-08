@@ -2206,12 +2206,12 @@ namespace CrusaderWars.twbattle
                     if (unit == null) continue;
 
                     // Find matching report
-                    var report = army.CasualitiesReports.FirstOrDefault(r =>
+                    var casualtyReport = army.CasualitiesReports.FirstOrDefault(r =>
                         r.GetUnitType() == unit.GetRegimentType() &&
                         r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy ? "Levy" : unit.GetName()) &&
                         r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
                     
-                    int kills = report != null ? report.GetKilled() : 0;
+                    int kills = casualtyReport != null ? casualtyReport.GetKilled() : 0;
                     unitKills[unit] = kills;
                 }
             }
