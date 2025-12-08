@@ -53,9 +53,11 @@ namespace CrusaderWars.client
     {
         public string AttilaUnitName { get; set; }
         public int Deployed { get; set; }
-        public int Losses { get; set; }
         public int Remaining { get; set; }
         public int Kills { get; set; }
+
+        // Calculated Losses property
+        public int Losses => Math.Max(0, Deployed - Remaining);
 
         // Detailed Info
         public string Ck3UnitType { get; set; }
