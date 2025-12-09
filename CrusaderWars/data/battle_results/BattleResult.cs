@@ -700,7 +700,7 @@ namespace CrusaderWars.data.battle_results
             List<UnitCasualitiesReport> reportsList = new List<UnitCasualitiesReport>();
 
             // Group by Type and CultureID
-            var grouped = army.UnitsResults!.Alive_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
+            var grouped = army.UnitsResults.Alive_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
             Program.Logger.Debug($"Found {grouped.Count()} unit groups for army {army.ID}.");
             var pursuit_grouped =
                 army.UnitsResults.Alive_PursuitPhase?.GroupBy(item => new { item.Type, item.CultureID });
@@ -741,7 +741,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     // This is either a MAA unit (type is CK3 name) or a Garrison unit (type is Attila key).
                     // We need to check if this key corresponds to a Garrison unit in the army.
-                    var isGarrisonUnit = army.Units.Any(u => 
+                    var isGarrisonUnit = army.Units != null && army.Units.Any(u => 
                         u.GetRegimentType() == RegimentType.Garrison && 
                         u.GetAttilaUnitKey() == group.Key.Type);
 
@@ -848,9 +848,9 @@ namespace CrusaderWars.data.battle_results
 
                     // Find the total kills for the group from the log (used for proportional kill distribution)
                     int totalGroupKills = 0;
-                    var killsGroup = army.UnitsResults?.Kills_MainPhase.FirstOrDefault(x =>
+                    var killsGroup = army.UnitsResults.Kills_MainPhase.FirstOrDefault(x =>
                         x.Type == group.Key.Type && x.CultureID == group.Key.CultureID);
-                    if (killsGroup.Item4 != null && Int32.TryParse(killsGroup.Item4, out int parsedKills))
+                    if (killsGroup != null && killsGroup.Item4 != null && Int32.TryParse(killsGroup.Item4, out int parsedKills))
                     {
                         totalGroupKills = parsedKills;
                     }
@@ -2140,7 +2140,8 @@ namespace CrusaderWars.data.battle_results
                 {
                     foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
                     {
-                        if (army_regiment == null) continue; // Added null check
+                        if (army_regiment == null) continue;
+
                         if (army_regiment.Type == RegimentType.Knight) continue;
                         if (army_regiment.ID == army_regiment_id)
                         {
