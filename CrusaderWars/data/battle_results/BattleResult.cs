@@ -463,7 +463,7 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug($"Error reading Attila results for army {army.ID}: {e.ToString()}");
                 MessageBox.Show($"Error reading Attila results: {e.ToString()}",
                     "Crusader Conflicts: Battle Results Error",
-                    MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
                     MessageBoxOptions.DefaultDesktopOnly);
                 throw new Exception();
 
