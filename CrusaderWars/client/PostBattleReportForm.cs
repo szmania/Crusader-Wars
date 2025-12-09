@@ -285,5 +285,89 @@ namespace CrusaderWars.client
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
+
+        private string GenerateClipboardContent()
+        {
+            var sb = new StringBuilder();
+            
+            // Battle Header Details
+            sb.AppendLine("=== CRUSADER CONFLICTS BATTLE REPORT ===");
+            sb.AppendLine($"Battle Name: {_report.BattleName}");
+            sb.AppendLine($"Date: {_report.BattleDate}");
+            sb.AppendLine($"Location: {_report.LocationDetails}");
+            sb.AppendLine($"Province: {_report.ProvinceName}");
+            sb.AppendLine($"Time of Day: {_report.TimeOfDay}");
+            sb.AppendLine($"Season: {_report.Season}");
+            sb.AppendLine();
+
+            // Battle Result
+            sb.AppendLine($"Result: {_report.BattleResult}");
+            if (_report.SiegeResult != "N/A")
+            {
+                sb.AppendLine($"Siege Result: {_report.SiegeResult}");
+                sb.AppendLine($"Wall Damage: {_report.WallDamage}");
+            }
+            sb.AppendLine();
+
+            // Total Statistics
+            sb.AppendLine("=== TOTAL STATISTICS ===");
+            sb.AppendLine($"Total Deployed: {lblTotalDeployed.Text.Replace("Total Deployed: ", "")}");
+            sb.AppendLine($"Total Losses: {lblTotalLosses.Text.Replace("Total Losses: ", "")}");
+            sb.AppendLine($"Total Remaining: {lblTotalRemaining.Text.Replace("Total Remaining: ", "")}");
+            sb.AppendLine($"Total Kills: {lblTotalKills.Text.Replace("Total Kills: ", "")}");
+            sb.AppendLine();
+
+            // Attacker Side Details
+            sb.AppendLine("=== ATTACKER SIDE ===");
+            sb.AppendLine($"Total: {_report.AttackerSide.TotalDeployed} deployed, {_report.AttackerSide.TotalLosses} losses, {_report.AttackerSide.TotalRemaining} remaining, {_report.AttackerSide.TotalKills} kills");
+            AppendSideDetails(sb, _report.AttackerSide, "Attacker");
+
+            // Defender Side Details
+            sb.AppendLine("=== DEFENDER SIDE ===");
+            sb.AppendLine($"Total: {_report.DefenderSide.TotalDeployed} deployed, {_report.DefenderSide.TotalLosses} losses, {_report.DefenderSide.TotalRemaining} remaining, {_report.DefenderSide.TotalKills} kills");
+            AppendSideDetails(sb, _report.DefenderSide, "Defender");
+
+            return sb.ToString();
+        }
+
+        private void AppendSideDetails(StringBuilder sb, SideReport side, string sideName)
+        {
+            foreach (var army in side.Armies)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"{sideName} Army: {army.ArmyName} (Commander: {army.CommanderName})");
+                sb.AppendLine($"  Total: {army.TotalDeployed} deployed, {army.TotalLosses} losses, {army.TotalRemaining} remaining, {army.TotalKills} kills");
+
+                foreach (var unit in army.Units)
+                {
+                    sb.AppendLine($"  Unit: {unit.AttilaUnitName}");
+                    sb.AppendLine($"    Deployed: {unit.Deployed}, Losses: {unit.Losses}, Remaining: {unit.Remaining}, Kills: {unit.Kills}");
+                    
+                    if (unit.Characters.Any())
+                    {
+                        sb.AppendLine("    Characters:");
+                        foreach (var character in unit.Characters)
+                        {
+                            sb.AppendLine($"      {character.Name}: {character.Status} - {character.Details}");
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add the button click event handler
+        private void btnCopyToClipboard_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string clipboardContent = GenerateClipboardContent();
+                Clipboard.SetText(clipboardContent);
+                MessageBox.Show("Battle report copied to clipboard!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to copy to clipboard: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }

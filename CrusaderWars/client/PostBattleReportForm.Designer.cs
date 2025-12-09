@@ -49,6 +49,7 @@ namespace CrusaderWars.client
             this.lblTotalLosses = new System.Windows.Forms.Label();
             this.lblTotalKills = new System.Windows.Forms.Label();
             this.lblTotalRemaining = new System.Windows.Forms.Label();
+            this.btnCopyToClipboard = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -268,12 +269,27 @@ namespace CrusaderWars.client
             this.lblTotalRemaining.Text = "Total Remaining:";
             this.lblTotalRemaining.Visible = false;
             // 
+            // btnCopyToClipboard
+            // 
+            this.btnCopyToClipboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCopyToClipboard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCopyToClipboard.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCopyToClipboard.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(212)))), ((int)(((byte)(164)))));
+            this.btnCopyToClipboard.Location = new System.Drawing.Point(726, 582);
+            this.btnCopyToClipboard.Name = "btnCopyToClipboard";
+            this.btnCopyToClipboard.Size = new System.Drawing.Size(120, 40);
+            this.btnCopyToClipboard.TabIndex = 18;
+            this.btnCopyToClipboard.Text = "Copy to Clipboard";
+            this.btnCopyToClipboard.UseVisualStyleBackColor = true;
+            this.btnCopyToClipboard.Click += new System.EventHandler(this.btnCopyToClipboard_Click);
+            // 
             // PostBattleReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.ClientSize = new System.Drawing.Size(984, 634);
+            this.Controls.Add(this.btnCopyToClipboard);
             this.Controls.Add(this.lblTotalRemaining);
             this.Controls.Add(this.lblTotalKills);
             this.Controls.Add(this.lblTotalLosses);
@@ -325,5 +341,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Label lblTotalLosses;
         private System.Windows.Forms.Label lblTotalKills;
         private System.Windows.Forms.Label lblTotalRemaining;
+        private System.Windows.Forms.Button btnCopyToClipboard;
     }
 }
