@@ -2672,20 +2672,36 @@ namespace CrusaderWars.data.battle_results
                     relevantLogSection = logContent;
                 }
 
-                // Determine outcome - Attacker victory means settlement captured
-                if (relevantLogSection.Contains("Victory"))
+                // Determine outcome
+                bool settlementCaptured = relevantLogSection.Contains("SETTLEMENT_CAPTURED");
+                if (settlementCaptured)
                 {
                     outcome = "Settlement Captured";
                 }
+                else if (relevantLogSection.Contains("Victory")) // Fallback to "Victory" if SETTLEMENT_CAPTURED not found
+                {
+                    outcome = "Settlement Captured"; // Treat as captured if "Victory" is present in a siege context
+                }
 
-                // Determine wall damage
-                if (relevantLogSection.Contains("wall has been breached"))
+                // Determine wall damage using event counting logic from EditSiegesFile
+                int wallsAttackedCount = Regex.Matches(relevantLogSection, "WALLS_ATTACKED").Count;
+                int wallsDestroyedCount = Regex.Matches(relevantLogSection, "WALLS_DESTROYED").Count;
+
+                if (wallsDestroyedCount > 1)
                 {
                     wall_damage = "Breached";
                 }
-                else if (relevantLogSection.Contains("wall is damaged"))
+                else if (wallsDestroyedCount == 1)
                 {
-                    wall_damage = "Damaged";
+                    wall_damage = "Breached"; // Changed from "Damaged" to "Breached" for consistency with EditSiegesFile
+                }
+                else if (wallsAttackedCount > 0)
+                {
+                    wall_damage = "Damaged"; // Changed from "No Damage" to "Damaged" for consistency with EditSiegesFile
+                }
+                else
+                {
+                    wall_damage = "No Damage";
                 }
             }
             catch (Exception ex)
