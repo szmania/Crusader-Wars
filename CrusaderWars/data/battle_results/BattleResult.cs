@@ -727,34 +727,30 @@ namespace CrusaderWars.data.battle_results
                 RegimentType unitType;
                 string type; // This is the identifier string (CK3 name, Attila key, or generic "Levy")
 
-                if (army.IsGarrison())
+                if (group.Key.Type.StartsWith("Garrison")) // Check for Garrison units first
                 {
                     unitType = RegimentType.Garrison;
                     type = group.Key.Type; // The log type is the Attila unit key
                 }
+                else if (group.Key.Type.Contains("Levy"))
+                {
+                    unitType = RegimentType.Levy;
+                    type = "Levy"; // Match against the generic unit name "Levy"
+                }
+                else if (group.Key.Type.Contains("commander")) // Handle commander specifically
+                {
+                    unitType = RegimentType.Commander;
+                    type = "General"; // Match against the generic unit name "General"
+                }
+                else if (group.Key.Type.StartsWith("knight")) // Handle knight specifically
+                {
+                    unitType = RegimentType.Knight;
+                    type = "Knight"; // Match against the generic unit name "Knight"
+                }
                 else
                 {
-                    // This logic is for field armies
-                    if (group.Key.Type.Contains("Levy"))
-                    {
-                        unitType = RegimentType.Levy;
-                        type = "Levy"; // Match against the generic unit name "Levy"
-                    }
-                    else if (group.Key.Type.Contains("commander")) // Handle commander specifically
-                    {
-                        unitType = RegimentType.Commander;
-                        type = "General"; // Match against the generic unit name "General"
-                    }
-                    else if (group.Key.Type.StartsWith("knight")) // Handle knight specifically
-                    {
-                        unitType = RegimentType.Knight;
-                        type = "Knight"; // Match against the generic unit name "Knight"
-                    }
-                    else
-                    {
-                        unitType = RegimentType.MenAtArms;
-                        type = group.Key.Type; // The log type is the CK3 MAA name
-                    }
+                    unitType = RegimentType.MenAtArms;
+                    type = group.Key.Type; // The log type is the CK3 MAA name
                 }
 
                 // Search for type, culture, starting soldiers and remaining soldiers of a Unit
@@ -767,7 +763,7 @@ namespace CrusaderWars.data.battle_results
                 var matchingUnits = army.Units.Where(x => x != null &&
                     x.GetRegimentType() == unitType &&
                     x.GetObjCulture()?.ID == group.Key.CultureID &&
-                    ((unitType == RegimentType.Garrison && x.GetAttilaUnitKey() == type) ||
+                    ((unitType == RegimentType.Garrison && x.GetAttilaUnitKey() == type) || // Match garrison by AttilaUnitKey
                      (unitType != RegimentType.Garrison && x.GetName() == type))
                 );
 
@@ -825,18 +821,24 @@ namespace CrusaderWars.data.battle_results
                     starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
                 }
 
+                // Levy Inflation Fix: Remove reverse scaling from 'starting'
+                // The 'starting' value should reflect the actual number of soldiers deployed in Attila.
+                // Scaling is applied when units are created for Attila, so 'starting' should already be scaled.
+                // The previous logic was incorrectly inflating the 'starting' value.
+
+                int remaining = group.Sum(x => Int32.Parse(x.Remaining));
+
+                // Apply scaling to 'remaining' soldiers for levies
                 if (unitType == RegimentType.Levy)
                 {
                     int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
                     if (ratio > 0 && ratio < 100)
                     {
                         double scaleFactor = 100.0 / ratio;
-                        starting = (int)Math.Round(starting * scaleFactor);
-                        Program.Logger.Debug($"Applying reverse scaling to levy 'Starting' count. New value: {starting}");
+                        remaining = (int)Math.Round(remaining * scaleFactor);
+                        Program.Logger.Debug($"Applying reverse scaling to levy 'Remaining' count. New value: {remaining}");
                     }
                 }
-
-                int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
                 UnitCasualitiesReport unitReport;
@@ -846,6 +848,17 @@ namespace CrusaderWars.data.battle_results
                 if (pursuitGroup != null)
                 {
                     int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
+                    // Apply scaling to pursuitRemaining for levies
+                    if (unitType == RegimentType.Levy)
+                    {
+                        int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
+                        if (ratio > 0 && ratio < 100)
+                        {
+                            double scaleFactor = 100.0 / ratio;
+                            pursuitRemaining = (int)Math.Round(pursuitRemaining * scaleFactor);
+                            Program.Logger.Debug($"Applying reverse scaling to levy 'Pursuit Remaining' count. New value: {pursuitRemaining}");
+                        }
+                    }
                     unitReport =
                         new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining);
                 }
