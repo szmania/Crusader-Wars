@@ -1329,7 +1329,16 @@ namespace CrusaderWars.twbattle
                             bestMAA.KnightCommander = knight;
                             assignedKnights.Add(knight);
                             assignableMAA.Remove(bestMAA); // Unit is now taken
-                            Program.Logger.Debug($"Assigned prominent knight {knight.GetName()} ({knight.GetID()}) to command MAA unit {bestMAA.GetName()} in army {army.ID}.");
+                            
+                            // Ensure the knight's accolade status is properly set
+                            if (knight.IsAccolade())
+                            {
+                                Program.Logger.Debug($"Assigned accolade knight {knight.GetName()} ({knight.GetID()}) to command MAA unit {bestMAA.GetName()} in army {army.ID}. Special abilities will be transferred.");
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"Assigned prominent knight {knight.GetName()} ({knight.GetID()}) to command MAA unit {bestMAA.GetName()} in army {army.ID}.");
+                            }
 
                             if (!assignableMAA.Any())
                             {
