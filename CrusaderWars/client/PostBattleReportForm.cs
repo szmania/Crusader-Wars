@@ -114,13 +114,13 @@ namespace CrusaderWars.client
                 
                 // Group units for display, especially for knights
                 var groupedUnits = army.Units
-                    .GroupBy(u => new { u.Ck3UnitType, u.AttilaUnitKey, u.AttilaUnitName }) // Group by type, key, and formatted name
+                    .GroupBy(u => u.Ck3UnitType == "Knight" ? new { Ck3UnitType = u.Ck3UnitType, AttilaUnitKey = "KNIGHT_GROUP", AttilaUnitName = "Knights (Combined)" } : new { u.Ck3UnitType, u.AttilaUnitKey, u.AttilaUnitName }) // Group by type, key, and formatted name
                     .Select(g => {
                         var firstUnit = g.First();
                         // Aggregate soldiers, losses, kills for grouped units
                         return new UnitReport
                         {
-                            AttilaUnitName = firstUnit.AttilaUnitName,
+                            AttilaUnitName = firstUnit.Ck3UnitType == "Knight" ? "Knights (Combined)" : firstUnit.AttilaUnitName, // Use a generic name for the combined group
                             Deployed = g.Sum(u => u.Deployed),
                             Losses = g.Sum(u => u.Losses),
                             Remaining = g.Sum(u => u.Remaining),
@@ -153,7 +153,7 @@ namespace CrusaderWars.client
                 }
 
                 // Add siege engines node if there are any
-                if (army.SiegeEngines.Any())
+                if (army.SiegeEngines != null && army.SiegeEngines.Any())
                 {
                     var siegeNode = new TreeNode("Siege Engines");
                     foreach (var siegeEngine in army.SiegeEngines)

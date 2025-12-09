@@ -464,15 +464,18 @@ namespace CrusaderWars.locs
         public static string GetFormattedUnitName(Unit unit, Army army)
         {
             string commanderNameSuffix = "";
-            string? sideCommander = army.CombatSide == "attacker" ? BattleDetails.AttackerCommanderName : BattleDetails.DefenderCommanderName;
-
-            if (!string.IsNullOrEmpty(sideCommander))
+            
+            // Use actual commander name instead of "attacker"/"defender"
+            if (army.Commander != null)
             {
-                commanderNameSuffix = $" [Cmdr. {sideCommander}]";
+                string actualCommanderName = GetCommanderDisplayName(army.Commander);
+                commanderNameSuffix = $" [Cmdr. {actualCommanderName}]";
             }
-            else if (army.Commander != null)
+            else
             {
-                commanderNameSuffix = $" [Cmdr. {GetCommanderDisplayName(army.Commander)}]";
+                // Fallback to side name if no commander
+                string sideName = army.CombatSide == "attacker" ? "Attacker" : "Defender";
+                commanderNameSuffix = $" [Cmdr. {sideName}]";
             }
 
             switch (unit.GetRegimentType())

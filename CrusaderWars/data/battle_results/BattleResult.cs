@@ -525,38 +525,11 @@ namespace CrusaderWars.data.battle_results
         static void ChangeRegimentsSoldiers(Army army)
         {
             Program.Logger.Debug($"Entering ChangeRegimentsSoldiers for army {army.ID}.");
-            if (army.IsGarrison())
-            {
-                Program.Logger.Debug($"Processing casualties for Garrison Army {army.ID}.");
-                foreach (var unit in army.Units)
-                {
-                    if (unit == null) continue;
-
-                    var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
-                            x.GetUnitType() == unit.GetRegimentType() &&
-                            x.GetCulture()?.ID == unit.GetObjCulture()?.ID &&
-                            (x.GetTypeName() == unit.GetName() || x.GetTypeName() == unit.GetAttilaUnitKey()) // FIX: Match garrison by its Attila unit key
-                    );
-
-                    if (unitReport != null)
-                    {
-                        int killed = unitReport.GetKilled();
-                        if (killed <= 0) continue;
-
-                        int originalSoldiers = unit.GetSoldiers();
-                        int remainingSoldiers = Math.Max(0, originalSoldiers - killed);
-                        int casualtiesApplied = originalSoldiers - remainingSoldiers;
-
-                        unit.ChangeSoldiers(remainingSoldiers);
-                        // Ensure killed is not negative
-                        unitReport.SetKilled(Math.Max(0, killed - casualtiesApplied)); // Update report with remaining casualties
-
-                        Program.Logger.Debug(
-                            $"Garrison Unit Report: Type '{unit.GetAttilaUnitKey()}', Culture: {unit.GetCulture()}: Soldiers changed from {originalSoldiers} to {remainingSoldiers}.");
-                    }
-                }
-                // Do NOT return here. Continue to process other regiments if any, and ensure the army's total soldiers are updated.
-            }
+            
+            // The logic for updating individual Levy/Garrison unit soldier counts 
+            // is now handled in CreateUnitsReports by proportionally distributing casualties 
+            // and updating the Unit.Soldiers property.
+            // We now focus on updating the Regiment objects for the save file.
 
             foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
             {
@@ -612,6 +585,27 @@ namespace CrusaderWars.data.battle_results
                         unitTypeNameToFind = armyRegiment.MAA_Name;
                     }
 
+                    // --- MODIFIED LOGIC FOR LEVY/GARRISON ---
+                    // Find the corresponding Unit object in army.Units to get the final soldier count.
+                    // This is the most reliable way to get the final count after proportional distribution in CreateUnitsReports.
+                    Unit? finalUnit = army.Units.FirstOrDefault(u =>
+                        u.GetRegimentType() == armyRegiment.Type &&
+                        u.GetObjCulture()?.ID == regiment.Culture.ID &&
+                        (armyRegiment.Type == RegimentType.Garrison ? u.GetAttilaUnitKey() == unitTypeNameToFind : u.GetName() == unitTypeNameToFind)
+                    );
+
+                    if (finalUnit != null && (armyRegiment.Type == RegimentType.Levy || armyRegiment.Type == RegimentType.Garrison))
+                    {
+                        // For Levy/Garrison, the final soldier count is already calculated and stored in the Unit object.
+                        int finalSoldiers = finalUnit.GetSoldiers();
+                        regiment.SetSoldiers(finalSoldiers.ToString());
+                        Program.Logger.Debug(
+                            $"{armyRegiment.Type} Regiment {regiment.ID} (Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers set to final count from Unit object: {finalSoldiers}.");
+                        continue; // Skip the rest of the original logic for Levy/Garrison
+                    }
+                    // --- END MODIFIED LOGIC ---
+
+                    // Original logic for MAA and Siege units (which are not proportionally distributed in CreateUnitsReports)
                     var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
                         x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null &&
                         x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == unitTypeNameToFind);
@@ -838,17 +832,57 @@ namespace CrusaderWars.data.battle_results
 
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
-                // REMOVED: Levy reverse scaling logic
-                // if (unitType == RegimentType.Levy)
-                // {
-                //     int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
-                //     if (ratio > 0 && ratio < 100)
-                //     {
-                //         double scaleFactor = 100.0 / ratio;
-                //         remaining = (int)Math.Round(remaining * scaleFactor);
-                //         Program.Logger.Debug($"Applying reverse scaling to levy 'Remaining' count. New value: {remaining}");
-                //     }
-                // }
+                // --- START: FIX FOR LEVY/GARRISON UNITS (Issue 2) ---
+                if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison)
+                {
+                    // Calculate proper distribution for levy/garrison units
+                    int totalOriginalSoldiers = matchingUnits.Sum(u => u.GetSoldiers()); // Use GetSoldiers() which holds the scaled size
+                    int remainingSoldiers = remaining;
+
+                    // Distribute casualties proportionally among levy/garrison units
+                    double survivalRate = (double)remainingSoldiers / totalOriginalSoldiers;
+                    if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate) || totalOriginalSoldiers == 0) survivalRate = 0;
+                    if (survivalRate > 1.0) survivalRate = 1.0;
+
+                    Program.Logger.Debug($"  - Composed Unit Distribution: Total Original Scaled Soldiers: {totalOriginalSoldiers}, Remaining in Log: {remainingSoldiers}, Survival Rate: {survivalRate:P2}");
+
+                    // Find the total kills for the group from the log (used for proportional kill distribution)
+                    int totalGroupKills = 0;
+                    var killsGroup = army.UnitsResults?.Kills_MainPhase.FirstOrDefault(x =>
+                        x.Type == group.Key.Type && x.CultureID == group.Key.CultureID);
+                    if (killsGroup.Kills != null && Int32.TryParse(killsGroup.Kills, out int parsedKills))
+                    {
+                        totalGroupKills = parsedKills;
+                    }
+
+                    foreach (var composedUnit in matchingUnits)
+                    {
+                        int originalComposedSoldiers = composedUnit.GetSoldiers();
+                        int remainingForThisUnit = (int)Math.Round(originalComposedSoldiers * survivalRate);
+                        int lossesForThisUnit = originalComposedSoldiers - remainingForThisUnit;
+                        
+                        // Proportional factor for this individual unit
+                        double proportionalFactor = (double)originalComposedSoldiers / totalOriginalSoldiers;
+                        if (double.IsNaN(proportionalFactor) || double.IsInfinity(proportionalFactor) || totalOriginalSoldiers == 0) proportionalFactor = 0;
+                        int killsForThisUnit = (int)Math.Round(totalGroupKills * proportionalFactor);
+
+                        // The unit's final soldier count is stored in the Unit object itself for display in PopulateSideReport
+                        composedUnit.ChangeSoldiers(remainingForThisUnit);
+
+                        // Create individual unit report with proper numbers
+                        var unitReport = new UnitCasualitiesReport(
+                            unitType, type, culture, 
+                            originalComposedSoldiers, // Starting is the individual unit's scaled size
+                            remainingForThisUnit
+                        );
+                        unitReport.SetKilled(killsForThisUnit);
+                        
+                        reportsList.Add(unitReport);
+                        Program.Logger.Debug($"    - Individual Unit Report: Key: {composedUnit.GetAttilaUnitKey()}, Original: {originalComposedSoldiers}, Remaining: {remainingForThisUnit}, Losses: {lossesForThisUnit}, Kills: {killsForThisUnit}");
+                    }
+                    continue; // Skip the default single report creation below
+                }
+                // --- END: FIX FOR LEVY/GARRISON UNITS (Issue 2) ---
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
                 UnitCasualitiesReport unitReport;
@@ -858,17 +892,6 @@ namespace CrusaderWars.data.battle_results
                 if (pursuitGroup != null)
                 {
                     int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
-                    // REMOVED: Levy reverse scaling logic for pursuitRemaining
-                    // if (unitType == RegimentType.Levy)
-                    // {
-                    //     int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
-                    //     if (ratio > 0 && ratio < 100)
-                    //     {
-                    //         double scaleFactor = 100.0 / ratio;
-                    //         pursuitRemaining = (int)Math.Round(pursuitRemaining * scaleFactor);
-                    //         Program.Logger.Debug($"Applying reverse scaling to levy 'Pursuit Remaining' count. New value: {pursuitRemaining}");
-                    //     }
-                    // }
                     unitReport =
                         new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining);
                 }
