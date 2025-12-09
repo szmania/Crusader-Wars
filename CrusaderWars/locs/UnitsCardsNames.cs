@@ -459,5 +459,83 @@ namespace CrusaderWars.locs
             }
             return commander?.Name ?? "Unknown Commander";
         }
+
+        // NEW: Helper method to get formatted unit name for display in reports
+        public static string GetFormattedUnitName(Unit unit, Army army)
+        {
+            string commanderNameSuffix = "";
+            string? sideCommander = army.CombatSide == "attacker" ? BattleDetails.AttackerCommanderName : BattleDetails.DefenderCommanderName;
+
+            if (!string.IsNullOrEmpty(sideCommander))
+            {
+                commanderNameSuffix = $" [Cmdr. {sideCommander}]";
+            }
+            else if (army.Commander != null)
+            {
+                commanderNameSuffix = $" [Cmdr. {GetCommanderDisplayName(army.Commander)}]";
+            }
+
+            switch (unit.GetRegimentType())
+            {
+                case RegimentType.Commander:
+                    return $"Commander ({army.Commander?.Name ?? "Unknown Commander"}){commanderNameSuffix}";
+                case RegimentType.Knight:
+                    if (ModOptions.CombineKnightsEnabled())
+                    {
+                        var knightsInUnit = army.Knights?.GetKnightsList()?.OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
+                        var knightNames = knightsInUnit.Select(k => k.GetName()).Take(5).ToList();
+                        if (knightsInUnit.Count > 5)
+                        {
+                            knightNames.Add("etc...");
+                        }
+                        string knightList = string.Join(" | ", knightNames);
+                        return $"Knights ({knightList}){commanderNameSuffix}";
+                    }
+                    else
+                    {
+                        // If not combined, it's a prominent knight's bodyguard unit
+                        return $"Knights ({unit.GetName()}){commanderNameSuffix}";
+                    }
+                case RegimentType.MenAtArms:
+                    string maaName = unit.GetLocName();
+                    if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
+                    if (unit.KnightCommander != null)
+                    {
+                        return $"MAA {maaName} ({unit.KnightCommander.GetName()}){commanderNameSuffix}";
+                    }
+                    return $"MAA {maaName}{commanderNameSuffix}";
+                case RegimentType.Levy:
+                    string levyOriginalName = unit.GetName(); // This is "Levy"
+                    // We need to get the specific levy type from the Attila unit key if possible
+                    string specificLevyName = unit.GetAttilaUnitKey(); // This is the Attila unit key, e.g., "att_unit_levy_spearmen"
+                    // Attempt to get a more user-friendly name from the unit screen names
+                    var screenNames = GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+                    if (screenNames.TryGetValue(specificLevyName, out string? friendlyName) && !string.IsNullOrEmpty(friendlyName))
+                    {
+                        // Remove "Levy " prefix if it exists in the friendly name
+                        if (friendlyName.StartsWith("Levy ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            friendlyName = friendlyName.Substring("Levy ".Length);
+                        }
+                        return $"Levy {friendlyName}{commanderNameSuffix}";
+                    }
+                    return $"Levy {levyOriginalName}{commanderNameSuffix}"; // Fallback
+                case RegimentType.Garrison:
+                    string garrisonOriginalName = unit.GetName(); // This is "Garrison"
+                    string specificGarrisonName = unit.GetAttilaUnitKey();
+                    var garrisonScreenNames = GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+                    if (garrisonScreenNames.TryGetValue(specificGarrisonName, out string? friendlyGarrisonName) && !string.IsNullOrEmpty(friendlyGarrisonName))
+                    {
+                        if (friendlyGarrisonName.StartsWith("Garrison ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            friendlyGarrisonName = friendlyGarrisonName.Substring("Garrison ".Length);
+                        }
+                        return $"Garrison {friendlyGarrisonName}{commanderNameSuffix}";
+                    }
+                    return $"Garrison {garrisonOriginalName}{commanderNameSuffix}"; // Fallback
+                default:
+                    return unit.GetName();
+            }
+        }
     }
 }

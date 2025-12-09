@@ -111,7 +111,34 @@ namespace CrusaderWars.client
             foreach (var army in sideReport.Armies)
             {
                 var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName}) (Deployed: {army.TotalDeployed}, Losses: {army.TotalLosses}, Remaining: {army.TotalRemaining}, Kills: {army.TotalKills})");
-                foreach (var unit in army.Units.OrderByDescending(u => u.Ck3UnitType == "Commander").ThenByDescending(u => u.Ck3UnitType == "Knight"))
+                
+                // Group units for display, especially for knights
+                var groupedUnits = army.Units
+                    .GroupBy(u => new { u.Ck3UnitType, u.AttilaUnitKey, u.AttilaUnitName }) // Group by type, key, and formatted name
+                    .Select(g => {
+                        var firstUnit = g.First();
+                        // Aggregate soldiers, losses, kills for grouped units
+                        return new UnitReport
+                        {
+                            AttilaUnitName = firstUnit.AttilaUnitName,
+                            Deployed = g.Sum(u => u.Deployed),
+                            Losses = g.Sum(u => u.Losses),
+                            Remaining = g.Sum(u => u.Remaining),
+                            Kills = g.Sum(u => u.Kills),
+                            Ck3UnitType = firstUnit.Ck3UnitType,
+                            AttilaUnitKey = firstUnit.AttilaUnitKey,
+                            Ck3Heritage = firstUnit.Ck3Heritage,
+                            Ck3Culture = firstUnit.Ck3Culture,
+                            AttilaFaction = firstUnit.AttilaFaction,
+                            Characters = g.SelectMany(u => u.Characters).DistinctBy(c => c.Name).ToList(), // Collect all characters
+                            KnightDetails = g.SelectMany(u => u.KnightDetails).DistinctBy(k => k.Name).ToList() // Collect all knight details
+                        };
+                    })
+                    .OrderByDescending(u => u.Ck3UnitType == "Commander")
+                    .ThenByDescending(u => u.Ck3UnitType == "Knight")
+                    .ToList();
+
+                foreach (var unit in groupedUnits)
                 {
                     string unitText = String.Format("{0,-47} | {1,8} | {2,6} | {3,9} | {4,5}", 
                         unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);

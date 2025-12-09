@@ -937,21 +937,7 @@ namespace CrusaderWars.twbattle
                     string path_log_attila = Properties.Settings.Default.VAR_log_attila;
 
                     // --- START: Capture pre-battle state for report ---
-                    Dictionary<Unit, int> deployedCounts = new Dictionary<Unit, int>();
-                    if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReportPre) && showReportPre == "Enabled")
-                    {
-                        foreach (var army in attacker_armies.Concat(defender_armies))
-                        {
-                            if (army.Units == null) continue;
-                            foreach (var unit in army.Units)
-                            {
-                                if (unit != null)
-                                {
-                                    deployedCounts[unit] = unit.GetSoldiers();
-                                }
-                            }
-                        }
-                    }
+                    // Removed deployedCounts as it will be derived from UnitCasualitiesReport
                     // --- END: Capture pre-battle state for report ---
 
 
@@ -1011,8 +997,8 @@ namespace CrusaderWars.twbattle
                     foreach (var army in attacker_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
-                        BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
+                        BattleResult.ReadAttilaResults(army, path_attila_log);
+                        BattleResult.CheckForSlainCommanders(army, path_attila_log);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForSlainKnights(army);
                     }
@@ -1020,8 +1006,8 @@ namespace CrusaderWars.twbattle
                     foreach (var army in defender_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
-                        BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
+                        BattleResult.ReadAttilaResults(army, path_attila_log);
+                        BattleResult.CheckForSlainCommanders(army, path_attila_log);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForSlainKnights(army);
 
@@ -1045,7 +1031,7 @@ namespace CrusaderWars.twbattle
                     // --- END: Call new logging method ---
 
                     // DETERMINE WINNER FIRST so EditLivingFile can correctly calculate prisoner chances
-                    string winner = BattleResult.GetAttilaWinner(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide);
+                    string winner = BattleResult.GetAttilaWinner(path_attila_log, left_side[0].CombatSide, right_side[0].CombatSide);
                     BattleResult.IsAttackerVictorious = (winner == "attacker");
                     Program.Logger.Debug($"Battle winner determined: {winner}. IsAttackerVictorious set to: {BattleResult.IsAttackerVictorious}");
 
@@ -1057,7 +1043,7 @@ namespace CrusaderWars.twbattle
                     // SHOW POST-BATTLE REPORT
                     if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
                     {
-                        var report = GenerateBattleReportData(attacker_armies, defender_armies, winner, deployedCounts);
+                        var report = GenerateBattleReportData(attacker_armies, defender_armies, winner); // Removed deployedCounts
                         if (form != null && !form.IsDisposed)
                         {
                             form.Invoke((MethodInvoker)delegate
@@ -2047,7 +2033,7 @@ namespace CrusaderWars.twbattle
             }
         }
 
-        private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner, Dictionary<Unit, int> deployedCounts)
+        private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner) // Removed deployedCounts
         {
             var report = new BattleReport();
 
@@ -2091,28 +2077,7 @@ namespace CrusaderWars.twbattle
 
 
             // --- Calculate Kills ---
-            var unitKills = new Dictionary<Unit, int>();
-            foreach (var army in attacker_armies.Concat(defender_armies))
-            {
-                if (army.CasualitiesReports == null) continue;
-
-                foreach (var unit in army.Units)
-                {
-                    if (unit == null) continue;
-
-                    // Find matching report
-                    var casualtyReport = army.CasualitiesReports.FirstOrDefault(r =>
-                        r.GetUnitType() == unit.GetRegimentType() &&
-                        r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy ? "Levy" : unit.GetName()) &&
-                        r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
-                    
-                    int kills = casualtyReport != null ? casualtyReport.GetKilled() : 0;
-                    
-                    // The problematic block for proportional levy kill calculation is removed here.
-                    
-                    unitKills[unit] = kills;
-                }
-            }
+            // This section is now handled by the UnitCasualitiesReport objects directly
             // --- End Calculate Kills ---
 
 
@@ -2121,10 +2086,10 @@ namespace CrusaderWars.twbattle
             int defenderTotalKills = attacker_armies.Sum(a => a.GetTotalLosses());
 
             report.AttackerSide = new SideReport { SideName = "Attackers" };
-            PopulateSideReport(report.AttackerSide, attacker_armies, deployedCounts, unitKills, defenderTotalKills);
+            PopulateSideReport(report.AttackerSide, attacker_armies); // Removed deployedCounts, unitKills, defenderTotalKills
 
             report.DefenderSide = new SideReport { SideName = "Defenders" };
-            PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts, unitKills, attackerTotalKills);
+            PopulateSideReport(report.DefenderSide, defender_armies); // Removed deployedCounts, unitKills, attackerTotalKills
 
             // Ensure totals consistency by summing from army totals
             report.AttackerSide.TotalDeployed = report.AttackerSide.Armies.Sum(a => a.TotalDeployed);
@@ -2156,7 +2121,7 @@ namespace CrusaderWars.twbattle
             return report;
         }
 
-        private static void PopulateSideReport(SideReport sideReport, List<Army> armies, Dictionary<Unit, int> deployedCounts, Dictionary<Unit, int> unitKills, int sideTotalKills)
+        private static void PopulateSideReport(SideReport sideReport, List<Army> armies) // Removed deployedCounts, unitKills, sideTotalKills
         {
             // Calculate actual side totals from battle results
             int sideTotalDeployed = armies.Sum(a => a.GetTotalDeployed());
@@ -2201,25 +2166,20 @@ namespace CrusaderWars.twbattle
                     {
                         if (unit == null) continue;
 
-                        int deployed = deployedCounts.TryGetValue(unit, out var count) ? count : 0;
-                        int remaining = unit.GetSoldiers();
-                        int losses = Math.Max(0, deployed - remaining);
-                        
                         // Find matching battle result for this unit
-                        int kills = 0;
-                        var unitReport = army.CasualitiesReports?.FirstOrDefault(r => 
+                        var casualtyReport = army.CasualitiesReports?.FirstOrDefault(r => 
                             r.GetUnitType() == unit.GetRegimentType() &&
                             r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy ? "Levy" : unit.GetName()) &&
                             r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
                         
-                        if (unitReport != null)
-                        {
-                            kills = unitReport.GetKilled();
-                        }
+                        int deployed = casualtyReport?.GetStarting() ?? 0;
+                        int remaining = unit.GetSoldiers(); // This is the *final* remaining soldiers after all processing
+                        int losses = deployed - remaining;
+                        int kills = casualtyReport?.GetKilled() ?? 0;
 
                         var unitReportObj = new UnitReport
                         {
-                            AttilaUnitName = string.IsNullOrEmpty(unit.GetLocName()) ? unit.GetName() : unit.GetLocName(),
+                            AttilaUnitName = UnitsCardsNames.GetFormattedUnitName(unit, army), // Use new helper
                             Deployed = deployed,
                             Remaining = remaining,
                             Losses = losses,
@@ -2233,7 +2193,6 @@ namespace CrusaderWars.twbattle
 
                         if (unit.GetRegimentType() == RegimentType.Commander)
                         {
-                            unitReportObj.AttilaUnitName = $"General ({army.Commander?.Name ?? "Unknown Commander"})"; // Fix General Unit Names
                             unitReportObj.Characters.Add(GetCharacterReport(army.Commander));
                         }
                         else if (unit.GetRegimentType() == RegimentType.Knight)
@@ -2256,6 +2215,10 @@ namespace CrusaderWars.twbattle
                                     unitReportObj.Characters.Add(GetCharacterReport(knight));
                                 }
                             }
+                        }
+                        else if (unit.KnightCommander != null) // MAA led by a prominent knight
+                        {
+                            unitReportObj.Characters.Add(GetCharacterReport(unit.KnightCommander));
                         }
 
                         armyReport.Units.Add(unitReportObj);

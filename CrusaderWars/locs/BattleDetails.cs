@@ -14,6 +14,8 @@ namespace CrusaderWars.locs
     {
         // Line 15 - Initialize property
         public static string Name { get; set; } = string.Empty;
+        public static string? AttackerCommanderName { get; private set; }
+        public static string? DefenderCommanderName { get; private set; }
         
         public static void SetBattleName(string a)
         {
@@ -94,8 +96,6 @@ namespace CrusaderWars.locs
 
         private static void EditBattleTextDetails(int left_side_total, int right_side_total)
         {
-            string patreon_text = "Special thanks to our patreons for supporting the development of the mod: Grant Swift, Galahad, Kieran Britt, Chris Kelly, Kyle T David, Oron Gabay, I Regret This Already, TheRagingMagnus, Gav, Kyra, Michael Nathan Chananja Klaassen, Lightmare Studios, PTOLEMY, wanderinghobo49, Nico Mangold, Thierry La Fraude, Cameron Alexander Booth and Braden!";
-
             string original_battle_details_path = @".\data\battle files\text\db\tutorial_historical_battles.loc.tsv";
             string copy_path = @".\data\tutorial_historical_battles.loc.tsv";
             File.Copy(original_battle_details_path, copy_path);
@@ -126,9 +126,7 @@ namespace CrusaderWars.locs
 
                         string new_text = $"{player_side_realm_name}" + "  VS  " + $"{enemy_side_realm_name}" +
                                            "\\\\n" +
-                                          $"Total Soldiers: {player_total_soldiers}" + "\\\\t||\\\\t" + $"Total Soldiers: {enemy_total_soldiers}" +
-                                          "\\\\n\\\\n" +
-                                          $"{patreon_text}";
+                                          $"Total Soldiers: {player_total_soldiers}" + "\\\\t||\\\\t" + $"Total Soldiers: {enemy_total_soldiers}";
 
                         line = Regex.Replace(line, @"\t(?<BattleName>.+)\t", $"\t{new_text}\t");
                     }
@@ -162,12 +160,14 @@ namespace CrusaderWars.locs
                     if (line.Contains("factions_screen_name_historical_house_bolton"))
                     {
                         line = Regex.Replace(line, @"\t()\t", $"\t{enemyCombatSide}\t");
+                        DefenderCommanderName = enemyCombatSide; // Store for later use
                     }
 
                     //Player Side
                     if(line.Contains("factions_screen_name_historical_house_stark"))
                     {
                         line = Regex.Replace(line, @"\t()\t", $"\t{playerCombatSide}\t");
+                        AttackerCommanderName = playerCombatSide; // Store for later use
                     }
 
                     new_data += line + "\n";
@@ -209,97 +209,4 @@ namespace CrusaderWars.locs
             
             string terrain = TerrainGenerator.TerrainType ?? string.Empty;
             string weather = Weather.Season ?? string.Empty;
-            Weather.WinterSeverity? snow = Weather.Winter_Severity; // Changed to nullable enum
-            bool hasSnow = Weather.HasWinter;
-            
-
-
-            //For each terrain folder
-            foreach (var folder_path in Directory.GetDirectories(images_folder_path))
-            {
-                string folder_name = Path.GetFileName(folder_path);
-
-                if (terrain == folder_name)
-                {
-                    //For each image on folder
-                    foreach(var image_path in Directory.GetFiles(folder_path))
-                    {
-                        string image_name = Path.GetFileNameWithoutExtension(image_path);
-                        terrain = FirstCharSubstring(terrain);
-                        
-
-                        //Terrain Image
-                        if(weather == "random" && image_name == terrain)
-                        {
-                            image_to_copy_path = image_path;
-                            break;
-                        }
-
-                        //Terrain Image + Weather
-                        if(weather != "random" && !hasSnow && image_name == $"{terrain}_{weather}")
-                        {
-                            image_to_copy_path = image_path;
-                            break;
-                        }
-                        //Terrain Image + Weather + Snow
-                        // Added null guard for 'snow' parameter
-                        if (weather != "random" && hasSnow && snow.HasValue && image_name == $"{terrain}_{weather}_{GetSnow(snow.Value)}")
-                        {
-                            image_to_copy_path = image_path;
-                            break;
-                        }
-
-                    }
-
-                    break;
-                }
-            }
-
-            string default_image_path = @".\data\terrains_images\screenshot_small.png";
-            
-            //Default Version Image
-            if(string.IsNullOrEmpty(image_to_copy_path))
-            {
-                image_to_copy_path = default_image_path;
-            }
-
-            string battle_files_image_path = @".\data\battle files\script\tut_tutorial_battle\screenshot_small.png";
-
-            if(File.Exists(battle_files_image_path)) File.Delete(battle_files_image_path);
-            File.Copy(image_to_copy_path, battle_files_image_path);
-
-
-        }
-
-
-
-        private static string FirstCharSubstring(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return string.Empty;
-            }
-
-            if (input == "Desert Mountains") return "desert mountains";
-
-            return $"{input[0].ToString().ToLower()}{input.Substring(1)}";
-        }
-
-        private static string GetSnow(Weather.WinterSeverity snow_severity)
-        {
-            switch(snow_severity)
-            {
-                case Weather.WinterSeverity.Mild:
-                    return "mildsnow";
-                case Weather.WinterSeverity.Normal:
-                    return "normalsnow";
-                case Weather.WinterSeverity.Harsh:
-                    return "harshsnow";
-                default:
-                    return "";
-            }
-        }
-
-
-    }
-}
+            Weather.WinterSeverity? snow = Weather.Winter_Severity; // Changed to nullableModel API Response Error. Please retry the previous request
