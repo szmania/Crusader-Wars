@@ -115,6 +115,25 @@ namespace CrusaderWars.locs
 
         private static void EditUnitCardsFiles(string[] unit_cards_files, List<Army> allArmies)
         {
+            // Group armies by side and analyze commanders
+            var attackerCommanders = new Dictionary<string, string>();
+            var defenderCommanders = new Dictionary<string, string>();
+
+            foreach (var army in allArmies)
+            {
+                var sideDict = army.CombatSide == "attacker" ? attackerCommanders : defenderCommanders;
+                if (army.Commander != null && !string.IsNullOrEmpty(army.Commander.ID))
+                {
+                    string commanderName = GetCommanderDisplayName(army.Commander);
+                    sideDict[army.Commander.ID] = commanderName;
+                }
+            }
+
+            // Determine side commander status
+            string? attackerCommanderName = attackerCommanders.Count == 1 ? attackerCommanders.Values.First() : null;
+            string? defenderCommanderName = defenderCommanders.Count == 1 ? defenderCommanders.Values.First() : null;
+
+
             for (int i = 0; i < unit_cards_files.Length; i++)
             {
                 string loc_file_path = unit_cards_files[i];
@@ -163,28 +182,23 @@ namespace CrusaderWars.locs
                                     var army = representative.Army;
                                     var unitToApply = representative.Unit;
 
-                                    string commanderName = "";
-                                    if (army.Commander != null)
-                                    {
-                                        if (army.Commander.ID == DataSearch.Player_Character.GetID())
-                                        {
-                                            commanderName = Reader.GetMetaPlayerName();
-                                        }
-                                        else
-                                        {
-                                            var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(army.Commander.ID);
-                                            if (!string.IsNullOrEmpty(firstName))
-                                            {
-                                                commanderName = !string.IsNullOrEmpty(nickname) ? $"{firstName} \"{nickname}\"" : firstName;
-                                            }
-                                        }
-                                    }
-                                    if (string.IsNullOrEmpty(commanderName))
-                                    {
-                                        commanderName = army.Commander?.Name ?? "Unknown Commander";
-                                    }
+                                    string commanderNameSuffix = "";
+                                    string? sideCommander = army.CombatSide == "attacker" ? attackerCommanderName : defenderCommanderName;
 
-                                    string commanderNameSuffix = $" [Cmdr. {commanderName}]";
+                                    if (!string.IsNullOrEmpty(sideCommander))
+                                    {
+                                        // Side has exactly one commander - use their name
+                                        commanderNameSuffix = $" [Cmdr. {sideCommander}]";
+                                    }
+                                    else if (army.Commander != null)
+                                    {
+                                        // Individual army has a commander (but side has multiple commanders)
+                                        string individualCommanderName = GetCommanderDisplayName(army.Commander);
+                                        commanderNameSuffix = $" [Cmdr. {individualCommanderName}]";
+                                    }
+                                    // If sideCommander is null and army.Commander is null, commanderNameSuffix remains empty
+
+
                                     string newName = "";
                                     bool shouldReplace = false;
 
@@ -207,12 +221,12 @@ namespace CrusaderWars.locs
                                                 knightNames.Add("etc...");
                                             }
                                             string knightList = string.Join(" | ", knightNames);
-                                            newName = $"Knights ({knightList}) [Cmdr. {commanderName}]";
+                                            newName = $"Knights ({knightList}){commanderNameSuffix}";
                                         }
                                         // Bodyguard Unit
                                         else
                                         {
-                                            newName = $"Knights ({unitToApply.GetName()}) [Cmdr. {commanderName}]";
+                                            newName = $"Knights ({unitToApply.GetName()}){commanderNameSuffix}";
                                         }
                                         shouldReplace = true;
                                     }
@@ -225,7 +239,7 @@ namespace CrusaderWars.locs
                                         if (unitToApply.KnightCommander != null)
                                         {
                                             string knightName = unitToApply.KnightCommander.GetName();
-                                            newName = $"MAA {maaName} ({knightName}) [Cmdr. {commanderName}]";
+                                            newName = $"MAA {maaName} ({knightName}){commanderNameSuffix}";
                                         }
                                         else
                                         {
@@ -427,6 +441,23 @@ namespace CrusaderWars.locs
             }
 
             return screenNames;
+        }
+
+        private static string GetCommanderDisplayName(CommanderSystem commander)
+        {
+            if (commander.ID == DataSearch.Player_Character.GetID())
+            {
+                return Reader.GetMetaPlayerName();
+            }
+            else
+            {
+                var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(commander.ID);
+                if (!string.IsNullOrEmpty(firstName))
+                {
+                    return !string.IsNullOrEmpty(nickname) ? $"{firstName} \"{nickname}\"" : firstName;
+                }
+            }
+            return commander?.Name ?? "Unknown Commander";
         }
     }
 }
