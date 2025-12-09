@@ -209,4 +209,97 @@ namespace CrusaderWars.locs
             
             string terrain = TerrainGenerator.TerrainType ?? string.Empty;
             string weather = Weather.Season ?? string.Empty;
-            Weather.WinterSeverity? snow = Weather.Winter_Severity; // Changed to nullableModel API Response Error. Please retry the previous request
+            Weather.WinterSeverity? snow = Weather.Winter_Severity; // Changed to nullable enum
+            bool hasSnow = Weather.HasWinter;
+            
+
+
+            //For each terrain folder
+            foreach (var folder_path in Directory.GetDirectories(images_folder_path))
+            {
+                string folder_name = Path.GetFileName(folder_path);
+
+                if (terrain == folder_name)
+                {
+                    //For each image on folder
+                    foreach(var image_path in Directory.GetFiles(folder_path))
+                    {
+                        string image_name = Path.GetFileNameWithoutExtension(image_path);
+                        terrain = FirstCharSubstring(terrain);
+                        
+
+                        //Terrain Image
+                        if(weather == "random" && image_name == terrain)
+                        {
+                            image_to_copy_path = image_path;
+                            break;
+                        }
+
+                        //Terrain Image + Weather
+                        if(weather != "random" && !hasSnow && image_name == $"{terrain}_{weather}")
+                        {
+                            image_to_copy_path = image_path;
+                            break;
+                        }
+                        //Terrain Image + Weather + Snow
+                        // Added null guard for 'snow' parameter
+                        if (weather != "random" && hasSnow && snow.HasValue && image_name == $"{terrain}_{weather}_{GetSnow(snow.Value)}")
+                        {
+                            image_to_copy_path = image_path;
+                            break;
+                        }
+
+                    }
+
+                    break;
+                }
+            }
+
+            string default_image_path = @".\data\terrains_images\screenshot_small.png";
+            
+            //Default Version Image
+            if(string.IsNullOrEmpty(image_to_copy_path))
+            {
+                image_to_copy_path = default_image_path;
+            }
+
+            string battle_files_image_path = @".\data\battle files\script\tut_tutorial_battle\screenshot_small.png";
+
+            if(File.Exists(battle_files_image_path)) File.Delete(battle_files_image_path);
+            File.Copy(image_to_copy_path, battle_files_image_path);
+
+
+        }
+
+
+
+        private static string FirstCharSubstring(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return string.Empty;
+            }
+
+            if (input == "Desert Mountains") return "desert mountains";
+
+            return $"{input[0].ToString().ToLower()}{input.Substring(1)}";
+        }
+
+        private static string GetSnow(Weather.WinterSeverity snow_severity)
+        {
+            switch(snow_severity)
+            {
+                case Weather.WinterSeverity.Mild:
+                    return "mildsnow";
+                case Weather.WinterSeverity.Normal:
+                    return "normalsnow";
+                case Weather.WinterSeverity.Harsh:
+                    return "harshsnow";
+                default:
+                    return "";
+            }
+        }
+
+
+    }
+}
