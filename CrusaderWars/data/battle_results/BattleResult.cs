@@ -535,7 +535,7 @@ namespace CrusaderWars.data.battle_results
                     var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
                             x.GetUnitType() == unit.GetRegimentType() &&
                             x.GetCulture()?.ID == unit.GetObjCulture()?.ID &&
-                            x.GetTypeName() == unit.GetAttilaUnitKey() // Garrisons are matched by Attila key
+                            x.GetTypeName() == unit.GetName() // Corrected: Match garrison by its generic name "Garrison"
                     );
 
                     if (unitReport != null)
@@ -731,7 +731,7 @@ namespace CrusaderWars.data.battle_results
                 if (group.Key.Type.StartsWith("Garrison")) // Check for Garrison units first
                 {
                     unitType = RegimentType.Garrison;
-                    type = group.Key.Type; // The log type is the Attila unit key
+                    type = "Garrison"; // Match against the generic unit name "Garrison"
                 }
                 else if (group.Key.Type.Contains("Levy"))
                 {
@@ -764,7 +764,7 @@ namespace CrusaderWars.data.battle_results
                 var matchingUnits = army.Units.Where(x => x != null &&
                     x.GetRegimentType() == unitType &&
                     x.GetObjCulture()?.ID == group.Key.CultureID &&
-                    ((unitType == RegimentType.Garrison && x.GetAttilaUnitKey() == type) || // Match garrison by AttilaUnitKey
+                    ((unitType == RegimentType.Garrison && x.GetName() == type) || // Match garrison by its generic name
                      (unitType != RegimentType.Garrison && x.GetName() == type))
                 );
 
@@ -829,17 +829,17 @@ namespace CrusaderWars.data.battle_results
 
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
-                // Apply scaling to 'remaining' soldiers for levies
-                if (unitType == RegimentType.Levy)
-                {
-                    int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
-                    if (ratio > 0 && ratio < 100)
-                    {
-                        double scaleFactor = 100.0 / ratio;
-                        remaining = (int)Math.Round(remaining * scaleFactor);
-                        Program.Logger.Debug($"Applying reverse scaling to levy 'Remaining' count. New value: {remaining}");
-                    }
-                }
+                // REMOVED: Levy reverse scaling logic
+                // if (unitType == RegimentType.Levy)
+                // {
+                //     int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
+                //     if (ratio > 0 && ratio < 100)
+                //     {
+                //         double scaleFactor = 100.0 / ratio;
+                //         remaining = (int)Math.Round(remaining * scaleFactor);
+                //         Program.Logger.Debug($"Applying reverse scaling to levy 'Remaining' count. New value: {remaining}");
+                //     }
+                // }
 
                 // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
                 UnitCasualitiesReport unitReport;
@@ -849,17 +849,17 @@ namespace CrusaderWars.data.battle_results
                 if (pursuitGroup != null)
                 {
                     int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
-                    // Apply scaling to pursuitRemaining for levies
-                    if (unitType == RegimentType.Levy)
-                    {
-                        int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
-                        if (ratio > 0 && ratio < 100)
-                        {
-                            double scaleFactor = 100.0 / ratio;
-                            pursuitRemaining = (int)Math.Round(pursuitRemaining * scaleFactor);
-                            Program.Logger.Debug($"Applying reverse scaling to levy 'Pursuit Remaining' count. New value: {pursuitRemaining}");
-                        }
-                    }
+                    // REMOVED: Levy reverse scaling logic for pursuitRemaining
+                    // if (unitType == RegimentType.Levy)
+                    // {
+                    //     int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
+                    //     if (ratio > 0 && ratio < 100)
+                    //     {
+                    //         double scaleFactor = 100.0 / ratio;
+                    //         pursuitRemaining = (int)Math.Round(pursuitRemaining * scaleFactor);
+                    //         Program.Logger.Debug($"Applying reverse scaling to levy 'Pursuit Remaining' count. New value: {pursuitRemaining}");
+                    //     }
+                    // }
                     unitReport =
                         new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining);
                 }
@@ -1247,7 +1247,7 @@ namespace CrusaderWars.data.battle_results
                                         }
                                         else
                                         {
-                                            Program.Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
+Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
                                         }
                                     }
                                     else

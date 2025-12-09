@@ -49,7 +49,7 @@ namespace CrusaderWars.twbattle
             // State for individual strategies
             public int MapSizeFixAttempts { get; set; } = 0;
             public string? OriginalMapSize { get; set; }
-            public bool DeploymentRotationTried { get; set; } = false;
+            public bool DeploymentRotationTried { get; set; = false;
             public int SiegeDirectionFixAttempts { get; set; } = 0;
 
             // Golden copy of armies for unit replacement strategy
@@ -2169,12 +2169,12 @@ namespace CrusaderWars.twbattle
                         // Find matching battle result for this unit
                         var casualtyReport = army.CasualitiesReports?.FirstOrDefault(r => 
                             r.GetUnitType() == unit.GetRegimentType() &&
-                            r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy ? "Levy" : unit.GetName()) &&
+                            r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison ? unit.GetName() : unit.GetName()) && // Corrected: Match garrison by its generic name
                             r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
                         
                         int deployed = casualtyReport?.GetStarting() ?? 0;
                         int remaining = unit.GetSoldiers(); // This is the *final* remaining soldiers after all processing
-                        int losses = deployed - remaining;
+                        int losses = Math.Max(0, deployed - remaining); // Ensure losses are non-negative
                         int kills = casualtyReport?.GetKilled() ?? 0;
 
                         var unitReportObj = new UnitReport

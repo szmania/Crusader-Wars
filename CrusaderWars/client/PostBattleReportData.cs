@@ -66,6 +66,9 @@ namespace CrusaderWars.client
         public int Remaining { get; set; }
         public int Kills { get; set; }
         public int Losses { get; set; } // Changed from computed property to regular property
+        
+        // Ensure losses are always non-negative
+        public int GetLosses() => Math.Max(0, Deployed - Remaining);
 
         // Detailed Info
         public string Ck3UnitType { get; set; }
