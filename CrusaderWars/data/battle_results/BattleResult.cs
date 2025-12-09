@@ -1247,7 +1247,7 @@ namespace CrusaderWars.data.battle_results
                                         }
                                         else
                                         {
-Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
+                                            Program.Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
                                         }
                                     }
                                     else

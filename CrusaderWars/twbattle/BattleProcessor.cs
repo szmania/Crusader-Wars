@@ -49,7 +49,7 @@ namespace CrusaderWars.twbattle
             // State for individual strategies
             public int MapSizeFixAttempts { get; set; } = 0;
             public string? OriginalMapSize { get; set; }
-            public bool DeploymentRotationTried { get; set; = false;
+            public bool DeploymentRotationTried { get; set; } = false;
             public int SiegeDirectionFixAttempts { get; set; } = 0;
 
             // Golden copy of armies for unit replacement strategy
