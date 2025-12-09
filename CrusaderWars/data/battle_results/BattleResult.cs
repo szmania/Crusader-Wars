@@ -998,7 +998,7 @@ namespace CrusaderWars.data.battle_results
             {
                 var knightKillsReport = army.UnitsResults!.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
                 int kills = 0;
-                if (knightKillsReport.Item4 != null)
+                if (knightKillsReport != null && knightKillsReport.Item4 != null)
                 {
                     Int32.TryParse(knightKillsReport.Item4, out kills);
                 }
