@@ -1348,20 +1348,57 @@ namespace CrusaderWars.twbattle
                     }
                 }
 
-                // All knights NOT assigned to an MAA unit get the 4x bodyguard multiplier.
-                var unassignedKnights = allKnights.Except(assignedKnights).ToList();
-                foreach (var knight in unassignedKnights)
+                // After the MAA assignment loop, add levy fallback logic
+                var stillUnassignedKnights = prominentKnights.Except(assignedKnights).ToList();
+                if (stillUnassignedKnights.Any() && !assignableMAA.Any())
                 {
-                    knight.IsProminent = true; // This triggers the 4x soldier calculation
+                    Program.Logger.Debug($"No MAA units available for {stillUnassignedKnights.Count} unassigned prominent knights. Checking for levy units with matching culture...");
+                    
+                    // Get levy units from the army
+                    var levyUnits = army.Units
+                        .Where(u => u.GetRegimentType() == RegimentType.Levy && u.KnightCommander == null)
+                        .ToList();
+                    
+                    if (levyUnits.Any())
+                    {
+                        Program.Logger.Debug($"Found {levyUnits.Count} levy units. Attempting culture-based matching...");
+                        
+                        foreach (var knight in stillUnassignedKnights.OrderByDescending(k => k.IsAccolade()))
+                        {
+                            // Find levy unit with best culture/heritage match
+                            var bestLevyMatch = levyUnits
+                                .OrderByDescending(u => u.GetObjCulture()?.ID == knight.GetCultureObj()?.ID) // Culture match first
+                                .ThenByDescending(u => u.GetHeritage() == knight.GetHeritageName()) // Then heritage match
+                                .ThenByDescending(u => u.GetSoldiers()) // Then strongest unit
+                                .FirstOrDefault();
+                            
+                            if (bestLevyMatch != null)
+                            {
+                                bestLevyMatch.KnightCommander = knight;
+                                assignedKnights.Add(knight);
+                                levyUnits.Remove(bestLevyMatch);
+                                
+                                Program.Logger.Debug($"Assigned prominent knight {knight.GetName()} ({knight.GetID()}) to command levy unit in army {army.ID} based on culture/heritage match.");
+                                
+                                if (!levyUnits.Any()) break; // No more levy units
+                            }
+                        }
+                        
+                        Program.Logger.Debug($"Levy fallback completed. {assignedKnights.Count(ak => ak.IsAccolade())} accolade knights and {assignedKnights.Count(ak => !ak.IsAccolade())} prominent knights assigned to levy units.");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"No levy units available for fallback assignment. {stillUnassignedKnights.Count} prominent knights will join combined knights unit.");
+                    }
                 }
-                Program.Logger.Debug($"{unassignedKnights.Count} knights (standard and unassigned prominent) will form the combined bodyguard unit for army {army.ID}.");
 
-
-                // Finally, remove the assigned knights from the main KnightSystem list.
-                if (assignedKnights.Any())
+                // Update unassigned knights list after levy fallback
+                var finalUnassignedKnights = allKnights.Except(assignedKnights).ToList();
+                foreach (var knight in finalUnassignedKnights)
                 {
-                    army.Knights.GetKnightsList().RemoveAll(k => assignedKnights.Contains(k));
+                    knight.IsProminent = true; // This triggers the 4x bodyguard multiplier
                 }
+                Program.Logger.Debug($"{finalUnassignedKnights.Count} knights (standard and unassigned prominent) will form the combined bodyguard unit for army {army.ID}.");
             }
             Program.Logger.Debug("--- Finished Processing Prominent Knights ---");
         }
@@ -2228,14 +2265,16 @@ namespace CrusaderWars.twbattle
                 // Add siege engines to the army report
                 if (army.SiegeEngines != null && army.SiegeEngines.Any())
                 {
-                    foreach (var siegeEngine in army.SiegeEngines)
+                    var siegeNode = new UnitReport
                     {
-                        armyReport.SiegeEngines.Add(new SiegeEngineReport
-                        {
-                            Name = siegeEngine.Key,
-                            Quantity = siegeEngine.Value
-                        });
-                    }
+                        AttilaUnitName = "Siege Engines",
+                        Ck3UnitType = "SiegeEngine",
+                        Deployed = army.SiegeEngines.Sum(se => se.Value),
+                        Remaining = army.SiegeEngines.Sum(se => se.Value), // Assuming siege engines don't take losses in this report
+                        Losses = 0,
+                        Kills = 0
+                    };
+                    armyReport.Units.Add(siegeNode);
                 }
 
                 // Assign army-level totals
