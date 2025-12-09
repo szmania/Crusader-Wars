@@ -427,7 +427,7 @@ namespace CrusaderWars
 
                         // Use a sub-counter 'j' to ensure unique script names for each created unit
                         string unit_script_name = $"{i}_{j}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                        BattleFile.AddUnit(attilaUnitKey, soldiersForThisUnit, 1, 0, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                        BattleFile.AddUnit(attilaUnitKey, soldiersForThisUnit, 1, 0, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide), unit.KnightCommander);
                         currentSiegeCount++;
                     }
                 }
