@@ -570,7 +570,7 @@ namespace CrusaderWars.twbattle
             {
                         Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                         MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                        MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
                         await Games.CloseTotalWarAttilaProcess();
                         if (ModOptions.CloseCK3DuringBattle())
                         {
@@ -1258,7 +1258,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -1598,7 +1598,7 @@ namespace CrusaderWars.twbattle
             if (allAvailableUnits is null)
             {
                 Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
-                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
                 return (false, "");
             }
 
@@ -2005,7 +2005,7 @@ namespace CrusaderWars.twbattle
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in TryDeploymentZoneEditorFix: {ex.Message}");
-                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, Icon.Error);
                 return (false, "");
             }
         }
@@ -2089,16 +2089,16 @@ namespace CrusaderWars.twbattle
             report.DefenderSide = new SideReport { SideName = "Defenders" };
             PopulateSideReport(report.DefenderSide, defender_armies, deployedCounts, unitKills, attackerTotalKills);
 
-            // Ensure kills match losses by setting the properties directly
+            // Ensure totals consistency by summing from army totals
             report.AttackerSide.TotalDeployed = report.AttackerSide.Armies.Sum(a => a.TotalDeployed);
             report.AttackerSide.TotalLosses = report.AttackerSide.Armies.Sum(a => a.TotalLosses);
             report.AttackerSide.TotalRemaining = report.AttackerSide.Armies.Sum(a => a.TotalRemaining);
-            report.AttackerSide.TotalKills = defenderTotalKills; // Attacker kills = defender losses
+            report.AttackerSide.TotalKills = report.AttackerSide.Armies.Sum(a => a.TotalKills);
             
             report.DefenderSide.TotalDeployed = report.DefenderSide.Armies.Sum(a => a.TotalDeployed);
             report.DefenderSide.TotalLosses = report.DefenderSide.Armies.Sum(a => a.TotalLosses);
             report.DefenderSide.TotalRemaining = report.DefenderSide.Armies.Sum(a => a.TotalRemaining);
-            report.DefenderSide.TotalKills = attackerTotalKills; // Defender kills = attacker losses
+            report.DefenderSide.TotalKills = report.DefenderSide.Armies.Sum(a => a.TotalKills);
 
             if (BattleState.IsSiegeBattle)
             {
@@ -2196,6 +2196,7 @@ namespace CrusaderWars.twbattle
 
                         if (unit.GetRegimentType() == RegimentType.Commander)
                         {
+                            unitReportObj.AttilaUnitName = $"General ({army.Commander?.Name ?? "Unknown Commander"})"; // Fix General Unit Names
                             unitReportObj.Characters.Add(GetCharacterReport(army.Commander));
                         }
                         else if (unit.GetRegimentType() == RegimentType.Knight)
@@ -2238,19 +2239,19 @@ namespace CrusaderWars.twbattle
                 }
 
                 // Assign army-level totals
-                armyReport.TotalDeployed = armyTotalDeployed;
-                armyReport.TotalLosses = armyTotalLosses;
-                armyReport.TotalRemaining = armyTotalRemaining;
-                armyReport.TotalKills = army.GetTotalKills(); // Use actual kills from army
+                armyReport.TotalDeployed = armyReport.Units.Sum(u => u.Deployed); // Fix Army Totals Calculation
+                armyReport.TotalLosses = armyReport.Units.Sum(u => u.Losses); // Fix Army Totals Calculation
+                armyReport.TotalRemaining = armyReport.Units.Sum(u => u.Remaining); // Fix Army Totals Calculation
+                armyReport.TotalKills = armyReport.Units.Sum(u => u.Kills); // Fix Army Totals Calculation
 
                 sideReport.Armies.Add(armyReport);
             }
 
             // Set the side-level totals directly
-            sideReport.TotalDeployed = sideTotalDeployed;
-            sideReport.TotalLosses = sideTotalLosses;
-            sideReport.TotalRemaining = sideTotalRemaining;
-            sideReport.TotalKills = sideTotalKills;
+            sideReport.TotalDeployed = sideReport.Armies.Sum(a => a.TotalDeployed); // Ensure Totals Consistency
+            sideReport.TotalLosses = sideReport.Armies.Sum(a => a.TotalLosses); // Ensure Totals Consistency
+            sideReport.TotalRemaining = sideReport.Armies.Sum(a => a.TotalRemaining); // Ensure Totals Consistency
+            sideReport.TotalKills = sideReport.Armies.Sum(a => a.TotalKills); // Ensure Totals Consistency
         }
 
         private static void ShowClickableLinkMessageBox(IWin32Window owner, string text, string title, string linkText, string linkUrl, string reportContent)

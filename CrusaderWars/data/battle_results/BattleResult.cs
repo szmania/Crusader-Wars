@@ -463,7 +463,7 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug($"Error reading Attila results for army {army.ID}: {e.ToString()}");
                 MessageBox.Show($"Error reading Attila results: {e.ToString()}",
                     "Crusader Conflicts: Battle Results Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
+                    MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1,
                     MessageBoxOptions.DefaultDesktopOnly);
                 throw new Exception();
 
@@ -659,24 +659,27 @@ namespace CrusaderWars.data.battle_results
                         // Original logic for non-siege units (soldiers)
                         int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
                         int regSoldiers = originalSoldiers;
+                        int casualtiesApplied = 0; // Track actual casualties applied to this regiment
                         while (regSoldiers > 0 && killed > 0)
                         {
                             if (regSoldiers > killed)
                             {
+                                casualtiesApplied += killed;
                                 regSoldiers -= killed;
                                 killed = 0;
                             }
                             else
                             {
+                                casualtiesApplied += regSoldiers;
                                 killed -= regSoldiers;
                                 regSoldiers = 0;
                             }
                         }
 
                         regiment.SetSoldiers(regSoldiers.ToString());
-                        unitReport.SetKilled(killed);
+                        unitReport.SetKilled(casualtiesApplied); // Set to actual casualties applied
                         Program.Logger.Debug(
-                            $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
+                            $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}. Casualties applied: {casualtiesApplied}.");
                     }
                 }
 
@@ -737,9 +740,15 @@ namespace CrusaderWars.data.battle_results
                         unitType = RegimentType.Levy;
                         type = "Levy"; // Match against the generic unit name "Levy"
                     }
-                    else if (group.Key.Type.Contains("commander") || group.Key.Type.StartsWith("knight"))
+                    else if (group.Key.Type.Contains("commander")) // Handle commander specifically
                     {
-                        continue;
+                        unitType = RegimentType.Commander;
+                        type = "General"; // Match against the generic unit name "General"
+                    }
+                    else if (group.Key.Type.StartsWith("knight")) // Handle knight specifically
+                    {
+                        unitType = RegimentType.Knight;
+                        type = "Knight"; // Match against the generic unit name "Knight"
                     }
                     else
                     {
@@ -1440,7 +1449,7 @@ namespace CrusaderWars.data.battle_results
                                     {
                                         foreach (var mainArmy in targetArmies)
                                         {
-                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Commander?.ID == currentParticipantId))
+                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Commander?.GetID() == currentParticipantId))
                                             {
                                                 currentArmy = mainArmy; // The main army is the one we're interested in for reporting
                                                 break;
