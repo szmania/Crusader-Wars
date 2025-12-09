@@ -317,7 +317,7 @@ namespace CrusaderWars.client
             this.Load += new System.EventHandler(this.PostBattleReportForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
+            PerformLayout();
 
         }
 

@@ -136,6 +136,7 @@ namespace CrusaderWars.client
                     })
                     .OrderByDescending(u => u.Ck3UnitType == "Commander")
                     .ThenByDescending(u => u.Ck3UnitType == "Knight")
+                    .ThenByDescending(u => u.Ck3UnitType == "Garrison") // NEW: Prioritize Garrison units in display order
                     .ToList();
 
                 foreach (var unit in groupedUnits)
@@ -232,6 +233,14 @@ namespace CrusaderWars.client
                                 knightsNode.Nodes.Add(knightDetailNode);
                             }
                             node.Nodes.Add(knightsNode);
+                        }
+                    }
+                    else if (unitReport.Ck3UnitType == "Garrison") // NEW: Specific handling for Garrison units
+                    {
+                        node.Nodes.Add(new TreeNode("Note: This unit represents a garrison unit defending a settlement.") { ForeColor = Color.LightBlue });
+                        if (!string.IsNullOrEmpty(unitReport.AttilaUnitKey))
+                        {
+                            node.Nodes.Add(new TreeNode($"Attila Garrison Type: {unitReport.AttilaUnitKey}") { ForeColor = Color.LightSteelBlue });
                         }
                     }
 

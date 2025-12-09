@@ -1213,7 +1213,7 @@ namespace CrusaderWars.unit_mapper
 
             if (!string.IsNullOrEmpty(default_subculture))
             {
-                Program.Logger.Debug($"No specific subculture found for faction '{attila_faction}'. Using default subculture '{default_subculture}'.");
+                Program.Logger.Debug($"No specific subculture found for faction '{attila_faction}'. Using 'Default' subculture '{default_subculture}'.");
                 return default_subculture;
             }
 
@@ -1743,30 +1743,27 @@ namespace CrusaderWars.unit_mapper
 
             // 0. Check for manual replacements first, using the key already on the unit if available.
             // This is crucial for levies and garrisons which are handled as compositions.
-            if (!string.IsNullOrEmpty(initial_key) && initial_key != NOT_FOUND_KEY)
+            // For garrison units, the AttilaUnitKey is set directly in GarrisonGenerator.
+            if (unit.GetRegimentType() == RegimentType.Garrison && !string.IsNullOrEmpty(initial_key) && initial_key != NOT_FOUND_KEY)
             {
                 if (BattleState.ManualUnitReplacements.TryGetValue((initial_key, unit.IsPlayer()), out var manualReplacement))
                 {
-                    Program.Logger.Debug($"Manual Replace (Pre-check): Applying replacement for pre-set unit key '{initial_key}' with '{manualReplacement.replacementKey}'.");
+                    Program.Logger.Debug($"Manual Replace (Pre-check): Applying replacement for pre-set garrison unit key '{initial_key}' with '{manualReplacement.replacementKey}'.");
                     unit.SetIsSiege(manualReplacement.isSiege);
                     return (manualReplacement.replacementKey, manualReplacement.isSiege);
                 }
+                // If no manual replacement, return the pre-set garrison key.
+                return (initial_key, false);
             }
 
 
             // 1. Initial search in specific files
-            if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty)
+            result = SearchInTitlesFile(unit);
+            if (result.unit_key == NOT_FOUND_KEY)
             {
-                result = (unit.GetAttilaUnitKey(), false);
+                result = SearchInFactionFiles(unit);
             }
-            else
-            {
-                result = SearchInTitlesFile(unit);
-                if (result.unit_key == NOT_FOUND_KEY)
-                {
-                    result = SearchInFactionFiles(unit);
-                }
-            }
+            
 
             // 2. Check for exclusion based on initial search result
             bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
@@ -2540,7 +2537,7 @@ namespace CrusaderWars.unit_mapper
                 // In case of error or no image found, use default image
                 string default_image_path = Directory.GetCurrentDirectory() + "\\settings\\main_attila_map.png";
                 File.Copy(default_image_path, destination_path, true);
-                return;
+                    return;
             }
         }
 

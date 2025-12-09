@@ -548,13 +548,14 @@ namespace CrusaderWars.data.battle_results
                         int casualtiesApplied = originalSoldiers - remainingSoldiers;
 
                         unit.ChangeSoldiers(remainingSoldiers);
-                        unitReport.SetKilled(killed - casualtiesApplied); // Update report with remaining casualties
+                        // Ensure killed is not negative
+                        unitReport.SetKilled(Math.Max(0, killed - casualtiesApplied)); // Update report with remaining casualties
 
                         Program.Logger.Debug(
                             $"Garrison Unit Report: Type '{unit.GetAttilaUnitKey()}', Culture: {unit.GetCulture()}: Soldiers changed from {originalSoldiers} to {remainingSoldiers}.");
                     }
                 }
-                return; // Exit after processing garrison
+                // Do NOT return here. Continue to process other regiments if any, and ensure the army's total soldiers are updated.
             }
 
             foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
@@ -2224,7 +2225,7 @@ namespace CrusaderWars.data.battle_results
                         else if (editRegiment != null)
                         {
                             var reg = editRegiment; // New local variable
-                            // For other types (Levy), use the existing logic to rewrite the block.
+                            // For other types (Levy, Garrison), use the existing logic to rewrite the block.
                             isNewData = true;
                             string max = reg.Max ?? "0";
                             string owner = reg.Owner ?? "";
@@ -2751,7 +2752,7 @@ namespace CrusaderWars.data.battle_results
             {
                 Program.Logger.Debug($"--- Army ID: {army.ID} ({army.CombatSide.ToUpper()}) ---");
 
-                // Regular Regiments (Levy, MenAtArms)
+                // Regular Regiments (Levy, MenAtArms, Garrison)
                 Program.Logger.Debug("  REGIMENTS:");
                 if (army.ArmyRegiments != null)
                 {
@@ -2760,6 +2761,7 @@ namespace CrusaderWars.data.battle_results
                         if (armyRegiment == null || armyRegiment.Type == RegimentType.Commander || armyRegiment.Type == RegimentType.Knight) continue;
 
                         string regimentTypeName = armyRegiment.Type == RegimentType.Levy ? "Levy" : armyRegiment.MAA_Name;
+                        if (armyRegiment.Type == RegimentType.Garrison) regimentTypeName = "Garrison"; // Explicitly set for garrison
 
                         // Calculate aggregate casualties for this regiment group
                         int totalOriginalSize = 0;
