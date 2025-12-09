@@ -850,7 +850,7 @@ namespace CrusaderWars.data.battle_results
                     int totalGroupKills = 0;
                     var killsGroup = army.UnitsResults.Kills_MainPhase.FirstOrDefault(x =>
                         x.Type == group.Key.Type && x.CultureID == group.Key.CultureID);
-                    if (killsGroup != null && killsGroup.Item4 != null && Int32.TryParse(killsGroup.Item4, out int parsedKills))
+                    if (killsGroup.Item4 != null && Int32.TryParse(killsGroup.Item4, out int parsedKills))
                     {
                         totalGroupKills = parsedKills;
                     }
@@ -998,7 +998,7 @@ namespace CrusaderWars.data.battle_results
             {
                 var knightKillsReport = army.UnitsResults!.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
                 int kills = 0;
-                if (knightKillsReport != null && knightKillsReport.Item4 != null)
+                if (knightKillsReport.Item4 != null)
                 {
                     Int32.TryParse(knightKillsReport.Item4, out kills);
                 }
