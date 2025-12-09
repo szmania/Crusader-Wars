@@ -570,7 +570,7 @@ namespace CrusaderWars.twbattle
             {
                         Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                         MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                        MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
+                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                         await Games.CloseTotalWarAttilaProcess();
                         if (ModOptions.CloseCK3DuringBattle())
                         {
@@ -1258,7 +1258,7 @@ namespace CrusaderWars.twbattle
             {
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
-                MessageBoxButtons.OK, Icon.Error, MessageBoxDefaultButton.Button1);
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                     {
@@ -1598,7 +1598,7 @@ namespace CrusaderWars.twbattle
             if (allAvailableUnits is null)
             {
                 Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
-                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show(form, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
             }
 
@@ -2005,7 +2005,7 @@ namespace CrusaderWars.twbattle
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error in TryDeploymentZoneEditorFix: {ex.Message}");
-                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, Icon.Error);
+                MessageBox.Show(form, $"An error occurred while trying to launch the Deployment Zone Editor: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return (false, "");
             }
         }
