@@ -2667,14 +2667,14 @@ namespace CrusaderWars.data.battle_results
 
             try
             {
-                if (!File.Exists(path_log_attila))
+                if (!File.Exists(path_attila_log))
                 {
-                    Program.Logger.Debug($"Attila log file not found at: {path_log_attila}. Returning default siege outcome.");
+                    Program.Logger.Debug($"Attila log file not found at: {path_attila_log}. Returning default siege outcome.");
                     return (outcome, wall_damage);
                 }
 
                 string logContent;
-                using (FileStream logFile = File.Open(path_log_attila, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (StreamReader reader = new StreamReader(logFile))
                 {
                     logContent = reader.ReadToEnd();
