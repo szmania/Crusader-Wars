@@ -2167,10 +2167,13 @@ namespace CrusaderWars.twbattle
                         if (unit == null) continue;
 
                         // Find matching battle result for this unit
+                        // FIX: Correctly match Garrison units using their AttilaUnitKey, as that is what is stored in the report's TypeName
                         var casualtyReport = army.CasualitiesReports?.FirstOrDefault(r => 
                             r.GetUnitType() == unit.GetRegimentType() &&
-                            r.GetTypeName() == (unit.GetRegimentType() == RegimentType.Levy || unit.GetRegimentType() == RegimentType.Garrison ? unit.GetName() : unit.GetName()) && // Corrected: Match garrison by its generic name
-                            r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
+                            r.GetCulture()?.ID == unit.GetObjCulture()?.ID &&
+                            (r.GetTypeName() == unit.GetName() || 
+                             (unit.GetRegimentType() == RegimentType.Garrison && r.GetTypeName() == unit.GetAttilaUnitKey()))
+                        );
                         
                         int deployed = casualtyReport?.GetStarting() ?? 0;
                         int remaining = unit.GetSoldiers(); // This is the *final* remaining soldiers after all processing

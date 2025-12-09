@@ -535,7 +535,7 @@ namespace CrusaderWars.data.battle_results
                     var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
                             x.GetUnitType() == unit.GetRegimentType() &&
                             x.GetCulture()?.ID == unit.GetObjCulture()?.ID &&
-                            x.GetTypeName() == unit.GetName() // Corrected: Match garrison by its generic name "Garrison"
+                            (x.GetTypeName() == unit.GetName() || x.GetTypeName() == unit.GetAttilaUnitKey()) // FIX: Match garrison by its Attila unit key
                     );
 
                     if (unitReport != null)
@@ -728,12 +728,7 @@ namespace CrusaderWars.data.battle_results
                 RegimentType unitType;
                 string type; // This is the identifier string (CK3 name, Attila key, or generic "Levy")
 
-                if (group.Key.Type.StartsWith("Garrison")) // Check for Garrison units first
-                {
-                    unitType = RegimentType.Garrison;
-                    type = "Garrison"; // Match against the generic unit name "Garrison"
-                }
-                else if (group.Key.Type.Contains("Levy"))
+                if (group.Key.Type.StartsWith("Levy"))
                 {
                     unitType = RegimentType.Levy;
                     type = "Levy"; // Match against the generic unit name "Levy"
@@ -750,8 +745,22 @@ namespace CrusaderWars.data.battle_results
                 }
                 else
                 {
-                    unitType = RegimentType.MenAtArms;
-                    type = group.Key.Type; // The log type is the CK3 MAA name
+                    // This is either a MAA unit (type is CK3 name) or a Garrison unit (type is Attila key).
+                    // We need to check if this key corresponds to a Garrison unit in the army.
+                    var isGarrisonUnit = army.Units.Any(u => 
+                        u.GetRegimentType() == RegimentType.Garrison && 
+                        u.GetAttilaUnitKey() == group.Key.Type);
+
+                    if (isGarrisonUnit)
+                    {
+                        unitType = RegimentType.Garrison;
+                        type = group.Key.Type; // The Attila unit key
+                    }
+                    else
+                    {
+                        unitType = RegimentType.MenAtArms;
+                        type = group.Key.Type; // The CK3 MAA name
+                    }
                 }
 
                 // Search for type, culture, starting soldiers and remaining soldiers of a Unit
@@ -761,11 +770,11 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 // Safely get the unit(s), then its culture.
+                // FIX: Use GetAttilaUnitKey() for Garrison units for correct matching.
                 var matchingUnits = army.Units.Where(x => x != null &&
                     x.GetRegimentType() == unitType &&
                     x.GetObjCulture()?.ID == group.Key.CultureID &&
-                    ((unitType == RegimentType.Garrison && x.GetName() == type) || // Match garrison by its generic name
-                     (unitType != RegimentType.Garrison && x.GetName() == type))
+                    (unitType == RegimentType.Garrison ? x.GetAttilaUnitKey() == type : x.GetName() == type)
                 );
 
                 if (!matchingUnits.Any())
