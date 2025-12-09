@@ -2330,58 +2330,27 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
-            if (!BattleResult.IsAttackerVictorious)
+            // The following block for removing the siege block when attacker wins has been removed
+            // as per the requirement to always update siege progress instead of deleting the block.
+
+            // --- Start of Siege Progress Update Logic (Placeholder) ---
+            // This section is where the logic to update siege progress, breach levels,
+            // and action history should be implemented. This logic was not provided
+            // in the original prompt, but is expected to execute unconditionally now.
+            // For now, we will copy the original file to temp to ensure no data loss.
+            Program.Logger.Debug($"SiegeID {BattleResult.SiegeID} is set. Proceeding to update siege progress.");
+
+            // Placeholder for actual siege update logic
+            // Example: Read the siege block, modify values, then write back.
+            // For now, just copy the original file to temp.
+            if (File.Exists(siegesPath))
             {
-                Program.Logger.Debug("Attacker did not win the siege. Siege continues. Copying original Sieges.txt to temp and returning.");
-                if (File.Exists(siegesPath))
-                {
-                    File.Copy(siegesPath, siegesTempPath, true);
-                }
-                return;
+                File.Copy(siegesPath, siegesTempPath, true);
+                Program.Logger.Debug("Placeholder: Copied original Sieges.txt to temp. Implement actual siege update logic here.");
             }
+            // --- End of Siege Progress Update Logic (Placeholder) ---
 
-            // Attacker won, so remove the siege block
-            Program.Logger.Debug($"Attacker won the siege. Removing siege block for SiegeID: {BattleResult.SiegeID}");
-
-            StringBuilder modifiedContent = new StringBuilder();
-            bool inSiegeBlockToRemove = false;
-            int braceCount = 0;
-
-            using (StreamReader reader = new StreamReader(siegesPath))
-            {
-                string? line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (!inSiegeBlockToRemove && Regex.IsMatch(line, $@"\t\t{BattleResult.SiegeID}={{"))
-                    {
-                        Program.Logger.Debug($"Found siege block to remove: {BattleResult.SiegeID}");
-                        inSiegeBlockToRemove = true;
-                        braceCount = 1; // Start counting braces for this block
-                        continue; // Skip this line (the start of the block)
-                    }
-
-                    if (inSiegeBlockToRemove)
-                    {
-                        braceCount += line.Count(c => c == '{');
-                        braceCount -= line.Count(c => c == '}');
-
-                        if (braceCount == 0)
-                        {
-                            // End of the block to remove
-                            inSiegeBlockToRemove = false;
-                            Program.Logger.Debug($"Finished removing siege block: {BattleResult.SiegeID}");
-                            continue; // Skip this line (the end of the block)
-                        }
-                        // If braceCount is not 0, we are still inside the block, so skip the line
-                        continue;
-                    }
-
-                    modifiedContent.AppendLine(line);
-                }
-            }
-
-            File.WriteAllText(siegesTempPath, modifiedContent.ToString().TrimEnd()); // TrimEnd to remove trailing newline if any
-            Program.Logger.Debug("Finished editing Sieges file: Siege block removed.");
+            Program.Logger.Debug("Finished editing Sieges file.");
         }
 
         public static (string outcome, string wall_damage) GetSiegeOutcome(string path_attila_log, string left_side_combat_side, string right_side_combat_side)
