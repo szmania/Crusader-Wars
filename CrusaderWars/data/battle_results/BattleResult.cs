@@ -2313,203 +2313,319 @@ namespace CrusaderWars.data.battle_results
             return (false, null, null);
         }
 
-        public static void EditSiegesFile(string path_attila_log, string attacker_side, string defender_side, List<Army> attacker_armies, List<Army> defender_armies)
+        public static void EditSiegesFile(string path_log_attila, string attacker_side, string defender_side,
+            List<Army> attacker_armies, List<Army> defender_armies)
         {
-            Program.Logger.Debug("Editing Sieges file...");
+            Program.Logger.Debug("Entering EditSiegesFile method.");
 
-            string siegesPath = Writter.DataFilesPaths.Sieges_Path();
-            string siegesTempPath = Writter.DataTEMPFilesPaths.Sieges_Path();
-
-            if (string.IsNullOrEmpty(BattleResult.SiegeID))
+            if (!BattleState.IsSiegeBattle)
             {
-                Program.Logger.Debug("SiegeID is not set. Copying original Sieges.txt to temp and returning.");
-                if (File.Exists(siegesPath))
-                {
-                    File.Copy(siegesPath, siegesTempPath, true);
-                }
+                Program.Logger.Debug("Not a siege battle. Skipping EditSiegesFile.");
                 return;
             }
 
-            // Determine siege outcome and wall damage from Attila log
-            var (outcome, wall_damage) = GetSiegeOutcome(path_attila_log, attacker_side, defender_side);
-            Program.Logger.Debug($"Siege outcome: {outcome}, Wall damage: {wall_damage}");
+            Program.Logger.Debug($"Using pre-determined battle winner. IsAttackerVictorious: {IsAttackerVictorious}");
 
-            // Calculate total garrison casualties
-            int totalGarrisonCasualties = defender_armies
-                .Where(a => a.IsGarrison())
-                .Sum(a => a.GetTotalLosses());
-            Program.Logger.Debug($"Total garrison casualties: {totalGarrisonCasualties}");
 
-            // Get original garrison size
-            int originalGarrisonSize = defender_armies
-                .Where(a => a.IsGarrison())
-                .Sum(a => a.Units.Sum(u => u.GetOriginalSoldiers()));
-            Program.Logger.Debug($"Original garrison size: {originalGarrisonSize}");
-
-            // Calculate garrison strength percentage remaining
-            double garrisonStrengthRemaining = 1.0;
-            if (originalGarrisonSize > 0)
+            if (string.IsNullOrEmpty(SiegeID))
             {
-                garrisonStrengthRemaining = (double)(originalGarrisonSize - totalGarrisonCasualties) / originalGarrisonSize;
+                Program.Logger.Debug("SiegeID is null or empty. Cannot edit Sieges.txt.");
+                return;
             }
-            Program.Logger.Debug($"Garrison strength remaining: {garrisonStrengthRemaining:P2}");
 
-
-            // Read the entire Sieges.txt file
-            string siegesContent = File.ReadAllText(siegesPath);
-            StringBuilder modifiedSiegesContent = new StringBuilder();
-            bool inSiegeBlock = false;
-            bool siegeBlockModified = false;
-
-            using (StringReader reader = new StringReader(siegesContent))
+            string siegesFilePath = Writter.DataFilesPaths.Sieges_Path();
+            if (!File.Exists(siegesFilePath))
             {
-                string? line;
-                while ((line = reader.ReadLine()) != null)
+                Program.Logger.Debug($"Sieges file not found at {siegesFilePath}. Cannot edit siege progress.");
+                return;
+            }
+
+            // 1. Calculate Breach Increment and check for settlement capture from the LATEST battle log
+            int breachIncrement = 0;
+            bool settlementCaptured = false;
+            if (File.Exists(path_log_attila))
+            {
+                string attilaLogContent = File.ReadAllText(path_log_attila);
+                
+                // Normalize line endings for consistent searching
+                attilaLogContent = attilaLogContent.Replace("\r\n", "\n");
+
+                // Isolate the log for the last battle to avoid reading old data
+                string relevantLogSection;
+                const string battleReportHeader =
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------\n" +
+                    "--\n" +
+                    "--\t                    CRUSADER CONFLICTS               \n" +
+                    "--\n" +
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------";
+                
+                int lastHeaderIndex = attilaLogContent.LastIndexOf(battleReportHeader);
+
+                if (lastHeaderIndex != -1)
                 {
-                    if (Regex.IsMatch(line, @"^\t\t\d+={"))
-                    {
-                        string currentSiegeId = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
-                        if (currentSiegeId == SiegeID)
-                        {
-                            inSiegeBlock = true;
-                            siegeBlockModified = true; // Mark that this block will be modified
-                            Program.Logger.Debug($"Entering siege block for ID: {SiegeID}");
-                        }
-                        else
-                        {
-                            inSiegeBlock = false;
-                        }
-                    }
-
-                    if (inSiegeBlock)
-                    {
-                        if (line.Contains("\t\t\tprogress="))
-                        {
-                            // Update progress based on garrison casualties
-                            double currentProgress = 0.0;
-                            Match progressMatch = Regex.Match(line, @"progress=([\d\.]+)");
-                            if (progressMatch.Success)
-                            {
-                                double.TryParse(progressMatch.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out currentProgress);
-                            }
-
-                            // Increase progress based on garrison losses, up to 1.0
-                            double progressIncrement = (1.0 - garrisonStrengthRemaining) * 0.5; // Example: 50% of garrison loss contributes to progress
-                            double newProgress = Math.Min(1.0, currentProgress + progressIncrement);
-
-                            modifiedSiegesContent.AppendLine($"\t\t\tprogress={newProgress.ToString("F6", CultureInfo.InvariantCulture)}");
-                            Program.Logger.Debug($"Updated siege progress from {currentProgress:F6} to {newProgress:F6}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\tbreach_level="))
-                        {
-                            // Update breach level based on wall damage
-                            int currentBreachLevel = 0;
-                            Match breachMatch = Regex.Match(line, @"breach_level=(\d+)");
-                            if (breachMatch.Success)
-                            {
-                                int.TryParse(breachMatch.Groups[1].Value, out currentBreachLevel);
-                            }
-
-                            int newBreachLevel = currentBreachLevel;
-                            if (wall_damage == "Breached")
-                            {
-                                newBreachLevel = Math.Max(newBreachLevel, 2); // Set to breached level
-                            }
-                            else if (wall_damage == "Damaged")
-                            {
-                                newBreachLevel = Math.Max(newBreachLevel, 1); // Set to damaged level
-                            }
-
-                            modifiedSiegesContent.AppendLine($"\t\t\tbreach_level={newBreachLevel}");
-                            Program.Logger.Debug($"Updated breach_level from {currentBreachLevel} to {newBreachLevel}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\taction_history={"))
-                        {
-                            // Add new action history entry
-                            modifiedSiegesContent.AppendLine(line); // Write the opening brace
-                            modifiedSiegesContent.AppendLine("\t\t\t\t{");
-                            modifiedSiegesContent.AppendLine($"\t\t\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}");
-                            modifiedSiegesContent.AppendLine("\t\t\t\t\ttype=battle");
-                            modifiedSiegesContent.AppendLine($"\t\t\t\t\toutcome={outcome.Replace(" ", "_").ToLowerInvariant()}"); // e.g., settlement_captured, successfully_defended
-                            modifiedSiegesContent.AppendLine("\t\t\t\t}");
-                            Program.Logger.Debug($"Added new action_history entry for battle outcome: {outcome}");
-
-                            // Skip existing action history entries until the closing brace
-                            int braceCount = 1; // For the opening brace of action_history
-                            while ((line = reader.ReadLine()) != null)
-                            {
-                                braceCount += line.Count(c => c == '{');
-                                braceCount -= line.Count(c => c == '}');
-                                if (braceCount == 0)
-                                {
-                                    // This is the closing brace of action_history, we'll write it after our new entry
-                                    break;
-                                }
-                            }
-                            continue; // Continue to avoid writing the original closing brace twice
-                        }
-                        else if (line.Contains("\t\t\tattacker_side={"))
-                        {
-                            modifiedSiegesContent.AppendLine(line);
-                            // Update attacker casualties
-                            int totalAttackerLosses = attacker_armies.Sum(a => a.GetTotalLosses());
-                            modifiedSiegesContent.AppendLine($"\t\t\t\tcasualties={totalAttackerLosses}");
-                            Program.Logger.Debug($"Updated attacker casualties to {totalAttackerLosses}");
-
-                            // Skip original casualties line
-                            while ((line = reader.ReadLine()) != null && !line.Contains("}")) { }
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\tdefender_side={"))
-                        {
-                            modifiedSiegesContent.AppendLine(line);
-                            // Update defender casualties (garrison + relief if any)
-                            int totalDefenderLosses = defender_armies.Sum(a => a.GetTotalLosses());
-                            modifiedSiegesContent.AppendLine($"\t\t\t\tcasualties={totalDefenderLosses}");
-                            Program.Logger.Debug($"Updated defender casualties to {totalDefenderLosses}");
-
-                            // Skip original casualties line
-                            while ((line = reader.ReadLine()) != null && !line.Contains("}")) { }
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\tlast_attacker="))
-                        {
-                            // Update last_attacker to the main attacker commander ID
-                            string mainAttackerCommanderId = attacker_armies.FirstOrDefault(a => a.isMainArmy)?.CommanderID ?? "0";
-                            modifiedSiegesContent.AppendLine($"\t\t\tlast_attacker={mainAttackerCommanderId}");
-                            Program.Logger.Debug($"Updated last_attacker to {mainAttackerCommanderId}");
-                            continue;
-                        }
-                        else if (line.Contains("\t\t\tlast_defender="))
-                        {
-                            // Update last_defender to the main defender commander ID (garrison commander)
-                            string mainDefenderCommanderId = defender_armies.FirstOrDefault(a => a.isMainArmy)?.CommanderID ?? "0";
-                            modifiedSiegesContent.AppendLine($"\t\t\tlast_defender={mainDefenderCommanderId}");
-                            Program.Logger.Debug($"Updated last_defender to {mainDefenderCommanderId}");
-                            continue;
-                        }
-                    }
-
-                    modifiedSiegesContent.AppendLine(line);
+                    relevantLogSection = attilaLogContent.Substring(lastHeaderIndex);
+                    Program.Logger.Debug("Isolated final battle report section from Attila log for siege analysis.");
                 }
-            }
+                else
+                {
+                    relevantLogSection = attilaLogContent; // Fallback to entire log if header not found
+                    Program.Logger.Debug("Battle report header not found. Analyzing entire Attila log content for siege analysis.");
+                }
 
-            if (siegeBlockModified)
-            {
-                File.WriteAllText(siegesTempPath, modifiedSiegesContent.ToString());
-                Program.Logger.Debug($"Successfully updated siege block {SiegeID} in Sieges.txt.");
+                settlementCaptured = relevantLogSection.Contains("SETTLEMENT_CAPTURED");
+                if (settlementCaptured)
+                {
+                    Program.Logger.Debug("Attila log: SETTLEMENT_CAPTURED event found in last battle report.");
+                }
+
+                int wallsAttackedCount = Regex.Matches(relevantLogSection, "WALLS_ATTACKED").Count;
+                int wallsDestroyedCount = Regex.Matches(relevantLogSection, "WALLS_DESTROYED").Count;
+
+                if (wallsDestroyedCount > 1)
+                {
+                    breachIncrement = 3;
+                    Program.Logger.Debug(
+                        $"Attila log: Multiple WALLS_DESTROYED events ({wallsDestroyedCount}). Setting breachIncrement to 3.");
+                }
+                else if (wallsDestroyedCount == 1)
+                {
+                    breachIncrement = 2;
+                    Program.Logger.Debug($"Attila log: One WALLS_DESTROYED event. Setting breachIncrement to 2.");
+                }
+                else if (wallsAttackedCount > 0)
+                {
+                    breachIncrement = 1;
+                    Program.Logger.Debug(
+                        $"Attila log: WALLS_ATTACKED event(s) found ({wallsAttackedCount}). Setting breachIncrement to 1.");
+                }
+                else
+                {
+                    Program.Logger.Debug("Attila log: No wall attack/destruction events found. breachIncrement remains 0.");
+                }
             }
             else
             {
-                Program.Logger.Debug($"Siege block {SiegeID} not found or not modified. Copying original Sieges.txt to temp.");
-                File.WriteAllText(siegesTempPath, siegesContent); // Copy original if no changes were made
+                Program.Logger.Debug($"Attila log file not found at {path_log_attila}. Cannot calculate breach increment or check for capture.");
             }
 
-            Program.Logger.Debug("Finished editing Sieges file.");
-        }
 
+            List<string> fileLines = File.ReadAllLines(siegesFilePath).ToList();
+            StringBuilder updatedContent = new StringBuilder();
+            bool inTargetSiegeBlock = false;
+            bool targetSiegeBlockFound = false; // Track if we entered the target siege block at all
+            bool breachLineHandled = false; // NEW: Track if breach= line was found/handled
+
+            for (int i = 0; i < fileLines.Count; i++)
+            {
+                string line = fileLines[i];
+                string trimmedLine = line.Trim();
+
+                if (trimmedLine == $"{SiegeID}={{")
+                {
+                    inTargetSiegeBlock = true;
+                    targetSiegeBlockFound = true;
+                    breachLineHandled = false; // NEW: Reset for each siege block
+                    updatedContent.AppendLine(line);
+                }
+                else if (inTargetSiegeBlock && trimmedLine == "}")
+                {
+                    // NEW: Add missing breach= line before closing brace if applicable
+                    if (!breachLineHandled && breachIncrement > 0)
+                    {
+                        int newBreach = Math.Min(3, breachIncrement);
+                        updatedContent.AppendLine($"\t\t\tbreach={newBreach}");
+                        Program.Logger.Debug($"Added missing breach line with value: {newBreach}");
+                    }
+
+                    inTargetSiegeBlock = false;
+                    updatedContent.AppendLine(line);
+                }
+                else if (inTargetSiegeBlock && trimmedLine.StartsWith("progress="))
+                {
+                    if (settlementCaptured)
+                    {
+                        // Settlement was captured, siege is won by besieger.
+                        int fortLevel = twbattle.Sieges.GetFortLevel();
+                        double newProgress = 100 + (fortLevel * 75);
+                        Program.Logger.Debug($"Settlement captured. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
+                        updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                    }
+                    else
+                    {
+                        // Settlement not captured, use existing logic based on routing or casualties.
+                        bool isPlayerBesieged = attacker_armies.Concat(defender_armies).Any(a => a.IsGarrison() && a.IsPlayer());
+                        bool siegeWonByBesieger = !isPlayerBesieged && IsAttackerVictorious;
+
+                        if (siegeWonByBesieger)
+                        {
+                            // Attacker won a standard assault by routing defender: set progress to 100%
+                            int fortLevel = twbattle.Sieges.GetFortLevel();
+                            double newProgress = 100 + (fortLevel * 75);
+                            Program.Logger.Debug(
+                                $"Attacker won standard assault by routing defender. Updating siege progress for SiegeID {SiegeID} to {newProgress} (based on fort level {fortLevel}).");
+                            updatedContent.AppendLine(
+                                $"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                        }
+                        else
+                        {
+                            // All other outcomes: calculate progress based on garrison casualties.
+                            // This includes:
+                            // - Besieger loses a standard assault.
+                            // - Besieger wins a sally-out (garrison loses).
+                            // - Besieger loses a sally-out (garrison wins).
+
+                            int initialGarrisonSize = twbattle.Sieges.GetGarrisonSize();
+                            var garrisonArmies = attacker_armies.Where(a => a.IsGarrison()).Concat(defender_armies.Where(a => a.IsGarrison()));
+                            int finalGarrisonSize = garrisonArmies.Sum(a => a.GetTotalSoldiers());
+
+                            double casualtyPercentage = 0;
+                            if (initialGarrisonSize > 0)
+                            {
+                                int casualties = initialGarrisonSize - finalGarrisonSize;
+                                if (casualties > 0)
+                                {
+                                    casualtyPercentage = (double)casualties / initialGarrisonSize;
+                                }
+                            }
+
+                            string outcomeLog = "";
+                            if (isPlayerBesieged) {
+                                // In a sally-out, the garrison is the attacker. We know the player is the garrison.
+                                outcomeLog = IsAttackerVictorious ? "Player (garrison) won sally-out." : "Besieger won against player's sally-out.";
+                            } else {
+                                outcomeLog = "Besieger lost assault.";
+                            }
+                            Program.Logger.Debug($"{outcomeLog} Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
+
+                            if (casualtyPercentage > 0)
+                            {
+                                int fortLevel = twbattle.Sieges.GetFortLevel();
+                                double totalRequiredProgress = 100 + (fortLevel * 75);
+                                double currentProgress = twbattle.Sieges.GetSiegeProgress();
+                                double remainingProgress = totalRequiredProgress - currentProgress;
+
+                                if (remainingProgress < 0) remainingProgress = 0;
+
+                                double progressToAdd = casualtyPercentage * remainingProgress;
+                                double newProgress = currentProgress + progressToAdd;
+
+                                Program.Logger.Debug(
+                                    $"Adding {progressToAdd:F2} to siege progress. New progress: {newProgress:F2}");
+
+                                // Append the new progress line, preserving indentation
+                                updatedContent.AppendLine(
+                                    $"{line.Substring(0, line.IndexOf("progress="))}progress={newProgress.ToString("F2", CultureInfo.InvariantCulture)}");
+                            }
+                            else
+                            {
+                                Program.Logger.Debug("No garrison casualties. Siege progress remains unchanged.");
+                                updatedContent.AppendLine(line); // Append original line
+                            }
+                        }
+                    }
+                }
+                else if (inTargetSiegeBlock && trimmedLine.StartsWith("breach=")) // NEW BLOCK: Update breach value
+                {
+                    breachLineHandled = true; // NEW: Mark that breach line was handled
+                    if (breachIncrement > 0)
+                    {
+                        int currentBreach = 0;
+                        Match breachMatch = Regex.Match(trimmedLine, @"breach=(\d+)");
+                        if (breachMatch.Success && int.TryParse(breachMatch.Groups[1].Value, out currentBreach))
+                        {
+                            int newBreach = Math.Min(3, currentBreach + breachIncrement); // Cap at max 3
+                            Program.Logger.Debug(
+                                $"Updating breach from {currentBreach} to {newBreach} (increment: {breachIncrement}).");
+                            updatedContent.AppendLine($"{line.Substring(0, line.IndexOf("breach="))}breach={newBreach}");
+                        }
+                        else
+                        {
+                            Program.Logger.Debug(
+                                $"Warning: Could not parse current breach value from line: '{line}'. Appending original line.");
+                            updatedContent.AppendLine(line);
+                        }
+                    }
+                    else
+                    {
+                        updatedContent.AppendLine(line); // No increment, append original line
+                    }
+                }
+                else if (inTargetSiegeBlock &&
+                         trimmedLine.StartsWith("action_history={")) // MODIFIED BLOCK: Update action_history
+                {
+                    if (breachIncrement > 0 &&
+                        i + 2 < fileLines.Count) // Ensure there are enough lines to read (opening, tokens, closing)
+                    {
+                        string tokensLineContent = fileLines[i + 1].Trim(); // e.g., "none none none starvation"
+                        string tokensLineIndentation =
+                            fileLines[i + 1]
+                                .Substring(0,
+                                    fileLines[i + 1].IndexOf(tokensLineContent)); // Get indentation of tokens line
+                        string closingBraceIndentation =
+                            fileLines[i + 2]
+                                .Substring(0, fileLines[i + 2].IndexOf('}')); // Get indentation of closing brace line
+
+                        List<string> tokens = tokensLineContent.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                            .ToList();
+                        string originalTokensString = string.Join(" ", tokens); // For logging
+
+                        for (int k = 0; k < breachIncrement; k++)
+                        {
+                            int noneIndex = tokens.IndexOf("none");
+                            if (noneIndex != -1)
+                            {
+                                tokens[noneIndex] = "breach";
+                            }
+                            else if (tokens.Any())
+                            {
+                                // If no "none" tokens, remove the oldest and add "breach"
+                                tokens.RemoveAt(0);
+                                tokens.Add("breach");
+                            }
+                            else
+                            {
+                                // If history is empty, just add "breach"
+                                tokens.Add("breach");
+                            }
+                        }
+
+                        string newTokensString = string.Join(" ", tokens);
+                        Program.Logger.Debug(
+                            $"Updating action_history from '{{ {originalTokensString} }}' to '{{ {newTokensString} }}' (increment: {breachIncrement}).");
+
+                        updatedContent.AppendLine(line); // Append "action_history={"
+                        updatedContent.AppendLine(
+                            $"{tokensLineIndentation}{newTokensString}"); // Append modified tokens line
+                        updatedContent.AppendLine($"{closingBraceIndentation}}}"); // Append "}"
+
+                        i += 2; // Skip the next two lines as they have been processed
+                    }
+                    else
+                    {
+                        updatedContent.AppendLine(line); // No increment or not enough lines, append original line
+                    }
+                }
+                else
+                {
+                    // For all other lines, just append them
+                    updatedContent.AppendLine(line);
+                }
+            }
+
+            if (targetSiegeBlockFound) // Only write if we actually found the target siege block
+            {
+                File.WriteAllText(Writter.DataTEMPFilesPaths.Sieges_Path(), updatedContent.ToString());
+                Program.Logger.Debug($"Sieges.txt updated for siege ID {SiegeID}.");
+            }
+            else
+            {
+                Program.Logger.Debug(
+                    $"Sieges.txt for siege ID {SiegeID} was read, but the target siege block was not found.");
+            }
+        }
+        
         public static (string outcome, string wall_damage) GetSiegeOutcome(string path_attila_log, string left_side_combat_side, string right_side_combat_side)
         {
             Program.Logger.Debug($"Entering GetSiegeOutcome for log file: {path_attila_log}");

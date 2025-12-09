@@ -997,8 +997,8 @@ namespace CrusaderWars.twbattle
                     foreach (var army in attacker_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
-                        BattleResult.ReadAttilaResults(army, path_attila_log);
-                        BattleResult.CheckForSlainCommanders(army, path_attila_log);
+                        BattleResult.ReadAttilaResults(army, path_log_attila);
+                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForSlainKnights(army);
                     }
@@ -1006,8 +1006,8 @@ namespace CrusaderWars.twbattle
                     foreach (var army in defender_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
-                        BattleResult.ReadAttilaResults(army, path_attila_log);
-                        BattleResult.CheckForSlainCommanders(army, path_attila_log);
+                        BattleResult.ReadAttilaResults(army, path_log_attila);
+                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
                         BattleResult.CheckKnightsKills(army);
                         BattleResult.CheckForSlainKnights(army);
 
@@ -1031,7 +1031,7 @@ namespace CrusaderWars.twbattle
                     // --- END: Call new logging method ---
 
                     // DETERMINE WINNER FIRST so EditLivingFile can correctly calculate prisoner chances
-                    string winner = BattleResult.GetAttilaWinner(path_attila_log, left_side[0].CombatSide, right_side[0].CombatSide);
+                    string winner = BattleResult.GetAttilaWinner(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide);
                     BattleResult.IsAttackerVictorious = (winner == "attacker");
                     Program.Logger.Debug($"Battle winner determined: {winner}. IsAttackerVictorious set to: {BattleResult.IsAttackerVictorious}");
 
