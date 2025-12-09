@@ -850,7 +850,7 @@ namespace CrusaderWars.data.battle_results
                     int totalGroupKills = 0;
                     var killsGroup = army.UnitsResults?.Kills_MainPhase.FirstOrDefault(x =>
                         x.Type == group.Key.Type && x.CultureID == group.Key.CultureID);
-                    if (killsGroup.Kills != null && Int32.TryParse(killsGroup.Kills, out int parsedKills))
+                    if (killsGroup.Item4 != null && Int32.TryParse(killsGroup.Item4, out int parsedKills))
                     {
                         totalGroupKills = parsedKills;
                     }
@@ -870,14 +870,14 @@ namespace CrusaderWars.data.battle_results
                         composedUnit.ChangeSoldiers(remainingForThisUnit);
 
                         // Create individual unit report with proper numbers
-                        var unitReport = new UnitCasualitiesReport(
+                        var individualUnitReport = new UnitCasualitiesReport(
                             unitType, type, culture, 
                             originalComposedSoldiers, // Starting is the individual unit's scaled size
                             remainingForThisUnit
                         );
-                        unitReport.SetKilled(killsForThisUnit);
+                        individualUnitReport.SetKilled(killsForThisUnit);
                         
-                        reportsList.Add(unitReport);
+                        reportsList.Add(individualUnitReport);
                         Program.Logger.Debug($"    - Individual Unit Report: Key: {composedUnit.GetAttilaUnitKey()}, Original: {originalComposedSoldiers}, Remaining: {remainingForThisUnit}, Losses: {lossesForThisUnit}, Kills: {killsForThisUnit}");
                     }
                     continue; // Skip the default single report creation below
@@ -998,9 +998,9 @@ namespace CrusaderWars.data.battle_results
             {
                 var knightKillsReport = army.UnitsResults!.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
                 int kills = 0;
-                if (knightKillsReport.Kills != null)
+                if (knightKillsReport.Item4 != null)
                 {
-                    Int32.TryParse(knightKillsReport.Kills, out kills);
+                    Int32.TryParse(knightKillsReport.Item4, out kills);
                 }
 
                 army.Knights.GetKills(kills);
@@ -2667,14 +2667,14 @@ namespace CrusaderWars.data.battle_results
 
             try
             {
-                if (!File.Exists(path_attila_log))
+                if (!File.Exists(path_log_attila))
                 {
-                    Program.Logger.Debug($"Attila log file not found at: {path_attila_log}. Returning default siege outcome.");
+                    Program.Logger.Debug($"Attila log file not found at: {path_log_attila}. Returning default siege outcome.");
                     return (outcome, wall_damage);
                 }
 
                 string logContent;
-                using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (FileStream logFile = File.Open(path_log_attila, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (StreamReader reader = new StreamReader(logFile))
                 {
                     logContent = reader.ReadToEnd();
