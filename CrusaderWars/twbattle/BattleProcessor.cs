@@ -36,7 +36,7 @@ namespace CrusaderWars.twbattle
             public string LastAppliedFixDescription { get; set; }  = "";
             public int MapVariantOffset { get; set; }  = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
-            public string OriginalMapDescription { get; set; = "";
+            public string OriginalMapDescription { get; set; }  = "";
             public string OriginalFieldMapDescription { get; set; } = "";
 
             // New properties for strategy-based autofix
