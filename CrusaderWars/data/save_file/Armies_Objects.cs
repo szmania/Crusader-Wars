@@ -86,6 +86,7 @@ namespace CrusaderWars.data.save_file
         int Max { get; set; }
         string LocName { get; set; }
         public int CharacterRank { get; private set; }
+        public int GarrisonLevel { get; private set; } // NEW: For Garrison units
         private bool IsSiegeWeapon { get; set; }
         private bool IsSiegeEnginePerUnitBool { get; set; }
         private int NumGuns { get; set; }
@@ -93,7 +94,7 @@ namespace CrusaderWars.data.save_file
         public Knight? KnightCommander { get; set; }
 
 
-        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, int garrisonLevel = 0)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -104,13 +105,14 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            GarrisonLevel = garrisonLevel; // NEW: Set garrison level
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
             KnightCommander = null;
         }
 
-        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, int garrisonLevel = 0)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -122,12 +124,13 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            GarrisonLevel = garrisonLevel; // NEW: Set garrison level
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
             KnightCommander = null;
         }
-        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner, int garrisonLevel = 0)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -140,6 +143,7 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            GarrisonLevel = garrisonLevel; // NEW: Set garrison level
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
@@ -159,6 +163,7 @@ namespace CrusaderWars.data.save_file
         public void SetLocName(string t) { LocName = t; }
         public void ChangeCulture(Culture culture) { UnitCulture = culture; }
         public void SetCharacterRank(int rank) { CharacterRank = rank; }
+        public void SetGarrisonLevel(int level) { GarrisonLevel = level; } // NEW: Method to set garrison level
         public void SetIsSiege(bool isSiege) { IsSiegeWeapon = isSiege; }
         public void SetIsSiegeEnginePerUnit(bool isPerUnit) { IsSiegeEnginePerUnitBool = isPerUnit; }
         public void SetNumGuns(int numGuns) { NumGuns = numGuns; }

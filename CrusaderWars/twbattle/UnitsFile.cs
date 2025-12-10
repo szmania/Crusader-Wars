@@ -149,7 +149,7 @@ namespace CrusaderWars
                 int commander_xp = commander.GetCommanderExperience();
                 int commander_soldiers = commander.GetUnitSoldiers();
                 
-                Unit commander_unit = new Unit("General", commander_soldiers, commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
+                Unit commander_unit = new Unit("General", commander_soldiers, commander.GetCultureObj(), RegimentType.Commander, false, army.Owner, commander.Rank);
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName()));
                 var (commanderKey, isSiege) = UnitMappers_BETA.GetUnitKey(commander_unit);
 
@@ -194,9 +194,9 @@ namespace CrusaderWars
 
                 Unit knights_unit;
                 if (knightSystem.GetMajorCulture() != null)
-                    knights_unit = new Unit("Knight", knightSystem.GetKnightsSoldiers(), knightSystem.GetMajorCulture(), RegimentType.Knight, false, army.Owner);
+                    knights_unit = new Unit("Knight", knightSystem.GetKnightsSoldiers(), knightSystem.GetMajorCulture(), RegimentType.Knight, false, army.Owner, 0);
                 else
-                    knights_unit = new Unit("Knight", knightSystem.GetKnightsSoldiers(), army.Owner.GetCulture(), RegimentType.Knight, false, army.Owner);
+                    knights_unit = new Unit("Knight", knightSystem.GetKnightsSoldiers(), army.Owner.GetCulture(), RegimentType.Knight, false, army.Owner, 0);
 
                 knights_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(knights_unit.GetCulture(), knights_unit.GetHeritage()));
                 var (knightKey, isSiegeKnight) = UnitMappers_BETA.GetUnitKey(knights_unit);
@@ -297,7 +297,7 @@ namespace CrusaderWars
                         garrisonCulture = army.Owner.GetCulture();
                     }
 
-                    Unit merged_garrison_unit = new Unit("Garrison", total_faction_garrison_soldiers, garrisonCulture, RegimentType.Garrison, faction_group.Any(u => u.IsMerc()));
+                    Unit merged_garrison_unit = new Unit("Garrison", total_faction_garrison_soldiers, garrisonCulture, RegimentType.Garrison, faction_group.Any(u => u.IsMerc()), army.Owner, representative_unit.GarrisonLevel);
                     merged_garrison_unit.SetAttilaFaction(factionName);
                     merged_garrison_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
 
@@ -348,7 +348,7 @@ namespace CrusaderWars
                             levyCulture = army.Owner.GetCulture();
                         }
 
-                        Unit merged_levy_unit = new Unit("Levy", total_faction_levy_soldiers, levyCulture, RegimentType.Levy, faction_group.Any(u => u.IsMerc()));
+                        Unit merged_levy_unit = new Unit("Levy", total_faction_levy_soldiers, levyCulture, RegimentType.Levy, faction_group.Any(u => u.IsMerc()), army.Owner, 0);
                         merged_levy_unit.SetAttilaFaction(factionName);
                         merged_levy_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
     
