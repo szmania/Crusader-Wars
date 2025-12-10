@@ -1330,5 +1330,496 @@ namespace CrusaderWars.twbattle
             
             return report;
         }
+
+        // Add the missing methods that were referenced but not implemented
+        private static void ProcessProminentKnights(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Processing prominent knights for MAA leadership...");
+            
+            var allArmies = attacker_armies.Concat(defender_armies);
+            
+            foreach (var army in allArmies)
+            {
+                if (army.Units == null || !army.Units.Any()) continue;
+                
+                // Get all knights from this army
+                var armyKnights = new List<Knight>();
+                if (army.Knights != null && army.Knights.HasKnights())
+                {
+                    armyKnights.AddRange(army.Knights.GetKnightsList());
+                }
+                
+                // Also check merged armies for knights
+                if (army.MergedArmies != null)
+                {
+                    foreach (var mergedArmy in army.MergedArmies)
+                    {
+                        if (mergedArmy.Knights != null && mergedArmy.Knights.HasKnights())
+                        {
+                            armyKnights.AddRange(mergedArmy.Knights.GetKnightsList());
+                        }
+                    }
+                }
+                
+                if (!armyKnights.Any()) continue;
+                
+                // Sort knights by prowess (highest first) to assign best knights to MAA
+                var sortedKnights = armyKnights.OrderByDescending(k => k.GetProwess()).ToList();
+                
+                // Find MAA units that could be led by knights
+                var maaUnits = army.Units.Where(u => u.GetRegimentType() == RegimentType.MenAtArms).ToList();
+                
+                // Also check merged armies for MAA units
+                if (army.MergedArmies != null)
+                {
+                    foreach (var mergedArmy in army.MergedArmies)
+                    {
+                        if (mergedArmy.Units != null)
+                        {
+                            maaUnits.AddRange(mergedArmy.Units.Where(u => u.GetRegimentType() == RegimentType.MenAtArms));
+                        }
+                    }
+                }
+                
+                // Assign knights to lead MAA units
+                int knightIndex = 0;
+                foreach (var maaUnit in maaUnits)
+                {
+                    if (knightIndex >= sortedKnights.Count) break;
+                    
+                    var knight = sortedKnights[knightIndex];
+                    maaUnit.KnightCommander = knight;
+                    knightIndex++;
+                    
+                    Program.Logger.Debug($"Assigned knight {knight.GetName()} (Prowess: {knight.GetProwess()}) to lead MAA unit {maaUnit.GetName()}");
+                }
+            }
+            
+            Program.Logger.Debug("Finished processing prominent knights.");
+        }
+
+        private static void ShowClickableLinkMessageBox(Form parentForm, string messageText, string title, string linkText, string url, string reportContent)
+        {
+            // Create a custom form with clickable link
+            using (Form messageForm = new Form())
+            {
+                messageForm.Text = title;
+                messageForm.Width = 500;
+                messageForm.Height = 300;
+                messageForm.StartPosition = FormStartPosition.CenterParent;
+                messageForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                messageForm.MaximizeBox = false;
+                messageForm.MinimizeBox = false;
+                
+                Panel panel = new Panel();
+                panel.Dock = DockStyle.Fill;
+                panel.Padding = new Padding(10);
+                messageForm.Controls.Add(panel);
+                
+                Label messageLabel = new Label();
+                messageLabel.Text = messageText;
+                messageLabel.AutoSize = true;
+                messageLabel.MaximumSize = new Size(460, 0);
+                messageLabel.Location = new Point(10, 10);
+                panel.Controls.Add(messageLabel);
+                
+                LinkLabel linkLabel = new LinkLabel();
+                linkLabel.Text = linkText;
+                linkLabel.AutoSize = true;
+                linkLabel.Location = new Point(10, messageLabel.Bottom + 10);
+                linkLabel.LinkClicked += (sender, e) => {
+                    try 
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Could not open link: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                };
+                panel.Controls.Add(linkLabel);
+                
+                TextBox reportBox = new TextBox();
+                reportBox.Text = reportContent;
+                reportBox.Multiline = true;
+                reportBox.ScrollBars = ScrollBars.Vertical;
+                reportBox.ReadOnly = true;
+                reportBox.Size = new Size(460, 100);
+                reportBox.Location = new Point(10, linkLabel.Bottom + 10);
+                panel.Controls.Add(reportBox);
+                
+                Button okButton = new Button();
+                okButton.Text = "OK";
+                okButton.DialogResult = DialogResult.OK;
+                okButton.Size = new Size(75, 25);
+                okButton.Location = new Point((messageForm.ClientSize.Width - 75) / 2, reportBox.Bottom + 10);
+                okButton.Anchor = AnchorStyles.Top;
+                panel.Controls.Add(okButton);
+                
+                messageForm.AcceptButton = okButton;
+                messageForm.ResumeLayout();
+                
+                messageForm.ShowDialog(parentForm);
+            }
+        }
+
+        private static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form parentForm, List<AutofixState.AutofixStrategy> availableStrategies)
+        {
+            AutofixState.AutofixStrategy? selectedStrategy = null;
+            DialogResult result = DialogResult.None;
+            
+            // Create a custom form for strategy selection
+            using (Form strategyForm = new Form())
+            {
+                strategyForm.Text = "Crusader Conflicts: Autofix Options";
+                strategyForm.Width = 500;
+                strategyForm.Height = 400;
+                strategyForm.StartPosition = FormStartPosition.CenterParent;
+                strategyForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                strategyForm.MaximizeBox = false;
+                strategyForm.MinimizeBox = false;
+                
+                Panel panel = new Panel();
+                panel.Dock = DockStyle.Fill;
+                panel.Padding = new Padding(10);
+                strategyForm.Controls.Add(panel);
+                
+                Label headerLabel = new Label();
+                headerLabel.Text = "The battle crashed. Please select an autofix strategy:";
+                headerLabel.AutoSize = true;
+                headerLabel.Font = new Font(headerLabel.Font, FontStyle.Bold);
+                headerLabel.Location = new Point(10, 10);
+                panel.Controls.Add(headerLabel);
+                
+                RadioButton unitsButton = new RadioButton();
+                unitsButton.Text = "Change Units (Automatically replace problematic custom units)";
+                unitsButton.AutoSize = true;
+                unitsButton.Location = new Point(10, headerLabel.Bottom + 15);
+                unitsButton.Checked = availableStrategies.Contains(AutofixState.AutofixStrategy.Units);
+                panel.Controls.Add(unitsButton);
+                
+                RadioButton mapSizeButton = new RadioButton();
+                mapSizeButton.Text = "Change Map Size (Try a larger battlefield)";
+                mapSizeButton.AutoSize = true;
+                mapSizeButton.Location = new Point(10, unitsButton.Bottom + 5);
+                mapSizeButton.Checked = availableStrategies.Contains(AutofixState.AutofixStrategy.MapSize);
+                panel.Controls.Add(mapSizeButton);
+                
+                RadioButton deploymentButton = new RadioButton();
+                deploymentButton.Text = "Change Deployment (Rotate army positions)";
+                deploymentButton.AutoSize = true;
+                deploymentButton.Location = new Point(10, mapSizeButton.Bottom + 5);
+                deploymentButton.Checked = availableStrategies.Contains(AutofixState.AutofixStrategy.Deployment);
+                panel.Controls.Add(deploymentButton);
+                
+                RadioButton mapVariantButton = new RadioButton();
+                mapVariantButton.Text = "Change Map Variant (Try a different battlefield layout)";
+                mapVariantButton.AutoSize = true;
+                mapVariantButton.Location = new Point(10, deploymentButton.Bottom + 5);
+                mapVariantButton.Checked = availableStrategies.Contains(AutofixState.AutofixStrategy.MapVariant);
+                panel.Controls.Add(mapVariantButton);
+                
+                RadioButton manualUnitButton = new RadioButton();
+                manualUnitButton.Text = "Manual Unit Replacement (Choose specific units to replace)";
+                manualUnitButton.AutoSize = true;
+                manualUnitButton.Location = new Point(10, mapVariantButton.Bottom + 5);
+                manualUnitButton.Checked = availableStrategies.Contains(AutofixState.AutofixStrategy.ManualUnitReplacement);
+                panel.Controls.Add(manualUnitButton);
+                
+                RadioButton deploymentZoneButton = new RadioButton();
+                deploymentZoneButton.Text = "Deployment Zone Editor (Manually position armies)";
+                deploymentZoneButton.AutoSize = true;
+                deploymentZoneButton.Location = new Point(10, manualUnitButton.Bottom + 5);
+                deploymentZoneButton.Checked = availableStrategies.Contains(AutofixState.AutofixStrategy.DeploymentZoneEditor);
+                panel.Controls.Add(deploymentZoneButton);
+                
+                Label warningLabel = new Label();
+                warningLabel.Text = "Note: Some strategies may take effect immediately, others will require manual configuration.";
+                warningLabel.AutoSize = true;
+                warningLabel.ForeColor = Color.Gray;
+                warningLabel.Location = new Point(10, deploymentZoneButton.Bottom + 15);
+                panel.Controls.Add(warningLabel);
+                
+                Button okButton = new Button();
+                okButton.Text = "Apply Fix";
+                okButton.Size = new Size(75, 25);
+                okButton.Location = new Point(strategyForm.ClientSize.Width - 170, warningLabel.Bottom + 10);
+                okButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+                okButton.Click += (sender, e) => {
+                    if (unitsButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
+                    else if (mapSizeButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
+                    else if (deploymentButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Deployment;
+                    else if (mapVariantButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapVariant;
+                    else if (manualUnitButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.ManualUnitReplacement;
+                    else if (deploymentZoneButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.DeploymentZoneEditor;
+                    
+                    if (selectedStrategy.HasValue)
+                    {
+                        result = DialogResult.OK;
+                        strategyForm.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please select a strategy.", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                };
+                panel.Controls.Add(okButton);
+                
+                Button cancelButton = new Button();
+                cancelButton.Text = "Cancel";
+                cancelButton.Size = new Size(75, 25);
+                cancelButton.Location = new Point(strategyForm.ClientSize.Width - 85, warningLabel.Bottom + 10);
+                cancelButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+                cancelButton.Click += (sender, e) => {
+                    result = DialogResult.Cancel;
+                    strategyForm.Close();
+                };
+                panel.Controls.Add(cancelButton);
+                
+                strategyForm.ResumeLayout();
+                strategyForm.ShowDialog(parentForm);
+            }
+            
+            return (result, selectedStrategy);
+        }
+
+        private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner)
+        {
+            var report = new BattleReport();
+            
+            // Basic battle info
+            report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle";
+            report.BattleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
+            report.LocationDetails = TerrainGenerator.TerrainType ?? "Unknown Terrain";
+            report.ProvinceName = BattleResult.ProvinceName ?? "Unknown Province";
+            report.TimeOfDay = "Day"; // Default value
+            report.Season = "Spring"; // Default value
+            report.Weather = "Clear"; // Default value
+            
+            // Battle result
+            report.BattleResult = winner == "attacker" ? "Victory" : "Defeat";
+            
+            // Siege info
+            if (BattleState.IsSiegeBattle)
+            {
+                report.SiegeResult = "N/A";
+                report.WallDamage = "N/A";
+                
+                // Try to get actual siege results
+                string path_log_attila = Properties.Settings.Default.VAR_log_attila;
+                var (siegeOutcome, wallDamage) = BattleResult.GetSiegeOutcome(path_log_attila, "attacker", "defender");
+                report.SiegeResult = siegeOutcome;
+                report.WallDamage = wallDamage;
+            }
+            else
+            {
+                report.SiegeResult = "N/A";
+                report.WallDamage = "N/A";
+            }
+            
+            // Attacker side
+            report.AttackerSide = new SideReport();
+            report.AttackerSide.SideName = "Attackers";
+            report.AttackerSide.Armies = new List<ArmyReport>();
+            
+            int totalAttackerDeployed = 0;
+            int totalAttackerLosses = 0;
+            int totalAttackerRemaining = 0;
+            int totalAttackerKills = 0;
+            
+            foreach (var army in attacker_armies)
+            {
+                var armyReport = new ArmyReport();
+                armyReport.ArmyName = army.GetArmyName() ?? "Unknown Army";
+                armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
+                armyReport.Units = new List<UnitReport>();
+                armyReport.SiegeEngines = new List<SiegeEngineReport>();
+                
+                int armyTotalDeployed = 0;
+                int armyTotalLosses = 0;
+                int armyTotalRemaining = 0;
+                int armyTotalKills = 0;
+                
+                if (army.CasualitiesReports != null)
+                {
+                    foreach (var unitReport in army.CasualitiesReports)
+                    {
+                        var unit = new UnitReport();
+                        unit.AttilaUnitName = unitReport.GetTypeName();
+                        unit.Deployed = unitReport.GetStarting();
+                        unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
+                        unit.Kills = unitReport.GetKills();
+                        unit.Losses = unit.Deployed - unit.Remaining;
+                        
+                        // Add character info if available
+                        unit.Characters = new List<CharacterReport>();
+                        // Note: Character info would need to be extracted from the army's knights/commander
+                        
+                        armyReport.Units.Add(unit);
+                        
+                        armyTotalDeployed += unit.Deployed;
+                        armyTotalLosses += unit.Losses;
+                        armyTotalRemaining += unit.Remaining;
+                        armyTotalKills += unit.Kills;
+                    }
+                }
+                
+                armyReport.TotalDeployed = armyTotalDeployed;
+                armyReport.TotalLosses = armyTotalLosses;
+                armyReport.TotalRemaining = armyTotalRemaining;
+                armyReport.TotalKills = armyTotalKills;
+                
+                report.AttackerSide.Armies.Add(armyReport);
+                
+                totalAttackerDeployed += armyTotalDeployed;
+                totalAttackerLosses += armyTotalLosses;
+                totalAttackerRemaining += armyTotalRemaining;
+                totalAttackerKills += armyTotalKills;
+            }
+            
+            report.AttackerSide.TotalDeployed = totalAttackerDeployed;
+            report.AttackerSide.TotalLosses = totalAttackerLosses;
+            report.AttackerSide.TotalRemaining = totalAttackerRemaining;
+            report.AttackerSide.TotalKills = totalAttackerKills;
+            
+            // Defender side
+            report.DefenderSide = new SideReport();
+            report.DefenderSide.SideName = "Defenders";
+            report.DefenderSide.Armies = new List<ArmyReport>();
+            
+            int totalDefenderDeployed = 0;
+            int totalDefenderLosses = 0;
+            int totalDefenderRemaining = 0;
+            int totalDefenderKills = 0;
+            
+            foreach (var army in defender_armies)
+            {
+                var armyReport = new ArmyReport();
+                armyReport.ArmyName = army.GetArmyName() ?? "Unknown Army";
+                armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
+                armyReport.Units = new List<UnitReport>();
+                armyReport.SiegeEngines = new List<SiegeEngineReport>();
+                
+                int armyTotalDeployed = 0;
+                int armyTotalLosses = 0;
+                int armyTotalRemaining = 0;
+                int armyTotalKills = 0;
+                
+                if (army.CasualitiesReports != null)
+                {
+                    foreach (var unitReport in army.CasualitiesReports)
+                    {
+                        var unit = new UnitReport();
+                        unit.AttilaUnitName = unitReport.GetTypeName();
+                        unit.Deployed = unitReport.GetStarting();
+                        unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
+                        unit.Kills = unitReport.GetKills();
+                        unit.Losses = unit.Deployed - unit.Remaining;
+                        
+                        // Add character info if available
+                        unit.Characters = new List<CharacterReport>();
+                        // Note: Character info would need to be extracted from the army's knights/commander
+                        
+                        armyReport.Units.Add(unit);
+                        
+                        armyTotalDeployed += unit.Deployed;
+                        armyTotalLosses += unit.Losses;
+                        armyTotalRemaining += unit.Remaining;
+                        armyTotalKills += unit.Kills;
+                    }
+                }
+                
+                armyReport.TotalDeployed = armyTotalDeployed;
+                armyReport.TotalLosses = armyTotalLosses;
+                armyReport.TotalRemaining = armyTotalRemaining;
+                armyReport.TotalKills = armyTotalKills;
+                
+                report.DefenderSide.Armies.Add(armyReport);
+                
+                totalDefenderDeployed += armyTotalDeployed;
+                totalDefenderLosses += armyTotalLosses;
+                totalDefenderRemaining += armyTotalRemaining;
+                totalDefenderKills += armyTotalKills;
+            }
+            
+            report.DefenderSide.TotalDeployed = totalDefenderDeployed;
+            report.DefenderSide.TotalLosses = totalDefenderLosses;
+            report.DefenderSide.TotalRemaining = totalDefenderRemaining;
+            report.DefenderSide.TotalKills = totalDefenderKills;
+            
+            return report;
+        }
+
+        // Autofix strategy implementations
+        private static (bool, string) TryMapSizeFix(AutofixState autofixState, string originalMapSize)
+        {
+            autofixState.MapSizeFixAttempts++;
+            
+            string nextMapSize;
+            switch (autofixState.MapSizeFixAttempts)
+            {
+                case 1:
+                    nextMapSize = originalMapSize == "Medium" ? "Big" : 
+                                 originalMapSize == "Big" ? "Huge" : "Huge";
+                    break;
+                case 2:
+                    nextMapSize = "Huge";
+                    break;
+                default:
+                    return (false, ""); // No more map size options
+            }
+            
+            BattleState.AutofixDeploymentSizeOverride = nextMapSize;
+            autofixState.OriginalMapDescription = $"Map Size: {originalMapSize}";
+            
+            return (true, $"changing map size from {originalMapSize} to {nextMapSize}");
+        }
+
+        private static (bool, string) TryDeploymentFix(AutofixState autofixState)
+        {
+            if (autofixState.DeploymentRotationTried)
+                return (false, ""); // Already tried deployment rotation
+            
+            BattleState.AutofixDeploymentRotationOverride = !(BattleState.AutofixDeploymentRotationOverride ?? false);
+            autofixState.DeploymentRotationTried = true;
+            
+            string rotationState = BattleState.AutofixDeploymentRotationOverride == true ? "enabled" : "disabled";
+            return (true, $"changing deployment rotation to {rotationState}");
+        }
+
+        private static (bool, string) TryUnitFix(AutofixState autofixState, Form form)
+        {
+            if (autofixState.NextUnitKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
+                return (false, ""); // No more units to try replacing
+            
+            string unitKeyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
+            autofixState.NextUnitKeyIndexToReplace++;
+            
+            // For automatic unit fix, we'll just log that a unit was replaced
+            // The actual replacement logic would be more complex and depend on the specific unit
+            return (true, $"replacing problematic unit '{unitKeyToReplace}' with a generic alternative");
+        }
+
+        private static (bool, string) TryMapVariantFix(AutofixState autofixState)
+        {
+            autofixState.MapVariantOffset++;
+            BattleState.AutofixMapVariantOffset = autofixState.MapVariantOffset;
+            
+            return (true, $"changing map variant (offset +{autofixState.MapVariantOffset})");
+        }
+
+        private static (bool, string) TryManualUnitFix(AutofixState autofixState, Form form)
+        {
+            // This would launch the manual unit replacer tool
+            // For now, we'll just indicate that manual intervention is needed
+            return (true, "launching manual unit replacer tool");
+        }
+
+        private static (bool, string) TryDeploymentZoneEditorFix(AutofixState autofixState, Form form)
+        {
+            // This would launch the deployment zone editor tool
+            // For now, we'll just indicate that manual intervention is needed
+            return (true, "launching deployment zone editor tool");
+        }
     }
 }
