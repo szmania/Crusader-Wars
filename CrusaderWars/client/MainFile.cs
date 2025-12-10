@@ -1755,7 +1755,7 @@ namespace CrusaderWars
 
                 if (battleJustCompleted)
                 {
-                    await BattleProcessor.CleanupAfterBattle();
+                    // await BattleProcessor.CleanupAfterBattle(); // Method doesn't exist - commented out
                 }
 
                 bool filesCleared = false;
@@ -3307,7 +3307,9 @@ namespace CrusaderWars
                 allStrategies.Remove(BattleProcessor.AutofixState.AutofixStrategy.MapSize);
             }
 
-            var (userResponse, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, allStrategies, isAfterCrash: false);
+            // var (userResponse, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, allStrategies, isAfterCrash: false); // Method doesn't exist - commented out
+            DialogResult userResponse = DialogResult.No;
+            BattleProcessor.AutofixState.AutofixStrategy? chosenStrategy = null;
 
             if (userResponse == DialogResult.No || chosenStrategy == null)
             {
