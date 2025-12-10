@@ -234,13 +234,31 @@ namespace CrusaderWars.client
                             }
                             node.Nodes.Add(knightsNode);
                         }
+                        
+                        // Add Rank field for Knight units
+                        if (unitReport.Rank > 0)
+                        {
+                            node.Nodes.Add(new TreeNode($"Rank: {unitReport.Rank}") { ForeColor = Color.LightSteelBlue });
+                        }
                     }
                     else if (unitReport.Ck3UnitType == "Garrison") // NEW: Specific handling for Garrison units
                     {
                         node.Nodes.Add(new TreeNode("Note: This unit represents a garrison unit defending a settlement.") { ForeColor = Color.LightBlue });
-                        if (!string.IsNullOrEmpty(unitReport.AttilaUnitKey))
+                        if (!string.IsNullOrEmpty(unitReport.AttilaUnitKey) && unitReport.AttilaUnitKey != "N/A")
                         {
                             node.Nodes.Add(new TreeNode($"Attila Garrison Type: {unitReport.AttilaUnitKey}") { ForeColor = Color.LightSteelBlue });
+                        }
+                        // Add garrison level information if available
+                        if (unitReport.GarrisonLevel > 0)
+                        {
+                            node.Nodes.Add(new TreeNode($"Garrison Level: {unitReport.GarrisonLevel}") { ForeColor = Color.LightSteelBlue });
+                        }
+                    }
+                    else if (unitReport.Ck3UnitType == "Commander") // Add Rank field for Commander units
+                    {
+                        if (unitReport.Rank > 0)
+                        {
+                            node.Nodes.Add(new TreeNode($"Rank: {unitReport.Rank}") { ForeColor = Color.LightSteelBlue });
                         }
                     }
 

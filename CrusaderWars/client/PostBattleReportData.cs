@@ -80,6 +80,10 @@ namespace CrusaderWars.client
         
         // New property for combined knight unit details
         public List<KnightDetailReport> KnightDetails { get; set; } = new List<KnightDetailReport>();
+        
+        // Additional fields for better unit information
+        public int Rank { get; set; } = 0; // For Commander and Knight units
+        public int GarrisonLevel { get; set; } = 0; // For Garrison units
     }
 
     public class CharacterReport

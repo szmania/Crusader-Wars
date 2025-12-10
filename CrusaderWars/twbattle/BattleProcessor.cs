@@ -1671,6 +1671,20 @@ namespace CrusaderWars.twbattle
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
                             unit.AttilaUnitName = formattedName; // Use the formatted name
+                            
+                            // Set rank for Commander and Knight units
+                            if (correspondingUnit.GetRegimentType() == RegimentType.Commander || 
+                                correspondingUnit.GetRegimentType() == RegimentType.Knight)
+                            {
+                                unit.Rank = correspondingUnit.CharacterRank;
+                            }
+                            
+                            // Set garrison level for Garrison units
+                            if (correspondingUnit.GetRegimentType() == RegimentType.Garrison)
+                            {
+                                // Try to determine garrison level from the unit's Attila unit key
+                                unit.GarrisonLevel = GetGarrisonLevelFromUnitKey(correspondingUnit.GetAttilaUnitKey());
+                            }
                         }
                         else
                         {
@@ -1784,6 +1798,20 @@ namespace CrusaderWars.twbattle
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
                             unit.AttilaUnitName = formattedName; // Use the formatted name
+                            
+                            // Set rank for Commander and Knight units
+                            if (correspondingUnit.GetRegimentType() == RegimentType.Commander || 
+                                correspondingUnit.GetRegimentType() == RegimentType.Knight)
+                            {
+                                unit.Rank = correspondingUnit.CharacterRank;
+                            }
+                            
+                            // Set garrison level for Garrison units
+                            if (correspondingUnit.GetRegimentType() == RegimentType.Garrison)
+                            {
+                                // Try to determine garrison level from the unit's Attila unit key
+                                unit.GarrisonLevel = GetGarrisonLevelFromUnitKey(correspondingUnit.GetAttilaUnitKey());
+                            }
                         }
                         else
                         {
@@ -1916,6 +1944,29 @@ namespace CrusaderWars.twbattle
             // This would launch the deployment zone editor tool
             // For now, we'll just indicate that manual intervention is needed
             return (true, "launching deployment zone editor tool");
+        }
+        
+        private static int GetGarrisonLevelFromUnitKey(string unitKey)
+        {
+            if (string.IsNullOrEmpty(unitKey))
+                return 0;
+                
+            // Try to extract level from unit key (e.g., "att_garrison_spearmen_level_3" -> level 3)
+            var match = System.Text.RegularExpressions.Regex.Match(unitKey, @"level_(\d+)");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int level))
+            {
+                return level;
+            }
+            
+            // Alternative pattern for garrison units
+            match = System.Text.RegularExpressions.Regex.Match(unitKey, @"garrison.*?(\d+)");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out level))
+            {
+                return level;
+            }
+            
+            // Default to level 1 if no level can be determined
+            return 1;
         }
     }
 }
