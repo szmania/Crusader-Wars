@@ -1682,8 +1682,7 @@ namespace CrusaderWars.twbattle
                             // Set garrison level for Garrison units
                             if (correspondingUnit.GetRegimentType() == RegimentType.Garrison)
                             {
-                                // Try to determine garrison level from the unit's Attila unit key
-                                unit.GarrisonLevel = GetGarrisonLevelFromUnitKey(correspondingUnit.GetAttilaUnitKey());
+                                unit.GarrisonLevel = correspondingUnit.GarrisonLevel;
                             }
                         }
                         else
@@ -1809,8 +1808,7 @@ namespace CrusaderWars.twbattle
                             // Set garrison level for Garrison units
                             if (correspondingUnit.GetRegimentType() == RegimentType.Garrison)
                             {
-                                // Try to determine garrison level from the unit's Attila unit key
-                                unit.GarrisonLevel = GetGarrisonLevelFromUnitKey(correspondingUnit.GetAttilaUnitKey());
+                                unit.GarrisonLevel = correspondingUnit.GarrisonLevel;
                             }
                         }
                         else

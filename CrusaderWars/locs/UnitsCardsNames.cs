@@ -205,7 +205,8 @@ namespace CrusaderWars.locs
                                     //Commander
                                     if (unitToApply.GetRegimentType() == RegimentType.Commander)
                                     {
-                                        newName = $"Commander{commanderNameSuffix}";
+                                        string rankInfo = unitToApply.CharacterRank > 1 ? $" (Rank {unitToApply.CharacterRank})" : "";
+                                        newName = $"Commander{rankInfo}{commanderNameSuffix}";
                                         shouldReplace = true;
                                     }
                                     //Knights
@@ -273,7 +274,8 @@ namespace CrusaderWars.locs
                                             {
                                                 originalName = originalName.Substring("Garrison ".Length);
                                             }
-                                            newName = $"Garrison {originalName}{commanderNameSuffix}";
+                                            string levelInfo = unitToApply.GarrisonLevel > 1 ? $" (Level {unitToApply.GarrisonLevel})" : "";
+                                            newName = $"Garrison {originalName}{levelInfo}{commanderNameSuffix}";
                                         shouldReplace = true;
                                     }
                                 }

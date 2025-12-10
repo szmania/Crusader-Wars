@@ -72,6 +72,8 @@ namespace CrusaderWars.sieges
 
             // Create a single placeholder unit for the garrison
             var unit = new Unit("Garrison", garrisonSize, new Culture(cultureID), RegimentType.Garrison);
+            // Set the garrison level based on the holding level
+            unit.GarrisonLevel = twbattle.Sieges.GetHoldingLevel();
             garrisonArmy.Units.Add(unit);
 
             Program.Logger.Debug($"Created garrison placeholder army with {garrisonSize} soldiers for culture ID {cultureID}.");
@@ -182,6 +184,8 @@ namespace CrusaderWars.sieges
                     var unit = new Unit("Garrison", soldiers, garrisonCulture, RegimentType.Garrison);
                     unit.SetUnitKey(unit_key); // Set the specific Attila unit key
                     unit.SetMax(UnitMappers_BETA.GetMax(unit)); // Get max based on the unit key/type
+                    // Set the garrison level based on the holding level
+                    unit.GarrisonLevel = twbattle.Sieges.GetHoldingLevel();
                     newUnits.Add(unit);
                 }
             }
