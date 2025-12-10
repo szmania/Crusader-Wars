@@ -1645,15 +1645,63 @@ namespace CrusaderWars.twbattle
                     foreach (var unitReport in army.CasualitiesReports)
                     {
                         var unit = new UnitReport();
+                        
+                        // Get the corresponding Unit object to access additional data
+                        var correspondingUnit = army.Units.FirstOrDefault(u => 
+                            u.GetRegimentType() == unitReport.GetUnitType() &&
+                            u.GetName() == unitReport.GetTypeName() &&
+                            u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID);
+                        
+                        // Set basic casualty data
                         unit.AttilaUnitName = unitReport.GetTypeName();
                         unit.Deployed = unitReport.GetStarting();
                         unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
                         unit.Kills = unitReport.GetKilled();
-                        unit.Losses = unit.Deployed - unit.Remaining;
+                        unit.Losses = Math.Abs(unit.Deployed - unit.Remaining); // Use absolute value to avoid negative losses
+                        
+                        // Set CK3 and Attila specific data
+                        if (correspondingUnit != null)
+                        {
+                            unit.Ck3UnitType = correspondingUnit.GetRegimentType().ToString();
+                            unit.AttilaUnitKey = correspondingUnit.GetAttilaUnitKey() ?? "N/A";
+                            unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
+                            unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
+                            unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
+                            
+                            // Get formatted unit name using the same logic as UnitsCardsNames
+                            string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
+                            unit.AttilaUnitName = formattedName; // Use the formatted name
+                        }
+                        else
+                        {
+                            // Fallback if no corresponding unit found
+                            unit.Ck3UnitType = unitReport.GetUnitType().ToString();
+                            unit.AttilaUnitKey = "N/A";
+                            unit.Ck3Heritage = "N/A";
+                            unit.Ck3Culture = "N/A";
+                            unit.AttilaFaction = "N/A";
+                        }
                         
                         // Add character info if available
                         unit.Characters = new List<CharacterReport>();
-                        // Note: Character info would need to be extracted from the army's knights/commander
+                        
+                        // Add knight details if this is a knight unit
+                        if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
+                        {
+                            var knightDetails = new List<KnightDetailReport>();
+                            foreach (var knight in army.Knights.GetKnightsList())
+                            {
+                                knightDetails.Add(new KnightDetailReport
+                                {
+                                    Name = knight.GetName(),
+                                    BodyguardSize = knight.GetSoldiers(),
+                                    Kills = knight.GetKills(),
+                                    Fallen = knight.HasFallen(),
+                                    Status = knight.HasFallen() ? "Slain" : "Unharmed"
+                                });
+                            }
+                            unit.KnightDetails = knightDetails;
+                        }
                         
                         armyReport.Units.Add(unit);
                         
@@ -1710,15 +1758,63 @@ namespace CrusaderWars.twbattle
                     foreach (var unitReport in army.CasualitiesReports)
                     {
                         var unit = new UnitReport();
+                        
+                        // Get the corresponding Unit object to access additional data
+                        var correspondingUnit = army.Units.FirstOrDefault(u => 
+                            u.GetRegimentType() == unitReport.GetUnitType() &&
+                            u.GetName() == unitReport.GetTypeName() &&
+                            u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID);
+                        
+                        // Set basic casualty data
                         unit.AttilaUnitName = unitReport.GetTypeName();
                         unit.Deployed = unitReport.GetStarting();
                         unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
                         unit.Kills = unitReport.GetKilled();
-                        unit.Losses = unit.Deployed - unit.Remaining;
+                        unit.Losses = Math.Abs(unit.Deployed - unit.Remaining); // Use absolute value to avoid negative losses
+                        
+                        // Set CK3 and Attila specific data
+                        if (correspondingUnit != null)
+                        {
+                            unit.Ck3UnitType = correspondingUnit.GetRegimentType().ToString();
+                            unit.AttilaUnitKey = correspondingUnit.GetAttilaUnitKey() ?? "N/A";
+                            unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
+                            unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
+                            unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
+                            
+                            // Get formatted unit name using the same logic as UnitsCardsNames
+                            string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
+                            unit.AttilaUnitName = formattedName; // Use the formatted name
+                        }
+                        else
+                        {
+                            // Fallback if no corresponding unit found
+                            unit.Ck3UnitType = unitReport.GetUnitType().ToString();
+                            unit.AttilaUnitKey = "N/A";
+                            unit.Ck3Heritage = "N/A";
+                            unit.Ck3Culture = "N/A";
+                            unit.AttilaFaction = "N/A";
+                        }
                         
                         // Add character info if available
                         unit.Characters = new List<CharacterReport>();
-                        // Note: Character info would need to be extracted from the army's knights/commander
+                        
+                        // Add knight details if this is a knight unit
+                        if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
+                        {
+                            var knightDetails = new List<KnightDetailReport>();
+                            foreach (var knight in army.Knights.GetKnightsList())
+                            {
+                                knightDetails.Add(new KnightDetailReport
+                                {
+                                    Name = knight.GetName(),
+                                    BodyguardSize = knight.GetSoldiers(),
+                                    Kills = knight.GetKills(),
+                                    Fallen = knight.HasFallen(),
+                                    Status = knight.HasFallen() ? "Slain" : "Unharmed"
+                                });
+                            }
+                            unit.KnightDetails = knightDetails;
+                        }
                         
                         armyReport.Units.Add(unit);
                         
