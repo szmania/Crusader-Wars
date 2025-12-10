@@ -704,6 +704,9 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug($"Found {grouped.Count()} unit groups for army {army.ID}.");
             var pursuit_grouped =
                 army.UnitsResults.Alive_PursuitPhase?.GroupBy(item => new { item.Type, item.CultureID });
+            
+            // Group kills by Type and CultureID for proper aggregation
+            var kills_grouped = army.UnitsResults.Kills_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
 
             Program.Logger.Debug("#############################");
             Program.Logger.Debug($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
@@ -832,6 +835,14 @@ namespace CrusaderWars.data.battle_results
 
                 int remaining = group.Sum(x => Int32.Parse(x.Remaining));
 
+                // Get total kills for this group from the kills data
+                int totalGroupKills = 0;
+                var killsGroup = kills_grouped.FirstOrDefault(x => x.Key.Type == group.Key.Type && x.Key.CultureID == group.Key.CultureID);
+                if (killsGroup != null)
+                {
+                    totalGroupKills = killsGroup.Sum(x => Int32.Parse(x.Kills));
+                }
+
                 // --- START: FIX FOR LEVY/GARRISON UNITS (Issue 2) ---
                 if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison)
                 {
@@ -845,15 +856,6 @@ namespace CrusaderWars.data.battle_results
                     if (survivalRate > 1.0) survivalRate = 1.0;
 
                     Program.Logger.Debug($"  - Composed Unit Distribution: Total Original Scaled Soldiers: {totalOriginalSoldiers}, Remaining in Log: {remainingSoldiers}, Survival Rate: {survivalRate:P2}");
-
-                    // Find the total kills for the group from the log (used for proportional kill distribution)
-                    int totalGroupKills = 0;
-                    var killsGroup = army.UnitsResults.Kills_MainPhase.FirstOrDefault(x =>
-                        x.Type == group.Key.Type && x.CultureID == group.Key.CultureID);
-                    if (killsGroup.Item4 != null && Int32.TryParse(killsGroup.Item4, out int parsedKills))
-                    {
-                        totalGroupKills = parsedKills;
-                    }
 
                     foreach (var composedUnit in matchingUnits)
                     {
@@ -900,6 +902,8 @@ namespace CrusaderWars.data.battle_results
                     unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining);
                 }
 
+                // Set the kills from the aggregated kills data
+                unitReport.SetKilled(totalGroupKills);
 
                 unitReport.PrintReport();
 
