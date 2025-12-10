@@ -1648,9 +1648,22 @@ namespace CrusaderWars.twbattle
                         
                         // Get the corresponding Unit object to access additional data
                         var correspondingUnit = army.Units.FirstOrDefault(u => 
-                            u.GetRegimentType() == unitReport.GetUnitType() &&
-                            u.GetName() == unitReport.GetTypeName() &&
-                            u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID);
+                        {
+                            // For garrison units, match by Attila unit key instead of name
+                            if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            {
+                                return u.GetRegimentType() == unitReport.GetUnitType() &&
+                                       u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
+                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                            }
+                            else
+                            {
+                                // Original matching logic for other unit types
+                                return u.GetRegimentType() == unitReport.GetUnitType() &&
+                                       u.GetName() == unitReport.GetTypeName() &&
+                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                            }
+                        });
                         
                         // Set basic casualty data
                         unit.AttilaUnitName = unitReport.GetTypeName();
@@ -1774,9 +1787,22 @@ namespace CrusaderWars.twbattle
                         
                         // Get the corresponding Unit object to access additional data
                         var correspondingUnit = army.Units.FirstOrDefault(u => 
-                            u.GetRegimentType() == unitReport.GetUnitType() &&
-                            u.GetName() == unitReport.GetTypeName() &&
-                            u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID);
+                        {
+                            // For garrison units, match by Attila unit key instead of name
+                            if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            {
+                                return u.GetRegimentType() == unitReport.GetUnitType() &&
+                                       u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
+                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                            }
+                            else
+                            {
+                                // Original matching logic for other unit types
+                                return u.GetRegimentType() == unitReport.GetUnitType() &&
+                                       u.GetName() == unitReport.GetTypeName() &&
+                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                            }
+                        });
                         
                         // Set basic casualty data
                         unit.AttilaUnitName = unitReport.GetTypeName();
