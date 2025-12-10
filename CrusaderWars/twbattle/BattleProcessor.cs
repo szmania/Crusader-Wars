@@ -1630,7 +1630,7 @@ namespace CrusaderWars.twbattle
             foreach (var army in attacker_armies)
             {
                 var armyReport = new ArmyReport();
-                armyReport.ArmyName = army.GetArmyName() ?? "Unknown Army";
+                armyReport.ArmyName = $"Army {army.ID}";
                 armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
                 armyReport.Units = new List<UnitReport>();
                 armyReport.SiegeEngines = new List<SiegeEngineReport>();
@@ -1648,7 +1648,7 @@ namespace CrusaderWars.twbattle
                         unit.AttilaUnitName = unitReport.GetTypeName();
                         unit.Deployed = unitReport.GetStarting();
                         unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                        unit.Kills = unitReport.GetKills();
+                        unit.Kills = unitReport.GetKilled();
                         unit.Losses = unit.Deployed - unit.Remaining;
                         
                         // Add character info if available
@@ -1695,7 +1695,7 @@ namespace CrusaderWars.twbattle
             foreach (var army in defender_armies)
             {
                 var armyReport = new ArmyReport();
-                armyReport.ArmyName = army.GetArmyName() ?? "Unknown Army";
+                armyReport.ArmyName = $"Army {army.ID}";
                 armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
                 armyReport.Units = new List<UnitReport>();
                 armyReport.SiegeEngines = new List<SiegeEngineReport>();
@@ -1713,7 +1713,7 @@ namespace CrusaderWars.twbattle
                         unit.AttilaUnitName = unitReport.GetTypeName();
                         unit.Deployed = unitReport.GetStarting();
                         unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                        unit.Kills = unitReport.GetKills();
+                        unit.Kills = unitReport.GetKilled();
                         unit.Losses = unit.Deployed - unit.Remaining;
                         
                         // Add character info if available
