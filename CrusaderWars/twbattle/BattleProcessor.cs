@@ -1711,8 +1711,14 @@ namespace CrusaderWars.twbattle
                         // Add character info if available
                         unit.Characters = new List<CharacterReport>();
                         
+                        // Add commander character info if this is a commander unit
+                        if (correspondingUnit?.GetRegimentType() == RegimentType.Commander && army.Commander != null)
+                        {
+                            var commanderReport = GetCharacterReport(army.Commander);
+                            unit.Characters.Add(commanderReport);
+                        }
                         // Add knight details if this is a knight unit
-                        if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
+                        else if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
                         {
                             var knightDetails = new List<KnightDetailReport>();
                             foreach (var knight in army.Knights.GetKnightsList())
