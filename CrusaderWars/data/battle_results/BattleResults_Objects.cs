@@ -16,8 +16,9 @@ namespace CrusaderWars
         int StartingSoldiers {  get; set; }
         int RemainingSoldiersBeforePursuit { get; set; }
         int RemainingSoldiersAfterPursuit { get; set; } = -1;
-        int Killed { get; set; }
-        
+        int Casualties { get; set; } // Renamed from Killed
+        int Kills { get; set; } // New property for kills inflicted
+
         public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers)
         {
             UnitType = unit_type;
@@ -26,7 +27,8 @@ namespace CrusaderWars
             StartingSoldiers = startingSoldiers;
             RemainingSoldiersBeforePursuit = remaingSoldiers;
             RemainingSoldiersAfterPursuit = -1;
-            Killed = Math.Max(0, StartingSoldiers - RemainingSoldiersBeforePursuit); 
+            Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersBeforePursuit);
+            Kills = 0;
         }
         public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit)
         {
@@ -36,7 +38,8 @@ namespace CrusaderWars
             StartingSoldiers = startingSoldiers;
             RemainingSoldiersBeforePursuit = remaingSoldiersMain;
             RemainingSoldiersAfterPursuit = remaingSoldiersPursuit;
-            Killed = Math.Max(0, StartingSoldiers - RemainingSoldiersAfterPursuit);
+            Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersAfterPursuit);
+            Kills = 0;
         }
 
         public void PrintReport()
@@ -53,9 +56,14 @@ namespace CrusaderWars
             Program.Logger.Debug("\n\n");
         }
 
-        public void SetKilled(int i)
+        public void SetKills(int i)
         {
-            Killed = i;
+            Kills = i;
+        }
+
+        public void SetCasualties(int i)
+        {
+            Casualties = i;
         }
         
         public int GetStarting() {  return StartingSoldiers; }
@@ -64,9 +72,13 @@ namespace CrusaderWars
         public RegimentType GetUnitType() { return UnitType; }
         public string GetTypeName() { return Type; }
         public Culture GetCulture() { return Culture; }
-        public int GetKilled()
+        public int GetCasualties()
         {
-            return Killed;
+            return Casualties;
+        }
+        public int GetKills()
+        {
+            return Kills;
         }
     }
 

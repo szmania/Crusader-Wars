@@ -591,7 +591,7 @@ namespace CrusaderWars.data.battle_results
                     if (unitReport == null)
                         continue;
 
-                    int killed = unitReport.GetKilled();
+                    int casualties = unitReport.GetCasualties();
 
                     // Check if CurrentNum is null or empty before parsing
                     if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
@@ -634,24 +634,24 @@ namespace CrusaderWars.data.battle_results
                         int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
                         int regSoldiers = originalSoldiers;
                         int casualtiesApplied = 0; // Track actual casualties applied to this regiment
-                        while (regSoldiers > 0 && killed > 0)
+                        while (regSoldiers > 0 && casualties > 0)
                         {
-                            if (regSoldiers > killed)
+                            if (regSoldiers > casualties)
                             {
-                                casualtiesApplied += killed;
-                                regSoldiers -= killed;
-                                killed = 0;
+                                casualtiesApplied += casualties;
+                                regSoldiers -= casualties;
+                                casualties = 0;
                             }
                             else
                             {
                                 casualtiesApplied += regSoldiers;
-                                killed -= regSoldiers;
+                                casualties -= regSoldiers;
                                 regSoldiers = 0;
                             }
                         }
 
                         regiment.SetSoldiers(regSoldiers.ToString());
-                        unitReport.SetKilled(killed);
+                        unitReport.SetCasualties(casualties);
                         Program.Logger.Debug(
                             $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}. Casualties applied: {casualtiesApplied}.");
                     }
@@ -839,7 +839,7 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 // Set the kills from the aggregated kills data
-                unitReport.SetKilled(totalGroupKills);
+                unitReport.SetKills(totalGroupKills);
 
                 unitReport.PrintReport();
 
@@ -2405,7 +2405,7 @@ namespace CrusaderWars.data.battle_results
                 }
                 else if (inTargetSiegeBlock && trimmedLine == "}")
                 {
-                    // NEW: Add missing breach= line before closing brace if applicable
+                    // NEW: Add missing breach line before closing brace if applicable
                     if (!breachLineHandled && breachIncrement > 0)
                     {
                         int newBreach = Math.Min(3, breachIncrement);
