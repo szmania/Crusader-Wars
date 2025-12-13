@@ -662,13 +662,25 @@ namespace CrusaderWars.terrain
             if (UnitMappers_BETA.Terrains != null)
             {
                 var terrainItems = UnitMappers_BETA.Terrains.GetNormalMaps().Where(item => item.terrain == terrain).ToList();
-                foreach (var item in terrainItems)
+                if (terrainItems.Any())
                 {
-                    allVariants.Add((item.x, item.y, ALL, ALL));
+                    Program.Logger.Debug($"Found {terrainItems.Count} map variants for terrain '{terrain}' in unit mapper XML. Using these exclusively.");
+                    foreach (var item in terrainItems)
+                    {
+                        allVariants.Add((item.x, item.y, ALL, ALL));
+                    }
+                    // Remove duplicates based on X and Y coordinates and return immediately
+                    return allVariants.GroupBy(v => new { v.X, v.Y })
+                                      .Select(g => g.First())
+                                      .ToList();
+                }
+                else
+                {
+                    Program.Logger.Debug($"No map variants found for terrain '{terrain}' in unit mapper XML. Falling back to hardcoded maps.");
                 }
             }
 
-            // 2. Get from hardcoded lists
+            // 2. Get from hardcoded lists (only executed if no XML maps were found)
             switch (terrain)
             {
                 case "desert":
