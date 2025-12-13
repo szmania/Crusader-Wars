@@ -1544,6 +1544,7 @@ namespace CrusaderWars.twbattle
                 Label warningLabel = new Label();
                 warningLabel.Text = "Note: Some strategies may take effect immediately, others will require manual configuration.";
                 warningLabel.AutoSize = true;
+                warningLabel.MaximumSize = new Size(460, 0);
                 warningLabel.ForeColor = Color.Gray;
                 warningLabel.Location = new Point(10, deploymentZoneButton.Bottom + 15);
                 panel.Controls.Add(warningLabel);
