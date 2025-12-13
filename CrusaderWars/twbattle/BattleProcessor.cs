@@ -1405,7 +1405,7 @@ namespace CrusaderWars.twbattle
             {
                 messageForm.Text = title;
                 messageForm.Width = 500;
-                messageForm.Height = 300;
+                messageForm.Height = 450;
                 messageForm.StartPosition = FormStartPosition.CenterParent;
                 messageForm.FormBorderStyle = FormBorderStyle.FixedDialog;
                 messageForm.MaximizeBox = false;
@@ -1414,6 +1414,7 @@ namespace CrusaderWars.twbattle
                 Panel panel = new Panel();
                 panel.Dock = DockStyle.Fill;
                 panel.Padding = new Padding(10);
+                panel.AutoScroll = true;
                 messageForm.Controls.Add(panel);
                 
                 Label messageLabel = new Label();
