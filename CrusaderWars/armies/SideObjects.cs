@@ -144,50 +144,6 @@ namespace CrusaderWars
             }
         }
 
-        public int GetTotalLosses()
-        {
-            return GetTotalDeployed() - GetTotalRemaining();
-        }
-        
-        public int GetTotalSoldiersAfterBattle()
-        {
-            if (ArmyRegiments == null) return 0;
-            return ArmyRegiments.Sum(ar => ar.CurrentNum);
-        }
-
-        public int GetTotalKills()
-        {
-            if (UnitsResults == null) return 0;
-            
-            int totalKills = 0;
-            
-            // Sum kills from main phase
-            if (UnitsResults.Kills_MainPhase != null)
-            {
-                foreach (var kill in UnitsResults.Kills_MainPhase)
-                {
-                    if (int.TryParse(kill.Kills, out int killCount))
-                    {
-                        totalKills += killCount;
-                    }
-                }
-            }
-            
-            // Sum kills from pursuit phase if available
-            if (UnitsResults.Kills_PursuitPhase != null)
-            {
-                foreach (var kill in UnitsResults.Kills_PursuitPhase)
-                {
-                    if (int.TryParse(kill.Kills, out int killCount))
-                    {
-                        totalKills += killCount;
-                    }
-                }
-            }
-            
-            return totalKills;
-        }
-        
         public void ScaleUnits(int ratio)
         {
             if (ratio > 0)
