@@ -3348,7 +3348,7 @@ namespace CrusaderWars
             infoLabel.Text = originalInfoText; // Reset label after tool is used or cancelled
         }
 
-        private void LaunchUnitReplacerTool()
+        public void LaunchUnitReplacerTool()
         {
             try
             {
@@ -3482,7 +3482,7 @@ namespace CrusaderWars
             }
         }
 
-        private void LaunchDeploymentZoneEditor()
+        public void LaunchDeploymentZoneEditor()
         {
             try
             {

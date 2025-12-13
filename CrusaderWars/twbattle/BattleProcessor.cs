@@ -865,11 +865,32 @@ namespace CrusaderWars.twbattle
                             (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
                             break;
                         case AutofixState.AutofixStrategy.ManualUnitReplacement:
-                            (fixApplied, fixDescription) = TryManualUnitFix(autofixState, form);
-                            break;
+                            Program.Logger.Debug("User selected Manual Unit Replacement. Launching tool.");
+                            if (form != null && !form.IsDisposed)
+                            {
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.LaunchUnitReplacerTool();
+                                    form.UpdateInfoLabel("Unit Replacer closed. Click 'Continue Battle' to try again.");
+                                    form.SetBattleButtonsEnabled(true);
+                                });
+                            }
+                            // Do not restart automatically. Exit ProcessBattle and wait for user.
+                            return false;
+
                         case AutofixState.AutofixStrategy.DeploymentZoneEditor:
-                            (fixApplied, fixDescription) = TryDeploymentZoneEditorFix(autofixState, form);
-                            break;
+                            Program.Logger.Debug("User selected Deployment Zone Editor. Launching tool.");
+                            if (form != null && !form.IsDisposed)
+                            {
+                                form.Invoke((MethodInvoker)delegate
+                                {
+                                    form.LaunchDeploymentZoneEditor();
+                                    form.UpdateInfoLabel("Deployment Editor closed. Click 'Continue Battle' to try again.");
+                                    form.SetBattleButtonsEnabled(true);
+                                });
+                            }
+                            // Do not restart automatically. Exit ProcessBattle and wait for user.
+                            return false;
                     }
 
                     // 3. Handle the result of the fix attempt.
@@ -1972,19 +1993,6 @@ namespace CrusaderWars.twbattle
             return (true, $"changing map variant (offset +{autofixState.MapVariantOffset})");
         }
 
-        private static (bool, string) TryManualUnitFix(AutofixState autofixState, Form form)
-        {
-            // This would launch the manual unit replacer tool
-            // For now, we'll just indicate that manual intervention is needed
-            return (true, "launching manual unit replacer tool");
-        }
-
-        private static (bool, string) TryDeploymentZoneEditorFix(AutofixState autofixState, Form form)
-        {
-            // This would launch the deployment zone editor tool
-            // For now, we'll just indicate that manual intervention is needed
-            return (true, "launching deployment zone editor tool");
-        }
         
         private static int GetGarrisonLevelFromUnitKey(string unitKey)
         {
