@@ -773,6 +773,7 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 int starting;
+                int startingMachines = 0;
                 var firstUnit = matchingUnits.First();
                 
                 int effectiveNumGuns = firstUnit.GetNumGuns();
@@ -785,6 +786,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     // New logic for multi-gun siege units
                     int totalCk3Machines = matchingUnits.Sum(u => u.GetOriginalSoldiers());
+                    startingMachines = totalCk3Machines;
                     int numGunsPerUnit = effectiveNumGuns;
                     int numAttilaUnits = (int)Math.Ceiling((double)totalCk3Machines / numGunsPerUnit);
                     
@@ -800,11 +802,13 @@ namespace CrusaderWars.data.battle_results
                 }
                 else if (firstUnit.IsSiege()) // Old logic for single-entry siege units
                 {
-                    starting = UnitMappers_BETA.ConvertMachinesToMen(matchingUnits.Sum(u => u.GetOriginalSoldiers()));
+                    startingMachines = matchingUnits.Sum(u => u.GetOriginalSoldiers());
+                    starting = UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
                 }
                 else // Not a siege unit
                 {
                     starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
+                    startingMachines = 0;
                 }
 
                 // Levy Inflation Fix: Remove reverse scaling from 'starting'
