@@ -570,28 +570,19 @@ namespace CrusaderWars.data.battle_results
                         $"ArmyRegiment {armyRegiment.ID} (Type: {armyRegiment.Type}, Name: {armyRegiment.MAA_Name}) identified as a non-siege unit.");
                 }
 
+                // Get the total casualties for this ArmyRegiment type to distribute among its regiments
+                string unitTypeNameToFind = armyRegiment.Type == RegimentType.Levy ? "Levy" : armyRegiment.MAA_Name;
+                if (armyRegiment.Type == RegimentType.Garrison) unitTypeNameToFind = "Garrison";
+
+                var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
+                    x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null &&
+                    x.GetCulture().ID == cultureId && x.GetTypeName() == unitTypeNameToFind);
+
+                int totalCasualtiesToApply = unitReport?.GetCasualties() ?? 0;
 
                 foreach (Regiment regiment in armyRegiment.Regiments)
                 {
                     if (regiment.Culture is null) continue; // skip siege maa
-
-                    string unitTypeNameToFind;
-                    if (armyRegiment.Type == RegimentType.Levy)
-                    {
-                        unitTypeNameToFind = "Levy";
-                    }
-                    else
-                    {
-                        unitTypeNameToFind = armyRegiment.MAA_Name;
-                    }
-
-                    var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
-                        x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null &&
-                        x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == unitTypeNameToFind);
-                    if (unitReport == null)
-                        continue;
-
-                    int casualties = unitReport.GetCasualties();
 
                     // Check if CurrentNum is null or empty before parsing
                     if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
@@ -602,7 +593,7 @@ namespace CrusaderWars.data.battle_results
                         int finalMachineCount = 0;
                         int originalMachines = Int32.Parse(regiment.CurrentNum);
 
-                        if (correspondingUnit != null && unitReport.GetStarting() > 0)
+                        if (correspondingUnit != null && unitReport != null && unitReport.GetStarting() > 0)
                         {
                             int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
                             int startingMen = unitReport.GetStarting();
@@ -630,28 +621,30 @@ namespace CrusaderWars.data.battle_results
                     }
                     else
                     {
-                        // Original logic for non-siege units (soldiers)
+                        // Fixed logic for non-siege units (soldiers) - distribute casualties correctly
                         int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
                         int regSoldiers = originalSoldiers;
                         int casualtiesApplied = 0; // Track actual casualties applied to this regiment
-                        while (regSoldiers > 0 && casualties > 0)
+                        
+                        // Apply casualties from the total pool
+                        while (regSoldiers > 0 && totalCasualtiesToApply > 0)
                         {
-                            if (regSoldiers > casualties)
+                            if (regSoldiers > totalCasualtiesToApply)
                             {
-                                casualtiesApplied += casualties;
-                                regSoldiers -= casualties;
-                                casualties = 0;
+                                casualtiesApplied += totalCasualtiesToApply;
+                                regSoldiers -= totalCasualtiesToApply;
+                                totalCasualtiesToApply = 0;
                             }
                             else
                             {
                                 casualtiesApplied += regSoldiers;
-                                casualties -= regSoldiers;
+                                totalCasualtiesToApply -= regSoldiers;
                                 regSoldiers = 0;
                             }
                         }
 
                         regiment.SetSoldiers(regSoldiers.ToString());
-                        unitReport.SetCasualties(casualties);
+                        // REMOVED: unitReport.SetCasualties(casualties); - This was causing the bug by modifying shared state
                         Program.Logger.Debug(
                             $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}. Casualties applied: {casualtiesApplied}.");
                     }
@@ -747,11 +740,30 @@ namespace CrusaderWars.data.battle_results
 
                 // Safely get the unit(s), then its culture.
                 // FIX: Use GetAttilaUnitKey() for Garrison units for correct matching.
-                var matchingUnits = army.Units.Where(x => x != null &&
-                    x.GetRegimentType() == unitType &&
-                    x.GetObjCulture()?.ID == group.Key.CultureID &&
-                    (unitType == RegimentType.Garrison ? x.GetAttilaUnitKey() == type : x.GetName() == type)
-                );
+                // FIX: For Knights, match only by type and culture, not by name
+                var matchingUnits = army.Units.Where(x =>
+                {
+                    if (x == null || x.GetRegimentType() != unitType || x.GetObjCulture()?.ID != group.Key.CultureID)
+                    {
+                        return false;
+                    }
+
+                    if (unitType == RegimentType.Knight)
+                    {
+                        // For knights, only match on type and culture since each knight has a unique name
+                        return true;
+                    }
+                    else if (unitType == RegimentType.Garrison)
+                    {
+                        // For garrisons, match by Attila unit key
+                        return x.GetAttilaUnitKey() == type;
+                    }
+                    else
+                    {
+                        // For other unit types, match by name
+                        return x.GetName() == type;
+                    }
+                });
 
                 if (!matchingUnits.Any())
                 {

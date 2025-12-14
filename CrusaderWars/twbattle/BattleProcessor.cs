@@ -1680,8 +1680,14 @@ namespace CrusaderWars.twbattle
                         // Get the corresponding Unit object to access additional data
                         var correspondingUnit = army.Units.FirstOrDefault(u => 
                         {
+                            // For knight units, match only by type and culture since GetTypeName() returns "Knight"
+                            if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
+                            {
+                                return u.GetRegimentType() == unitReport.GetUnitType() &&
+                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                            }
                             // For garrison units, match by Attila unit key instead of name
-                            if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            else if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
                             {
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
                                        u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
@@ -1848,8 +1854,14 @@ namespace CrusaderWars.twbattle
                         // Get the corresponding Unit object to access additional data
                         var correspondingUnit = army.Units.FirstOrDefault(u => 
                         {
+                            // For knight units, match only by type and culture since GetTypeName() returns "Knight"
+                            if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
+                            {
+                                return u.GetRegimentType() == unitReport.GetUnitType() &&
+                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                            }
                             // For garrison units, match by Attila unit key instead of name
-                            if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            else if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
                             {
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
                                        u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
