@@ -680,9 +680,86 @@ namespace CrusaderWars.data.battle_results
             // Group kills by Type and CultureID for proper aggregation
             var kills_grouped = army.UnitsResults.Kills_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
 
+            // Separate knight groups from other groups
+            var knightGroups = grouped.Where(g => g.Key.Type.StartsWith("knight")).ToList();
+            var otherGroups = grouped.Where(g => !g.Key.Type.StartsWith("knight")).ToList();
+
+            // Process knight groups by aggregating all knights of the same culture
+            var knightGroupsByCulture = knightGroups.GroupBy(g => g.Key.CultureID);
+            foreach (var cultureGroup in knightGroupsByCulture)
+            {
+                string cultureId = cultureGroup.Key;
+                Program.Logger.Debug(
+                    $"Processing aggregated casualty report for knights with CultureID='{cultureId}'.");
+
+                // Get the culture object from the first matching knight unit
+                var matchingKnightUnits = army.Units?.Where(u => 
+                    u.GetRegimentType() == RegimentType.Knight && 
+                    u.GetObjCulture()?.ID == cultureId).ToList();
+
+                if (matchingKnightUnits == null || !matchingKnightUnits.Any())
+                {
+                    Program.Logger.Debug(
+                        $"Warning: Could not find matching knight units for culture ID '{cultureId}' in army {army.ID}. Skipping report for this knight group.");
+                    continue;
+                }
+
+                Culture? culture = matchingKnightUnits.First().GetObjCulture();
+                if (culture == null)
+                {
+                    Program.Logger.Debug(
+                        $"Warning: Could not find valid culture for knight units with culture ID '{cultureId}' in army {army.ID}. Skipping report for this knight group.");
+                    continue;
+                }
+
+                // Calculate total deployed knights for this culture
+                int starting = matchingKnightUnits.Sum(u => u.GetOriginalSoldiers());
+                int startingMachines = 0;
+
+                // Calculate total remaining knights for this culture from main phase
+                int remaining = cultureGroup.Sum(g => g.Sum(x => Int32.Parse(x.Remaining)));
+
+                // Calculate total kills for this culture
+                int totalKills = 0;
+                var killsCultureGroup = kills_grouped.Where(kg => kg.Key.Type.StartsWith("knight") && kg.Key.CultureID == cultureId);
+                if (killsCultureGroup.Any())
+                {
+                    totalKills = killsCultureGroup.Sum(kg => kg.Sum(x => Int32.Parse(x.Kills)));
+                }
+
+                // Calculate pursuit remaining if available
+                int? pursuitRemaining = null;
+                if (pursuit_grouped != null)
+                {
+                    var pursuitCultureGroup = pursuit_grouped.Where(pg => pg.Key.Type.StartsWith("knight") && pg.Key.CultureID == cultureId);
+                    if (pursuitCultureGroup.Any())
+                    {
+                        pursuitRemaining = pursuitCultureGroup.Sum(pg => pg.Sum(x => Int32.Parse(x.Remaining)));
+                    }
+                }
+
+                // Create a single Unit Report for all knights of this culture
+                UnitCasualitiesReport unitReport;
+                if (pursuitRemaining.HasValue)
+                {
+                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, pursuitRemaining.Value, startingMachines);
+                }
+                else
+                {
+                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, startingMachines);
+                }
+
+                // Set the kills from the aggregated kills data
+                unitReport.SetKills(totalKills);
+
+                unitReport.PrintReport();
+
+                reportsList.Add(unitReport);
+            }
+
             Program.Logger.Debug("#############################");
             Program.Logger.Debug($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
-            foreach (var group in grouped)
+            foreach (var group in otherGroups)
             {
                 if (group.Key.Type == null)
                 {
@@ -706,11 +783,6 @@ namespace CrusaderWars.data.battle_results
                 {
                     unitType = RegimentType.Commander;
                     type = "General"; // Match against the generic unit name "General"
-                }
-                else if (group.Key.Type.StartsWith("knight")) // Handle knight specifically
-                {
-                    unitType = RegimentType.Knight;
-                    type = "Knight"; // Match against the generic unit name "Knight"
                 }
                 else
                 {
@@ -740,7 +812,6 @@ namespace CrusaderWars.data.battle_results
 
                 // Safely get the unit(s), then its culture.
                 // FIX: Use GetAttilaUnitKey() for Garrison units for correct matching.
-                // FIX: For Knights, match only by type and culture, not by name
                 var matchingUnits = army.Units.Where(x =>
                 {
                     if (x == null || x.GetRegimentType() != unitType || x.GetObjCulture()?.ID != group.Key.CultureID)
@@ -748,12 +819,7 @@ namespace CrusaderWars.data.battle_results
                         return false;
                     }
 
-                    if (unitType == RegimentType.Knight)
-                    {
-                        // For knights, only match on type and culture since each knight has a unique name
-                        return true;
-                    }
-                    else if (unitType == RegimentType.Garrison)
+                    if (unitType == RegimentType.Garrison)
                     {
                         // For garrisons, match by Attila unit key
                         return x.GetAttilaUnitKey() == type;
