@@ -831,11 +831,11 @@ namespace CrusaderWars.data.battle_results
                 {
                     int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
                     unitReport =
-                        new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining);
+                        new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining, startingMachines);
                 }
                 else
                 {
-                    unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining);
+                    unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining, startingMachines);
                 }
 
                 // Set the kills from the aggregated kills data

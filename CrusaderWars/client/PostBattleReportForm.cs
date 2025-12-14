@@ -42,7 +42,7 @@ namespace CrusaderWars.client
             // lblWeather.Text = $"Weather: {_report.Weather}"; // Removed weather display
 
             // Add Header for units
-            var headerNode = new TreeNode("Unit                                            | Deployed | Losses | Remaining | Kills");
+            var headerNode = new TreeNode("Unit                                            | Deployed (Engines) | Losses | Remaining | Kills");
             headerNode.ForeColor = Color.LightGray;
             treeViewReport.Nodes.Add(headerNode);
 
@@ -141,8 +141,19 @@ namespace CrusaderWars.client
 
                 foreach (var unit in groupedUnits)
                 {
-                    string unitText = String.Format("{0,-47} | {1,8} | {2,6} | {3,9} | {4,5}", 
-                        unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
+                    string unitText;
+                    if (unit.IsSiegeUnit)
+                    {
+                        string deployedStr = $"{unit.Deployed} ({unit.DeployedMachines})";
+                        string lossesStr = $"{unit.Losses} ({unit.MachineLosses})";
+                        string remainingStr = $"{unit.Remaining} ({unit.RemainingMachines})";
+                        unitText = $"{unit.AttilaUnitName.PadRight(47)} | {deployedStr.PadLeft(18)} | {lossesStr.PadLeft(6)} | {remainingStr.PadLeft(9)} | {unit.Kills.ToString().PadLeft(5)}";
+                    }
+                    else
+                    {
+                        unitText = String.Format("{0,-47} | {1,18} | {2,6} | {3,9} | {4,5}", 
+                            unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
+                    }
                     var unitNode = new TreeNode(unitText);
                     unitNode.Tag = unit; // Store the full unit report object
                     
@@ -182,9 +193,19 @@ namespace CrusaderWars.client
                     // Always show basic unit information
                     node.Nodes.Add(new TreeNode($"CK3 Unit Type: {unitReport.Ck3UnitType ?? "N/A"}") { ForeColor = Color.Cyan });
                     node.Nodes.Add(new TreeNode($"Attila Unit Key: {unitReport.AttilaUnitKey ?? "N/A"}") { ForeColor = Color.Cyan });
-                    node.Nodes.Add(new TreeNode($"Deployed: {unitReport.Deployed}") { ForeColor = Color.LightGray });
-                    node.Nodes.Add(new TreeNode($"Losses: {unitReport.Losses}") { ForeColor = Color.LightCoral });
-                    node.Nodes.Add(new TreeNode($"Remaining: {unitReport.Remaining}") { ForeColor = Color.LightGreen });
+                    
+                    if (unitReport.IsSiegeUnit)
+                    {
+                        node.Nodes.Add(new TreeNode($"Deployed: {unitReport.Deployed} ({unitReport.DeployedMachines} engines)") { ForeColor = Color.LightGray });
+                        node.Nodes.Add(new TreeNode($"Losses: {unitReport.Losses} ({unitReport.MachineLosses} engines)") { ForeColor = Color.LightCoral });
+                        node.Nodes.Add(new TreeNode($"Remaining: {unitReport.Remaining} ({unitReport.RemainingMachines} engines)") { ForeColor = Color.LightGreen });
+                    }
+                    else
+                    {
+                        node.Nodes.Add(new TreeNode($"Deployed: {unitReport.Deployed}") { ForeColor = Color.LightGray });
+                        node.Nodes.Add(new TreeNode($"Losses: {unitReport.Losses}") { ForeColor = Color.LightCoral });
+                        node.Nodes.Add(new TreeNode($"Remaining: {unitReport.Remaining}") { ForeColor = Color.LightGreen });
+                    }
                     node.Nodes.Add(new TreeNode($"Kills: {unitReport.Kills}") { ForeColor = Color.Gold });
 
                     // Add CK3 heritage, culture, and Attila faction information if available

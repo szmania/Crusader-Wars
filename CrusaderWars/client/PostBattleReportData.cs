@@ -84,6 +84,12 @@ namespace CrusaderWars.client
         // Additional fields for better unit information
         public int Rank { get; set; } = 0; // For Commander and Knight units
         public int GarrisonLevel { get; set; } = 0; // For Garrison units
+        
+        // Siege engine properties
+        public bool IsSiegeUnit { get; set; }
+        public int DeployedMachines { get; set; }
+        public int RemainingMachines { get; set; }
+        public int MachineLosses { get; set; }
     }
 
     public class CharacterReport

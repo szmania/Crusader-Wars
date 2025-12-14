@@ -1728,6 +1728,25 @@ namespace CrusaderWars.twbattle
                             {
                                 unit.GarrisonLevel = correspondingUnit.GarrisonLevel;
                             }
+                            
+                            // Set siege engine data
+                            if (correspondingUnit.IsSiege())
+                            {
+                                unit.IsSiegeUnit = true;
+                                unit.DeployedMachines = unitReport.GetStartingMachines();
+                                
+                                // Calculate remaining machines based on soldier survival rate
+                                double survivalRate = (unit.Deployed > 0) ? (double)unit.Remaining / unit.Deployed : 0;
+                                unit.RemainingMachines = (int)Math.Round(unit.DeployedMachines * survivalRate);
+                                unit.MachineLosses = unit.DeployedMachines - unit.RemainingMachines;
+                            }
+                            else
+                            {
+                                unit.IsSiegeUnit = false;
+                                unit.DeployedMachines = 0;
+                                unit.RemainingMachines = 0;
+                                unit.MachineLosses = 0;
+                            }
                         }
                         else
                         {
@@ -1737,6 +1756,10 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = "N/A";
                             unit.Ck3Culture = "N/A";
                             unit.AttilaFaction = "N/A";
+                            unit.IsSiegeUnit = false;
+                            unit.DeployedMachines = 0;
+                            unit.RemainingMachines = 0;
+                            unit.MachineLosses = 0;
                         }
                         
                         // Add character info if available
@@ -1873,6 +1896,25 @@ namespace CrusaderWars.twbattle
                             {
                                 unit.GarrisonLevel = correspondingUnit.GarrisonLevel;
                             }
+                            
+                            // Set siege engine data
+                            if (correspondingUnit.IsSiege())
+                            {
+                                unit.IsSiegeUnit = true;
+                                unit.DeployedMachines = unitReport.GetStartingMachines();
+                                
+                                // Calculate remaining machines based on soldier survival rate
+                                double survivalRate = (unit.Deployed > 0) ? (double)unit.Remaining / unit.Deployed : 0;
+                                unit.RemainingMachines = (int)Math.Round(unit.DeployedMachines * survivalRate);
+                                unit.MachineLosses = unit.DeployedMachines - unit.RemainingMachines;
+                            }
+                            else
+                            {
+                                unit.IsSiegeUnit = false;
+                                unit.DeployedMachines = 0;
+                                unit.RemainingMachines = 0;
+                                unit.MachineLosses = 0;
+                            }
                         }
                         else
                         {
@@ -1882,6 +1924,10 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = "N/A";
                             unit.Ck3Culture = "N/A";
                             unit.AttilaFaction = "N/A";
+                            unit.IsSiegeUnit = false;
+                            unit.DeployedMachines = 0;
+                            unit.RemainingMachines = 0;
+                            unit.MachineLosses = 0;
                         }
                         
                         // Add character info if available
