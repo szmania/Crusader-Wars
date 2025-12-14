@@ -2804,8 +2804,32 @@ namespace CrusaderWars
             SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_click;
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
             
+            // Capture state before settings change
+            string originalPlaythrough = GetActivePlaythroughTag();
+            bool wasBattleInProgress = BattleState.IsBattleInProgress();
+
             Options optionsChild = new Options();
             optionsChild.ShowDialog();
+            
+            // Check if playthrough changed during an active battle
+            if (wasBattleInProgress)
+            {
+                string newPlaythrough = GetActivePlaythroughTag();
+                if (originalPlaythrough != newPlaythrough)
+                {
+                    Program.Logger.Debug("Playthrough changed during active battle. Resetting battle state.");
+                    MessageBox.Show(
+                        "The active playthrough was changed while a battle was in progress. " +
+                        "The previous battle has been discarded to prevent conflicts.",
+                        "Battle Discarded",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    BattleState.ClearBattleState();
+                    UpdateUIForBattleState();
+                }
+            }
+            
             Options.ReadOptionsFile();
             UpdatePlaythroughDisplay(); // Update display after settings are closed
         }
