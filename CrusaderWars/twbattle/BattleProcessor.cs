@@ -1163,6 +1163,8 @@ namespace CrusaderWars.twbattle
                     SaveFile.Compress();
                     Program.Logger.Debug("Finalizing save file...");
                     SaveFile.Finish();
+                    twbattle.BattleState.ClearBattleState();
+                    Program.Logger.Debug("Battle finished. Clearing battle state.");
 
                     // Show successful autofix/manual tool message if applicable
                     bool wasAutofixSuccess = autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription);

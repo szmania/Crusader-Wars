@@ -2182,8 +2182,7 @@ namespace CrusaderWars
                 // Manually reset some UI elements for the next iteration,
                 // without touching infoLabel.
                 battleJustCompleted = true;
-                ContinueBattleButton.Visible = false;
-                ExecuteButton.Text = "";
+                UpdateUIForBattleState();
                 // The line `ExecuteButton.Size = new Size(197, 115);` was moved from here.
             }
 
