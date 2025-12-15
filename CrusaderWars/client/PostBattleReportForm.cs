@@ -131,7 +131,11 @@ namespace CrusaderWars.client
                             Ck3Culture = firstUnit.Ck3Culture,
                             AttilaFaction = firstUnit.AttilaFaction,
                             Characters = g.SelectMany(u => u.Characters).DistinctBy(c => c.Name).ToList(), // Collect all characters
-                            KnightDetails = g.SelectMany(u => u.KnightDetails).DistinctBy(k => k.Name).ToList() // Collect all knight details
+                            KnightDetails = g.SelectMany(u => u.KnightDetails).DistinctBy(k => k.Name).ToList(), // Collect all knight details
+                            IsSiegeUnit = g.Any(u => u.IsSiegeUnit),
+                            DeployedMachines = g.Sum(u => u.DeployedMachines),
+                            RemainingMachines = g.Sum(u => u.RemainingMachines),
+                            MachineLosses = g.Sum(u => u.MachineLosses)
                         };
                     })
                     .OrderByDescending(u => u.Ck3UnitType == "Commander")
