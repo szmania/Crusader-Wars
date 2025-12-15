@@ -1361,10 +1361,9 @@ namespace CrusaderWars.data.save_file
         private static void ReadRegiments()
         {
             bool isSearchStarted = false;
-            Regiment? regiment = null;
+            List<Regiment> foundRegiments = new List<Regiment>();
 
             int index = -1;
-            int reg_chunk_index = 0;
 
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
             {
@@ -1376,93 +1375,113 @@ namespace CrusaderWars.data.save_file
                     {
                         string regiment_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
 
-                        var searchingData = Armies_Functions.SearchRegiments(regiment_id, attacker_armies);
-                        if(searchingData.searchHasStarted)
+                        // Find ALL regiments that match this ID across both attacker and defender armies
+                        foundRegiments = attacker_armies.SelectMany(army => army.ArmyRegiments)
+                                             .SelectMany(armyRegiment => armyRegiment.Regiments)
+                                             .Where(reg => reg.ID == regiment_id)
+                                             .ToList();
+                        
+                        if (foundRegiments.Count == 0)
+                        {
+                            foundRegiments = defender_armies.SelectMany(army => army.ArmyRegiments)
+                                                 .SelectMany(armyRegiment => armyRegiment.Regiments)
+                                                 .Where(reg => reg.ID == regiment_id)
+                                                 .ToList();
+                        }
+
+                        if (foundRegiments.Count > 0)
                         {
                             isSearchStarted = true;
-                            regiment = searchingData.regiment;
-                        }
-                        else
-                        {
-                            searchingData = Armies_Functions.SearchRegiments(regiment_id, defender_armies);
-                            if( searchingData.searchHasStarted )
-                            {
-                                isSearchStarted = true;
-                                regiment = searchingData.regiment;
-                            }
                         }
                     }
 
                     // Index Counter
                     else if (line == "\t\t\t\t{" && isSearchStarted)
                     {
-                        if(regiment != null)
-                        {
-                            string str_index = regiment.Index;
-                            if (!string.IsNullOrEmpty(str_index))
-                            {
-                                reg_chunk_index = Int32.Parse(str_index);
-                                index++;
-                            }
-                            else
-                            {
-                                reg_chunk_index = 0;
-                                index++;
-                            }
-                        }
+                        index++;
                     }
 
                     // isMercenary 
                     else if (isSearchStarted && line.Contains("\t\t\tsource=hired"))
                     {
-                        regiment?.isMercenary(true);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.isMercenary(true);
+                        }
                     }
 
                     // isGarrison 
                     else if (isSearchStarted && line.Contains("\t\t\tsource=garrison"))
                     {
-                        regiment?.IsGarrison(true);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.IsGarrison(true);
+                        }
                     }
                     // Origin 
                     else if (isSearchStarted && line.Contains("\t\t\torigin="))
                     {
                         string origin = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetOrigin(origin);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.SetOrigin(origin);
+                        }
                     }
                     // Owner 
                     else if (isSearchStarted && line.Contains("\t\t\towner="))
                     {
                         string owner = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetOwner(owner);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.SetOwner(owner);
+                        }
                     }
                     else if(isSearchStarted && line.Contains("\t\t\towning_title="))
                     {
                         string owiningTitle = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetOwningTitle(owiningTitle);
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.SetOwningTitle(owiningTitle);
+                        }
                     }
                     // Max
                     else if (isSearchStarted && line.Contains("\t\t\t\t\tmax="))
                     {
                         string max = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetMax(max);
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.SetMax(max);
+                        }
                     }
 
                     // Soldiers
                     else if (isSearchStarted && (line.Contains("\t\t\t\t\tcurrent=") || line.Contains("\t\t\tsize=")))
                     {
                         string current = Regex.Match(line, @"\d+").Value;
-                        if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
+                        
+                        // Process each found regiment to check if this chunk applies to it
+                        foreach (var reg in foundRegiments)
                         {
-                            regiment?.SetSoldiers(current);
+                            // Calculate reg_chunk_index for this specific regiment
+                            int reg_chunk_index = 0;
+                            if (!string.IsNullOrEmpty(reg.Index))
+                            {
+                                reg_chunk_index = Int32.Parse(reg.Index);
+                            }
+                            
+                            // Only set soldiers if this chunk index matches the regiment's required index
+                            if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
+                            {
+                                reg.SetSoldiers(current);
+                            }
                         }
 
                         if(line.Contains("\t\t\tsize="))
                         {
-                            regiment?.SetMax(current);
+                            foreach (var reg in foundRegiments)
+                            {
+                                reg.SetMax(current);
+                            }
                         }
                     }
 
@@ -1471,15 +1490,7 @@ namespace CrusaderWars.data.save_file
                     {
                         isSearchStarted = false;
                         index = -1;
-                        reg_chunk_index = 0;
-
-                        if (regiment != null)
-                        {
-                            EditOgRegiment(regiment, attacker_armies, defender_armies);
-                        }
-
-                        regiment = null;
-                       
+                        foundRegiments.Clear();
                     }
                 }
             }
@@ -1496,51 +1507,6 @@ namespace CrusaderWars.data.save_file
             {
                 defender_armies[i].RemoveGarrisonRegiments();
             }
-        }
-        static void EditOgRegiment(Regiment editedRegiment ,List<Army> attacker_armies, List<Army> defender_armies)
-        {
-            foreach(Army army in attacker_armies)
-            {
-                foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
-                {
-                    foreach(Regiment regiment in armyRegiment.Regiments)
-                    {
-                        if(editedRegiment.ID == regiment.ID)
-                        {
-                            regiment.SetOrigin(editedRegiment.Origin);
-                            regiment.SetMax(editedRegiment.Max);
-                            regiment.SetSoldiers(editedRegiment.CurrentNum);
-                            regiment.SetOwner(editedRegiment.Owner);
-                            regiment.isMercenary(editedRegiment.isMercenary());
-                            regiment.IsGarrison(editedRegiment.IsGarrison());
-                            return;
-                        }
-                        
-                    }
-                }
-            }
-
-            foreach (Army army in defender_armies)
-            {
-                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
-                {
-                    foreach (Regiment regiment in armyRegiment.Regiments)
-                    {
-                        if (editedRegiment.ID == regiment.ID)
-                        {
-                            regiment.SetOrigin(editedRegiment.Origin);
-                            regiment.SetMax(editedRegiment.Max);
-                            regiment.SetSoldiers(editedRegiment.CurrentNum);
-                            regiment.SetOwner(editedRegiment.Owner);
-                            regiment.isMercenary(editedRegiment.isMercenary());
-                            regiment.IsGarrison(editedRegiment.IsGarrison());
-                            return;
-                        }
-
-                    }
-                }
-            }
-
         }
 
 
