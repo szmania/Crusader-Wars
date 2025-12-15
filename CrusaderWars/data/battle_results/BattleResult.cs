@@ -713,13 +713,7 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 // Calculate total deployed knights for this culture
-                int starting = 0;
-                if (army.Knights != null && army.Knights.HasKnights())
-                {
-                    starting = army.Knights.GetKnightsList()
-                        .Where(k => k.GetCultureObj()?.ID == cultureId)
-                        .Sum(k => k.GetSoldiers());
-                }
+                int starting = matchingKnightUnits.Sum(u => u.GetSoldiers());
                 int startingMachines = 0;
 
                 // Calculate total remaining knights for this culture from main phase
