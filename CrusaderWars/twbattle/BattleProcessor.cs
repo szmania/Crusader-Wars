@@ -1709,7 +1709,7 @@ namespace CrusaderWars.twbattle
                         unit.Deployed = unitReport.GetStarting();
                         unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
                         unit.Kills = unitReport.GetKills();
-                        unit.Losses = Math.Abs(unit.Deployed - unit.Remaining); // Use absolute value to avoid negative losses
+                        unit.Losses = Math.Max(0, unit.Deployed - unit.Remaining); // Prevent negative losses
                         
                         // Set CK3 and Attila specific data
                         if (correspondingUnit != null)
@@ -1883,7 +1883,7 @@ namespace CrusaderWars.twbattle
                         unit.Deployed = unitReport.GetStarting();
                         unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
                         unit.Kills = unitReport.GetKills();
-                        unit.Losses = Math.Abs(unit.Deployed - unit.Remaining); // Use absolute value to avoid negative losses
+                        unit.Losses = Math.Max(0, unit.Deployed - unit.Remaining); // Prevent negative losses
                         
                         // Set CK3 and Attila specific data
                         if (correspondingUnit != null)
