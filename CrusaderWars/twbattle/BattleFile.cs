@@ -1100,22 +1100,24 @@ namespace CrusaderWars
 
                 if (knightCommander != null)
                 {
-                    PR_Unit += "<unit_capabilities>\n";
-                    PR_Unit += "<special_ability></special_ability>\n"; //dummy
                     var accolade = knightCommander.GetAccolade();
                     if (accolade != null)
                     {
                         var special_ability = AccoladesAbilities.ReturnAbilitiesKeys(accolade);
-                        if (special_ability.primaryKey != "null")
+                        if (special_ability.primaryKey != "null" || special_ability.secundaryKey != "null")
                         {
-                            PR_Unit += $"<special_ability>{special_ability.primaryKey}</special_ability>\n";
-                        }
-                        if (special_ability.secundaryKey != "null")
-                        {
-                            PR_Unit += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
+                            PR_Unit += "<unit_capabilities>\n";
+                            if (special_ability.primaryKey != "null")
+                            {
+                                PR_Unit += $"<special_ability>{special_ability.primaryKey}</special_ability>\n";
+                            }
+                            if (special_ability.secundaryKey != "null")
+                            {
+                                PR_Unit += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
+                            }
+                            PR_Unit += "</unit_capabilities>\n";
                         }
                     }
-                    PR_Unit += "</unit_capabilities>\n";
                 }
 
                 PR_Unit += "</unit>\n\n";
@@ -1177,25 +1179,28 @@ namespace CrusaderWars
                      $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                      $"<orientation radians=\"{Rotation}\"/>\n" +
                      "<width metres=\"21.70\"/>\n" +
-                     $"<unit_experience level=\"{experience}\"/>\n" +
-                     "<unit_capabilities>\n" +
-                     "<special_ability></special_ability>\n";
+                     $"<unit_experience level=\"{experience}\"/>\n";
 
 
                     if(accolade != null)
                     {
                         var special_ability = AccoladesAbilities.ReturnAbilitiesKeys(accolade);
-                        if (special_ability.primaryKey != "null")
+                        if (special_ability.primaryKey != "null" || special_ability.secundaryKey != "null")
                         {
-                            PR_General += $"<special_ability>{special_ability.primaryKey}</special_ability>\n";
+                            PR_General += "<unit_capabilities>\n";
+                            if (special_ability.primaryKey != "null")
+                            {
+                                PR_General += $"<special_ability>{special_ability.primaryKey}</special_ability>\n";
+                            }
+                            if (special_ability.secundaryKey != "null")
+                            {
+                                PR_General += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
+                            }
+                            PR_General += "</unit_capabilities>\n";
                         }
-                        if (special_ability.secundaryKey != "null")
-                        PR_General += $"<special_ability>{special_ability.secundaryKey}</special_ability>\n";
-
                     }
 
                      PR_General += 
-                     "</unit_capabilities>\n" +
                      "<general>\n" +
                      $"<name>{name}</name>\n" +
                      $"<star_rating level=\"{Commander.GetCommanderStarRating()}\"/>\n" +
@@ -1256,10 +1261,8 @@ namespace CrusaderWars
                  "<width metres=\"21.70\"/>\n" +
                  $"<unit_experience level=\"{experience}\"/>\n";
                 
-                PR_Unit += "<unit_capabilities>\n";
-                PR_Unit += "<special_ability></special_ability>\n"; //dummy ability to remove all abilities from this unit
-
                 //accolades special abilities
+                List<string> validAbilities = new List<string>();
                 if(accoladesList != null)
                 {
                     foreach (var accolade in accoladesList)
@@ -1267,18 +1270,25 @@ namespace CrusaderWars
                         var accoladeAbilites = AccoladesAbilities.ReturnAbilitiesKeys(accolade);
                         if (accoladeAbilites.primaryKey != "null")
                         {
-                            PR_Unit += $"<special_ability>{accoladeAbilites.primaryKey}</special_ability>\n";
+                            validAbilities.Add(accoladeAbilites.primaryKey);
                         }
                         if (accoladeAbilites.secundaryKey != "null")
                         {
-                            PR_Unit += $"<special_ability>{accoladeAbilites.secundaryKey}</special_ability>\n";
+                            validAbilities.Add(accoladeAbilites.secundaryKey);
                         }
-
                     }
                 }
 
+                if (validAbilities.Any())
+                {
+                    PR_Unit += "<unit_capabilities>\n";
+                    foreach (var ability in validAbilities)
+                    {
+                        PR_Unit += $"<special_ability>{ability}</special_ability>\n";
+                    }
+                    PR_Unit += "</unit_capabilities>\n";
+                }
 
-                PR_Unit += "</unit_capabilities>\n";
                 PR_Unit += "</unit>\n\n";
 
                 //Add vertical spacing between units
