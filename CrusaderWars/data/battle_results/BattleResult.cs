@@ -542,10 +542,8 @@ namespace CrusaderWars.data.battle_results
                 // We need to find the Unit that corresponds to this ArmyRegiment's *type* and *name*.
                 // For MAA, the Unit.GetName() is armyRegiment.MAA_Name.
                 // For Levy, the Unit.GetName() is "Levy".
-                // For Garrison, the Unit.GetName() is "Garrison".
-                string unitNameToMatch = armyRegiment.MAA_Name;
-                if (armyRegiment.Type == RegimentType.Levy) unitNameToMatch = "Levy";
-                if (armyRegiment.Type == RegimentType.Garrison) unitNameToMatch = "Garrison";
+                // For Garrison, the Unit.GetName() is the specific Attila unit key.
+                string unitIdentifier = (armyRegiment.Type == RegimentType.Levy) ? "Levy" : armyRegiment.MAA_Name;
 
                 // Find a corresponding Unit object. We use the culture of the first regiment for matching,
                 // assuming all regiments within an ArmyRegiment share the same base unit type and culture for siege status.
@@ -554,7 +552,7 @@ namespace CrusaderWars.data.battle_results
 
                 Unit? correspondingUnit = army.Units.FirstOrDefault(u =>
                     u.GetRegimentType() == armyRegiment.Type &&
-                    u.GetName() == unitNameToMatch &&
+                    u.GetName() == unitIdentifier &&
                     u.GetObjCulture()?.ID == cultureId
                 );
 
@@ -571,12 +569,9 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 // Get the total casualties for this ArmyRegiment type to distribute among its regiments
-                string unitTypeNameToFind = armyRegiment.Type == RegimentType.Levy ? "Levy" : armyRegiment.MAA_Name;
-                if (armyRegiment.Type == RegimentType.Garrison) unitTypeNameToFind = "Garrison";
-
                 var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
                     x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null &&
-                    x.GetCulture().ID == cultureId && x.GetTypeName() == unitTypeNameToFind);
+                    x.GetCulture().ID == cultureId && x.GetTypeName() == unitIdentifier);
 
                 int totalCasualtiesToApply = unitReport?.GetCasualties() ?? 0;
 
