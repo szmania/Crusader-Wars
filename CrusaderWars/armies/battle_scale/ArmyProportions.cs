@@ -10,7 +10,7 @@ namespace CrusaderWars
 {
     public static class ArmyProportions
     {
-        static int BattleScale { get; set; }
+        public static int BattleScale { get; private set; }
         public static void SetRatio(int a)
         {
             BattleScale = a;

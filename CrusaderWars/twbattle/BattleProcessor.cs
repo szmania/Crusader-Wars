@@ -173,9 +173,9 @@ namespace CrusaderWars.twbattle
                                          defender_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers());
                     Program.Logger.Debug($"Total soldiers for battle scale calculation: {total_soldiers}");
                     ArmyProportions.AutoSizeUnits(total_soldiers);
-                    Program.Logger.Debug($"Applying battle scale: {ModOptions.GetBattleScale()}");
-                    foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
-                    foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
+                    Program.Logger.Debug($"Applying battle scale: {ArmyProportions.BattleScale}");
+                    foreach (var army in attacker_armies) army.ScaleUnits(ArmyProportions.BattleScale);
+                    foreach (var army in defender_armies) army.ScaleUnits(ArmyProportions.BattleScale);
 
                     BattleLog.Reset();
                     // Add battle log header
@@ -455,7 +455,7 @@ namespace CrusaderWars.twbattle
                                             {
                                                 string commanderName = army.Commander?.Name ?? "Unknown Commander";
                                                 string rankInfo = $", Rank: {unit.CharacterRank}";
-                                                Program.Logger.Debug($"  - CK3 Unit: General ({commanderName}), Type: Commander, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
+                                                Program.Logger.Debug($"  - CK3- Unit: General ({commanderName}), Type: Commander, Attila Unit: {attilaKey}, Soldiers: {unit.GetSoldiers()}{unitDetails}{rankInfo}");
                                             }
                                         }
                                         else // MenAtArms
