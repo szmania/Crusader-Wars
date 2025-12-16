@@ -325,7 +325,7 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 // Calculate total deployed knights for this culture
-                int starting = matchingKnightUnits.Sum(u => u.GetOriginalSoldiers());
+                int starting = (int)Math.Round(matchingKnightUnits.Sum(u => u.GetOriginalSoldiers()) * (ArmyProportions.BattleScale / 100.0));
                 int startingMachines = 0;
 
                 // Calculate total remaining knights for this culture from main phase
@@ -497,7 +497,7 @@ namespace CrusaderWars.data.battle_results
                 }
                 else // Not a siege unit
                 {
-                    starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
+                    starting = (int)Math.Round(matchingUnits.Sum(u => u.GetOriginalSoldiers()) * (ArmyProportions.BattleScale / 100.0));
                     startingMachines = 0;
                 }
 
