@@ -155,7 +155,7 @@ namespace CrusaderWars.twbattle
                     DeclarationsFile.Erase();
                     BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
                     Data.units_scripts.Clear();
-                    BattleResult.ClearAttilaLog();
+                    BattleResultReader.ClearAttilaLog();
                     UnitsCardsNames.RemoveFiles();
                     Program.Logger.Debug("Previous battle files cleared.");
 
@@ -1053,7 +1053,7 @@ namespace CrusaderWars.twbattle
                     // --- END: Call new logging method ---
 
                     // DETERMINE WINNER FIRST so EditLivingFile can correctly calculate prisoner chances
-                    string winner = BattleResult.GetAttilaWinner(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide);
+                    string winner = BattleResultReader.GetAttilaWinner(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide);
                     BattleResult.IsAttackerVictorious = (winner == "attacker");
                     Program.Logger.Debug($"Battle winner determined: {winner}. IsAttackerVictorious set to: {BattleResult.IsAttackerVictorious}");
 
@@ -1641,7 +1641,7 @@ namespace CrusaderWars.twbattle
                 
                 // Try to get actual siege results
                 string path_log_attila = Properties.Settings.Default.VAR_log_attila;
-                var (siegeOutcome, wallDamage) = BattleResult.GetSiegeOutcome(path_log_attila, "attacker", "defender");
+                var (siegeOutcome, wallDamage) = BattleResultReader.GetSiegeOutcome(path_log_attila, "attacker", "defender");
                 report.SiegeResult = siegeOutcome;
                 report.WallDamage = wallDamage;
             }
