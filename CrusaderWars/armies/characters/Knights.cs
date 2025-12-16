@@ -469,10 +469,14 @@ namespace CrusaderWars
                 var eligibleKnights = Knights.Where(k => !k.HasFallen()).ToList();
                 if (!eligibleKnights.Any()) return;
 
-                int totalSoldiers = eligibleKnights.Sum(k => k.GetSoldiers());
-                int remainingSoldiers = remaining;
+                int totalSoldiers = eligibleKnights.Sum(k => k.GetSoldiers()); // This is the unscaled total
 
-                int soldiers_lost = totalSoldiers - remainingSoldiers;
+                // Un-scale 'remaining' to compare with the unscaled total
+                double scale = ArmyProportions.BattleScale / 100.0;
+                if (scale <= 0) scale = 1.0; // Avoid division by zero
+                int unscaledRemaining = (int)Math.Round(remaining / scale);
+
+                int soldiers_lost = totalSoldiers - unscaledRemaining;
                 if (soldiers_lost <= 0) return;
 
                 // Find the weakest knight to ensure we can start removing knights
