@@ -20,6 +20,7 @@ using CrusaderWars.unit_mapper;
 using static CrusaderWars.HomePage; // To access nested static classes like Games, ProcessCommands
 using System.Globalization; // Added for CultureInfo
 using System.Text.RegularExpressions; // Added for Regex
+using CrusaderWars.data.battle_results.editors;
 
 namespace CrusaderWars.twbattle
 {
@@ -1018,24 +1019,24 @@ namespace CrusaderWars.twbattle
                     foreach (var army in attacker_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
-                        BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
-                        BattleResult.CheckKnightsKills(army);
-                        BattleResult.CheckForSlainKnights(army);
+                        CasualtyProcessor.ReadAttilaResults(army, path_log_attila);
+                        CasualtyProcessor.CheckForSlainCommanders(army, path_log_attila);
+                        CasualtyProcessor.CheckKnightsKills(army);
+                        CasualtyProcessor.CheckForSlainKnights(army);
                     }
                     Program.Logger.Debug("Setting casualties for defender armies...");
                     foreach (var army in defender_armies)
                     {
                         Program.Logger.Debug($"Processing army ID: {army.ID}");
-                        BattleResult.ReadAttilaResults(army, path_log_attila);
-                        BattleResult.CheckForSlainCommanders(army, path_log_attila);
-                        BattleResult.CheckKnightsKills(army);
-                        BattleResult.CheckForSlainKnights(army);
+                        CasualtyProcessor.ReadAttilaResults(army, path_log_attila);
+                        CasualtyProcessor.CheckForSlainCommanders(army, path_log_attila);
+                        CasualtyProcessor.CheckKnightsKills(army);
+                        CasualtyProcessor.CheckForSlainKnights(army);
 
                     }
 
                     // --- START: Call new logging method ---
-                    BattleResult.LogPostBattleReport(attacker_armies, originalAttackerSizes, "ATTACKER");
+                    CasualtyProcessor.LogPostBattleReport(attacker_armies, originalAttackerSizes, "ATTACKER");
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
                         var siegeEngines = SiegeEngineGenerator.Generate(attacker_armies); // Pass attacker_armies
@@ -1048,7 +1049,7 @@ namespace CrusaderWars.twbattle
                             }
                         }
                     }
-                    BattleResult.LogPostBattleReport(defender_armies, originalDefenderSizes, "DEFENDER");
+                    CasualtyProcessor.LogPostBattleReport(defender_armies, originalDefenderSizes, "DEFENDER");
                     // --- END: Call new logging method ---
 
                     // DETERMINE WINNER FIRST so EditLivingFile can correctly calculate prisoner chances
@@ -1118,7 +1119,7 @@ namespace CrusaderWars.twbattle
 
                     //  EDIT ARMY REGIMENTS FILE
                     Program.Logger.Debug("Editing ArmyRegiments.txt file...");
-                    BattleResult.EditArmyRegimentsFile(attacker_armies, defender_armies);
+                    ArmyRegimentsFileEditor.EditArmyRegimentsFile(attacker_armies, defender_armies);
 
                     //  EDIT SIEGES FILE
                     if (twbattle.BattleState.IsSiegeBattle)
