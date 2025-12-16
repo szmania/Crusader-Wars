@@ -561,7 +561,7 @@ namespace CrusaderWars.twbattle
                 DataSearch.ClearLogFile();
                 DeclarationsFile.Erase();
                 BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
-                BattleResult.ClearAttilaLog();
+                BattleResultReader.ClearAttilaLog();
 
                 form.CloseLoadingScreen();
                 form.Show();
@@ -628,7 +628,7 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Attila process not found. Checking if it was a crash.");
 
                     // If battle ended normally, it's not a crash.
-                    if (BattleResult.HasBattleEnded(attilaLogPath))
+                    if (BattleResultReader.HasBattleEnded(attilaLogPath))
                     {
                         Program.Logger.Debug("Battle log indicates a normal exit. Proceeding with results.");
                         battleEnded = true;
