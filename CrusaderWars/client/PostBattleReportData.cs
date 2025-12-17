@@ -13,6 +13,7 @@ namespace CrusaderWars.client
         public string BattleResult { get; set; } // "Victory", "Defeat"
         public string SiegeResult { get; set; } // "Settlement Captured", "Successfully Defended", "N/A"
         public string WallDamage { get; set; } // "No Damage", "Damaged", "Breached", "N/A"
+        public double? WarScoreValue { get; set; }
 
         // New Battle Details
         public string BattleName { get; set; }

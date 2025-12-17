@@ -50,6 +50,7 @@ namespace CrusaderWars.client
             this.lblTotalKills = new System.Windows.Forms.Label();
             this.lblTotalRemaining = new System.Windows.Forms.Label();
             this.btnCopyToClipboard = new System.Windows.Forms.Button();
+            this.lblWarScoreChange = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -283,12 +284,26 @@ namespace CrusaderWars.client
             this.btnCopyToClipboard.UseVisualStyleBackColor = true;
             this.btnCopyToClipboard.Click += new System.EventHandler(this.btnCopyToClipboard_Click);
             // 
+            // lblWarScoreChange
+            // 
+            this.lblWarScoreChange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblWarScoreChange.AutoSize = true;
+            this.lblWarScoreChange.Font = new System.Drawing.Font("Georgia", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWarScoreChange.ForeColor = System.Drawing.Color.White;
+            this.lblWarScoreChange.Location = new System.Drawing.Point(300, 578);
+            this.lblWarScoreChange.Name = "lblWarScoreChange";
+            this.lblWarScoreChange.Size = new System.Drawing.Size(218, 23);
+            this.lblWarScoreChange.TabIndex = 19;
+            this.lblWarScoreChange.Text = "War Score Change: ";
+            this.lblWarScoreChange.Visible = false;
+            // 
             // PostBattleReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
             this.ClientSize = new System.Drawing.Size(984, 634);
+            this.Controls.Add(this.lblWarScoreChange);
             this.Controls.Add(this.btnCopyToClipboard);
             this.Controls.Add(this.lblTotalRemaining);
             this.Controls.Add(this.lblTotalKills);
@@ -342,5 +357,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Label lblTotalKills;
         private System.Windows.Forms.Label lblTotalRemaining;
         private System.Windows.Forms.Button btnCopyToClipboard;
+        private System.Windows.Forms.Label lblWarScoreChange;
     }
 }

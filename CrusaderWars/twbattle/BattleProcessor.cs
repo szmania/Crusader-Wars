@@ -1631,7 +1631,18 @@ namespace CrusaderWars.twbattle
             report.Weather = "Clear"; // Default value
             
             // Battle result
-            report.BattleResult = winner == "attacker" ? "Victory" : "Defeat";
+            var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
+            if (left_side != null && left_side.Any())
+            {
+                string player_combat_side = left_side[0].CombatSide;
+                report.BattleResult = winner == player_combat_side ? "Victory" : "Defeat";
+            }
+            else
+            {
+                // Fallback to old logic if player side can't be determined
+                report.BattleResult = winner == "attacker" ? "Victory" : "Defeat";
+                Program.Logger.Debug("WARNING: Could not determine player side in GenerateBattleReportData. BattleResult may be from attacker's perspective.");
+            }
             report.WarScoreValue = BattleResult.WarScoreValue;
             
             // Siege info

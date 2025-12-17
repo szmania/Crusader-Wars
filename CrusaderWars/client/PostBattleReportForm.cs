@@ -80,6 +80,36 @@ namespace CrusaderWars.client
                 lblSiegeResult.Visible = false;
                 lblWallDamage.Visible = false;
             }
+
+            if (_report.WarScoreValue.HasValue)
+            {
+                double warScoreChange = _report.WarScoreValue.Value;
+                string warScoreString;
+                var roundedWarScore = Math.Round(warScoreChange);
+
+                if (roundedWarScore == 0)
+                {
+                    warScoreString = "0";
+                    lblWarScoreChange.ForeColor = Color.White;
+                }
+                else if (_report.BattleResult == "Victory")
+                {
+                    warScoreString = $"+{roundedWarScore}";
+                    lblWarScoreChange.ForeColor = Color.LightGreen;
+                }
+                else // Defeat
+                {
+                    warScoreString = $"-{roundedWarScore}";
+                    lblWarScoreChange.ForeColor = Color.OrangeRed;
+                }
+
+                lblWarScoreChange.Text = $"War Score Change: {warScoreString}";
+                lblWarScoreChange.Visible = true;
+            }
+            else
+            {
+                lblWarScoreChange.Visible = false;
+            }
             
             // Add total battle statistics at the bottom
             int totalDeployed = _report.AttackerSide.TotalDeployed + _report.DefenderSide.TotalDeployed;
