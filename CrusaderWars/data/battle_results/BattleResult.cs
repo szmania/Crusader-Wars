@@ -23,6 +23,7 @@ namespace CrusaderWars.data.battle_results
         public static string? SiegeID { get; set; }
         public static string? ProvinceName { get; set; }
         public static bool IsAttackerVictorious { get; set; } = false;
+        public static double? WarScoreValue { get; set; }
         //public static twbattle.Date FirstDay_Date { get; set; }
 
         public static string? Original_Player_Combat;
@@ -1473,10 +1474,12 @@ namespace CrusaderWars.data.battle_results
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
+            WarScoreValue = null;
             double newWarScore = 0;
             if (!twbattle.BattleState.IsSiegeBattle || twbattle.BattleState.HasReliefArmy)
             {
                 newWarScore = CalculateWarScore(attacker_armies, defender_armies);
+                WarScoreValue = newWarScore;
             }
 
             bool inPlayerCombatResultBlock = false; // NEW: State flag to track if we are in the player's block

@@ -1632,6 +1632,7 @@ namespace CrusaderWars.twbattle
             
             // Battle result
             report.BattleResult = winner == "attacker" ? "Victory" : "Defeat";
+            report.WarScoreValue = BattleResult.WarScoreValue;
             
             // Siege info
             if (BattleState.IsSiegeBattle)
