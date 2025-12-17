@@ -42,7 +42,7 @@ namespace CrusaderWars.client
             // lblWeather.Text = $"Weather: {_report.Weather}"; // Removed weather display
 
             // Add Header for units
-            var headerNode = new TreeNode("Unit                                            | Deployed (Engines) | Losses | Remaining | Kills");
+            var headerNode = new TreeNode("Unit                                            | Deployed (Engines) | Losses (Engines) | Remaining (Engines) | Kills");
             headerNode.ForeColor = Color.LightGray;
             treeViewReport.Nodes.Add(headerNode);
 

@@ -1060,7 +1060,7 @@ namespace CrusaderWars.twbattle
 
                     //  EDIT LIVING FILE
                     Program.Logger.Debug("Editing Living.txt file...");
-                    LivingFileEditor.EditLivingFile(attacker_armies, defender_armies);
+                    BattleResult.EditLivingFile(attacker_armies, defender_armies);
 
                     // SHOW POST-BATTLE REPORT
                     if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
@@ -1089,7 +1089,7 @@ namespace CrusaderWars.twbattle
                         //  EDIT COMBATS FILE
                         BattleResult.EditCombatFile(mobile_attacker_armies, mobile_defender_armies);
                         //  EDIT COMBATS RESULTS FILE
-                        CombatResultsFileEditor.EditCombatResultsFile(mobile_attacker_armies, mobile_defender_armies);
+                        BattleResult.EditCombatResultsFile(mobile_attacker_armies, mobile_defender_armies);
                     }
                     else
                     {
@@ -1115,7 +1115,7 @@ namespace CrusaderWars.twbattle
 
                     //  EDIT REGIMENTS FILE
                     Program.Logger.Debug("Editing Regiments.txt file...");
-                    RegimentsFileEditor.EditRegimentsFile(attacker_armies, defender_armies);
+                    BattleResult.EditRegimentsFile(attacker_armies, defender_armies);
 
                     //  EDIT ARMY REGIMENTS FILE
                     Program.Logger.Debug("Editing ArmyRegiments.txt file...");
@@ -1125,7 +1125,7 @@ namespace CrusaderWars.twbattle
                     if (twbattle.BattleState.IsSiegeBattle)
                     {
                         Program.Logger.Debug("Editing Sieges.txt file...");
-                        SiegesFileEditor.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, attacker_armies, defender_armies);
+                        BattleResult.EditSiegesFile(path_log_attila, left_side[0].CombatSide, right_side[0].CombatSide, attacker_armies, defender_armies);
                     }
                     else
                     {

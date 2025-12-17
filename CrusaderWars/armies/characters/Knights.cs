@@ -134,30 +134,26 @@ namespace CrusaderWars
             int value = 0;
             if (Prowess <= 4)
             {
-                value += 0;
+                value += 2;
             }
             else if (Prowess >= 5 && Prowess <= 8)
             {
-                value += 1;
+                value += 3;
             }
             else if (Prowess >= 9 && Prowess <= 12)
             {
-                value += 2;
+                value += 4;
             }
             else if (Prowess >= 13 && Prowess <= 16)
             {
-                value += 3;
+                value += 5;
             }
             else if (Prowess >= 17)
             {
-                value += 4;
+                value += 6;
             }
 
             int finalSoldiers = soldiers + value;
-            if (_isProminent && !ModOptions.CombineKnightsEnabled())
-            {
-                finalSoldiers *= 2;
-            }
             return finalSoldiers;
         }
 
