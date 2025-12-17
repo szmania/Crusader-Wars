@@ -1678,8 +1678,6 @@ namespace CrusaderWars.data.save_file
                     {
                         string max = Regex.Match(line, @"\d+").Value;
                         armyRegiment?.SetMax(max);
-                        // NEW: Use the max value to ensure full strength battles, ignoring pre-battle CK3 casualties.
-                        armyRegiment?.SetCurrentNum(max);
                     }
 
                     //Men At Arms
