@@ -928,10 +928,10 @@ namespace CrusaderWars.data.save_file
                     if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
                     
                     // Get the total soldiers from the army regiment's starting number
-                    string? totalSoldiersStr = armyRegiment.StartingNum;
-                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    string? totalSoldiersStr = armyRegiment.StartingNum.ToString();
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
                     {
-                        totalSoldiersStr = armyRegiment.CurrentNum;
+                        totalSoldiersStr = armyRegiment.CurrentNum.ToString();
                     }
                     
                     if (string.IsNullOrEmpty(totalSoldiersStr))
