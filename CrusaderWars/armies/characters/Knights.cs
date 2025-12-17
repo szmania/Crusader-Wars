@@ -316,6 +316,8 @@ namespace CrusaderWars
             return final_level;
         }
 
+        public void AddSoldiers(int soldiers) { Soldiers += soldiers; } // Added AddSoldiers method
+
     }
     public class KnightSystem
     {
