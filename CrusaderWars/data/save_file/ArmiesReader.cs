@@ -1782,7 +1782,7 @@ namespace CrusaderWars.data.save_file
                     else if(isSearchStarted && line.Contains("\t\t\t\tcurrent="))
                     {
                         string currentNum = Regex.Match(line, @"\d+").Value;
-                        armyRegiment?.SetCurrentNum(currentNum);
+                        if (armyRegiment != null) armyRegiment.CurrentNum = currentNum;
                     }
 
                     //Max
