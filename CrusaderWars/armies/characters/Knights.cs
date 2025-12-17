@@ -586,5 +586,16 @@ namespace CrusaderWars
         }
 
 
+        public void RemoveKnight(Knight knightToRemove)
+        {
+            if (Knights != null && knightToRemove != null)
+            {
+                if(Knights.Remove(knightToRemove))
+                {
+                    Program.Logger.Debug($"Removed knight {knightToRemove.GetName()} ({knightToRemove.GetID()}) from KnightSystem.");
+                }
+            }
+        }
+
     }
 }

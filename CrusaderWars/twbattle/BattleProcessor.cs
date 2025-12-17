@@ -1414,8 +1414,27 @@ namespace CrusaderWars.twbattle
                     var knight = sortedKnights[knightIndex];
                     maaUnit.KnightCommander = knight;
                     knightIndex++;
-                    
+                        
                     Program.Logger.Debug($"Assigned knight {knight.GetName()} (Prowess: {knight.GetProwess()}) to lead MAA unit {maaUnit.GetName()}");
+
+                    // Remove the knight from its original KnightSystem so it doesn't appear in the combined bodyguard unit.
+                    army.Knights?.RemoveKnight(knight);
+                    if (army.MergedArmies != null)
+                    {
+                        foreach (var mergedArmy in army.MergedArmies)
+                        {
+                            mergedArmy.Knights?.RemoveKnight(knight);
+                        }
+                    }
+
+                    // Find the combined knights unit and subtract this knight's soldiers.
+                    var combinedKnightsUnit = army.Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight);
+                    if (combinedKnightsUnit != null)
+                    {
+                        int soldiersToRemove = knight.GetSoldiers();
+                        combinedKnightsUnit.AddSoldiers(-soldiersToRemove);
+                        Program.Logger.Debug($"Removed {soldiersToRemove} soldiers from combined knights unit for knight {knight.GetName()}.");
+                    }
                 }
             }
             
@@ -1792,6 +1811,12 @@ namespace CrusaderWars.twbattle
                             var commanderReport = GetCharacterReport(army.Commander);
                             unit.Characters.Add(commanderReport);
                         }
+                        // Add knight commander info if this is an MAA unit with a knight commander
+                        else if (correspondingUnit?.GetRegimentType() == RegimentType.MenAtArms && correspondingUnit.KnightCommander != null)
+                        {
+                            var knightCommanderReport = GetCharacterReport(correspondingUnit.KnightCommander);
+                            unit.Characters.Add(knightCommanderReport);
+                        }
                         // Add knight details if this is a knight unit
                         else if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
                         {
@@ -1965,6 +1990,12 @@ namespace CrusaderWars.twbattle
                         {
                             var commanderReport = GetCharacterReport(army.Commander);
                             unit.Characters.Add(commanderReport);
+                        }
+                        // Add knight commander info if this is an MAA unit with a knight commander
+                        else if (correspondingUnit?.GetRegimentType() == RegimentType.MenAtArms && correspondingUnit.KnightCommander != null)
+                        {
+                            var knightCommanderReport = GetCharacterReport(correspondingUnit.KnightCommander);
+                            unit.Characters.Add(knightCommanderReport);
                         }
                         // Add knight details if this is a knight unit
                         else if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
