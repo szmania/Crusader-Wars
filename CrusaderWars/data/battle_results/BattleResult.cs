@@ -333,6 +333,19 @@ namespace CrusaderWars.data.battle_results
 
 
 
+        static void SetWinner(string winner)
+        {
+            if (string.IsNullOrEmpty(Player_Combat)) return;
+
+            // Set winner
+            Player_Combat = Regex.Replace(Player_Combat, @"(winner=)\w+", $"${{1}}{winner}");
+
+            // Set phase to aftermath
+            Player_Combat = Regex.Replace(Player_Combat, @"(phase=)\w+", "${1}aftermath");
+            
+            Program.Logger.Debug($"Set combat winner to '{winner}' and phase to 'aftermath'.");
+        }
+
         //---------------------------------//
         //----------Functions--------------//
         //---------------------------------//

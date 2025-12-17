@@ -233,32 +233,35 @@ namespace CrusaderWars.data.battle_results
                     }
                     else
                     {
-                        // Fixed logic for non-siege units (soldiers) - distribute casualties correctly
-                        int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
-                        int regSoldiers = originalSoldiers;
-                        int casualtiesApplied = 0; // Track actual casualties applied to this regiment
-                        
-                        // Apply casualties from the total pool
-                        while (regSoldiers > 0 && totalCasualtiesToApply > 0)
+                        // Proportional survival logic for non-siege units
+                        int originalSoldiers = Int32.Parse(regiment.CurrentNum);
+                        int finalSoldierCount = 0;
+
+                        if (unitReport != null && unitReport.GetStarting() > 0)
                         {
-                            if (regSoldiers > totalCasualtiesToApply)
+                            int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
+                            int startingMen = unitReport.GetStarting();
+
+                            double survivalRate = (double)finalMenCount / startingMen;
+                            if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate))
                             {
-                                casualtiesApplied += totalCasualtiesToApply;
-                                regSoldiers -= totalCasualtiesToApply;
-                                totalCasualtiesToApply = 0;
+                                survivalRate = 0;
                             }
-                            else
-                            {
-                                casualtiesApplied += regSoldiers;
-                                totalCasualtiesToApply -= regSoldiers;
-                                regSoldiers = 0;
-                            }
+
+                            finalSoldierCount = (int)Math.Round(originalSoldiers * survivalRate);
+                        }
+                        else
+                        {
+                            // Fallback if unit had 0 men to begin with or no report
+                            finalSoldierCount = 0;
                         }
 
-                        regiment.SetSoldiers(regSoldiers.ToString());
-                        // REMOVED: unitReport.SetCasualties(casualties); - This was causing the bug by modifying shared state
+                        // Cap the final count at the original number to prevent issues from scaling artifacts.
+                        int cappedFinalSoldierCount = Math.Min(originalSoldiers, finalSoldierCount);
+
+                        regiment.SetSoldiers(cappedFinalSoldierCount.ToString());
                         Program.Logger.Debug(
-                            $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}. Casualties applied: {casualtiesApplied}.");
+                            $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {cappedFinalSoldierCount}.");
                     }
                 }
 
