@@ -648,7 +648,7 @@ namespace CrusaderWars.data.battle_results
                 // Moved these lines outside the inner loop
                 int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum))
                     .Sum(x => Int32.Parse(x.CurrentNum!));
-                armyRegiment.CurrentNum = army_regiment_total.ToString();
+                armyRegiment.CurrentNum = army_regiment_total;
                 Program.Logger.Debug(
                     $"Updated ArmyRegiment {armyRegiment.ID} total soldiers to: {army_regiment_total}");
             }

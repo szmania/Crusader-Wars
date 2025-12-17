@@ -219,8 +219,8 @@ namespace CrusaderWars.data.save_file
         public RegimentType Type { get; private set; }
         public string MAA_Name { get; private set; }
         public List<Regiment> Regiments { get; private set; }
-        public int CurrentNum { get; private set; }
-        public int StartingNum { get; private set; }
+        public int CurrentNum { get; set; }
+        public int StartingNum { get; set; }
         public int Max { get; private set; }
 
 
@@ -248,17 +248,9 @@ namespace CrusaderWars.data.save_file
             Regiments = regiments;
 
         }
-        public void SetCurrentNum (string x)
-        {
-            CurrentNum = Int32.Parse(x);
-        }
         public void SetMax(string x)
         {
             Max = Int32.Parse(x);
-        }
-        public void SetStartingNum(string x)
-        {
-            StartingNum = Int32.Parse(x);
         }
     }
 

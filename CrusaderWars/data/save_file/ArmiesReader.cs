@@ -877,10 +877,10 @@ namespace CrusaderWars.data.save_file
                     if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
                     
                     // Get the total soldiers from the army regiment's starting number
-                    string? totalSoldiersStr = armyRegiment.StartingNum;
+                    string? totalSoldiersStr = armyRegiment.StartingNum.ToString();
                     if (string.IsNullOrEmpty(totalSoldiersStr))
                     {
-                        totalSoldiersStr = armyRegiment.CurrentNum;
+                        totalSoldiersStr = armyRegiment.CurrentNum.ToString();
                     }
                     
                     if (string.IsNullOrEmpty(totalSoldiersStr))
@@ -1782,7 +1782,7 @@ namespace CrusaderWars.data.save_file
                     else if(isSearchStarted && line.Contains("\t\t\t\tcurrent="))
                     {
                         string currentNum = Regex.Match(line, @"\d+").Value;
-                        if (armyRegiment != null) armyRegiment.CurrentNum = currentNum;
+                        if (armyRegiment != null) armyRegiment.CurrentNum = int.Parse(currentNum);
                     }
 
                     //Max
@@ -2082,7 +2082,7 @@ namespace CrusaderWars.data.save_file
                                 var regToUpdate = army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment);
                                 if (regToUpdate != null)
                                 {
-                                    regToUpdate.StartingNum = startingNum;
+                                    regToUpdate.StartingNum = int.Parse(startingNum);
                                 }
                             }
                         }
@@ -2097,7 +2097,7 @@ namespace CrusaderWars.data.save_file
                                 var regToUpdate = army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment);
                                 if (regToUpdate != null)
                                 {
-                                    regToUpdate.StartingNum = startingNum;
+                                    regToUpdate.StartingNum = int.Parse(startingNum);
                                 }
                             }
                         }
