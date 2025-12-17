@@ -864,9 +864,53 @@ namespace CrusaderWars.mod_manager
             string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
             if (Directory.Exists(factionsDir))
             {
+                string factionsSchema = Path.Combine(schemasDir, "factions.xsd");
+                string factionsAddonSchema = Path.Combine(schemasDir, "factions_addons.xsd");
+                bool factionsAddonSchemaExists = File.Exists(factionsAddonSchema);
+
                 foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
                 {
-                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "factions.xsd")));
+                    string schemaToUse = factionsSchema; // Default schema
+
+                    if (factionsAddonSchemaExists)
+                    {
+                        bool useAddonSchema = false;
+                        string fileName = Path.GetFileName(file);
+
+                        // Condition 1: check for submod_addon_tag attribute
+                        try
+                        {
+                            using (var reader = XmlReader.Create(file))
+                            {
+                                reader.MoveToContent();
+                                if (reader.GetAttribute("submod_addon_tag") != null)
+                                {
+                                    useAddonSchema = true;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            allErrors.Add($"File: {file}, Error: Could not read XML to check for addon tag. {ex.Message}");
+                        }
+
+                        // Condition 2: check filename (if not already decided)
+                        if (!useAddonSchema)
+                        {
+                            if (!fileName.StartsWith("OfficialCC_", StringComparison.OrdinalIgnoreCase) &&
+                                !fileName.StartsWith("Submod_", StringComparison.OrdinalIgnoreCase))
+                            {
+                                useAddonSchema = true;
+                            }
+                        }
+
+                        if (useAddonSchema)
+                        {
+                            schemaToUse = factionsAddonSchema;
+                        }
+                    }
+
+                    allErrors.AddRange(Validate(file, schemaToUse));
                 }
             }
 
