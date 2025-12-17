@@ -732,6 +732,32 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Finished reading characters data.");
         }
 
+        private static void SetMAARegimentCultures(List<Army> armies)
+        {
+            Program.Logger.Debug("Setting MAA regiment cultures...");
+            foreach (var army in armies)
+            {
+                if (army == null || army.Owner == null || army.Owner.GetCulture() == null) continue;
+                
+                string ownerCultureId = army.Owner.GetCulture().ID;
+                if (string.IsNullOrEmpty(ownerCultureId)) continue;
+
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null || armyRegiment.Type != RegimentType.MenAtArms) continue;
+
+                    foreach (var regiment in armyRegiment.Regiments)
+                    {
+                        if (regiment == null || (!string.IsNullOrEmpty(regiment.Culture?.ID))) continue;
+                        
+                        regiment.SetCulture(ownerCultureId);
+                        Program.Logger.Debug($"Set culture '{ownerCultureId}' for MAA regiment '{regiment.ID}' in army '{army.ID}'");
+                    }
+                }
+            }
+            Program.Logger.Debug("Finished setting MAA regiment cultures.");
+        }
+
         static Accolade? GetAccolade(string accoladeID)
         {
             Program.Logger.Debug($"Searching for accolade with ID: {accoladeID}");
