@@ -877,10 +877,10 @@ namespace CrusaderWars.data.save_file
                     if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
                     
                     // Get the total soldiers from the army regiment's starting number
-                    string? totalSoldiersStr = armyRegiment.GetStartingNum();
+                    string? totalSoldiersStr = armyRegiment.StartingNum;
                     if (string.IsNullOrEmpty(totalSoldiersStr))
                     {
-                        totalSoldiersStr = armyRegiment.GetCurrentNum();
+                        totalSoldiersStr = armyRegiment.CurrentNum;
                     }
                     
                     if (string.IsNullOrEmpty(totalSoldiersStr))
@@ -928,10 +928,10 @@ namespace CrusaderWars.data.save_file
                     if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
                     
                     // Get the total soldiers from the army regiment's starting number
-                    string? totalSoldiersStr = armyRegiment.GetStartingNum();
+                    string? totalSoldiersStr = armyRegiment.StartingNum;
                     if (string.IsNullOrEmpty(totalSoldiersStr))
                     {
-                        totalSoldiersStr = armyRegiment.GetCurrentNum();
+                        totalSoldiersStr = armyRegiment.CurrentNum;
                     }
                     
                     if (string.IsNullOrEmpty(totalSoldiersStr))
@@ -2079,7 +2079,11 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach(var army in attacker_armies)
                             {
-                                army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                var regToUpdate = army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment);
+                                if (regToUpdate != null)
+                                {
+                                    regToUpdate.StartingNum = startingNum;
+                                }
                             }
                         }
                     }
@@ -2090,7 +2094,11 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach (var army in defender_armies)
                             {
-                                army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                var regToUpdate = army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment);
+                                if (regToUpdate != null)
+                                {
+                                    regToUpdate.StartingNum = startingNum;
+                                }
                             }
                         }
                     }
