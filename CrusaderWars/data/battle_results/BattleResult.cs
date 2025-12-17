@@ -1145,10 +1145,14 @@ namespace CrusaderWars.data.battle_results
                                     if (searchData.isCommander)
                                     {
                                         healthResult = searchData.commander.Health(traitsLine, wasOnLosingSide);
+                                        searchData.commander.IsSlain = healthResult.isSlain;
+                                        searchData.commander.IsPrisoner = healthResult.isCaptured;
                                     }
                                     else // isKnight
                                     {
                                         healthResult = searchData.knight.Health(traitsLine, wasOnLosingSide);
+                                        searchData.knight.IsSlain = healthResult.isSlain;
+                                        searchData.knight.IsPrisoner = healthResult.isCaptured;
                                     }
                                     
                                     healthOutcomes[char_id] = healthResult;
@@ -1399,9 +1403,81 @@ namespace CrusaderWars.data.battle_results
             }
         }
 
+        private static double CalculateWarScore(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Calculating dynamic war score with 'Battle Impact' algorithm...");
+
+            var winningArmies = IsAttackerVictorious ? attacker_armies : defender_armies;
+            var losingArmies = IsAttackerVictorious ? defender_armies : attacker_armies;
+
+            // --- STAGE 1: Calculate Battle Impact Score (0-100) ---
+
+            // 1.1: Calculate Casualty Rates
+            double totalLosingStart = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalLosingEnd = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double loserCasualtyRate = (totalLosingStart > 0) ? (totalLosingStart - totalLosingEnd) / totalLosingStart : 0;
+
+            double totalWinningStart = winningArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalWinningEnd = winningArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double winnerCasualtyRate = (totalWinningStart > 0) ? (totalWinningStart - totalWinningEnd) / totalWinningStart : 0;
+
+            // 1.2: Calculate Impact Components
+            double casualtyImpact = loserCasualtyRate * 32.5;
+            double victoryMarginImpact = Math.Max(0, loserCasualtyRate - winnerCasualtyRate) * 10.0;
+            double characterImpact = 0;
+
+            foreach (var army in losingArmies)
+            {
+                if (army.Commander != null)
+                {
+                    if (army.Commander.IsMainCommander())
+                    {
+                        if (army.Commander.IsSlain) characterImpact += 15.0;
+                        else if (army.Commander.IsPrisoner) characterImpact += 10.0;
+                    }
+                    else // Other commanders
+                    {
+                        if (army.Commander.IsSlain) characterImpact += 1.5;
+                        else if (army.Commander.IsPrisoner) characterImpact += 0.75;
+                    }
+                }
+
+                if (army.Knights != null)
+                {
+                    foreach (var knight in army.Knights.GetKnightsList())
+                    {
+                        if (knight.IsSlain) characterImpact += 1.5;
+                        else if (knight.IsPrisoner) characterImpact += 0.75;
+                    }
+                }
+            }
+
+            double totalImpactScore = Math.Clamp(casualtyImpact + victoryMarginImpact + characterImpact, 0, 100);
+
+            Program.Logger.Debug($"Battle Impact Score: Casualty({casualtyImpact:F2}/32.5) + Margin({victoryMarginImpact:F2}/10) + Character({characterImpact:F2}) = {totalImpactScore:F2}");
+
+            // --- STAGE 2: Convert Impact Score to Final War Score ---
+            double normalizedImpact = totalImpactScore / 100.0;
+            double finalWarScore = Math.Pow(normalizedImpact, 2.2) * 75.0;
+
+            // Ensure a minimum score for any victory, but don't give points for a loss.
+            if (finalWarScore < 1.0 && totalImpactScore > 0) finalWarScore = 1.0;
+
+            finalWarScore = Math.Clamp(finalWarScore, 0, 75.0); // Clamp to a max of 75
+
+            Program.Logger.Debug($"Final Calculated War Score: {finalWarScore:F4}");
+
+            return finalWarScore;
+        }
+
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
+            double newWarScore = 0;
+            if (!twbattle.BattleState.IsSiegeBattle || twbattle.BattleState.HasReliefArmy)
+            {
+                newWarScore = CalculateWarScore(attacker_armies, defender_armies);
+            }
 
             bool inPlayerCombatResultBlock = false; // NEW: State flag to track if we are in the player's block
 
@@ -1462,7 +1538,14 @@ namespace CrusaderWars.data.battle_results
                         // 2b. If not the end of the block, run the original modification logic
                         else
                         {
-                            if (line == "\t\t\tattacker={")
+                            if (line.Trim().StartsWith("war_score=") && (!twbattle.BattleState.IsSiegeBattle || twbattle.BattleState.HasReliefArmy))
+                            {
+                                string edited_line = $"\t\t\twar_score={newWarScore.ToString("F4", CultureInfo.InvariantCulture)}";
+                                streamWriter.WriteLine(edited_line);
+                                Program.Logger.Debug($"Updated war_score to: {newWarScore:F4}");
+                                continue;
+                            }
+                            else if (line == "\t\t\tattacker={")
                             {
                                 isAttacker = true;
                                 isDefender = false;

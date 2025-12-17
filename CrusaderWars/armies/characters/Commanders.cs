@@ -39,8 +39,8 @@ namespace CrusaderWars
         private List<CourtPosition>? Employees { get; set; }
 
         public bool hasFallen { get; private set; }
-        public bool IsSlain { get; private set; }
-        public bool IsPrisoner { get; private set; }
+        public bool IsSlain { get; set; } = false;
+        public bool IsPrisoner { get; set; } = false;
         private bool MainCommander {  get; set; }
         private Accolade? Accolade { get; set; }
         private bool IsAccoladeCommander { get; set; }
@@ -388,7 +388,6 @@ namespace CrusaderWars
                 if (RandomNumber <= slainThreshold)
                 {
                     Program.Logger.Debug($"Commander {ID} has been slain in battle (chance: {slainChance}%).");
-                    IsSlain = true;
                     return (true, false, traits_line);
                 }
 
@@ -436,7 +435,6 @@ namespace CrusaderWars
                 isCaptured = prisonerRng <= effectivePrisonerChance;
                 if (isCaptured)
                 {
-                    IsPrisoner = true;
                     string side = wasOnLosingSide ? "losing" : "winning";
                     Program.Logger.Debug($"Commander {ID} has been captured from the {side} side (chance: {effectivePrisonerChance}%).");
                 }
