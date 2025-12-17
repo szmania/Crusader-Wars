@@ -259,6 +259,8 @@ namespace CrusaderWars.data.save_file
                 CreateKnights();
                 CreateMainCommanders();
                 ReadCharacters();
+                SetMAARegimentCultures(attacker_armies);
+                SetMAARegimentCultures(defender_armies);
                 ReadCourtPositions();
                 CheckForNullCultures();
                 ReadCultureManager();
