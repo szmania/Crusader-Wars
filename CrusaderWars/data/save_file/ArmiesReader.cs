@@ -240,6 +240,9 @@ namespace CrusaderWars.data.save_file
             ReadRegiments();
             ReadOriginsKeys();
 
+            // Correct regiment soldiers to use starting values from combat data
+            CorrectRegimentSoldiers();
+
             // Log army counts before proceeding
             Program.Logger.Debug($"Armies after initialization: attacker={attacker_armies.Count}, defender={defender_armies.Count}");
 
@@ -858,6 +861,115 @@ namespace CrusaderWars.data.save_file
                 }
             }
             Program.Logger.Debug("Finished reading origins keys.");
+        }
+
+        private static void CorrectRegimentSoldiers()
+        {
+            Program.Logger.Debug("Correcting regiment soldiers to use starting values from combat data...");
+            
+            // Process attacker armies
+            foreach (var army in attacker_armies)
+            {
+                if (army.ArmyRegiments == null) continue;
+                
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
+                    
+                    // Get the total soldiers from the army regiment's starting number
+                    string? totalSoldiersStr = armyRegiment.GetStartingNum();
+                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    {
+                        totalSoldiersStr = armyRegiment.GetCurrentNum();
+                    }
+                    
+                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    {
+                        Program.Logger.Debug($"No soldier count found for ArmyRegiment {armyRegiment.ID} in army {army.ID}");
+                        continue;
+                    }
+                    
+                    int totalSoldiers;
+                    if (!int.TryParse(totalSoldiersStr, out totalSoldiers))
+                    {
+                        Program.Logger.Debug($"Failed to parse soldier count '{totalSoldiersStr}' for ArmyRegiment {armyRegiment.ID}");
+                        continue;
+                    }
+                    
+                    // Distribute the total soldiers to the first regiment and zero out the rest
+                    for (int i = 0; i < armyRegiment.Regiments.Count; i++)
+                    {
+                        var regiment = armyRegiment.Regiments[i];
+                        if (regiment == null) continue;
+                        
+                        if (i == 0)
+                        {
+                            // Assign all soldiers to the first regiment
+                            regiment.SetSoldiers(totalSoldiers.ToString());
+                            Program.Logger.Debug($"Set {totalSoldiers} soldiers for first regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                        }
+                        else
+                        {
+                            // Zero out the rest
+                            regiment.SetSoldiers("0");
+                            Program.Logger.Debug($"Zeroed soldiers for additional regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                        }
+                    }
+                }
+            }
+            
+            // Process defender armies
+            foreach (var army in defender_armies)
+            {
+                if (army.ArmyRegiments == null) continue;
+                
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
+                    
+                    // Get the total soldiers from the army regiment's starting number
+                    string? totalSoldiersStr = armyRegiment.GetStartingNum();
+                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    {
+                        totalSoldiersStr = armyRegiment.GetCurrentNum();
+                    }
+                    
+                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    {
+                        Program.Logger.Debug($"No soldier count found for ArmyRegiment {armyRegiment.ID} in army {army.ID}");
+                        continue;
+                    }
+                    
+                    int totalSoldiers;
+                    if (!int.TryParse(totalSoldiersStr, out totalSoldiers))
+                    {
+                        Program.Logger.Debug($"Failed to parse soldier count '{totalSoldiersStr}' for ArmyRegiment {armyRegiment.ID}");
+                        continue;
+                    }
+                    
+                    // Distribute the total soldiers to the first regiment and zero out the rest
+                    for (int i = 0; i < armyRegiment.Regiments.Count; i++)
+                    {
+                        var regiment = armyRegiment.Regiments[i];
+                        if (regiment == null) continue;
+                        
+                        if (i == 0)
+                        {
+                            // Assign all soldiers to the first regiment
+                            regiment.SetSoldiers(totalSoldiers.ToString());
+                            Program.Logger.Debug($"Set {totalSoldiers} soldiers for first regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                        }
+                        else
+                        {
+                            // Zero out the rest
+                            regiment.SetSoldiers("0");
+                            Program.Logger.Debug($"Zeroed soldiers for additional regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                        }
+                    }
+                }
+            }
+            
+            Program.Logger.Debug("Finished correcting regiment soldiers.");
         }
 
         static void SetRegimentsOriginsKeys(string title_id, string originKey)
