@@ -3094,5 +3094,100 @@ namespace CrusaderWars.data.battle_results
             }
             Program.Logger.Debug("************************************************************************************");
         }
+
+        public static void EditWarsFile(List<Army> attacker_armies, List<Army> defender_armies, double warScoreChange)
+        {
+            Program.Logger.Debug("Editing Wars file...");
+            if (string.IsNullOrEmpty(WarID))
+            {
+                Program.Logger.Debug("WarID is not set. Skipping Wars file edit and copying original to temp.");
+                if (File.Exists(Writter.DataFilesPaths.Wars_Path()))
+                {
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                }
+                return;
+            }
+
+            try
+            {
+                string warsContent = File.ReadAllText(Writter.DataFilesPaths.Wars_Path());
+                
+                string warBlockPattern = $@"^\t\t{WarID}={{([\s\S]*?)^\t\t}}";
+                Match warBlockMatch = Regex.Match(warsContent, warBlockPattern, RegexOptions.Multiline);
+
+                if (!warBlockMatch.Success)
+                {
+                    Program.Logger.Debug($"Could not find war block for WarID: {WarID}. Skipping edit.");
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                    return;
+                }
+
+                string originalWarBlock = warBlockMatch.Value;
+                string warBlockContent = originalWarBlock;
+
+                // Determine if the battle winner is on the war attacker's side
+                var warAttackersMatch = Regex.Match(warBlockContent, @"attackers={\s*([\d\s]+)\s*}");
+                if (!warAttackersMatch.Success)
+                {
+                    Program.Logger.Debug($"Could not find attackers list in war block for WarID: {WarID}. Skipping edit.");
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                    return;
+                }
+
+                var warAttackerIds = new HashSet<string>(warAttackersMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                
+                string leftSideParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                bool isLeftSideWarAttacker = warAttackerIds.Contains(leftSideParticipantId);
+
+                var left_side_armies = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
+                bool isBattleAttackerLeftSide = (left_side_armies == attacker_armies);
+
+                bool isWinnerLeftSide = (IsAttackerVictorious && isBattleAttackerLeftSide) || (!IsAttackerVictorious && !isBattleAttackerLeftSide);
+
+                bool winnerIsWarAttacker = (isWinnerLeftSide && isLeftSideWarAttacker) || (!isWinnerLeftSide && !isLeftSideWarAttacker);
+
+                var warScoreMatch = Regex.Match(warBlockContent, @"(war_score={\s*)([\d\.-]+)\s+([\d\.-]+)(\s*})");
+                if (!warScoreMatch.Success)
+                {
+                    Program.Logger.Debug($"Could not find war_score in war block for WarID: {WarID}. Skipping edit.");
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                    return;
+                }
+
+                double currentAttackerScore = double.Parse(warScoreMatch.Groups[2].Value, CultureInfo.InvariantCulture);
+                double currentDefenderScore = double.Parse(warScoreMatch.Groups[3].Value, CultureInfo.InvariantCulture);
+
+                double newAttackerScore, newDefenderScore;
+
+                if (winnerIsWarAttacker)
+                {
+                    newAttackerScore = currentAttackerScore + warScoreChange;
+                    newDefenderScore = currentDefenderScore - warScoreChange;
+                    Program.Logger.Debug($"Winner is war attacker. Adding {warScoreChange} to war score.");
+                }
+                else
+                {
+                    newAttackerScore = currentAttackerScore - warScoreChange;
+                    newDefenderScore = currentDefenderScore + warScoreChange;
+                    Program.Logger.Debug($"Winner is war defender. Subtracting {warScoreChange} from war score.");
+                }
+
+                newAttackerScore = Math.Clamp(newAttackerScore, -100.0, 100.0);
+                newDefenderScore = Math.Clamp(newDefenderScore, -100.0, 100.0);
+
+                string newWarScoreLine = $"{warScoreMatch.Groups[1].Value}{newAttackerScore.ToString("F4", CultureInfo.InvariantCulture)} {newDefenderScore.ToString("F4", CultureInfo.InvariantCulture)}{warScoreMatch.Groups[4].Value}";
+                
+                string updatedWarBlock = warBlockContent.Replace(warScoreMatch.Value, newWarScoreLine);
+                string updatedWarsContent = warsContent.Replace(originalWarBlock, updatedWarBlock);
+
+                File.WriteAllText(Writter.DataTEMPFilesPaths.Wars_Path(), updatedWarsContent);
+                Program.Logger.Debug($"Successfully updated war score for WarID {WarID}. New score: Attacker={newAttackerScore:F4}, Defender={newDefenderScore:F4}");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error editing Wars file: {ex.Message}. Copying original to temp.");
+                File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+            }
+        }
     }
 }
