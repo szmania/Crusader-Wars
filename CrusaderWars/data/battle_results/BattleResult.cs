@@ -1471,18 +1471,70 @@ namespace CrusaderWars.data.battle_results
             return finalWarScore;
         }
 
+        private static double CalculatePrestige(double warScore, List<Army> losingArmies)
+        {
+            // Calculate total size of losing armies from their starting casualties
+            double totalLosingArmySize = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>())
+                                                     .Sum(r => (double)r.GetStarting());
+
+            // Calculate prestige based on war score and size of defeated force
+            double prestige = (warScore * 5.0) + (totalLosingArmySize / 200.0);
+            
+            // Clamp prestige to reasonable values
+            prestige = Math.Max(5.0, Math.Min(500.0, prestige));
+            
+            Program.Logger.Debug($"Calculated prestige award: {prestige:F2} (War Score: {warScore:F2}, Losing Army Size: {totalLosingArmySize:F0})");
+            return prestige;
+        }
+
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
             WarScoreValue = null;
-            double newWarScore = 0;
-            if (!twbattle.BattleState.IsSiegeBattle || twbattle.BattleState.HasReliefArmy)
+            
+            // Calculate war score unconditionally for all battle types
+            double newWarScore = CalculateWarScore(attacker_armies, defender_armies);
+            WarScoreValue = newWarScore;
+            
+            // Determine winning side value (0 for attacker, 1 for defender)
+            string winningSideValue = IsAttackerVictorious ? "0" : "1";
+            
+            // Determine the winning participant ID
+            string winningParticipantId = "";
+            var left_side_armies = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
+            if (IsAttackerVictorious)
             {
-                newWarScore = CalculateWarScore(attacker_armies, defender_armies);
-                WarScoreValue = newWarScore;
+                // Attacker won - check if player was on attacker side
+                if (left_side_armies == attacker_armies)
+                {
+                    winningParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                }
+                else
+                {
+                    winningParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
+                }
             }
+            else
+            {
+                // Defender won - check if player was on defender side
+                if (left_side_armies == defender_armies)
+                {
+                    winningParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                }
+                else
+                {
+                    winningParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
+                }
+            }
+            
+            // Determine losing armies for prestige calculation
+            var losingArmies = IsAttackerVictorious ? defender_armies : attacker_armies;
+            
+            // Calculate prestige to award
+            double prestigeAward = CalculatePrestige(newWarScore, losingArmies);
 
             bool inPlayerCombatResultBlock = false; // NEW: State flag to track if we are in the player's block
+            bool warScoreUpdated = false; // Track if war_score was updated
 
             // The original line-by-line logic is stateful and complex to convert to Regex.
             // We will keep it, but ensure it reads from the full, uncorrupted file and writes to the temp file.
@@ -1525,6 +1577,24 @@ namespace CrusaderWars.data.battle_results
                         // 2a. Check if we should STOP processing (end of block)
                         if (line == "\t\t}")
                         {
+                            // Inject new summary fields before closing the block
+                            if (!warScoreUpdated)
+                            {
+                                streamWriter.WriteLine($"\t\t\twar_score={newWarScore.ToString("F4", CultureInfo.InvariantCulture)}");
+                                Program.Logger.Debug($"Added war_score: {newWarScore:F4}");
+                            }
+                            
+                            streamWriter.WriteLine($"\t\t\twinning_side={winningSideValue}");
+                            streamWriter.WriteLine($"\t\t\tend_date={Date.Year}.{Date.Month}.{Date.Day}");
+                            
+                            // Write the prestige result block
+                            streamWriter.WriteLine("\t\t\tresult={");
+                            streamWriter.WriteLine($"\t\t\t\tprestige={prestigeAward:F2}");
+                            streamWriter.WriteLine("\t\t\t}");
+                            
+                            streamWriter.WriteLine($"\t\t\twin=yes");
+                            streamWriter.WriteLine($"\t\t\tleader={winningParticipantId}");
+                            
                             inPlayerCombatResultBlock = false;
                             Program.Logger.Debug($"Exiting player combat result block ID: {BattleResult.ResultID}");
                             
@@ -1537,16 +1607,37 @@ namespace CrusaderWars.data.battle_results
                             knightID = "";
                             currentParticipantId = null;
                             currentArmy = null;
+                            warScoreUpdated = false;
                         }
                         // 2b. If not the end of the block, run the original modification logic
                         else
                         {
-                            if (line.Trim().StartsWith("war_score=") && (!twbattle.BattleState.IsSiegeBattle || twbattle.BattleState.HasReliefArmy))
+                            if (line.Trim().StartsWith("war_score="))
                             {
                                 string edited_line = $"\t\t\twar_score={newWarScore.ToString("F4", CultureInfo.InvariantCulture)}";
                                 streamWriter.WriteLine(edited_line);
                                 Program.Logger.Debug($"Updated war_score to: {newWarScore:F4}");
+                                warScoreUpdated = true;
                                 continue;
+                            }
+                            // Skip writing old summary fields to prevent duplicates
+                            else if (line.Trim().StartsWith("end_date=") ||
+                                     line.Trim().StartsWith("winning_side=") ||
+                                     line.Trim().StartsWith("win=") ||
+                                     line.Trim().StartsWith("leader="))
+                            {
+                                continue; // Skip writing the old line
+                            }
+                            else if (line.Trim().StartsWith("result={"))
+                            {
+                                // This block skips a multi-line result block
+                                int braceCount = 1;
+                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                                {
+                                    braceCount += line.Count(c => c == '{');
+                                    braceCount -= line.Count(c => c == '}');
+                                }
+                                continue; // Skip to the line after the result block
                             }
                             else if (line == "\t\t\tattacker={")
                             {
