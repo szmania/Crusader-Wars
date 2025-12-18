@@ -2199,20 +2199,24 @@ namespace CrusaderWars.data.battle_results
             int total = 0;
             foreach (Army army in armies)
             {
-                if (army.IsGarrison())
+                if (army.CasualitiesReports == null) continue;
+
+                // Sum remaining levy soldiers from casualty reports for consistency
+                foreach (var report in army.CasualitiesReports)
                 {
-                    // For garrisons, levies are part of the Units list
-                    total += army.Units.Where(u => u != null && u.GetRegimentType() == RegimentType.Levy).Sum(u => u.GetSoldiers());
-                }
-                else
-                {
-                    // For field armies, levies are part of ArmyRegiments
-                    if (army.ArmyRegiments == null) continue;
-                    total += army.ArmyRegiments.Where(y => y != null && y.Type == RegimentType.Levy).Sum(x => x.CurrentNum);
+                    if (report.GetUnitType() == RegimentType.Levy)
+                    {
+                        int remaining = report.GetAliveAfterPursuit();
+                        if (remaining == -1) // If no pursuit data, use main phase data
+                        {
+                            remaining = report.GetAliveBeforePursuit();
+                        }
+                        total += remaining;
+                    }
                 }
             }
 
-            Program.Logger.Debug($"Calculated total levy men for armies: {total}");
+            Program.Logger.Debug($"Calculated total levy men for armies (from CasualitiesReports): {total}");
             return total;
         }
 
@@ -3257,17 +3261,58 @@ namespace CrusaderWars.data.battle_results
                 newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker_initiated={attackerInitiated}");
                 newBattleResultEntry.Append("\t\t\t\t}");
 
-                // Find and update the battle_results block
-                var battleResultsMatch = Regex.Match(warBlockContent, @"(battle_results\s*=\s*{)([\s\S]*?)\s*}");
-                if (battleResultsMatch.Success)
+                // Find and update the battle_results block using brace counting
+                int battleResultsStartIndex = warBlockContent.IndexOf("battle_results={");
+                if (battleResultsStartIndex != -1)
                 {
-                    string openingPart = battleResultsMatch.Groups[1].Value;
-                    string existingContent = battleResultsMatch.Groups[2].Value;
-                    string newBattleResultsBlock = $"{openingPart}{existingContent.TrimEnd()} {newBattleResultEntry} }}";
-                    warBlockContent = warBlockContent.Replace(battleResultsMatch.Value, newBattleResultsBlock);
-                    Program.Logger.Debug($"Appended new battle result entry to existing battle_results list for WarID {WarID}.");
+                    int braceCount = 0;
+                    int currentIndex = battleResultsStartIndex;
+                    bool foundEnd = false;
+
+                    while (currentIndex < warBlockContent.Length)
+                    {
+                        if (warBlockContent[currentIndex] == '{')
+                        {
+                            braceCount++;
+                        }
+                        else if (warBlockContent[currentIndex] == '}')
+                        {
+                            braceCount--;
+                            if (braceCount == 0)
+                            {
+                                // Found the matching closing brace for battle_results={
+                                // Insert the new entry just before this closing brace
+                                string beforeInsert = warBlockContent.Substring(0, currentIndex);
+                                string afterInsert = warBlockContent.Substring(currentIndex);
+                                warBlockContent = beforeInsert + " " + newBattleResultEntry.ToString().Trim() + afterInsert;
+                                foundEnd = true;
+                                Program.Logger.Debug($"Appended new battle result entry to existing battle_results list for WarID {WarID} using brace counting.");
+                                break;
+                            }
+                        }
+                        currentIndex++;
+                    }
+
+                    if (!foundEnd)
+                    {
+                        Program.Logger.Debug($"Warning: Could not find end of battle_results block for WarID {WarID} using brace counting. Appending using fallback method.");
+                        // Fallback: try regex again if brace counting somehow failed
+                        var battleResultsMatch = Regex.Match(warBlockContent, @"(battle_results\s*=\s*{)([\s\S]*?)\s*}");
+                        if (battleResultsMatch.Success)
+                        {
+                            string openingPart = battleResultsMatch.Groups[1].Value;
+                            string existingContent = battleResultsMatch.Groups[2].Value;
+                            string newBattleResultsBlock = $"{openingPart}{existingContent.TrimEnd()} {newBattleResultEntry} }}";
+                            warBlockContent = warBlockContent.Replace(battleResultsMatch.Value, newBattleResultsBlock);
+                            Program.Logger.Debug($"Appended new battle result entry to existing battle_results list for WarID {WarID} using fallback regex.");
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Fallback regex also failed for WarID {WarID}. Skipping battle_results update.");
+                        }
+                    }
                 }
-                else
+                else // battle_results block does not exist, create it
                 {
                     // Find the attacker block to insert before it
                     int attackerBlockIndex = warBlockContent.IndexOf("\t\t\tattacker={");
@@ -3275,7 +3320,7 @@ namespace CrusaderWars.data.battle_results
                     {
                         var newBattleResultsBlock = new StringBuilder();
                         newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
-                        newBattleResultsBlock.AppendLine($"\t\t\t\t{newBattleResultEntry.ToString().Trim()}");
+                        newBattleResultsBlock.AppendLine(newBattleResultEntry.ToString()); // Use pre-formatted entry
                         newBattleResultsBlock.Append("\t\t\t}");
                         
                         warBlockContent = warBlockContent.Insert(attackerBlockIndex, newBattleResultsBlock.ToString());
@@ -3287,7 +3332,7 @@ namespace CrusaderWars.data.battle_results
                         // As a fallback, insert before the closing brace of the war block
                         var newBattleResultsBlock = new StringBuilder();
                         newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
-                        newBattleResultsBlock.AppendLine($"\t\t\t\t{newBattleResultEntry.ToString().Trim()}");
+                        newBattleResultsBlock.AppendLine(newBattleResultEntry.ToString()); // Use pre-formatted entry
                         newBattleResultsBlock.Append("\t\t\t}");
                         
                         warBlockContent = warBlockContent.Insert(warBlockContent.LastIndexOf('}'), newBattleResultsBlock.ToString());
