@@ -353,6 +353,94 @@ namespace CrusaderWars.data.save_file
             }
         }
 
+        public static string? FindWarID()
+        {
+            Program.Logger.Debug("Finding WarID by matching battle participants with war participants...");
+            
+            try
+            {
+                // Get the main participants from the current battle log data
+                string leftParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                string rightParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
+                
+                if (string.IsNullOrEmpty(leftParticipantId) || string.IsNullOrEmpty(rightParticipantId))
+                {
+                    Program.Logger.Debug("Could not find main participants in CK3LogData. Cannot determine WarID.");
+                    return null;
+                }
+                
+                Program.Logger.Debug($"Battle participants - Left: {leftParticipantId}, Right: {rightParticipantId}");
+                
+                // Read the Wars.txt file
+                string warsFilePath = Writter.DataFilesPaths.Wars_Path();
+                if (!File.Exists(warsFilePath))
+                {
+                    Program.Logger.Debug($"Wars file not found at {warsFilePath}. Cannot determine WarID.");
+                    return null;
+                }
+                
+                string warsContent = File.ReadAllText(warsFilePath);
+                
+                // Split content into individual war blocks
+                // This regex looks for patterns like "123={ ... }" at the top level
+                string[] warBlocks = Regex.Split(warsContent, @"(?=^\s*\d+={)", RegexOptions.Multiline);
+                
+                foreach (string warBlock in warBlocks)
+                {
+                    if (string.IsNullOrWhiteSpace(warBlock)) continue;
+                    
+                    // Extract the WarID from the block header
+                    Match warIdMatch = Regex.Match(warBlock, @"^\s*(\d+)={");
+                    if (!warIdMatch.Success) continue;
+                    
+                    string warId = warIdMatch.Groups[1].Value;
+                    Program.Logger.Debug($"Checking war ID: {warId}");
+                    
+                    // Extract attacker and defender participant lists
+                    var attackerParticipants = new HashSet<string>();
+                    var defenderParticipants = new HashSet<string>();
+                    
+                    // Find attacker block and extract participants
+                    Match attackerMatch = Regex.Match(warBlock, @"attacker={([^}]*)participants={([^}]*)}", RegexOptions.Singleline);
+                    if (attackerMatch.Success)
+                    {
+                        foreach (Match charMatch in Regex.Matches(attackerMatch.Groups[2].Value, @"character=(\d+)"))
+                        {
+                            attackerParticipants.Add(charMatch.Groups[1].Value);
+                        }
+                    }
+                    
+                    // Find defender block and extract participants
+                    Match defenderMatch = Regex.Match(warBlock, @"defender={([^}]*)participants={([^}]*)}", RegexOptions.Singleline);
+                    if (defenderMatch.Success)
+                    {
+                        foreach (Match charMatch in Regex.Matches(defenderMatch.Groups[2].Value, @"character=(\d+)"))
+                        {
+                            defenderParticipants.Add(charMatch.Groups[1].Value);
+                        }
+                    }
+                    
+                    // Check if battle participants are on opposite sides in this war
+                    bool isMatch = (attackerParticipants.Contains(leftParticipantId) && defenderParticipants.Contains(rightParticipantId)) ||
+                                  (defenderParticipants.Contains(leftParticipantId) && attackerParticipants.Contains(rightParticipantId));
+                    
+                    if (isMatch)
+                    {
+                        Program.Logger.Debug($"Found matching war. WarID: {warId}");
+                        return warId;
+                    }
+                }
+                
+                Program.Logger.Debug("No matching war found for the current battle participants.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error finding WarID: {ex.Message}");
+                return null;
+            }
+        }
+
 
         static void ClearNullArmyRegiments()
         {

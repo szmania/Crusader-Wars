@@ -60,7 +60,7 @@ namespace CrusaderWars.twbattle
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
         {
-            BattleResult.WarID = CK3LogData.WarID;
+            BattleResult.WarID = ArmiesReader.FindWarID();
             Program.Logger.Debug("--- BattleProcessor: Checking for Deployment Zone Overrides ---");
             if (BattleState.DeploymentZoneOverrideAttacker != null)
             {
