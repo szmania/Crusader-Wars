@@ -3146,42 +3146,48 @@ namespace CrusaderWars.data.battle_results
 
                 bool winnerIsWarAttacker = (isWinnerLeftSide && isLeftSideWarAttacker) || (!isWinnerLeftSide && !isLeftSideWarAttacker);
 
-                var warScoreMatch = Regex.Match(warBlockContent, @"(war_score={\s*)([\d\.-]+)\s+([\d\.-]+)(\s*})");
-                if (!warScoreMatch.Success)
+                // Gather participant information for the battle results entry
+                string warAttackerOwnerId = isLeftSideWarAttacker ? CK3LogData.LeftSide.GetMainParticipant().id : CK3LogData.RightSide.GetMainParticipant().id;
+                string warAttackerCommanderId = isLeftSideWarAttacker ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
+                string warDefenderOwnerId = !isLeftSideWarAttacker ? CK3LogData.LeftSide.GetMainParticipant().id : CK3LogData.RightSide.GetMainParticipant().id;
+                string warDefenderCommanderId = !isLeftSideWarAttacker ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
+
+                // Construct the new battle result entry
+                string attackerWon = winnerIsWarAttacker ? "yes" : "no";
+                string attackerInitiated = isLeftSideWarAttacker ? "yes" : "no";
+                string newBattleResultEntry = $"{{ attacker={{ commander={warAttackerCommanderId} owner={warAttackerOwnerId} size=0 }} defender={{ commander={warDefenderCommanderId} owner={warDefenderOwnerId} size=0 }} province={ProvinceID} war_score={warScoreChange:F4} attacker_won={attackerWon} attacker_initiated={attackerInitiated} }}";
+
+                // Find and update the battle_results block
+                var battleResultsMatch = Regex.Match(warBlockContent, @"(battle_results\s*=\s*{)([\s\S]*?)\s*}");
+                if (battleResultsMatch.Success)
                 {
-                    Program.Logger.Debug($"Could not find war_score in war block for WarID: {WarID}. Skipping edit.");
-                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
-                    return;
-                }
-
-                double currentAttackerScore = double.Parse(warScoreMatch.Groups[2].Value, CultureInfo.InvariantCulture);
-                double currentDefenderScore = double.Parse(warScoreMatch.Groups[3].Value, CultureInfo.InvariantCulture);
-
-                double newAttackerScore, newDefenderScore;
-
-                if (winnerIsWarAttacker)
-                {
-                    newAttackerScore = currentAttackerScore + warScoreChange;
-                    newDefenderScore = currentDefenderScore - warScoreChange;
-                    Program.Logger.Debug($"Winner is war attacker. Adding {warScoreChange} to war score.");
+                    string openingPart = battleResultsMatch.Groups[1].Value;
+                    string existingContent = battleResultsMatch.Groups[2].Value;
+                    string newBattleResultsBlock = $"{openingPart} {newBattleResultEntry}{existingContent} }}";
+                    warBlockContent = warBlockContent.Replace(battleResultsMatch.Value, newBattleResultsBlock);
+                    Program.Logger.Debug($"Prepended new battle result entry to existing battle_results list for WarID {WarID}.");
                 }
                 else
                 {
-                    newAttackerScore = currentAttackerScore - warScoreChange;
-                    newDefenderScore = currentDefenderScore + warScoreChange;
-                    Program.Logger.Debug($"Winner is war defender. Subtracting {warScoreChange} from war score.");
+                    // Find the attacker block to insert before it
+                    int attackerBlockIndex = warBlockContent.IndexOf("\t\t\tattacker={");
+                    if (attackerBlockIndex != -1)
+                    {
+                        string newBattleResultsBlock = $"\t\t\tbattle_results={{ {newBattleResultEntry} }}\n";
+                        warBlockContent = warBlockContent.Insert(attackerBlockIndex, newBattleResultsBlock);
+                        Program.Logger.Debug($"Created new battle_results list and added entry for WarID {WarID}.");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Could not find attacker block to insert battle_results for WarID {WarID}. Appending to end of war block.");
+                        // As a fallback, insert before the closing brace of the war block
+                        warBlockContent = warBlockContent.Insert(warBlockContent.LastIndexOf('}'), $"\t\t\tbattle_results={{ {newBattleResultEntry} }}\n");
+                    }
                 }
 
-                newAttackerScore = Math.Clamp(newAttackerScore, -100.0, 100.0);
-                newDefenderScore = Math.Clamp(newDefenderScore, -100.0, 100.0);
-
-                string newWarScoreLine = $"{warScoreMatch.Groups[1].Value}{newAttackerScore.ToString("F4", CultureInfo.InvariantCulture)} {newDefenderScore.ToString("F4", CultureInfo.InvariantCulture)}{warScoreMatch.Groups[4].Value}";
-                
-                string updatedWarBlock = warBlockContent.Replace(warScoreMatch.Value, newWarScoreLine);
-                string updatedWarsContent = warsContent.Replace(originalWarBlock, updatedWarBlock);
-
+                string updatedWarsContent = warsContent.Replace(originalWarBlock, warBlockContent);
                 File.WriteAllText(Writter.DataTEMPFilesPaths.Wars_Path(), updatedWarsContent);
-                Program.Logger.Debug($"Successfully updated war score for WarID {WarID}. New score: Attacker={newAttackerScore:F4}, Defender={newDefenderScore:F4}");
+                Program.Logger.Debug($"Successfully appended battle result entry for WarID {WarID}. Entry: {newBattleResultEntry}");
             }
             catch (Exception ex)
             {
