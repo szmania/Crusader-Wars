@@ -2430,7 +2430,7 @@ namespace CrusaderWars.data.battle_results
                         if (searchingData.editStarted)
                         {
                             editStarted = true;
-                            editRegiment = searchingData.editRegiment;
+                            editRegiment = searchingData.foundRegiment;
                             parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
                             Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Attacker).");
                         }
@@ -2440,7 +2440,7 @@ namespace CrusaderWars.data.battle_results
                             if (searchingData.editStarted)
                             {
                                 editStarted = true;
-                                editRegiment = searchingData.editRegiment;
+                                editRegiment = searchingData.foundRegiment;
                                 parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
                                 Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Defender).");
                             }
@@ -2525,11 +2525,11 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug("Finished editing Regiments file.");
         }
 
-        static (bool editStarted, Regiment? editRegiment, ArmyRegiment? parentArmyRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
+        static (bool editStarted, Regiment? foundRegiment, ArmyRegiment? parentArmyRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
         {
             // Program.Logger.Debug($"Searching for Regiment ID: {regiment_id} in Regiments file.");
             bool editStarted = false;
-            Regiment? editRegiment = null;
+            Regiment? foundRegiment = null;
             ArmyRegiment? parentArmyRegiment = null;
 
             foreach (Army army in armies)
@@ -2546,10 +2546,10 @@ namespace CrusaderWars.data.battle_results
                         if (regiment.ID == regiment_id)
                         {
                             editStarted = true;
-                            editRegiment = regiment;
+                            foundRegiment = regiment;
                             parentArmyRegiment = armyRegiment;
                             Program.Logger.Debug($"Found Regiment {regiment_id} with parent ArmyRegiment {armyRegiment.ID}.");
-                            return (editStarted, editRegiment, parentArmyRegiment);
+                            return (editStarted, foundRegiment, parentArmyRegiment);
                         }
                     }
                 }
