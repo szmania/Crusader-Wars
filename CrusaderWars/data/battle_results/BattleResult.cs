@@ -3126,15 +3126,30 @@ namespace CrusaderWars.data.battle_results
                 string warBlockContent = originalWarBlock;
 
                 // Determine if the battle winner is on the war attacker's side
-                var warAttackersMatch = Regex.Match(warBlockContent, @"attacker={\s*([\d\s]+)\s*}");
-                if (!warAttackersMatch.Success)
+                // Improved regex to capture the full attacker block content
+                var warAttackersBlockMatch = Regex.Match(warBlockContent, @"attacker\s*=\s*({[\s\S]*?})\s*defender\s*=\s*{", RegexOptions.Multiline);
+                if (!warAttackersBlockMatch.Success)
                 {
-                    Program.Logger.Debug($"Could not find attackers list in war block for WarID: {WarID}. Skipping edit.");
+                    Program.Logger.Debug($"Could not find or parse the attacker block in war block for WarID: {WarID}. Skipping edit.");
                     File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
                     return;
                 }
+                string attackerBlockContent = warAttackersBlockMatch.Groups[1].Value;
 
-                var warAttackerIds = new HashSet<string>(warAttackersMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                // Extract character IDs from the attacker block content
+                var warAttackerIds = new HashSet<string>();
+                foreach (Match charMatch in Regex.Matches(attackerBlockContent, @"character=(\d+)"))
+                {
+                    warAttackerIds.Add(charMatch.Groups[1].Value);
+                }
+
+                // Check if any attackers were found
+                if (!warAttackerIds.Any())
+                {
+                    Program.Logger.Debug($"No attacker participants found in parsed attacker block for WarID: {WarID}. Skipping edit.");
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                    return;
+                }
                 
                 string leftSideParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
                 bool isLeftSideWarAttacker = warAttackerIds.Contains(leftSideParticipantId);

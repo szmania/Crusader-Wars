@@ -396,25 +396,29 @@ namespace CrusaderWars.data.save_file
                     string warId = warIdMatch.Groups[1].Value;
                     Program.Logger.Debug($"Checking war ID: {warId}");
                     
-                    // Extract attacker and defender participant lists
+                    // Extract attacker and defender participant lists using robust block parsing
                     var attackerParticipants = new HashSet<string>();
                     var defenderParticipants = new HashSet<string>();
                     
-                    // Find attacker block and extract participants
-                    Match attackerMatch = Regex.Match(warBlock, @"attacker={([^}]*)participants={([^}]*)}", RegexOptions.Singleline);
-                    if (attackerMatch.Success)
+                    // Find attacker block content and extract participants
+                    // Using the 'defender' block as a delimiter to capture the full attacker block
+                    Match attackerBlockMatch = Regex.Match(warBlock, @"attacker\s*=\s*({[\s\S]*?})\s*defender\s*=\s*{", RegexOptions.Multiline);
+                    if (attackerBlockMatch.Success)
                     {
-                        foreach (Match charMatch in Regex.Matches(attackerMatch.Groups[2].Value, @"character=(\d+)"))
+                        string attackerBlockContent = attackerBlockMatch.Groups[1].Value;
+                        foreach (Match charMatch in Regex.Matches(attackerBlockContent, @"character=(\d+)"))
                         {
                             attackerParticipants.Add(charMatch.Groups[1].Value);
                         }
                     }
                     
-                    // Find defender block and extract participants
-                    Match defenderMatch = Regex.Match(warBlock, @"defender={([^}]*)participants={([^}]*)}", RegexOptions.Singleline);
-                    if (defenderMatch.Success)
+                    // Find defender block content and extract participants
+                    // Using the 'start_date' as a delimiter to capture the full defender block
+                    Match defenderBlockMatch = Regex.Match(warBlock, @"defender\s*=\s*({[\s\S]*?})\s*start_date\s*=", RegexOptions.Multiline);
+                    if (defenderBlockMatch.Success)
                     {
-                        foreach (Match charMatch in Regex.Matches(defenderMatch.Groups[2].Value, @"character=(\d+)"))
+                        string defenderBlockContent = defenderBlockMatch.Groups[1].Value;
+                        foreach (Match charMatch in Regex.Matches(defenderBlockContent, @"character=(\d+)"))
                         {
                             defenderParticipants.Add(charMatch.Groups[1].Value);
                         }
