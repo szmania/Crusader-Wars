@@ -613,7 +613,7 @@ namespace CrusaderWars.data.battle_results
                     {
                         // NEW LOGIC: Proportional casualties for all siege weapon types
                         int finalMachineCount = 0;
-                        int originalMachines = Int32.Parse(regiment.CurrentNum);
+                        int originalMachines = Int32.Parse(regiment.Max);
 
                         if (correspondingUnit != null && unitReport != null && unitReport.GetStarting() > 0)
                         {
