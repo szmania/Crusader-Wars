@@ -330,6 +330,14 @@ namespace CrusaderWars.data.battle_results
             GC.Collect();
         }
 
+        public static void CalculateAndSetWarScore(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Calculating and setting war score...");
+            double newWarScore = CalculateWarScore(attacker_armies, defender_armies);
+            WarScoreValue = newWarScore;
+            Program.Logger.Debug($"War score calculated and set to: {newWarScore}");
+        }
+
 
 
 
@@ -1490,11 +1498,21 @@ namespace CrusaderWars.data.battle_results
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
-            WarScoreValue = null;
             
-            // Calculate war score unconditionally for all battle types
-            double newWarScore = CalculateWarScore(attacker_armies, defender_armies);
-            WarScoreValue = newWarScore;
+            // Use pre-calculated war score if available, otherwise calculate it
+            double newWarScore;
+            if (WarScoreValue.HasValue)
+            {
+                newWarScore = WarScoreValue.Value;
+                Program.Logger.Debug($"Using pre-calculated war score: {newWarScore}");
+            }
+            else
+            {
+                // Fallback calculation if somehow WarScoreValue is null
+                newWarScore = CalculateWarScore(attacker_armies, defender_armies);
+                WarScoreValue = newWarScore;
+                Program.Logger.Debug($"Calculated war score (fallback): {newWarScore}");
+            }
             
             // Determine winning side value (0 for attacker, 1 for defender)
             string winningSideValue = IsAttackerVictorious ? "0" : "1";
