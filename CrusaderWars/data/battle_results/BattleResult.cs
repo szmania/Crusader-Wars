@@ -2196,27 +2196,12 @@ namespace CrusaderWars.data.battle_results
 
         static int GetArmiesTotalLevyMen(List<Army> armies)
         {
-            int total = 0;
-            foreach (Army army in armies)
-            {
-                if (army.CasualitiesReports == null) continue;
+            int total = armies.Where(army => army?.ArmyRegiments != null)
+                              .SelectMany(army => army.ArmyRegiments)
+                              .Where(ar => ar != null && ar.Type == RegimentType.Levy)
+                              .Sum(ar => ar.CurrentNum);
 
-                // Sum remaining levy soldiers from casualty reports for consistency
-                foreach (var report in army.CasualitiesReports)
-                {
-                    if (report.GetUnitType() == RegimentType.Levy)
-                    {
-                        int remaining = report.GetAliveAfterPursuit();
-                        if (remaining == -1) // If no pursuit data, use main phase data
-                        {
-                            remaining = report.GetAliveBeforePursuit();
-                        }
-                        total += remaining;
-                    }
-                }
-            }
-
-            Program.Logger.Debug($"Calculated total levy men for armies (from CasualitiesReports): {total}");
+            Program.Logger.Debug($"Calculated total levy men for armies (from ArmyRegiments): {total}");
             return total;
         }
 
