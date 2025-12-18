@@ -541,11 +541,28 @@ namespace CrusaderWars.data.battle_results
             // and updating the Unit.Soldiers property.
             // We now focus on updating the Regiment objects for the save file.
 
-            foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
+            // Separate ArmyRegiments into levy and non-levy regiments
+            var levyArmyRegiments = new List<ArmyRegiment>();
+            var nonLevyArmyRegiments = new List<ArmyRegiment>();
+            
+            foreach (var armyRegiment in army.ArmyRegiments)
             {
                 if (armyRegiment.Type == data.save_file.RegimentType.Commander ||
                     armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
+                    
+                if (armyRegiment.Type == RegimentType.Levy)
+                {
+                    levyArmyRegiments.Add(armyRegiment);
+                }
+                else
+                {
+                    nonLevyArmyRegiments.Add(armyRegiment);
+                }
+            }
 
+            // Process non-levy regiments (Men-at-Arms and Garrison)
+            foreach (ArmyRegiment armyRegiment in nonLevyArmyRegiments)
+            {
                 // Determine if this ArmyRegiment represents a siege unit
                 bool isSiegeType = false;
                 // The `Unit` objects in army.Units are the *processed* units for Attila.
@@ -553,7 +570,7 @@ namespace CrusaderWars.data.battle_results
                 // For MAA, the Unit.GetName() is armyRegiment.MAA_Name.
                 // For Levy, the Unit.GetName() is "Levy".
                 // For Garrison, the Unit.GetName() is the specific Attila unit key.
-                string unitIdentifier = (armyRegiment.Type == RegimentType.Levy) ? "Levy" : armyRegiment.MAA_Name;
+                string unitIdentifier = armyRegiment.MAA_Name; // For MAA and Garrison
 
                 // Find a corresponding Unit object. We use the culture of the first regiment for matching,
                 // assuming all regiments within an ArmyRegiment share the same base unit type and culture for siege status.
@@ -654,8 +671,67 @@ namespace CrusaderWars.data.battle_results
                             $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}. Casualties applied: {casualtiesApplied}.");
                     }
                 }
+            }
 
-                // Moved these lines outside the inner loop
+            // Process levy regiments correctly by culture group
+            // Group all levy regiments by culture ID
+            var levyRegimentsByCulture = levyArmyRegiments
+                .SelectMany(ar => ar.Regiments.Where(r => r.Culture?.ID != null))
+                .GroupBy(r => r.Culture.ID);
+                
+            foreach (var cultureGroup in levyRegimentsByCulture)
+            {
+                string cultureId = cultureGroup.Key;
+                
+                // Find the single UnitCasualitiesReport for Levy and this cultureId
+                var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
+                    x.GetUnitType() == RegimentType.Levy && 
+                    x.GetCulture() != null && 
+                    x.GetCulture().ID == cultureId && 
+                    x.GetTypeName() == "Levy");
+                    
+                int totalCasualtiesToApply = unitReport?.GetCasualties() ?? 0;
+                
+                Program.Logger.Debug($"Processing levy casualties for culture {cultureId}: {totalCasualtiesToApply} total casualties to distribute");
+                
+                // Distribute casualties among all regiments of this culture
+                foreach (Regiment regiment in cultureGroup)
+                {
+                    if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+                    
+                    int originalSoldiers = Int32.Parse(regiment.CurrentNum);
+                    int regSoldiers = originalSoldiers;
+                    int casualtiesApplied = 0;
+                    
+                    // Apply casualties from the total pool for this culture
+                    while (regSoldiers > 0 && totalCasualtiesToApply > 0)
+                    {
+                        if (regSoldiers > totalCasualtiesToApply)
+                        {
+                            casualtiesApplied += totalCasualtiesToApply;
+                            regSoldiers -= totalCasualtiesToApply;
+                            totalCasualtiesToApply = 0;
+                        }
+                        else
+                        {
+                            casualtiesApplied += regSoldiers;
+                            totalCasualtiesToApply -= regSoldiers;
+                            regSoldiers = 0;
+                        }
+                    }
+                    
+                    regiment.SetSoldiers(regSoldiers.ToString());
+                    Program.Logger.Debug(
+                        $"Levy Regiment {regiment.ID} (Culture: {cultureId}): Soldiers changed from {originalSoldiers} to {regSoldiers}. Casualties applied: {casualtiesApplied}.");
+                }
+            }
+
+            // Update ArmyRegiment totals at the end
+            foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
+            {
+                if (armyRegiment.Type == data.save_file.RegimentType.Commander ||
+                    armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
+                    
                 int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum))
                     .Sum(x => Int32.Parse(x.CurrentNum!));
                 armyRegiment.CurrentNum = army_regiment_total;
