@@ -1057,6 +1057,9 @@ namespace CrusaderWars.twbattle
                     BattleResult.IsAttackerVictorious = (winner == "attacker");
                     Program.Logger.Debug($"Battle winner determined: {winner}. IsAttackerVictorious set to: {BattleResult.IsAttackerVictorious}");
 
+                    // DETERMINE CHARACTER FATES BEFORE WAR SCORE CALCULATION
+                    BattleResult.DetermineCharacterFates(attacker_armies.Concat(defender_armies).ToList());
+
                     // CALCULATE WAR SCORE BEFORE GENERATING REPORT
                     BattleResult.CalculateAndSetWarScore(attacker_armies, defender_armies);
 

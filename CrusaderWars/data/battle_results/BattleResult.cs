@@ -1035,7 +1035,7 @@ namespace CrusaderWars.data.battle_results
 
         }
 
-        static (bool searchStarted, bool isCommander, CommanderSystem? commander, bool isKnight, Knight? knight, Army? army)
+        public static (bool searchStarted, bool isCommander, CommanderSystem? commander, bool isKnight, Knight? knight, Army? army)
             SearchCharacters(string char_id, List<Army> armies)
         {
             // Program.Logger.Debug($"Searching for character ID: {char_id}");
@@ -1090,34 +1090,9 @@ namespace CrusaderWars.data.battle_results
             return (false, false, null, false, null, null);
         }
 
-        public static void EditLivingFile(List<Army> attacker_armies, List<Army> defender_armies)
+        public static void DetermineCharacterFates(List<Army> allArmies)
         {
-            Program.Logger.Debug("Editing Living file (2-pass approach)...");
-            var allArmies = attacker_armies.Concat(defender_armies).ToList();
-            string playerCharId = DataSearch.Player_Character.GetID();
-            string? playerHeirId = DataSearch.Player_Heir_ID;
-
-            // --- Determine which combat side corresponds to the "left" side from CK3 log data ---
-            string leftSideCombatRole = "";
-            string leftSideParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
-            if (!string.IsNullOrEmpty(leftSideParticipantId))
-            {
-                if (attacker_armies.Any(a => a.Owner?.GetID() == leftSideParticipantId || a.Commander?.GetID() == leftSideParticipantId || (a.MergedArmies != null && a.MergedArmies.Any(ma => ma.Owner?.GetID() == leftSideParticipantId || ma.Commander?.GetID() == leftSideParticipantId))))
-                {
-                    leftSideCombatRole = "attacker";
-                }
-                else if (defender_armies.Any(a => a.Owner?.GetID() == leftSideParticipantId || a.Commander?.GetID() == leftSideParticipantId || (a.MergedArmies != null && a.MergedArmies.Any(ma => ma.Owner?.GetID() == leftSideParticipantId || ma.Commander?.GetID() == leftSideParticipantId))))
-                {
-                    leftSideCombatRole = "defender";
-                }
-            }
-            Program.Logger.Debug($"Determined Left Side combat role: {leftSideCombatRole}");
-
-
-            // --- PASS 1: Determine all health outcomes ---
-            Program.Logger.Debug("Living file: Starting Pass 1 (Determine outcomes)");
-            var healthOutcomes = new Dictionary<string, (bool isSlain, bool isCaptured, string newTraits)>();
-            bool playerIsSlain = false;
+            Program.Logger.Debug("Determining character fates...");
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             {
@@ -1163,26 +1138,49 @@ namespace CrusaderWars.data.battle_results
                                         searchData.knight.IsSlain = healthResult.isSlain;
                                         searchData.knight.IsPrisoner = healthResult.isCaptured;
                                     }
-                                    
-                                    healthOutcomes[char_id] = healthResult;
-
-                                    if (healthResult.isSlain && char_id == playerCharId)
-                                    {
-                                        playerIsSlain = true;
-                                        Program.Logger.Debug($"Player character {playerCharId} was slain.");
-                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            Program.Logger.Debug($"Living file: Pass 1 complete. Found {healthOutcomes.Count} characters with health outcomes. Player slain: {playerIsSlain}.");
+            Program.Logger.Debug("Finished determining character fates.");
+        }
+
+        public static void EditLivingFile(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Editing Living file...");
+            var allArmies = attacker_armies.Concat(defender_armies).ToList();
+            string playerCharId = DataSearch.Player_Character.GetID();
+            string? playerHeirId = DataSearch.Player_Heir_ID;
+
+            // --- Determine which combat side corresponds to the "left" side from CK3 log data ---
+            string leftSideCombatRole = "";
+            string leftSideParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+            if (!string.IsNullOrEmpty(leftSideParticipantId))
+            {
+                if (attacker_armies.Any(a => a.Owner?.GetID() == leftSideParticipantId || a.Commander?.GetID() == leftSideParticipantId || (a.MergedArmies != null && a.MergedArmies.Any(ma => ma.Owner?.GetID() == leftSideParticipantId || ma.Commander?.GetID() == leftSideParticipantId))))
+                {
+                    leftSideCombatRole = "attacker";
+                }
+                else if (defender_armies.Any(a => a.Owner?.GetID() == leftSideParticipantId || a.Commander?.GetID() == leftSideParticipantId || (a.MergedArmies != null && a.MergedArmies.Any(ma => ma.Owner?.GetID() == leftSideParticipantId || ma.Commander?.GetID() == leftSideParticipantId))))
+                {
+                    leftSideCombatRole = "defender";
+                }
+            }
+            Program.Logger.Debug($"Determined Left Side combat role: {leftSideCombatRole}");
+
+            bool playerIsSlain = allArmies.Any(a => a.Commander?.ID == playerCharId && a.Commander.IsSlain);
+            if (!playerIsSlain)
+            {
+                playerIsSlain = allArmies.Any(a => a.Knights?.GetKnightsList().Any(k => k.GetID() == playerCharId && k.IsSlain) ?? false);
+            }
+            if(playerIsSlain) Program.Logger.Debug($"Player character {playerCharId} was slain.");
 
             EditPlayerCharacterFiles(playerIsSlain, playerHeirId);
 
-            // --- PASS 2: Apply changes and write to temp file ---
-            Program.Logger.Debug("Living file: Starting Pass 2 (Apply changes)");
+            // --- Apply changes and write to temp file ---
+            Program.Logger.Debug("Living file: Applying pre-determined fates...");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Living_Path()))
             {
@@ -1204,9 +1202,13 @@ namespace CrusaderWars.data.battle_results
                             braceCount -= line.Count(c => c == '}');
                         }
 
-                        if (healthOutcomes.TryGetValue(char_id, out var outcome))
+                        var searchData = SearchCharacters(char_id, allArmies);
+                        if (searchData.searchStarted && searchData.army != null)
                         {
-                            if (outcome.isSlain)
+                            bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.IsSlain);
+                            bool isCaptured = (searchData.isCommander && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight.IsPrisoner);
+
+                            if (isSlain)
                             {
                                 Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data block.");
                                 int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
@@ -1239,82 +1241,79 @@ namespace CrusaderWars.data.battle_results
                                     charBlock.Insert(closingBraceIndex + 3, "\t}");
                                 }
                             }
-                            else // Wounded and/or Captured
+                            else // Not slain, but could be wounded and/or captured
                             {
-                                // Apply wound traits first
+                                (bool _, bool _, string newTraits) healthResult;
+                                bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
+                                                       (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
+                                
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
                                 if (traitsLineIndex != -1)
                                 {
-                                    charBlock[traitsLineIndex] = outcome.newTraits;
+                                    if (searchData.isCommander)
+                                    {
+                                        healthResult = searchData.commander.Health(charBlock[traitsLineIndex], wasOnLosingSide);
+                                    }
+                                    else // isKnight
+                                    {
+                                        healthResult = searchData.knight.Health(charBlock[traitsLineIndex], wasOnLosingSide);
+                                    }
+                                    charBlock[traitsLineIndex] = healthResult.newTraits;
                                 }
 
-                                // If captured, add prison_data block
-                                if (outcome.isCaptured)
+                                if (isCaptured)
                                 {
-                                    var searchData = SearchCharacters(char_id, allArmies);
-                                    Army characterArmy = searchData.army;
+                                    string imprisonerId = "";
+                                    bool isCharacterOnLeftSide = !string.IsNullOrEmpty(leftSideCombatRole) && searchData.army.CombatSide == leftSideCombatRole;
 
-                                    if (characterArmy != null)
+                                    if (isCharacterOnLeftSide)
                                     {
-                                        string imprisonerId = "";
-                                        bool isCharacterOnLeftSide = !string.IsNullOrEmpty(leftSideCombatRole) && characterArmy.CombatSide == leftSideCombatRole;
+                                        imprisonerId = CK3LogData.RightSide.GetMainParticipant().id;
+                                    }
+                                    else
+                                    {
+                                        imprisonerId = CK3LogData.LeftSide.GetMainParticipant().id;
+                                    }
 
+                                    if (string.IsNullOrEmpty(imprisonerId))
+                                    {
                                         if (isCharacterOnLeftSide)
                                         {
-                                            imprisonerId = CK3LogData.RightSide.GetMainParticipant().id;
+                                            imprisonerId = CK3LogData.RightSide.GetCommander().id;
                                         }
                                         else
                                         {
-                                            imprisonerId = CK3LogData.LeftSide.GetMainParticipant().id;
+                                            imprisonerId = CK3LogData.LeftSide.GetCommander().id;
                                         }
+                                        Program.Logger.Debug($"Could not find main participant for imprisoner. Falling back to main commander of winning side. Imprisoner ID: {imprisonerId}");
+                                    }
 
-                                        // Fallback logic
-                                        if (string.IsNullOrEmpty(imprisonerId))
+                                    if (!string.IsNullOrEmpty(imprisonerId))
+                                    {
+                                        string dateString = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                        var prisonBlock = new List<string>
                                         {
-                                            if (isCharacterOnLeftSide) // Character was on left side, winner is right side
-                                            {
-                                                imprisonerId = CK3LogData.RightSide.GetCommander().id;
-                                            }
-                                            else // Character was on right side, winner is left side
-                                            {
-                                                imprisonerId = CK3LogData.LeftSide.GetCommander().id;
-                                            }
-                                            Program.Logger.Debug($"Could not find main participant for imprisoner. Falling back to main commander of winning side. Imprisoner ID: {imprisonerId}");
-                                        }
-
-                                        if (!string.IsNullOrEmpty(imprisonerId))
+                                            "\t\tprison_data={",
+                                            $"\t\t\timprisoner={imprisonerId}",
+                                            $"\t\t\tdate={dateString}",
+                                            $"\t\t\timprison_type_date={dateString}",
+                                            "\t\t\ttype=house_arrest",
+                                            "\t\t}"
+                                        };
+                                        int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                                        if (aliveDataIndex != -1)
                                         {
-                                            string dateString = $"{Date.Year}.{Date.Month}.{Date.Day}";
-
-                                            var prisonBlock = new List<string>
-                                            {
-                                                "\t\tprison_data={",
-                                                $"\t\t\timprisoner={imprisonerId}",
-                                                $"\t\t\tdate={dateString}",
-                                                $"\t\t\timprison_type_date={dateString}",
-                                                "\t\t\ttype=house_arrest",
-                                                "\t\t}"
-                                            };
-
-                                            int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
-                                            if (aliveDataIndex != -1)
-                                            {
-                                                charBlock.InsertRange(aliveDataIndex + 1, prisonBlock);
-                                                Program.Logger.Debug($"Character {char_id} captured by {imprisonerId}. Adding prison_data block.");
-                                            }
-                                            else
-                                            {
-                                                Program.Logger.Debug($"Warning: Could not find alive_data block for captured character {char_id}.");
-                                            }
+                                            charBlock.InsertRange(aliveDataIndex + 1, prisonBlock);
+                                            Program.Logger.Debug($"Character {char_id} captured by {imprisonerId}. Adding prison_data block.");
                                         }
                                         else
                                         {
-                                            Program.Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
+                                            Program.Logger.Debug($"Warning: Could not find alive_data block for captured character {char_id}.");
                                         }
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"Warning: Could not find army for captured character {char_id}.");
+                                        Program.Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
                                     }
                                 }
                             }
@@ -1431,8 +1430,8 @@ namespace CrusaderWars.data.battle_results
             double winnerCasualtyRate = (totalWinningStart > 0) ? (totalWinningStart - totalWinningEnd) / totalWinningStart : 0;
 
             // 1.2: Calculate Impact Components
-            double casualtyImpact = loserCasualtyRate * 32.5;
-            double victoryMarginImpact = Math.Max(0, loserCasualtyRate - winnerCasualtyRate) * 10.0;
+            double casualtyImpact = loserCasualtyRate * 40.0;
+            double victoryMarginImpact = Math.Max(0, loserCasualtyRate - winnerCasualtyRate) * 30.0;
             double characterImpact = 0;
 
             foreach (var army in losingArmies)
@@ -1463,11 +1462,11 @@ namespace CrusaderWars.data.battle_results
 
             double totalImpactScore = Math.Clamp(casualtyImpact + victoryMarginImpact + characterImpact, 0, 100);
 
-            Program.Logger.Debug($"Battle Impact Score: Casualty({casualtyImpact:F2}/32.5) + Margin({victoryMarginImpact:F2}/10) + Character({characterImpact:F2}) = {totalImpactScore:F2}");
+            Program.Logger.Debug($"Battle Impact Score: Casualty({casualtyImpact:F2}/40) + Margin({victoryMarginImpact:F2}/30) + Character({characterImpact:F2}) = {totalImpactScore:F2}");
 
             // --- STAGE 2: Convert Impact Score to Final War Score ---
             double normalizedImpact = totalImpactScore / 100.0;
-            double finalWarScore = Math.Pow(normalizedImpact, 2.2) * 75.0;
+            double finalWarScore = Math.Pow(normalizedImpact, 1.5) * 75.0;
 
             // Ensure a minimum score for any victory, but don't give points for a loss.
             if (finalWarScore < 1.0 && totalImpactScore > 0) finalWarScore = 1.0;
@@ -1476,7 +1475,7 @@ namespace CrusaderWars.data.battle_results
 
             Program.Logger.Debug($"Final Calculated War Score: {finalWarScore:F4}");
 
-            return finalWarScore;
+            return Math.Round(finalWarScore, 4);
         }
 
         private static double CalculatePrestige(double warScore, List<Army> losingArmies)
