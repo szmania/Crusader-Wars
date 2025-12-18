@@ -288,7 +288,7 @@ namespace CrusaderWars.client
             // 
             this.lblWarScoreChange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblWarScoreChange.AutoSize = true;
-            this.lblWarScoreChange.Font = new System.Drawing.Font("Georgia", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWarScoreChange.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblWarScoreChange.ForeColor = System.Drawing.Color.White;
             this.lblWarScoreChange.Location = new System.Drawing.Point(300, 578);
             this.lblWarScoreChange.Name = "lblWarScoreChange";
