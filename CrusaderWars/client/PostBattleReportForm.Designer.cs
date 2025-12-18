@@ -220,4 +220,143 @@ namespace CrusaderWars.client
             // 
             // lblTotalDeployed
             // 
-            this.lblTotalDeployed.Anchor = ((System
+            this.lblTotalDeployed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTotalDeployed.AutoSize = true;
+            this.lblTotalDeployed.Font = new System.Drawing.Font("Georgia", 10F);
+            this.lblTotalDeployed.ForeColor = System.Drawing.Color.White;
+            this.lblTotalDeployed.Location = new System.Drawing.Point(12, 540);
+            this.lblTotalDeployed.Name = "lblTotalDeployed";
+            this.lblTotalDeployed.Size = new System.Drawing.Size(115, 17);
+            this.lblTotalDeployed.TabIndex = 14;
+            this.lblTotalDeployed.Text = "Total Deployed:";
+            this.lblTotalDeployed.Visible = false;
+            // 
+            // lblTotalLosses
+            // 
+            this.lblTotalLosses.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTotalLosses.AutoSize = true;
+            this.lblTotalLosses.Font = new System.Drawing.Font("Georgia", 10F);
+            this.lblTotalLosses.ForeColor = System.Drawing.Color.OrangeRed;
+            this.lblTotalLosses.Location = new System.Drawing.Point(150, 540);
+            this.lblTotalLosses.Name = "lblTotalLosses";
+            this.lblTotalLosses.Size = new System.Drawing.Size(97, 17);
+            this.lblTotalLosses.TabIndex = 15;
+            this.lblTotalLosses.Text = "Total Losses:";
+            this.lblTotalLosses.Visible = false;
+            // 
+            // lblTotalKills
+            // 
+            this.lblTotalKills.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTotalKills.AutoSize = true;
+            this.lblTotalKills.Font = new System.Drawing.Font("Georgia", 10F);
+            this.lblTotalKills.ForeColor = System.Drawing.Color.Gold;
+            this.lblTotalKills.Location = new System.Drawing.Point(450, 540);
+            this.lblTotalKills.Name = "lblTotalKills";
+            this.lblTotalKills.Size = new System.Drawing.Size(85, 17);
+            this.lblTotalKills.TabIndex = 16;
+            this.lblTotalKills.Text = "Total Kills:";
+            this.lblTotalKills.Visible = false;
+            // 
+            // lblTotalRemaining
+            // 
+            this.lblTotalRemaining.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblTotalRemaining.AutoSize = true;
+            this.lblTotalRemaining.Font = new System.Drawing.Font("Georgia", 10F);
+            this.lblTotalRemaining.ForeColor = System.Drawing.Color.LightGreen;
+            this.lblTotalRemaining.Location = new System.Drawing.Point(300, 540);
+            this.lblTotalRemaining.Name = "lblTotalRemaining";
+            this.lblTotalRemaining.Size = new System.Drawing.Size(119, 17);
+            this.lblTotalRemaining.TabIndex = 17;
+            this.lblTotalRemaining.Text = "Total Remaining:";
+            this.lblTotalRemaining.Visible = false;
+            // 
+            // btnCopyToClipboard
+            // 
+            this.btnCopyToClipboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCopyToClipboard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCopyToClipboard.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCopyToClipboard.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(212)))), ((int)(((byte)(164)))));
+            this.btnCopyToClipboard.Location = new System.Drawing.Point(726, 582);
+            this.btnCopyToClipboard.Name = "btnCopyToClipboard";
+            this.btnCopyToClipboard.Size = new System.Drawing.Size(120, 40);
+            this.btnCopyToClipboard.TabIndex = 18;
+            this.btnCopyToClipboard.Text = "Copy to Clipboard";
+            this.btnCopyToClipboard.UseVisualStyleBackColor = true;
+            this.btnCopyToClipboard.Click += new System.EventHandler(this.btnCopyToClipboard_Click);
+            // 
+            // lblWarScoreChange
+            // 
+            this.lblWarScoreChange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblWarScoreChange.AutoSize = true;
+            this.lblWarScoreChange.Font = new System.Drawing.Font("Georgia", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWarScoreChange.ForeColor = System.Drawing.Color.White;
+            this.lblWarScoreChange.Location = new System.Drawing.Point(300, 578);
+            this.lblWarScoreChange.Name = "lblWarScoreChange";
+            this.lblWarScoreChange.Size = new System.Drawing.Size(218, 23);
+            this.lblWarScoreChange.TabIndex = 19;
+            this.lblWarScoreChange.Text = "War Score Change: ";
+            this.lblWarScoreChange.Visible = false;
+            // 
+            // PostBattleReportForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
+            this.ClientSize = new System.Drawing.Size(984, 634);
+            this.Controls.Add(this.lblWarScoreChange);
+            this.Controls.Add(this.btnCopyToClipboard);
+            this.Controls.Add(this.lblTotalRemaining);
+            this.Controls.Add(this.lblTotalKills);
+            this.Controls.Add(this.lblTotalLosses);
+            this.Controls.Add(this.lblTotalDeployed);
+            this.Controls.Add(this.lblProvinceName);
+            this.Controls.Add(this.lblWeather);
+            this.Controls.Add(this.lblSeason);
+            this.Controls.Add(this.lblTimeOfDay);
+            this.Controls.Add(this.lblLocationDetails);
+            this.Controls.Add(this.lblBattleDate);
+            this.Controls.Add(this.lblBattleName);
+            this.Controls.Add(this.lblWallDamage);
+            this.Controls.Add(this.lblSiegeResult);
+            this.Controls.Add(this.lblBattleResult);
+            this.Controls.Add(this.btnContinue);
+            this.Controls.Add(this.treeViewReport);
+            this.Controls.Add(this.lblTitle);
+            this.Controls.Add(this.pictureBox1);
+            // Use the logo from Properties.Resources directly instead of trying to get it from resources object
+            // Icon assignment removed - crusader_conflicts_logo is a Bitmap, not an Icon
+            this.MinimumSize = new System.Drawing.Size(800, 600);
+            this.Name = "PostBattleReportForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Crusader Conflicts: After Action Report";
+            this.Load += new System.EventHandler(this.PostBattleReportForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.ResumeLayout(false);
+            PerformLayout();
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.TreeView treeViewReport;
+        private System.Windows.Forms.Button btnContinue;
+        private System.Windows.Forms.Label lblBattleResult;
+        private System.Windows.Forms.Label lblSiegeResult;
+        private System.Windows.Forms.Label lblWallDamage;
+        private System.Windows.Forms.Label lblBattleName;
+        private System.Windows.Forms.Label lblBattleDate;
+        private System.Windows.Forms.Label lblLocationDetails;
+        private System.Windows.Forms.Label lblTimeOfDay;
+        private System.Windows.Forms.Label lblSeason;
+        private System.Windows.Forms.Label lblWeather;
+        private System.Windows.Forms.Label lblProvinceName;
+        private System.Windows.Forms.Label lblTotalDeployed;
+        private System.Windows.Forms.Label lblTotalLosses;
+        private System.Windows.Forms.Label lblTotalKills;
+        private System.Windows.Forms.Label lblTotalRemaining;
+        private System.Windows.Forms.Button btnCopyToClipboard;
+        private System.Windows.Forms.Label lblWarScoreChange;
+    }
+}
