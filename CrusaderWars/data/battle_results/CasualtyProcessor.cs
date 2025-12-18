@@ -137,135 +137,146 @@ namespace CrusaderWars.data.battle_results
         static void ChangeRegimentsSoldiers(Army army)
         {
             Program.Logger.Debug($"Entering ChangeRegimentsSoldiers for army {army.ID}.");
-            
-            // The logic for updating individual Levy/Garrison unit soldier counts 
-            // is now handled in CreateUnitsReports by proportionally distributing casualties 
-            // and updating the Unit.Soldiers property.
-            // We now focus on updating the Regiment objects for the save file.
 
-            foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
+            // Separate ArmyRegiments into levy and non-levy regiments
+            var levyArmyRegiments = new List<ArmyRegiment>();
+            var nonLevyArmyRegiments = new List<ArmyRegiment>();
+
+            foreach (var armyRegiment in army.ArmyRegiments)
             {
                 if (armyRegiment.Type == data.save_file.RegimentType.Commander ||
                     armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
 
-                // Determine if this ArmyRegiment represents a siege unit
-                bool isSiegeType = false;
-                // The `Unit` objects in army.Units are the *processed* units for Attila.
-                // We need to find the Unit that corresponds to this ArmyRegiment's *type* and *name*.
-                // For MAA, the Unit.GetName() is armyRegiment.MAA_Name.
-                // For Levy, the Unit.GetName() is "Levy".
-                // For Garrison, the Unit.GetName() is "Garrison".
-                string unitNameToMatch = armyRegiment.MAA_Name;
-                if (armyRegiment.Type == RegimentType.Levy) unitNameToMatch = "Levy";
-                if (armyRegiment.Type == RegimentType.Garrison) unitNameToMatch = "Garrison";
+                if (armyRegiment.Type == RegimentType.Levy)
+                {
+                    levyArmyRegiments.Add(armyRegiment);
+                }
+                else
+                {
+                    nonLevyArmyRegiments.Add(armyRegiment);
+                }
+            }
 
-                // Find a corresponding Unit object. We use the culture of the first regiment for matching,
-                // assuming all regiments within an ArmyRegiment share the same base unit type and culture for siege status.
+            // Process non-levy regiments (Men-at-Arms and Garrison)
+            foreach (ArmyRegiment armyRegiment in nonLevyArmyRegiments)
+            {
+                bool isSiegeType = false;
+                string unitIdentifier = armyRegiment.MAA_Name; 
+
                 var firstRegiment = armyRegiment.Regiments.FirstOrDefault();
                 string? cultureId = firstRegiment?.Culture?.ID;
 
                 Unit? correspondingUnit = army.Units.FirstOrDefault(u =>
                     u.GetRegimentType() == armyRegiment.Type &&
-                    u.GetName() == unitNameToMatch &&
+                    u.GetName() == unitIdentifier &&
                     u.GetObjCulture()?.ID == cultureId
                 );
 
                 if (correspondingUnit != null && correspondingUnit.IsSiege())
                 {
                     isSiegeType = true;
-                    Program.Logger.Debug(
-                        $"ArmyRegiment {armyRegiment.ID} (Type: {armyRegiment.Type}, Name: {armyRegiment.MAA_Name}) identified as a siege unit.");
                 }
-                else
-                {
-                    Program.Logger.Debug(
-                        $"ArmyRegiment {armyRegiment.ID} (Type: {armyRegiment.Type}, Name: {armyRegiment.MAA_Name}) identified as a non-siege unit.");
-                }
-
-                // Get the total casualties for this ArmyRegiment type to distribute among its regiments
-                string unitTypeNameToFind = armyRegiment.Type == RegimentType.Levy ? "Levy" : armyRegiment.MAA_Name;
-                if (armyRegiment.Type == RegimentType.Garrison) unitTypeNameToFind = "Garrison";
 
                 var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
                     x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null &&
-                    x.GetCulture().ID == cultureId && x.GetTypeName() == unitTypeNameToFind);
-
-                int totalCasualtiesToApply = unitReport?.GetCasualties() ?? 0;
+                    x.GetCulture().ID == cultureId && x.GetTypeName() == unitIdentifier);
 
                 foreach (Regiment regiment in armyRegiment.Regiments)
                 {
-                    if (regiment.Culture is null) continue; // skip siege maa
-
-                    // Check if CurrentNum is null or empty before parsing
-                    if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+                    if (regiment.Culture is null || string.IsNullOrEmpty(regiment.CurrentNum)) continue;
 
                     if (isSiegeType)
                     {
-                        // NEW LOGIC: Proportional casualties for all siege weapon types
                         int finalMachineCount = 0;
                         int originalMachines = Int32.Parse(regiment.Max);
 
-                        if (correspondingUnit != null && unitReport != null && unitReport.GetStarting() > 0)
+                        if (unitReport != null && unitReport.GetStarting() > 0)
                         {
                             int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                            int startingMen = unitReport.GetStarting();
-
-                            double survivalRate = (double)finalMenCount / startingMen;
-                            if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate))
-                            {
-                                survivalRate = 0;
-                            }
-
+                            double survivalRate = (double)finalMenCount / unitReport.GetStarting();
+                            if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate)) survivalRate = 0;
                             finalMachineCount = (int)Math.Round(originalMachines * survivalRate);
                         }
-                        else
-                        {
-                            // Fallback or if unit had 0 men to begin with
-                            finalMachineCount = 0;
-                        }
-
-                        // Cap the final count at the original number to prevent negative casualties from scaling artifacts.
-                        int cappedFinalMachineCount = Math.Min(originalMachines, finalMachineCount);
-
-                        regiment.SetSoldiers(cappedFinalMachineCount.ToString());
-                        Program.Logger.Debug(
-                            $"Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Machines changed from {originalMachines} to {cappedFinalMachineCount}.");
+                        
+                        regiment.SetSoldiers(Math.Min(originalMachines, finalMachineCount).ToString());
                     }
                     else
                     {
-                        // Proportional survival logic for non-siege units
-                        int originalSoldiers = Int32.Parse(regiment.Max);
+                        int originalSoldiers = Int32.Parse(regiment.CurrentNum);
                         int finalSoldierCount = 0;
 
                         if (unitReport != null && unitReport.GetStarting() > 0)
                         {
                             int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                            int startingMen = unitReport.GetStarting();
-
-                            double survivalRate = (double)finalMenCount / startingMen;
-                            if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate))
-                            {
-                                survivalRate = 0;
-                            }
-
+                            double survivalRate = (double)finalMenCount / unitReport.GetStarting();
+                            if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate)) survivalRate = 0;
                             finalSoldierCount = (int)Math.Round(originalSoldiers * survivalRate);
                         }
-                        else
-                        {
-                            // Fallback if unit had 0 men to begin with or no report
-                            finalSoldierCount = 0;
-                        }
-
-                        // Cap the final count at the original number to prevent issues from scaling artifacts.
-                        int cappedFinalSoldierCount = Math.Min(originalSoldiers, finalSoldierCount);
-
-                        regiment.SetSoldiers(cappedFinalSoldierCount.ToString());
-                        Program.Logger.Debug(
-                            $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {cappedFinalSoldierCount}.");
+                        
+                        regiment.SetSoldiers(Math.Min(originalSoldiers, finalSoldierCount).ToString());
                     }
                 }
+            }
 
-                // Moved these lines outside the inner loop
+            // Process levy regiments correctly by culture group
+            var levyRegimentsByCulture = levyArmyRegiments
+                .SelectMany(ar => ar.Regiments.Where(r => r.Culture?.ID != null))
+                .GroupBy(r => r.Culture.ID);
+                
+            foreach (var cultureGroup in levyRegimentsByCulture)
+            {
+                string cultureId = cultureGroup.Key;
+                
+                var levyReports = army.CasualitiesReports.Where(x =>
+                    x.GetUnitType() == RegimentType.Levy && 
+                    x.GetCulture() != null && 
+                    x.GetCulture().ID == cultureId);
+                    
+                int totalCasualtiesToApply = levyReports.Sum(r => r.GetCasualties());
+                
+                var regimentsInGroup = cultureGroup.ToList();
+                int totalOriginalSoldiers = regimentsInGroup.Sum(r => int.TryParse(r.CurrentNum, out int num) ? num : 0);
+
+                if (totalOriginalSoldiers == 0) continue;
+
+                Program.Logger.Debug($"Processing levy casualties for culture {cultureId}: {totalCasualtiesToApply} total casualties to distribute among {totalOriginalSoldiers} soldiers.");
+
+                int casualtiesAppliedSoFar = 0;
+                for (int i = 0; i < regimentsInGroup.Count; i++)
+                {
+                    var regiment = regimentsInGroup[i];
+                    if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
+
+                    int originalSoldiers = int.Parse(regiment.CurrentNum);
+                    int finalSoldiers;
+                    int casualtiesForThisRegiment;
+
+                    if (i == regimentsInGroup.Count - 1)
+                    {
+                        // For the last regiment, assign all remaining casualties to prevent rounding errors.
+                        casualtiesForThisRegiment = totalCasualtiesToApply - casualtiesAppliedSoFar;
+                    }
+                    else
+                    {
+                        double proportion = (double)originalSoldiers / totalOriginalSoldiers;
+                        casualtiesForThisRegiment = (int)Math.Round(totalCasualtiesToApply * proportion);
+                    }
+
+                    finalSoldiers = Math.Max(0, originalSoldiers - casualtiesForThisRegiment);
+                    casualtiesAppliedSoFar += (originalSoldiers - finalSoldiers);
+
+                    regiment.SetSoldiers(finalSoldiers.ToString());
+                    Program.Logger.Debug(
+                        $"Levy Regiment {regiment.ID} (Culture: {cultureId}): Soldiers changed from {originalSoldiers} to {finalSoldiers}. Casualties applied: {originalSoldiers - finalSoldiers}.");
+                }
+            }
+
+            // Update ArmyRegiment totals at the end
+            foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
+            {
+                if (armyRegiment.Type == data.save_file.RegimentType.Commander ||
+                    armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
+                    
                 int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum))
                     .Sum(x => Int32.Parse(x.CurrentNum!));
                 armyRegiment.CurrentNum = army_regiment_total;
