@@ -54,6 +54,7 @@ namespace CrusaderWars
         public static StringBuilder SB_Sieges = new StringBuilder(); // Added StringBuilder for Sieges
         public static StringBuilder SB_PlayedCharacter = new StringBuilder();
         public static StringBuilder SB_CurrentlyPlayedCharacters = new StringBuilder();
+        public static StringBuilder SB_Wars = new StringBuilder();
 
 
 
@@ -97,6 +98,7 @@ namespace CrusaderWars
             BattleResult.Player_CombatResult = null; // Reset Player_CombatResult
             BattleResult.Original_Player_CombatResult = null; // Reset Original_Player_CombatResult
             BattleResult.WarScoreValue = null;
+            BattleResult.WarID = null;
 
 
             // Reset extraction flags
@@ -118,6 +120,7 @@ namespace CrusaderWars
             SearchKeys.HasSiegesExtracted = false; // Added reset for Sieges extraction flag
             SearchKeys.HasPlayedCharacterExtracted = false;
             SearchKeys.HasCurrentlyPlayedCharactersExtracted = false;
+            SearchKeys.HasWarsExtracted = false;
         }
     }
 
@@ -1003,6 +1006,61 @@ namespace CrusaderWars
                     HasSiegesExtracted = true;
                     Start_SiegesFound = false;
                     End_SiegesFound = false;
+                }
+            }
+        }
+
+        private static bool Start_WarsFound { get; set; }
+        private static bool End_WarsFound { get; set; }
+        public static bool HasWarsExtracted { get; set; }
+        private static int warsBraceCount = 0;
+        public static void Wars(string line)
+        {
+            if (!HasWarsExtracted)
+            {
+                if (!Start_WarsFound)
+                {
+                    if (line == "wars={")
+                    {
+                        Program.Logger.Debug("Found start of wars block.");
+                        Start_WarsFound = true;
+                        warsBraceCount = 0; // Reset before counting
+                    }
+                }
+
+                if (Start_WarsFound && !End_WarsFound)
+                {
+                    Data.SB_Wars.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{')
+                        {
+                            warsBraceCount++;
+                        }
+                        else if (c == '}')
+                        {
+                            warsBraceCount--;
+                        }
+                    }
+
+                    if (warsBraceCount == 0 && Start_WarsFound)
+                    {
+                        Program.Logger.Debug("Found end of wars block by bracket counting.");
+                        Program.Logger.Debug($"Writing {Data.SB_Wars.Length} characters to Wars.txt");
+                        File.WriteAllText(@".\data\save_file_data\Wars.txt", Data.SB_Wars.ToString());
+                        Data.SB_Wars = new StringBuilder();
+                        GC.Collect();
+                        End_WarsFound = true;
+                    }
+                }
+
+                if (End_WarsFound)
+                {
+                    HasWarsExtracted = true;
+                    Start_WarsFound = false;
+                    End_WarsFound = false;
+                    warsBraceCount = 0;
                 }
             }
         }

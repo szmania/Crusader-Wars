@@ -15,6 +15,7 @@ namespace CrusaderWars.data.save_file
         static bool Combats_NeedsSkiping { get; set; }
         static bool Sieges_NeedsSkiping { get; set; }
         static bool PlayedCharacter_NeedsSkipping { get; set; }
+        static bool Wars_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
             // Reset static state variables
@@ -23,6 +24,7 @@ namespace CrusaderWars.data.save_file
             Combats_NeedsSkiping = false;
             Sieges_NeedsSkiping = false;
             PlayedCharacter_NeedsSkipping = false;
+            Wars_NeedsSkiping = false;
 
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             // Removed resultsFound and combatsFound boolean variables.
@@ -76,6 +78,13 @@ namespace CrusaderWars.data.save_file
                         Sieges_NeedsSkiping = false;
                         continue; // Added to prevent writing the closing brace
                         // siegesFound = false; // No longer needed
+                    }
+                    else if (Wars_NeedsSkiping && line == "pending_character_interactions={")
+                    {
+                        Program.Logger.Debug("Finished skipping Wars block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        Wars_NeedsSkiping = false;
+                        // Do not continue, let this line be processed
                     }
                     else if (PlayedCharacter_NeedsSkipping && line.StartsWith("currently_played_characters={"))
                     {
@@ -183,7 +192,14 @@ namespace CrusaderWars.data.save_file
                             // DO NOT set Sieges_NeedsSkiping = true, so the original content is copied.
                         }
                     }
-                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping)
+                    else if (line == "wars={" && !Wars_NeedsSkiping)
+                    {
+                        Program.Logger.Debug("Writing modified Wars block.");
+                        WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.Wars_Path(), FileType.Wars);
+                        Program.Logger.Debug("EDITED WARS SENT!");
+                        Wars_NeedsSkiping = true;
+                    }
+                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping)
                     {
                         streamWriter.WriteLine(line);
                     }
@@ -227,7 +243,8 @@ namespace CrusaderWars.data.save_file
             Regiments,
             Sieges,
             PlayedCharacter,
-            CurrentlyPlayedCharacters
+            CurrentlyPlayedCharacters,
+            Wars
         }
 
         public struct DataFilesPaths
@@ -250,6 +267,7 @@ namespace CrusaderWars.data.save_file
             public static string Sieges_Path() { return @".\data\save_file_data\Sieges.txt"; }
             public static string PlayedCharacter_Path() { return @".\data\save_file_data\PlayedCharacter.txt"; }
             public static string CurrentlyPlayedCharacters_Path() { return @".\data\save_file_data\CurrentlyPlayedCharacters.txt"; }
+            public static string Wars_Path() { return @".\data\save_file_data\Wars.txt"; }
 
         }
 
@@ -263,6 +281,7 @@ namespace CrusaderWars.data.save_file
             public static string Sieges_Path() { return @".\data\save_file_data\temp\Sieges.txt"; }
             public static string PlayedCharacter_Path() { return @".\data\save_file_data\temp\PlayedCharacter.txt"; }
             public static string CurrentlyPlayedCharacters_Path() { return @".\data\save_file_data\temp\CurrentlyPlayedCharacters.txt"; }
+            public static string Wars_Path() { return @".\data\save_file_data\temp\Wars.txt"; }
 
         }
 

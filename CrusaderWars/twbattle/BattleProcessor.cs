@@ -60,6 +60,7 @@ namespace CrusaderWars.twbattle
 
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
         {
+            BattleResult.WarID = CK3LogData.WarID;
             Program.Logger.Debug("--- BattleProcessor: Checking for Deployment Zone Overrides ---");
             if (BattleState.DeploymentZoneOverrideAttacker != null)
             {
@@ -1144,6 +1145,13 @@ namespace CrusaderWars.twbattle
                             File.Copy(sourcePath, destPath, true);
                             Program.Logger.Debug("Copied original Sieges.txt to temp folder for non-siege battle.");
                         }
+                    }
+
+                    // EDIT WARS FILE
+                    if (BattleResult.WarScoreValue.HasValue)
+                    {
+                        Program.Logger.Debug("Editing Wars.txt file...");
+                        BattleResult.EditWarsFile(attacker_armies, defender_armies, BattleResult.WarScoreValue.Value);
                     }
 
                     //  WRITE TO CK3 SAVE FILE

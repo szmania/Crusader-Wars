@@ -158,6 +158,9 @@ namespace CrusaderWars.data.save_file
             File.WriteAllText(Writter.DataTEMPFilesPaths.PlayedCharacter_Path(), "");
             File.WriteAllText(Writter.DataFilesPaths.CurrentlyPlayedCharacters_Path(), "");
             File.WriteAllText(Writter.DataTEMPFilesPaths.CurrentlyPlayedCharacters_Path(), "");
+
+            File.WriteAllText(Writter.DataFilesPaths.Wars_Path(), "");
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Wars_Path(), "");
             Program.Logger.Debug("Finished clearing all temporary save file data.");
         }
 
@@ -216,6 +219,7 @@ namespace CrusaderWars.data.save_file
                     SearchKeys.Accolades(line);
                     SearchKeys.Dynasties(line);
                     SearchKeys.Sieges(line); // Added call to new Sieges search method
+                    SearchKeys.Wars(line);
                     
                 }
                 long endMemoryt = GC.GetTotalMemory(false);
