@@ -79,18 +79,19 @@ namespace CrusaderWars.data.save_file
                         continue; // Added to prevent writing the closing brace
                         // siegesFound = false; // No longer needed
                     }
-                    else if (Wars_NeedsSkiping && line == "pending_character_interactions={")
+                    else if (Wars_NeedsSkiping && line == "}")
                     {
                         Program.Logger.Debug("Finished skipping Wars block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Wars_NeedsSkiping = false;
-                        // Do not continue, let this line be processed
+                        continue;
                     }
-                    else if (PlayedCharacter_NeedsSkipping && line.StartsWith("currently_played_characters={"))
+                    else if (PlayedCharacter_NeedsSkipping && line == "}")
                     {
                         Program.Logger.Debug("Finished skipping played_character block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
                         PlayedCharacter_NeedsSkipping = false;
-                        // Do not continue, let this line be processed
+                        continue;
                     }
                     else if (NeedSkiping && line == "\tarmy_regiments={")
                     {

@@ -1515,11 +1515,11 @@ namespace CrusaderWars
                                                                   "Compatibility Patch Not Enabled",
                                                                   MessageBoxButtons.YesNo,
                                                                   MessageBoxIcon.Warning);
-                                 if (result == DialogResult.No)
-                                 {
-                                     Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
-                                     return; // Stop execution
-                                 }
+                                     if (result == DialogResult.No)
+                                     {
+                                         Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
+                                         return; // Stop execution
+                                     }
                                  }
                                  else
                                  {
@@ -1851,10 +1851,17 @@ namespace CrusaderWars
                         logFile.Position = 0;
                         reader.DiscardBufferedData();
 
-                        if (battleJustCompleted && !ModOptions.CloseCK3DuringBattle())
+                        if (battleJustCompleted)
                         {
-                            await Task.Delay(5000); // Delay to allow CK3 to recognize the new save file
-                            infoLabel.Text = "Waiting for CK3 battle... Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
+                            if (ModOptions.CloseCK3DuringBattle())
+                            {
+                                infoLabel.Text = "Battle complete! Loading 'battle_results.ck3' into CK3...";
+                            }
+                            else
+                            {
+                                await Task.Delay(5000); // Delay to allow CK3 to recognize the new save file
+                                infoLabel.Text = "Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
+                            }
                         }
                         else
                         {
