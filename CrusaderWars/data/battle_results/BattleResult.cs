@@ -3126,7 +3126,7 @@ namespace CrusaderWars.data.battle_results
                 string warBlockContent = originalWarBlock;
 
                 // Determine if the battle winner is on the war attacker's side
-                var warAttackersMatch = Regex.Match(warBlockContent, @"attackers={\s*([\d\s]+)\s*}");
+                var warAttackersMatch = Regex.Match(warBlockContent, @"attacker={\s*([\d\s]+)\s*}");
                 if (!warAttackersMatch.Success)
                 {
                     Program.Logger.Debug($"Could not find attackers list in war block for WarID: {WarID}. Skipping edit.");
