@@ -1243,7 +1243,7 @@ namespace CrusaderWars.data.battle_results
                             }
                             else // Not slain, but could be wounded and/or captured
                             {
-                                (bool _, bool _, string newTraits) healthResult;
+                                (bool _, bool __, string newTraits) healthResult;
                                 bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
                                                        (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
                                 
@@ -1609,7 +1609,7 @@ namespace CrusaderWars.data.battle_results
                             streamWriter.WriteLine($"\t\t\t\tprestige={prestigeAward:F2}");
                             streamWriter.WriteLine("\t\t\t}");
                             
-                            streamWriter.WriteLine($"\t\t\twin=yes");
+                            streamWriter.WriteLine($"\t\t\twin={winningParticipantId}");
                             streamWriter.WriteLine($"\t\t\tleader={winningParticipantId}");
                             
                             inPlayerCombatResultBlock = false;

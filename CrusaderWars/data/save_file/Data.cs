@@ -822,4 +822,189 @@ namespace CrusaderWars
                 {
                     if (line == "dynasties={")
                     {
-                        Program.Logger.Debug("Found start of dynasties block
+                        Program.Logger.Debug("Found start of dynasties block.");
+                        Start_DynastiesFound = true;
+                        dynastiesBraceCount = 0; // Reset before counting
+                    }
+                }
+
+                if (Start_DynastiesFound && !End_DynastiesFound)
+                {
+                    Data.SB_Dynasties.AppendLine(line);
+
+                    // Count braces in the current line to handle multiple braces on one line
+                    foreach (char c in line)
+                    {
+                        if (c == '{')
+                        {
+                            dynastiesBraceCount++;
+                        }
+                        else if (c == '}')
+                        {
+                            dynastiesBraceCount--;
+                        }
+                    }
+
+                    if (dynastiesBraceCount == 0 && Start_DynastiesFound)
+                    {
+                        Program.Logger.Debug("Found end of dynasties block by bracket counting.");
+                        Program.Logger.Debug($"Writing {Data.SB_Dynasties.Length} characters to Dynasties.txt");
+                        File.WriteAllText(@".\data\save_file_data\Dynasties.txt", Data.SB_Dynasties.ToString());
+                        Data.SB_Dynasties = new StringBuilder();
+                        GC.Collect();
+                        End_DynastiesFound = true;
+                    }
+                }
+
+                if (End_DynastiesFound)
+                {
+                    HasDynastiesExtracted = true;
+                    Start_DynastiesFound = false;
+                    End_DynastiesFound = false;
+                    dynastiesBraceCount = 0; // Reset for next file read
+                }
+            }
+        }
+
+
+        private static bool Start_PlayedCharacterFound { get; set; }
+        private static bool End_PlayedCharacterFound { get; set; }
+        public static bool HasPlayedCharacterExtracted { get; set; }
+        private static int playedCharacterBraceCount = 0;
+        public static void PlayedCharacter(string line)
+        {
+            if (!HasPlayedCharacterExtracted)
+            {
+                if (!Start_PlayedCharacterFound)
+                {
+                    if (line.StartsWith("played_character={"))
+                    {
+                        Program.Logger.Debug("Found start of played_character block.");
+                        Start_PlayedCharacterFound = true;
+                        playedCharacterBraceCount = 0; // Reset
+                    }
+                }
+
+                if (Start_PlayedCharacterFound && !End_PlayedCharacterFound)
+                {
+                    Data.SB_PlayedCharacter.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') playedCharacterBraceCount++;
+                        else if (c == '}') playedCharacterBraceCount--;
+                    }
+
+                    if (playedCharacterBraceCount == 0 && Start_PlayedCharacterFound)
+                    {
+                        Program.Logger.Debug("Found end of played_character block by bracket counting.");
+                        Data.Original_PlayedCharacter_Block = Data.SB_PlayedCharacter.ToString();
+                        Program.Logger.Debug($"Writing {Data.Original_PlayedCharacter_Block.Length} characters to PlayedCharacter.txt");
+                        File.WriteAllText(@".\data\save_file_data\PlayedCharacter.txt", Data.Original_PlayedCharacter_Block);
+                        Data.SB_PlayedCharacter = new StringBuilder();
+                        GC.Collect();
+                        End_PlayedCharacterFound = true;
+                    }
+                }
+
+                if (End_PlayedCharacterFound)
+                {
+                    HasPlayedCharacterExtracted = true;
+                    Start_PlayedCharacterFound = false;
+                    End_PlayedCharacterFound = false;
+                    playedCharacterBraceCount = 0;
+                }
+            }
+        }
+
+        private static bool Start_CurrentlyPlayedCharactersFound { get; set; }
+        private static bool End_CurrentlyPlayedCharactersFound { get; set; }
+        public static bool HasCurrentlyPlayedCharactersExtracted { get; set; }
+        public static void CurrentlyPlayedCharacters(string line)
+        {
+            if (!HasCurrentlyPlayedCharactersExtracted)
+            {
+                if (!Start_CurrentlyPlayedCharactersFound)
+                {
+                    if (line.StartsWith("currently_played_characters={"))
+                    {
+                        Program.Logger.Debug("Found start of currently_played_characters block.");
+                        Start_CurrentlyPlayedCharactersFound = true;
+                    }
+                }
+
+                if (Start_CurrentlyPlayedCharactersFound && !End_CurrentlyPlayedCharactersFound)
+                {
+                    Data.SB_CurrentlyPlayedCharacters.AppendLine(line);
+
+                    if (line.Contains("}"))
+                    {
+                        Program.Logger.Debug("Found end of currently_played_characters block.");
+                        Data.Original_CurrentlyPlayedCharacters_Block = Data.SB_CurrentlyPlayedCharacters.ToString();
+                        Program.Logger.Debug($"Writing {Data.Original_CurrentlyPlayedCharacters_Block.Length} characters to CurrentlyPlayedCharacters.txt");
+                        File.WriteAllText(@".\data\save_file_data\CurrentlyPlayedCharacters.txt", Data.Original_CurrentlyPlayedCharacters_Block);
+                        Data.SB_CurrentlyPlayedCharacters = new StringBuilder();
+                        GC.Collect();
+                        End_CurrentlyPlayedCharactersFound = true;
+                    }
+                }
+
+                if (End_CurrentlyPlayedCharactersFound)
+                {
+                    HasCurrentlyPlayedCharactersExtracted = true;
+                    Start_CurrentlyPlayedCharactersFound = false;
+                    End_CurrentlyPlayedCharactersFound = false;
+                }
+            }
+        }
+
+
+        // New properties for Sieges extraction
+        private static bool Start_SiegesFound { get; set; }
+        private static bool End_SiegesFound { get; set; }
+        public static bool HasSiegesExtracted { get; set; }
+
+        // New method for Sieges extraction
+        public static void Sieges(string line)
+        {
+            if (!HasSiegesExtracted)
+            {
+                if (!Start_SiegesFound)
+                {
+                    if (line == "sieges={") // Assuming top-level block, similar to "units={"
+                    {
+                        Program.Logger.Debug("Found start of sieges block.");
+                        Start_SiegesFound = true;
+                    }
+                }
+
+                if (Start_SiegesFound && !End_SiegesFound)
+                {
+                    // Move AppendLine to the beginning of the block
+                    Data.SB_Sieges.AppendLine(line);
+
+                    // The plan specifies "the closing brace } at the same nesting level".
+                    // For top-level blocks like "units={", "counties={", "culture_manager={", "mercenary_company_manager={",
+                    // the end condition is a simple "}".
+                    if (line == "}") 
+                    {
+                        Program.Logger.Debug("Found end of sieges block.");
+                        Program.Logger.Debug($"Writing {Data.SB_Sieges.Length} characters to Sieges.txt");
+                        File.WriteAllText(@".\data\save_file_data\Sieges.txt", Data.SB_Sieges.ToString());
+                        Data.SB_Sieges = new StringBuilder();
+                        GC.Collect();
+                        End_SiegesFound = true;
+                        // Removed: return;
+                    }
+                }
+
+                if (End_SiegesFound)
+                {
+                    HasSiegesExtracted = true;
+                    Start_SiegesFound = false;
+                    End_SiegesFound = false;
+                }
+            }
+        }
+    }
+}
