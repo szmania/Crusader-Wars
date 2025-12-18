@@ -3167,10 +3167,19 @@ namespace CrusaderWars.data.battle_results
                 string warDefenderOwnerId = !isLeftSideWarAttacker ? CK3LogData.LeftSide.GetMainParticipant().id : CK3LogData.RightSide.GetMainParticipant().id;
                 string warDefenderCommanderId = !isLeftSideWarAttacker ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
 
-                // Construct the new battle result entry
+                // Construct the new battle result entry with proper formatting
                 string attackerWon = winnerIsWarAttacker ? "yes" : "no";
                 string attackerInitiated = isLeftSideWarAttacker ? "yes" : "no";
-                string newBattleResultEntry = $"{{ attacker={{ commander={warAttackerCommanderId} owner={warAttackerOwnerId} size=0 }} defender={{ commander={warDefenderCommanderId} owner={warDefenderOwnerId} size=0 }} province={ProvinceID} war_score={warScoreChange:F4} attacker_won={attackerWon} attacker_initiated={attackerInitiated} }}";
+                
+                var newBattleResultEntry = new StringBuilder();
+                newBattleResultEntry.AppendLine("\t\t\t\t{");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker={{ commander={warAttackerCommanderId} owner={warAttackerOwnerId} size=0 }}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tdefender={{ commander={warDefenderCommanderId} owner={warDefenderOwnerId} size=0 }}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tprovince={ProvinceID}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\twar_score={warScoreChange:F4}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker_won={attackerWon}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker_initiated={attackerInitiated}");
+                newBattleResultEntry.Append("\t\t\t\t}");
 
                 // Find and update the battle_results block
                 var battleResultsMatch = Regex.Match(warBlockContent, @"(battle_results\s*=\s*{)([\s\S]*?)\s*}");
@@ -3178,9 +3187,9 @@ namespace CrusaderWars.data.battle_results
                 {
                     string openingPart = battleResultsMatch.Groups[1].Value;
                     string existingContent = battleResultsMatch.Groups[2].Value;
-                    string newBattleResultsBlock = $"{openingPart} {newBattleResultEntry}{existingContent} }}";
+                    string newBattleResultsBlock = $"{openingPart}{existingContent.TrimEnd()} {newBattleResultEntry} }}";
                     warBlockContent = warBlockContent.Replace(battleResultsMatch.Value, newBattleResultsBlock);
-                    Program.Logger.Debug($"Prepended new battle result entry to existing battle_results list for WarID {WarID}.");
+                    Program.Logger.Debug($"Appended new battle result entry to existing battle_results list for WarID {WarID}.");
                 }
                 else
                 {
@@ -3188,15 +3197,24 @@ namespace CrusaderWars.data.battle_results
                     int attackerBlockIndex = warBlockContent.IndexOf("\t\t\tattacker={");
                     if (attackerBlockIndex != -1)
                     {
-                        string newBattleResultsBlock = $"\t\t\tbattle_results={{ {newBattleResultEntry} }}\n";
-                        warBlockContent = warBlockContent.Insert(attackerBlockIndex, newBattleResultsBlock);
+                        var newBattleResultsBlock = new StringBuilder();
+                        newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
+                        newBattleResultsBlock.AppendLine($"\t\t\t\t{newBattleResultEntry.ToString().Trim()}");
+                        newBattleResultsBlock.Append("\t\t\t}");
+                        
+                        warBlockContent = warBlockContent.Insert(attackerBlockIndex, newBattleResultsBlock.ToString());
                         Program.Logger.Debug($"Created new battle_results list and added entry for WarID {WarID}.");
                     }
                     else
                     {
                         Program.Logger.Debug($"Could not find attacker block to insert battle_results for WarID {WarID}. Appending to end of war block.");
                         // As a fallback, insert before the closing brace of the war block
-                        warBlockContent = warBlockContent.Insert(warBlockContent.LastIndexOf('}'), $"\t\t\tbattle_results={{ {newBattleResultEntry} }}\n");
+                        var newBattleResultsBlock = new StringBuilder();
+                        newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
+                        newBattleResultsBlock.AppendLine($"\t\t\t\t{newBattleResultEntry.ToString().Trim()}");
+                        newBattleResultsBlock.Append("\t\t\t}");
+                        
+                        warBlockContent = warBlockContent.Insert(warBlockContent.LastIndexOf('}'), newBattleResultsBlock.ToString());
                     }
                 }
 
