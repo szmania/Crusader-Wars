@@ -1087,7 +1087,7 @@ namespace CrusaderWars.twbattle
                         string combatResultsDestPath = CrusaderWars.data.save_file.Writter.DataTEMPFilesPaths.CombatResults_Path();
                         if (File.Exists(combatResultsSourcePath))
                         {
-                            File.Copy(combatsSourcePath, combatResultsDestPath, true);
+                            File.Copy(combatResultsSourcePath, combatResultsDestPath, true);
                             Program.Logger.Debug("Copied original CombatResults.txt to temp folder.");
                         }
                     }
