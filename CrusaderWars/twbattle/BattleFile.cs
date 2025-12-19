@@ -808,13 +808,9 @@ namespace CrusaderWars
             }
             else // Not a reinforcement army
             {
+                // army.CombatSide correctly reflects the strategic role for deployment:
+                // "attacker" for besiegers, "defender" for the entire besieged force (garrison + relief).
                 string strategic_side = army.CombatSide;
-                if (twbattle.BattleState.IsSiegeBattle)
-                {
-                    // In a siege, deployment is based on strategic role (besieger vs. besieged).
-                    // A garrison army always deploys inside the settlement (strategic defender).
-                    strategic_side = army.IsGarrison() ? "defender" : "attacker";
-                }
                 deploymentDirection = Deployments.beta_GeDirection(strategic_side);
 
                 if (twbattle.BattleState.IsSiegeBattle)
@@ -1384,7 +1380,8 @@ namespace CrusaderWars
             {
                 // In a siege, victory conditions are based on the strategic role (besieger vs. besieged),
                 // not the tactical role (attacker/defender in the sally-out).
-                string strategic_side = army.IsGarrison() ? "defender" : "attacker";
+                // army.CombatSide is "attacker" for besiegers, "defender" for the entire besieged force (garrison + relief).
+                string strategic_side = army.CombatSide;
 
                 if (strategic_side == "attacker")
                 {
