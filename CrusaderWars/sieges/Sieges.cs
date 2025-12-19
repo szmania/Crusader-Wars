@@ -60,8 +60,6 @@ namespace CrusaderWars.twbattle
         public static int GetFortLevel() { return FortLevel; }
         public static double GetSiegeProgress() { return SiegeProgress; } // New getter for siege progress
 
-        public static string GetAttackerArmyComposition() { return AttackerArmyComposition; } // New getter for attacker army composition
-
         public static string GetSettlementBattleMap()
         {
             string levelUpgradeTag;
