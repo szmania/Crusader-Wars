@@ -967,6 +967,7 @@ namespace CrusaderWars.data.save_file
 
                 foreach (string block in combatBlocks)
                 {
+                    string test = BattleResult.ProvinceID;
                     if (string.IsNullOrWhiteSpace(block)) continue;
                     if (!block.Contains($"province={BattleResult.ProvinceID}")) continue;
 
@@ -982,7 +983,11 @@ namespace CrusaderWars.data.save_file
                         }
                     }
 
-                    Match defenderBlockMatch = Regex.Match(block, @"defender\s*=\s*({[\s\S]*?})\s*start_date\s*=", RegexOptions.Multiline);
+                    Match defenderBlockMatch = Regex.Match(
+                        block,
+                        @"defender\s*=\s*(\{[\s\S]*?\})\s*phase\s*=",
+                        RegexOptions.Singleline
+                    );
                     if (defenderBlockMatch.Success)
                     {
                         foreach (Match charMatch in Regex.Matches(defenderBlockMatch.Groups[1].Value, @"character=(\d+)"))
