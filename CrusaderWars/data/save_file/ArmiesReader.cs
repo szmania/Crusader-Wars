@@ -970,9 +970,21 @@ namespace CrusaderWars.data.save_file
                     
                     // Get the total soldiers from the army regiment's starting number
                     string? totalSoldiersStr = armyRegiment.StartingNum.ToString();
-                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
                     {
                         totalSoldiersStr = armyRegiment.CurrentNum.ToString();
+                    }
+                    
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
+                    {
+                        Program.Logger.Debug($"Skipping soldier correction for ArmyRegiment {armyRegiment.ID} in army {army.ID}: no valid combat or current count found. Using value from Regiments.txt.");
+                        continue;
+                    }
+                    
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
+                    {
+                        Program.Logger.Debug($"Skipping soldier correction for ArmyRegiment {armyRegiment.ID} in army {army.ID}: no valid combat or current count found. Using value from Regiments.txt.");
+                        continue;
                     }
                     
                     if (string.IsNullOrEmpty(totalSoldiersStr))
