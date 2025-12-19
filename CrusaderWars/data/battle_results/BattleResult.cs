@@ -1643,29 +1643,13 @@ namespace CrusaderWars.data.battle_results
                         }
 
                     }
-
                     else if (editStarted && line.Contains("\t\t\tsize="))
                     {
-                        if (parentArmyRegiment != null && parentArmyRegiment.Type == RegimentType.MenAtArms)
-                        {
-                            if (editRegiment != null)
-                            {
-                                // For Men-at-Arms, only update the 'size' line and keep other properties.
-                                string currentNum = editRegiment.CurrentNum ?? "0";
-                                string edited_line = "\t\t\tsize=" + currentNum;
-                                streamWriter.WriteLine(edited_line);
-                                string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                                string logMessage = string.Format("Regiment {0}: Updating Men-at-Arms size to {1}.",
-                                    regId, currentNum);
-                                Program.Logger.Debug(logMessage);
-                            }
-
-                            continue; // Continue to next line without setting isNewData
-                        }
-                        else if (editRegiment != null)
+                        if (editRegiment != null)
                         {
                             var reg = editRegiment; // New local variable
-                            // For other types (Levy, Garrison), use the existing logic to rewrite the block.
+                            // For all types (Levy, Garrison, MenAtArms), use the logic to rewrite the block if we encounter the 'size' line.
+                            // This handles older save formats or cases where 'chunks' might be missing.
                             isNewData = true;
                             string max = reg.Max ?? "0";
                             string owner = reg.Owner ?? "";
