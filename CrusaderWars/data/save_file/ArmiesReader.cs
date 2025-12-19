@@ -2243,9 +2243,6 @@ namespace CrusaderWars.data.save_file
         {
             string? combatStringToParse = combat_string;
 
-            Boolean test = twbattle.BattleState.IsSiegeBattle;
-            Boolean test2 = twbattle.BattleState.HasReliefArmy;
-
             if (twbattle.BattleState.IsSiegeBattle && twbattle.BattleState.HasReliefArmy)
             {
                 Program.Logger.Debug("Siege with relief army detected. Searching for corresponding field combat block to get accurate starting numbers.");
