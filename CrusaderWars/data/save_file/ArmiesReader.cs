@@ -1868,23 +1868,27 @@ namespace CrusaderWars.data.save_file
                             reg.SetOwningTitle(owiningTitle);
                         }
                     }
-                    // Max
+                    // Max (inside chunk)
                     else if (isSearchStarted && line.Contains("\t\t\t\t\tmax="))
                     {
                         string max = Regex.Match(line, @"\d+").Value;
                         foreach (var reg in foundRegiments)
                         {
-                            // Only set max for the regiment chunk that matches the current index being parsed
-                            if ((!string.IsNullOrEmpty(reg.Index) && int.Parse(reg.Index) == index) || 
-                                (string.IsNullOrEmpty(reg.Index) && index == -1))
+                            int reg_chunk_index = 0;
+                            if (!string.IsNullOrEmpty(reg.Index))
+                            {
+                                reg_chunk_index = Int32.Parse(reg.Index);
+                            }
+
+                            if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
                             {
                                 reg.SetMax(max);
                             }
                         }
                     }
 
-                    // Soldiers
-                    else if (isSearchStarted && (line.Contains("\t\t\t\t\tcurrent=") || line.Contains("\t\t\tsize=")))
+                    // Soldiers and Max (top level)
+                    else if (isSearchStarted && (line.Contains("\t\t\t\t\tcurrent=") || line.Contains("\t\t\tsize=") || line.Contains("\t\t\tmax=")))
                     {
                         string current = Regex.Match(line, @"\d+").Value;
                         
@@ -1905,7 +1909,7 @@ namespace CrusaderWars.data.save_file
                             }
                         }
 
-                        if(line.Contains("\t\t\tsize="))
+                        if(line.Contains("\t\t\tsize=") || line.Contains("\t\t\tmax="))
                         {
                             foreach (var reg in foundRegiments)
                             {
