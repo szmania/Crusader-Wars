@@ -965,6 +965,13 @@ namespace CrusaderWars.data.save_file
                 string leftParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
                 string rightParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
 
+                // Create a set of besieger character IDs (LeftSide participants)
+                var besiegerCharIds = new HashSet<string> { leftParticipantId };
+                if (!string.IsNullOrEmpty(CK3LogData.LeftSide.GetCommander().id))
+                {
+                    besiegerCharIds.Add(CK3LogData.LeftSide.GetCommander().id);
+                }
+
                 foreach (string block in combatBlocks)
                 {
                     string test = BattleResult.ProvinceID;
@@ -983,11 +990,8 @@ namespace CrusaderWars.data.save_file
                         }
                     }
 
-                    Match defenderBlockMatch = Regex.Match(
-                        block,
-                        @"defender\s*=\s*(\{[\s\S]*?\})\s*phase\s*=",
-                        RegexOptions.Singleline
-                    );
+                    // Improved regex to handle various delimiters after the defender block
+                    Match defenderBlockMatch = Regex.Match(block, @"defender\s*=\s*({[\s\S]*?})\s*(?:phase=|combat_results=|province=|start_date=)", RegexOptions.Multiline);
                     if (defenderBlockMatch.Success)
                     {
                         foreach (Match charMatch in Regex.Matches(defenderBlockMatch.Groups[1].Value, @"character=(\d+)"))
@@ -996,12 +1000,14 @@ namespace CrusaderWars.data.save_file
                         }
                     }
 
-                    bool isMatch = (blockAttackerChars.Contains(leftParticipantId) && blockDefenderChars.Contains(rightParticipantId)) ||
-                                   (blockDefenderChars.Contains(leftParticipantId) && blockAttackerChars.Contains(rightParticipantId));
+                    // Check if besiegers are present in either attacker or defender blocks
+                    bool besiegerIsAttacker = besiegerCharIds.Overlaps(blockAttackerChars);
+                    bool besiegerIsDefender = besiegerCharIds.Overlaps(blockDefenderChars);
+                    bool isMatch = besiegerIsAttacker || besiegerIsDefender;
 
                     if (isMatch)
                     {
-                        Program.Logger.Debug("Found matching combat block based on participants and province.");
+                        Program.Logger.Debug("Found matching combat block based on besieger presence and province.");
                         var attackerIds = new List<string>();
                         var defenderIds = new List<string>();
 
@@ -1022,16 +1028,19 @@ namespace CrusaderWars.data.save_file
                             }
                         }
 
+                        // Assign army IDs based on where besiegers were found
                         List<string> besiegerIds;
                         List<string> reliefIds;
 
-                        if (blockAttackerChars.Contains(leftParticipantId))
+                        if (besiegerIsAttacker)
                         {
+                            Program.Logger.Debug("Besieger found in attacker block.");
                             besiegerIds = attackerIds;
                             reliefIds = defenderIds;
                         }
-                        else
+                        else // besiegerIsDefender must be true
                         {
+                            Program.Logger.Debug("Besieger found in defender block.");
                             besiegerIds = defenderIds;
                             reliefIds = attackerIds;
                         }
