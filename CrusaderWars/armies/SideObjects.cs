@@ -113,16 +113,37 @@ namespace CrusaderWars
         
         public int GetTotalSoldiers()
         {
+            // If Units list is populated, we're in the final battle composition stage
+            if (Units != null && Units.Any())
+            {
+                return Units.Sum(u => u.GetSoldiers());
+            }
+            
+            // If we're dealing with a garrison army
             if (IsGarrison())
             {
                 if (Units == null) return 0;
                 return Units.Sum(u => u.GetOriginalSoldiers());
             }
-            else
+            
+            // For non-garrison armies in initial strength calculation
+            if (ArmyRegiments == null) return 0;
+            
+            // First try to get the total from StartingNum (works for field battles)
+            int totalFromStartingNum = ArmyRegiments.Sum(ar => ar.StartingNum);
+            if (totalFromStartingNum > 0)
             {
-                if (ArmyRegiments == null) return 0;
-                return ArmyRegiments.Sum(ar => ar.StartingNum);
+                return totalFromStartingNum;
             }
+            
+            // If StartingNum is 0 (e.g., simple siege battles), calculate from regiments directly
+            return ArmyRegiments.Sum(ar => 
+                ar.Regiments?.Sum(r => {
+                    if (int.TryParse(r.CurrentNum, out int currentNum))
+                        return currentNum;
+                    return 0;
+                }) ?? 0
+            );
         }
         
         public int GetTotalDeployed()
