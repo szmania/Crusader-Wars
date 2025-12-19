@@ -236,6 +236,36 @@ namespace CrusaderWars.data.save_file
             ReadArmiesData();
             ReadArmiesUnits();
             ReadArmyRegiments();
+            
+            // Detect relief armies before reading combat soldier numbers
+            bool potentialReliefArmy = attacker_armies.Any(a => a.IsReinforcementArmy()) || defender_armies.Any(a => a.IsReinforcementArmy());
+            if (potentialReliefArmy)
+            {
+                Program.Logger.Debug("Potential relief army detected. Searching for corresponding combat block by province ID...");
+                BattleResult.ReadCombatBlockByProvinceID();
+
+                if (string.IsNullOrEmpty(BattleResult.Player_Combat))
+                {
+                    Program.Logger.Debug("No corresponding combat block found. The 'relief' army is not hostile or is retreating. Removing it from the siege battle.");
+                    BattleState.HasReliefArmy = false; // This is not a relief army battle
+
+                    // Remove the non-hostile armies from the battle lists
+                    int attackersRemoved = attacker_armies.RemoveAll(a => a.IsReinforcementArmy());
+                    int defendersRemoved = defender_armies.RemoveAll(a => a.IsReinforcementArmy());
+                    Program.Logger.Debug($"Removed {attackersRemoved} attacker reinforcement(s) and {defendersRemoved} defender reinforcement(s).");
+                }
+                else
+                {
+                    Program.Logger.Debug("Corresponding combat block found. This is a true relief army siege.");
+                    BattleState.HasReliefArmy = true; // This IS a relief army battle
+                }
+            }
+            else
+            {
+                // No reinforcement armies, so it cannot be a relief army battle.
+                BattleState.HasReliefArmy = false;
+            }
+
             ReadCombatSoldiersNum(BattleResult.Player_Combat);
             ReadRegiments();
             ReadOriginsKeys();
