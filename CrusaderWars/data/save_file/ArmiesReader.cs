@@ -57,38 +57,176 @@ namespace CrusaderWars.data.save_file
                 }
                 else
                 {
-                    Program.Logger.Debug("No combat block found. Using Attacker Army Composition from log to find besieging armies (simple siege).");
-
-                    string attackerComposition = twbattle.Sieges.GetAttackerArmyComposition();
-                    if (string.IsNullOrEmpty(attackerComposition))
+                    Program.Logger.Debug("No combat block found. Using Units.txt to find besieging armies (simple siege).");
+                    // Determine the player's actual side, accounting for the log swap when the player is besieged.
+                    DataSearchSides playerSide;
+                    // If the player is the main participant or commander of the LeftSide (the besiegers in the log),
+                    // they are on the attacking side. Otherwise, they must be involved with the RightSide (besieged).
+                    if (CK3LogData.LeftSide.GetMainParticipant().id == DataSearch.Player_Character.GetID() ||
+                        CK3LogData.LeftSide.GetCommander().id == DataSearch.Player_Character.GetID())
                     {
-                        throw new Exception("Siege battle detected, but no combat block was found and the attacker army composition from the log is empty. Cannot identify besieging armies.");
+                        playerSide = DataSearchSides.LeftSide;
+                        Program.Logger.Debug("Player is on LeftSide in the log.");
+                    }
+                    else
+                    {
+                        playerSide = DataSearchSides.RightSide;
+                        Program.Logger.Debug("Player is not on LeftSide in the log, so assigning to RightSide.");
                     }
 
-                    var armyIds = new HashSet<string>();
-                    // Regex to find all occurrences of "army=12345" in the composition string
-                    MatchCollection matches = Regex.Matches(attackerComposition, @"army=(\d+)");
-                    foreach (Match match in matches)
+                    // Create sets of character IDs for quick lookup
+                    var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id));
+                    var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
+                    // Also include the player's own character ID in the appropriate set to correctly identify armies they own but don't command.
+                    if (playerSide == DataSearchSides.LeftSide)
                     {
-                        armyIds.Add(match.Groups[1].Value);
+                        attackerCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
+                        attackerCharIDs.Add(DataSearch.Player_Character.GetID());
+                        Program.Logger.Debug($"Player is on LeftSide, adding Player ID {DataSearch.Player_Character.GetID()} to attacker character set.");
+                    }
+                    else
+                    {
+                        defenderCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
+                        defenderCharIDs.Add(DataSearch.Player_Character.GetID());
+                        Program.Logger.Debug($"Player is on RightSide, adding Player ID {DataSearch.Player_Character.GetID()} to defender character set.");
                     }
 
-                    Program.Logger.Debug($"Found {armyIds.Count} unique army IDs in attacker composition: [{string.Join(", ", armyIds)}]");
-
-                    foreach (var armyId in armyIds)
+                    // Pre-parse Armies.txt to find all merged sub-armies
+                    var mergedSubArmyIDs = new HashSet<string>();
+                    try
                     {
-                        // In a simple siege, the besiegers are always the 'attacker' in Attila
-                        attacker_armies.Add(new Army(armyId, "attacker", false));
+                        string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
+                        string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
+                        foreach (var block in armyBlocks)
+                        {
+                            if (string.IsNullOrWhiteSpace(block)) continue;
+                            var mergedArmiesMatch = Regex.Match(block, @"merged_armies={\s*([\d\s]+)\s*}");
+                            if (mergedArmiesMatch.Success)
+                            {
+                                var ids = mergedArmiesMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var id in ids)
+                                {
+                                    mergedSubArmyIDs.Add(id);
+                                }
+                            }
+                        }
+                        Program.Logger.Debug($"Identified {mergedSubArmyIDs.Count} merged sub-armies.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error pre-parsing Armies.txt for merged armies: {ex.Message}");
                     }
 
-                    if (attacker_armies.Any())
+
+                    DataSearchSides besiegerSide = DataSearchSides.LeftSide; // Besiegers are always LeftSide in the log
+                    var potentialBesiegerArmyIDs = new List<string>();
+                    var potentialReliefArmyIDs = new List<string>();
+
+                    // Pre-parse Armies.txt to map army IDs to commander IDs
+                    var armyToCommanderMap = new Dictionary<string, string>();
+                    try
                     {
-                        // Heuristically set the first army as the main one for commander assignment purposes.
-                        // This will be refined later.
-                        attacker_armies[0].isMainArmy = true;
+                        string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
+                        string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
+                        foreach (var block in armyBlocks)
+                        {
+                            if (string.IsNullOrWhiteSpace(block)) continue;
+                            var armyIdMatch = Regex.Match(block, @"\t\t(\d+)={");
+                            var commanderIdMatch = Regex.Match(block, @"commander=(\d+)");
+                            if (armyIdMatch.Success && commanderIdMatch.Success)armyToCommanderMap[armyIdMatch.Groups[1].Value] = commanderIdMatch.Groups[1].Value;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error pre-parsing Armies.txt to map commanders: {ex.Message}");
+                        throw new Exception("Could not map armies to commanders, cannot identify siege participants.", ex);
                     }
 
-                    Program.Logger.Debug($"Populated from log composition: {attacker_armies.Count} besiegers.");
+                    // 1. Find all mobile forces at the location and categorize their IDs
+                    try
+                    {
+                        string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
+                        string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
+
+                        foreach (string block in unitBlocks)
+                        {
+                            if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
+
+                            // Modified regex to robustly handle whitespace
+                            Match armyIdMatch = Regex.Match(block, @"army=(\d+)");
+                            if (!armyIdMatch.Success)
+                            {
+                                continue; // This block in Units.txt is not a standard army, so skip it.
+                            }
+                            string armyID = armyIdMatch.Groups[1].Value;
+                            string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
+
+                            armyToCommanderMap.TryGetValue(armyID, out var commanderID);
+
+                            DataSearchSides? currentArmySide = null;
+                            if (attackerCharIDs.Contains(ownerID) || (commanderID != null && attackerCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.LeftSide;
+                            else if (defenderCharIDs.Contains(ownerID) || (commanderID != null && defenderCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.RightSide;
+                            else continue;
+
+                            // Categorize army IDs into potential besiegers or relief forces
+                            if (currentArmySide == besiegerSide)
+                            {
+                                if (!potentialBesiegerArmyIDs.Contains(armyID)) potentialBesiegerArmyIDs.Add(armyID);
+                            }
+                            else
+                            {
+                                if (!potentialReliefArmyIDs.Contains(armyID)) potentialReliefArmyIDs.Add(armyID);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error reading besieger armies from Units.txt: {ex.Message}");
+                    }
+
+                    // 2. Filter out merged sub-armies to get only top-level commanders
+                    var topLevelBesiegerIDs = potentialBesiegerArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
+                    var topLevelReliefIDs = potentialReliefArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
+
+                    Program.Logger.Debug($"Found {potentialBesiegerArmyIDs.Count} potential besieger armies, filtered to {topLevelBesiegerIDs.Count} top-level armies.");
+                    Program.Logger.Debug($"Found {potentialReliefArmyIDs.Count} potential relief armies, filtered to {topLevelReliefIDs.Count} top-level armies.");
+
+                    // 3. Create Army objects for the top-level armies
+                    var besiegerForce = new List<Army>();
+                    foreach (var armyID in topLevelBesiegerIDs)
+                    {
+                        string combatSide = "attacker"; // Besiegers are always attackers in Attila
+                        Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
+                        besiegerForce.Add(army);
+                        Program.Logger.Debug($"Created top-level besieger army object for ID {armyID}.");
+                    }
+
+                    var reliefForce = new List<Army>();
+                    foreach (var armyID in topLevelReliefIDs)
+                    {
+                        string combatSide = "defender"; // Relief forces are defenders in Attila
+                        Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
+                        reliefForce.Add(army);
+                        Program.Logger.Debug($"Created top-level relief army object for ID {armyID}.");
+                    }
+
+
+                    // Flag relief forces as reinforcements
+                    foreach (var army in reliefForce)
+                    {
+                        army.SetAsReinforcement(true);
+                        Program.Logger.Debug($"Army {army.ID} flagged as reinforcement.");
+                    }
+
+                    // 3. Assign forces to Attila attacker/defender roles
+                    if (!besiegerForce.Any() && !reliefForce.Any())
+                    {
+                        throw new Exception("Could not find any besieger or relief forces for the siege battle.");
+                    }
+
+                    Program.Logger.Debug("Assigning besieger to Attila attacker role and relief to defender role.");
+                    attacker_armies.AddRange(besiegerForce);
+                    defender_armies.AddRange(reliefForce); // Add relief forces to defender_armies
                 }
                 // --- NEW LOGIC END ---
 
