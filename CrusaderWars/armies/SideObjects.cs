@@ -129,21 +129,10 @@ namespace CrusaderWars
             // For non-garrison armies in initial strength calculation
             if (ArmyRegiments == null) return 0;
             
-            // First try to get the total from StartingNum (works for field battles)
-            int totalFromStartingNum = ArmyRegiments.Sum(ar => ar.StartingNum);
-            if (totalFromStartingNum > 0)
-            {
-                return totalFromStartingNum;
-            }
-            
-            // If StartingNum is 0 (e.g., simple siege battles), calculate from regiments directly
-            return ArmyRegiments.Sum(ar => 
-                ar.Regiments?.Sum(r => {
-                    if (int.TryParse(r.CurrentNum, out int currentNum))
-                        return currentNum;
-                    return 0;
-                }) ?? 0
-            );
+            // For non-garrison armies, calculate initial strength.
+            // StartingNum is from Combats.txt (field battles/relief sieges) and is the most accurate.
+            // CurrentNum is from ArmyRegiments.txt and is the fallback for simple sieges.
+            return ArmyRegiments.Sum(ar => ar.StartingNum > 0 ? ar.StartingNum : ar.CurrentNum);
         }
         
         public int GetTotalDeployed()
