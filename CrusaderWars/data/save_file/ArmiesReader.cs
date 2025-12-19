@@ -1138,23 +1138,44 @@ namespace CrusaderWars.data.save_file
                         continue;
                     }
                     
-                    // Distribute the total soldiers to the first regiment and zero out the rest
-                    for (int i = 0; i < armyRegiment.Regiments.Count; i++)
+                    // Distribute soldiers across all regiment chunks respecting their max values
+                    int soldiersToDistribute = totalSoldiers;
+                    var regiments = armyRegiment.Regiments.ToList();
+                    
+                    // First pass: distribute soldiers according to max limits
+                    for (int i = 0; i < regiments.Count; i++)
                     {
-                        var regiment = armyRegiment.Regiments[i];
+                        var regiment = regiments[i];
                         if (regiment == null) continue;
                         
-                        if (i == 0)
+                        int maxForChunk = int.MaxValue;
+                        if (!string.IsNullOrEmpty(regiment.Max) && int.TryParse(regiment.Max, out int parsedMax))
                         {
-                            // Assign all soldiers to the first regiment
-                            regiment.SetSoldiers(totalSoldiers.ToString());
-                            Program.Logger.Debug($"Set {totalSoldiers} soldiers for first regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                            maxForChunk = parsedMax;
                         }
-                        else
+                        
+                        int soldiersForThisChunk = Math.Min(soldiersToDistribute, maxForChunk);
+                        regiment.SetSoldiers(soldiersForThisChunk.ToString());
+                        soldiersToDistribute -= soldiersForThisChunk;
+                        
+                        Program.Logger.Debug($"Set {soldiersForThisChunk} soldiers for regiment {regiment.ID} (chunk {i}) in ArmyRegiment {armyRegiment.ID}. Max: {maxForChunk}");
+                    }
+                    
+                    // Second pass: if we still have soldiers left, add them to the last chunk
+                    if (soldiersToDistribute > 0 && regiments.Count > 0)
+                    {
+                        var lastRegiment = regiments.Last();
+                        if (lastRegiment != null)
                         {
-                            // Zero out the rest
-                            regiment.SetSoldiers("0");
-                            Program.Logger.Debug($"Zeroed soldiers for additional regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                            int currentSoldiers = 0;
+                            if (!string.IsNullOrEmpty(lastRegiment.CurrentNum) && int.TryParse(lastRegiment.CurrentNum, out int parsedCurrent))
+                            {
+                                currentSoldiers = parsedCurrent;
+                            }
+                            
+                            int newSoldierCount = currentSoldiers + soldiersToDistribute;
+                            lastRegiment.SetSoldiers(newSoldierCount.ToString());
+                            Program.Logger.Debug($"Warning: Had to exceed max limit for last regiment {lastRegiment.ID} in ArmyRegiment {armyRegiment.ID}. Added {soldiersToDistribute} extra soldiers.");
                         }
                     }
                 }
@@ -1189,23 +1210,44 @@ namespace CrusaderWars.data.save_file
                         continue;
                     }
                     
-                    // Distribute the total soldiers to the first regiment and zero out the rest
-                    for (int i = 0; i < armyRegiment.Regiments.Count; i++)
+                    // Distribute soldiers across all regiment chunks respecting their max values
+                    int soldiersToDistribute = totalSoldiers;
+                    var regiments = armyRegiment.Regiments.ToList();
+                    
+                    // First pass: distribute soldiers according to max limits
+                    for (int i = 0; i < regiments.Count; i++)
                     {
-                        var regiment = armyRegiment.Regiments[i];
+                        var regiment = regiments[i];
                         if (regiment == null) continue;
                         
-                        if (i == 0)
+                        int maxForChunk = int.MaxValue;
+                        if (!string.IsNullOrEmpty(regiment.Max) && int.TryParse(regiment.Max, out int parsedMax))
                         {
-                            // Assign all soldiers to the first regiment
-                            regiment.SetSoldiers(totalSoldiers.ToString());
-                            Program.Logger.Debug($"Set {totalSoldiers} soldiers for first regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                            maxForChunk = parsedMax;
                         }
-                        else
+                        
+                        int soldiersForThisChunk = Math.Min(soldiersToDistribute, maxForChunk);
+                        regiment.SetSoldiers(soldiersForThisChunk.ToString());
+                        soldiersToDistribute -= soldiersForThisChunk;
+                        
+                        Program.Logger.Debug($"Set {soldiersForThisChunk} soldiers for regiment {regiment.ID} (chunk {i}) in ArmyRegiment {armyRegiment.ID}. Max: {maxForChunk}");
+                    }
+                    
+                    // Second pass: if we still have soldiers left, add them to the last chunk
+                    if (soldiersToDistribute > 0 && regiments.Count > 0)
+                    {
+                        var lastRegiment = regiments.Last();
+                        if (lastRegiment != null)
                         {
-                            // Zero out the rest
-                            regiment.SetSoldiers("0");
-                            Program.Logger.Debug($"Zeroed soldiers for additional regiment {regiment.ID} in ArmyRegiment {armyRegiment.ID}");
+                            int currentSoldiers = 0;
+                            if (!string.IsNullOrEmpty(lastRegiment.CurrentNum) && int.TryParse(lastRegiment.CurrentNum, out int parsedCurrent))
+                            {
+                                currentSoldiers = parsedCurrent;
+                            }
+                            
+                            int newSoldierCount = currentSoldiers + soldiersToDistribute;
+                            lastRegiment.SetSoldiers(newSoldierCount.ToString());
+                            Program.Logger.Debug($"Warning: Had to exceed max limit for last regiment {lastRegiment.ID} in ArmyRegiment {armyRegiment.ID}. Added {soldiersToDistribute} extra soldiers.");
                         }
                     }
                 }
@@ -1832,7 +1874,12 @@ namespace CrusaderWars.data.save_file
                         string max = Regex.Match(line, @"\d+").Value;
                         foreach (var reg in foundRegiments)
                         {
-                            reg.SetMax(max);
+                            // Only set max for the regiment chunk that matches the current index being parsed
+                            if ((!string.IsNullOrEmpty(reg.Index) && int.Parse(reg.Index) == index) || 
+                                (string.IsNullOrEmpty(reg.Index) && index == -1))
+                            {
+                                reg.SetMax(max);
+                            }
                         }
                     }
 
