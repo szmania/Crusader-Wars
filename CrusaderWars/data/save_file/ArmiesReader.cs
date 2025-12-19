@@ -2138,13 +2138,101 @@ namespace CrusaderWars.data.save_file
             }
         }
 
+        private static string? FindReliefFieldCombatBlock()
+        {
+            Program.Logger.Debug("Searching for relief field combat block in Combats.txt...");
+            try
+            {
+                string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+                string[] combatBlocks = Regex.Split(combatsContent, @"(?=^\s*\d+={)", RegexOptions.Multiline);
+
+                // 1. Get all mobile (non-garrison) army IDs from the current battle
+                var mobileArmyIdsInBattle = new HashSet<string>(
+                    attacker_armies.Where(a => !a.IsGarrison()).Select(a => a.ID)
+                    .Concat(defender_armies.Where(a => !a.IsGarrison()).Select(a => a.ID))
+                );
+
+                if (!mobileArmyIdsInBattle.Any())
+                {
+                    Program.Logger.Debug("No mobile armies found in the battle. Cannot search for a field combat block.");
+                    return null;
+                }
+                
+                Program.Logger.Debug($"Mobile armies in battle: [{string.Join(", ", mobileArmyIdsInBattle)}]");
+
+                foreach (string block in combatBlocks)
+                {
+                    if (string.IsNullOrWhiteSpace(block)) continue;
+
+                    // 2. Check if the block is in the correct province
+                    if (!block.Contains($"province={BattleResult.ProvinceID}"))
+                    {
+                        continue;
+                    }
+
+                    // 3. Check for attacker and defender armies
+                    if (!block.Contains("attacker={") || !block.Contains("defender={"))
+                    {
+                        continue;
+                    }
+
+                    // 4. Extract all army IDs from this block
+                    var armyIdsInBlock = new HashSet<string>();
+                    MatchCollection armiesMatches = Regex.Matches(block, @"armies={\s*([\d\s]+)\s*}");
+            
+                    if (armiesMatches.Count < 2) continue; // Must have at least attacker and defender armies
+
+                    foreach (Match m in armiesMatches)
+                    {
+                        var ids = m.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var id in ids)
+                        {
+                            armyIdsInBlock.Add(id);
+                        }
+                    }
+
+                    // 5. Compare the set of IDs
+                    if (mobileArmyIdsInBattle.SetEquals(armyIdsInBlock))
+                    {
+                        Program.Logger.Debug($"Found matching field combat block for province {BattleResult.ProvinceID}.");
+                        return block;
+                    }
+                }
+
+                Program.Logger.Debug("No matching relief field combat block found.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading or parsing Combats.txt for relief battle: {ex.Message}");
+                return null;
+            }
+        }
+
         static void ReadCombatSoldiersNum(string? combat_string)
         {
-            if (combat_string == null) return;
+            string? combatStringToParse = combat_string;
+
+            if (twbattle.BattleState.IsSiegeBattle && twbattle.BattleState.HasReliefArmy)
+            {
+                Program.Logger.Debug("Siege with relief army detected. Searching for corresponding field combat block to get accurate starting numbers.");
+                string? reliefCombatBlock = FindReliefFieldCombatBlock();
+                if (!string.IsNullOrEmpty(reliefCombatBlock))
+                {
+                    Program.Logger.Debug("Found field combat block. Using it to parse soldier numbers.");
+                    combatStringToParse = reliefCombatBlock;
+                }
+                else
+                {
+                    Program.Logger.Debug("WARNING: Could not find a matching field combat block for the relief army. Initial soldier counts may be incorrect.");
+                }
+            }
+
+            if (combatStringToParse == null) return;
 
             bool isAttacker = false, isDefender = false;
             string? searchingArmyRegiment = null;
-            using (StringReader SR = new StringReader(combat_string))//Player_Combat
+            using (StringReader SR = new StringReader(combatStringToParse))//Player_Combat
             {
                 while (true)
                 {
