@@ -2412,7 +2412,8 @@ namespace CrusaderWars
             {
                 battleJustCompleted = true;
                 // The battle finished successfully, start the main loop to wait for the next one.
-                ExecuteButton.PerformClick();
+                // ExecuteButton.PerformClick() does not work on a disabled button, so we call the handler directly.
+                ExecuteButton_Click(this, EventArgs.Empty);
             }
             else
             {
