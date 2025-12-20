@@ -104,7 +104,18 @@ namespace CrusaderWars.twbattle
 
             BattleFile.SetArmiesSides(attacker_armies, defender_armies);
 
-            ProcessProminentKnights(attacker_armies, defender_armies);
+            // Check the "Combine Knights" option. If it's disabled, process prominent knights to lead MAA units.
+            // If it's enabled, skip this step so all knights are grouped into the combined bodyguard unit.
+            bool combineKnightsEnabled = client.ModOptions.optionsValuesCollection.TryGetValue("CombineKnights", out string? combineKnightsOption) && combineKnightsOption == "Enabled";
+
+            if (!combineKnightsEnabled)
+            {
+                ProcessProminentKnights(attacker_armies, defender_armies);
+            }
+            else
+            {
+                Program.Logger.Debug("'Combine Knights' option is enabled. All knights will be in a combined unit, and none will lead MAA units.");
+            }
 
             if (!BattleState.IsSiegeBattle)
             {
