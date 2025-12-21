@@ -323,21 +323,6 @@ window = {
                 alpha = .60
             }
 
-            button = { name = Siege_Battle_Disabled
-                visible = "[And(Not(And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress)), GetVariableSystem.HasValue('cw_op_control', 'control1'))), And(Not(And(And(Or(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, ObjectsEqual(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetCouncilTitle, 'Marshal')), GetVariableSystem.HasValue('cw_op_control', 'control2')), Not(SiegeWindow.GetSiege.IsAssaultInProgress))), And(Not(And(And(ObjectsEqual(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetDynasty, GetPlayer.GetDynasty), GetVariableSystem.HasValue('cw_op_control', 'control3')), Not(SiegeWindow.GetSiege.IsAssaultInProgress))), Not(And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsValid, GetVariableSystem.HasValue( 'cw_op_control', 'control4' )), Not(SiegeWindow.GetSiege.IsAssaultInProgress))))))]"
-                #visible = "[And(!Siege_Button_control1.IsVisible, And(!Siege_Button_control2.IsVisible, And(!Siege_Button_control3.IsVisible, !Siege_Button_control4.IsVisible)))]"
-                #visible = "[Not(Siege_Button_control4.IsVisible)]"
-                #visible = "[And(SiegeWindow.GetSiege.FortLevelHasImpact, Not(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress))))]" # Always visable, but smaller and behind the other button should only be seen when the other button is not active
-                #visible = "[SiegeWindow.GetSiege.FortLevelHasImpact]"
-                #raw_tooltip = "This character may not control battles."
-                tooltip = cc_siege_fight_button_disabled
-                parentanchor = center
-                position = { 60 75 }
-                texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
-                size = { 48 48 }
-                alpha = .60
-            }
-
             ############################################################
             ############################################################
             ###   END CRUSADER CONFLICTS EDITS TO window_siege.gui   ###

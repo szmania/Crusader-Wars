@@ -64,7 +64,7 @@ window = {
                 default_format = "medium"
 
                 onclick = "[GetVariableSystem.Set( 'cw_op_tabs', 'prefs' )]"
-                down = "[Or(GetVariableSystem.HasValue( 'cw_op_tabs', 'prefs' ), Not(GetVariableSystem.Exists('cw_op_tabs')))]"
+                down = "[GetVariableSystem.HasValue( 'cw_op_tabs', 'prefs' )]"
             }
 
             button_tab = {
