@@ -1,5 +1,5 @@
 window = {
-    name = "cw_options"
+    name = "cc_options"
     parentanchor = center
     size = { 70% 75% }
     layer = top
