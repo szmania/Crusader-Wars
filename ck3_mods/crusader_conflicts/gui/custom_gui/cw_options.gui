@@ -68,7 +68,6 @@ window = {
             }
 
             button_tab = {
-                visible = False
                 layoutpolicy_horizontal = expanding
                 text = "cw_op_tab5_title"
                 #raw_text = "CK3 to Attila Unit Mapping"
@@ -810,7 +809,7 @@ window = {
 
                 vbox = {
                     name = "UNIT MAPPING TOP TAB"
-                    visible = "[Or(GetVariableSystem.HasValue( 'cw_op_tabs', 'mapping' ), Not(GetVariableSystem.Exists('cw_op_tabs')))]"
+                    visible = "[GetVariableSystem.HasValue( 'cw_op_tabs', 'mapping' )]"
                     layoutpolicy_horizontal = expanding
 
                     hbox_text_entry = {

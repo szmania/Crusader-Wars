@@ -4501,33 +4501,3 @@ template Animation_Frames_100_Modify
             frame = 87
         }
     }
-
-    state = {
-        name = 88
-        next = 89
-        duration = @flame_state_duration
-
-        modify_texture = {
-            name = "fire"
-            frame = 88
-        }
-    }
-
-    state = {
-        name = 89
-        next = 90
-        duration = @flame_state_duration
-
-        modify_texture = {
-            name = "fire"
-            frame = 89
-        }
-    }
-
-    state = {
-        name = 90
-        next = 1
-        duration = @flame_state_duration
-        frame = 90
-    }
-}
