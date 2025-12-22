@@ -18,5 +18,4 @@
     cc_siege_fight_button: "Combattez ce siège vous-même !"
     cc_siege_fight_button_disabled: "Ce personnage ne peut pas contrôler les batailles de siège.\nVoir Options du Mod : Préférences"
     cc_siege_options_button: "Options du mod Crusader Conflicts"
-    cw_bw_wait_button: "Attendez encore quelques jours pour combattre ce siège..."
-    cw_bw_options_button: "Options du mod Crusader Conflicts"
+    cc_siege_wait_button: "Attendez encore quelques jours pour combattre ce siège..."
