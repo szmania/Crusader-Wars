@@ -18,5 +18,4 @@
     cc_siege_fight_button: "¡Lucha este asedio tú mismo!"
     cc_siege_fight_button_disabled: "Este personaje no puede controlar batallas de asedio.\nVer Opciones del Mod: Preferencias"
     cc_siege_options_button: "Opciones del mod Crusader Conflicts"
-    cw_bw_wait_button: "Espera unos días más para luchar este asedio..."
-    cw_bw_options_button: "Opciones del mod Crusader Conflicts"
+    cc_siege_wait_button: "Espera unos días más para luchar este asedio..."
