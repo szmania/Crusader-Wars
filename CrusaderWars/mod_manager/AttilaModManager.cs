@@ -208,23 +208,9 @@ namespace CrusaderWars.mod_manager
                 }
             }
 
-            // Get a list of all possible submod pack files to prevent duplication.
-            var allSubmodPacks = new HashSet<string>();
-            if (UnitMappers_BETA.AvailableSubmods.Any())
-            {
-                foreach (var submod in UnitMappers_BETA.AvailableSubmods)
-                {
-                    foreach (var modFile in submod.Mods)
-                    {
-                        allSubmodPacks.Add(modFile.FileName);
-                    }
-                }
-            }
-
             // Get ordered lists of mods
             var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod() 
-                                                && !modsToExclude.Contains(x.GetName())
-                                                && !allSubmodPacks.Contains(x.GetName())) // Exclude submod packs
+                                                && !modsToExclude.Contains(x.GetName()))
                                        .OrderBy(x => x.GetLoadOrderValue())
                                        .ToList();
 
@@ -264,36 +250,7 @@ namespace CrusaderWars.mod_manager
                 // 3. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
                 foreach (var mod in requiredMods)
                 {
-                    writeModEntry(mod, "Required");
-                }
-
-                // 4. Active Submod packs
-                if (UnitMappers_BETA.ActivePlaythroughTag != null)
-                {
-                    var activeSubmodTags = SubmodManager.GetActiveSubmodsForPlaythrough(UnitMappers_BETA.ActivePlaythroughTag);
-                    if (activeSubmodTags.Any() && UnitMappers_BETA.AvailableSubmods.Any())
-                    {
-                        // Filter to get active submods, preserving the original order from Mods.xml
-                        var activeSubmodsInOrder = UnitMappers_BETA.AvailableSubmods
-                            .Where(s => activeSubmodTags.Contains(s.Tag))
-                            .ToList();
-                        
-                        foreach (var submod in activeSubmodsInOrder)
-                        {
-                            foreach (var submodPack in submod.Mods)
-                            {
-                                var modObject = ModsPaths.FirstOrDefault(m => m.GetName() == submodPack.FileName);
-                                if (modObject != null)
-                                {
-                                    writeModEntry(modObject, "Submod");
-                                }
-                                else
-                                {
-                                    Program.Logger.Debug($"  - WARNING: Active submod pack '{submodPack.FileName}' for submod '{submod.Tag}' not found in installed mods list.");
-                                }
-                            }
-                        }
-                    }
+                    writeModEntry(mod, "Required/Submod");
                 }
 
                 sw.Dispose();
