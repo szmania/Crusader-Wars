@@ -466,14 +466,22 @@ namespace CrusaderWars.mod_manager
         {
             Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
-            var modsToFind = modsToVerifyList
+            
+            // Create a dictionary to track verification state for each mod
+            var modStates = modsToVerifyList
                 .GroupBy(item => item.FileName)
-                .Select(group => group.First())
-                .ToDictionary(item => item.FileName, item => (Sha: item.Sha256, ScreenName: item.ScreenName, Url: item.Url));
-            Program.Logger.Debug($"Mods to verify: {string.Join(", ", modsToFind.Keys)}");
+                .ToDictionary(
+                    g => g.Key,
+                    g => new {
+                        Info = g.First(),
+                        Found = false,
+                        Matched = false
+                    }
+                );
 
+            Program.Logger.Debug($"Mods to verify: {string.Join(", ", modStates.Keys)}");
 
-            //Verify data folder
+            // Verify data folder (priority location)
             string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
             Program.Logger.Debug($"Checking Attila data folder: {data_folder_path}");
             if (Directory.Exists(data_folder_path))
@@ -482,34 +490,42 @@ namespace CrusaderWars.mod_manager
                 foreach (var file in dataModsPaths)
                 {
                     var fileName = Path.GetFileName(file);
-                    if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
+                    if (modStates.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                     {
-                        var screenName = modsToFind[fileName].ScreenName;
+                        var modState = modStates[fileName];
+                        var screenName = modState.Info.ScreenName;
+                        
                         string progressMessage = string.IsNullOrEmpty(screenName)
                             ? $"Verifying: {fileName}"
                             : $"Verifying: {screenName} - {fileName}";
                         progress?.Report(progressMessage);
-                        string expectedSha = modsToFind[fileName].Sha;
-                        var url = modsToFind[fileName].Url;
-                        if (!string.IsNullOrEmpty(expectedSha))
+
+                        // Mark as found
+                        modStates[fileName] = new { Info = modState.Info, Found = true, Matched = modState.Matched };
+
+                        if (!string.IsNullOrEmpty(modState.Info.Sha256))
                         {
                             string actualSha = CalculateSHA256(file);
-                            if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(modState.Info.Sha256, actualSha, StringComparison.OrdinalIgnoreCase))
                             {
                                 Program.Logger.Debug($"Found required mod in data folder with matching hash: {fileName}");
-                                modsToFind.Remove(fileName);
+                                // Mark as matched and stop searching for this mod
+                                modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
                             }
                             else
                             {
-                                Program.Logger.Debug($"Found required mod '{fileName}' in data folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
-                                result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
-                                modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
+                                Program.Logger.Debug($"Found required mod '{fileName}' in data folder but hash mismatched. Expected: {modState.Info.Sha256}, Actual: {actualSha}");
+                                // Since data folder has priority, this is a definitive mismatch
+                                result.MismatchedFiles.Add((fileName, modState.Info.Sha256, screenName, modState.Info.Url));
+                                // Mark as matched to stop searching (because data folder takes precedence)
+                                modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
                             }
                         }
                         else // No hash provided, just check for existence
                         {
                             Program.Logger.Debug($"Found required mod in data folder (no hash check): {fileName}");
-                            modsToFind.Remove(fileName);
+                            // Mark as matched and stop searching
+                            modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
                         }
                     }
                 }
@@ -520,7 +536,7 @@ namespace CrusaderWars.mod_manager
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
 
-            //Verify workshop folder
+            // Verify workshop folder (only for mods not yet matched)
             string? workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
             Program.Logger.Debug($"Checking Attila workshop folder: {workshop_folder_path}");
             if (Directory.Exists(workshop_folder_path))
@@ -532,42 +548,72 @@ namespace CrusaderWars.mod_manager
                     foreach (var file in files)
                     {
                         var fileName = Path.GetFileName(file);
-                        if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
+                        if (modStates.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                         {
-                            var screenName = modsToFind[fileName].ScreenName;
+                            var modState = modStates[fileName];
+                            
+                            // Skip if already matched (found in data folder or already matched in workshop)
+                            if (modState.Matched) continue;
+
+                            var screenName = modState.Info.ScreenName;
+                            
                             string progressMessage = string.IsNullOrEmpty(screenName)
                                 ? $"Verifying: {fileName}"
                                 : $"Verifying: {screenName} - {fileName}";
                             progress?.Report(progressMessage);
-                            string expectedSha = modsToFind[fileName].Sha;
-                            var url = modsToFind[fileName].Url;
-                            if (!string.IsNullOrEmpty(expectedSha))
+
+                            // Mark as found
+                            modStates[fileName] = new { Info = modState.Info, Found = true, Matched = modState.Matched };
+
+                            if (!string.IsNullOrEmpty(modState.Info.Sha256))
                             {
                                 string actualSha = CalculateSHA256(file);
-                                if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
+                                if (string.Equals(modState.Info.Sha256, actualSha, StringComparison.OrdinalIgnoreCase))
                                 {
                                     Program.Logger.Debug($"Found required mod in workshop folder with matching hash: {fileName}");
-                                    modsToFind.Remove(fileName);
+                                    // Mark as matched
+                                    modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
                                 }
                                 else
                                 {
-                                    Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
-                                    result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
-                                    modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
+                                    Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {modState.Info.Sha256}, Actual: {actualSha}");
+                                    // Store mismatch info but keep searching other workshop folders
+                                    // We'll add it to MismatchedFiles later only if no correct version is found
                                 }
                             }
                             else // No hash provided, just check for existence
                             {
                                 Program.Logger.Debug($"Found required mod in workshop folder (no hash check): {fileName}");
-                                modsToFind.Remove(fileName);
+                                // Mark as matched
+                                modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
                             }
                         }
                     }
                 }
             }
 
-            // Any mods remaining in modsToFind are missing from both locations.
-            result.MissingFiles.AddRange(modsToFind.Select(kvp => (kvp.Key, kvp.Value.ScreenName, kvp.Value.Url)));
+            // Process final states
+            foreach (var kvp in modStates)
+            {
+                string fileName = kvp.Key;
+                var modState = kvp.Value;
+                var info = modState.Info;
+
+                if (!modState.Found)
+                {
+                    // Mod not found in any location
+                    result.MissingFiles.Add((fileName, info.ScreenName, info.Url));
+                }
+                else if (!modState.Matched)
+                {
+                    // Mod found but no version matched - this means all found versions had hash mismatches
+                    // Only report mismatch if we actually found the file (this prevents double reporting)
+                    if (!string.IsNullOrEmpty(info.Sha256))
+                    {
+                        result.MismatchedFiles.Add((fileName, info.Sha256, info.ScreenName, info.Url));
+                    }
+                }
+            }
 
             if (result.MissingFiles.Any()) Program.Logger.Debug($"Mods not found: {string.Join(", ", result.MissingFiles.Select(f => f.FileName))}");
             if (result.MismatchedFiles.Any()) Program.Logger.Debug($"Mismatched mods: {string.Join(", ", result.MismatchedFiles.Select(m => m.FileName))}");
