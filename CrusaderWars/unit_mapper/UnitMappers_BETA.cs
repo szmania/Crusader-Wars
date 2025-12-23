@@ -852,7 +852,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     foreach (var mapperPath in matchingMappers)
                     {
-                        var mods = ProcessMapper(mapperPath);
+                        var mods = ProcessMapper(mapperPath, activeSubmods);
                         if (mods.Any()) // ProcessMapper returns empty list on time period mismatch
                         {
                             requiredMods.AddRange(mods); // Aggregate mods
@@ -876,7 +876,7 @@ namespace CrusaderWars.unit_mapper
                     string fileTag = File.ReadAllText(tagFilePath).Trim();
                     if (tag == fileTag)
                     {
-                        var mods = ProcessMapper(mapper);
+                        var mods = ProcessMapper(mapper, activeSubmods);
                         if (mods.Any()) // ProcessMapper returns empty list on time period mismatch
                         {
                             requiredMods.AddRange(mods); // Aggregate mods
@@ -888,7 +888,7 @@ namespace CrusaderWars.unit_mapper
             return requiredMods; // Return empty list if no suitable mapper is found
         }
 
-        private static List<string> ProcessMapper(string mapperPath)
+        private static List<string> ProcessMapper(string mapperPath, List<string> activeSubmods)
         {
             List<string> requiredMods = new List<string>();
 
@@ -926,6 +926,8 @@ namespace CrusaderWars.unit_mapper
                         xmlMods.Load(modsPath);
                         if (xmlMods.DocumentElement != null)
                         {
+                            var activeSubmodTags = new HashSet<string>(activeSubmods); // For faster lookups
+
                             foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
                             {
                                 if (node is XmlComment) continue;
@@ -962,6 +964,15 @@ namespace CrusaderWars.unit_mapper
                                     if (!string.IsNullOrEmpty(submod.Tag))
                                     {
                                         AvailableSubmods.Add(submod);
+
+                                        // If this submod is active, add its mods to the list in order.
+                                        if (activeSubmodTags.Contains(submod.Tag))
+                                        {
+                                            foreach (var modFile in submod.Mods)
+                                            {
+                                                requiredMods.Add(modFile.FileName);
+                                            }
+                                        }
                                     }
                                 }
                             }
