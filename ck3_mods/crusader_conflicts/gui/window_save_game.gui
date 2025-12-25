@@ -23,7 +23,7 @@ window = {
         duration = 2
         on_finish = "[SaveGameWindow.Save]"
         on_finish = "[SaveGameWindow.Cancel]"
-        on_finish = "[PdxGuiTriggerAllAnimations('cw_confirm_overwrite_save')]"
+        on_finish = "[PdxGuiTriggerAllAnimations('cc_confirm_overwrite_save')]"
         on_finish = "[PdxGuiTriggerAllAnimations('resume_game')]"
     }
 

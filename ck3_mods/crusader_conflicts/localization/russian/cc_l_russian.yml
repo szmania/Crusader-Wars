@@ -69,8 +69,8 @@
 	
 	#
 	### Troops by Culture conversions for both default attila and with 1212 AD DETAILED ### 
-	cw_op_def1: "#Details here for Default Units"
-	cw_op_def2: "Details here for 1212 AD Units"
+	cc_op_def1: "#Details here for Default Units"
+	cc_op_def2: "Details here for 1212 AD Units"
 
 	#Extracting Data
 	player_id: "[GetPlayer.MakeScope.Var('left_side_commander').Char.GetID]"

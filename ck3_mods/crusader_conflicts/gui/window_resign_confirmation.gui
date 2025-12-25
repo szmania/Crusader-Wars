@@ -8,7 +8,7 @@
 	using = Background_Full_Dim
 
 	state = {
-        name = cw_exit_to_menu
+        name = cc_exit_to_menu
         duration = 10
 		on_finish = "[ResignConfirmationWindow.OnMenu]" #exit to menu
     }
