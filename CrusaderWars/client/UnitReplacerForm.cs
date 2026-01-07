@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace CrusaderWars.client
 {
@@ -29,7 +31,14 @@ namespace CrusaderWars.client
             InitializeComponent();
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
-            Replacements = new Dictionary<(string, bool), (string, bool)>(existingReplacements);
+            
+            // Load saved replacements from settings, but override with any provided existing replacements
+            LoadReplacementsFromSettings();
+            foreach (var kvp in existingReplacements)
+            {
+                Replacements[kvp.Key] = kvp.Value;
+            }
+            
             _unitScreenNames = unitScreenNames ?? new Dictionary<string, string>();
             txtSearchCurrent.TextChanged += TxtSearchCurrent_TextChanged;
             txtSearchAvailable.TextChanged += TxtSearchAvailable_TextChanged;
@@ -330,6 +339,13 @@ namespace CrusaderWars.client
             UpdateCurrentUnitsTreeVisuals();
         }
 
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            Replacements.Clear();
+            ClearNodeSelection();
+            UpdateCurrentUnitsTreeVisuals();
+        }
+
         private void UpdateCurrentUnitsTreeVisuals()
         {
             Action<TreeNodeCollection> TraverseNodes = null;
@@ -526,6 +542,7 @@ namespace CrusaderWars.client
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            SaveReplacementsToSettings();
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
@@ -534,6 +551,58 @@ namespace CrusaderWars.client
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
+        }
+
+        private void SaveReplacementsToSettings()
+        {
+            try
+            {
+                // Serialize the dictionary to a base64 string
+                using (var memoryStream = new MemoryStream())
+                {
+                    var formatter = new BinaryFormatter();
+                    formatter.Serialize(memoryStream, Replacements);
+                    string serializedData = Convert.ToBase64String(memoryStream.ToArray());
+                    
+                    // Save to application settings
+                    Properties.Settings.Default.BattleToolReplacements = serializedData;
+                    Properties.Settings.Default.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle serialization errors silently or log them
+                System.Diagnostics.Debug.WriteLine($"Failed to save replacements: {ex.Message}");
+            }
+        }
+
+        private void LoadReplacementsFromSettings()
+        {
+            try
+            {
+                string serializedData = Properties.Settings.Default.BattleToolReplacements;
+                if (!string.IsNullOrEmpty(serializedData))
+                {
+                    // Deserialize the dictionary from base64 string
+                    byte[] data = Convert.FromBase64String(serializedData);
+                    using (var memoryStream = new MemoryStream(data))
+                    {
+                        var formatter = new BinaryFormatter();
+                        var loadedReplacements = formatter.Deserialize(memoryStream) as Dictionary<(string, bool), (string, bool)>;
+                        if (loadedReplacements != null)
+                        {
+                            Replacements = loadedReplacements;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle deserialization errors silently or log them
+                System.Diagnostics.Debug.WriteLine($"Failed to load replacements: {ex.Message}");
+                // Reset to empty dictionary on error
+                Replacements = new Dictionary<(string, bool), (string, bool)>();
+            }
         }
 
         private void UnitReplacerForm_Resize(object sender, EventArgs e)
