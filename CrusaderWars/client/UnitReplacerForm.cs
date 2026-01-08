@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using CrusaderWars.twbattle;
 
 namespace CrusaderWars.client
 {
@@ -810,4 +811,3 @@ namespace CrusaderWars.client
         }
     }
 }
-using CrusaderWars.twbattle;
