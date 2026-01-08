@@ -148,7 +148,7 @@ namespace CrusaderWars.twbattle
             }
             catch (Exception ex)
             {
-                Program.Logger.Error($"Error saving persistent battle settings: {ex.Message}");
+                Program.Logger.Debug($"Error saving persistent battle settings: {ex.Message}");
             }
         }
 
@@ -173,7 +173,7 @@ namespace CrusaderWars.twbattle
             }
             catch (Exception ex)
             {
-                Program.Logger.Error($"Error loading persistent battle settings: {ex.Message}");
+                Program.Logger.Debug($"Error loading persistent battle settings: {ex.Message}");
             }
         }
 
