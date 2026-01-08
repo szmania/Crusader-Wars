@@ -825,3 +825,4 @@ namespace CrusaderWars.client
         }
     }
 }
+using CrusaderWars.twbattle;
