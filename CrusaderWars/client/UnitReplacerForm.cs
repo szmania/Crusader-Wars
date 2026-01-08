@@ -542,7 +542,23 @@ namespace CrusaderWars.client
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            SaveReplacementsToSettings();
+            var replacements = new Dictionary<string, string>();
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.IsNewRow) continue;
+                var original = row.Cells[0].Value?.ToString();
+                var replacement = row.Cells[1].Value?.ToString();
+                if (!string.IsNullOrEmpty(original) && !string.IsNullOrEmpty(replacement))
+                {
+                    replacements[original] = replacement;
+                }
+            }
+
+            // Update the static BattleState with the new replacements
+            BattleState.ManualUnitReplacements = replacements;
+            // Save the updated replacements to the persistent JSON file
+            BattleState.SavePersistentBattleSettings();
+
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
