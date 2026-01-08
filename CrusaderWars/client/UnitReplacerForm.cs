@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace CrusaderWars.client
 {
@@ -32,8 +30,7 @@ namespace CrusaderWars.client
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
             
-            // Load saved replacements from settings, but override with any provided existing replacements
-            LoadReplacementsFromSettings();
+            // Initialize with existing replacements passed from BattleState
             foreach (var kvp in existingReplacements)
             {
                 Replacements[kvp.Key] = kvp.Value;
@@ -344,6 +341,8 @@ namespace CrusaderWars.client
             Replacements.Clear();
             ClearNodeSelection();
             UpdateCurrentUnitsTreeVisuals();
+            // Clear the replacements in BattleState and save the empty state
+            BattleState.ClearManualUnitReplacements();
         }
 
         private void UpdateCurrentUnitsTreeVisuals()
@@ -569,57 +568,6 @@ namespace CrusaderWars.client
             this.Close();
         }
 
-        private void SaveReplacementsToSettings()
-        {
-            try
-            {
-                // Serialize the dictionary to a base64 string
-                using (var memoryStream = new MemoryStream())
-                {
-                    var formatter = new BinaryFormatter();
-                    formatter.Serialize(memoryStream, Replacements);
-                    string serializedData = Convert.ToBase64String(memoryStream.ToArray());
-                    
-                    // Save to application settings
-                    Properties.Settings.Default.BattleToolReplacements = serializedData;
-                    Properties.Settings.Default.Save();
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle serialization errors silently or log them
-                System.Diagnostics.Debug.WriteLine($"Failed to save replacements: {ex.Message}");
-            }
-        }
-
-        private void LoadReplacementsFromSettings()
-        {
-            try
-            {
-                string serializedData = Properties.Settings.Default.BattleToolReplacements;
-                if (!string.IsNullOrEmpty(serializedData))
-                {
-                    // Deserialize the dictionary from base64 string
-                    byte[] data = Convert.FromBase64String(serializedData);
-                    using (var memoryStream = new MemoryStream(data))
-                    {
-                        var formatter = new BinaryFormatter();
-                        var loadedReplacements = formatter.Deserialize(memoryStream) as Dictionary<(string, bool), (string, bool)>;
-                        if (loadedReplacements != null)
-                        {
-                            Replacements = loadedReplacements;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle deserialization errors silently or log them
-                System.Diagnostics.Debug.WriteLine($"Failed to load replacements: {ex.Message}");
-                // Reset to empty dictionary on error
-                Replacements = new Dictionary<(string, bool), (string, bool)>();
-            }
-        }
 
         private void UnitReplacerForm_Resize(object sender, EventArgs e)
         {
