@@ -1,5 +1,6 @@
 using System.IO;
 using System.Collections.Generic; // Added for List<string>
+using System.Text.Json; // Added for JSON serialization
 
 namespace CrusaderWars.twbattle
 {
@@ -29,6 +30,8 @@ namespace CrusaderWars.twbattle
         }
         public static ZoneOverride? DeploymentZoneOverrideAttacker { get; set; } = null;
         public static ZoneOverride? DeploymentZoneOverrideDefender { get; set; } = null;
+        
+        private const string SETTINGS_FILE = @"persistent_settings.json";
 
         static BattleState()
         {
@@ -38,6 +41,9 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug($"BattleState: State folder not found at '{StateFolder}'. Creating it.");
                 Directory.CreateDirectory(StateFolder);
             }
+            
+            // Load persistent settings on startup
+            LoadPersistentBattleSettings();
         }
 
         public static bool IsBattleInProgress()
@@ -69,7 +75,7 @@ namespace CrusaderWars.twbattle
             SiegeBesiegerOrientations = null;
             AutofixForceGenericMap = false;
             AutofixMapVariantOffset = 0;
-            ManualUnitReplacements.Clear();
+            // Note: Not clearing ManualUnitReplacements or DeploymentZoneOverrides as they should persist
             DeploymentZoneOverrideAttacker = null;
             DeploymentZoneOverrideDefender = null;
         }
@@ -94,6 +100,8 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug($"Deleting battle log snippet file: '{LogSnippetFile}'");
                 System.IO.File.Delete(LogSnippetFile);
             }
+            // Save persistent settings after clearing
+            SavePersistentBattleSettings();
             Program.Logger.Debug("Battle state cleared.");
         }
 
