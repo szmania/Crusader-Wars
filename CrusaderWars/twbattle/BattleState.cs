@@ -21,6 +21,22 @@ namespace CrusaderWars.twbattle
         public static int AutofixMapVariantOffset { get; set; } = 0;
         public static Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> ManualUnitReplacements { get; set; } = new Dictionary<(string, bool), (string, bool)>();
 
+        // Serializable classes for JSON persistence
+        public class ReplacementEntry
+        {
+            public string OriginalKey { get; set; }
+            public bool IsPlayerAlliance { get; set; }
+            public string ReplacementKey { get; set; }
+            public bool IsSiege { get; set; }
+        }
+
+        public class PersistentSettings
+        {
+            public List<ReplacementEntry> ManualUnitReplacements { get; set; }
+            public ZoneOverride DeploymentZoneOverrideAttacker { get; set; }
+            public ZoneOverride DeploymentZoneOverrideDefender { get; set; }
+        }
+
         public class ZoneOverride
         {
             public float X { get; set; }
@@ -75,9 +91,7 @@ namespace CrusaderWars.twbattle
             SiegeBesiegerOrientations = null;
             AutofixForceGenericMap = false;
             AutofixMapVariantOffset = 0;
-            // Note: Not clearing ManualUnitReplacements or DeploymentZoneOverrides as they should persist
-            DeploymentZoneOverrideAttacker = null;
-            DeploymentZoneOverrideDefender = null;
+            // Note: Not clearing ManualUnitReplacements or DeploymentZoneOverrides as they are persistent.
         }
 
         public static void ClearBattleState()
@@ -100,8 +114,6 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug($"Deleting battle log snippet file: '{LogSnippetFile}'");
                 System.IO.File.Delete(LogSnippetFile);
             }
-            // Save persistent settings after clearing
-            SavePersistentBattleSettings();
             Program.Logger.Debug("Battle state cleared.");
         }
 
@@ -133,9 +145,17 @@ namespace CrusaderWars.twbattle
         {
             try
             {
-                var settings = new 
+                var serializableReplacements = ManualUnitReplacements.Select(kvp => new ReplacementEntry
                 {
-                    ManualUnitReplacements = ManualUnitReplacements,
+                    OriginalKey = kvp.Key.originalKey,
+                    IsPlayerAlliance = kvp.Key.isPlayerAlliance,
+                    ReplacementKey = kvp.Value.replacementKey,
+                    IsSiege = kvp.Value.isSiege
+                }).ToList();
+
+                var settings = new PersistentSettings
+                {
+                    ManualUnitReplacements = serializableReplacements,
                     DeploymentZoneOverrideAttacker = DeploymentZoneOverrideAttacker,
                     DeploymentZoneOverrideDefender = DeploymentZoneOverrideDefender
                 };
@@ -160,20 +180,34 @@ namespace CrusaderWars.twbattle
                 if (File.Exists(settingsFilePath))
                 {
                     string jsonString = File.ReadAllText(settingsFilePath);
-                    var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonString);
-                    
-                    // For now, we'll just log that settings were loaded
-                    // The complex deserialization of the dictionary with tuple keys would require custom converters
-                    Program.Logger.Debug($"Loaded persistent battle settings from: '{settingsFilePath}'");
-                }
-                else
-                {
-                    Program.Logger.Debug($"No persistent battle settings file found at: '{settingsFilePath}'");
+                    var settings = JsonSerializer.Deserialize<PersistentSettings>(jsonString);
+
+                    if (settings != null)
+                    {
+                        ManualUnitReplacements.Clear();
+                        if (settings.ManualUnitReplacements != null)
+                        {
+                            foreach (var entry in settings.ManualUnitReplacements)
+                            {
+                                var key = (entry.OriginalKey, entry.IsPlayerAlliance);
+                                var value = (entry.ReplacementKey, entry.IsSiege);
+                                ManualUnitReplacements[key] = value;
+                            }
+                        }
+
+                        DeploymentZoneOverrideAttacker = settings.DeploymentZoneOverrideAttacker;
+                        DeploymentZoneOverrideDefender = settings.DeploymentZoneOverrideDefender;
+
+                        Program.Logger.Debug($"Loaded persistent battle settings from: '{settingsFilePath}'");
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error loading persistent battle settings: {ex.Message}");
+                ManualUnitReplacements.Clear();
+                DeploymentZoneOverrideAttacker = null;
+                DeploymentZoneOverrideDefender = null;
             }
         }
 
