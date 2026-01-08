@@ -547,23 +547,8 @@ namespace CrusaderWars.client
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            var replacements = new Dictionary<string, string>();
-            
-            // Build the replacements dictionary from our Replacements collection
-            foreach (var kvp in Replacements)
-            {
-                var (originalKey, isPlayerAlliance) = kvp.Key;
-                var (replacementKey, isSiege) = kvp.Value;
-                
-                // We only need the original key and replacement key for the battle state
-                replacements[originalKey] = replacementKey;
-            }
-
-            // Update the static BattleState with the new replacements
-            BattleState.ManualUnitReplacements = replacements;
-            // Save the updated replacements to the persistent JSON file
-            BattleState.SavePersistentBattleSettings();
-
+            BattleState.ManualUnitReplacements = Replacements;
+            Settings.Save();
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
