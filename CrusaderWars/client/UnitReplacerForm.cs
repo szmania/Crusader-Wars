@@ -30,10 +30,16 @@ namespace CrusaderWars.client
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
             
+            // Initialize the replacements dictionary
+            Replacements = new Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)>();
+            
             // Initialize with existing replacements passed from BattleState
-            foreach (var kvp in existingReplacements)
+            if (existingReplacements != null)
             {
-                Replacements[kvp.Key] = kvp.Value;
+                foreach (var kvp in existingReplacements)
+                {
+                    Replacements[kvp.Key] = kvp.Value;
+                }
             }
             
             _unitScreenNames = unitScreenNames ?? new Dictionary<string, string>();
@@ -542,15 +548,15 @@ namespace CrusaderWars.client
         private void btnOK_Click(object sender, EventArgs e)
         {
             var replacements = new Dictionary<string, string>();
-            foreach (DataGridViewRow row in dataGridView1.Rows)
+            
+            // Build the replacements dictionary from our Replacements collection
+            foreach (var kvp in Replacements)
             {
-                if (row.IsNewRow) continue;
-                var original = row.Cells[0].Value?.ToString();
-                var replacement = row.Cells[1].Value?.ToString();
-                if (!string.IsNullOrEmpty(original) && !string.IsNullOrEmpty(replacement))
-                {
-                    replacements[original] = replacement;
-                }
+                var (originalKey, isPlayerAlliance) = kvp.Key;
+                var (replacementKey, isSiege) = kvp.Value;
+                
+                // We only need the original key and replacement key for the battle state
+                replacements[originalKey] = replacementKey;
             }
 
             // Update the static BattleState with the new replacements
