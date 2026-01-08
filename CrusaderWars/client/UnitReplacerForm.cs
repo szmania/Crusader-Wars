@@ -549,7 +549,7 @@ namespace CrusaderWars.client
         private void btnOK_Click(object sender, EventArgs e)
         {
             BattleState.ManualUnitReplacements = Replacements;
-            Settings.Save();
+            Properties.Settings.Default.Save();
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
