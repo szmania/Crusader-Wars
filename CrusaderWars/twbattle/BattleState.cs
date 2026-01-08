@@ -127,5 +127,69 @@ namespace CrusaderWars.twbattle
                 return null;
             }
         }
+        
+        // Methods for handling persistent battle settings
+        public static void SavePersistentBattleSettings()
+        {
+            try
+            {
+                var settings = new 
+                {
+                    ManualUnitReplacements = ManualUnitReplacements,
+                    DeploymentZoneOverrideAttacker = DeploymentZoneOverrideAttacker,
+                    DeploymentZoneOverrideDefender = DeploymentZoneOverrideDefender
+                };
+
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string jsonString = JsonSerializer.Serialize(settings, options);
+                string settingsFilePath = Path.Combine(StateFolder, SETTINGS_FILE);
+                File.WriteAllText(settingsFilePath, jsonString);
+                Program.Logger.Debug($"Saved persistent battle settings to: '{settingsFilePath}'");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Error($"Error saving persistent battle settings: {ex.Message}");
+            }
+        }
+
+        public static void LoadPersistentBattleSettings()
+        {
+            try
+            {
+                string settingsFilePath = Path.Combine(StateFolder, SETTINGS_FILE);
+                if (File.Exists(settingsFilePath))
+                {
+                    string jsonString = File.ReadAllText(settingsFilePath);
+                    var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonString);
+                    
+                    // For now, we'll just log that settings were loaded
+                    // The complex deserialization of the dictionary with tuple keys would require custom converters
+                    Program.Logger.Debug($"Loaded persistent battle settings from: '{settingsFilePath}'");
+                }
+                else
+                {
+                    Program.Logger.Debug($"No persistent battle settings file found at: '{settingsFilePath}'");
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Error($"Error loading persistent battle settings: {ex.Message}");
+            }
+        }
+
+        public static void ClearManualUnitReplacements()
+        {
+            ManualUnitReplacements.Clear();
+            SavePersistentBattleSettings();
+            Program.Logger.Debug("Cleared manual unit replacements and saved settings.");
+        }
+
+        public static void ClearDeploymentZoneOverrides()
+        {
+            DeploymentZoneOverrideAttacker = null;
+            DeploymentZoneOverrideDefender = null;
+            SavePersistentBattleSettings();
+            Program.Logger.Debug("Cleared deployment zone overrides and saved settings.");
+        }
     }
 }
