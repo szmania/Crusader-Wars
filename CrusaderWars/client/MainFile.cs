@@ -3068,18 +3068,21 @@ namespace CrusaderWars
             public string TargetModFile { get; set; } = "";
             public string TargetModDir { get; set; } = "";
             public string ModDirectoryName { get; set; } = "";
+            public string SteamWorkshopId { get; set; } = ""; // Added to track Steam Workshop ID
+            public bool IsSteamWorkshopPresent { get; set; } = false; // Added to track if Steam version exists
         }
 
-        private (string version, string name, string pathDir) ParseModFile(string modFilePath)
+        private (string version, string name, string pathDir, string steamWorkshopId) ParseModFile(string modFilePath)
         {
             if (!File.Exists(modFilePath))
             {
-                return ("0.0.0", "", "");
+                return ("0.0.0", "", "", "");
             }
 
             string version = "0.0.0";
             string name = "";
             string pathDir = "";
+            string steamWorkshopId = "";
 
             try
             {
@@ -3110,15 +3113,23 @@ namespace CrusaderWars
                             pathDir = Path.GetFileName(match.Groups[1].Value.TrimEnd('/', '\\'));
                         }
                     }
+                    else if (line.Trim().StartsWith("steam_workshop_id="))
+                    {
+                        var match = System.Text.RegularExpressions.Regex.Match(line, @"steam_workshop_id\s*=\s*""([^""]*)""");
+                        if (match.Success)
+                        {
+                            steamWorkshopId = match.Groups[1].Value;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error parsing .mod file '{modFilePath}': {ex.Message}");
-                return ("0.0.0", "", "");
+                return ("0.0.0", "", "", "");
             }
 
-            return (version, name, pathDir);
+            return (version, name, pathDir, steamWorkshopId);
         }
 
         private async Task<bool> CheckForCK3ModUpdatesAsync()
@@ -3146,12 +3157,13 @@ namespace CrusaderWars
             }
 
             var modsToUpdate = new List<ModUpdateInfo>();
+            var skippedMods = new List<string>(); // Track mods that are skipped
 
             try
             {
                 foreach (var sourceModFile in Directory.GetFiles(sourceModsDir, "*.mod"))
                 {
-                    var (newVersion, modName, modDirName) = ParseModFile(sourceModFile);
+                    var (newVersion, modName, modDirName, steamWorkshopId) = ParseModFile(sourceModFile);
 
                     if (string.IsNullOrEmpty(modName) || string.IsNullOrEmpty(modDirName))
                     {
@@ -3160,9 +3172,23 @@ namespace CrusaderWars
                     }
 
                     string targetModFile = Path.Combine(targetModsDir, Path.GetFileName(sourceModFile));
-                    var (oldVersion, _, _) = ParseModFile(targetModFile);
+                    var (oldVersion, _, _, _) = ParseModFile(targetModFile);
 
-                    if (_updater.IsNewerVersion(oldVersion, newVersion))
+                    // Check if a Steam Workshop version exists
+                    bool isSteamWorkshopPresent = false;
+                    if (!string.IsNullOrEmpty(steamWorkshopId))
+                    {
+                        string steamWorkshopModFile = Path.Combine(targetModsDir, $"ugc_{steamWorkshopId}.mod");
+                        isSteamWorkshopPresent = File.Exists(steamWorkshopModFile);
+                        if (isSteamWorkshopPresent)
+                        {
+                            Program.Logger.Debug($"Steam Workshop version of '{modName}' (ugc_{steamWorkshopId}.mod) found. Skipping local mod installation.");
+                            skippedMods.Add(modName);
+                        }
+                    }
+
+                    // Only add to update list if Steam Workshop version is NOT present
+                    if (_updater.IsNewerVersion(oldVersion, newVersion) && !isSteamWorkshopPresent)
                     {
                         Program.Logger.Debug($"Found newer version for mod '{modName}'. Old: {oldVersion}, New: {newVersion}");
                         modsToUpdate.Add(new ModUpdateInfo
@@ -3174,7 +3200,9 @@ namespace CrusaderWars
                             TargetModFile = targetModFile,
                             ModDirectoryName = modDirName,
                             SourceModDir = Path.Combine(sourceModsDir, modDirName),
-                            TargetModDir = Path.Combine(targetModsDir, modDirName)
+                            TargetModDir = Path.Combine(targetModsDir, modDirName),
+                            SteamWorkshopId = steamWorkshopId,
+                            IsSteamWorkshopPresent = isSteamWorkshopPresent
                         });
                     }
                 }
@@ -3185,34 +3213,68 @@ namespace CrusaderWars
                 return true; // Allow execution to continue on unexpected error
             }
 
-            if (modsToUpdate.Any())
+            if (modsToUpdate.Any() || skippedMods.Any())
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("Updates are available for your Crusader Kings III mods managed by this app.");
-                sb.AppendLine();
-                sb.AppendLine("The following mods will be updated:");
-                foreach (var mod in modsToUpdate)
+                
+                if (modsToUpdate.Any())
                 {
-                    sb.AppendLine($"  • {mod.Name} (v{mod.OldVersion} -> v{mod.NewVersion})");
+                    sb.AppendLine("Updates are available for your Crusader Kings III mods managed by this app.");
+                    sb.AppendLine();
+                    sb.AppendLine("The following mods will be updated:");
+                    foreach (var mod in modsToUpdate)
+                    {
+                        sb.AppendLine($"  • {mod.Name} (v{mod.OldVersion} -> v{mod.NewVersion})");
+                    }
+                    sb.AppendLine();
+                    sb.AppendLine($"Mods will be updated in the following directory:");
+                    sb.AppendLine(targetModsDir);
+                    sb.AppendLine();
                 }
-                sb.AppendLine();
-                sb.AppendLine($"Mods will be updated in the following directory:");
-                sb.AppendLine(targetModsDir);
-                sb.AppendLine();
-                sb.AppendLine("Crusader Kings III must be closed to perform this update.");
-                sb.AppendLine();
-                sb.AppendLine("Do you want to update these mods now?");
-
-                var result = MessageBox.Show(sb.ToString(), "CK3 Mod Updates Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-
-                if (result == DialogResult.Yes)
+                
+                if (skippedMods.Any())
                 {
-                    return await PerformModUpdateAsync(modsToUpdate, targetModsDir);
+                    if (modsToUpdate.Any())
+                    {
+                        sb.AppendLine("The following mods will NOT be updated because you have the Steam Workshop version installed:");
+                        foreach (var modName in skippedMods)
+                        {
+                            sb.AppendLine($"  • {modName}");
+                        }
+                        sb.AppendLine();
+                    }
+                    else
+                    {
+                        sb.AppendLine("All available mod updates have been skipped because you have the Steam Workshop versions installed:");
+                        foreach (var modName in skippedMods)
+                        {
+                            sb.AppendLine($"  • {modName}");
+                        }
+                        sb.AppendLine();
+                        sb.AppendLine("No local mod updates will be performed.");
+                        MessageBox.Show(sb.ToString(), "CK3 Mod Updates Skipped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        Program.Logger.Debug("All CK3 mod updates skipped due to Steam Workshop versions being present.");
+                        return true; // No updates needed, allow execution to continue
+                    }
                 }
-                else
+                
+                if (modsToUpdate.Any())
                 {
-                    Program.Logger.Debug("User declined CK3 mod updates.");
-                    return true; // User declined, but allow execution to continue
+                    sb.AppendLine("Crusader Kings III must be closed to perform this update.");
+                    sb.AppendLine();
+                    sb.AppendLine("Do you want to update these mods now?");
+
+                    var result = MessageBox.Show(sb.ToString(), "CK3 Mod Updates Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        return await PerformModUpdateAsync(modsToUpdate, targetModsDir);
+                    }
+                    else
+                    {
+                        Program.Logger.Debug("User declined CK3 mod updates.");
+                        return true; // User declined, but allow execution to continue
+                    }
                 }
             }
             else
