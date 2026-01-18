@@ -3213,74 +3213,72 @@ namespace CrusaderWars
                 return true; // Allow execution to continue on unexpected error
             }
 
-            if (modsToUpdate.Any() || skippedMods.Any())
+            if (!modsToUpdate.Any() && !skippedMods.Any())
             {
-                var sb = new StringBuilder();
-                
-                if (modsToUpdate.Any())
-                {
-                    sb.AppendLine("Updates are available for your Crusader Kings III mods managed by this app.");
-                    sb.AppendLine();
-                    sb.AppendLine("The following mods will be updated:");
-                    foreach (var mod in modsToUpdate)
-                    {
-                        sb.AppendLine($"  • {mod.Name} (v{mod.OldVersion} -> v{mod.NewVersion})");
-                    }
-                    sb.AppendLine();
-                    sb.AppendLine($"Mods will be updated in the following directory:");
-                    sb.AppendLine(targetModsDir);
-                    sb.AppendLine();
-                }
-                
-                if (skippedMods.Any())
-                {
-                    if (modsToUpdate.Any())
-                    {
-                        sb.AppendLine("The following mods will NOT be updated because you have the Steam Workshop version installed:");
-                        foreach (var modName in skippedMods)
-                        {
-                            sb.AppendLine($"  • {modName}");
-                        }
-                        sb.AppendLine();
-                    }
-                    else
-                    {
-                        sb.AppendLine("All available mod updates have been skipped because you have the Steam Workshop versions installed:");
-                        foreach (var modName in skippedMods)
-                        {
-                            sb.AppendLine($"  • {modName}");
-                        }
-                        sb.AppendLine();
-                        sb.AppendLine("No local mod updates will be performed.");
-                        MessageBox.Show(sb.ToString(), "CK3 Mod Updates Skipped", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        Program.Logger.Debug("All CK3 mod updates skipped due to Steam Workshop versions being present.");
-                        return true; // No updates needed, allow execution to continue
-                    }
-                }
-                
-                if (modsToUpdate.Any())
-                {
-                    sb.AppendLine("Crusader Kings III must be closed to perform this update.");
-                    sb.AppendLine();
-                    sb.AppendLine("Do you want to update these mods now?");
+                Program.Logger.Debug("All CK3 mods are up-to-date.");
+                return true;
+            }
 
-                    var result = MessageBox.Show(sb.ToString(), "CK3 Mod Updates Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            var sb = new StringBuilder();
+            bool needsUpdate = modsToUpdate.Any();
 
-                    if (result == DialogResult.Yes)
-                    {
-                        return await PerformModUpdateAsync(modsToUpdate, targetModsDir);
-                    }
-                    else
-                    {
-                        Program.Logger.Debug("User declined CK3 mod updates.");
-                        return true; // User declined, but allow execution to continue
-                    }
+            if (needsUpdate)
+            {
+                sb.AppendLine("Updates are available for your Crusader Kings III mods managed by this app.");
+                sb.AppendLine();
+                sb.AppendLine("The following mods will be updated:");
+                foreach (var mod in modsToUpdate)
+                {
+                    sb.AppendLine($"  • {mod.Name} (v{mod.OldVersion} -> v{mod.NewVersion})");
                 }
+                sb.AppendLine();
+                sb.AppendLine($"Mods will be updated in the following directory:");
+                sb.AppendLine(targetModsDir);
+                sb.AppendLine();
+            }
+
+            if (skippedMods.Any())
+            {
+                if (needsUpdate)
+                {
+                    sb.AppendLine("The following mods will NOT be updated because you have the Steam Workshop version installed:");
+                }
+                else
+                {
+                    sb.AppendLine("All available mod updates have been skipped because you have the Steam Workshop versions installed:");
+                }
+
+                foreach (var modName in skippedMods)
+                {
+                    sb.AppendLine($"  • {modName}");
+                }
+                sb.AppendLine();
+            }
+
+            if (!needsUpdate)
+            {
+                sb.AppendLine("No local mod updates will be performed.");
+                MessageBox.Show(sb.ToString(), "CK3 Mod Updates Skipped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Program.Logger.Debug("All CK3 mod updates skipped due to Steam Workshop versions being present.");
+                return true;
             }
             else
             {
-                Program.Logger.Debug("All CK3 mods are up-to-date.");
-                return true; // No updates needed, allow execution to continue
+                sb.AppendLine("Crusader Kings III must be closed to perform this update.");
+                sb.AppendLine();
+                sb.AppendLine("Do you want to update these mods now?");
+
+                var result = MessageBox.Show(sb.ToString(), "CK3 Mod Updates Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+                if (result == DialogResult.Yes)
+                {
+                    return await PerformModUpdateAsync(modsToUpdate, targetModsDir);
+                }
+                else
+                {
+                    Program.Logger.Debug("User declined CK3 mod updates.");
+                    return true;
+                }
             }
         }
 
