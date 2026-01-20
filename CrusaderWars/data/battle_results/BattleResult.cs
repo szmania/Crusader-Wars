@@ -1383,7 +1383,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
-                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals. Added support for top-level current= for Levies.
                     modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
@@ -1401,7 +1401,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
-                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals. Added support for top-level current= for Levies.
                     modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
@@ -1629,6 +1629,11 @@ namespace CrusaderWars.data.battle_results
                             editRegiment = searchingData.foundRegiment;
                             parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
                             Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Attacker).");
+
+                            if (parentArmyRegiment?.Type == RegimentType.Levy)
+                            {
+                                isNewData = true;
+                            }
                         }
                         else
                         {
@@ -1639,6 +1644,11 @@ namespace CrusaderWars.data.battle_results
                                 editRegiment = searchingData.foundRegiment;
                                 parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
                                 Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Defender).");
+
+                                if (parentArmyRegiment?.Type == RegimentType.Levy)
+                                {
+                                    isNewData = true;
+                                }
                             }
                         }
 

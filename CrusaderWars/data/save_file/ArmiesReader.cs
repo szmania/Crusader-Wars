@@ -2072,14 +2072,14 @@ namespace CrusaderWars.data.save_file
                     }
 
                     //Current Number
-                    else if(isSearchStarted && line.Contains("\t\t\t\tcurrent="))
+                    else if (isSearchStarted && (line.Contains("\t\t\t\tcurrent=") || (!isReadingChunks && armyRegiment?.Type == RegimentType.Levy && line.Contains("\t\t\tcurrent="))))
                     {
                         string currentNum = Regex.Match(line, @"\d+").Value;
                         if (armyRegiment != null) armyRegiment.CurrentNum = int.Parse(currentNum);
                     }
 
                     //Max
-                    else if (isSearchStarted && line.Contains("\t\t\t\tmax="))
+                    else if (isSearchStarted && (line.Contains("\t\t\t\tmax=") || (!isReadingChunks && armyRegiment?.Type == RegimentType.Levy && line.Contains("\t\t\tmax="))))
                     {
                         string max = Regex.Match(line, @"\d+").Value;
                         armyRegiment?.SetMax(max);

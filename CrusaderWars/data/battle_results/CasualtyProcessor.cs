@@ -679,7 +679,7 @@ namespace CrusaderWars.data.battle_results
                         // Calculate aggregate casualties for this regiment group
                         int totalOriginalSize = 0;
                         int totalFinalSize = 0;
-                        if (armyRegiment.Regiments != null)
+                        if (armyRegiment.Regiments != null && armyRegiment.Regiments.Any())
                         {
                             foreach (var regiment in armyRegiment.Regiments)
                             {
@@ -689,6 +689,12 @@ namespace CrusaderWars.data.battle_results
                                 totalOriginalSize += originalSizes.ContainsKey(key) ? originalSizes[key] : 0;
                                 totalFinalSize += Int32.Parse(regiment.CurrentNum);
                             }
+                        }
+                        else if (armyRegiment.Type == RegimentType.Levy)
+                        {
+                            // For Levies that don't have sub-regiments in the list
+                            totalFinalSize = armyRegiment.CurrentNum;
+                            // Note: totalOriginalSize should have been captured during initialization
                         }
                         int totalCasualties = totalOriginalSize - totalFinalSize;
 
