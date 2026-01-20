@@ -436,13 +436,13 @@ namespace CrusaderWars.data.battle_results
                     continue;
                 }
 
-                // This is the corrected logic. It simplifies the query into a single, clear boolean expression,
-                // ensuring that units are always filtered by type, culture, and the correct identifier (name or key).
-                // This guarantees that the 'starting' and 'remaining' counts are calculated from the same cultural group.
+                // This is the corrected logic. It now also handles Levies by matching on their specific Attila unit key
+                // from the battle log group, rather than the generic name "Levy". This ensures that different levy types
+                // within the same culture are processed correctly.
                 var matchingUnits = army.Units.Where(x => x != null &&
-                                                          x.GetRegimentType() == unitType &&
-                                                          x.GetObjCulture()?.ID == group.Key.CultureID &&
-                                                          (unitType == RegimentType.Garrison ? x.GetAttilaUnitKey() == type : x.GetName() == type));
+                                          x.GetRegimentType() == unitType &&
+                                          x.GetObjCulture()?.ID == group.Key.CultureID &&
+                                          (unitType == RegimentType.Garrison || unitType == RegimentType.Levy ? x.GetAttilaUnitKey() == group.Key.Type : x.GetName() == type));
 
                 if (!matchingUnits.Any())
                 {
