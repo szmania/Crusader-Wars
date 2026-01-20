@@ -514,19 +514,19 @@ namespace CrusaderWars
         }
 
 
-        static List<Unit> BETA_LevyComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_levy_porcentages, int army_xp, string factionUsed)
+        static List<Unit> BETA_LevyComposition(Unit unit, Army army, List<(int percentage, string unit_key, string name, string max)> faction_levy_percentages, int army_xp, string factionUsed)
         {
             var composedUnits = new List<Unit>();
-            if (faction_levy_porcentages == null || faction_levy_porcentages.Count < 1)
+            if (faction_levy_percentages == null || faction_levy_percentages.Count < 1)
             {
                 Program.Logger.Debug("ERROR - LEVIES WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
                 return composedUnits;
             }
 
             // Apply manual and autofix replacements to the levy template list
-            var corrected_levy_porcentages = new List<(int porcentage, string unit_key, string name, string max, bool isSiege)>();
+            var corrected_levy_percentages = new List<(int percentage, string unit_key, string name, string max, bool isSiege)>();
             bool isPlayerAlliance = army.IsPlayer();
-            foreach (var levyData in faction_levy_porcentages)
+            foreach (var levyData in faction_levy_percentages)
             {
                 string currentKey = levyData.unit_key;
                 bool isSiege = false; // Default to false for levies
@@ -546,19 +546,19 @@ namespace CrusaderWars
                     isSiege = autofixReplacement.isSiege;
                 }
 
-                corrected_levy_porcentages.Add((levyData.porcentage, currentKey, levyData.name, levyData.max, isSiege));
+                corrected_levy_percentages.Add((levyData.percentage, currentKey, levyData.name, levyData.max, isSiege));
             }
 
 
             // NEW: Filter out Men-At-Arms units from the levy pool
-            var filtered_levy_porcentages = corrected_levy_porcentages
+            var filtered_levy_porcentages = corrected_levy_percentages
                                                 .Where(data => !data.unit_key.Contains("_MAA_"))
                                                 .ToList();
 
             if (filtered_levy_porcentages.Any())
             {
                 Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): Filtered out MAA units from levy pool for faction '{unit.GetAttilaFaction()}'. Using filtered list.");
-                corrected_levy_porcentages = filtered_levy_porcentages;
+                corrected_levy_percentages = filtered_levy_porcentages;
             }
             else
             {
@@ -570,7 +570,7 @@ namespace CrusaderWars
             //  select random levy type
             if (unit.GetSoldiers() <= unit.GetMax())
             {
-                var random = corrected_levy_porcentages[_random.Next(corrected_levy_porcentages.Count)];
+                var random = corrected_levy_percentages[_random.Next(corrected_levy_percentages.Count)];
                 
                 int soldiersInCk3 = unit.GetSoldiers();
                 int soldiersForAttila = soldiersInCk3;
@@ -579,7 +579,7 @@ namespace CrusaderWars
                     soldiersForAttila = UnitMappers_BETA.ConvertMachinesToMen(soldiersInCk3);
                 }
 
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.percentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
                 BattleFile.AddUnit(random.unit_key, soldiersForAttila, 1, 0, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
 
                 var newUnit = new Unit("Levy", unit.GetSoldiers(), unit.GetObjCulture(), RegimentType.Levy, unit.IsMerc(), army.Owner);
@@ -600,7 +600,7 @@ namespace CrusaderWars
             //  fulfill every levy type
             int levySoldiers = unit.GetSoldiers();
 
-            int totalPercentageSum = corrected_levy_porcentages.Sum(p => p.porcentage);
+            int totalPercentageSum = corrected_levy_percentages.Sum(p => p.percentage);
             if (totalPercentageSum <= 0)
             {
                 Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): WARNING: Total percentage sum for levies is 0 or less for faction '{unit.GetAttilaFaction()}'. No levy units will be generated.");
@@ -608,14 +608,14 @@ namespace CrusaderWars
             }
 
             int assignedSoldiers = 0;
-            for (int k = 0; k < corrected_levy_porcentages.Count; k++)
+            for (int k = 0; k < corrected_levy_percentages.Count; k++)
             {
-                var porcentageData = corrected_levy_porcentages[k];
+                var percentageData = corrected_levy_percentages[k];
                 int result;
 
-                if (k < corrected_levy_porcentages.Count - 1)
+                if (k < corrected_levy_percentages.Count - 1)
                 {
-                    double t = (double)porcentageData.porcentage / totalPercentageSum;
+                    double t = (double)percentageData.percentage / totalPercentageSum;
                     result = (int)Math.Round(levySoldiers * t);
                 }
                 else
@@ -629,7 +629,7 @@ namespace CrusaderWars
                 assignedSoldiers += result;
 
                 int soldiersForAttila = result;
-                if (porcentageData.isSiege)
+                if (percentageData.isSiege)
                 {
                     soldiersForAttila = UnitMappers_BETA.ConvertMachinesToMen(result);
                 }
@@ -643,17 +643,17 @@ namespace CrusaderWars
                     if (soldiers <= 0) continue;
 
                     var newUnit = new Unit("Levy", soldiers, unit.GetObjCulture(), RegimentType.Levy, unit.IsMerc(), army.Owner);
-                    newUnit.SetUnitKey(porcentageData.unit_key);
-                    newUnit.SetIsSiege(porcentageData.isSiege);
+                    newUnit.SetUnitKey(percentageData.unit_key);
+                    newUnit.SetIsSiege(percentageData.isSiege);
                     newUnit.SetAttilaFaction(unit.GetAttilaFaction());
                     composedUnits.Add(newUnit);
                 }
 
-                string logLine = $"    - Levy Attila Unit: {porcentageData.unit_key}, Soldiers: {soldiersForAttila} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {factionUsed}";
+                string logLine = $"    - Levy Attila Unit: {percentageData.unit_key}, Soldiers: {soldiersForAttila} ({levy_type_data.UnitNum}x units of {levy_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {factionUsed}";
                 BattleLog.AddLevyLog(army.ID, logLine);
 
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{percentageData.percentage}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                BattleFile.AddUnit(percentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
             return composedUnits;

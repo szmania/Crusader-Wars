@@ -421,7 +421,7 @@ namespace CrusaderWars.data.battle_results
                     if (isGarrisonUnit)
                     {
                         unitType = RegimentType.Garrison;
-                        type = group.Key.Type; // The Attila unit key
+                        type = group.Key.Type; // the battle log type
                     }
                     else
                     {
@@ -436,13 +436,32 @@ namespace CrusaderWars.data.battle_results
                     continue;
                 }
 
-                // This is the corrected logic. It now also handles Levies by matching on their specific Attila unit key
-                // from the battle log group, rather than the generic name "Levy". This ensures that different levy types
-                // within the same culture are processed correctly.
-                var matchingUnits = army.Units.Where(x => x != null &&
-                                          x.GetRegimentType() == unitType &&
-                                          x.GetObjCulture()?.ID == group.Key.CultureID &&
-                                          (unitType == RegimentType.Garrison || unitType == RegimentType.Levy ? x.GetAttilaUnitKey() == group.Key.Type : x.GetName() == type));
+                // Safely get the unit(s), then its culture.
+                // FIX: Use GetAttilaUnitKey() for Garrison units for correct matching.
+                var matchingUnits = army.Units.Where(x =>
+                {
+                    if (x == null || x.GetRegimentType() != unitType)
+                    {
+                        return false;
+                    }
+
+                    // This is the critical fix: ensure culture is matched correctly for all types.
+                    if (x.GetObjCulture()?.ID != group.Key.CultureID)
+                    {
+                        return false;
+                    }
+
+                    if (unitType == RegimentType.Garrison)
+                    {
+                        // For garrisons, match by Attila unit key
+                        return x.GetAttilaUnitKey() == type;
+                    }
+                    else
+                    {
+                        // For other unit types (Levy, MAA, Commander), match by name
+                        return x.GetRegimentType() == unitType;
+                    }
+                });
 
                 if (!matchingUnits.Any())
                 {
