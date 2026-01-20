@@ -440,7 +440,13 @@ namespace CrusaderWars.data.battle_results
                 // FIX: Use GetAttilaUnitKey() for Garrison units for correct matching.
                 var matchingUnits = army.Units.Where(x =>
                 {
-                    if (x == null || x.GetRegimentType() != unitType || x.GetObjCulture()?.ID != group.Key.CultureID)
+                    if (x == null || x.GetRegimentType() != unitType)
+                    {
+                        return false;
+                    }
+
+                    // This is the critical fix: ensure culture is matched correctly for all types.
+                    if (x.GetObjCulture()?.ID != group.Key.CultureID)
                     {
                         return false;
                     }
@@ -452,7 +458,7 @@ namespace CrusaderWars.data.battle_results
                     }
                     else
                     {
-                        // For other unit types, match by name
+                        // For other unit types (Levy, MAA, Commander), match by name
                         return x.GetName() == type;
                     }
                 });
