@@ -92,6 +92,8 @@ namespace CrusaderWars.data.save_file
         private int NumGuns { get; set; }
         private bool IsPlayerUnitBool { get; set; }
         public Knight? KnightCommander { get; set; }
+        public int UniqueID { get; private set; }
+        private static int _nextUniqueID = 1;
 
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, int garrisonLevel = 0)
@@ -110,6 +112,7 @@ namespace CrusaderWars.data.save_file
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
             KnightCommander = null;
+            UniqueID = _nextUniqueID++;
         }
 
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, int garrisonLevel = 0)
@@ -129,6 +132,7 @@ namespace CrusaderWars.data.save_file
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
             KnightCommander = null;
+            UniqueID = _nextUniqueID++;
         }
         public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner, int garrisonLevel = 0)
         {
@@ -148,6 +152,7 @@ namespace CrusaderWars.data.save_file
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
             KnightCommander = null;
+            UniqueID = _nextUniqueID++;
         }
 
 
