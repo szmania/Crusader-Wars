@@ -436,32 +436,13 @@ namespace CrusaderWars.data.battle_results
                     continue;
                 }
 
-                // Safely get the unit(s), then its culture.
-                // FIX: Use GetAttilaUnitKey() for Garrison units for correct matching.
-                var matchingUnits = army.Units.Where(x =>
-                {
-                    if (x == null || x.GetRegimentType() != unitType)
-                    {
-                        return false;
-                    }
-
-                    // This is the critical fix: ensure culture is matched correctly for all types.
-                    if (x.GetObjCulture()?.ID != group.Key.CultureID)
-                    {
-                        return false;
-                    }
-
-                    if (unitType == RegimentType.Garrison)
-                    {
-                        // For garrisons, match by Attila unit key
-                        return x.GetAttilaUnitKey() == type;
-                    }
-                    else
-                    {
-                        // For other unit types (Levy, MAA, Commander), match by name
-                        return x.GetName() == type;
-                    }
-                });
+                // This is the corrected logic. It simplifies the query into a single, clear boolean expression,
+                // ensuring that units are always filtered by type, culture, and the correct identifier (name or key).
+                // This guarantees that the 'starting' and 'remaining' counts are calculated from the same cultural group.
+                var matchingUnits = army.Units.Where(x => x != null &&
+                                                          x.GetRegimentType() == unitType &&
+                                                          x.GetObjCulture()?.ID == group.Key.CultureID &&
+                                                          (unitType == RegimentType.Garrison ? x.GetAttilaUnitKey() == type : x.GetName() == type));
 
                 if (!matchingUnits.Any())
                 {
