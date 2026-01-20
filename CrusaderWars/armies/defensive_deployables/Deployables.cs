@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CrusaderWars.client;
 
 namespace CrusaderWars.armies
 {
@@ -74,6 +75,14 @@ namespace CrusaderWars.armies
         }
         public DefensiveSystem(int army_size, int martial_skill, int deployables_boost)
         {
+            // Check if defensive deployables are enabled
+            if (!ModOptions.DefensiveDeployables())
+            {
+                Text = "";
+                TotalDeployments = 0;
+                return;
+            }
+            
             int defensive_level = GetDefensiveLevel(martial_skill);
             GetTotalOfDeployments (army_size);
 
