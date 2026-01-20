@@ -76,7 +76,7 @@ namespace CrusaderWars.armies
         public DefensiveSystem(int army_size, int martial_skill, int deployables_boost)
         {
             // Check if defensive deployables are enabled
-            if (ModOptions.DefensiveDeployables() == "Disabled")
+            if (!ModOptions.DefensiveDeployables())
             {
                 Text = "";
                 TotalDeployments = 0;
