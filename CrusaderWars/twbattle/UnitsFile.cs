@@ -706,12 +706,12 @@ namespace CrusaderWars
             int assignedSoldiers = 0;
             for (int k = 0; k < corrected_garrison_porcentages.Count; k++)
             {
-                var porcentageData = corrected_garrison_porcentages[k];
+                var percentageData = corrected_garrison_porcentages[k];
                 int result;
 
                 if (k < corrected_garrison_porcentages.Count - 1)
                 {
-                    double t = (double)porcentageData.porcentage / totalPercentageSum;
+                    double t = (double)percentageData.porcentage / totalPercentageSum;
                     result = (int)Math.Round(garrisonSoldiers * t);
                 }
                 else
@@ -725,7 +725,7 @@ namespace CrusaderWars
                 assignedSoldiers += result;
 
                 int soldiersForAttila = result;
-                if (porcentageData.isSiege)
+                if (percentageData.isSiege)
                 {
                     soldiersForAttila = UnitMappers_BETA.ConvertMachinesToMen(result);
                 }
@@ -739,17 +739,17 @@ namespace CrusaderWars
                     if (soldiers <= 0) continue;
 
                     var newUnit = new Unit("Garrison", soldiers, unit.GetObjCulture(), RegimentType.Garrison, unit.IsMerc(), army.Owner);
-                    newUnit.SetUnitKey(porcentageData.unit_key);
-                    newUnit.SetIsSiege(porcentageData.isSiege);
+                    newUnit.SetUnitKey(percentageData.unit_key);
+                    newUnit.SetIsSiege(percentageData.isSiege);
                     newUnit.SetAttilaFaction(unit.GetAttilaFaction());
                     composedUnits.Add(newUnit);
                 }
 
-                string logLine = $"    - Garrison Attila Unit: {porcentageData.unit_key}, Soldiers: {soldiersForAttila} ({garrison_type_data.UnitNum}x units of {garrison_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
+                string logLine = $"    - Garrison Attila Unit: {percentageData.unit_key}, Soldiers: {soldiersForAttila} ({garrison_type_data.UnitNum}x units of {garrison_type_data.UnitSoldiers}), Culture: {unit.GetCulture()}, Heritage: {unit.GetHeritage()}, Faction: {unit.GetAttilaFaction()}";
                 BattleLog.AddLevyLog(army.ID, logLine); // Keep AddLevyLog as per instruction, only text changed
 
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{porcentageData.unit_key}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
-                BattleFile.AddUnit(porcentageData.unit_key, garrison_type_data.UnitSoldiers, garrison_type_data.UnitNum, garrison_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{percentageData.unit_key}_CULTURE{unit.GetObjCulture()?.ID ?? "unknown"}_";
+                BattleFile.AddUnit(percentageData.unit_key, garrison_type_data.UnitSoldiers, garrison_type_data.UnitNum, garrison_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 i++;
             }
             return composedUnits;
