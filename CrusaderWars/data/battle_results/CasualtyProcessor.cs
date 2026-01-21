@@ -370,7 +370,14 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 // Determine the display name for the report
-                if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
+                // Use the script name for composed units to ensure 1:1 matching in the AAR
+                if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison)
+                {
+                    reportTypeName = matchingUnit.GetAttilaUnitKey();
+                    // Append unique ID to name if available to distinguish between multiple units of same type
+                    if (uniqueId.HasValue) reportTypeName = $"{reportTypeName} (Unit {uniqueId.Value})";
+                }
+                else if (unitType == RegimentType.Knight)
                 {
                     reportTypeName = matchingUnit.GetAttilaUnitKey();
                 }
@@ -447,9 +454,12 @@ namespace CrusaderWars.data.battle_results
 
                 unitReport.SetKills(kills);
                 unitReport.PrintReport();
+                
+                // Ensure we add every individual unit record to the report list
                 reportsList.Add(unitReport);
             }
 
+            // Replace the army's casualty reports with our 1:1 list
             army.SetCasualitiesReport(reportsList);
             Program.Logger.Debug($"Created {reportsList.Count} individual unit casualty reports for army {army.ID}.");
         }
