@@ -1601,11 +1601,9 @@ namespace CrusaderWars.data.battle_results
             bool editStarted = false;
             bool editIndex = false;
             Regiment? editRegiment = null;
-            ArmyRegiment? parentArmyRegiment = null; // Declare new variable
+            ArmyRegiment? parentArmyRegiment = null;
 
             int index = -1;
-            bool isNewData = false;
-
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Regiments_Path()))
@@ -1615,101 +1613,99 @@ namespace CrusaderWars.data.battle_results
                 string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-
-                    //Regiment ID line
-                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
+                    // Regiment ID line
+                    if (!editStarted && Regex.IsMatch(line, @"\t\t\d+={"))
                     {
                         string regiment_id = Regex.Match(line, @"\d+").Value;
 
-
                         var searchingData = SearchRegimentsFile(attacker_armies, regiment_id);
+                        if (!searchingData.editStarted)
+                        {
+                            searchingData = SearchRegimentsFile(defender_armies, regiment_id);
+                        }
+
                         if (searchingData.editStarted)
                         {
                             editStarted = true;
                             editRegiment = searchingData.foundRegiment;
-                            parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
-                            Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Attacker).");
+                            parentArmyRegiment = searchingData.parentArmyRegiment;
+                            Program.Logger.Debug($"Found Regiment {regiment_id} for editing.");
 
-                            if (parentArmyRegiment?.Type == RegimentType.Levy)
+                            // For Levy and Garrison, we always rewrite the block to ensure consistency
+                            if (parentArmyRegiment?.Type == RegimentType.Levy || parentArmyRegiment?.Type == RegimentType.Garrison)
                             {
-                                isNewData = true;
-                            }
-                        }
-                        else
-                        {
-                            searchingData = SearchRegimentsFile(defender_armies, regiment_id);
-                            if (searchingData.editStarted)
-                            {
-                                editStarted = true;
-                                editRegiment = searchingData.foundRegiment;
-                                parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
-                                Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Defender).");
-
-                                if (parentArmyRegiment?.Type == RegimentType.Levy)
+                                streamWriter.WriteLine(line); // Write the ID line
+                                string max = editRegiment?.Max ?? "0";
+                                string owner = editRegiment?.Owner ?? "";
+                                string current = editRegiment?.CurrentNum ?? "0";
+                                streamWriter.Write(GetChunksText(max, owner, current));
+                                
+                                // Skip the original block until the closing brace
+                                int braceCount = 1;
+                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
                                 {
-                                    isNewData = true;
+                                    braceCount += line.Count(c => c == '{');
+                                    braceCount -= line.Count(c => c == '}');
                                 }
+                                streamWriter.WriteLine("\t\t}"); // Write the closing brace
+                                editStarted = false;
+                                continue;
                             }
                         }
-
                     }
                     else if (editStarted && line.Contains("\t\t\tsize="))
                     {
                         if (editRegiment != null)
                         {
-                            var reg = editRegiment; // New local variable
-                            // For all types (Levy, Garrison, MenAtArms), use the logic to rewrite the block if we encounter the 'size' line.
-                            // This handles older save formats or cases where 'chunks' might be missing.
-                            isNewData = true;
-                            string max = reg.Max ?? "0";
-                            string owner = reg.Owner ?? "";
-                            string current = reg.CurrentNum ?? "0";
-                            string newLine = GetChunksText(max, owner, current);
-                            streamWriter.WriteLine(newLine);
-                            string regId = reg.ID ?? "N/A"; // Extract ID for logging
-                            Program.Logger.Debug($"Regiment {regId}: Writing new data format with current soldiers {reg.CurrentNum ?? "0"}.");
+                            string max = editRegiment.Max ?? "0";
+                            string owner = editRegiment.Owner ?? "";
+                            string current = editRegiment.CurrentNum ?? "0";
+                            streamWriter.Write(GetChunksText(max, owner, current));
+                            
+                            // Skip the rest of the original block until the closing brace
+                            int braceCount = 1; // We are already inside the block
+                            while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                            {
+                                braceCount += line.Count(c => c == '{');
+                                braceCount -= line.Count(c => c == '}');
+                            }
+                            streamWriter.WriteLine("\t\t}");
+                            editStarted = false;
                             continue;
                         }
                     }
-
-                    //Index Counter
-                    else if(!isNewData && editStarted && line == "\t\t\t\t{")
+                    // Index Counter for old format
+                    else if (editStarted && line == "\t\t\t\t{")
                     {
                         index++;
-                        if (editRegiment != null && editRegiment.Index == "") 
-                            editRegiment.ChangeIndex(0.ToString());
-                        if(editRegiment != null && index.ToString() == editRegiment.Index)
+                        if (editRegiment != null && string.IsNullOrEmpty(editRegiment.Index))
+                            editRegiment.ChangeIndex("0");
+                        
+                        if (editRegiment != null && index.ToString() == editRegiment.Index)
                         {
                             editIndex = true;
                         }
                     }
-
-                    else if(!isNewData && (editStarted==true && editIndex==true) && line.Contains("\t\t\t\t\tcurrent="))
+                    else if (editStarted && editIndex && line.Contains("\t\t\t\t\tcurrent="))
                     {
-                        if (editRegiment != null) // Added null check
+                        if (editRegiment != null)
                         {
                             string currentNum = editRegiment.CurrentNum ?? "0";
-                            string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
-                            streamWriter.WriteLine(edited_line);
-                            string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                            string logMessage = string.Format("Regiment {0}: Updating old data format with current soldiers {1}.", regId, currentNum);
-                            Program.Logger.Debug(logMessage);
+                            streamWriter.WriteLine("\t\t\t\t\tcurrent=" + currentNum);
                             continue;
                         }
                     }
-
-                    //End Line
-                    else if(editStarted && line == "\t\t}")
+                    // End Line
+                    else if (editStarted && line == "\t\t}")
                     {
-                        editStarted = false; editRegiment = null; editIndex = false; index = -1; isNewData = false;
-                        parentArmyRegiment = null; // Reset parent ArmyRegiment
+                        editStarted = false;
+                        editRegiment = null;
+                        editIndex = false;
+                        index = -1;
+                        parentArmyRegiment = null;
                     }
 
-                    if(!isNewData)
-                    {
-                        streamWriter.WriteLine(line);
-                    }
-                    
+                    streamWriter.WriteLine(line);
                 }
             }
             Program.Logger.Debug("Finished editing Regiments file.");
