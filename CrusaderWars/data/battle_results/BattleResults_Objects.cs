@@ -11,8 +11,9 @@ namespace CrusaderWars
     public class UnitCasualitiesReport
     {
         RegimentType UnitType {  get; set; }
-        string Type {  get; set; }
+        public string Type {  get; private set; }
         Culture Culture { get; set; }
+        public string AttilaFaction { get; private set; }
         int StartingSoldiers {  get; set; }
         int RemainingSoldiersBeforePursuit { get; set; }
         int RemainingSoldiersAfterPursuit { get; set; } = -1;
@@ -20,7 +21,7 @@ namespace CrusaderWars
         int Kills { get; set; } // New property for kills inflicted
         int StartingMachines { get; set; } // New property for siege engines
 
-        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers, int startingMachines)
+        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers, int startingMachines, string attilaFaction)
         {
             UnitType = unit_type;
             Type = type;
@@ -31,8 +32,9 @@ namespace CrusaderWars
             Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersBeforePursuit);
             Kills = 0;
             StartingMachines = startingMachines;
+            AttilaFaction = attilaFaction;
         }
-        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit, int startingMachines)
+        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit, int startingMachines, string attilaFaction)
         {
             UnitType = unit_type;
             Type = type;
@@ -43,6 +45,7 @@ namespace CrusaderWars
             Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersAfterPursuit);
             Kills = 0;
             StartingMachines = startingMachines;
+            AttilaFaction = attilaFaction;
         }
 
         public int GetStartingMachines() { return StartingMachines; }

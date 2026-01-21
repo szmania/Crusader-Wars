@@ -331,6 +331,7 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 Culture? culture = matchingKnightUnits.First().GetObjCulture();
+                string attilaFaction = matchingKnightUnits.First().GetAttilaFaction();
                 if (culture == null)
                 {
                     Program.Logger.Debug(
@@ -368,11 +369,11 @@ namespace CrusaderWars.data.battle_results
                 UnitCasualitiesReport unitReport;
                 if (pursuitRemaining.HasValue)
                 {
-                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, pursuitRemaining.Value, startingMachines);
+                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, pursuitRemaining.Value, startingMachines, attilaFaction);
                 }
                 else
                 {
-                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, startingMachines);
+                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, startingMachines, attilaFaction);
                 }
 
                 // Set the kills from the aggregated kills data
@@ -490,6 +491,7 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 Culture? culture = firstUnit.GetObjCulture();
+                string attilaFaction = firstUnit.GetAttilaFaction();
 
                 // If culture is null at this point, it means either no matching unit was found,
                 // or the matching unit itself had a null culture object.
@@ -563,11 +565,11 @@ namespace CrusaderWars.data.battle_results
                 {
                     int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
                     unitReport =
-                        new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining, startingMachines);
+                        new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining, startingMachines, attilaFaction);
                 }
                 else
                 {
-                    unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining, startingMachines);
+                    unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining, startingMachines, attilaFaction);
                 }
 
                 // Set the kills from the aggregated kills data
