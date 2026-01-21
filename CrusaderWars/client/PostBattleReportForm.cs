@@ -43,7 +43,8 @@ namespace CrusaderWars.client
             // lblWeather.Text = $"Weather: {_report.Weather}"; // Removed weather display
 
             // Add Header for units
-            var headerNode = new TreeNode("Unit                                            | Deployed (Engines) | Losses (Engines) | Remaining (Engines) | Kills");
+            string headerText = String.Format("{0,-65} | {1,20} | {2,20} | {3,20} | {4,10}", "Unit", "Deployed (Engines)", "Losses (Engines)", "Remaining (Engines)", "Kills");
+            var headerNode = new TreeNode(headerText);
             headerNode.ForeColor = Color.LightGray;
             treeViewReport.Nodes.Add(headerNode);
 
@@ -176,18 +177,25 @@ namespace CrusaderWars.client
 
                 foreach (var unit in groupedUnits)
                 {
+                    const int maxNameLength = 63;
+                    string displayName = unit.AttilaUnitName;
+                    if (displayName.Length > maxNameLength)
+                    {
+                        displayName = displayName.Substring(0, maxNameLength) + "..";
+                    }
+
                     string unitText;
                     if (unit.IsSiegeUnit)
                     {
                         string deployedStr = $"{unit.Deployed} ({unit.DeployedMachines})";
                         string lossesStr = $"{unit.Losses} ({unit.MachineLosses})";
                         string remainingStr = $"{unit.Remaining} ({unit.RemainingMachines})";
-                        unitText = $"{unit.AttilaUnitName.PadRight(47)} | {deployedStr.PadLeft(18)} | {lossesStr.PadLeft(16)} | {remainingStr.PadLeft(19)} | {unit.Kills.ToString().PadLeft(5)}";
+                        unitText = $"{displayName.PadRight(65)} | {deployedStr.PadLeft(20)} | {lossesStr.PadLeft(20)} | {remainingStr.PadLeft(20)} | {unit.Kills.ToString().PadLeft(10)}";
                     }
                     else
                     {
-                        unitText = String.Format("{0,-47} | {1,18} | {2,16} | {3,19} | {4,5}", 
-                            unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
+                        unitText = String.Format("{0,-65} | {1,20} | {2,20} | {3,20} | {4,10}",
+                            displayName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
                     }
                     var unitNode = new TreeNode(unitText);
                     unitNode.Tag = unit; // Store the full unit report object
