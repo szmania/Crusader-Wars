@@ -481,7 +481,15 @@ namespace CrusaderWars.data.battle_results
                     continue;
                 }
 
-                Culture? culture = matchingUnits.First().GetObjCulture();
+                var firstUnit = matchingUnits.First();
+
+                if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison)
+                {
+                    // Use the specific Attila unit key as the type for the report
+                    type = firstUnit.GetAttilaUnitKey();
+                }
+
+                Culture? culture = firstUnit.GetObjCulture();
 
                 // If culture is null at this point, it means either no matching unit was found,
                 // or the matching unit itself had a null culture object.
@@ -495,7 +503,6 @@ namespace CrusaderWars.data.battle_results
 
                 int starting;
                 int startingMachines = 0;
-                var firstUnit = matchingUnits.First();
                 
                 int effectiveNumGuns = firstUnit.GetNumGuns();
                 if (firstUnit.IsSiegeEnginePerUnit() && effectiveNumGuns <= 0)
