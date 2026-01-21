@@ -1749,6 +1749,7 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
                             unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
                             unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
+                            unit.Script = unitReport.Script;
                             
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
@@ -1930,6 +1931,7 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
                             unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
                             unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
+                            unit.Script = unitReport.Script;
                             
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);

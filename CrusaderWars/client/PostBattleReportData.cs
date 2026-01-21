@@ -77,6 +77,7 @@ namespace CrusaderWars.client
         public string Ck3Heritage { get; set; }
         public string Ck3Culture { get; set; }
         public string AttilaFaction { get; set; }
+        public string Script { get; set; }
         public List<CharacterReport> Characters { get; set; } = new List<CharacterReport>();
         
         // New property for combined knight unit details

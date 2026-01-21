@@ -146,7 +146,7 @@ namespace CrusaderWars.client
                 
                 // Group units for display, especially for knights
                 var groupedUnits = army.Units
-                    .GroupBy(u => u.Ck3UnitType == "Knight" ? new { Ck3UnitType = u.Ck3UnitType, AttilaUnitKey = "KNIGHT_GROUP", AttilaUnitName = "Knights (Combined)" } : new { u.Ck3UnitType, u.AttilaUnitKey, u.AttilaUnitName }) // Group by type, key, and formatted name
+                    .GroupBy(u => u.Ck3UnitType == "Knight" ? new { Ck3UnitType = u.Ck3UnitType, AttilaUnitKey = "KNIGHT_GROUP", AttilaUnitName = "Knights (Combined)", Script = "KNIGHT_GROUP" } : new { u.Ck3UnitType, u.AttilaUnitKey, u.AttilaUnitName, u.Script }) // Group by type, key, formatted name, and unique script
                     .Select(g => {
                         var firstUnit = g.First();
                         // Aggregate soldiers, losses, kills for grouped units

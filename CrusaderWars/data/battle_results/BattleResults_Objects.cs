@@ -14,6 +14,7 @@ namespace CrusaderWars
         public string Type {  get; private set; }
         Culture Culture { get; set; }
         public string AttilaFaction { get; private set; }
+        public string Script { get; private set; }
         int StartingSoldiers {  get; set; }
         int RemainingSoldiersBeforePursuit { get; set; }
         int RemainingSoldiersAfterPursuit { get; set; } = -1;
@@ -21,7 +22,7 @@ namespace CrusaderWars
         int Kills { get; set; } // New property for kills inflicted
         int StartingMachines { get; set; } // New property for siege engines
 
-        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers, int startingMachines, string attilaFaction)
+        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers, int startingMachines, string attilaFaction, string script)
         {
             UnitType = unit_type;
             Type = type;
@@ -33,8 +34,9 @@ namespace CrusaderWars
             Kills = 0;
             StartingMachines = startingMachines;
             AttilaFaction = attilaFaction;
+            Script = script;
         }
-        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit, int startingMachines, string attilaFaction)
+        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit, int startingMachines, string attilaFaction, string script)
         {
             UnitType = unit_type;
             Type = type;
@@ -46,6 +48,7 @@ namespace CrusaderWars
             Kills = 0;
             StartingMachines = startingMachines;
             AttilaFaction = attilaFaction;
+            Script = script;
         }
 
         public int GetStartingMachines() { return StartingMachines; }
