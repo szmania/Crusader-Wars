@@ -302,9 +302,14 @@ namespace CrusaderWars.data.battle_results
                 string script = mainUnit.Script;
                 string typeIdentifier = mainUnit.Type;
                 string cultureId = mainUnit.CultureID;
-                int remaining = Int32.Parse(mainUnit.Remaining);
+                
+                if (!int.TryParse(mainUnit.Remaining, out int remaining))
+                {
+                    Program.Logger.Debug($"Warning: Could not parse remaining soldiers '{mainUnit.Remaining}' for script '{script}'. Defaulting to 0.");
+                    remaining = 0;
+                }
 
-                Program.Logger.Debug($"Processing individual unit report: Script='{script}', Type='{typeIdentifier}', CultureID='{cultureId}'.");
+                Program.Logger.Debug($"Processing individual unit report: Script='{script}', Type='{typeIdentifier}', CultureID='{cultureId}', Remaining={remaining}.");
 
                 RegimentType unitType;
                 string reportTypeName;
@@ -418,7 +423,17 @@ namespace CrusaderWars.data.battle_results
                 // Find corresponding pursuit remaining for this specific script
                 int? pursuitRemaining = null;
                 var pursuitRecord = army.UnitsResults.Alive_PursuitPhase?.FirstOrDefault(p => p.Script == script);
-                if (pursuitRecord != null) pursuitRemaining = Int32.Parse(pursuitRecord.Value.Remaining);
+                if (pursuitRecord != null)
+                {
+                    if (int.TryParse(pursuitRecord.Value.Remaining, out int pRemaining))
+                    {
+                        pursuitRemaining = pRemaining;
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Warning: Could not parse pursuit remaining soldiers '{pursuitRecord.Value.Remaining}' for script '{script}'.");
+                    }
+                }
 
                 UnitCasualitiesReport unitReport;
                 if (pursuitRemaining.HasValue)
