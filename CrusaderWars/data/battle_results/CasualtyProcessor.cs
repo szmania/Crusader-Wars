@@ -450,11 +450,11 @@ namespace CrusaderWars.data.battle_results
                 UnitCasualitiesReport unitReport;
                 if (pursuitRemaining.HasValue)
                 {
-                    unitReport = new UnitCasualitiesReport(unitType, reportTypeName, culture, starting, remaining, pursuitRemaining.Value, startingMachines, attilaFaction);
+                    unitReport = new UnitCasualitiesReport(unitType, reportTypeName, culture, starting, remaining, pursuitRemaining.Value, startingMachines, attilaFaction, script);
                 }
                 else
                 {
-                    unitReport = new UnitCasualitiesReport(unitType, reportTypeName, culture, starting, remaining, startingMachines, attilaFaction);
+                    unitReport = new UnitCasualitiesReport(unitType, reportTypeName, culture, starting, remaining, startingMachines, attilaFaction, script);
                 }
 
                 unitReport.SetKills(kills);
