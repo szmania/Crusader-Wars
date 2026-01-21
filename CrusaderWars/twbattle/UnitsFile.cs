@@ -304,8 +304,8 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Processing garrisons for faction '{factionName}' with a total of {total_faction_garrison_soldiers} soldiers.");
 
                     int holdingLevel = twbattle.Sieges.GetHoldingLevel();
-                    var garrison_porcentages = UnitMappers_BETA.GetFactionGarrison(factionName, holdingLevel);
-                    newGarrisonUnits.AddRange(BETA_GarrisonComposition(merged_garrison_unit, army, garrison_porcentages, army_xp));
+                    var garrison_percentages = UnitMappers_BETA.GetFactionGarrison(factionName, holdingLevel);
+                    newGarrisonUnits.AddRange(BETA_GarrisonComposition(merged_garrison_unit, army, garrison_percentages, army_xp));
                 }
             }
 
@@ -354,8 +354,8 @@ namespace CrusaderWars
     
                         Program.Logger.Debug($"Processing levies for faction '{factionName}' with a total of {total_faction_levy_soldiers} soldiers.");
     
-                        var (levy_porcentages, factionUsed) = UnitMappers_BETA.GetFactionLevies(factionName);
-                        newLevyUnits.AddRange(BETA_LevyComposition(merged_levy_unit, army, levy_porcentages, army_xp, factionUsed));
+                        var (levy_percentages, factionUsed) = UnitMappers_BETA.GetFactionLevies(factionName);
+                        newLevyUnits.AddRange(BETA_LevyComposition(merged_levy_unit, army, levy_percentages, army_xp, factionUsed));
                     }
                 }
 
@@ -551,14 +551,14 @@ namespace CrusaderWars
 
 
             // NEW: Filter out Men-At-Arms units from the levy pool
-            var filtered_levy_porcentages = corrected_levy_percentages
+            var filtered_levy_percentages = corrected_levy_percentages
                                                 .Where(data => !data.unit_key.Contains("_MAA_"))
                                                 .ToList();
 
-            if (filtered_levy_porcentages.Any())
+            if (filtered_levy_percentages.Any())
             {
                 Program.Logger.Debug($"  BETA_LevyComposition ({army.CombatSide}): Filtered out MAA units from levy pool for faction '{unit.GetAttilaFaction()}'. Using filtered list.");
-                corrected_levy_percentages = filtered_levy_porcentages;
+                corrected_levy_percentages = filtered_levy_percentages;
             }
             else
             {
@@ -659,19 +659,19 @@ namespace CrusaderWars
             return composedUnits;
         }
 
-        static List<Unit> BETA_GarrisonComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_garrison_porcentages, int army_xp)
+        static List<Unit> BETA_GarrisonComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_garrison_percentages, int army_xp)
         {
             var composedUnits = new List<Unit>();
-            if (faction_garrison_porcentages == null || faction_garrison_porcentages.Count < 1)
+            if (faction_garrison_percentages == null || faction_garrison_percentages.Count < 1)
             {
                 Program.Logger.Debug("ERROR - GARRISON WITHOUT FACTION IN UNIT" + $"\nNUMBER OF SOLDIERS:{unit.GetSoldiers()}" + $"\nATTILA FACTION:{unit.GetAttilaFaction()}");
                 return composedUnits;
             }
 
             // Apply manual and autofix replacements to the garrison template list
-            var corrected_garrison_porcentages = new List<(int porcentage, string unit_key, string name, string max, bool isSiege)>();
+            var corrected_garrison_percentages = new List<(int porcentage, string unit_key, string name, string max, bool isSiege)>();
             bool isPlayerAlliance = army.IsPlayer();
-            foreach (var garrisonData in faction_garrison_porcentages)
+            foreach (var garrisonData in faction_garrison_percentages)
             {
                 string currentKey = garrisonData.unit_key;
                 bool isSiege = false; // Default to false
@@ -691,12 +691,12 @@ namespace CrusaderWars
                     isSiege = autofixReplacement.isSiege;
                 }
 
-                corrected_garrison_porcentages.Add((garrisonData.porcentage, currentKey, garrisonData.name, garrisonData.max, isSiege));
+                corrected_garrison_percentages.Add((garrisonData.porcentage, currentKey, garrisonData.name, garrisonData.max, isSiege));
             }
 
             int garrisonSoldiers = unit.GetSoldiers();
 
-            int totalPercentageSum = corrected_garrison_porcentages.Sum(p => p.porcentage);
+            int totalPercentageSum = corrected_garrison_percentages.Sum(p => p.porcentage);
             if (totalPercentageSum <= 0)
             {
                 Program.Logger.Debug($"  BETA_GarrisonComposition ({army.CombatSide}): WARNING: Total percentage sum for garrisons is 0 or less for faction '{unit.GetAttilaFaction()}'. No garrison units will be generated.");
@@ -704,12 +704,12 @@ namespace CrusaderWars
             }
 
             int assignedSoldiers = 0;
-            for (int k = 0; k < corrected_garrison_porcentages.Count; k++)
+            for (int k = 0; k < corrected_garrison_percentages.Count; k++)
             {
-                var percentageData = corrected_garrison_porcentages[k];
+                var percentageData = corrected_garrison_percentages[k];
                 int result;
 
-                if (k < corrected_garrison_porcentages.Count - 1)
+                if (k < corrected_garrison_percentages.Count - 1)
                 {
                     double t = (double)percentageData.porcentage / totalPercentageSum;
                     result = (int)Math.Round(garrisonSoldiers * t);
