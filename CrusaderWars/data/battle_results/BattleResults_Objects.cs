@@ -75,7 +75,18 @@ namespace CrusaderWars
         public int GetAliveBeforePursuit() {  return RemainingSoldiersBeforePursuit; }
         public int GetAliveAfterPursuit() { return RemainingSoldiersAfterPursuit; }
         public RegimentType GetUnitType() { return UnitType; }
-        public string GetTypeName() { return Type; }
+        public string GetTypeName()
+        {
+            if (UnitType == RegimentType.Levy)
+            {
+                return $"Levy ({Type})";
+            }
+            if (UnitType == RegimentType.Garrison)
+            {
+                return $"Garrison ({Type})";
+            }
+            return Type;
+        }
         public Culture GetCulture() { return Culture; }
         public int GetCasualties()
         {
