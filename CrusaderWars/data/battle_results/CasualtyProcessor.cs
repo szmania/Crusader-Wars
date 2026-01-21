@@ -372,11 +372,14 @@ namespace CrusaderWars.data.battle_results
                 // Determine the display name for the report
                 // Use the screen name from the unit mapper if available to ensure 1:1 matching in the AAR
                 string attilaKey = matchingUnit.GetAttilaUnitKey();
-                var unitScreenNames = unit_mapper.UnitsCardsNames.GetUnitScreenNames(unit_mapper.UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+                var unitScreenNames = unit_mapper.UnitMappers_BETA.GetLoadedUnitMapperName() != null 
+                    ? unit_mapper.UnitsCardsNames.GetUnitScreenNames(unit_mapper.UnitMappers_BETA.GetLoadedUnitMapperName()!) 
+                    : null;
                 
                 if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
                 {
-                    if (unitScreenNames != null && unitScreenNames.TryGetValue(attilaKey, out string screenName))
+                    string? screenName = null;
+                    if (unitScreenNames != null && unitScreenNames.TryGetValue(attilaKey, out screenName))
                     {
                         reportTypeName = $"Levy {screenName}";
                     }
