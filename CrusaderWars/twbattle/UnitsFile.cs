@@ -511,6 +511,9 @@ namespace CrusaderWars
 
             }
 
+            // Re-populate culture names for all units in this army, especially newly composed ones.
+            Armies_Functions.ReadArmiesCultures(new List<Army> { army });
+
             army.PrintUnits();
         }
 
