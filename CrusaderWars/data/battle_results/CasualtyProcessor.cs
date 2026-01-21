@@ -302,7 +302,7 @@ namespace CrusaderWars.data.battle_results
                 string script = mainUnit.Script;
                 string typeIdentifier = mainUnit.Type;
                 string cultureId = mainUnit.CultureID;
-                
+
                 if (!int.TryParse(mainUnit.Remaining, out int remaining))
                 {
                     Program.Logger.Debug($"Warning: Could not parse remaining soldiers '{mainUnit.Remaining}' for script '{script}'. Defaulting to 0.");
@@ -370,10 +370,20 @@ namespace CrusaderWars.data.battle_results
                 }
 
                 // Determine the display name for the report
-                // Use the script name for composed units to ensure 1:1 matching in the AAR
+                // Use the screen name from the unit mapper if available to ensure 1:1 matching in the AAR
+                string attilaKey = matchingUnit.GetAttilaUnitKey();
+                var unitScreenNames = unit_mapper.UnitsCardsNames.GetUnitScreenNames(unit_mapper.UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+                
                 if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
                 {
-                    reportTypeName = matchingUnit.GetAttilaUnitKey();
+                    if (unitScreenNames != null && unitScreenNames.TryGetValue(attilaKey, out string screenName))
+                    {
+                        reportTypeName = $"Levy {screenName}";
+                    }
+                    else
+                    {
+                        reportTypeName = $"Levy {attilaKey}";
+                    }
                 }
                 else if (unitType == RegimentType.Commander)
                 {
@@ -396,15 +406,13 @@ namespace CrusaderWars.data.battle_results
 
                 if (matchingUnit.IsSiege() && effectiveNumGuns > 0)
                 {
-                    // For multi-gun siege units, we need to know how many machines this specific Attila unit represents.
-                    // Since we are now reporting per Attila unit, we use the num_guns value.
                     startingMachines = effectiveNumGuns;
-                    starting = UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
+                    starting = unit_mapper.UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
                 }
                 else if (matchingUnit.IsSiege())
                 {
                     startingMachines = matchingUnit.GetOriginalSoldiers();
-                    starting = UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
+                    starting = unit_mapper.UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
                 }
                 else
                 {
@@ -412,7 +420,6 @@ namespace CrusaderWars.data.battle_results
                     // We assume the 'starting' is the same as 'remaining' if no casualties, 
                     // but since we don't have the individual starting count per Attila unit record in the log,
                     // we use the Unit object's soldiers count as a base, distributed if necessary.
-                    // However, for MAA/Knights/Commanders, they are usually 1:1 with Attila units.
                     starting = (int)Math.Round(matchingUnit.GetOriginalSoldiers() * (ArmyProportions.BattleScale / 100.0));
                 }
 
@@ -448,7 +455,7 @@ namespace CrusaderWars.data.battle_results
 
                 unitReport.SetKills(kills);
                 unitReport.PrintReport();
-                
+
                 // Ensure we add every individual unit record to the report list
                 reportsList.Add(unitReport);
             }
