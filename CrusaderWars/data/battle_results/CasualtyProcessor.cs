@@ -371,13 +371,7 @@ namespace CrusaderWars.data.battle_results
 
                 // Determine the display name for the report
                 // Use the script name for composed units to ensure 1:1 matching in the AAR
-                if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison)
-                {
-                    reportTypeName = matchingUnit.GetAttilaUnitKey();
-                    // Append unique ID to name if available to distinguish between multiple units of same type
-                    if (uniqueId.HasValue) reportTypeName = $"{reportTypeName} (Unit {uniqueId.Value})";
-                }
-                else if (unitType == RegimentType.Knight)
+                if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
                 {
                     reportTypeName = matchingUnit.GetAttilaUnitKey();
                 }
