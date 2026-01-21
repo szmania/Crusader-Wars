@@ -1709,7 +1709,7 @@ namespace CrusaderWars.twbattle
                         var unit = new UnitReport();
                         
                         // Get the corresponding Unit object to access additional data
-                        var correspondingUnit = army.Units.FirstOrDefault(u => 
+                        var correspondingUnit = army.Units.FirstOrDefault(u =>
                         {
                             // For knight units, match only by type and culture since GetTypeName() returns "Knight"
                             if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
@@ -1717,11 +1717,12 @@ namespace CrusaderWars.twbattle
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
-                            // For garrison units, match by Attila unit key instead of name
-                            else if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            // For levy and garrison units, match by Attila unit key instead of name
+                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
+                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
                             {
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
+                                       u.GetAttilaUnitKey() == unitReport.Type &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
                             else
@@ -1889,7 +1890,7 @@ namespace CrusaderWars.twbattle
                         var unit = new UnitReport();
                         
                         // Get the corresponding Unit object to access additional data
-                        var correspondingUnit = army.Units.FirstOrDefault(u => 
+                        var correspondingUnit = army.Units.FirstOrDefault(u =>
                         {
                             // For knight units, match only by type and culture since GetTypeName() returns "Knight"
                             if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
@@ -1897,11 +1898,12 @@ namespace CrusaderWars.twbattle
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
-                            // For garrison units, match by Attila unit key instead of name
-                            else if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            // For levy and garrison units, match by Attila unit key instead of name
+                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
+                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
                             {
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
+                                       u.GetAttilaUnitKey() == unitReport.Type &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
                             else
