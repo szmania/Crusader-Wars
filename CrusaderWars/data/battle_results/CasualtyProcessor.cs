@@ -418,7 +418,7 @@ namespace CrusaderWars.data.battle_results
                 // Find corresponding pursuit remaining for this specific script
                 int? pursuitRemaining = null;
                 var pursuitRecord = army.UnitsResults.Alive_PursuitPhase?.FirstOrDefault(p => p.Script == script);
-                if (pursuitRecord != null) pursuitRemaining = Int32.Parse(pursuitRecord.Remaining);
+                if (pursuitRecord != null) pursuitRemaining = Int32.Parse(pursuitRecord.Value.Remaining);
 
                 UnitCasualitiesReport unitReport;
                 if (pursuitRemaining.HasValue)
