@@ -400,6 +400,7 @@ namespace CrusaderWars.data.battle_results
                 RegimentType unitType;
                 string type; // This is the identifier string (CK3 name, Attila key, or generic "Levy")
                 int? uniqueId = null;
+                string? commanderIdToMatch = null;
 
                 if (group.Key.Type.StartsWith("Levy"))
                 {
@@ -419,6 +420,11 @@ namespace CrusaderWars.data.battle_results
                 {
                     unitType = RegimentType.Commander;
                     type = "General"; // Match against the generic unit name "General"
+                    Match idMatch = Regex.Match(group.Key.Type, @"commander(\d+)");
+                    if (idMatch.Success)
+                    {
+                        commanderIdToMatch = idMatch.Groups[1].Value;
+                    }
                 }
                 else
                 {
@@ -438,9 +444,14 @@ namespace CrusaderWars.data.battle_results
                     // Precise match for Levy and Garrison units using their unique ID
                     matchingUnits = army.Units.Where(x => x.UniqueID == uniqueId.Value);
                 }
+                else if (commanderIdToMatch != null)
+                {
+                    // Precise match for Commander units using their character ID
+                    matchingUnits = army.Units.Where(x => x != null && x.GetCharacterID() == commanderIdToMatch);
+                }
                 else
                 {
-                    // Existing logic for other unit types (MAA, Commander)
+                    // Existing logic for Men-at-Arms
                     matchingUnits = army.Units.Where(x =>
                     {
                         if (x == null || x.GetRegimentType() != unitType)
@@ -448,7 +459,6 @@ namespace CrusaderWars.data.battle_results
                             return false;
                         }
 
-                        // Match culture for non-unique units
                         if (x.GetObjCulture()?.ID != group.Key.CultureID)
                         {
                             return false;
@@ -458,9 +468,9 @@ namespace CrusaderWars.data.battle_results
                         {
                             return x.GetName() == type;
                         }
-                        
-                        // For Commander ("General"), culture and type match is sufficient
-                        return true;
+
+                        // Fallback to prevent incorrect matching of commanders without an ID
+                        return false;
                     });
                 }
 

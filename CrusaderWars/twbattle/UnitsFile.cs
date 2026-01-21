@@ -150,6 +150,7 @@ namespace CrusaderWars
                 int commander_soldiers = commander.GetUnitSoldiers();
                 
                 Unit commander_unit = new Unit("General", commander_soldiers, commander.GetCultureObj(), RegimentType.Commander, false, army.Owner, commander.Rank);
+                commander_unit.SetCharacterID(commander.ID);
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName()));
                 var (commanderKey, isSiege) = UnitMappers_BETA.GetUnitKey(commander_unit);
 
