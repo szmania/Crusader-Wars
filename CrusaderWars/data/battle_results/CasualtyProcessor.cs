@@ -10,6 +10,7 @@ using CrusaderWars.twbattle; // Added for BattleFile access
 using System.Globalization; // Added for CultureInfo
 using CrusaderWars.armies; // Added for List<Army>
 using CrusaderWars.unit_mapper;
+using CrusaderWars.locs;
 
 
 namespace CrusaderWars.data.battle_results
@@ -372,8 +373,8 @@ namespace CrusaderWars.data.battle_results
                 // Determine the display name for the report
                 // Use the screen name from the unit mapper if available to ensure 1:1 matching in the AAR
                 string attilaKey = matchingUnit.GetAttilaUnitKey();
-                var unitScreenNames = unit_mapper.UnitMappers_BETA.GetLoadedUnitMapperName() != null 
-                    ? unit_mapper.UnitsCardsNames.GetUnitScreenNames(unit_mapper.UnitMappers_BETA.GetLoadedUnitMapperName()!) 
+                var unitScreenNames = UnitMappers_BETA.GetLoadedUnitMapperName() != null 
+                    ? UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName()!) 
                     : null;
                 
                 if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
