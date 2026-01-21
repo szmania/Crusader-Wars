@@ -1566,33 +1566,30 @@ namespace CrusaderWars.data.battle_results
 
         }
 
-        static string GetChunksText(string size, string owner, string current)
+        static string GetChunksText(string size, string owner, string current, string origin)
         {
-            string str;
-            if (string.IsNullOrEmpty(owner))
+            StringBuilder sb = new StringBuilder();
+            
+            if (!string.IsNullOrEmpty(origin))
             {
-                str = $"\t\t\tmax={size}\n" +
-                      $"\t\t\tchunks={{\n" +
-                      $"\t\t\t\t{{\n" +
-                      $"\t\t\t\t\tmax={size}\n" +
-                      $"\t\t\t\t\tcurrent={current}\n" +
-                      $"\t\t\t\t}}\n" +
-                      $"\t\t\t}}\n";
-            }
-            else
-            {
-                str = $"\t\t\tmax={size}\n" +
-                      $"\t\t\towner={owner}\n" +
-                      $"\t\t\tchunks={{\n" +
-                      $"\t\t\t\t{{\n" +
-                      $"\t\t\t\t\tmax={size}\n" +
-                      $"\t\t\t\t\tcurrent={current}\n" +
-                      $"\t\t\t\t}}\n" +
-                      $"\t\t\t}}\n";
+                sb.Append($"\t\t\torigin={origin}\n");
             }
 
+            sb.Append($"\t\t\tmax={size}\n");
 
-            return str;
+            if (!string.IsNullOrEmpty(owner))
+            {
+                sb.Append($"\t\t\towner={owner}\n");
+            }
+
+            sb.Append("\t\t\tchunks={\n");
+            sb.Append("\t\t\t\t{\n");
+            sb.Append($"\t\t\t\t\tmax={size}\n");
+            sb.Append($"\t\t\t\t\tcurrent={current}\n");
+            sb.Append("\t\t\t\t}\n");
+            sb.Append("\t\t\t}\n");
+
+            return sb.ToString();
         }
 
         public static void EditRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
@@ -1638,7 +1635,8 @@ namespace CrusaderWars.data.battle_results
                                 string max = editRegiment?.Max ?? "0";
                                 string owner = editRegiment?.Owner ?? "";
                                 string current = editRegiment?.CurrentNum ?? "0";
-                                streamWriter.Write(GetChunksText(max, owner, current));
+                                string origin = editRegiment?.Origin ?? "";
+                                streamWriter.Write(GetChunksText(max, owner, current, origin));
                                 
                                 // Skip the original block until the closing brace
                                 int braceCount = 1;
@@ -1660,7 +1658,8 @@ namespace CrusaderWars.data.battle_results
                             string max = editRegiment.Max ?? "0";
                             string owner = editRegiment.Owner ?? "";
                             string current = editRegiment.CurrentNum ?? "0";
-                            streamWriter.Write(GetChunksText(max, owner, current));
+                            string origin = editRegiment.Origin ?? "";
+                            streamWriter.Write(GetChunksText(max, owner, current, origin));
                             
                             // Skip the rest of the original block until the closing brace
                             int braceCount = 1; // We are already inside the block
