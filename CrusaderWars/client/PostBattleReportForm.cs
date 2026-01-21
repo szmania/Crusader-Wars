@@ -24,6 +24,7 @@ namespace CrusaderWars.client
 
         private void PostBattleReportForm_Load(object sender, EventArgs e)
         {
+            treeViewReport.Font = new Font("Consolas", 9f);
             PopulateReport();
         }
 
@@ -181,11 +182,11 @@ namespace CrusaderWars.client
                         string deployedStr = $"{unit.Deployed} ({unit.DeployedMachines})";
                         string lossesStr = $"{unit.Losses} ({unit.MachineLosses})";
                         string remainingStr = $"{unit.Remaining} ({unit.RemainingMachines})";
-                        unitText = $"{unit.AttilaUnitName.PadRight(47)} | {deployedStr.PadLeft(18)} | {lossesStr.PadLeft(6)} | {remainingStr.PadLeft(9)} | {unit.Kills.ToString().PadLeft(5)}";
+                        unitText = $"{unit.AttilaUnitName.PadRight(47)} | {deployedStr.PadLeft(18)} | {lossesStr.PadLeft(16)} | {remainingStr.PadLeft(19)} | {unit.Kills.ToString().PadLeft(5)}";
                     }
                     else
                     {
-                        unitText = String.Format("{0,-47} | {1,18} | {2,6} | {3,9} | {4,5}", 
+                        unitText = String.Format("{0,-47} | {1,18} | {2,16} | {3,19} | {4,5}", 
                             unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
                     }
                     var unitNode = new TreeNode(unitText);
