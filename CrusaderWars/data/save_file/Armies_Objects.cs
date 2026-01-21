@@ -211,6 +211,7 @@ namespace CrusaderWars.data.save_file
         public bool IsSiegeEnginePerUnit() { return IsSiegeEnginePerUnitBool; }
         public int GetNumGuns() { return NumGuns; }
         public bool IsPlayer() { return IsPlayerUnitBool; }
+        public string? GetCharacterID() { return CharacterID; }
 
     }
 
