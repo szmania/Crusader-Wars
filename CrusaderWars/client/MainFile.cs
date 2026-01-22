@@ -2325,6 +2325,7 @@ namespace CrusaderWars
                 return;
             }
             Data.Reset(); // ADDED as per plan
+            Unit.ResetUniqueIDCounter();
             Reader.ReadMetaData();
             DataSearch.Search(logSnippet);
 
