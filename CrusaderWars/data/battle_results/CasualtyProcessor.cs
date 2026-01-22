@@ -318,17 +318,20 @@ namespace CrusaderWars.data.battle_results
                 string? commanderIdToMatch = null;
 
                 // Parse the type identifier to find the corresponding CK3 unit
+                // New format: {Something}_{UniqueID}
+                Match uniqueIdMatch = Regex.Match(typeIdentifier, @"_(\d+)$");
+                if (uniqueIdMatch.Success)
+                {
+                    uniqueId = int.Parse(uniqueIdMatch.Groups[1].Value);
+                }
+
                 if (typeIdentifier.StartsWith("Levy"))
                 {
                     unitType = RegimentType.Levy;
-                    Match idMatch = Regex.Match(typeIdentifier, @"(\d+)$");
-                    if (idMatch.Success) uniqueId = int.Parse(idMatch.Groups[1].Value);
                 }
                 else if (typeIdentifier.StartsWith("Garrison"))
                 {
                     unitType = RegimentType.Garrison;
-                    Match idMatch = Regex.Match(typeIdentifier, @"(\d+)$");
-                    if (idMatch.Success) uniqueId = int.Parse(idMatch.Groups[1].Value);
                 }
                 else if (typeIdentifier.Contains("commander"))
                 {
@@ -336,7 +339,7 @@ namespace CrusaderWars.data.battle_results
                     Match idMatch = Regex.Match(typeIdentifier, @"commander(\d+)");
                     if (idMatch.Success) commanderIdToMatch = idMatch.Groups[1].Value;
                 }
-                else if (typeIdentifier == "knights")
+                else if (typeIdentifier.StartsWith("knights"))
                 {
                     unitType = RegimentType.Knight;
                 }
