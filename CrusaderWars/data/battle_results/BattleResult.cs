@@ -1076,13 +1076,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                            main_kills = results.GetKillsAmountOfMainPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1115,13 +1114,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                            pursuit_kills = results.GetKillsAmountOfPursuitPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -1132,13 +1130,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                            main_losses = results.GetDeathAmountOfMainPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -1149,13 +1146,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                            pursuit_losses = results.GetDeathAmountOfPursuitPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -1216,13 +1212,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                            main_kills = results.GetKillsAmountOfMainPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1255,13 +1250,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                            pursuit_kills = results.GetKillsAmountOfPursuitPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -1272,13 +1266,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                            main_losses = results.GetDeathAmountOfMainPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -1289,13 +1282,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                            pursuit_losses = results.GetDeathAmountOfPursuitPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -1566,10 +1558,10 @@ namespace CrusaderWars.data.battle_results
 
         }
 
-        static string GetChunksText(string size, string owner, string current, string origin)
+        static string GetChunksText(string size, string owner, string current, string origin, bool isMercenary)
         {
             StringBuilder sb = new StringBuilder();
-            
+
             if (!string.IsNullOrEmpty(origin))
             {
                 sb.Append($"\t\t\torigin={origin}\n");
@@ -1588,6 +1580,11 @@ namespace CrusaderWars.data.battle_results
             sb.Append($"\t\t\t\t\tcurrent={current}\n");
             sb.Append("\t\t\t\t}\n");
             sb.Append("\t\t\t}\n");
+
+            if (isMercenary)
+            {
+                sb.Append("\t\t\tsource=hired\n");
+            }
 
             return sb.ToString();
         }
@@ -1636,7 +1633,8 @@ namespace CrusaderWars.data.battle_results
                                 string owner = editRegiment?.Owner ?? "";
                                 string current = editRegiment?.CurrentNum ?? "0";
                                 string origin = editRegiment?.Origin ?? "";
-                                streamWriter.Write(GetChunksText(max, owner, current, origin));
+                                bool isMerc = editRegiment?.isMercenary() ?? false;
+                                streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
                                 
                                 // Skip the original block until the closing brace
                                 int braceCount = 1;
@@ -1659,7 +1657,8 @@ namespace CrusaderWars.data.battle_results
                             string owner = editRegiment.Owner ?? "";
                             string current = editRegiment.CurrentNum ?? "0";
                             string origin = editRegiment.Origin ?? "";
-                            streamWriter.Write(GetChunksText(max, owner, current, origin));
+                            bool isMerc = editRegiment.isMercenary();
+                            streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
                             
                             // Skip the rest of the original block until the closing brace
                             int braceCount = 1; // We are already inside the block
