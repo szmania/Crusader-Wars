@@ -370,8 +370,6 @@ namespace CrusaderWars
             //   MEN-AT-ARMS   #
             //                 #
             //##################
-            foreach (var unit in army.Units)
-            {
             //##################
             //                 #
             //   MEN-AT-ARMS   #
@@ -516,10 +514,6 @@ namespace CrusaderWars
             // Remove old placeholder units and add new composed units for logging
             army.Units.RemoveAll(u => u.GetRegimentType() == RegimentType.MenAtArms);
             army.Units.AddRange(newMAAUnits);
-                i++;
-
-
-            }
 
             // Re-populate culture names for all units in this army, especially newly composed ones.
             Armies_Functions.ReadArmiesCultures(new List<Army> { army });
