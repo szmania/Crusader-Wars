@@ -1162,6 +1162,7 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Finalizing save file...");
                     SaveFile.Finish();
                     twbattle.BattleState.ClearBattleState();
+                    Unit.ResetUniqueIDCounter();
                     Program.Logger.Debug("Battle finished. Clearing battle state.");
 
                     // Show successful autofix/manual tool message if applicable

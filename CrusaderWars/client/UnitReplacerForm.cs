@@ -148,7 +148,7 @@ namespace CrusaderWars.client
 
                         if (levyComposition != null && levyComposition.Any())
                         {
-                            int totalPercentage = levyComposition.Sum(l => l.porcentage);
+                            int totalPercentage = levyComposition.Sum(l => l.percentage);
                             if (totalPercentage > 0)
                             {
                                 var soldiersPerKey = new Dictionary<string, int>();
@@ -157,7 +157,7 @@ namespace CrusaderWars.client
                                 // Calculate soldiers for each key based on percentage
                                 foreach (var levy in levyComposition)
                                 {
-                                    int soldiersForKey = (int)Math.Round(totalLevySoldiers * ((double)levy.porcentage / totalPercentage));
+                                    int soldiersForKey = (int)Math.Round(totalLevySoldiers * ((double)levy.percentage / totalPercentage));
                                     soldiersPerKey[levy.unit_key] = soldiersForKey;
                                     assignedSoldiers += soldiersForKey;
                                 }

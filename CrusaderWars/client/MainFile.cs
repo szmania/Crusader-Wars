@@ -2835,6 +2835,7 @@ namespace CrusaderWars
                         MessageBoxIcon.Warning
                     );
                     BattleState.ClearBattleState();
+                    Unit.ResetUniqueIDCounter();
                     UpdateUIForBattleState();
                 }
             }
