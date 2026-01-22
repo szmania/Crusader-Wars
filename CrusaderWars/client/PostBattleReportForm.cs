@@ -144,38 +144,14 @@ namespace CrusaderWars.client
             {
                 var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName}) (Deployed: {army.TotalDeployed}, Losses: {army.TotalLosses}, Remaining: {army.TotalRemaining}, Kills: {army.TotalKills})");
                 
-                // Group units for display, especially for knights
-                var groupedUnits = army.Units
-                    .GroupBy(u => u.Ck3UnitType == "Knight" ? new { Ck3UnitType = u.Ck3UnitType, AttilaUnitKey = "KNIGHT_GROUP", AttilaUnitName = "Knights (Combined)", Script = "KNIGHT_GROUP" } : new { u.Ck3UnitType, u.AttilaUnitKey, u.AttilaUnitName, u.Script }) // Group by type, key, formatted name, and unique script
-                    .Select(g => {
-                        var firstUnit = g.First();
-                        // Aggregate soldiers, losses, kills for grouped units
-                        return new UnitReport
-                        {
-                            AttilaUnitName = firstUnit.Ck3UnitType == "Knight" ? "Knights (Combined)" : firstUnit.AttilaUnitName, // Use a generic name for the combined group
-                            Deployed = g.Sum(u => u.Deployed),
-                            Losses = g.Sum(u => u.Losses),
-                            Remaining = g.Sum(u => u.Remaining),
-                            Kills = g.Sum(u => u.Kills),
-                            Ck3UnitType = firstUnit.Ck3UnitType,
-                            AttilaUnitKey = firstUnit.AttilaUnitKey,
-                            Ck3Heritage = firstUnit.Ck3Heritage,
-                            Ck3Culture = firstUnit.Ck3Culture,
-                            AttilaFaction = firstUnit.AttilaFaction,
-                            Characters = g.SelectMany(u => u.Characters).DistinctBy(c => c.Name).ToList(), // Collect all characters
-                            KnightDetails = g.SelectMany(u => u.KnightDetails).DistinctBy(k => k.Name).ToList(), // Collect all knight details
-                            IsSiegeUnit = g.Any(u => u.IsSiegeUnit),
-                            DeployedMachines = g.Sum(u => u.DeployedMachines),
-                            RemainingMachines = g.Sum(u => u.RemainingMachines),
-                            MachineLosses = g.Sum(u => u.MachineLosses)
-                        };
-                    })
+                // Display individual units without grouping
+                var individualUnits = army.Units
                     .OrderByDescending(u => u.Ck3UnitType == "Commander")
                     .ThenByDescending(u => u.Ck3UnitType == "Knight")
-                    .ThenByDescending(u => u.Ck3UnitType == "Garrison") // NEW: Prioritize Garrison units in display order
+                    .ThenByDescending(u => u.Ck3UnitType == "Garrison") // Prioritize Garrison units in display order
                     .ToList();
 
-                foreach (var unit in groupedUnits)
+                foreach (var unit in individualUnits)
                 {
                     const int maxNameLength = 63;
                     string displayName = unit.AttilaUnitName;
