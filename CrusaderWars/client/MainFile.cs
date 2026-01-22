@@ -1717,6 +1717,7 @@ namespace CrusaderWars
 
             BattleResult.Player_Combat = null; // Reset the static combat data
             BattleState.ClearBattleState();
+            Unit.ResetUniqueIDCounter();
             UpdateUIForBattleState();
 
             /*
