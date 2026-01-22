@@ -180,6 +180,13 @@ namespace CrusaderWars.data.save_file
         public void SetCharacterID(string id) { CharacterID = id; }
 
 
+        public static void ResetUniqueIDCounter()
+        {
+            _nextUniqueID = 1;
+            Program.Logger.Debug("Unit UniqueID counter has been reset.");
+        }
+
+
         public int GetMax() { return Max; }
         public string GetAttilaFaction() { return AttilaFaction; }
         public string GetAttilaUnitKey() { return AttilaKey; }
