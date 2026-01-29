@@ -34,6 +34,8 @@ namespace CrusaderWars.data.battle_results
         //Combats
         public static string? Player_Combat;
 
+        public static Dictionary<string, List<string>> PendingLandedData = new Dictionary<string, List<string>>();
+
         public static void ReadPlayerCombat(string playerID)
         {
             Program.Logger.Debug($"Reading player combat for player ID: {playerID}");
