@@ -734,11 +734,30 @@ namespace CrusaderWars.data.battle_results
             var transferData = PendingLandedData[successorId];
             Program.Logger.Debug($"Applying landed_data transfer to successor {successorId}.");
 
-            // Copy missing culture/faith
-            if (!charBlock.Any(l => l.Trim().StartsWith("culture=")) && transferData.Culture != null)
-                charBlock.Insert(1, $"\tculture={transferData.Culture}");
-            if (!charBlock.Any(l => l.Trim().StartsWith("faith=")) && transferData.Faith != null)
-                charBlock.Insert(1, $"\tfaith={transferData.Faith}");
+            // Copy missing culture/faith after ethnicity (or fallback fields)
+            if (transferData.Culture != null || transferData.Faith != null)
+            {
+                bool hasCulture = charBlock.Any(l => l.Trim().StartsWith("culture="));
+                bool hasFaith = charBlock.Any(l => l.Trim().StartsWith("faith="));
+
+                if (!hasCulture || !hasFaith)
+                {
+                    int insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("ethnicity="));
+                    if (insertIdx == -1) insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("nickname_text="));
+                    if (insertIdx == -1) insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("birth="));
+                    if (insertIdx == -1) insertIdx = 0; // Fallback to start of block if no markers found
+
+                    // Insert Faith first, then Culture, so Culture ends up above Faith if both are inserted
+                    if (!hasFaith && transferData.Faith != null)
+                    {
+                        charBlock.Insert(insertIdx + 1, $"\tfaith={transferData.Faith}");
+                    }
+                    if (!hasCulture && transferData.Culture != null)
+                    {
+                        charBlock.Insert(insertIdx + 1, $"\tculture={transferData.Culture}");
+                    }
+                }
+            }
 
             int existingLandedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
             if (existingLandedIdx == -1)
