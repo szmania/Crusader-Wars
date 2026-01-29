@@ -34,7 +34,15 @@ namespace CrusaderWars.data.battle_results
         //Combats
         public static string? Player_Combat;
 
-        public static Dictionary<string, List<string>> PendingLandedData = new Dictionary<string, List<string>>();
+        public class SuccessorTransferData
+        {
+            public List<string> LandedDataBlock { get; set; } = new List<string>();
+            public string? Culture { get; set; }
+            public string? Faith { get; set; }
+            public string SlainCharId { get; set; } = "";
+        }
+
+        public static Dictionary<string, SuccessorTransferData> PendingLandedData = new Dictionary<string, SuccessorTransferData>();
 
         public static void ReadPlayerCombat(string playerID)
         {
@@ -404,7 +412,7 @@ namespace CrusaderWars.data.battle_results
 
         public static void DetermineCharacterFates(List<Army> allArmies)
         {
-            Program.Logger.Debug("Determining character fates...");
+            Program.Logger.Debug("Determining character fates and extracting succession data...");
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             {
@@ -414,23 +422,22 @@ namespace CrusaderWars.data.battle_results
                     if (Regex.IsMatch(line, @"^\d+={"))
                     {
                         string char_id = Regex.Match(line, @"\d+").Value;
+                        List<string> charBlock = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                        {
+                            charBlock.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
                             bool hasFallen = (searchData.isCommander && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight.HasFallen());
                             if (hasFallen)
                             {
-                                string? traitsLine = null;
-                                int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
-                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
-                                {
-                                    if (line.Trim().StartsWith("traits={"))
-                                    {
-                                        traitsLine = line;
-                                    }
-                                    braceCount += line.Count(c => c == '{');
-                                    braceCount -= line.Count(c => c == '}');
-                                }
+                                string? traitsLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("traits={"));
 
                                 if (traitsLine != null)
                                 {
@@ -450,6 +457,11 @@ namespace CrusaderWars.data.battle_results
                                         searchData.knight.IsSlain = healthResult.isSlain;
                                         searchData.knight.IsPrisoner = healthResult.isCaptured;
                                     }
+
+                                    if (healthResult.isSlain)
+                                    {
+                                        ExtractSuccessionData(char_id, charBlock);
+                                    }
                                 }
                             }
                         }
@@ -457,6 +469,43 @@ namespace CrusaderWars.data.battle_results
                 }
             }
             Program.Logger.Debug("Finished determining character fates.");
+        }
+
+        private static void ExtractSuccessionData(string slainCharId, List<string> charBlock)
+        {
+            int landedDataStart = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+            if (landedDataStart == -1) return;
+
+            List<string> landedBlock = new List<string>();
+            int braceCount = 0;
+            string? successorId = null;
+
+            for (int i = landedDataStart; i < charBlock.Count; i++)
+            {
+                string line = charBlock[i];
+                landedBlock.Add(line);
+                braceCount += line.Count(c => c == '{');
+                braceCount -= line.Count(c => c == '}');
+
+                if (line.Trim().StartsWith("succession={"))
+                {
+                    Match m = Regex.Match(line, @"succession=\{\s*(\d+)");
+                    if (m.Success) successorId = m.Groups[1].Value;
+                }
+                if (braceCount == 0) break;
+            }
+
+            if (!string.IsNullOrEmpty(successorId))
+            {
+                var data = new SuccessorTransferData { LandedDataBlock = landedBlock, SlainCharId = slainCharId };
+                string? cultureLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("culture="));
+                string? faithLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("faith="));
+                if (cultureLine != null) data.Culture = Regex.Match(cultureLine, @"culture=(.+)").Groups[1].Value;
+                if (faithLine != null) data.Faith = Regex.Match(faithLine, @"faith=(.+)").Groups[1].Value;
+
+                PendingLandedData[successorId] = data;
+                Program.Logger.Debug($"Slain character {slainCharId} identified successor {successorId}. Data queued for transfer.");
+            }
         }
 
         public static void EditLivingFile(List<Army> attacker_armies, List<Army> defender_armies)
@@ -517,12 +566,28 @@ namespace CrusaderWars.data.battle_results
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
-                            bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.IsSlain);
+                            bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.HasFallen());
                             bool isCaptured = (searchData.isCommander && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight.IsPrisoner);
 
                             if (isSlain)
                             {
-                                Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data block.");
+                                Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data and landed_data blocks.");
+                                
+                                // Remove landed_data
+                                int landedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+                                if (landedIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = landedIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(landedIdx, endIdx - landedIdx + 1);
+                                }
+
                                 int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
                                 if (aliveDataStartIndex != -1)
                                 {
@@ -645,6 +710,11 @@ namespace CrusaderWars.data.battle_results
                             }
                         }
 
+                        if (PendingLandedData.ContainsKey(char_id))
+                        {
+                            ApplyLandedDataTransfer(char_id, charBlock);
+                        }
+
                         foreach (var blockLine in charBlock)
                         {
                             streamWriter.WriteLine(blockLine);
@@ -657,6 +727,78 @@ namespace CrusaderWars.data.battle_results
                 }
             }
             Program.Logger.Debug("Finished editing Living file.");
+        }
+
+        private static void ApplyLandedDataTransfer(string successorId, List<string> charBlock)
+        {
+            var transferData = PendingLandedData[successorId];
+            Program.Logger.Debug($"Applying landed_data transfer to successor {successorId}.");
+
+            // Copy missing culture/faith
+            if (!charBlock.Any(l => l.Trim().StartsWith("culture=")) && transferData.Culture != null)
+                charBlock.Insert(1, $"\tculture={transferData.Culture}");
+            if (!charBlock.Any(l => l.Trim().StartsWith("faith=")) && transferData.Faith != null)
+                charBlock.Insert(1, $"\tfaith={transferData.Faith}");
+
+            int existingLandedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+            if (existingLandedIdx == -1)
+            {
+                int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}") ;
+                if (insertPos != -1) charBlock.InsertRange(insertPos, transferData.LandedDataBlock);
+            }
+            else
+            {
+                // Merge logic
+                List<string> mergedLanded = transferData.LandedDataBlock;
+                int bCount = 0;
+                int endIdx = -1;
+                List<string> successorLanded = new List<string>();
+                for (int i = existingLandedIdx; i < charBlock.Count; i++)
+                {
+                    successorLanded.Add(charBlock[i]);
+                    bCount += charBlock[i].Count(c => c == '{');
+                    bCount -= charBlock[i].Count(c => c == '}');
+                    if (bCount == 0) { endIdx = i; break; }
+                }
+
+                Func<List<string>, string, string> getField = (block, field) => {
+                    var line = block.FirstOrDefault(l => l.Trim().StartsWith(field + "={"));
+                    return line != null ? Regex.Match(line, field + @"=\{\s*(.*?)\s*\}").Groups[1].Value : "";
+                };
+
+                Action<List<string>, string, string> setField = (block, field, val) => {
+                    int idx = block.FindIndex(l => l.Trim().StartsWith(field + "={"));
+                    if (idx != -1) block[idx] = Regex.Replace(block[idx], field + @"=\{.*?\}", field + "={ " + val + " }");
+                };
+
+                foreach (string field in new[] { "domain", "vassal_contracts", "succession" })
+                {
+                    var slainVals = getField(mergedLanded, field).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var succVals = getField(successorLanded, field).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var combined = slainVals.Concat(succVals).Distinct().ToList();
+                    if (field == "succession") combined.Remove(successorId);
+                    setField(successorLanded, field, string.Join(" ", combined));
+                }
+
+                // Cleanup council
+                var councilLineIdx = successorLanded.FindIndex(l => l.Trim().StartsWith("council={"));
+                if (councilLineIdx != -1)
+                {
+                    var councilVals = Regex.Match(successorLanded[councilLineIdx], @"council=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    if (councilVals.Remove(successorId))
+                        successorLanded[councilLineIdx] = "		council={ " + string.Join(" ", councilVals) + " }";
+                }
+
+                // Update became_ruler_date
+                int dateIdx = successorLanded.FindIndex(l => l.Trim().StartsWith("became_ruler_date="));
+                string newDateLine = $"\t\tbecame_ruler_date={Date.Year}.{Date.Month}.{Date.Day}";
+                if (dateIdx != -1) successorLanded[dateIdx] = newDateLine;
+                else successorLanded.Insert(1, newDateLine);
+
+                charBlock.RemoveRange(existingLandedIdx, endIdx - existingLandedIdx + 1);
+                charBlock.InsertRange(existingLandedIdx, successorLanded);
+            }
         }
 
         public static void EditPlayerCharacterFiles(bool playerIsSlain, string? playerHeirId)

@@ -99,6 +99,7 @@ namespace CrusaderWars
             BattleResult.Original_Player_CombatResult = null; // Reset Original_Player_CombatResult
             BattleResult.WarScoreValue = null;
             BattleResult.WarID = null;
+            BattleResult.PendingLandedData.Clear();
 
 
             // Reset extraction flags
