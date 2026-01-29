@@ -715,6 +715,22 @@ namespace CrusaderWars.data.battle_results
                             ApplyLandedDataTransfer(char_id, charBlock);
                         }
 
+                        // Update employer for courtiers if their liege was slain
+                        foreach (var transfer in PendingLandedData.Values)
+                        {
+                            int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                            if (courtDataIdx != -1)
+                            {
+                                int employerIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                if (employerIdx != -1 && charBlock[employerIdx].Contains(transfer.SlainCharId))
+                                {
+                                    string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
+                                    charBlock[employerIdx] = $"{indentation}employer={char_id}";
+                                    Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {char_id}.");
+                                }
+                            }
+                        }
+
                         foreach (var blockLine in charBlock)
                         {
                             streamWriter.WriteLine(blockLine);
