@@ -40,6 +40,8 @@ namespace CrusaderWars.data.battle_results
             public string? Culture { get; set; }
             public string? Faith { get; set; }
             public string SlainCharId { get; set; } = "";
+            public double Gold { get; set; } = 0;
+            public List<string> IncomeBlock { get; set; } = new List<string>();
         }
 
         public static Dictionary<string, SuccessorTransferData> PendingLandedData = new Dictionary<string, SuccessorTransferData>();
@@ -498,6 +500,36 @@ namespace CrusaderWars.data.battle_results
             if (!string.IsNullOrEmpty(successorId))
             {
                 var data = new SuccessorTransferData { LandedDataBlock = landedBlock, SlainCharId = slainCharId };
+
+                // Extract Gold and Income from alive_data
+                int aliveDataIdx = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                if (aliveDataIdx != -1)
+                {
+                    int goldIdx = charBlock.FindIndex(aliveDataIdx, l => l.Trim() == "gold={");
+                    if (goldIdx != -1)
+                    {
+                        string valLine = charBlock[goldIdx + 1];
+                        Match mGold = Regex.Match(valLine, @"value=([\d\.-]+)");
+                        if (mGold.Success && double.TryParse(mGold.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double gVal))
+                        {
+                            data.Gold = gVal;
+                        }
+                    }
+
+                    int incomeIdx = charBlock.FindIndex(aliveDataIdx, l => l.Trim() == "income={");
+                    if (incomeIdx != -1)
+                    {
+                        int bCount = 0;
+                        for (int i = incomeIdx; i < charBlock.Count; i++)
+                        {
+                            data.IncomeBlock.Add(charBlock[i]);
+                            bCount += charBlock[i].Count(c => c == '{');
+                            bCount -= charBlock[i].Count(c => c == '}');
+                            if (bCount == 0) break;
+                        }
+                    }
+                }
+
                 string? cultureLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("culture="));
                 string? faithLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("faith="));
                 if (cultureLine != null) data.Culture = Regex.Match(cultureLine, @"culture=(.+)").Groups[1].Value;
@@ -858,6 +890,49 @@ namespace CrusaderWars.data.battle_results
 
                 charBlock.RemoveRange(existingLandedIdx, endIdx - existingLandedIdx + 1);
                 charBlock.InsertRange(existingLandedIdx, successorLanded);
+            }
+
+            // Transfer Gold and Income to successor's alive_data
+            int succAliveIdx = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+            if (succAliveIdx != -1)
+            {
+                // Update Gold
+                if (transferData.Gold != 0)
+                {
+                    int goldIdx = charBlock.FindIndex(succAliveIdx, l => l.Trim() == "gold={");
+                    if (goldIdx != -1)
+                    {
+                        int valIdx = goldIdx + 1;
+                        Match m = Regex.Match(charBlock[valIdx], @"value=([\d\.-]+)");
+                        if (m.Success && double.TryParse(m.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double currentGold))
+                        {
+                            double newGold = currentGold + transferData.Gold;
+                            string indentation = charBlock[valIdx].Substring(0, charBlock[valIdx].IndexOf("value="));
+                            charBlock[valIdx] = $"{indentation}value={newGold.ToString("F3", CultureInfo.InvariantCulture)}";
+                            Program.Logger.Debug($"Transferred {transferData.Gold} gold from slain {transferData.SlainCharId} to successor {successorId}. New total: {newGold}");
+                        }
+                    }
+                    else
+                    {
+                        // Successor has no gold block, create one
+                        charBlock.InsertRange(succAliveIdx + 1, new List<string> {
+                            "\t\tgold={",
+                            $"\t\t\tvalue={transferData.Gold.ToString("F3", CultureInfo.InvariantCulture)}",
+                            "\t\t}"
+                        });
+                    }
+                }
+
+                // Copy Income if successor doesn't have it
+                if (transferData.IncomeBlock.Any())
+                {
+                    int succIncomeIdx = charBlock.FindIndex(succAliveIdx, l => l.Trim() == "income={");
+                    if (succIncomeIdx == -1)
+                    {
+                        charBlock.InsertRange(succAliveIdx + 1, transferData.IncomeBlock);
+                        Program.Logger.Debug($"Copied income block from slain {transferData.SlainCharId} to successor {successorId}.");
+                    }
+                }
             }
         }
 
