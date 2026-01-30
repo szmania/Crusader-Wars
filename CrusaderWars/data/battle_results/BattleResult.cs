@@ -724,9 +724,34 @@ namespace CrusaderWars.data.battle_results
                                 int employerIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
                                 if (employerIdx != -1 && charBlock[employerIdx].Contains(transfer.SlainCharId))
                                 {
-                                    string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
-                                    charBlock[employerIdx] = $"{indentation}employer={char_id}";
-                                    Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {char_id}.");
+                                    if (char_id == transfer.SlainCharId)
+                                    {
+                                        // This is the successor themselves. They cannot be their own courtier.
+                                        // Empty the court_data block.
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                            charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{ }}");
+                                            Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously a courtier of slain {transfer.SlainCharId}.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // This is a regular courtier, update their employer to the successor.
+                                        string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
+                                        charBlock[employerIdx] = $"{indentation}employer={char_id}";
+                                        Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {char_id}.");
+                                    }
                                 }
                             }
                         }
