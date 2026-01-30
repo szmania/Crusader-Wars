@@ -1052,6 +1052,9 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Editing Living.txt file...");
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
 
+                    //  EDIT COURT POSITIONS FILE
+                    //  Note: This is now called internally by EditLivingFile to ensure correct sequence
+
                     // SHOW POST-BATTLE REPORT
                     if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
                     {

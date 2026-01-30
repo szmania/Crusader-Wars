@@ -572,6 +572,9 @@ namespace CrusaderWars.data.battle_results
 
             EditPlayerCharacterFiles(playerIsSlain, playerHeirId);
 
+            // --- Clean up Court Positions for slain characters ---
+            EditCourtPositionsFile(allArmies);
+
             // --- Apply changes and write to temp file ---
             Program.Logger.Debug("Living file: Applying pre-determined fates...");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
@@ -600,6 +603,38 @@ namespace CrusaderWars.data.battle_results
                         {
                             bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.HasFallen());
                             bool isCaptured = (searchData.isCommander && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight.IsPrisoner);
+
+                            // Remove court_data if employer was slain
+                            int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                            if (courtDataIdx != -1)
+                            {
+                                int employerLineIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                if (employerLineIdx != -1)
+                                {
+                                    string employerId = Regex.Match(charBlock[employerLineIdx], @"employer=(\d+)").Groups[1].Value;
+                                    var employerSearch = SearchCharacters(employerId, allArmies);
+                                    bool employerSlain = (employerSearch.isCommander && employerSearch.commander.IsSlain) || (employerSearch.isKnight && employerSearch.knight.HasFallen());
+
+                                    if (employerSlain)
+                                    {
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                            charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{ }}");
+                                            Program.Logger.Debug($"Emptied court_data for {char_id} because employer {employerId} was slain.");
+                                        }
+                                    }
+                                }
+                            }
 
                             if (isSlain)
                             {
@@ -934,6 +969,74 @@ namespace CrusaderWars.data.battle_results
                     {
                         charBlock.InsertRange(succAliveIdx + 1, transferData.IncomeBlock);
                         Program.Logger.Debug($"Copied income block from slain {transferData.SlainCharId} to successor {successorId}.");
+                    }
+                }
+            }
+        }
+
+        public static void EditCourtPositionsFile(List<Army> allArmies)
+        {
+            Program.Logger.Debug("Editing Court Positions file...");
+            string path = Writter.DataFilesPaths.CourtPositions_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.CourtPositions_Path();
+
+            if (!File.Exists(path))
+            {
+                Program.Logger.Debug("CourtPositions.txt not found. Skipping.");
+                return;
+            }
+
+            using (StreamReader sr = new StreamReader(path))
+            using (StreamWriter sw = new StreamWriter(tempPath))
+            {
+                sw.NewLine = "\n";
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\t\d+={"))
+                    {
+                        List<string> block = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = sr.ReadLine()) != null)
+                        {
+                            block.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
+                        string? employerId = block.FirstOrDefault(l => l.Trim().StartsWith("employer="))?.Split('=')[1].Trim();
+                        string? employeeId = block.FirstOrDefault(l => l.Trim().StartsWith("employee="))?.Split('=')[1].Trim();
+
+                        bool employerSlain = false;
+                        bool employeeSlain = false;
+
+                        if (!string.IsNullOrEmpty(employerId))
+                        {
+                            var search = SearchCharacters(employerId, allArmies);
+                            employerSlain = (search.isCommander && search.commander.IsSlain) || (search.isKnight && search.knight.HasFallen());
+                        }
+                        if (!string.IsNullOrEmpty(employeeId))
+                        {
+                            var search = SearchCharacters(employeeId, allArmies);
+                            employeeSlain = (search.isCommander && search.commander.IsSlain) || (search.isKnight && search.knight.HasFallen());
+                        }
+
+                        if (employerSlain || employeeSlain)
+                        {
+                            int posIdx = block.FindIndex(l => l.Trim().StartsWith("court_position="));
+                            if (posIdx != -1)
+                            {
+                                string indent = block[posIdx].Substring(0, block[posIdx].IndexOf("court_position="));
+                                block[posIdx] = $"{indent}court_position=none";
+                                Program.Logger.Debug($"Set court position to none in block because {(employerSlain ? "employer" : "employee")} was slain.");
+                            }
+                        }
+
+                        foreach (var bLine in block) sw.WriteLine(bLine);
+                    }
+                    else
+                    {
+                        sw.WriteLine(line);
                     }
                 }
             }
