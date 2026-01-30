@@ -282,6 +282,7 @@ namespace CrusaderWars.data.save_file
             public static string Sieges_Path() { return @".\data\save_file_data\temp\Sieges.txt"; }
             public static string PlayedCharacter_Path() { return @".\data\save_file_data\temp\PlayedCharacter.txt"; }
             public static string CurrentlyPlayedCharacters_Path() { return @".\data\save_file_data\temp\CurrentlyPlayedCharacters.txt"; }
+            public static string CourtPositions_Path() { return @".\data\save_file_data\temp\CourtPositions.txt"; }
             public static string Wars_Path() { return @".\data\save_file_data\temp\Wars.txt"; }
 
         }
