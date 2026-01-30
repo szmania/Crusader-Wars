@@ -1055,6 +1055,9 @@ namespace CrusaderWars.twbattle
                     //  EDIT COURT POSITIONS FILE
                     //  Note: This is now called internally by EditLivingFile to ensure correct sequence
 
+                    //  EDIT COURT POSITIONS FILE
+                    //  Note: This is now called internally by EditLivingFile to ensure correct sequence
+
                     // SHOW POST-BATTLE REPORT
                     if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
                     {
