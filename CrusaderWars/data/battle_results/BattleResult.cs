@@ -636,6 +636,49 @@ namespace CrusaderWars.data.battle_results
                                 }
                             }
 
+                            // Update employer for courtiers if their liege was slain
+                            foreach (var kvp in PendingLandedData)
+                            {
+                                string successorId = kvp.Key;
+                                var transfer = kvp.Value;
+
+                                if (courtDataIdx != -1)
+                                {
+                                    int employerIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                    if (employerIdx != -1 && charBlock[employerIdx].Contains(transfer.SlainCharId))
+                                    {
+                                        // If this character is a successor, they cannot be their own courtier or remain in the slain liege's court.
+                                        // We empty the court_data block for all successors found in the slain liege's court.
+                                        if (PendingLandedData.ContainsKey(char_id))
+                                        {
+                                            int courtDataEndIdx = -1;
+                                            int courtBraceCount = 0;
+                                            for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                            {
+                                                courtBraceCount += charBlock[i].Count(c => c == '{');
+                                                courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                                if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                            }
+
+                                            if (courtDataEndIdx != -1)
+                                            {
+                                                string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                                charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                                charBlock.Insert(courtDataIdx, $"{indentation}court_data={{ }}");
+                                                Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // This is a regular courtier, update their employer to the successor.
+                                            string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
+                                            charBlock[employerIdx] = $"{indentation}employer={successorId}";
+                                            Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId}.");
+                                        }
+                                    }
+                                }
+                            }
+
                             if (isSlain)
                             {
                                 Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data and landed_data blocks.");
