@@ -748,8 +748,11 @@ namespace CrusaderWars.data.battle_results
                         }
 
                         // Update employer for courtiers if their liege was slain
-                        foreach (var transfer in PendingLandedData.Values)
+                        foreach (var kvp in PendingLandedData)
                         {
+                            string successorId = kvp.Key;
+                            var transfer = kvp.Value;
+
                             int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
                             if (courtDataIdx != -1)
                             {
@@ -781,8 +784,8 @@ namespace CrusaderWars.data.battle_results
                                     {
                                         // This is a regular courtier, update their employer to the successor.
                                         string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
-                                        charBlock[employerIdx] = $"{indentation}employer={char_id}";
-                                        Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {char_id}.");
+                                        charBlock[employerIdx] = $"{indentation}employer={successorId}";
+                                        Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId}.");
                                     }
                                 }
                             }
