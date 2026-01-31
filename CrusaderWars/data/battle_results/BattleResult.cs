@@ -883,10 +883,40 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug("Finished editing Living file.");
         }
 
+        private static List<string> RemoveCourtPositionsFromLandedData(List<string> landedBlock)
+        {
+            int cpIdx = landedBlock.FindIndex(l => l.Trim().StartsWith("court_positions={"));
+            if (cpIdx == -1) return landedBlock;
+
+            int braceCount = 0;
+            int endIdx = -1;
+            for (int i = cpIdx; i < landedBlock.Count; i++)
+            {
+                braceCount += landedBlock[i].Count(c => c == '{');
+                braceCount -= landedBlock[i].Count(c => c == '}');
+                if (braceCount == 0)
+                {
+                    endIdx = i;
+                    break;
+                }
+            }
+
+            if (endIdx != -1)
+            {
+                landedBlock.RemoveRange(cpIdx, endIdx - cpIdx + 1);
+                Program.Logger.Debug("Removed court_positions from transferred landed_data block.");
+            }
+
+            return landedBlock;
+        }
+
         private static void ApplyLandedDataTransfer(string successorId, List<string> charBlock)
         {
             var transferData = PendingLandedData[successorId];
             Program.Logger.Debug($"Applying landed_data transfer to successor {successorId}.");
+
+            // Remove court_positions from the block being transferred to prevent duplicate/invalid entries
+            transferData.LandedDataBlock = RemoveCourtPositionsFromLandedData(transferData.LandedDataBlock);
 
             // Copy missing culture/faith after ethnicity (or fallback fields)
             if (transferData.Culture != null || transferData.Faith != null)
@@ -1066,6 +1096,15 @@ namespace CrusaderWars.data.battle_results
                         }
 
                         if (employerSlain || employeeSlain)
+                        {
+                            int empIdx = block.FindIndex(l => l.Trim().StartsWith("employer="));
+                            if (empIdx != -1)
+                            {
+                                string indent = block[empIdx].Substring(0, block[empIdx].IndexOf("employer="));
+                                block[empIdx] = $"{indent}employer=none";
+                            }
+
+                            int posIdx = block.FindIndex(l => l.Trim().StartsWith("court_position="));
                         {
                             int posIdx = block.FindIndex(l => l.Trim().StartsWith("court_position="));
                             if (posIdx != -1)
