@@ -1105,8 +1105,6 @@ namespace CrusaderWars.data.battle_results
                             }
 
                             int posIdx = block.FindIndex(l => l.Trim().StartsWith("court_position="));
-                        {
-                            int posIdx = block.FindIndex(l => l.Trim().StartsWith("court_position="));
                             if (posIdx != -1)
                             {
                                 string indent = block[posIdx].Substring(0, block[posIdx].IndexOf("court_position="));
@@ -1116,6 +1114,7 @@ namespace CrusaderWars.data.battle_results
                         }
 
                         foreach (var bLine in block) sw.WriteLine(bLine);
+                    }
                     }
                     else
                     {
