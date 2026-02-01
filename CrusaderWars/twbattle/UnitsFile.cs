@@ -375,10 +375,16 @@ namespace CrusaderWars
             //   MEN-AT-ARMS   #
             //                 #
             //##################
+            bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
             var maa_units = army.Units.Where(u => u.GetRegimentType() == RegimentType.MenAtArms).ToList();
             var newMAAUnits = new List<Unit>();
             foreach (var unit in maa_units)
             {
+                if (!BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles && unit.IsSiege())
+                {
+                    Program.Logger.Debug($"  - Skipping siege unit '{unit.GetName()}' in field battle as per 'Siege Engines in Field Battles' option.");
+                    continue;
+                }
                 string unitName = unit.GetName();
                 string attilaUnitKey = unit.GetAttilaUnitKey();
                 if (string.IsNullOrEmpty(attilaUnitKey) || attilaUnitKey == UnitMappers_BETA.NOT_FOUND_KEY)
@@ -524,6 +530,7 @@ namespace CrusaderWars
 
         static List<Unit> BETA_LevyComposition(Unit unit, Army army, List<(int percentage, string unit_key, string name, string max)> faction_levy_percentages, int army_xp, string factionUsed)
         {
+            bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
             var composedUnits = new List<Unit>();
             if (faction_levy_percentages == null || faction_levy_percentages.Count < 1)
             {
@@ -552,6 +559,12 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Autofix: Applying levy template replacement for '{currentKey}' with '{autofixReplacement.replacementKey}'.");
                     currentKey = autofixReplacement.replacementKey;
                     isSiege = autofixReplacement.isSiege;
+                }
+
+                if (!BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles && isSiege)
+                {
+                    Program.Logger.Debug($"  - Skipping siege unit '{currentKey}' in levy pool for field battle.");
+                    continue;
                 }
 
                 corrected_levy_percentages.Add((levyData.percentage, currentKey, levyData.name, levyData.max, isSiege));
@@ -669,6 +682,7 @@ namespace CrusaderWars
 
         static List<Unit> BETA_GarrisonComposition(Unit unit, Army army, List<(int porcentage, string unit_key, string name, string max)> faction_garrison_percentages, int army_xp)
         {
+            bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
             var composedUnits = new List<Unit>();
             if (faction_garrison_percentages == null || faction_garrison_percentages.Count < 1)
             {
@@ -697,6 +711,11 @@ namespace CrusaderWars
                     Program.Logger.Debug($"Autofix: Applying garrison template replacement for '{currentKey}' with '{autofixReplacement.replacementKey}'.");
                     currentKey = autofixReplacement.replacementKey;
                     isSiege = autofixReplacement.isSiege;
+                }
+                if (!BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles && isSiege)
+                {
+                    Program.Logger.Debug($"  - Skipping siege unit '{currentKey}' in garrison pool for field battle.");
+                    continue;
                 }
 
                 corrected_garrison_percentages.Add((garrisonData.porcentage, currentKey, garrisonData.name, garrisonData.max, isSiege));
