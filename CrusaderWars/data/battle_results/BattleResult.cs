@@ -1115,7 +1115,6 @@ namespace CrusaderWars.data.battle_results
 
                         foreach (var bLine in block) sw.WriteLine(bLine);
                     }
-                    }
                     else
                     {
                         sw.WriteLine(line);
