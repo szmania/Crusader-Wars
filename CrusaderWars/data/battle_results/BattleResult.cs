@@ -1154,13 +1154,13 @@ namespace CrusaderWars.data.battle_results
                         }
 
                         // 1. Update vassal if the vassal was slain
+                        bool isModified = false;
                         int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
                         if (vassalIdx != -1)
                         {
                             string currentVassalId = Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value;
                             if (PendingLandedData.ContainsKey(currentVassalId))
                             {
-                                string successorId = PendingLandedData[currentVassalId].SlainCharId == currentVassalId ? currentVassalId : ""; // Logic check: we need the key of PendingLandedData which is the successor
                                 // Find the successor ID for this slain vassal
                                 string actualSuccessor = PendingLandedData.FirstOrDefault(x => x.Value.SlainCharId == currentVassalId).Key;
                                 
@@ -1169,6 +1169,7 @@ namespace CrusaderWars.data.battle_results
                                     string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
                                     block[vassalIdx] = $"{indent}vassal={actualSuccessor}";
                                     Program.Logger.Debug($"Updated vassal in contract {contractId} from slain {currentVassalId} to successor {actualSuccessor}.");
+                                    isModified = true;
                                 }
                             }
                         }
@@ -1183,11 +1184,31 @@ namespace CrusaderWars.data.battle_results
                                 string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
                                 block[liegeIdx] = $"{indent}liege={newLiegeId}";
                                 Program.Logger.Debug($"Updated liege in contract {contractId} to new liege {newLiegeId}.");
+                                isModified = true;
                             }
                         }
 
+                        // 3. Update date if modified
+                        if (isModified)
+                        {
+                            string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                            int dateIdx = block.FindIndex(l => l.Trim().StartsWith("date="));
+                            if (dateIdx != -1)
+                            {
+                                string indent = block[dateIdx].Substring(0, block[dateIdx].IndexOf("date="));
+                                block[dateIdx] = $"{indent}date={currentDate}";
+                            }
+
+                            int dynastyDateIdx = block.FindIndex(l => l.Trim().StartsWith("liege_dynasty_date="));
+                            if (dynastyDateIdx != -1)
+                            {
+                                string indent = block[dynastyDateIdx].Substring(0, block[dynastyDateIdx].IndexOf("liege_dynasty_date="));
+                                block[dynastyDateIdx] = $"{indent}liege_dynasty_date={currentDate}";
+                            }
+                            Program.Logger.Debug($"Updated date in contract {contractId} to {currentDate}.");
+                        }
+
                         foreach (var bLine in block) sw.WriteLine(bLine);
-                    }
                     else
                     {
                         sw.WriteLine(line);
