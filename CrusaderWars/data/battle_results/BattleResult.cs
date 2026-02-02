@@ -673,7 +673,32 @@ namespace CrusaderWars.data.battle_results
                                             // This is a regular courtier, update their employer to the successor.
                                             string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
                                             charBlock[employerIdx] = $"{indentation}employer={successorId}";
-                                            Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId}.");
+
+                                            // Update join_court_date to current date
+                                            string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                            int courtDataEndIdx = -1;
+                                            int courtBraceCount = 0;
+                                            for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                            {
+                                                courtBraceCount += charBlock[i].Count(c => c == '{');
+                                                courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                                if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                            }
+
+                                            if (courtDataEndIdx != -1)
+                                            {
+                                                int joinDateIdx = charBlock.FindIndex(courtDataIdx, courtDataEndIdx - courtDataIdx + 1, l => l.Trim().StartsWith("join_court_date="));
+                                                if (joinDateIdx != -1)
+                                                {
+                                                    charBlock[joinDateIdx] = $"{indentation}join_court_date={currentDate}";
+                                                }
+                                                else
+                                                {
+                                                    charBlock.Insert(employerIdx + 1, $"{indentation}join_court_date={currentDate}");
+                                                }
+                                            }
+
+                                            Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId} and updated join_court_date.");
                                         }
                                     }
                                 }
@@ -863,7 +888,32 @@ namespace CrusaderWars.data.battle_results
                                         // This is a regular courtier, update their employer to the successor.
                                         string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
                                         charBlock[employerIdx] = $"{indentation}employer={successorId}";
-                                        Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId}.");
+
+                                        // Update join_court_date to current date
+                                        string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            int joinDateIdx = charBlock.FindIndex(courtDataIdx, courtDataEndIdx - courtDataIdx + 1, l => l.Trim().StartsWith("join_court_date="));
+                                            if (joinDateIdx != -1)
+                                            {
+                                                charBlock[joinDateIdx] = $"{indentation}join_court_date={currentDate}";
+                                            }
+                                            else
+                                            {
+                                                charBlock.Insert(employerIdx + 1, $"{indentation}join_court_date={currentDate}");
+                                            }
+                                        }
+
+                                        Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId} and updated join_court_date.");
                                     }
                                 }
                             }
