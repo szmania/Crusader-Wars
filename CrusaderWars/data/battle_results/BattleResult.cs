@@ -575,6 +575,9 @@ namespace CrusaderWars.data.battle_results
             // --- Clean up Court Positions for slain characters ---
             EditCourtPositionsFile(allArmies);
 
+            // --- Update Vassal Contracts for slain characters ---
+            EditVassalContractsFile();
+
             // --- Apply changes and write to temp file ---
             Program.Logger.Debug("Living file: Applying pre-determined fates...");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
@@ -1097,6 +1100,101 @@ namespace CrusaderWars.data.battle_results
             }
         }
 
+
+        public static void EditVassalContractsFile()
+        {
+            Program.Logger.Debug("Editing Vassal Contracts file...");
+            string path = Writter.DataFilesPaths.VassalContracts_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.VassalContracts_Path();
+
+            if (!File.Exists(path))
+            {
+                Program.Logger.Debug("VassalContracts.txt not found. Skipping.");
+                return;
+            }
+
+            // Map contract IDs to the new liege ID based on PendingLandedData
+            Dictionary<string, string> contractToNewLiege = new Dictionary<string, string>();
+            foreach (var kvp in PendingLandedData)
+            {
+                string successorId = kvp.Key;
+                var transfer = kvp.Value;
+
+                int contractsIdx = transfer.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("vassal_contracts={"));
+                if (contractsIdx != -1)
+                {
+                    string contractsLine = transfer.LandedDataBlock[contractsIdx];
+                    var contractIds = Regex.Match(contractsLine, @"vassal_contracts=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (var cid in contractIds)
+                    {
+                        contractToNewLiege[cid] = successorId;
+                    }
+                }
+            }
+
+            using (StreamReader sr = new StreamReader(path))
+            using (StreamWriter sw = new StreamWriter(tempPath))
+            {
+                sw.NewLine = "\n";
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\t\d+={"))
+                    {
+                        string contractId = Regex.Match(line, @"\d+").Value;
+                        List<string> block = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = sr.ReadLine()) != null)
+                        {
+                            block.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
+                        // 1. Update vassal if the vassal was slain
+                        int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
+                        if (vassalIdx != -1)
+                        {
+                            string currentVassalId = Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value;
+                            if (PendingLandedData.ContainsKey(currentVassalId))
+                            {
+                                string successorId = PendingLandedData[currentVassalId].SlainCharId == currentVassalId ? currentVassalId : ""; // Logic check: we need the key of PendingLandedData which is the successor
+                                // Find the successor ID for this slain vassal
+                                string actualSuccessor = PendingLandedData.FirstOrDefault(x => x.Value.SlainCharId == currentVassalId).Key;
+                                
+                                if (!string.IsNullOrEmpty(actualSuccessor))
+                                {
+                                    string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
+                                    block[vassalIdx] = $"{indent}vassal={actualSuccessor}";
+                                    Program.Logger.Debug($"Updated vassal in contract {contractId} from slain {currentVassalId} to successor {actualSuccessor}.");
+                                }
+                            }
+                        }
+
+                        // 2. Update liege if the contract was transferred to a new liege
+                        if (contractToNewLiege.ContainsKey(contractId))
+                        {
+                            int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
+                            if (liegeIdx != -1)
+                            {
+                                string newLiegeId = contractToNewLiege[contractId];
+                                string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
+                                block[liegeIdx] = $"{indent}liege={newLiegeId}";
+                                Program.Logger.Debug($"Updated liege in contract {contractId} to new liege {newLiegeId}.");
+                            }
+                        }
+
+                        foreach (var bLine in block) sw.WriteLine(bLine);
+                    }
+                    else
+                    {
+                        sw.WriteLine(line);
+                    }
+                }
+            }
+        }
 
         public static void EditCourtPositionsFile(List<Army> allArmies)
         {

@@ -55,6 +55,7 @@ namespace CrusaderWars
         public static StringBuilder SB_PlayedCharacter = new StringBuilder();
         public static StringBuilder SB_CurrentlyPlayedCharacters = new StringBuilder();
         public static StringBuilder SB_Wars = new StringBuilder();
+        public static StringBuilder SB_VassalContracts = new StringBuilder();
 
 
 
@@ -122,6 +123,7 @@ namespace CrusaderWars
             SearchKeys.HasPlayedCharacterExtracted = false;
             SearchKeys.HasCurrentlyPlayedCharactersExtracted = false;
             SearchKeys.HasWarsExtracted = false;
+            SearchKeys.HasVassalContractsExtracted = false;
         }
     }
 
@@ -1062,6 +1064,55 @@ namespace CrusaderWars
                     Start_WarsFound = false;
                     End_WarsFound = false;
                     warsBraceCount = 0;
+                }
+            }
+        }
+
+        private static bool Start_VassalContractsFound { get; set; }
+        private static bool End_VassalContractsFound { get; set; }
+        public static bool HasVassalContractsExtracted { get; set; }
+        private static int vassalContractsBraceCount = 0;
+        public static void VassalContracts(string line)
+        {
+            if (!HasVassalContractsExtracted)
+            {
+                if (!Start_VassalContractsFound)
+                {
+                    if (line == "vassal_contracts={")
+                    {
+                        Program.Logger.Debug("Found start of vassal_contracts block.");
+                        Start_VassalContractsFound = true;
+                        vassalContractsBraceCount = 0;
+                    }
+                }
+
+                if (Start_VassalContractsFound && !End_VassalContractsFound)
+                {
+                    Data.SB_VassalContracts.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') vassalContractsBraceCount++;
+                        else if (c == '}') vassalContractsBraceCount--;
+                    }
+
+                    if (vassalContractsBraceCount == 0 && Start_VassalContractsFound)
+                    {
+                        Program.Logger.Debug("Found end of vassal_contracts block by bracket counting.");
+                        Program.Logger.Debug($"Writing {Data.SB_VassalContracts.Length} characters to VassalContracts.txt");
+                        File.WriteAllText(@".\data\save_file_data\VassalContracts.txt", Data.SB_VassalContracts.ToString());
+                        Data.SB_VassalContracts = new StringBuilder();
+                        GC.Collect();
+                        End_VassalContractsFound = true;
+                    }
+                }
+
+                if (End_VassalContractsFound)
+                {
+                    HasVassalContractsExtracted = true;
+                    Start_VassalContractsFound = false;
+                    End_VassalContractsFound = false;
+                    vassalContractsBraceCount = 0;
                 }
             }
         }

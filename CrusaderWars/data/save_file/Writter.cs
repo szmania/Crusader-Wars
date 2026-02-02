@@ -16,6 +16,7 @@ namespace CrusaderWars.data.save_file
         static bool Sieges_NeedsSkiping { get; set; }
         static bool PlayedCharacter_NeedsSkipping { get; set; }
         static bool Wars_NeedsSkiping { get; set; }
+        static bool VassalContracts_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
             // Reset static state variables
@@ -25,6 +26,7 @@ namespace CrusaderWars.data.save_file
             Sieges_NeedsSkiping = false;
             PlayedCharacter_NeedsSkipping = false;
             Wars_NeedsSkiping = false;
+            VassalContracts_NeedsSkiping = false;
 
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             // Removed resultsFound and combatsFound boolean variables.
@@ -84,6 +86,13 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("Finished skipping Wars block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Wars_NeedsSkiping = false;
+                        continue;
+                    }
+                    else if (VassalContracts_NeedsSkiping && line == "}")
+                    {
+                        Program.Logger.Debug("Finished skipping VassalContracts block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        VassalContracts_NeedsSkiping = false;
                         continue;
                     }
                     else if (PlayedCharacter_NeedsSkipping && line == "}")
@@ -200,7 +209,14 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("EDITED WARS SENT!");
                         Wars_NeedsSkiping = true;
                     }
-                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping)
+                    else if (line == "vassal_contracts={" && !VassalContracts_NeedsSkiping)
+                    {
+                        Program.Logger.Debug("Writing modified VassalContracts block.");
+                        WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.VassalContracts_Path(), FileType.VassalContracts);
+                        Program.Logger.Debug("EDITED VASSAL CONTRACTS SENT!");
+                        VassalContracts_NeedsSkiping = true;
+                    }
+                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping && !VassalContracts_NeedsSkiping)
                     {
                         streamWriter.WriteLine(line);
                     }
@@ -245,7 +261,8 @@ namespace CrusaderWars.data.save_file
             Sieges,
             PlayedCharacter,
             CurrentlyPlayedCharacters,
-            Wars
+            Wars,
+            VassalContracts
         }
 
         public struct DataFilesPaths
@@ -269,6 +286,7 @@ namespace CrusaderWars.data.save_file
             public static string PlayedCharacter_Path() { return @".\data\save_file_data\PlayedCharacter.txt"; }
             public static string CurrentlyPlayedCharacters_Path() { return @".\data\save_file_data\CurrentlyPlayedCharacters.txt"; }
             public static string Wars_Path() { return @".\data\save_file_data\Wars.txt"; }
+            public static string VassalContracts_Path() { return @".\data\save_file_data\VassalContracts.txt"; }
 
         }
 
@@ -284,6 +302,7 @@ namespace CrusaderWars.data.save_file
             public static string CurrentlyPlayedCharacters_Path() { return @".\data\save_file_data\temp\CurrentlyPlayedCharacters.txt"; }
             public static string CourtPositions_Path() { return @".\data\save_file_data\temp\CourtPositions.txt"; }
             public static string Wars_Path() { return @".\data\save_file_data\temp\Wars.txt"; }
+            public static string VassalContracts_Path() { return @".\data\save_file_data\temp\VassalContracts.txt"; }
 
         }
 
