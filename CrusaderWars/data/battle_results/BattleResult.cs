@@ -1199,12 +1199,6 @@ namespace CrusaderWars.data.battle_results
                                 block[dateIdx] = $"{indent}date={currentDate}";
                             }
 
-                            int dynastyDateIdx = block.FindIndex(l => l.Trim().StartsWith("liege_dynasty_date="));
-                            if (dynastyDateIdx != -1)
-                            {
-                                string indent = block[dynastyDateIdx].Substring(0, block[dynastyDateIdx].IndexOf("liege_dynasty_date="));
-                                block[dynastyDateIdx] = $"{indent}liege_dynasty_date={currentDate}";
-                            }
                             Program.Logger.Debug($"Updated date in contract {contractId} to {currentDate}.");
                         }
 
