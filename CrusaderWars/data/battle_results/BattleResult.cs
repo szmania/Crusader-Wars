@@ -632,7 +632,7 @@ namespace CrusaderWars.data.battle_results
                                         {
                                             string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
                                             charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
-                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}  }}");
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}\t}}");
                                             Program.Logger.Debug($"Emptied court_data for {char_id} because employer {employerId} was slain.");
                                         }
                                     }
@@ -667,7 +667,7 @@ namespace CrusaderWars.data.battle_results
                                             {
                                                 string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
                                                 charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
-                                                charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}  }}");
+                                                charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}\t}}");
                                                 Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
                                             }
                                         }
@@ -882,7 +882,7 @@ namespace CrusaderWars.data.battle_results
                                         {
                                             string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
                                             charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
-                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}  }}");
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}\t}}");
                                             Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
                                         }
                                     }
@@ -999,6 +999,21 @@ namespace CrusaderWars.data.battle_results
             int existingLandedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
             if (existingLandedIdx == -1)
             {
+                // Ensure successor is not in their own succession list before inserting
+                int succIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("succession={"));
+                if (succIdx != -1)
+                {
+                    string line = transferData.LandedDataBlock[succIdx];
+                    var ids = Regex.Match(line, @"succession=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    if (ids.Remove(successorId))
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("succession="));
+                        transferData.LandedDataBlock[succIdx] = $"{indentation}succession={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed successor {successorId} from their own succession list during transfer.");
+                    }
+                }
+
                 int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}") ;
                 if (insertPos != -1) charBlock.InsertRange(insertPos, transferData.LandedDataBlock);
             }
