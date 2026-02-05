@@ -45,6 +45,7 @@ namespace CrusaderWars.data.battle_results
         }
 
         public static Dictionary<string, SuccessorTransferData> PendingLandedData = new Dictionary<string, SuccessorTransferData>();
+        public static HashSet<string> InvalidatedVassalContracts = new HashSet<string>();
 
         public static void ReadPlayerCombat(string playerID)
         {
@@ -1014,6 +1015,23 @@ namespace CrusaderWars.data.battle_results
                     }
                 }
 
+                // Remove invalidated vassal contracts
+                int vcIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("vassal_contracts={"));
+                if (vcIdx != -1)
+                {
+                    string line = transferData.LandedDataBlock[vcIdx];
+                    var ids = Regex.Match(line, @"vassal_contracts=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    int originalCount = ids.Count;
+                    ids = ids.Where(id => !InvalidatedVassalContracts.Contains(id)).ToList();
+                    if (ids.Count != originalCount)
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("vassal_contracts="));
+                        transferData.LandedDataBlock[vcIdx] = $"{indentation}vassal_contracts={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed {originalCount - ids.Count} invalidated vassal contracts from transferred landed_data for {successorId}.");
+                    }
+                }
+
                 int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}") ;
                 if (insertPos != -1) charBlock.InsertRange(insertPos, transferData.LandedDataBlock);
             }
@@ -1048,6 +1066,7 @@ namespace CrusaderWars.data.battle_results
                     var succVals = getField(successorLanded, field).Split(' ', StringSplitOptions.RemoveEmptyEntries);
                     var combined = slainVals.Concat(succVals).Distinct().ToList();
                     if (field == "succession") combined.Remove(successorId);
+                    if (field == "vassal_contracts") combined = combined.Where(id => !InvalidatedVassalContracts.Contains(id)).ToList();
                     setField(successorLanded, field, string.Join(" ", combined));
                 }
 
@@ -1128,26 +1147,7 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
-            // Map contract IDs to the new liege ID based on PendingLandedData
-            Dictionary<string, string> contractToNewLiege = new Dictionary<string, string>();
-            foreach (var kvp in PendingLandedData)
-            {
-                string successorId = kvp.Key;
-                var transfer = kvp.Value;
-
-                int contractsIdx = transfer.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("vassal_contracts={"));
-                if (contractsIdx != -1)
-                {
-                    string contractsLine = transfer.LandedDataBlock[contractsIdx];
-                    var contractIds = Regex.Match(contractsLine, @"vassal_contracts=\{\s*(.*?)\s*\}").Groups[1].Value
-                        .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                    foreach (var cid in contractIds)
-                    {
-                        contractToNewLiege[cid] = successorId;
-                    }
-                }
-            }
+            InvalidatedVassalContracts.Clear();
 
             using (StreamReader sr = new StreamReader(path))
             using (StreamWriter sw = new StreamWriter(tempPath))
@@ -1168,42 +1168,55 @@ namespace CrusaderWars.data.battle_results
                             braceCount -= line.Count(c => c == '}');
                         }
 
-                        // 1. Update vassal if the vassal was slain
                         bool isModified = false;
+                        string? vassalId = null;
+                        string? liegeId = null;
+
                         int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
-                        if (vassalIdx != -1)
-                        {
-                            string currentVassalId = Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value;
-                            if (PendingLandedData.ContainsKey(currentVassalId))
-                            {
-                                // Find the successor ID for this slain vassal
-                                string actualSuccessor = PendingLandedData.FirstOrDefault(x => x.Value.SlainCharId == currentVassalId).Key;
-                                
-                                if (!string.IsNullOrEmpty(actualSuccessor))
-                                {
-                                    string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
-                                    block[vassalIdx] = $"{indent}vassal={actualSuccessor}";
-                                    Program.Logger.Debug($"Updated vassal in contract {contractId} from slain {currentVassalId} to successor {actualSuccessor}.");
-                                    isModified = true;
-                                }
-                            }
-                        }
+                        if (vassalIdx != -1) vassalId = Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value;
 
-                        // 2. Update liege if the contract was transferred to a new liege
-                        if (contractToNewLiege.ContainsKey(contractId))
+                        int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
+                        if (liegeIdx != -1) liegeId = Regex.Match(block[liegeIdx], @"liege=(\d+)").Groups[1].Value;
+
+                        // Update vassal if slain
+                        if (vassalId != null)
                         {
-                            int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
-                            if (liegeIdx != -1)
+                            var transfer = PendingLandedData.Values.FirstOrDefault(t => t.SlainCharId == vassalId);
+                            if (transfer != null)
                             {
-                                string newLiegeId = contractToNewLiege[contractId];
-                                string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
-                                block[liegeIdx] = $"{indent}liege={newLiegeId}";
-                                Program.Logger.Debug($"Updated liege in contract {contractId} to new liege {newLiegeId}.");
+                                string successorId = PendingLandedData.FirstOrDefault(x => x.Value == transfer).Key;
+                                string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
+                                block[vassalIdx] = $"{indent}vassal={successorId}";
+                                vassalId = successorId;
                                 isModified = true;
+                                Program.Logger.Debug($"Contract {contractId}: Updated vassal {transfer.SlainCharId} to successor {successorId}");
                             }
                         }
 
-                        // 3. Update date if modified
+                        // Update liege if slain
+                        if (liegeId != null)
+                        {
+                            var transfer = PendingLandedData.Values.FirstOrDefault(t => t.SlainCharId == liegeId);
+                            if (transfer != null)
+                            {
+                                string successorId = PendingLandedData.FirstOrDefault(x => x.Value == transfer).Key;
+                                string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
+                                block[liegeIdx] = $"{indent}liege={successorId}";
+                                liegeId = successorId;
+                                isModified = true;
+                                Program.Logger.Debug($"Contract {contractId}: Updated liege {transfer.SlainCharId} to successor {successorId}");
+                            }
+                        }
+
+                        // Check for self-contract
+                        if (vassalId != null && liegeId != null && vassalId == liegeId)
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            InvalidatedVassalContracts.Add(contractId);
+                            Program.Logger.Debug($"Contract {contractId}: Vassal and Liege are the same ({vassalId}). Setting to none.");
+                            continue;
+                        }
+
                         if (isModified)
                         {
                             string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
@@ -1213,8 +1226,6 @@ namespace CrusaderWars.data.battle_results
                                 string indent = block[dateIdx].Substring(0, block[dateIdx].IndexOf("date="));
                                 block[dateIdx] = $"{indent}date={currentDate}";
                             }
-
-                            Program.Logger.Debug($"Updated date in contract {contractId} to {currentDate}.");
                         }
 
                         foreach (var bLine in block) sw.WriteLine(bLine);

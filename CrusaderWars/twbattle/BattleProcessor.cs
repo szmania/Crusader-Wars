@@ -1048,6 +1048,9 @@ namespace CrusaderWars.twbattle
                     BattleResult.CalculateAndSetWarScore(attacker_armies, defender_armies);
 
 
+                    //  EDIT VASSAL CONTRACTS FILE
+                    BattleResult.EditVassalContractsFile();
+
                     //  EDIT LIVING FILE
                     Program.Logger.Debug("Editing Living.txt file...");
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
