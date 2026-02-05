@@ -1031,6 +1031,11 @@ namespace CrusaderWars.data.battle_results
                         Program.Logger.Debug($"Removed {originalCount - ids.Count} invalidated vassal contracts from transferred landed_data for {successorId}.");
                     }
                 }
+                // Update became_ruler_date
+                int dateIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("became_ruler_date="));
+                string newDateLine = $"\t\tbecame_ruler_date={Date.Year}.{Date.Month}.{Date.Day}";
+                if (dateIdx != -1) transferData.LandedDataBlock[dateIdx] = newDateLine;
+                else transferData.LandedDataBlock.Insert(1, newDateLine);
 
                 int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}") ;
                 if (insertPos != -1) charBlock.InsertRange(insertPos, transferData.LandedDataBlock);
