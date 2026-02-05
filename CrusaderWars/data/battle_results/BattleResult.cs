@@ -42,6 +42,7 @@ namespace CrusaderWars.data.battle_results
             public string SlainCharId { get; set; } = "";
             public double Gold { get; set; } = 0;
             public List<string> IncomeBlock { get; set; } = new List<string>();
+            public List<string> VassalContractIds { get; set; } = new List<string>();
         }
 
         public static Dictionary<string, SuccessorTransferData> PendingLandedData = new Dictionary<string, SuccessorTransferData>();
@@ -535,6 +536,19 @@ namespace CrusaderWars.data.battle_results
                 string? faithLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("faith="));
                 if (cultureLine != null) data.Culture = Regex.Match(cultureLine, @"culture=(.+)").Groups[1].Value;
                 if (faithLine != null) data.Faith = Regex.Match(faithLine, @"faith=(.+)").Groups[1].Value;
+
+                // Extract vassal contract IDs
+                string? vassalContractsLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("vassal_contracts={"));
+                if (vassalContractsLine != null)
+                {
+                    Match vcMatch = Regex.Match(vassalContractsLine, @"vassal_contracts=\{\s*(.*?)\s*\}");
+                    if (vcMatch.Success)
+                    {
+                        string[] contractIds = vcMatch.Groups[1].Value.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        data.VassalContractIds.AddRange(contractIds);
+                        Program.Logger.Debug($"Extracted {contractIds.Length} vassal contract IDs for slain character {slainCharId}");
+                    }
+                }
 
                 PendingLandedData[successorId] = data;
                 Program.Logger.Debug($"Slain character {slainCharId} identified successor {successorId}. Data queued for transfer.");
@@ -1210,6 +1224,38 @@ namespace CrusaderWars.data.battle_results
                                 liegeId = successorId;
                                 isModified = true;
                                 Program.Logger.Debug($"Contract {contractId}: Updated liege {transfer.SlainCharId} to successor {successorId}");
+                            }
+                        }
+
+                        // Handle inherited vassal contracts
+                        foreach (var pendingData in PendingLandedData)
+                        {
+                            string successorId = pendingData.Key;
+                            var transferData = pendingData.Value;
+                            
+                            if (transferData.VassalContractIds.Contains(contractId))
+                            {
+                                // Update the liege to the successor
+                                if (liegeIdx != -1)
+                                {
+                                    string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
+                                    block[liegeIdx] = $"{indent}liege={successorId}";
+                                    liegeId = successorId;
+                                }
+                                else
+                                {
+                                    // If no liege line exists, we need to add it
+                                    int insertPosition = block.FindLastIndex(l => l.Trim() == "}") - 1;
+                                    if (insertPosition >= 0)
+                                    {
+                                        string indent = block[insertPosition].Substring(0, block[insertPosition].TakeWhile(char.IsWhiteSpace).Count());
+                                        block.Insert(insertPosition, $"{indent}liege={successorId}");
+                                        liegeId = successorId;
+                                    }
+                                }
+                                
+                                isModified = true;
+                                Program.Logger.Debug($"Contract {contractId}: Inherited by successor {successorId}. Updating liege and date.");
                             }
                         }
 
