@@ -545,7 +545,7 @@ namespace CrusaderWars.data.battle_results
                     int startIndex = landedBlockStr.IndexOf("vassal_contracts={");
                     if (startIndex != -1)
                     {
-                        var braceCount = 0;
+                        int contractBraceCount = 0;
                         startIndex += "vassal_contracts={".Length;
                         var endIndex = startIndex;
                         
@@ -553,15 +553,15 @@ namespace CrusaderWars.data.battle_results
                         for (int i = startIndex; i < landedBlockStr.Length; i++)
                         {
                             if (landedBlockStr[i] == '{')
-                                braceCount++;
+                                contractBraceCount++;
                             else if (landedBlockStr[i] == '}')
                             {
-                                if (braceCount == 0)
+                                if (contractBraceCount == 0)
                                 {
                                     endIndex = i;
                                     break;
                                 }
-                                braceCount--;
+                                contractBraceCount--;
                             }
                         }
                         
