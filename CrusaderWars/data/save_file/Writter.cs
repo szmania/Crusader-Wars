@@ -88,7 +88,7 @@ namespace CrusaderWars.data.save_file
                         Wars_NeedsSkiping = false;
                         continue;
                     }
-                    else if (VassalContracts_NeedsSkiping && line == "}")
+                    else if (VassalContracts_NeedsSkiping && line.Trim() == "}" && line.StartsWith("\t"))
                     {
                         Program.Logger.Debug("Finished skipping VassalContracts block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
