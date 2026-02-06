@@ -88,7 +88,7 @@ namespace CrusaderWars.data.save_file
                         Wars_NeedsSkiping = false;
                         continue;
                     }
-                    else if (VassalContracts_NeedsSkiping && line.Trim() == "}" && line.StartsWith("\t"))
+                    else if (VassalContracts_NeedsSkiping && line == "}")
                     {
                         Program.Logger.Debug("Finished skipping VassalContracts block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
@@ -211,10 +211,19 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (line == "vassal_contracts={" && !VassalContracts_NeedsSkiping)
                     {
-                        Program.Logger.Debug("Writing modified VassalContracts block.");
-                        WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.VassalContracts_Path(), FileType.VassalContracts);
-                        Program.Logger.Debug("EDITED VASSAL CONTRACTS SENT!");
-                        VassalContracts_NeedsSkiping = true;
+                        string tempVassalPath = DataTEMPFilesPaths.VassalContracts_Path();
+                        if (File.Exists(tempVassalPath))
+                        {
+                            Program.Logger.Debug("Writing modified VassalContracts block.");
+                            WriteDataToSaveFile(streamWriter, tempVassalPath, FileType.VassalContracts);
+                            Program.Logger.Debug("EDITED VASSAL CONTRACTS SENT!");
+                            VassalContracts_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Temporary VassalContracts file not found. Preserving original block.");
+                            streamWriter.WriteLine(line);
+                        }
                     }
                     else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping && !VassalContracts_NeedsSkiping)
                     {
