@@ -766,6 +766,36 @@ namespace CrusaderWars.data.battle_results
                                     if (endIdx != -1) charBlock.RemoveRange(landedIdx, endIdx - landedIdx + 1);
                                 }
 
+                                // Remove court_data
+                                int courtIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                                if (courtIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = courtIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(courtIdx, endIdx - courtIdx + 1);
+                                }
+
+                                // Remove playable_data
+                                int playableIdx = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                                if (playableIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = playableIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(playableIdx, endIdx - playableIdx + 1);
+                                }
+
                                 int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
                                 if (aliveDataStartIndex != -1)
                                 {
@@ -1374,20 +1404,10 @@ namespace CrusaderWars.data.battle_results
 
                         if (employerSlain || employeeSlain)
                         {
-                            int empIdx = block.FindIndex(l => l.Trim().StartsWith("employer="));
-                            if (empIdx != -1)
-                            {
-                                string indent = block[empIdx].Substring(0, block[empIdx].IndexOf("employer="));
-                                block[empIdx] = $"{indent}employer=none";
-                            }
-
-                            int posIdx = block.FindIndex(l => l.Trim().StartsWith("court_position="));
-                            if (posIdx != -1)
-                            {
-                                string indent = block[posIdx].Substring(0, block[posIdx].IndexOf("court_position="));
-                                block[posIdx] = $"{indent}court_position=none";
-                                Program.Logger.Debug($"Set court position to none in block because {(employerSlain ? "employer" : "employee")} was slain.");
-                            }
+                            string charId = Regex.Match(block[0], @"\t(\d+)={").Groups[1].Value;
+                            sw.WriteLine($"\t{charId}=none");
+                            Program.Logger.Debug($"Set court position {charId} to none because {(employerSlain ? "employer" : "employee")} was slain.");
+                            continue;
                         }
 
                         foreach (var bLine in block) sw.WriteLine(bLine);
