@@ -1321,6 +1321,7 @@ namespace CrusaderWars.data.battle_results
 
             InvalidatedVassalContracts.Clear();
             string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+            var successorLookup = PendingLandedData.ToDictionary(kvp => kvp.Value.SlainCharId, kvp => kvp.Key);
 
             using (StreamReader sr = new StreamReader(path))
             using (StreamWriter sw = new StreamWriter(tempPath))
@@ -1331,7 +1332,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (Regex.IsMatch(line, @"^\t\d+={"))
                     {
-                        string contractId = Regex.Match(line, @"\d+").Value;
+                        string contractId = Regex.Match(line, @"\t(\d+)={").Groups[1].Value;
                         List<string> block = new List<string> { line };
                         int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
                         while (braceCount > 0 && (line = sr.ReadLine()) != null)
@@ -1342,83 +1343,50 @@ namespace CrusaderWars.data.battle_results
                         }
 
                         bool isModified = false;
-                        string? vassalId = null;
-                        string? liegeId = null;
-
+                        
                         int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
-                        if (vassalIdx != -1) vassalId = Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value;
-
                         int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
-                        if (liegeIdx != -1) liegeId = Regex.Match(block[liegeIdx], @"liege=(\d+)").Groups[1].Value;
 
-                        // Handle inherited vassal contracts first
+                        string? originalVassalId = (vassalIdx != -1) ? Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value : null;
+                        string? currentVassalId = originalVassalId;
+                        string? currentLiegeId = (liegeIdx != -1) ? Regex.Match(block[liegeIdx], @"liege=(\d+)").Groups[1].Value : null;
+
+                        // Liege Succession (Successor inherits contracts of the slain liege)
                         foreach (var pendingData in PendingLandedData)
                         {
-                            string successorId = pendingData.Key;
-                            var transferData = pendingData.Value;
-                            
-                            if (transferData.VassalContractIds.Contains(contractId))
+                            if (pendingData.Value.VassalContractIds.Contains(contractId))
                             {
-                                // Update the liege to the successor
+                                string successorId = pendingData.Key;
                                 if (liegeIdx != -1)
                                 {
                                     string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
                                     block[liegeIdx] = $"{indent}liege={successorId}";
-                                    liegeId = successorId;
+                                    currentLiegeId = successorId;
+                                    isModified = true;
+                                    Program.Logger.Debug($"Contract {contractId}: Inherited by successor {successorId}. Updating liege.");
                                 }
-                                else
-                                {
-                                    // If no liege line exists, we need to add it
-                                    int insertPosition = block.FindLastIndex(l => l.Trim() == "}") - 1;
-                                    if (insertPosition >= 0)
-                                    {
-                                        string indent = block[insertPosition].Substring(0, block[insertPosition].TakeWhile(char.IsWhiteSpace).Count());
-                                        block.Insert(insertPosition, $"{indent}liege={successorId}");
-                                        liegeId = successorId;
-                                    }
-                                }
-                                
-                                isModified = true;
-                                Program.Logger.Debug($"Contract {contractId}: Inherited by successor {successorId}. Updating liege.");
                             }
                         }
 
-                        // Update vassal if slain
-                        if (vassalId != null)
+                        // Vassal Succession (Vassal is slain and replaced by their successor)
+                        if (currentVassalId != null && successorLookup.TryGetValue(currentVassalId, out string? vassalSuccessorId))
                         {
-                            var transfer = PendingLandedData.Values.FirstOrDefault(t => t.SlainCharId == vassalId);
-                            if (transfer != null)
+                            if (vassalIdx != -1)
                             {
-                                string successorId = PendingLandedData.FirstOrDefault(x => x.Value == transfer).Key;
                                 string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
-                                block[vassalIdx] = $"{indent}vassal={successorId}";
-                                vassalId = successorId;
+                                block[vassalIdx] = $"{indent}vassal={vassalSuccessorId}";
+                                currentVassalId = vassalSuccessorId;
                                 isModified = true;
-                                Program.Logger.Debug($"Contract {contractId}: Updated vassal {transfer.SlainCharId} to successor {successorId}");
+                                Program.Logger.Debug($"Contract {contractId}: Updated vassal from slain {originalVassalId} to successor {vassalSuccessorId}.");
                             }
                         }
 
-                        // Update liege if slain
-                        if (liegeId != null)
-                        {
-                            var transfer = PendingLandedData.Values.FirstOrDefault(t => t.SlainCharId == liegeId);
-                            if (transfer != null)
-                            {
-                                string successorId = PendingLandedData.FirstOrDefault(x => x.Value == transfer).Key;
-                                string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
-                                block[liegeIdx] = $"{indent}liege={successorId}";
-                                liegeId = successorId;
-                                isModified = true;
-                                Program.Logger.Debug($"Contract {contractId}: Updated liege {transfer.SlainCharId} to successor {successorId}");
-                            }
-                        }
-
-                        // Check for self-contract
-                        if (vassalId != null && liegeId != null && vassalId == liegeId)
+                        // Self-contract check
+                        if (currentVassalId != null && currentLiegeId != null && currentVassalId == currentLiegeId)
                         {
                             sw.WriteLine($"\t{contractId}=none");
                             InvalidatedVassalContracts.Add(contractId);
-                            Program.Logger.Debug($"Contract {contractId}: Vassal and Liege are the same ({vassalId}). Setting to none.");
+                            Program.Logger.Debug($"Contract {contractId}: Vassal and Liege are the same ({currentVassalId}). Setting to none.");
                             continue;
                         }
 
@@ -1433,12 +1401,11 @@ namespace CrusaderWars.data.battle_results
                             }
                             else
                             {
-                                // If no date line exists, we need to add it
                                 int insertPosition = block.FindLastIndex(l => l.Trim() == "}") - 1;
                                 if (insertPosition >= 0)
                                 {
                                     string indent = block[insertPosition].Substring(0, block[insertPosition].TakeWhile(char.IsWhiteSpace).Count());
-                                    block.Insert(insertPosition, $"{indent}date={currentDate}");
+                                    block.Insert(insertPosition, $"{indent}\tdate={currentDate}");
                                 }
                             }
                         }
