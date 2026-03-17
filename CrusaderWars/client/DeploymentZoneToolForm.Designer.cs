@@ -382,6 +382,16 @@ namespace CrusaderWars.client
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
+            // btnReset
+            // 
+            this.btnReset.Location = new System.Drawing.Point(551, 489);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(75, 23);
+            this.btnReset.TabIndex = 9;
+            this.btnReset.Text = "Reset";
+            this.btnReset.UseVisualStyleBackColor = true;
+            this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+            // 
             // lblBattleDate
             // 
             this.lblBattleDate.Location = new System.Drawing.Point(528, 13);
@@ -425,6 +435,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.lblBattleDate);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.btnReset);
             this.Controls.Add(this.defenderGroupBox);
             this.Controls.Add(this.attackerGroupBox);
             this.Controls.Add(this.mapPanel);
@@ -474,5 +485,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Label lblBattleType;
         private System.Windows.Forms.Label lblProvinceName;
         private System.Windows.Forms.Label lblCoordinates;
+        private System.Windows.Forms.Button btnReset;
     }
 }

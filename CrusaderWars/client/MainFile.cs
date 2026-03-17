@@ -3674,25 +3674,34 @@ namespace CrusaderWars
                 {
                     if (toolForm.ShowDialog(this) == DialogResult.OK)
                     {
-                        var attackerValues = toolForm.GetAttackerValues();
-                        var defenderValues = toolForm.GetDefenderValues();
-
-                        BattleState.DeploymentZoneOverrideAttacker = new BattleState.ZoneOverride
+                        if (toolForm.IsReset)
                         {
-                            X = (float)attackerValues.CenterX,
-                            Y = (float)attackerValues.CenterY,
-                            Width = (float)attackerValues.Width,
-                            Height = (float)attackerValues.Height
-                        };
-                        BattleState.DeploymentZoneOverrideDefender = new BattleState.ZoneOverride
+                            BattleState.ClearDeploymentZoneOverrides();
+                            MessageBox.Show("Default deployment zones have been restored and saved.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
                         {
-                            X = (float)defenderValues.CenterX,
-                            Y = (float)defenderValues.CenterY,
-                            Width = (float)defenderValues.Width,
-                            Height = (float)defenderValues.Height
-                        };
+                            var attackerValues = toolForm.GetAttackerValues();
+                            var defenderValues = toolForm.GetDefenderValues();
 
-                        MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            BattleState.DeploymentZoneOverrideAttacker = new BattleState.ZoneOverride
+                            {
+                                X = (float)attackerValues.CenterX,
+                                Y = (float)attackerValues.CenterY,
+                                Width = (float)attackerValues.Width,
+                                Height = (float)attackerValues.Height
+                            };
+                            BattleState.DeploymentZoneOverrideDefender = new BattleState.ZoneOverride
+                            {
+                                X = (float)defenderValues.CenterX,
+                                Y = (float)defenderValues.CenterY,
+                                Width = (float)defenderValues.Width,
+                                Height = (float)defenderValues.Height
+                            };
+
+                            BattleState.SavePersistentBattleSettings();
+                            MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
                 }
             }

@@ -167,6 +167,17 @@ namespace CrusaderWars.client
             this.btnUndo.UseVisualStyleBackColor = true;
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
+            // btnReset
+            // 
+            this.btnReset.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnReset.Location = new System.Drawing.Point(495, 419);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(100, 23);
+            this.btnReset.TabIndex = 19;
+            this.btnReset.Text = "Reset All";
+            this.btnReset.UseVisualStyleBackColor = true;
+            this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+            // 
             // UnitReplacerToolTip
             // 
             this.UnitReplacerToolTip.SetToolTip(this.tvCurrentUnits, "List of units currently in the battle. Use Ctrl+Click or Shift+Click to select m" +
@@ -175,6 +186,7 @@ namespace CrusaderWars.client
         " list.");
             this.UnitReplacerToolTip.SetToolTip(this.btnReplace, "Applies the selected replacement to the unit(s) chosen on the left.");
             this.UnitReplacerToolTip.SetToolTip(this.btnUndo, "Clears all pending replacements you have made in this window.");
+            this.UnitReplacerToolTip.SetToolTip(this.btnReset, "Clears all saved replacements and resets them to default for all future battles.");
             this.UnitReplacerToolTip.SetToolTip(this.btnOK, "Saves all replacements and continues with the battle.");
             this.UnitReplacerToolTip.SetToolTip(this.btnCancel, "Discards all replacements and closes this window.");
             // 
@@ -303,6 +315,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.btnPrevCurrent);
             this.Controls.Add(this.txtSearchCurrent);
             this.Controls.Add(this.btnUndo);
+            this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnSearchCurrent);
             this.Controls.Add(this.btnSearchAvailable);
             this.Controls.Add(this.InstructionsBox);
@@ -351,5 +364,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.TextBox txtSearchCurrent;
         private System.Windows.Forms.Button btnSearchCurrent;
         private System.Windows.Forms.Button btnSearchAvailable;
+        private System.Windows.Forms.Button btnReset;
     }
 }

@@ -26,6 +26,7 @@ namespace CrusaderWars.client
         private Point _lastMousePosition;
         private bool _isAttackerZoneActive = false;
         private bool _ignoreNudChanges = false;
+        public bool IsReset { get; private set; } = false;
 
 
         public DeploymentZoneToolForm(DeploymentArea attackerArea, DeploymentArea defenderArea, float mapDimension, bool isAttackerPlayer, bool isSiegeBattle, string battleDate, string battleType, string provinceName, string mapX, string mapY)
@@ -458,6 +459,26 @@ namespace CrusaderWars.client
         {
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            var confirmResult = MessageBox.Show("Are you sure you want to reset deployment zones to their default positions for all future battles?",
+                                                 "Confirm Reset",
+                                                 MessageBoxButtons.YesNo,
+                                                 MessageBoxIcon.Warning);
+            if (confirmResult == DialogResult.Yes)
+            {
+                // Reset form controls to initial values
+                PopulateControls(_initialAttackerArea, true);
+                PopulateControls(_initialDefenderArea, false);
+
+                // Update internal state and redraw
+                UpdateZonesAndRedraw();
+                IsReset = true;
+
+                MessageBox.Show("Deployment zones have been reset to default. Click 'Save' to make this change permanent.", "Reset Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         public class DeploymentZoneValues

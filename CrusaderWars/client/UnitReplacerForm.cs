@@ -345,11 +345,17 @@ namespace CrusaderWars.client
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            Replacements.Clear();
-            ClearNodeSelection();
-            UpdateCurrentUnitsTreeVisuals();
-            // Clear the replacements in BattleState and save the empty state
-            BattleState.ClearManualUnitReplacements();
+            var confirmResult = MessageBox.Show("Are you sure you want to reset all saved unit replacements? This cannot be undone.",
+                                             "Confirm Reset",
+                                             MessageBoxButtons.YesNo,
+                                             MessageBoxIcon.Warning);
+            if (confirmResult == DialogResult.Yes)
+            {
+                Replacements.Clear();
+                BattleState.ClearManualUnitReplacements(); // This will clear and save
+                UpdateCurrentUnitsTreeVisuals();
+                MessageBox.Show("All saved unit replacements have been cleared.", "Reset Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void UpdateCurrentUnitsTreeVisuals()
@@ -549,7 +555,7 @@ namespace CrusaderWars.client
         private void btnOK_Click(object sender, EventArgs e)
         {
             BattleState.ManualUnitReplacements = Replacements;
-            Properties.Settings.Default.Save();
+            BattleState.SavePersistentBattleSettings();
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
