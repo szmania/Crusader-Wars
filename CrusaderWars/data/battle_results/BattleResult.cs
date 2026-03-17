@@ -635,7 +635,7 @@ namespace CrusaderWars.data.battle_results
             EditVassalContractsFile();
 
             // --- Update Opinions for slain characters ---
-            EditOpinionsFile();
+            EditOpinionsFile(allArmies);
 
             // --- Apply changes and write to temp file ---
             Program.Logger.Debug("Living file: Applying pre-determined fates...");
@@ -3214,7 +3214,7 @@ namespace CrusaderWars.data.battle_results
             }
         }
 
-        public static void EditOpinionsFile()
+        public static void EditOpinionsFile(List<Army> allArmies)
         {
             Program.Logger.Debug("Editing Opinions file...");
             string path = Writter.DataFilesPaths.Opinions_Path();
@@ -3226,7 +3226,18 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
-            var slainCharIds = new HashSet<string>(PendingLandedData.Values.Select(d => d.SlainCharId));
+            var slainCharIds = allArmies
+                .SelectMany(a =>
+                    (a.Commander != null && a.Commander.IsSlain ? new[] { a.Commander.ID } : Enumerable.Empty<string>())
+                    .Concat(a.Knights?.GetKnightsList().Where(k => k.IsSlain).Select(k => k.GetID()) ?? Enumerable.Empty<string>())
+                    .Concat(a.MergedArmies?.SelectMany(ma =>
+                        (ma.Commander != null && ma.Commander.IsSlain ? new[] { ma.Commander.ID } : Enumerable.Empty<string>())
+                        .Concat(ma.Knights?.GetKnightsList().Where(k => k.IsSlain).Select(k => k.GetID()) ?? Enumerable.Empty<string>())
+                    ) ?? Enumerable.Empty<string>())
+                )
+                .ToHashSet();
+
+
             if (!slainCharIds.Any())
             {
                 Program.Logger.Debug("No slain characters to process for opinions. Copying original file.");
