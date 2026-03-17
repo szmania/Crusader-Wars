@@ -1330,9 +1330,9 @@ namespace CrusaderWars.data.battle_results
                 string? line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (Regex.IsMatch(line, @"^\t\d+={"))
+                    if (Regex.IsMatch(line, @"^\s*\d+={"))
                     {
-                        string contractId = Regex.Match(line, @"\t(\d+)={").Groups[1].Value;
+                        string contractId = Regex.Match(line, @"^\s*(\d+)={").Groups[1].Value;
                         List<string> block = new List<string> { line };
                         int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
                         while (braceCount > 0 && (line = sr.ReadLine()) != null)
