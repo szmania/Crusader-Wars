@@ -3317,11 +3317,21 @@ namespace CrusaderWars.data.battle_results
 
                 if (needsDeletion)
                 {
-                    int insertIndex = opinionBlock.LastIndexOf('}');
-                    if (insertIndex != -1)
+                    int lastBraceIndex = opinionBlock.LastIndexOf('}');
+                    if (lastBraceIndex != -1)
                     {
-                        opinionBlock = opinionBlock.Insert(insertIndex, "\n\t\t\tdelete=yes");
-                        Program.Logger.Debug("Marked an opinion for deletion.");
+                        int insertIndex = opinionBlock.LastIndexOf('\n', lastBraceIndex);
+                        if (insertIndex != -1)
+                        {
+                            // We are inserting before the newline of the last brace
+                            opinionBlock = opinionBlock.Insert(insertIndex, "\n\t\t\tdelete=yes\n");
+                            Program.Logger.Debug("Marked an opinion for deletion.");
+                        }
+                        else
+                        {
+                            // Fallback for single-line blocks
+                            opinionBlock = opinionBlock.Insert(lastBraceIndex, "\n\t\t\tdelete=yes\n\n\t\t");
+                        }
                     }
                 }
                 
