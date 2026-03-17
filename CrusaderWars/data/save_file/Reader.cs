@@ -163,6 +163,8 @@ namespace CrusaderWars.data.save_file
             File.WriteAllText(Writter.DataTEMPFilesPaths.Wars_Path(), "");
             File.WriteAllText(Writter.DataFilesPaths.VassalContracts_Path(), "");
             File.WriteAllText(Writter.DataTEMPFilesPaths.VassalContracts_Path(), "");
+            File.WriteAllText(Writter.DataFilesPaths.Opinions_Path(), "");
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Opinions_Path(), "");
             Program.Logger.Debug("Finished clearing all temporary save file data.");
         }
 
@@ -223,6 +225,7 @@ namespace CrusaderWars.data.save_file
                     SearchKeys.Sieges(line); // Added call to new Sieges search method
                     SearchKeys.Wars(line);
                     SearchKeys.VassalContracts(line);
+                    SearchKeys.Opinions(line);
                 }
                 long endMemoryt = GC.GetTotalMemory(false);
                 long memoryUsaget = endMemoryt - startMemoryt;

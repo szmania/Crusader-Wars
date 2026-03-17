@@ -634,6 +634,9 @@ namespace CrusaderWars.data.battle_results
             // --- Update Vassal Contracts for slain characters ---
             EditVassalContractsFile();
 
+            // --- Update Opinions for slain characters ---
+            EditOpinionsFile();
+
             // --- Apply changes and write to temp file ---
             Program.Logger.Debug("Living file: Applying pre-determined fates...");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
@@ -3209,6 +3212,99 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug($"Error editing Wars file: {ex.Message}. Copying original to temp.");
                 File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
             }
+        }
+
+        public static void EditOpinionsFile()
+        {
+            Program.Logger.Debug("Editing Opinions file...");
+            string path = Writter.DataFilesPaths.Opinions_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.Opinions_Path();
+
+            if (!File.Exists(path) || new FileInfo(path).Length == 0)
+            {
+                Program.Logger.Debug("Opinions.txt not found or is empty. Skipping.");
+                return;
+            }
+
+            var slainCharIds = new HashSet<string>(PendingLandedData.Values.Select(d => d.SlainCharId));
+            if (!slainCharIds.Any())
+            {
+                Program.Logger.Debug("No slain characters to process for opinions. Copying original file.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            var allLines = File.ReadAllLines(path).ToList();
+            var finalLines = new List<string>();
+            bool inActiveOpinions = false;
+
+            for (int i = 0; i < allLines.Count; i++)
+            {
+                string line = allLines[i];
+                string trimmedLine = line.Trim();
+
+                if (trimmedLine == "active_opinions={")
+                {
+                    inActiveOpinions = true;
+                    finalLines.Add(line);
+                    continue;
+                }
+
+                if (inActiveOpinions && (trimmedLine == "}"))
+                {
+                    inActiveOpinions = false;
+                    finalLines.Add(line);
+                    continue;
+                }
+
+                if (inActiveOpinions && trimmedLine == "{")
+                {
+                    List<string> opinionBlock = new List<string>();
+                    opinionBlock.Add(line); // Add the opening '{'
+
+                    int braceCount = 1;
+                    bool needsDeletion = false;
+
+                    while (i + 1 < allLines.Count && braceCount > 0)
+                    {
+                        i++;
+                        string blockLine = allLines[i];
+                        opinionBlock.Add(blockLine);
+
+                        braceCount += blockLine.Count(c => c == '{');
+                        braceCount -= blockLine.Count(c => c == '}');
+
+                        string trimmedBlockLine = blockLine.Trim();
+                        if (trimmedBlockLine.StartsWith("owner=") || trimmedBlockLine.StartsWith("target="))
+                        {
+                            string charId = Regex.Match(trimmedBlockLine, @"=(\d+)").Groups[1].Value;
+                            if (slainCharIds.Contains(charId))
+                            {
+                                needsDeletion = true;
+                            }
+                        }
+                    }
+
+                    if (needsDeletion)
+                    {
+                        int insertIndex = opinionBlock.FindLastIndex(l => l.Trim() == "}");
+                        if (insertIndex != -1)
+                        {
+                            string indentation = opinionBlock[insertIndex].Substring(0, opinionBlock[insertIndex].IndexOf("}"));
+                            opinionBlock.Insert(insertIndex, $"{indentation}\tdelete=yes");
+                            Program.Logger.Debug("Marked an opinion for deletion.");
+                        }
+                    }
+                    finalLines.AddRange(opinionBlock);
+                }
+                else
+                {
+                    finalLines.Add(line);
+                }
+            }
+
+            File.WriteAllLines(tempPath, finalLines.ToArray());
+            Program.Logger.Debug("Finished editing Opinions file.");
         }
     }
 }

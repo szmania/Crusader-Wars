@@ -56,6 +56,7 @@ namespace CrusaderWars
         public static StringBuilder SB_CurrentlyPlayedCharacters = new StringBuilder();
         public static StringBuilder SB_Wars = new StringBuilder();
         public static StringBuilder SB_VassalContracts = new StringBuilder();
+        public static StringBuilder SB_Opinions = new StringBuilder();
 
 
 
@@ -124,6 +125,7 @@ namespace CrusaderWars
             SearchKeys.HasCurrentlyPlayedCharactersExtracted = false;
             SearchKeys.HasWarsExtracted = false;
             SearchKeys.HasVassalContractsExtracted = false;
+            SearchKeys.HasOpinionsExtracted = false;
         }
     }
 
@@ -1113,6 +1115,55 @@ namespace CrusaderWars
                     Start_VassalContractsFound = false;
                     End_VassalContractsFound = false;
                     vassalContractsBraceCount = 0;
+                }
+            }
+        }
+
+        private static bool Start_OpinionsFound { get; set; }
+        private static bool End_OpinionsFound { get; set; }
+        public static bool HasOpinionsExtracted { get; set; }
+        private static int opinionsBraceCount = 0;
+        public static void Opinions(string line)
+        {
+            if (!HasOpinionsExtracted)
+            {
+                if (!Start_OpinionsFound)
+                {
+                    if (line == "opinions={")
+                    {
+                        Program.Logger.Debug("Found start of opinions block.");
+                        Start_OpinionsFound = true;
+                        opinionsBraceCount = 0;
+                    }
+                }
+
+                if (Start_OpinionsFound && !End_OpinionsFound)
+                {
+                    Data.SB_Opinions.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') opinionsBraceCount++;
+                        else if (c == '}') opinionsBraceCount--;
+                    }
+
+                    if (opinionsBraceCount == 0 && Start_OpinionsFound)
+                    {
+                        Program.Logger.Debug("Found end of opinions block by bracket counting.");
+                        Program.Logger.Debug($"Writing {Data.SB_Opinions.Length} characters to Opinions.txt");
+                        File.WriteAllText(@".\data\save_file_data\Opinions.txt", Data.SB_Opinions.ToString());
+                        Data.SB_Opinions = new StringBuilder();
+                        GC.Collect();
+                        End_OpinionsFound = true;
+                    }
+                }
+
+                if (End_OpinionsFound)
+                {
+                    HasOpinionsExtracted = true;
+                    Start_OpinionsFound = false;
+                    End_OpinionsFound = false;
+                    opinionsBraceCount = 0;
                 }
             }
         }
