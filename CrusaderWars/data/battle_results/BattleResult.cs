@@ -672,7 +672,7 @@ namespace CrusaderWars.data.battle_results
                                         {
                                             string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
                                             charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
-                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}\t}}");
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
                                             Program.Logger.Debug($"Emptied court_data for {char_id} because employer {employerId} was slain.");
                                         }
                                     }
@@ -707,7 +707,7 @@ namespace CrusaderWars.data.battle_results
                                             {
                                                 string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
                                                 charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
-                                                charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}\t}}");
+                                                charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
                                                 Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
                                             }
                                         }
@@ -952,7 +952,7 @@ namespace CrusaderWars.data.battle_results
                                         {
                                             string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
                                             charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
-                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}\t}}");
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
                                             Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
                                         }
                                     }
