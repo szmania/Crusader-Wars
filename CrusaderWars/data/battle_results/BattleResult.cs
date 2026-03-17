@@ -3237,7 +3237,6 @@ namespace CrusaderWars.data.battle_results
                 )
                 .ToHashSet();
 
-
             if (!slainCharIds.Any())
             {
                 Program.Logger.Debug("No slain characters to process for opinions. Copying original file.");
@@ -3245,76 +3244,97 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
-            var allLines = File.ReadAllLines(path).ToList();
-            var finalLines = new List<string>();
-            bool inActiveOpinions = false;
-
-            for (int i = 0; i < allLines.Count; i++)
+            string content = File.ReadAllText(path);
+            
+            Match activeOpinionsMatch = Regex.Match(content, @"(active_opinions\s*=\s*{)([\s\S]*)(^\s*})", RegexOptions.Multiline);
+            if (!activeOpinionsMatch.Success)
             {
-                string line = allLines[i];
-                string trimmedLine = line.Trim();
+                Program.Logger.Debug("Could not find active_opinions block. Skipping opinion edits.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
 
-                if (trimmedLine == "active_opinions={")
+            string header = activeOpinionsMatch.Groups[1].Value;
+            string opinionsBody = activeOpinionsMatch.Groups[2].Value;
+            string footer = activeOpinionsMatch.Groups[3].Value;
+            
+            StringBuilder newOpinionsBody = new StringBuilder();
+            int cursor = 0;
+            while(cursor < opinionsBody.Length)
+            {
+                int blockStart = opinionsBody.IndexOf('{', cursor);
+                if (blockStart == -1)
                 {
-                    inActiveOpinions = true;
-                    finalLines.Add(line);
-                    continue;
+                    newOpinionsBody.Append(opinionsBody.Substring(cursor));
+                    break;
                 }
 
-                if (inActiveOpinions && (trimmedLine == "}"))
+                newOpinionsBody.Append(opinionsBody.Substring(cursor, blockStart - cursor));
+
+                int braceCount = 0;
+                int blockEnd = -1;
+                for (int i = blockStart; i < opinionsBody.Length; i++)
                 {
-                    inActiveOpinions = false;
-                    finalLines.Add(line);
-                    continue;
-                }
+                    if (opinionsBody[i] == '{') braceCount++;
+                    else if (opinionsBody[i] == '}') braceCount--;
 
-                if (inActiveOpinions && trimmedLine == "{")
-                {
-                    List<string> opinionBlock = new List<string>();
-                    opinionBlock.Add(line); // Add the opening '{'
-
-                    int braceCount = 1;
-                    bool needsDeletion = false;
-
-                    while (i + 1 < allLines.Count && braceCount > 0)
+                    if (braceCount == 0)
                     {
-                        i++;
-                        string blockLine = allLines[i];
-                        opinionBlock.Add(blockLine);
+                        blockEnd = i;
+                        break;
+                    }
+                }
 
-                        braceCount += blockLine.Count(c => c == '{');
-                        braceCount -= blockLine.Count(c => c == '}');
+                if (blockEnd == -1)
+                {
+                    newOpinionsBody.Append(opinionsBody.Substring(blockStart));
+                    Program.Logger.Debug("Warning: Unmatched brace in opinions block. Appending rest of content as is.");
+                    break;
+                }
 
-                        string trimmedBlockLine = blockLine.Trim();
-                        if (trimmedBlockLine.StartsWith("owner=") || trimmedBlockLine.StartsWith("target="))
+                string opinionBlock = opinionsBody.Substring(blockStart, blockEnd - blockStart + 1);
+                
+                bool needsDeletion = slainCharIds.Any(id => 
+                    Regex.IsMatch(opinionBlock, $@"owner\s*=\s*{id}") || 
+                    Regex.IsMatch(opinionBlock, $@"target\s*=\s*{id}")
+                );
+
+                if (needsDeletion)
+                {
+                    int insertIndex = opinionBlock.LastIndexOf('}');
+                    string indentation = "\t\t\t"; 
+                    int lastNewLine = opinionBlock.LastIndexOf('\n', insertIndex);
+                    if(lastNewLine != -1)
+                    {
+                        indentation = "";
+                        for(int j = lastNewLine + 1; j < insertIndex; j++)
                         {
-                            string charId = Regex.Match(trimmedBlockLine, @"=(\d+)").Groups[1].Value;
-                            if (slainCharIds.Contains(charId))
+                            if(char.IsWhiteSpace(opinionBlock[j]))
                             {
-                                needsDeletion = true;
+                                indentation += opinionBlock[j];
+                            } else
+                            {
+                                indentation = "\t\t\t"; // fallback
+                                break;
                             }
                         }
                     }
-
-                    if (needsDeletion)
-                    {
-                        int insertIndex = opinionBlock.FindLastIndex(l => l.Trim() == "}");
-                        if (insertIndex != -1)
-                        {
-                            string indentation = opinionBlock[insertIndex].Substring(0, opinionBlock[insertIndex].IndexOf("}"));
-                            opinionBlock.Insert(insertIndex, $"{indentation}\tdelete=yes");
-                            Program.Logger.Debug("Marked an opinion for deletion.");
-                        }
-                    }
-                    finalLines.AddRange(opinionBlock);
+                    
+                    string modifiedBlock = opinionBlock.Insert(insertIndex, $"\n{indentation}delete=yes");
+                    newOpinionsBody.Append(modifiedBlock);
+                    Program.Logger.Debug("Marked an opinion for deletion.");
                 }
                 else
                 {
-                    finalLines.Add(line);
+                    newOpinionsBody.Append(opinionBlock);
                 }
+                
+                cursor = blockEnd + 1;
             }
 
-            File.WriteAllLines(tempPath, finalLines.ToArray());
+            string finalContent = content.Substring(0, activeOpinionsMatch.Groups[2].Index) + newOpinionsBody.ToString() + footer;
+
+            File.WriteAllText(tempPath, finalContent);
             Program.Logger.Debug("Finished editing Opinions file.");
         }
     }

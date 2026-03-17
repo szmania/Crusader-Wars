@@ -113,6 +113,13 @@ namespace CrusaderWars.data.save_file
                         CourtPositions_NeedsSkiping = false;
                         continue;
                     }
+                    else if (CourtPositions_NeedsSkiping && line == "}")
+                    {
+                        Program.Logger.Debug("Finished skipping CourtPositions block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        CourtPositions_NeedsSkiping = false;
+                        continue;
+                    }
                     else if (PlayedCharacter_NeedsSkipping && line == "}")
                     {
                         Program.Logger.Debug("Finished skipping played_character block.");
@@ -199,6 +206,22 @@ namespace CrusaderWars.data.save_file
                         WriteDataToSaveFile(streamWriter, DataTEMPFilesPaths.CurrentlyPlayedCharacters_Path(), FileType.CurrentlyPlayedCharacters);
                         Program.Logger.Debug("EDITED CURRENTLY PLAYED CHARACTERS SENT!");
                         continue;
+                    }
+                    else if (line == "court_positions={" && !CourtPositions_NeedsSkiping)
+                    {
+                        string tempCourtPositionsPath = DataTEMPFilesPaths.CourtPositions_Path();
+                        if (File.Exists(tempCourtPositionsPath) && new FileInfo(tempCourtPositionsPath).Length > 0)
+                        {
+                            Program.Logger.Debug("Writing modified CourtPositions block.");
+                            WriteDataToSaveFile(streamWriter, tempCourtPositionsPath, FileType.CourtPositions);
+                            Program.Logger.Debug("EDITED COURT POSITIONS SENT!");
+                            CourtPositions_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Temporary CourtPositions file not found or is empty. Preserving original block.");
+                            streamWriter.WriteLine(line);
+                        }
                     }
                     else if (line == "court_positions={" && !CourtPositions_NeedsSkiping)
                     {
