@@ -1333,7 +1333,7 @@ namespace CrusaderWars.unit_mapper
         }
 
 
-        public static (List<(int porcentage, string unit_key, string name, string max)>, string) GetFactionLevies(string attila_faction)
+        public static (List<(int percentage, string unit_key, string name, string max)>, string) GetFactionLevies(string attila_faction)
         {
             Program.Logger.Debug($"Getting faction levies: '{attila_faction}'");
             EnsureFactionCacheLoaded();

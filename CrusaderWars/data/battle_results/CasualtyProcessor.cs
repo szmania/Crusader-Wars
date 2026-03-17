@@ -10,6 +10,7 @@ using CrusaderWars.twbattle; // Added for BattleFile access
 using System.Globalization; // Added for CultureInfo
 using CrusaderWars.armies; // Added for List<Army>
 using CrusaderWars.unit_mapper;
+using CrusaderWars.locs;
 
 
 namespace CrusaderWars.data.battle_results
@@ -289,273 +290,186 @@ namespace CrusaderWars.data.battle_results
         {
             if (army.UnitsResults == null)
             {
-                Program.Logger.Debug(
-                    $"Warning: army.UnitsResults is null for army {army.ID}. Skipping unit reports creation.");
+                Program.Logger.Debug($"Warning: army.UnitsResults is null for army {army.ID}. Skipping unit reports creation.");
                 return;
             }
 
-            Program.Logger.Debug($"Entering CreateUnitsReports for army {army.ID}.");
+            Program.Logger.Debug($"Entering CreateUnitsReports for army {army.ID}. Processing each Attila unit record individually.");
             List<UnitCasualitiesReport> reportsList = new List<UnitCasualitiesReport>();
 
-            // Group by Type and CultureID
-            var grouped = army.UnitsResults.Alive_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
-            Program.Logger.Debug($"Found {grouped.Count()} unit groups for army {army.ID}.");
-            var pursuit_grouped =
-                army.UnitsResults.Alive_PursuitPhase?.GroupBy(item => new { item.Type, item.CultureID });
-            
-            // Group kills by Type and CultureID for proper aggregation
-            var kills_grouped = army.UnitsResults.Kills_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
-
-            // Separate knight groups from other groups
-            var knightGroups = grouped.Where(g => g.Key.Type.StartsWith("knight")).ToList();
-            var otherGroups = grouped.Where(g => !g.Key.Type.StartsWith("knight")).ToList();
-
-            // Process knight groups by aggregating all knights of the same culture
-            var knightGroupsByCulture = knightGroups.GroupBy(g => g.Key.CultureID);
-            foreach (var cultureGroup in knightGroupsByCulture)
+            // Process every individual unit record from the Main Phase
+            foreach (var mainUnit in army.UnitsResults.Alive_MainPhase)
             {
-                string cultureId = cultureGroup.Key;
-                Program.Logger.Debug(
-                    $"Processing aggregated casualty report for knights with CultureID='{cultureId}'.");
+                string script = mainUnit.Script;
+                string typeIdentifier = mainUnit.Type;
+                string cultureId = mainUnit.CultureID;
 
-                // Get the culture object from the first matching knight unit
-                var matchingKnightUnits = army.Units?.Where(u => 
-                    u.GetRegimentType() == RegimentType.Knight && 
-                    u.GetObjCulture()?.ID == cultureId).ToList();
-
-                if (matchingKnightUnits == null || !matchingKnightUnits.Any())
+                if (!int.TryParse(mainUnit.Remaining, out int remaining))
                 {
-                    Program.Logger.Debug(
-                        $"Warning: Could not find matching knight units for culture ID '{cultureId}' in army {army.ID}. Skipping report for this knight group.");
+                    Program.Logger.Debug($"Warning: Could not parse remaining soldiers '{mainUnit.Remaining}' for script '{script}'. Defaulting to 0.");
+                    remaining = 0;
+                }
+
+                Program.Logger.Debug($"Processing individual unit report: Script='{script}', Type='{typeIdentifier}', CultureID='{cultureId}', Remaining={remaining}.");
+
+                RegimentType unitType;
+                string reportTypeName;
+                int? uniqueId = null;
+                string? commanderIdToMatch = null;
+
+                // Parse the type identifier to find the corresponding CK3 unit
+                // New format: {Something}_{UniqueID}
+                Match uniqueIdMatch = Regex.Match(typeIdentifier, @"_(\d+)$");
+                if (uniqueIdMatch.Success)
+                {
+                    uniqueId = int.Parse(uniqueIdMatch.Groups[1].Value);
+                }
+
+                if (typeIdentifier.StartsWith("Levy"))
+                {
+                    unitType = RegimentType.Levy;
+                }
+                else if (typeIdentifier.StartsWith("Garrison"))
+                {
+                    unitType = RegimentType.Garrison;
+                }
+                else if (typeIdentifier.Contains("commander"))
+                {
+                    unitType = RegimentType.Commander;
+                    Match idMatch = Regex.Match(typeIdentifier, @"commander(\d+)");
+                    if (idMatch.Success) commanderIdToMatch = idMatch.Groups[1].Value;
+                }
+                else if (typeIdentifier.StartsWith("knights"))
+                {
+                    unitType = RegimentType.Knight;
+                }
+                else
+                {
+                    unitType = RegimentType.MenAtArms;
+                }
+
+                // Find the matching Unit object in the army
+                Unit? matchingUnit = null;
+                if (uniqueId.HasValue)
+                {
+                    matchingUnit = army.Units.FirstOrDefault(x => x.UniqueID == uniqueId.Value);
+                }
+                else if (commanderIdToMatch != null)
+                {
+                    matchingUnit = army.Units.FirstOrDefault(x => x != null && x.GetCharacterID() == commanderIdToMatch);
+                }
+                else if (unitType == RegimentType.Knight)
+                {
+                    matchingUnit = army.Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight && u.GetObjCulture()?.ID == cultureId);
+                }
+                else
+                {
+                    matchingUnit = army.Units.FirstOrDefault(x => x != null && x.GetRegimentType() == unitType && x.GetObjCulture()?.ID == cultureId && x.GetName() == typeIdentifier);
+                }
+
+                if (matchingUnit == null)
+                {
+                    Program.Logger.Debug($"Warning: Could not find matching Unit object for script '{script}'. Skipping.");
                     continue;
                 }
 
-                Culture? culture = matchingKnightUnits.First().GetObjCulture();
-                if (culture == null)
+                // Determine the display name for the report
+                // Use the screen name from the unit mapper if available to ensure 1:1 matching in the AAR
+                string attilaKey = matchingUnit.GetAttilaUnitKey();
+                var unitScreenNames = UnitMappers_BETA.GetLoadedUnitMapperName() != null 
+                    ? UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName()!) 
+                    : null;
+                
+                if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
                 {
-                    Program.Logger.Debug(
-                        $"Warning: Could not find valid culture for knight units with culture ID '{cultureId}' in army {army.ID}. Skipping report for this knight group.");
-                    continue;
-                }
-
-                // Calculate total deployed knights for this culture
-                int starting = (int)Math.Round(matchingKnightUnits.Sum(u => u.GetOriginalSoldiers()) * (ArmyProportions.BattleScale / 100.0));
-                int startingMachines = 0;
-
-                // Calculate total remaining knights for this culture from main phase
-                int remaining = cultureGroup.Sum(g => g.Sum(x => Int32.Parse(x.Remaining)));
-
-                // Calculate total kills for this culture
-                int totalKills = 0;
-                var killsCultureGroup = kills_grouped.Where(kg => kg.Key.Type.StartsWith("knight") && kg.Key.CultureID == cultureId);
-                if (killsCultureGroup.Any())
-                {
-                    totalKills = killsCultureGroup.Sum(kg => kg.Sum(x => Int32.Parse(x.Kills)));
-                }
-
-                // Calculate pursuit remaining if available
-                int? pursuitRemaining = null;
-                if (pursuit_grouped != null)
-                {
-                    var pursuitCultureGroup = pursuit_grouped.Where(pg => pg.Key.Type.StartsWith("knight") && pg.Key.CultureID == cultureId);
-                    if (pursuitCultureGroup.Any())
+                    string? screenName = null;
+                    if (unitScreenNames != null && unitScreenNames.TryGetValue(attilaKey, out screenName))
                     {
-                        pursuitRemaining = pursuitCultureGroup.Sum(pg => pg.Sum(x => Int32.Parse(x.Remaining)));
+                        reportTypeName = $"Levy {screenName}";
+                    }
+                    else
+                    {
+                        reportTypeName = $"Levy {attilaKey}";
+                    }
+                }
+                else if (unitType == RegimentType.Commander)
+                {
+                    reportTypeName = "General";
+                }
+                else
+                {
+                    reportTypeName = matchingUnit.GetName();
+                }
+
+                Culture? culture = matchingUnit.GetObjCulture();
+                string attilaFaction = matchingUnit.GetAttilaFaction();
+                if (culture == null) continue;
+
+                // Calculate starting numbers
+                int starting;
+                int startingMachines = 0;
+                int effectiveNumGuns = matchingUnit.GetNumGuns();
+                if (matchingUnit.IsSiegeEnginePerUnit() && effectiveNumGuns <= 0) effectiveNumGuns = 1;
+
+                if (matchingUnit.IsSiege() && effectiveNumGuns > 0)
+                {
+                    startingMachines = effectiveNumGuns;
+                    starting = unit_mapper.UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
+                }
+                else if (matchingUnit.IsSiege())
+                {
+                    startingMachines = matchingUnit.GetOriginalSoldiers();
+                    starting = unit_mapper.UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
+                }
+                else
+                {
+                    // For non-siege units, we use the soldiers count from the Attila unit record.
+                    // We assume the 'starting' is the same as 'remaining' if no casualties, 
+                    // but since we don't have the individual starting count per Attila unit record in the log,
+                    // we use the Unit object's soldiers count as a base, distributed if necessary.
+                    starting = (int)Math.Round(matchingUnit.GetOriginalSoldiers() * (ArmyProportions.BattleScale / 100.0));
+                }
+
+                // Find corresponding kills for this specific script
+                int kills = 0;
+                var killRecord = army.UnitsResults.Kills_MainPhase.FirstOrDefault(k => k.Script == "kills_" + script);
+                if (killRecord != default) Int32.TryParse(killRecord.Kills, out kills);
+
+                // Find corresponding pursuit remaining for this specific script
+                int? pursuitRemaining = null;
+                var pursuitRecord = army.UnitsResults.Alive_PursuitPhase?.FirstOrDefault(p => p.Script == script);
+                if (pursuitRecord != null)
+                {
+                    if (int.TryParse(pursuitRecord.Value.Remaining, out int pRemaining))
+                    {
+                        pursuitRemaining = pRemaining;
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Warning: Could not parse pursuit remaining soldiers '{pursuitRecord.Value.Remaining}' for script '{script}'.");
                     }
                 }
 
-                // Create a single Unit Report for all knights of this culture
                 UnitCasualitiesReport unitReport;
                 if (pursuitRemaining.HasValue)
                 {
-                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, pursuitRemaining.Value, startingMachines);
+                    unitReport = new UnitCasualitiesReport(unitType, reportTypeName, culture, starting, remaining, pursuitRemaining.Value, startingMachines, attilaFaction, script);
                 }
                 else
                 {
-                    unitReport = new UnitCasualitiesReport(RegimentType.Knight, "Knight", culture, starting, remaining, startingMachines);
+                    unitReport = new UnitCasualitiesReport(unitType, reportTypeName, culture, starting, remaining, startingMachines, attilaFaction, script);
                 }
 
-                // Set the kills from the aggregated kills data
-                unitReport.SetKills(totalKills);
-
+                unitReport.SetKills(kills);
                 unitReport.PrintReport();
 
+                // Ensure we add every individual unit record to the report list
                 reportsList.Add(unitReport);
             }
 
-            Program.Logger.Debug("#############################");
-            Program.Logger.Debug($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
-            foreach (var group in otherGroups)
-            {
-                if (group.Key.Type == null)
-                {
-                    Program.Logger.Debug(
-                        $"Warning: Skipping unit report due to null unit type in group key for army {army.ID}.");
-                    continue;
-                }
-
-                Program.Logger.Debug(
-                    $"Processing casualty report for group: Type='{group.Key.Type}', CultureID='{group.Key.CultureID}'.");
-
-                RegimentType unitType;
-                string type; // This is the identifier string (CK3 name, Attila key, or generic "Levy")
-
-                if (group.Key.Type.StartsWith("Levy"))
-                {
-                    unitType = RegimentType.Levy;
-                    type = "Levy"; // Match against the generic unit name "Levy"
-                }
-                else if (group.Key.Type.Contains("commander")) // Handle commander specifically
-                {
-                    unitType = RegimentType.Commander;
-                    type = "General"; // Match against the generic unit name "General"
-                }
-                else
-                {
-                    // This is either a MAA unit (type is CK3 name) or a Garrison unit (type is Attila key).
-                    // We need to check if this key corresponds to a Garrison unit in the army.
-                    var isGarrisonUnit = army.Units != null && army.Units.Any(u => 
-                        u.GetRegimentType() == RegimentType.Garrison && 
-                        u.GetAttilaUnitKey() == group.Key.Type);
-
-                    if (isGarrisonUnit)
-                    {
-                        unitType = RegimentType.Garrison;
-                        type = group.Key.Type; // The Attila unit key
-                    }
-                    else
-                    {
-                        unitType = RegimentType.MenAtArms;
-                        type = group.Key.Type; // The CK3 MAA name
-                    }
-                }
-
-                // Search for type, culture, starting soldiers and remaining soldiers of a Unit
-                if (army.Units == null)
-                {
-                    continue;
-                }
-
-                // Safely get the unit(s), then its culture.
-                // FIX: Use GetAttilaUnitKey() for Garrison units for correct matching.
-                var matchingUnits = army.Units.Where(x =>
-                {
-                    if (x == null || x.GetRegimentType() != unitType || x.GetObjCulture()?.ID != group.Key.CultureID)
-                    {
-                        return false;
-                    }
-
-                    if (unitType == RegimentType.Garrison)
-                    {
-                        // For garrisons, match by Attila unit key
-                        return x.GetAttilaUnitKey() == type;
-                    }
-                    else
-                    {
-                        // For other unit types, match by name
-                        return x.GetName() == type;
-                    }
-                });
-
-                if (!matchingUnits.Any())
-                {
-                    Program.Logger.Debug(
-                        $"Warning: Could not find matching unit for type '{type}' and culture ID '{group.Key.CultureID}' in army {army.ID}. Skipping report for this unit group.");
-                    continue;
-                }
-
-                Culture? culture = matchingUnits.First().GetObjCulture();
-
-                // If culture is null at this point, it means either no matching unit was found,
-                // or the matching unit itself had a null culture object.
-                // This scenario should be logged and skipped to prevent further errors.
-                if (culture == null)
-                {
-                    Program.Logger.Debug(
-                        $"Warning: Could not find valid culture for unit type '{type}' and culture ID '{group.Key.CultureID}' in army {army.ID}. Skipping report for this unit group.");
-                    continue; // Skip this group if culture is unexpectedly null
-                }
-
-                int starting;
-                int startingMachines = 0;
-                var firstUnit = matchingUnits.First();
-                
-                int effectiveNumGuns = firstUnit.GetNumGuns();
-                if (firstUnit.IsSiegeEnginePerUnit() && effectiveNumGuns <= 0)
-                {
-                    effectiveNumGuns = 1;
-                }
-
-                if (firstUnit.IsSiege() && effectiveNumGuns > 0)
-                {
-                    // New logic for multi-gun siege units
-                    int totalCk3Machines = matchingUnits.Sum(u => u.GetOriginalSoldiers());
-                    startingMachines = totalCk3Machines;
-                    int numGunsPerUnit = effectiveNumGuns;
-                    int numAttilaUnits = (int)Math.Ceiling((double)totalCk3Machines / numGunsPerUnit);
-                    
-                    int totalMen = 0;
-                    for (int j = 0; j < numAttilaUnits; j++)
-                    {
-                        int machinesForThisUnit = (j == numAttilaUnits - 1)
-                            ? totalCk3Machines - (numGunsPerUnit * (numAttilaUnits - 1))
-                            : numGunsPerUnit;
-                        totalMen += UnitMappers_BETA.ConvertMachinesToMen(machinesForThisUnit);
-                    }
-                    starting = totalMen;
-                }
-                else if (firstUnit.IsSiege()) // Old logic for single-entry siege units
-                {
-                    startingMachines = matchingUnits.Sum(u => u.GetOriginalSoldiers());
-                    starting = UnitMappers_BETA.ConvertMachinesToMen(startingMachines);
-                }
-                else // Not a siege unit
-                {
-                    starting = (int)Math.Round(matchingUnits.Sum(u => u.GetOriginalSoldiers()) * (ArmyProportions.BattleScale / 100.0));
-                    startingMachines = 0;
-                }
-
-                // Levy Inflation Fix: Remove reverse scaling from 'starting'
-                // The 'starting' value should reflect the actual number of soldiers deployed in Attila.
-                // Scaling is applied when units are created for Attila, so 'starting' should already be scaled.
-                // The previous logic was incorrectly inflating the 'starting' value.
-
-                int remaining = group.Sum(x => Int32.Parse(x.Remaining));
-
-                // Get total kills for this group from the kills data
-                int totalGroupKills = 0;
-                var killsGroup = kills_grouped.FirstOrDefault(x => x.Key.Type == group.Key.Type && x.Key.CultureID == group.Key.CultureID);
-                if (killsGroup != null)
-                {
-                    totalGroupKills = killsGroup.Sum(x => Int32.Parse(x.Kills));
-                }
-
-                // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
-                UnitCasualitiesReport unitReport;
-                var pursuitGroup = pursuit_grouped?.FirstOrDefault(x =>
-                    x.Key.Type == group.Key.Type && x.Key.CultureID == group.Key.CultureID);
-
-                if (pursuitGroup != null)
-                {
-                    int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
-                    unitReport =
-                        new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining, startingMachines);
-                }
-                else
-                {
-                    unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining, startingMachines);
-                }
-
-                // Set the kills from the aggregated kills data
-                unitReport.SetKills(totalGroupKills);
-
-                unitReport.PrintReport();
-
-                reportsList.Add(unitReport);
-            }
-
+            // Replace the army's casualty reports with our 1:1 list
             army.SetCasualitiesReport(reportsList);
-            Program.Logger.Debug($"Created {reportsList.Count} casualty reports for army {army.ID}.");
+            Program.Logger.Debug($"Created {reportsList.Count} individual unit casualty reports for army {army.ID}.");
         }
 
         public static void CheckForSlainCommanders(Army army, string path_attila_log)
@@ -679,7 +593,7 @@ namespace CrusaderWars.data.battle_results
                         // Calculate aggregate casualties for this regiment group
                         int totalOriginalSize = 0;
                         int totalFinalSize = 0;
-                        if (armyRegiment.Regiments != null)
+                        if (armyRegiment.Regiments != null && armyRegiment.Regiments.Any())
                         {
                             foreach (var regiment in armyRegiment.Regiments)
                             {
@@ -689,6 +603,12 @@ namespace CrusaderWars.data.battle_results
                                 totalOriginalSize += originalSizes.ContainsKey(key) ? originalSizes[key] : 0;
                                 totalFinalSize += Int32.Parse(regiment.CurrentNum);
                             }
+                        }
+                        else if (armyRegiment.Type == RegimentType.Levy)
+                        {
+                            // For Levies that don't have sub-regiments in the list
+                            totalFinalSize = armyRegiment.CurrentNum;
+                            // Note: totalOriginalSize should have been captured during initialization
                         }
                         int totalCasualties = totalOriginalSize - totalFinalSize;
 

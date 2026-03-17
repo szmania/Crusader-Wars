@@ -55,6 +55,8 @@ namespace CrusaderWars
         public static StringBuilder SB_PlayedCharacter = new StringBuilder();
         public static StringBuilder SB_CurrentlyPlayedCharacters = new StringBuilder();
         public static StringBuilder SB_Wars = new StringBuilder();
+        public static StringBuilder SB_VassalContracts = new StringBuilder();
+        public static StringBuilder SB_Opinions = new StringBuilder();
 
 
 
@@ -99,6 +101,7 @@ namespace CrusaderWars
             BattleResult.Original_Player_CombatResult = null; // Reset Original_Player_CombatResult
             BattleResult.WarScoreValue = null;
             BattleResult.WarID = null;
+            BattleResult.PendingLandedData.Clear();
 
 
             // Reset extraction flags
@@ -121,6 +124,8 @@ namespace CrusaderWars
             SearchKeys.HasPlayedCharacterExtracted = false;
             SearchKeys.HasCurrentlyPlayedCharactersExtracted = false;
             SearchKeys.HasWarsExtracted = false;
+            SearchKeys.HasVassalContractsExtracted = false;
+            SearchKeys.HasOpinionsExtracted = false;
         }
     }
 
@@ -590,35 +595,40 @@ namespace CrusaderWars
 		private static bool Start_CourtPositionsFound { get; set; }
 		private static bool End_CourtPositionsFound { get; set; }
 		public static bool HasCourtPositionsExtracted { get; set; }
+        private static int courtPositionsBraceCount = 0;
 		public static void CourtPositions(string line)
 		{
 			if (!HasCourtPositionsExtracted)
 			{
 				if (!Start_CourtPositionsFound)
 				{
-					//Match start = Regex.Match(line, @"living={");
 					if (line == "court_positions={")
 					{
 						Program.Logger.Debug("Found start of court_positions block.");
 						Start_CourtPositionsFound = true;
+                        courtPositionsBraceCount = 0;
 					}
 				}
 
 				if (Start_CourtPositionsFound && !End_CourtPositionsFound)
 				{
-					if (line == "}")
+                    Data.SB_CourtPositions.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') courtPositionsBraceCount++;
+                        else if (c == '}') courtPositionsBraceCount--;
+                    }
+
+					if (courtPositionsBraceCount == 0 && Start_CourtPositionsFound)
 					{
-						Program.Logger.Debug("Found end of court_positions block.");
+						Program.Logger.Debug("Found end of court_positions block by bracket counting.");
 						Program.Logger.Debug($"Writing {Data.SB_CourtPositions.Length} characters to CourtPositions.txt");
-						//Write Units Data to txt file
 						File.WriteAllText(@".\data\save_file_data\CourtPositions.txt", Data.SB_CourtPositions.ToString());
 						Data.SB_CourtPositions = new StringBuilder();
 						GC.Collect();
 						End_CourtPositionsFound = true;
-						return;
 					}
-
-					Data.SB_CourtPositions.AppendLine(line);
 				}
 
 				if (End_CourtPositionsFound)
@@ -626,6 +636,7 @@ namespace CrusaderWars
 					HasCourtPositionsExtracted = true;
 					Start_CourtPositionsFound = false;
 					End_CourtPositionsFound = false;
+                    courtPositionsBraceCount = 0;
 				}
 			}
 		}
@@ -1061,6 +1072,104 @@ namespace CrusaderWars
                     Start_WarsFound = false;
                     End_WarsFound = false;
                     warsBraceCount = 0;
+                }
+            }
+        }
+
+        private static bool Start_VassalContractsFound { get; set; }
+        private static bool End_VassalContractsFound { get; set; }
+        public static bool HasVassalContractsExtracted { get; set; }
+        private static int vassalContractsBraceCount = 0;
+        public static void VassalContracts(string line)
+        {
+            if (!HasVassalContractsExtracted)
+            {
+                if (!Start_VassalContractsFound)
+                {
+                    if (line == "vassal_contracts={")
+                    {
+                        Program.Logger.Debug("Found start of vassal_contracts block.");
+                        Start_VassalContractsFound = true;
+                        vassalContractsBraceCount = 0;
+                    }
+                }
+
+                if (Start_VassalContractsFound && !End_VassalContractsFound)
+                {
+                    Data.SB_VassalContracts.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') vassalContractsBraceCount++;
+                        else if (c == '}') vassalContractsBraceCount--;
+                    }
+
+                    if (vassalContractsBraceCount == 0 && Start_VassalContractsFound)
+                    {
+                        Program.Logger.Debug("Found end of vassal_contracts block by bracket counting.");
+                        Program.Logger.Debug($"Writing {Data.SB_VassalContracts.Length} characters to VassalContracts.txt");
+                        File.WriteAllText(@".\data\save_file_data\VassalContracts.txt", Data.SB_VassalContracts.ToString());
+                        Data.SB_VassalContracts = new StringBuilder();
+                        GC.Collect();
+                        End_VassalContractsFound = true;
+                    }
+                }
+
+                if (End_VassalContractsFound)
+                {
+                    HasVassalContractsExtracted = true;
+                    Start_VassalContractsFound = false;
+                    End_VassalContractsFound = false;
+                    vassalContractsBraceCount = 0;
+                }
+            }
+        }
+
+        private static bool Start_OpinionsFound { get; set; }
+        private static bool End_OpinionsFound { get; set; }
+        public static bool HasOpinionsExtracted { get; set; }
+        private static int opinionsBraceCount = 0;
+        public static void Opinions(string line)
+        {
+            if (!HasOpinionsExtracted)
+            {
+                if (!Start_OpinionsFound)
+                {
+                    if (line == "opinions={")
+                    {
+                        Program.Logger.Debug("Found start of opinions block.");
+                        Start_OpinionsFound = true;
+                        opinionsBraceCount = 0;
+                    }
+                }
+
+                if (Start_OpinionsFound && !End_OpinionsFound)
+                {
+                    Data.SB_Opinions.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') opinionsBraceCount++;
+                        else if (c == '}') opinionsBraceCount--;
+                    }
+
+                    if (opinionsBraceCount == 0 && Start_OpinionsFound)
+                    {
+                        Program.Logger.Debug("Found end of opinions block by bracket counting.");
+                        Program.Logger.Debug($"Writing {Data.SB_Opinions.Length} characters to Opinions.txt");
+                        File.WriteAllText(@".\data\save_file_data\Opinions.txt", Data.SB_Opinions.ToString());
+                        Data.SB_Opinions = new StringBuilder();
+                        GC.Collect();
+                        End_OpinionsFound = true;
+                    }
+                }
+
+                if (End_OpinionsFound)
+                {
+                    HasOpinionsExtracted = true;
+                    Start_OpinionsFound = false;
+                    End_OpinionsFound = false;
+                    opinionsBraceCount = 0;
                 }
             }
         }

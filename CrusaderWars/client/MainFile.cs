@@ -1717,6 +1717,7 @@ namespace CrusaderWars
 
             BattleResult.Player_Combat = null; // Reset the static combat data
             BattleState.ClearBattleState();
+            Unit.ResetUniqueIDCounter();
             UpdateUIForBattleState();
 
             /*
@@ -2324,6 +2325,7 @@ namespace CrusaderWars
                 return;
             }
             Data.Reset(); // ADDED as per plan
+            Unit.ResetUniqueIDCounter();
             Reader.ReadMetaData();
             DataSearch.Search(logSnippet);
 
@@ -2833,6 +2835,7 @@ namespace CrusaderWars
                         MessageBoxIcon.Warning
                     );
                     BattleState.ClearBattleState();
+                    Unit.ResetUniqueIDCounter();
                     UpdateUIForBattleState();
                 }
             }

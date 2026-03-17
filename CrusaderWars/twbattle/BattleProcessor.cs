@@ -1048,9 +1048,18 @@ namespace CrusaderWars.twbattle
                     BattleResult.CalculateAndSetWarScore(attacker_armies, defender_armies);
 
 
+                    //  EDIT VASSAL CONTRACTS FILE
+                    BattleResult.EditVassalContractsFile();
+
                     //  EDIT LIVING FILE
                     Program.Logger.Debug("Editing Living.txt file...");
                     BattleResult.EditLivingFile(attacker_armies, defender_armies);
+
+                    //  EDIT COURT POSITIONS FILE
+                    //  Note: This is now called internally by EditLivingFile to ensure correct sequence
+
+                    //  EDIT COURT POSITIONS FILE
+                    //  Note: This is now called internally by EditLivingFile to ensure correct sequence
 
                     // SHOW POST-BATTLE REPORT
                     if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
@@ -1162,6 +1171,7 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Finalizing save file...");
                     SaveFile.Finish();
                     twbattle.BattleState.ClearBattleState();
+                    Unit.ResetUniqueIDCounter();
                     Program.Logger.Debug("Battle finished. Clearing battle state.");
 
                     // Show successful autofix/manual tool message if applicable
@@ -1709,7 +1719,7 @@ namespace CrusaderWars.twbattle
                         var unit = new UnitReport();
                         
                         // Get the corresponding Unit object to access additional data
-                        var correspondingUnit = army.Units.FirstOrDefault(u => 
+                        var correspondingUnit = army.Units.FirstOrDefault(u =>
                         {
                             // For knight units, match only by type and culture since GetTypeName() returns "Knight"
                             if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
@@ -1717,11 +1727,12 @@ namespace CrusaderWars.twbattle
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
-                            // For garrison units, match by Attila unit key instead of name
-                            else if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            // For levy and garrison units, match by Attila unit key instead of name
+                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
+                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
                             {
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
+                                       u.GetAttilaUnitKey() == unitReport.Type &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
                             else
@@ -1748,6 +1759,7 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
                             unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
                             unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
+                            unit.Script = unitReport.Script;
                             
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
@@ -1889,7 +1901,7 @@ namespace CrusaderWars.twbattle
                         var unit = new UnitReport();
                         
                         // Get the corresponding Unit object to access additional data
-                        var correspondingUnit = army.Units.FirstOrDefault(u => 
+                        var correspondingUnit = army.Units.FirstOrDefault(u =>
                         {
                             // For knight units, match only by type and culture since GetTypeName() returns "Knight"
                             if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
@@ -1897,11 +1909,12 @@ namespace CrusaderWars.twbattle
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
-                            // For garrison units, match by Attila unit key instead of name
-                            else if (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison)
+                            // For levy and garrison units, match by Attila unit key instead of name
+                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
+                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
                             {
                                 return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.GetTypeName() &&
+                                       u.GetAttilaUnitKey() == unitReport.Type &&
                                        u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
                             }
                             else
@@ -1928,6 +1941,7 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
                             unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
                             unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
+                            unit.Script = unitReport.Script;
                             
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);

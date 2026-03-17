@@ -16,6 +16,9 @@ namespace CrusaderWars.data.save_file
         static bool Sieges_NeedsSkiping { get; set; }
         static bool PlayedCharacter_NeedsSkipping { get; set; }
         static bool Wars_NeedsSkiping { get; set; }
+        static bool VassalContracts_NeedsSkiping { get; set; }
+        static bool Opinions_NeedsSkiping { get; set; }
+        static bool CourtPositions_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
             // Reset static state variables
@@ -25,6 +28,9 @@ namespace CrusaderWars.data.save_file
             Sieges_NeedsSkiping = false;
             PlayedCharacter_NeedsSkipping = false;
             Wars_NeedsSkiping = false;
+            VassalContracts_NeedsSkiping = false;
+            Opinions_NeedsSkiping = false;
+            CourtPositions_NeedsSkiping = false;
 
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             // Removed resultsFound and combatsFound boolean variables.
@@ -84,6 +90,34 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("Finished skipping Wars block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Wars_NeedsSkiping = false;
+                        continue;
+                    }
+                    else if (VassalContracts_NeedsSkiping && line == "}")
+                    {
+                        Program.Logger.Debug("Finished skipping VassalContracts block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        VassalContracts_NeedsSkiping = false;
+                        continue;
+                    }
+                    else if (Opinions_NeedsSkiping && line == "}")
+                    {
+                        Program.Logger.Debug("Finished skipping Opinions block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        Opinions_NeedsSkiping = false;
+                        continue;
+                    }
+                    else if (CourtPositions_NeedsSkiping && line == "}")
+                    {
+                        Program.Logger.Debug("Finished skipping CourtPositions block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        CourtPositions_NeedsSkiping = false;
+                        continue;
+                    }
+                    else if (CourtPositions_NeedsSkiping && line == "}")
+                    {
+                        Program.Logger.Debug("Finished skipping CourtPositions block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        CourtPositions_NeedsSkiping = false;
                         continue;
                     }
                     else if (PlayedCharacter_NeedsSkipping && line == "}")
@@ -173,6 +207,38 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("EDITED CURRENTLY PLAYED CHARACTERS SENT!");
                         continue;
                     }
+                    else if (line == "court_positions={" && !CourtPositions_NeedsSkiping)
+                    {
+                        string tempCourtPositionsPath = DataTEMPFilesPaths.CourtPositions_Path();
+                        if (File.Exists(tempCourtPositionsPath) && new FileInfo(tempCourtPositionsPath).Length > 0)
+                        {
+                            Program.Logger.Debug("Writing modified CourtPositions block.");
+                            WriteDataToSaveFile(streamWriter, tempCourtPositionsPath, FileType.CourtPositions);
+                            Program.Logger.Debug("EDITED COURT POSITIONS SENT!");
+                            CourtPositions_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Temporary CourtPositions file not found or is empty. Preserving original block.");
+                            streamWriter.WriteLine(line);
+                        }
+                    }
+                    else if (line == "court_positions={" && !CourtPositions_NeedsSkiping)
+                    {
+                        string tempCourtPositionsPath = DataTEMPFilesPaths.CourtPositions_Path();
+                        if (File.Exists(tempCourtPositionsPath) && new FileInfo(tempCourtPositionsPath).Length > 0)
+                        {
+                            Program.Logger.Debug("Writing modified CourtPositions block.");
+                            WriteDataToSaveFile(streamWriter, tempCourtPositionsPath, FileType.CourtPositions);
+                            Program.Logger.Debug("EDITED COURT POSITIONS SENT!");
+                            CourtPositions_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Temporary CourtPositions file not found or is empty. Preserving original block.");
+                            streamWriter.WriteLine(line);
+                        }
+                    }
                     // NEW BLOCK: Replace the entire sieges block when "sieges={" is encountered
                     else if (line == "sieges={" && !Sieges_NeedsSkiping)
                     {
@@ -200,7 +266,39 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("EDITED WARS SENT!");
                         Wars_NeedsSkiping = true;
                     }
-                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping)
+                    else if (line == "vassal_contracts={" && !VassalContracts_NeedsSkiping)
+                    {
+                        string tempVassalPath = DataTEMPFilesPaths.VassalContracts_Path();
+                        if (File.Exists(tempVassalPath))
+                        {
+                            Program.Logger.Debug("Writing modified VassalContracts block.");
+                            WriteDataToSaveFile(streamWriter, tempVassalPath, FileType.VassalContracts);
+                            Program.Logger.Debug("EDITED VASSAL CONTRACTS SENT!");
+                            VassalContracts_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Temporary VassalContracts file not found. Preserving original block.");
+                            streamWriter.WriteLine(line);
+                        }
+                    }
+                    else if (line == "opinions={" && !Opinions_NeedsSkiping)
+                    {
+                        string tempOpinionsPath = DataTEMPFilesPaths.Opinions_Path();
+                        if (File.Exists(tempOpinionsPath) && new FileInfo(tempOpinionsPath).Length > 0)
+                        {
+                            Program.Logger.Debug("Writing modified Opinions block.");
+                            WriteDataToSaveFile(streamWriter, tempOpinionsPath, FileType.Opinions);
+                            Program.Logger.Debug("EDITED OPINIONS SENT!");
+                            Opinions_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Temporary Opinions file not found or is empty. Preserving original block.");
+                            streamWriter.WriteLine(line);
+                        }
+                    }
+                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping && !VassalContracts_NeedsSkiping && !Opinions_NeedsSkiping && !CourtPositions_NeedsSkiping)
                     {
                         streamWriter.WriteLine(line);
                     }
@@ -245,7 +343,10 @@ namespace CrusaderWars.data.save_file
             Sieges,
             PlayedCharacter,
             CurrentlyPlayedCharacters,
-            Wars
+            Wars,
+            VassalContracts,
+            Opinions,
+            CourtPositions
         }
 
         public struct DataFilesPaths
@@ -269,6 +370,8 @@ namespace CrusaderWars.data.save_file
             public static string PlayedCharacter_Path() { return @".\data\save_file_data\PlayedCharacter.txt"; }
             public static string CurrentlyPlayedCharacters_Path() { return @".\data\save_file_data\CurrentlyPlayedCharacters.txt"; }
             public static string Wars_Path() { return @".\data\save_file_data\Wars.txt"; }
+            public static string VassalContracts_Path() { return @".\data\save_file_data\VassalContracts.txt"; }
+            public static string Opinions_Path() { return @".\data\save_file_data\Opinions.txt"; }
 
         }
 
@@ -282,7 +385,10 @@ namespace CrusaderWars.data.save_file
             public static string Sieges_Path() { return @".\data\save_file_data\temp\Sieges.txt"; }
             public static string PlayedCharacter_Path() { return @".\data\save_file_data\temp\PlayedCharacter.txt"; }
             public static string CurrentlyPlayedCharacters_Path() { return @".\data\save_file_data\temp\CurrentlyPlayedCharacters.txt"; }
+            public static string CourtPositions_Path() { return @".\data\save_file_data\temp\CourtPositions.txt"; }
             public static string Wars_Path() { return @".\data\save_file_data\temp\Wars.txt"; }
+            public static string VassalContracts_Path() { return @".\data\save_file_data\temp\VassalContracts.txt"; }
+            public static string Opinions_Path() { return @".\data\save_file_data\temp\Opinions.txt"; }
 
         }
 

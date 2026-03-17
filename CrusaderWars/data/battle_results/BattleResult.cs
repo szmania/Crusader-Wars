@@ -34,6 +34,21 @@ namespace CrusaderWars.data.battle_results
         //Combats
         public static string? Player_Combat;
 
+        public class SuccessorTransferData
+        {
+            public List<string> LandedDataBlock { get; set; } = new List<string>();
+            public string? Culture { get; set; }
+            public string? Faith { get; set; }
+            public string SlainCharId { get; set; } = "";
+            public double Gold { get; set; } = 0;
+            public List<string> IncomeBlock { get; set; } = new List<string>();
+            public List<string> VassalContractIds { get; set; } = new List<string>();
+            public List<string> PlayableDataBlock { get; set; } = new List<string>();
+        }
+
+        public static Dictionary<string, SuccessorTransferData> PendingLandedData = new Dictionary<string, SuccessorTransferData>();
+        public static HashSet<string> InvalidatedVassalContracts = new HashSet<string>();
+
         public static void ReadPlayerCombat(string playerID)
         {
             Program.Logger.Debug($"Reading player combat for player ID: {playerID}");
@@ -402,7 +417,7 @@ namespace CrusaderWars.data.battle_results
 
         public static void DetermineCharacterFates(List<Army> allArmies)
         {
-            Program.Logger.Debug("Determining character fates...");
+            Program.Logger.Debug("Determining character fates and extracting succession data...");
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             {
@@ -412,23 +427,22 @@ namespace CrusaderWars.data.battle_results
                     if (Regex.IsMatch(line, @"^\d+={"))
                     {
                         string char_id = Regex.Match(line, @"\d+").Value;
+                        List<string> charBlock = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                        {
+                            charBlock.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
                             bool hasFallen = (searchData.isCommander && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight.HasFallen());
                             if (hasFallen)
                             {
-                                string? traitsLine = null;
-                                int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
-                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
-                                {
-                                    if (line.Trim().StartsWith("traits={"))
-                                    {
-                                        traitsLine = line;
-                                    }
-                                    braceCount += line.Count(c => c == '{');
-                                    braceCount -= line.Count(c => c == '}');
-                                }
+                                string? traitsLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("traits={"));
 
                                 if (traitsLine != null)
                                 {
@@ -448,6 +462,11 @@ namespace CrusaderWars.data.battle_results
                                         searchData.knight.IsSlain = healthResult.isSlain;
                                         searchData.knight.IsPrisoner = healthResult.isCaptured;
                                     }
+
+                                    if (healthResult.isSlain)
+                                    {
+                                        ExtractSuccessionData(char_id, charBlock);
+                                    }
                                 }
                             }
                         }
@@ -455,6 +474,126 @@ namespace CrusaderWars.data.battle_results
                 }
             }
             Program.Logger.Debug("Finished determining character fates.");
+        }
+
+        private static void ExtractSuccessionData(string slainCharId, List<string> charBlock)
+        {
+            int landedDataStart = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+            if (landedDataStart == -1) return;
+
+            List<string> landedBlock = new List<string>();
+            int braceCount = 0;
+            string? successorId = null;
+
+            for (int i = landedDataStart; i < charBlock.Count; i++)
+            {
+                string line = charBlock[i];
+                landedBlock.Add(line);
+                braceCount += line.Count(c => c == '{');
+                braceCount -= line.Count(c => c == '}');
+
+                if (line.Trim().StartsWith("succession={"))
+                {
+                    Match m = Regex.Match(line, @"succession=\{\s*(\d+)");
+                    if (m.Success) successorId = m.Groups[1].Value;
+                }
+                if (braceCount == 0) break;
+            }
+
+            if (!string.IsNullOrEmpty(successorId))
+            {
+                var data = new SuccessorTransferData { LandedDataBlock = landedBlock, SlainCharId = slainCharId };
+
+                // Extract Gold and Income from alive_data
+                int aliveDataIdx = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                if (aliveDataIdx != -1)
+                {
+                    int goldIdx = charBlock.FindIndex(aliveDataIdx, l => l.Trim() == "gold={");
+                    if (goldIdx != -1)
+                    {
+                        string valLine = charBlock[goldIdx + 1];
+                        Match mGold = Regex.Match(valLine, @"value=([\d\.-]+)");
+                        if (mGold.Success && double.TryParse(mGold.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double gVal))
+                        {
+                            data.Gold = gVal;
+                        }
+                    }
+
+                    int incomeIdx = charBlock.FindIndex(aliveDataIdx, l => l.Trim() == "income={");
+                    if (incomeIdx != -1)
+                    {
+                        int bCount = 0;
+                        for (int i = incomeIdx; i < charBlock.Count; i++)
+                        {
+                            data.IncomeBlock.Add(charBlock[i]);
+                            bCount += charBlock[i].Count(c => c == '{');
+                            bCount -= charBlock[i].Count(c => c == '}');
+                            if (bCount == 0) break;
+                        }
+                    }
+                }
+
+                string? cultureLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("culture="));
+                string? faithLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("faith="));
+                if (cultureLine != null) data.Culture = Regex.Match(cultureLine, @"culture=(.+)").Groups[1].Value;
+                if (faithLine != null) data.Faith = Regex.Match(faithLine, @"faith=(.+)").Groups[1].Value;
+
+                // Extract vassal contract IDs using brace counting for proper multi-line support
+                int vassalContractsStart = charBlock.FindIndex(l => l.Trim().StartsWith("vassal_contracts={"));
+                if (vassalContractsStart != -1)
+                {
+                    string landedBlockStr = string.Join("\n", charBlock.Skip(landedDataStart));
+                    int startIndex = landedBlockStr.IndexOf("vassal_contracts={");
+                    if (startIndex != -1)
+                    {
+                        int contractBraceCount = 0;
+                        startIndex += "vassal_contracts={".Length;
+                        var endIndex = startIndex;
+                        
+                        // Use brace counting to find the matching closing brace
+                        for (int i = startIndex; i < landedBlockStr.Length; i++)
+                        {
+                            if (landedBlockStr[i] == '{')
+                                contractBraceCount++;
+                            else if (landedBlockStr[i] == '}')
+                            {
+                                if (contractBraceCount == 0)
+                                {
+                                    endIndex = i;
+                                    break;
+                                }
+                                contractBraceCount--;
+                            }
+                        }
+                        
+                        if (endIndex > startIndex)
+                        {
+                            var contractsContent = landedBlockStr.Substring(startIndex, endIndex - startIndex);
+                            var contractIds = contractsContent.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                            data.VassalContractIds.AddRange(contractIds);
+                            Program.Logger.Debug($"Extracted {contractIds.Length} vassal contract IDs for slain character {slainCharId}");
+                        }
+                    }
+                }
+
+                // Extract playable_data
+                int playableDataStart = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                if (playableDataStart != -1)
+                {
+                    int pBraceCount = 0;
+                    for (int i = playableDataStart; i < charBlock.Count; i++)
+                    {
+                        data.PlayableDataBlock.Add(charBlock[i]);
+                        pBraceCount += charBlock[i].Count(c => c == '{');
+                        pBraceCount -= charBlock[i].Count(c => c == '}');
+                        if (pBraceCount == 0) break;
+                    }
+                    Program.Logger.Debug($"Extracted playable_data block for slain character {slainCharId}.");
+                }
+
+                PendingLandedData[successorId] = data;
+                Program.Logger.Debug($"Slain character {slainCharId} identified successor {successorId}. Data queued for transfer.");
+            }
         }
 
         public static void EditLivingFile(List<Army> attacker_armies, List<Army> defender_armies)
@@ -489,6 +628,15 @@ namespace CrusaderWars.data.battle_results
 
             EditPlayerCharacterFiles(playerIsSlain, playerHeirId);
 
+            // --- Clean up Court Positions for slain characters ---
+            EditCourtPositionsFile(allArmies);
+
+            // --- Update Vassal Contracts for slain characters ---
+            EditVassalContractsFile();
+
+            // --- Update Opinions for slain characters ---
+            EditOpinionsFile(allArmies);
+
             // --- Apply changes and write to temp file ---
             Program.Logger.Debug("Living file: Applying pre-determined fates...");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
@@ -515,12 +663,158 @@ namespace CrusaderWars.data.battle_results
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
-                            bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.IsSlain);
+                            bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.HasFallen());
                             bool isCaptured = (searchData.isCommander && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight.IsPrisoner);
+
+                            // Remove court_data if employer was slain
+                            int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                            if (courtDataIdx != -1)
+                            {
+                                int employerLineIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                if (employerLineIdx != -1)
+                                {
+                                    string employerId = Regex.Match(charBlock[employerLineIdx], @"employer=(\d+)").Groups[1].Value;
+                                    var employerSearch = SearchCharacters(employerId, allArmies);
+                                    bool employerSlain = (employerSearch.isCommander && employerSearch.commander.IsSlain) || (employerSearch.isKnight && employerSearch.knight.HasFallen());
+
+                                    if (employerSlain)
+                                    {
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                            charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
+                                            Program.Logger.Debug($"Emptied court_data for {char_id} because employer {employerId} was slain.");
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Update employer for courtiers if their liege was slain
+                            foreach (var kvp in PendingLandedData)
+                            {
+                                string successorId = kvp.Key;
+                                var transfer = kvp.Value;
+
+                                if (courtDataIdx != -1)
+                                {
+                                    int employerIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                    if (employerIdx != -1 && charBlock[employerIdx].Contains(transfer.SlainCharId))
+                                    {
+                                        // If this character is a successor, they cannot be their own courtier or remain in the slain liege's court.
+                                        // We empty the court_data block for all successors found in the slain liege's court.
+                                        if (PendingLandedData.ContainsKey(char_id))
+                                        {
+                                            int courtDataEndIdx = -1;
+                                            int courtBraceCount = 0;
+                                            for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                            {
+                                                courtBraceCount += charBlock[i].Count(c => c == '{');
+                                                courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                                if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                            }
+
+                                            if (courtDataEndIdx != -1)
+                                            {
+                                                string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                                charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                                charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
+                                                Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // This is a regular courtier, update their employer to the successor.
+                                            string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
+                                            charBlock[employerIdx] = $"{indentation}employer={successorId}";
+
+                                            // Update join_court_date to current date
+                                            string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                            int courtDataEndIdx = -1;
+                                            int courtBraceCount = 0;
+                                            for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                            {
+                                                courtBraceCount += charBlock[i].Count(c => c == '{');
+                                                courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                                if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                            }
+
+                                            if (courtDataEndIdx != -1)
+                                            {
+                                                int joinDateIdx = charBlock.FindIndex(courtDataIdx, courtDataEndIdx - courtDataIdx + 1, l => l.Trim().StartsWith("join_court_date="));
+                                                if (joinDateIdx != -1)
+                                                {
+                                                    charBlock[joinDateIdx] = $"{indentation}join_court_date={currentDate}";
+                                                }
+                                                else
+                                                {
+                                                    charBlock.Insert(employerIdx + 1, $"{indentation}join_court_date={currentDate}");
+                                                }
+                                            }
+
+                                            Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId} and updated join_court_date.");
+                                        }
+                                    }
+                                }
+                            }
 
                             if (isSlain)
                             {
-                                Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data block.");
+                                Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data and landed_data blocks.");
+                                
+                                // Remove landed_data
+                                int landedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+                                if (landedIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = landedIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(landedIdx, endIdx - landedIdx + 1);
+                                }
+
+                                // Remove court_data
+                                int courtIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                                if (courtIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = courtIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(courtIdx, endIdx - courtIdx + 1);
+                                }
+
+                                // Remove playable_data
+                                int playableIdx = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                                if (playableIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = playableIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(playableIdx, endIdx - playableIdx + 1);
+                                }
+
                                 int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
                                 if (aliveDataStartIndex != -1)
                                 {
@@ -643,6 +937,80 @@ namespace CrusaderWars.data.battle_results
                             }
                         }
 
+                        if (PendingLandedData.ContainsKey(char_id))
+                        {
+                            ApplyLandedDataTransfer(char_id, charBlock);
+                        }
+
+                        // Update employer for courtiers if their liege was slain
+                        foreach (var kvp in PendingLandedData)
+                        {
+                            string successorId = kvp.Key;
+                            var transfer = kvp.Value;
+
+                            int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                            if (courtDataIdx != -1)
+                            {
+                                int employerIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                if (employerIdx != -1 && charBlock[employerIdx].Contains(transfer.SlainCharId))
+                                {
+                                    // If this character is a successor, they cannot be their own courtier or remain in the slain liege's court.
+                                    // We empty the court_data block for all successors found in the slain liege's court.
+                                    if (PendingLandedData.ContainsKey(char_id))
+                                    {
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                            charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
+                                            Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // This is a regular courtier, update their employer to the successor.
+                                        string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
+                                        charBlock[employerIdx] = $"{indentation}employer={successorId}";
+
+                                        // Update join_court_date to current date
+                                        string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            int joinDateIdx = charBlock.FindIndex(courtDataIdx, courtDataEndIdx - courtDataIdx + 1, l => l.Trim().StartsWith("join_court_date="));
+                                            if (joinDateIdx != -1)
+                                            {
+                                                charBlock[joinDateIdx] = $"{indentation}join_court_date={currentDate}";
+                                            }
+                                            else
+                                            {
+                                                charBlock.Insert(employerIdx + 1, $"{indentation}join_court_date={currentDate}");
+                                            }
+                                        }
+
+                                        Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId} and updated join_court_date.");
+                                    }
+                                }
+                            }
+                        }
+
                         foreach (var blockLine in charBlock)
                         {
                             streamWriter.WriteLine(blockLine);
@@ -655,6 +1023,489 @@ namespace CrusaderWars.data.battle_results
                 }
             }
             Program.Logger.Debug("Finished editing Living file.");
+        }
+
+        private static List<string> RemoveCourtPositionsFromLandedData(List<string> landedBlock)
+        {
+            int cpIdx = landedBlock.FindIndex(l => l.Trim().StartsWith("court_positions={"));
+            if (cpIdx == -1) return landedBlock;
+
+            int braceCount = 0;
+            int endIdx = -1;
+            for (int i = cpIdx; i < landedBlock.Count; i++)
+            {
+                braceCount += landedBlock[i].Count(c => c == '{');
+                braceCount -= landedBlock[i].Count(c => c == '}');
+                if (braceCount == 0)
+                {
+                    endIdx = i;
+                    break;
+                }
+            }
+
+            if (endIdx != -1)
+            {
+                landedBlock.RemoveRange(cpIdx, endIdx - cpIdx + 1);
+                Program.Logger.Debug("Removed court_positions from transferred landed_data block.");
+            }
+
+            return landedBlock;
+        }
+
+        private static void ApplyLandedDataTransfer(string successorId, List<string> charBlock)
+        {
+            var transferData = PendingLandedData[successorId];
+            Program.Logger.Debug($"Applying landed_data transfer to successor {successorId}.");
+
+            // Remove court_positions from the block being transferred to prevent duplicate/invalid entries
+            transferData.LandedDataBlock = RemoveCourtPositionsFromLandedData(transferData.LandedDataBlock);
+
+            // Copy missing culture/faith after ethnicity (or fallback fields)
+            if (transferData.Culture != null || transferData.Faith != null)
+            {
+                bool hasCulture = charBlock.Any(l => l.Trim().StartsWith("culture="));
+                bool hasFaith = charBlock.Any(l => l.Trim().StartsWith("faith="));
+
+                if (!hasCulture || !hasFaith)
+                {
+                    int insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("ethnicity="));
+                    if (insertIdx == -1) insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("nickname_text="));
+                    if (insertIdx == -1) insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("birth="));
+                    if (insertIdx == -1) insertIdx = 0; // Fallback to start of block if no markers found
+
+                    // Insert Faith first, then Culture, so Culture ends up above Faith if both are inserted
+                    if (!hasFaith && transferData.Faith != null)
+                    {
+                        charBlock.Insert(insertIdx + 1, $"\tfaith={transferData.Faith}");
+                    }
+                    if (!hasCulture && transferData.Culture != null)
+                    {
+                        charBlock.Insert(insertIdx + 1, $"\tculture={transferData.Culture}");
+                    }
+                }
+            }
+
+            int existingLandedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+            if (existingLandedIdx == -1)
+            {
+                // Ensure successor is not in their own succession list before inserting
+                int succIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("succession={"));
+                if (succIdx != -1)
+                {
+                    string line = transferData.LandedDataBlock[succIdx];
+                    var ids = Regex.Match(line, @"succession=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    if (ids.Remove(successorId))
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("succession="));
+                        transferData.LandedDataBlock[succIdx] = $"{indentation}succession={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed successor {successorId} from their own succession list during transfer.");
+                    }
+                }
+
+                // Remove invalidated vassal contracts
+                int vcIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("vassal_contracts={"));
+                if (vcIdx != -1)
+                {
+                    string line = transferData.LandedDataBlock[vcIdx];
+                    var ids = Regex.Match(line, @"vassal_contracts=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    int originalCount = ids.Count;
+                    ids = ids.Where(id => !InvalidatedVassalContracts.Contains(id)).ToList();
+                    if (ids.Count != originalCount)
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("vassal_contracts="));
+                        transferData.LandedDataBlock[vcIdx] = $"{indentation}vassal_contracts={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed {originalCount - ids.Count} invalidated vassal contracts from transferred landed_data for {successorId}.");
+                    }
+                }
+                // Update became_ruler_date
+                int dateIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("became_ruler_date="));
+                string newDateLine = $"\t\tbecame_ruler_date={Date.Year}.{Date.Month}.{Date.Day}";
+                if (dateIdx != -1) transferData.LandedDataBlock[dateIdx] = newDateLine;
+                else transferData.LandedDataBlock.Insert(1, newDateLine);
+
+                int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}") ;
+                if (insertPos != -1) charBlock.InsertRange(insertPos, transferData.LandedDataBlock);
+            }
+            else
+            {
+                // Merge logic
+                List<string> mergedLanded = transferData.LandedDataBlock;
+                int bCount = 0;
+                int endIdx = -1;
+                List<string> successorLanded = new List<string>();
+                for (int i = existingLandedIdx; i < charBlock.Count; i++)
+                {
+                    successorLanded.Add(charBlock[i]);
+                    bCount += charBlock[i].Count(c => c == '{');
+                    bCount -= charBlock[i].Count(c => c == '}');
+                    if (bCount == 0) { endIdx = i; break; }
+                }
+
+                Func<List<string>, string, string> getField = (block, field) => {
+                    var line = block.FirstOrDefault(l => l.Trim().StartsWith(field + "={"));
+                    return line != null ? Regex.Match(line, field + @"=\{\s*(.*?)\s*\}").Groups[1].Value : "";
+                };
+
+                Action<List<string>, string, string> setField = (block, field, val) => {
+                    int idx = block.FindIndex(l => l.Trim().StartsWith(field + "={"));
+                    if (idx != -1) block[idx] = Regex.Replace(block[idx], field + @"=\{.*?\}", field + "={ " + val + " }");
+                };
+
+                foreach (string field in new[] { "domain", "vassal_contracts", "succession" })
+                {
+                    var slainVals = getField(mergedLanded, field).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var succVals = getField(successorLanded, field).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var combined = slainVals.Concat(succVals).Distinct().ToList();
+                    if (field == "succession") combined.Remove(successorId);
+                    if (field == "vassal_contracts") combined = combined.Where(id => !InvalidatedVassalContracts.Contains(id)).ToList();
+                    setField(successorLanded, field, string.Join(" ", combined));
+                }
+
+                // Cleanup council
+                var councilLineIdx = successorLanded.FindIndex(l => l.Trim().StartsWith("council={"));
+                if (councilLineIdx != -1)
+                {
+                    var councilVals = Regex.Match(successorLanded[councilLineIdx], @"council=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    if (councilVals.Remove(successorId))
+                        successorLanded[councilLineIdx] = "		council={ " + string.Join(" ", councilVals) + " }";
+                }
+
+                // Update became_ruler_date
+                int dateIdx = successorLanded.FindIndex(l => l.Trim().StartsWith("became_ruler_date="));
+                string newDateLine = $"\t\tbecame_ruler_date={Date.Year}.{Date.Month}.{Date.Day}";
+                if (dateIdx != -1) successorLanded[dateIdx] = newDateLine;
+                else successorLanded.Insert(1, newDateLine);
+
+                charBlock.RemoveRange(existingLandedIdx, endIdx - existingLandedIdx + 1);
+                charBlock.InsertRange(existingLandedIdx, successorLanded);
+            }
+
+            // Transfer Playable Data
+            if (transferData.PlayableDataBlock.Any())
+            {
+                Program.Logger.Debug($"Applying playable_data transfer to successor {successorId}.");
+                List<string> playableBlock = new List<string>(transferData.PlayableDataBlock);
+
+                // Modify knights list
+                int knightsIdx = playableBlock.FindIndex(l => l.Trim().StartsWith("knights={"));
+                if (knightsIdx != -1)
+                {
+                    string line = playableBlock[knightsIdx];
+                    var ids = Regex.Match(line, @"knights=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    
+                    if (ids.Remove(successorId))
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("knights="));
+                        playableBlock[knightsIdx] = $"{indentation}knights={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed successor {successorId} from transferred knights list.");
+                    }
+                }
+
+                // Handle diarchy_successor
+                string? successorSuccessorId = null;
+                int succPlayableIdxInCharBlock = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                if (succPlayableIdxInCharBlock != -1)
+                {
+                    int diarchyIdx = charBlock.FindIndex(succPlayableIdxInCharBlock, l => l.Trim().StartsWith("diarchy_successor="));
+                    if (diarchyIdx != -1)
+                    {
+                        successorSuccessorId = Regex.Match(charBlock[diarchyIdx], @"diarchy_successor=(\d+)").Groups[1].Value;
+                    }
+                }
+
+                int transferDiarchyIdx = playableBlock.FindIndex(l => l.Trim().StartsWith("diarchy_successor="));
+                if (transferDiarchyIdx != -1)
+                {
+                    if (!string.IsNullOrEmpty(successorSuccessorId))
+                    {
+                        string indentation = playableBlock[transferDiarchyIdx].Substring(0, playableBlock[transferDiarchyIdx].IndexOf("diarchy_successor="));
+                        playableBlock[transferDiarchyIdx] = $"{indentation}diarchy_successor={successorSuccessorId}";
+                        Program.Logger.Debug($"Updated diarchy_successor in transferred playable_data to {successorSuccessorId}.");
+                    }
+                    else
+                    {
+                        playableBlock.RemoveAt(transferDiarchyIdx);
+                        Program.Logger.Debug("Removed diarchy_successor from transferred playable_data as successor has no heir.");
+                    }
+                }
+
+                // Insert the modified playable_data block into the successor's character block
+                // It should replace any existing playable_data block the successor might have.
+                if (succPlayableIdxInCharBlock != -1)
+                {
+                    // Remove existing block
+                    int bCount = 0;
+                    int endIdx = -1;
+                    for (int i = succPlayableIdxInCharBlock; i < charBlock.Count; i++)
+                    {
+                        bCount += charBlock[i].Count(c => c == '{');
+                        bCount -= charBlock[i].Count(c => c == '}');
+                        if (bCount == 0) { endIdx = i; break; }
+                    }
+                    if (endIdx != -1)
+                    {
+                        charBlock.RemoveRange(succPlayableIdxInCharBlock, endIdx - succPlayableIdxInCharBlock + 1);
+                        charBlock.InsertRange(succPlayableIdxInCharBlock, playableBlock);
+                        Program.Logger.Debug($"Replaced existing playable_data for successor {successorId}.");
+                    }
+                }
+                else
+                {
+                    // Insert new block
+                    int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}");
+                    if (insertPos != -1)
+                    {
+                        charBlock.InsertRange(insertPos, playableBlock);
+                        Program.Logger.Debug($"Inserted new playable_data for successor {successorId}.");
+                    }
+                }
+            }
+
+            // Transfer Gold and Income to successor's alive_data
+            int succAliveIdx = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+            if (succAliveIdx != -1)
+            {
+                // Update Gold
+                if (transferData.Gold != 0)
+                {
+                    int goldIdx = charBlock.FindIndex(succAliveIdx, l => l.Trim() == "gold={");
+                    if (goldIdx != -1)
+                    {
+                        int valIdx = goldIdx + 1;
+                        Match m = Regex.Match(charBlock[valIdx], @"value=([\d\.-]+)");
+                        if (m.Success && double.TryParse(m.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double currentGold))
+                        {
+                            double newGold = currentGold + transferData.Gold;
+                            string indentation = charBlock[valIdx].Substring(0, charBlock[valIdx].IndexOf("value="));
+                            charBlock[valIdx] = $"{indentation}value={newGold.ToString("F3", CultureInfo.InvariantCulture)}";
+                            Program.Logger.Debug($"Transferred {transferData.Gold} gold from slain {transferData.SlainCharId} to successor {successorId}. New total: {newGold}");
+                        }
+                    }
+                    else
+                    {
+                        // Successor has no gold block, create one
+                        charBlock.InsertRange(succAliveIdx + 1, new List<string> {
+                            "\t\tgold={",
+                            $"\t\t\tvalue={transferData.Gold.ToString("F3", CultureInfo.InvariantCulture)}",
+                            "\t\t}"
+                        });
+                    }
+                }
+
+                // Copy Income if successor doesn't have it
+                if (transferData.IncomeBlock.Any())
+                {
+                    int succIncomeIdx = charBlock.FindIndex(succAliveIdx, l => l.Trim() == "income={");
+                    if (succIncomeIdx == -1)
+                    {
+                        charBlock.InsertRange(succAliveIdx + 1, transferData.IncomeBlock);
+                        Program.Logger.Debug($"Copied income block from slain {transferData.SlainCharId} to successor {successorId}.");
+                    }
+                }
+            }
+        }
+
+
+        public static void EditVassalContractsFile()
+        {
+            Program.Logger.Debug("Editing Vassal Contracts file...");
+            string path = Writter.DataFilesPaths.VassalContracts_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.VassalContracts_Path();
+
+            if (!File.Exists(path))
+            {
+                Program.Logger.Debug("VassalContracts.txt not found. Skipping.");
+                return;
+            }
+
+            InvalidatedVassalContracts.Clear();
+            string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+            var successorLookup = PendingLandedData.ToDictionary(kvp => kvp.Value.SlainCharId, kvp => kvp.Key);
+
+            using (StreamReader sr = new StreamReader(path))
+            using (StreamWriter sw = new StreamWriter(tempPath))
+            {
+                sw.NewLine = "\n";
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\s*\d+={"))
+                    {
+                        string contractId = Regex.Match(line, @"^\s*(\d+)={").Groups[1].Value;
+                        List<string> block = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = sr.ReadLine()) != null)
+                        {
+                            block.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
+                        bool isModified = false;
+                        
+                        int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
+                        int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
+
+                        string? currentVassalId = (vassalIdx != -1) ? Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value : null;
+                        string? currentLiegeId = (liegeIdx != -1) ? Regex.Match(block[liegeIdx], @"liege=(\d+)").Groups[1].Value : null;
+
+                        // Update Liege if slain
+                        if (currentLiegeId != null && successorLookup.TryGetValue(currentLiegeId, out string? liegeSuccessorId))
+                        {
+                            string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
+                            block[liegeIdx] = $"{indent}liege={liegeSuccessorId}";
+                            currentLiegeId = liegeSuccessorId;
+                            isModified = true;
+                            Program.Logger.Debug($"Contract {contractId}: Updated liege from slain character to successor {liegeSuccessorId}.");
+                        }
+
+                        // Update Vassal if slain
+                        if (currentVassalId != null && successorLookup.TryGetValue(currentVassalId, out string? vassalSuccessorId))
+                        {
+                            string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
+                            block[vassalIdx] = $"{indent}vassal={vassalSuccessorId}";
+                            currentVassalId = vassalSuccessorId;
+                            isModified = true;
+                            Program.Logger.Debug($"Contract {contractId}: Updated vassal from slain character to successor {vassalSuccessorId}.");
+                        }
+
+                        // Self-contract check: if vassal and liege are the same after updates, invalidate the contract.
+                        if (currentVassalId != null && currentLiegeId != null && currentVassalId == currentLiegeId)
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            InvalidatedVassalContracts.Add(contractId);
+                            Program.Logger.Debug($"Contract {contractId}: Vassal and Liege are the same ({currentVassalId}). Setting to none.");
+                            continue;
+                        }
+
+                        // Update date if modified
+                        if (isModified)
+                        {
+                            int dateIdx = block.FindIndex(l => l.Trim().StartsWith("date="));
+                            if (dateIdx != -1)
+                            {
+                                string indent = block[dateIdx].Substring(0, block[dateIdx].IndexOf("date="));
+                                block[dateIdx] = $"{indent}date={currentDate}";
+                            }
+                            else
+                            {
+                                int insertPosition = block.FindLastIndex(l => l.Trim() == "}") - 1;
+                                if (insertPosition >= 0)
+                                {
+                                    string indent = block[insertPosition].Substring(0, block[insertPosition].TakeWhile(char.IsWhiteSpace).Count());
+                                    block.Insert(insertPosition, $"{indent}\tdate={currentDate}");
+                                }
+                            }
+                        }
+
+                        foreach (var bLine in block) sw.WriteLine(bLine);
+                    }
+                    else
+                    {
+                        sw.WriteLine(line);
+                    }
+                }
+            }
+        }
+
+        public static void EditCourtPositionsFile(List<Army> allArmies)
+        {
+            Program.Logger.Debug("Editing Court Positions file...");
+            string path = Writter.DataFilesPaths.CourtPositions_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.CourtPositions_Path();
+
+            if (!File.Exists(path))
+            {
+                Program.Logger.Debug("CourtPositions.txt not found. Skipping.");
+                return;
+            }
+
+            var successorLookup = PendingLandedData.ToDictionary(kvp => kvp.Value.SlainCharId, kvp => kvp.Key);
+
+            using (StreamReader sr = new StreamReader(path))
+            using (StreamWriter sw = new StreamWriter(tempPath))
+            {
+                sw.NewLine = "\n";
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\s*\d+={"))
+                    {
+                        string contractId = Regex.Match(line, @"^\s*(\d+)={").Groups[1].Value;
+                        List<string> block = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = sr.ReadLine()) != null)
+                        {
+                            block.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
+                        int employerIdx = block.FindIndex(l => l.Trim().StartsWith("employer="));
+                        int employeeIdx = block.FindIndex(l => l.Trim().StartsWith("employee="));
+
+                        string? originalEmployerId = (employerIdx != -1) ? Regex.Match(block[employerIdx], @"=(\d+)").Groups[1].Value : null;
+                        string? originalEmployeeId = (employeeIdx != -1) ? Regex.Match(block[employeeIdx], @"=(\d+)").Groups[1].Value : null;
+
+                        string? currentEmployerId = originalEmployerId;
+                        string? currentEmployeeId = originalEmployeeId;
+
+                        // Check and update employer
+                        if (currentEmployerId != null && successorLookup.TryGetValue(currentEmployerId, out string? employerSuccessorId))
+                        {
+                            string indentation = block[employerIdx].Substring(0, block[employerIdx].IndexOf("employer="));
+                            block[employerIdx] = $"{indentation}employer={employerSuccessorId}";
+                            currentEmployerId = employerSuccessorId; // update for the self-check
+                            Program.Logger.Debug($"Court Position {contractId}: Updated employer from slain {originalEmployerId} to successor {employerSuccessorId}.");
+                        }
+
+                        // Check and update employee
+                        if (currentEmployeeId != null && successorLookup.TryGetValue(currentEmployeeId, out string? employeeSuccessorId))
+                        {
+                            string indentation = block[employeeIdx].Substring(0, block[employeeIdx].IndexOf("employee="));
+                            block[employeeIdx] = $"{indentation}employee={employeeSuccessorId}";
+                            currentEmployeeId = employeeSuccessorId; // update for the self-check
+                            Program.Logger.Debug($"Court Position {contractId}: Updated employee from slain {originalEmployeeId} to successor {employeeSuccessorId}.");
+                        }
+
+                        // Self-employment check
+                        if (currentEmployerId != null && currentEmployeeId != null && currentEmployerId == currentEmployeeId)
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            Program.Logger.Debug($"Court Position {contractId}: Set to none because employer and employee are the same character ({currentEmployerId}).");
+                            continue; // Skip writing the block
+                        }
+
+                        // Fallback: Original logic to remove if a character is slain and has no successor
+                        bool employerSlain = originalEmployerId != null && allArmies.Any(a => (a.Commander?.ID == originalEmployerId && a.Commander.IsSlain) || (a.Knights?.GetKnightsList().Any(k => k.GetID() == originalEmployerId && k.IsSlain) ?? false));
+                        bool employeeSlain = originalEmployeeId != null && allArmies.Any(a => (a.Commander?.ID == originalEmployeeId && a.Commander.IsSlain) || (a.Knights?.GetKnightsList().Any(k => k.GetID() == originalEmployeeId && k.IsSlain) ?? false));
+
+                        bool employerReplaced = currentEmployerId != originalEmployerId;
+                        bool employeeReplaced = currentEmployeeId != originalEmployeeId;
+
+                        if ((employerSlain && !employerReplaced) || (employeeSlain && !employeeReplaced))
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            Program.Logger.Debug($"Court Position {contractId}: Set to none because a participant was slain without a successor.");
+                            continue;
+                        }
+
+                        // If we get here, write the block (modified or original)
+                        foreach (var bLine in block)
+                        {
+                            sw.WriteLine(bLine);
+                        }
+                    }
+                    else
+                    {
+                        sw.WriteLine(line);
+                    }
+                }
+            }
         }
 
         public static void EditPlayerCharacterFiles(bool playerIsSlain, string? playerHeirId)
@@ -1076,13 +1927,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                            main_kills = results.GetKillsAmountOfMainPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1115,13 +1965,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                            pursuit_kills = results.GetKillsAmountOfPursuitPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -1132,13 +1981,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                            main_losses = results.GetDeathAmountOfMainPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -1149,13 +1997,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                            pursuit_losses = results.GetDeathAmountOfPursuitPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -1216,13 +2063,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                            main_kills = results.GetKillsAmountOfMainPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1255,13 +2101,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                            pursuit_kills = results.GetKillsAmountOfPursuitPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -1272,13 +2117,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                            main_losses = results.GetDeathAmountOfMainPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -1289,13 +2133,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null)
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                            pursuit_losses = results.GetDeathAmountOfPursuitPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -1383,7 +2226,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
-                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals. Added support for top-level current= for Levies.
                     modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
@@ -1401,7 +2244,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
-                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals. Added support for top-level current= for Levies.
                     modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
@@ -1566,33 +2409,35 @@ namespace CrusaderWars.data.battle_results
 
         }
 
-        static string GetChunksText(string size, string owner, string current)
+        static string GetChunksText(string size, string owner, string current, string origin, bool isMercenary)
         {
-            string str;
-            if (string.IsNullOrEmpty(owner))
+            StringBuilder sb = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(origin))
             {
-                str = $"\t\t\tmax={size}\n" +
-                      $"\t\t\tchunks={{\n" +
-                      $"\t\t\t\t{{\n" +
-                      $"\t\t\t\t\tmax={size}\n" +
-                      $"\t\t\t\t\tcurrent={current}\n" +
-                      $"\t\t\t\t}}\n" +
-                      $"\t\t\t}}\n";
-            }
-            else
-            {
-                str = $"\t\t\tmax={size}\n" +
-                      $"\t\t\towner={owner}\n" +
-                      $"\t\t\tchunks={{\n" +
-                      $"\t\t\t\t{{\n" +
-                      $"\t\t\t\t\tmax={size}\n" +
-                      $"\t\t\t\t\tcurrent={current}\n" +
-                      $"\t\t\t\t}}\n" +
-                      $"\t\t\t}}\n";
+                sb.Append($"\t\t\torigin={origin}\n");
             }
 
+            sb.Append($"\t\t\tmax={size}\n");
 
-            return str;
+            if (!string.IsNullOrEmpty(owner))
+            {
+                sb.Append($"\t\t\towner={owner}\n");
+            }
+
+            sb.Append("\t\t\tchunks={\n");
+            sb.Append("\t\t\t\t{\n");
+            sb.Append($"\t\t\t\t\tmax={size}\n");
+            sb.Append($"\t\t\t\t\tcurrent={current}\n");
+            sb.Append("\t\t\t\t}\n");
+            sb.Append("\t\t\t}\n");
+
+            if (isMercenary)
+            {
+                sb.Append("\t\t\tsource=hired\n");
+            }
+
+            return sb.ToString();
         }
 
         public static void EditRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
@@ -1601,11 +2446,9 @@ namespace CrusaderWars.data.battle_results
             bool editStarted = false;
             bool editIndex = false;
             Regiment? editRegiment = null;
-            ArmyRegiment? parentArmyRegiment = null; // Declare new variable
+            ArmyRegiment? parentArmyRegiment = null;
 
             int index = -1;
-            bool isNewData = false;
-
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Regiments_Path()))
@@ -1615,91 +2458,103 @@ namespace CrusaderWars.data.battle_results
                 string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-
-                    //Regiment ID line
-                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
+                    // Regiment ID line
+                    if (!editStarted && Regex.IsMatch(line, @"\t\t\d+={"))
                     {
                         string regiment_id = Regex.Match(line, @"\d+").Value;
 
-
                         var searchingData = SearchRegimentsFile(attacker_armies, regiment_id);
+                        if (!searchingData.editStarted)
+                        {
+                            searchingData = SearchRegimentsFile(defender_armies, regiment_id);
+                        }
+
                         if (searchingData.editStarted)
                         {
                             editStarted = true;
                             editRegiment = searchingData.foundRegiment;
-                            parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
-                            Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Attacker).");
-                        }
-                        else
-                        {
-                            searchingData = SearchRegimentsFile(defender_armies, regiment_id);
-                            if (searchingData.editStarted)
+                            parentArmyRegiment = searchingData.parentArmyRegiment;
+                            Program.Logger.Debug($"Found Regiment {regiment_id} for editing.");
+
+                            // For Levy and Garrison, we always rewrite the block to ensure consistency
+                            if (parentArmyRegiment?.Type == RegimentType.Levy || parentArmyRegiment?.Type == RegimentType.Garrison)
                             {
-                                editStarted = true;
-                                editRegiment = searchingData.foundRegiment;
-                                parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
-                                Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Defender).");
+                                streamWriter.WriteLine(line); // Write the ID line
+                                string max = editRegiment?.Max ?? "0";
+                                string owner = editRegiment?.Owner ?? "";
+                                string current = editRegiment?.CurrentNum ?? "0";
+                                string origin = editRegiment?.Origin ?? "";
+                                bool isMerc = editRegiment?.isMercenary() ?? false;
+                                streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
+                                
+                                // Skip the original block until the closing brace
+                                int braceCount = 1;
+                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                                {
+                                    braceCount += line.Count(c => c == '{');
+                                    braceCount -= line.Count(c => c == '}');
+                                }
+                                streamWriter.WriteLine("\t\t}"); // Write the closing brace
+                                editStarted = false;
+                                continue;
                             }
                         }
-
                     }
                     else if (editStarted && line.Contains("\t\t\tsize="))
                     {
                         if (editRegiment != null)
                         {
-                            var reg = editRegiment; // New local variable
-                            // For all types (Levy, Garrison, MenAtArms), use the logic to rewrite the block if we encounter the 'size' line.
-                            // This handles older save formats or cases where 'chunks' might be missing.
-                            isNewData = true;
-                            string max = reg.Max ?? "0";
-                            string owner = reg.Owner ?? "";
-                            string current = reg.CurrentNum ?? "0";
-                            string newLine = GetChunksText(max, owner, current);
-                            streamWriter.WriteLine(newLine);
-                            string regId = reg.ID ?? "N/A"; // Extract ID for logging
-                            Program.Logger.Debug($"Regiment {regId}: Writing new data format with current soldiers {reg.CurrentNum ?? "0"}.");
+                            string max = editRegiment.Max ?? "0";
+                            string owner = editRegiment.Owner ?? "";
+                            string current = editRegiment.CurrentNum ?? "0";
+                            string origin = editRegiment.Origin ?? "";
+                            bool isMerc = editRegiment.isMercenary();
+                            streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
+                            
+                            // Skip the rest of the original block until the closing brace
+                            int braceCount = 1; // We are already inside the block
+                            while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                            {
+                                braceCount += line.Count(c => c == '{');
+                                braceCount -= line.Count(c => c == '}');
+                            }
+                            streamWriter.WriteLine("\t\t}");
+                            editStarted = false;
                             continue;
                         }
                     }
-
-                    //Index Counter
-                    else if(!isNewData && editStarted && line == "\t\t\t\t{")
+                    // Index Counter for old format
+                    else if (editStarted && line == "\t\t\t\t{")
                     {
                         index++;
-                        if (editRegiment != null && editRegiment.Index == "") 
-                            editRegiment.ChangeIndex(0.ToString());
-                        if(editRegiment != null && index.ToString() == editRegiment.Index)
+                        if (editRegiment != null && string.IsNullOrEmpty(editRegiment.Index))
+                            editRegiment.ChangeIndex("0");
+                        
+                        if (editRegiment != null && index.ToString() == editRegiment.Index)
                         {
                             editIndex = true;
                         }
                     }
-
-                    else if(!isNewData && (editStarted==true && editIndex==true) && line.Contains("\t\t\t\t\tcurrent="))
+                    else if (editStarted && editIndex && line.Contains("\t\t\t\t\tcurrent="))
                     {
-                        if (editRegiment != null) // Added null check
+                        if (editRegiment != null)
                         {
                             string currentNum = editRegiment.CurrentNum ?? "0";
-                            string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
-                            streamWriter.WriteLine(edited_line);
-                            string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                            string logMessage = string.Format("Regiment {0}: Updating old data format with current soldiers {1}.", regId, currentNum);
-                            Program.Logger.Debug(logMessage);
+                            streamWriter.WriteLine("\t\t\t\t\tcurrent=" + currentNum);
                             continue;
                         }
                     }
-
-                    //End Line
-                    else if(editStarted && line == "\t\t}")
+                    // End Line
+                    else if (editStarted && line == "\t\t}")
                     {
-                        editStarted = false; editRegiment = null; editIndex = false; index = -1; isNewData = false;
-                        parentArmyRegiment = null; // Reset parent ArmyRegiment
+                        editStarted = false;
+                        editRegiment = null;
+                        editIndex = false;
+                        index = -1;
+                        parentArmyRegiment = null;
                     }
 
-                    if(!isNewData)
-                    {
-                        streamWriter.WriteLine(line);
-                    }
-                    
+                    streamWriter.WriteLine(line);
                 }
             }
             Program.Logger.Debug("Finished editing Regiments file.");
@@ -2357,6 +3212,136 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug($"Error editing Wars file: {ex.Message}. Copying original to temp.");
                 File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
             }
+        }
+
+        public static void EditOpinionsFile(List<Army> allArmies)
+        {
+            Program.Logger.Debug("Editing Opinions file...");
+            string path = Writter.DataFilesPaths.Opinions_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.Opinions_Path();
+
+            if (!File.Exists(path) || new FileInfo(path).Length == 0)
+            {
+                Program.Logger.Debug("Opinions.txt not found or is empty. Skipping.");
+                return;
+            }
+
+            var slainCharIds = allArmies
+                .SelectMany(a =>
+                    (a.Commander != null && a.Commander.IsSlain ? new[] { a.Commander.ID } : Enumerable.Empty<string>())
+                    .Concat(a.Knights?.GetKnightsList().Where(k => k.IsSlain).Select(k => k.GetID()) ?? Enumerable.Empty<string>())
+                    .Concat(a.MergedArmies?.SelectMany(ma =>
+                        (ma.Commander != null && ma.Commander.IsSlain ? new[] { ma.Commander.ID } : Enumerable.Empty<string>())
+                        .Concat(ma.Knights?.GetKnightsList().Where(k => k.IsSlain).Select(k => k.GetID()) ?? Enumerable.Empty<string>())
+                    ) ?? Enumerable.Empty<string>())
+                )
+                .ToHashSet();
+
+            if (!slainCharIds.Any())
+            {
+                Program.Logger.Debug("No slain characters to process for opinions. Copying original file.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            string content = File.ReadAllText(path);
+            int activeOpinionsStartIndex = content.IndexOf("active_opinions={");
+
+            if (activeOpinionsStartIndex == -1)
+            {
+                Program.Logger.Debug("Could not find active_opinions block. Skipping opinion edits.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            int bodyStartIndex = content.IndexOf('{', activeOpinionsStartIndex) + 1;
+            int braceCount = 1;
+            int bodyEndIndex = -1;
+
+            for (int i = bodyStartIndex; i < content.Length; i++)
+            {
+                if (content[i] == '{') braceCount++;
+                else if (content[i] == '}') braceCount--;
+
+                if (braceCount == 0)
+                {
+                    bodyEndIndex = i;
+                    break;
+                }
+            }
+
+            if (bodyEndIndex == -1)
+            {
+                Program.Logger.Debug("Warning: Could not find matching closing brace for active_opinions. Skipping opinion edits.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            string opinionsBody = content.Substring(bodyStartIndex, bodyEndIndex - bodyStartIndex);
+            
+            StringBuilder newOpinionsBody = new StringBuilder();
+            int cursor = 0;
+            while(cursor < opinionsBody.Length)
+            {
+                int blockStart = opinionsBody.IndexOf('{', cursor);
+                if (blockStart == -1) {
+                    newOpinionsBody.Append(opinionsBody.Substring(cursor));
+                    break;
+                }
+                newOpinionsBody.Append(opinionsBody.Substring(cursor, blockStart - cursor));
+
+                int innerBraceCount = 0;
+                int blockEnd = -1;
+                for (int i = blockStart; i < opinionsBody.Length; i++)
+                {
+                    if (opinionsBody[i] == '{') innerBraceCount++;
+                    else if (opinionsBody[i] == '}') innerBraceCount--;
+                    if (innerBraceCount == 0) {
+                        blockEnd = i;
+                        break;
+                    }
+                }
+
+                if (blockEnd == -1) {
+                    newOpinionsBody.Append(opinionsBody.Substring(blockStart));
+                    Program.Logger.Debug("Warning: Unmatched brace in an inner opinion block. Appending rest of content as is.");
+                    break;
+                }
+
+                string opinionBlock = opinionsBody.Substring(blockStart, blockEnd - blockStart + 1);
+                
+                bool needsDeletion = slainCharIds.Any(id => 
+                    Regex.IsMatch(opinionBlock, $@"owner\s*=\s*{id}") || 
+                    Regex.IsMatch(opinionBlock, $@"target\s*=\s*{id}")
+                );
+
+                if (needsDeletion)
+                {
+                    int lastBraceIndex = opinionBlock.LastIndexOf('}');
+                    if (lastBraceIndex != -1)
+                    {
+                        int insertIndex = opinionBlock.LastIndexOf('\n', lastBraceIndex);
+                        if (insertIndex != -1)
+                        {
+                            // We are inserting before the newline of the last brace
+                            opinionBlock = opinionBlock.Insert(insertIndex, "\n\t\t\tdelete=yes\n");
+                            Program.Logger.Debug("Marked an opinion for deletion.");
+                        }
+                        else
+                        {
+                            // Fallback for single-line blocks
+                            opinionBlock = opinionBlock.Insert(lastBraceIndex, "\n\t\t\tdelete=yes\n\n\t\t");
+                        }
+                    }
+                }
+                
+                newOpinionsBody.Append(opinionBlock);
+                cursor = blockEnd + 1;
+            }
+
+            string finalContent = content.Substring(0, bodyStartIndex) + newOpinionsBody.ToString() + content.Substring(bodyEndIndex);
+            File.WriteAllText(tempPath, finalContent);
+            Program.Logger.Debug("Finished editing Opinions file.");
         }
     }
 }

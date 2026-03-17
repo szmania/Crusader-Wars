@@ -11,8 +11,10 @@ namespace CrusaderWars
     public class UnitCasualitiesReport
     {
         RegimentType UnitType {  get; set; }
-        string Type {  get; set; }
+        public string Type {  get; private set; }
         Culture Culture { get; set; }
+        public string AttilaFaction { get; private set; }
+        public string Script { get; private set; }
         int StartingSoldiers {  get; set; }
         int RemainingSoldiersBeforePursuit { get; set; }
         int RemainingSoldiersAfterPursuit { get; set; } = -1;
@@ -20,7 +22,7 @@ namespace CrusaderWars
         int Kills { get; set; } // New property for kills inflicted
         int StartingMachines { get; set; } // New property for siege engines
 
-        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers, int startingMachines)
+        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers, int startingMachines, string attilaFaction, string script)
         {
             UnitType = unit_type;
             Type = type;
@@ -31,8 +33,10 @@ namespace CrusaderWars
             Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersBeforePursuit);
             Kills = 0;
             StartingMachines = startingMachines;
+            AttilaFaction = attilaFaction;
+            Script = script;
         }
-        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit, int startingMachines)
+        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit, int startingMachines, string attilaFaction, string script)
         {
             UnitType = unit_type;
             Type = type;
@@ -43,6 +47,8 @@ namespace CrusaderWars
             Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersAfterPursuit);
             Kills = 0;
             StartingMachines = startingMachines;
+            AttilaFaction = attilaFaction;
+            Script = script;
         }
 
         public int GetStartingMachines() { return StartingMachines; }
@@ -75,7 +81,18 @@ namespace CrusaderWars
         public int GetAliveBeforePursuit() {  return RemainingSoldiersBeforePursuit; }
         public int GetAliveAfterPursuit() { return RemainingSoldiersAfterPursuit; }
         public RegimentType GetUnitType() { return UnitType; }
-        public string GetTypeName() { return Type; }
+        public string GetTypeName()
+        {
+            if (UnitType == RegimentType.Levy)
+            {
+                return $"Levy ({Type})";
+            }
+            if (UnitType == RegimentType.Garrison)
+            {
+                return $"Garrison ({Type})";
+            }
+            return Type;
+        }
         public Culture GetCulture() { return Culture; }
         public int GetCasualties()
         {

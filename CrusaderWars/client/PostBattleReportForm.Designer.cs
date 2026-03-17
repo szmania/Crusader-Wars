@@ -302,7 +302,7 @@ namespace CrusaderWars.client
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
-            this.ClientSize = new System.Drawing.Size(984, 634);
+            this.ClientSize = new System.Drawing.Size(1200, 634);
             this.Controls.Add(this.lblWarScoreChange);
             this.Controls.Add(this.btnCopyToClipboard);
             this.Controls.Add(this.lblTotalRemaining);
@@ -325,7 +325,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.pictureBox1);
             // Use the logo from Properties.Resources directly instead of trying to get it from resources object
             // Icon assignment removed - crusader_conflicts_logo is a Bitmap, not an Icon
-            this.MinimumSize = new System.Drawing.Size(800, 600);
+            this.MinimumSize = new System.Drawing.Size(1000, 600);
             this.Name = "PostBattleReportForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Crusader Conflicts: After Action Report";

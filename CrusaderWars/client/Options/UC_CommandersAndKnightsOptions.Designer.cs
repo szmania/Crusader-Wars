@@ -161,7 +161,6 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.Controls.Add(this.numCommanderDisfigured, 1, 8);
             this.tableCommanders.Controls.Add(this.lblCommanderSlain, 0, 9);
             this.tableCommanders.Controls.Add(this.numCommanderSlain, 1, 9);
-            this.tableCommanders.Controls.Add(this.lblCommanderTotal, 1, 10);
             this.tableCommanders.Controls.Add(this.lblKnightPrisoner, 2, 1);
             this.tableCommanders.Controls.Add(this.numKnightPrisoner, 3, 1);
             this.tableCommanders.Controls.Add(this.lblKnightWounded, 2, 2);
@@ -180,7 +179,10 @@ namespace CrusaderWars.client.Options
             this.tableCommanders.Controls.Add(this.numKnightDisfigured, 3, 8);
             this.tableCommanders.Controls.Add(this.lblKnightSlain, 2, 9);
             this.tableCommanders.Controls.Add(this.numKnightSlain, 3, 9);
-            this.tableCommanders.Controls.Add(this.lblKnightTotal, 3, 10);
+            this.tableCommanders.Controls.Add(this.lblCommanderTotal, 0, 10);
+            this.tableCommanders.SetColumnSpan(this.lblCommanderTotal, 2);
+            this.tableCommanders.Controls.Add(this.lblKnightTotal, 2, 10);
+            this.tableCommanders.SetColumnSpan(this.lblKnightTotal, 2);
             this.tableCommanders.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableCommanders.Location = new System.Drawing.Point(3, 23);
             this.tableCommanders.Name = "tableCommanders";

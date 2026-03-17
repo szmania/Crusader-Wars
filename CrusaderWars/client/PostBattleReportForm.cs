@@ -24,6 +24,7 @@ namespace CrusaderWars.client
 
         private void PostBattleReportForm_Load(object sender, EventArgs e)
         {
+            treeViewReport.Font = new Font("Consolas", 9f);
             PopulateReport();
         }
 
@@ -42,7 +43,8 @@ namespace CrusaderWars.client
             // lblWeather.Text = $"Weather: {_report.Weather}"; // Removed weather display
 
             // Add Header for units
-            var headerNode = new TreeNode("Unit                                            | Deployed (Engines) | Losses (Engines) | Remaining (Engines) | Kills");
+            string headerText = String.Format("{0,-65} | {1,20} | {2,20} | {3,20} | {4,10}", "Unit", "Deployed (Engines)", "Losses (Engines)", "Remaining (Engines)", "Kills");
+            var headerNode = new TreeNode(headerText);
             headerNode.ForeColor = Color.LightGray;
             treeViewReport.Nodes.Add(headerNode);
 
@@ -142,51 +144,34 @@ namespace CrusaderWars.client
             {
                 var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName}) (Deployed: {army.TotalDeployed}, Losses: {army.TotalLosses}, Remaining: {army.TotalRemaining}, Kills: {army.TotalKills})");
                 
-                // Group units for display, especially for knights
-                var groupedUnits = army.Units
-                    .GroupBy(u => u.Ck3UnitType == "Knight" ? new { Ck3UnitType = u.Ck3UnitType, AttilaUnitKey = "KNIGHT_GROUP", AttilaUnitName = "Knights (Combined)" } : new { u.Ck3UnitType, u.AttilaUnitKey, u.AttilaUnitName }) // Group by type, key, and formatted name
-                    .Select(g => {
-                        var firstUnit = g.First();
-                        // Aggregate soldiers, losses, kills for grouped units
-                        return new UnitReport
-                        {
-                            AttilaUnitName = firstUnit.Ck3UnitType == "Knight" ? "Knights (Combined)" : firstUnit.AttilaUnitName, // Use a generic name for the combined group
-                            Deployed = g.Sum(u => u.Deployed),
-                            Losses = g.Sum(u => u.Losses),
-                            Remaining = g.Sum(u => u.Remaining),
-                            Kills = g.Sum(u => u.Kills),
-                            Ck3UnitType = firstUnit.Ck3UnitType,
-                            AttilaUnitKey = firstUnit.AttilaUnitKey,
-                            Ck3Heritage = firstUnit.Ck3Heritage,
-                            Ck3Culture = firstUnit.Ck3Culture,
-                            AttilaFaction = firstUnit.AttilaFaction,
-                            Characters = g.SelectMany(u => u.Characters).DistinctBy(c => c.Name).ToList(), // Collect all characters
-                            KnightDetails = g.SelectMany(u => u.KnightDetails).DistinctBy(k => k.Name).ToList(), // Collect all knight details
-                            IsSiegeUnit = g.Any(u => u.IsSiegeUnit),
-                            DeployedMachines = g.Sum(u => u.DeployedMachines),
-                            RemainingMachines = g.Sum(u => u.RemainingMachines),
-                            MachineLosses = g.Sum(u => u.MachineLosses)
-                        };
-                    })
+                // Display individual units without grouping
+                var individualUnits = army.Units
                     .OrderByDescending(u => u.Ck3UnitType == "Commander")
                     .ThenByDescending(u => u.Ck3UnitType == "Knight")
-                    .ThenByDescending(u => u.Ck3UnitType == "Garrison") // NEW: Prioritize Garrison units in display order
+                    .ThenByDescending(u => u.Ck3UnitType == "Garrison") // Prioritize Garrison units in display order
                     .ToList();
 
-                foreach (var unit in groupedUnits)
+                foreach (var unit in individualUnits)
                 {
+                    const int maxNameLength = 63;
+                    string displayName = unit.AttilaUnitName;
+                    if (displayName.Length > maxNameLength)
+                    {
+                        displayName = displayName.Substring(0, maxNameLength) + "..";
+                    }
+
                     string unitText;
                     if (unit.IsSiegeUnit)
                     {
                         string deployedStr = $"{unit.Deployed} ({unit.DeployedMachines})";
                         string lossesStr = $"{unit.Losses} ({unit.MachineLosses})";
                         string remainingStr = $"{unit.Remaining} ({unit.RemainingMachines})";
-                        unitText = $"{unit.AttilaUnitName.PadRight(47)} | {deployedStr.PadLeft(18)} | {lossesStr.PadLeft(6)} | {remainingStr.PadLeft(9)} | {unit.Kills.ToString().PadLeft(5)}";
+                        unitText = $"{displayName.PadRight(65)} | {deployedStr.PadLeft(20)} | {lossesStr.PadLeft(20)} | {remainingStr.PadLeft(20)} | {unit.Kills.ToString().PadLeft(10)}";
                     }
                     else
                     {
-                        unitText = String.Format("{0,-47} | {1,18} | {2,6} | {3,9} | {4,5}", 
-                            unit.AttilaUnitName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
+                        unitText = String.Format("{0,-65} | {1,20} | {2,20} | {3,20} | {4,10}",
+                            displayName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
                     }
                     var unitNode = new TreeNode(unitText);
                     unitNode.Tag = unit; // Store the full unit report object

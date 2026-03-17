@@ -776,7 +776,7 @@ namespace CrusaderWars.data.save_file
                     var distributedUnits = new List<Unit>();
                     foreach (var component in composition)
                     {
-                        int soldiersForComponent = (int)Math.Round(totalSoldiers * (component.porcentage / 100.0));
+                        int soldiersForComponent = (int)Math.Round(totalSoldiers * (component.percentage / 100.0));
                         
                         if (soldiersForComponent > 0)
                         {
