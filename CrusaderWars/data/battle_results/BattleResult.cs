@@ -3245,50 +3245,66 @@ namespace CrusaderWars.data.battle_results
             }
 
             string content = File.ReadAllText(path);
-            
-            Match activeOpinionsMatch = Regex.Match(content, @"(active_opinions\s*=\s*{)([\s\S]*)(^\s*})", RegexOptions.Multiline);
-            if (!activeOpinionsMatch.Success)
+            int activeOpinionsStartIndex = content.IndexOf("active_opinions={");
+
+            if (activeOpinionsStartIndex == -1)
             {
                 Program.Logger.Debug("Could not find active_opinions block. Skipping opinion edits.");
                 File.Copy(path, tempPath, true);
                 return;
             }
 
-            string header = activeOpinionsMatch.Groups[1].Value;
-            string opinionsBody = activeOpinionsMatch.Groups[2].Value;
-            string footer = activeOpinionsMatch.Groups[3].Value;
+            int bodyStartIndex = content.IndexOf('{', activeOpinionsStartIndex) + 1;
+            int braceCount = 1;
+            int bodyEndIndex = -1;
+
+            for (int i = bodyStartIndex; i < content.Length; i++)
+            {
+                if (content[i] == '{') braceCount++;
+                else if (content[i] == '}') braceCount--;
+
+                if (braceCount == 0)
+                {
+                    bodyEndIndex = i;
+                    break;
+                }
+            }
+
+            if (bodyEndIndex == -1)
+            {
+                Program.Logger.Debug("Warning: Could not find matching closing brace for active_opinions. Skipping opinion edits.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            string opinionsBody = content.Substring(bodyStartIndex, bodyEndIndex - bodyStartIndex);
             
             StringBuilder newOpinionsBody = new StringBuilder();
             int cursor = 0;
             while(cursor < opinionsBody.Length)
             {
                 int blockStart = opinionsBody.IndexOf('{', cursor);
-                if (blockStart == -1)
-                {
+                if (blockStart == -1) {
                     newOpinionsBody.Append(opinionsBody.Substring(cursor));
                     break;
                 }
-
                 newOpinionsBody.Append(opinionsBody.Substring(cursor, blockStart - cursor));
 
-                int braceCount = 0;
+                int innerBraceCount = 0;
                 int blockEnd = -1;
                 for (int i = blockStart; i < opinionsBody.Length; i++)
                 {
-                    if (opinionsBody[i] == '{') braceCount++;
-                    else if (opinionsBody[i] == '}') braceCount--;
-
-                    if (braceCount == 0)
-                    {
+                    if (opinionsBody[i] == '{') innerBraceCount++;
+                    else if (opinionsBody[i] == '}') innerBraceCount--;
+                    if (innerBraceCount == 0) {
                         blockEnd = i;
                         break;
                     }
                 }
 
-                if (blockEnd == -1)
-                {
+                if (blockEnd == -1) {
                     newOpinionsBody.Append(opinionsBody.Substring(blockStart));
-                    Program.Logger.Debug("Warning: Unmatched brace in opinions block. Appending rest of content as is.");
+                    Program.Logger.Debug("Warning: Unmatched brace in an inner opinion block. Appending rest of content as is.");
                     break;
                 }
 
@@ -3302,38 +3318,18 @@ namespace CrusaderWars.data.battle_results
                 if (needsDeletion)
                 {
                     int insertIndex = opinionBlock.LastIndexOf('}');
-                    string indentation = "\t\t\t"; 
-                    int lastNewLine = opinionBlock.LastIndexOf('\n', insertIndex);
-                    if(lastNewLine != -1)
+                    if (insertIndex != -1)
                     {
-                        indentation = "";
-                        for(int j = lastNewLine + 1; j < insertIndex; j++)
-                        {
-                            if(char.IsWhiteSpace(opinionBlock[j]))
-                            {
-                                indentation += opinionBlock[j];
-                            } else
-                            {
-                                indentation = "\t\t\t"; // fallback
-                                break;
-                            }
-                        }
+                        opinionBlock = opinionBlock.Insert(insertIndex, "\n\t\t\tdelete=yes");
+                        Program.Logger.Debug("Marked an opinion for deletion.");
                     }
-                    
-                    string modifiedBlock = opinionBlock.Insert(insertIndex, $"\n{indentation}delete=yes");
-                    newOpinionsBody.Append(modifiedBlock);
-                    Program.Logger.Debug("Marked an opinion for deletion.");
-                }
-                else
-                {
-                    newOpinionsBody.Append(opinionBlock);
                 }
                 
+                newOpinionsBody.Append(opinionBlock);
                 cursor = blockEnd + 1;
             }
 
-            string finalContent = content.Substring(0, activeOpinionsMatch.Groups[2].Index) + newOpinionsBody.ToString() + footer;
-
+            string finalContent = content.Substring(0, bodyStartIndex) + newOpinionsBody.ToString() + content.Substring(bodyEndIndex);
             File.WriteAllText(tempPath, finalContent);
             Program.Logger.Debug("Finished editing Opinions file.");
         }
