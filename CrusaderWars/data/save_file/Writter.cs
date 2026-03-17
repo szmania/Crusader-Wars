@@ -18,6 +18,7 @@ namespace CrusaderWars.data.save_file
         static bool Wars_NeedsSkiping { get; set; }
         static bool VassalContracts_NeedsSkiping { get; set; }
         static bool Opinions_NeedsSkiping { get; set; }
+        static bool CourtPositions_NeedsSkiping { get; set; }
         public static void SendDataToFile(string savePath)
         {
             // Reset static state variables
@@ -29,6 +30,7 @@ namespace CrusaderWars.data.save_file
             Wars_NeedsSkiping = false;
             VassalContracts_NeedsSkiping = false;
             Opinions_NeedsSkiping = false;
+            CourtPositions_NeedsSkiping = false;
 
             Program.Logger.Debug($"Starting to write data back to save file: {Path.GetFullPath(savePath)}");
             // Removed resultsFound and combatsFound boolean variables.
@@ -102,6 +104,13 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("Finished skipping Opinions block.");
                         Program.Logger.Debug($"Stopped skipping at line: {line}");
                         Opinions_NeedsSkiping = false;
+                        continue;
+                    }
+                    else if (CourtPositions_NeedsSkiping && line == "}")
+                    {
+                        Program.Logger.Debug("Finished skipping CourtPositions block.");
+                        Program.Logger.Debug($"Stopped skipping at line: {line}");
+                        CourtPositions_NeedsSkiping = false;
                         continue;
                     }
                     else if (PlayedCharacter_NeedsSkipping && line == "}")
@@ -191,6 +200,22 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("EDITED CURRENTLY PLAYED CHARACTERS SENT!");
                         continue;
                     }
+                    else if (line == "court_positions={" && !CourtPositions_NeedsSkiping)
+                    {
+                        string tempCourtPositionsPath = DataTEMPFilesPaths.CourtPositions_Path();
+                        if (File.Exists(tempCourtPositionsPath) && new FileInfo(tempCourtPositionsPath).Length > 0)
+                        {
+                            Program.Logger.Debug("Writing modified CourtPositions block.");
+                            WriteDataToSaveFile(streamWriter, tempCourtPositionsPath, FileType.CourtPositions);
+                            Program.Logger.Debug("EDITED COURT POSITIONS SENT!");
+                            CourtPositions_NeedsSkiping = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Temporary CourtPositions file not found or is empty. Preserving original block.");
+                            streamWriter.WriteLine(line);
+                        }
+                    }
                     // NEW BLOCK: Replace the entire sieges block when "sieges={" is encountered
                     else if (line == "sieges={" && !Sieges_NeedsSkiping)
                     {
@@ -250,7 +275,7 @@ namespace CrusaderWars.data.save_file
                             streamWriter.WriteLine(line);
                         }
                     }
-                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping && !VassalContracts_NeedsSkiping && !Opinions_NeedsSkiping)
+                    else if (!NeedSkiping && !CombatResults_NeedsSkiping && !Combats_NeedsSkiping && !Sieges_NeedsSkiping && !PlayedCharacter_NeedsSkipping && !Wars_NeedsSkiping && !VassalContracts_NeedsSkiping && !Opinions_NeedsSkiping && !CourtPositions_NeedsSkiping)
                     {
                         streamWriter.WriteLine(line);
                     }
@@ -297,7 +322,8 @@ namespace CrusaderWars.data.save_file
             CurrentlyPlayedCharacters,
             Wars,
             VassalContracts,
-            Opinions
+            Opinions,
+            CourtPositions
         }
 
         public struct DataFilesPaths

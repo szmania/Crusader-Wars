@@ -595,35 +595,40 @@ namespace CrusaderWars
 		private static bool Start_CourtPositionsFound { get; set; }
 		private static bool End_CourtPositionsFound { get; set; }
 		public static bool HasCourtPositionsExtracted { get; set; }
+        private static int courtPositionsBraceCount = 0;
 		public static void CourtPositions(string line)
 		{
 			if (!HasCourtPositionsExtracted)
 			{
 				if (!Start_CourtPositionsFound)
 				{
-					//Match start = Regex.Match(line, @"living={");
 					if (line == "court_positions={")
 					{
 						Program.Logger.Debug("Found start of court_positions block.");
 						Start_CourtPositionsFound = true;
+                        courtPositionsBraceCount = 0;
 					}
 				}
 
 				if (Start_CourtPositionsFound && !End_CourtPositionsFound)
 				{
-					if (line == "}")
+                    Data.SB_CourtPositions.AppendLine(line);
+
+                    foreach (char c in line)
+                    {
+                        if (c == '{') courtPositionsBraceCount++;
+                        else if (c == '}') courtPositionsBraceCount--;
+                    }
+
+					if (courtPositionsBraceCount == 0 && Start_CourtPositionsFound)
 					{
-						Program.Logger.Debug("Found end of court_positions block.");
+						Program.Logger.Debug("Found end of court_positions block by bracket counting.");
 						Program.Logger.Debug($"Writing {Data.SB_CourtPositions.Length} characters to CourtPositions.txt");
-						//Write Units Data to txt file
 						File.WriteAllText(@".\data\save_file_data\CourtPositions.txt", Data.SB_CourtPositions.ToString());
 						Data.SB_CourtPositions = new StringBuilder();
 						GC.Collect();
 						End_CourtPositionsFound = true;
-						return;
 					}
-
-					Data.SB_CourtPositions.AppendLine(line);
 				}
 
 				if (End_CourtPositionsFound)
@@ -631,6 +636,7 @@ namespace CrusaderWars
 					HasCourtPositionsExtracted = true;
 					Start_CourtPositionsFound = false;
 					End_CourtPositionsFound = false;
+                    courtPositionsBraceCount = 0;
 				}
 			}
 		}
