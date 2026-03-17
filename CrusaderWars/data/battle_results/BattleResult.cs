@@ -1347,41 +1347,30 @@ namespace CrusaderWars.data.battle_results
                         int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
                         int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
 
-                        string? originalVassalId = (vassalIdx != -1) ? Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value : null;
-                        string? currentVassalId = originalVassalId;
+                        string? currentVassalId = (vassalIdx != -1) ? Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value : null;
                         string? currentLiegeId = (liegeIdx != -1) ? Regex.Match(block[liegeIdx], @"liege=(\d+)").Groups[1].Value : null;
 
-                        // Liege Succession (Successor inherits contracts of the slain liege)
-                        foreach (var pendingData in PendingLandedData)
+                        // Update Liege if slain
+                        if (currentLiegeId != null && successorLookup.TryGetValue(currentLiegeId, out string? liegeSuccessorId))
                         {
-                            if (pendingData.Value.VassalContractIds.Contains(contractId))
-                            {
-                                string successorId = pendingData.Key;
-                                if (liegeIdx != -1)
-                                {
-                                    string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
-                                    block[liegeIdx] = $"{indent}liege={successorId}";
-                                    currentLiegeId = successorId;
-                                    isModified = true;
-                                    Program.Logger.Debug($"Contract {contractId}: Inherited by successor {successorId}. Updating liege.");
-                                }
-                            }
+                            string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
+                            block[liegeIdx] = $"{indent}liege={liegeSuccessorId}";
+                            currentLiegeId = liegeSuccessorId;
+                            isModified = true;
+                            Program.Logger.Debug($"Contract {contractId}: Updated liege from slain character to successor {liegeSuccessorId}.");
                         }
 
-                        // Vassal Succession (Vassal is slain and replaced by their successor)
+                        // Update Vassal if slain
                         if (currentVassalId != null && successorLookup.TryGetValue(currentVassalId, out string? vassalSuccessorId))
                         {
-                            if (vassalIdx != -1)
-                            {
-                                string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
-                                block[vassalIdx] = $"{indent}vassal={vassalSuccessorId}";
-                                currentVassalId = vassalSuccessorId;
-                                isModified = true;
-                                Program.Logger.Debug($"Contract {contractId}: Updated vassal from slain {originalVassalId} to successor {vassalSuccessorId}.");
-                            }
+                            string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
+                            block[vassalIdx] = $"{indent}vassal={vassalSuccessorId}";
+                            currentVassalId = vassalSuccessorId;
+                            isModified = true;
+                            Program.Logger.Debug($"Contract {contractId}: Updated vassal from slain character to successor {vassalSuccessorId}.");
                         }
 
-                        // Self-contract check
+                        // Self-contract check: if vassal and liege are the same after updates, invalidate the contract.
                         if (currentVassalId != null && currentLiegeId != null && currentVassalId == currentLiegeId)
                         {
                             sw.WriteLine($"\t{contractId}=none");
