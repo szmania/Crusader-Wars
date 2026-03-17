@@ -1465,6 +1465,8 @@ namespace CrusaderWars.data.battle_results
                 return;
             }
 
+            var successorLookup = PendingLandedData.ToDictionary(kvp => kvp.Value.SlainCharId, kvp => kvp.Key);
+
             using (StreamReader sr = new StreamReader(path))
             using (StreamWriter sw = new StreamWriter(tempPath))
             {
@@ -1474,6 +1476,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (Regex.IsMatch(line, @"^\t\d+={"))
                     {
+                        string contractId = Regex.Match(line, @"\t(\d+)={").Groups[1].Value;
                         List<string> block = new List<string> { line };
                         int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
                         while (braceCount > 0 && (line = sr.ReadLine()) != null)
@@ -1483,32 +1486,60 @@ namespace CrusaderWars.data.battle_results
                             braceCount -= line.Count(c => c == '}');
                         }
 
-                        string? employerId = block.FirstOrDefault(l => l.Trim().StartsWith("employer="))?.Split('=')[1].Trim();
-                        string? employeeId = block.FirstOrDefault(l => l.Trim().StartsWith("employee="))?.Split('=')[1].Trim();
+                        int employerIdx = block.FindIndex(l => l.Trim().StartsWith("employer="));
+                        int employeeIdx = block.FindIndex(l => l.Trim().StartsWith("employee="));
 
-                        bool employerSlain = false;
-                        bool employeeSlain = false;
+                        string? originalEmployerId = (employerIdx != -1) ? Regex.Match(block[employerIdx], @"=(\d+)").Groups[1].Value : null;
+                        string? originalEmployeeId = (employeeIdx != -1) ? Regex.Match(block[employeeIdx], @"=(\d+)").Groups[1].Value : null;
 
-                        if (!string.IsNullOrEmpty(employerId))
+                        string? currentEmployerId = originalEmployerId;
+                        string? currentEmployeeId = originalEmployeeId;
+
+                        // Check and update employer
+                        if (currentEmployerId != null && successorLookup.TryGetValue(currentEmployerId, out string? employerSuccessorId))
                         {
-                            var search = SearchCharacters(employerId, allArmies);
-                            employerSlain = (search.isCommander && search.commander.IsSlain) || (search.isKnight && search.knight.HasFallen());
+                            string indentation = block[employerIdx].Substring(0, block[employerIdx].IndexOf("employer="));
+                            block[employerIdx] = $"{indentation}employer={employerSuccessorId}";
+                            currentEmployerId = employerSuccessorId; // update for the self-check
+                            Program.Logger.Debug($"Court Position {contractId}: Updated employer from slain {originalEmployerId} to successor {employerSuccessorId}.");
                         }
-                        if (!string.IsNullOrEmpty(employeeId))
+
+                        // Check and update employee
+                        if (currentEmployeeId != null && successorLookup.TryGetValue(currentEmployeeId, out string? employeeSuccessorId))
                         {
-                            var search = SearchCharacters(employeeId, allArmies);
-                            employeeSlain = (search.isCommander && search.commander.IsSlain) || (search.isKnight && search.knight.HasFallen());
+                            string indentation = block[employeeIdx].Substring(0, block[employeeIdx].IndexOf("employee="));
+                            block[employeeIdx] = $"{indentation}employee={employeeSuccessorId}";
+                            currentEmployeeId = employeeSuccessorId; // update for the self-check
+                            Program.Logger.Debug($"Court Position {contractId}: Updated employee from slain {originalEmployeeId} to successor {employeeSuccessorId}.");
                         }
 
-                        if (employerSlain || employeeSlain)
+                        // Self-employment check
+                        if (currentEmployerId != null && currentEmployeeId != null && currentEmployerId == currentEmployeeId)
                         {
-                            string charId = Regex.Match(block[0], @"\t(\d+)={").Groups[1].Value;
-                            sw.WriteLine($"\t{charId}=none");
-                            Program.Logger.Debug($"Set court position {charId} to none because {(employerSlain ? "employer" : "employee")} was slain.");
+                            sw.WriteLine($"\t{contractId}=none");
+                            Program.Logger.Debug($"Court Position {contractId}: Set to none because employer and employee are the same character ({currentEmployerId}).");
+                            continue; // Skip writing the block
+                        }
+
+                        // Fallback: Original logic to remove if a character is slain and has no successor
+                        bool employerSlain = originalEmployerId != null && allArmies.Any(a => (a.Commander?.ID == originalEmployerId && a.Commander.IsSlain) || (a.Knights?.GetKnightsList().Any(k => k.GetID() == originalEmployerId && k.IsSlain) ?? false));
+                        bool employeeSlain = originalEmployeeId != null && allArmies.Any(a => (a.Commander?.ID == originalEmployeeId && a.Commander.IsSlain) || (a.Knights?.GetKnightsList().Any(k => k.GetID() == originalEmployeeId && k.IsSlain) ?? false));
+
+                        bool employerReplaced = currentEmployerId != originalEmployerId;
+                        bool employeeReplaced = currentEmployeeId != originalEmployeeId;
+
+                        if ((employerSlain && !employerReplaced) || (employeeSlain && !employeeReplaced))
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            Program.Logger.Debug($"Court Position {contractId}: Set to none because a participant was slain without a successor.");
                             continue;
                         }
 
-                        foreach (var bLine in block) sw.WriteLine(bLine);
+                        // If we get here, write the block (modified or original)
+                        foreach (var bLine in block)
+                        {
+                            sw.WriteLine(bLine);
+                        }
                     }
                     else
                     {
