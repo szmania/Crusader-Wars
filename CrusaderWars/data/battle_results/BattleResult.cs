@@ -43,6 +43,7 @@ namespace CrusaderWars.data.battle_results
             public double Gold { get; set; } = 0;
             public List<string> IncomeBlock { get; set; } = new List<string>();
             public List<string> VassalContractIds { get; set; } = new List<string>();
+            public List<string> PlayableDataBlock { get; set; } = new List<string>();
         }
 
         public static Dictionary<string, SuccessorTransferData> PendingLandedData = new Dictionary<string, SuccessorTransferData>();
@@ -573,6 +574,21 @@ namespace CrusaderWars.data.battle_results
                             Program.Logger.Debug($"Extracted {contractIds.Length} vassal contract IDs for slain character {slainCharId}");
                         }
                     }
+                }
+
+                // Extract playable_data
+                int playableDataStart = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                if (playableDataStart != -1)
+                {
+                    int pBraceCount = 0;
+                    for (int i = playableDataStart; i < charBlock.Count; i++)
+                    {
+                        data.PlayableDataBlock.Add(charBlock[i]);
+                        pBraceCount += charBlock[i].Count(c => c == '{');
+                        pBraceCount -= charBlock[i].Count(c => c == '}');
+                        if (pBraceCount == 0) break;
+                    }
+                    Program.Logger.Debug($"Extracted playable_data block for slain character {slainCharId}.");
                 }
 
                 PendingLandedData[successorId] = data;
@@ -1162,6 +1178,88 @@ namespace CrusaderWars.data.battle_results
 
                 charBlock.RemoveRange(existingLandedIdx, endIdx - existingLandedIdx + 1);
                 charBlock.InsertRange(existingLandedIdx, successorLanded);
+            }
+
+            // Transfer Playable Data
+            if (transferData.PlayableDataBlock.Any())
+            {
+                Program.Logger.Debug($"Applying playable_data transfer to successor {successorId}.");
+                List<string> playableBlock = new List<string>(transferData.PlayableDataBlock);
+
+                // Modify knights list
+                int knightsIdx = playableBlock.FindIndex(l => l.Trim().StartsWith("knights={"));
+                if (knightsIdx != -1)
+                {
+                    string line = playableBlock[knightsIdx];
+                    var ids = Regex.Match(line, @"knights=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    
+                    if (ids.Remove(successorId))
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("knights="));
+                        playableBlock[knightsIdx] = $"{indentation}knights={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed successor {successorId} from transferred knights list.");
+                    }
+                }
+
+                // Handle diarchy_successor
+                string? successorSuccessorId = null;
+                int succPlayableIdxInCharBlock = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                if (succPlayableIdxInCharBlock != -1)
+                {
+                    int diarchyIdx = charBlock.FindIndex(succPlayableIdxInCharBlock, l => l.Trim().StartsWith("diarchy_successor="));
+                    if (diarchyIdx != -1)
+                    {
+                        successorSuccessorId = Regex.Match(charBlock[diarchyIdx], @"diarchy_successor=(\d+)").Groups[1].Value;
+                    }
+                }
+
+                int transferDiarchyIdx = playableBlock.FindIndex(l => l.Trim().StartsWith("diarchy_successor="));
+                if (transferDiarchyIdx != -1)
+                {
+                    if (!string.IsNullOrEmpty(successorSuccessorId))
+                    {
+                        string indentation = playableBlock[transferDiarchyIdx].Substring(0, playableBlock[transferDiarchyIdx].IndexOf("diarchy_successor="));
+                        playableBlock[transferDiarchyIdx] = $"{indentation}diarchy_successor={successorSuccessorId}";
+                        Program.Logger.Debug($"Updated diarchy_successor in transferred playable_data to {successorSuccessorId}.");
+                    }
+                    else
+                    {
+                        playableBlock.RemoveAt(transferDiarchyIdx);
+                        Program.Logger.Debug("Removed diarchy_successor from transferred playable_data as successor has no heir.");
+                    }
+                }
+
+                // Insert the modified playable_data block into the successor's character block
+                // It should replace any existing playable_data block the successor might have.
+                if (succPlayableIdxInCharBlock != -1)
+                {
+                    // Remove existing block
+                    int bCount = 0;
+                    int endIdx = -1;
+                    for (int i = succPlayableIdxInCharBlock; i < charBlock.Count; i++)
+                    {
+                        bCount += charBlock[i].Count(c => c == '{');
+                        bCount -= charBlock[i].Count(c => c == '}');
+                        if (bCount == 0) { endIdx = i; break; }
+                    }
+                    if (endIdx != -1)
+                    {
+                        charBlock.RemoveRange(succPlayableIdxInCharBlock, endIdx - succPlayableIdxInCharBlock + 1);
+                        charBlock.InsertRange(succPlayableIdxInCharBlock, playableBlock);
+                        Program.Logger.Debug($"Replaced existing playable_data for successor {successorId}.");
+                    }
+                }
+                else
+                {
+                    // Insert new block
+                    int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}");
+                    if (insertPos != -1)
+                    {
+                        charBlock.InsertRange(insertPos, playableBlock);
+                        Program.Logger.Debug($"Inserted new playable_data for successor {successorId}.");
+                    }
+                }
             }
 
             // Transfer Gold and Income to successor's alive_data
