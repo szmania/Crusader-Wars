@@ -27,6 +27,8 @@ using CrusaderWars.sieges; // Added for SiegeEngineGenerator
 using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 
+using System.Windows.Forms;
+
 namespace CrusaderWars
 {
     
