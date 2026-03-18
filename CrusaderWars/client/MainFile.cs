@@ -3402,11 +3402,7 @@ namespace CrusaderWars
                 allStrategies.Remove(BattleProcessor.AutofixState.AutofixStrategy.MapSize);
             }
 
-            // Initialize autofixState to determine if fix is needed
-            var processor = new BattleProcessor();
-            var autofixState = processor.GetAutofixState();
-
-            var toolSelector = new ToolSelectorForm(allStrategies, autofixState.IsFixNeeded);
+            var toolSelector = new ToolSelectorForm(allStrategies, false);
             var (userResponse, chosenStrategy) = toolSelector.ShowDialogWithResult();
 
             if (userResponse == DialogResult.No || chosenStrategy == null)
