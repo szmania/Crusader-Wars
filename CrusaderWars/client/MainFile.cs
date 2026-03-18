@@ -3386,7 +3386,7 @@ namespace CrusaderWars
         {
             try
             {
-                string saveGamePath = Properties.Settings.Default.CK3_Saves;
+                string saveGamePath = CrusaderWars.Settings.CK3SavesPath;
                 if (string.IsNullOrEmpty(saveGamePath) || !Directory.Exists(saveGamePath))
                 {
                     MessageBox.Show("CK3 save game path is not configured or not found. Please check settings.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -3405,14 +3405,15 @@ namespace CrusaderWars
                 }
 
                 Program.Logger.Debug($"Found latest save file for Battle Tools: {latestSave.FullName}");
-                SaveFile.ExtractGamestate(latestSave.FullName);
+                string playthroughTag = GetActivePlaythroughTag();
+                SaveFile.ExtractGamestate(latestSave.FullName, playthroughTag);
                 Program.Logger.Debug("Gamestate extracted successfully for Battle Tools.");
                 return true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to prepare battle data from save file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Program.Logger.Error($"Failed to extract gamestate for Battle Tools: {ex.ToString()}");
+                Program.Logger.Debug($"Failed to extract gamestate for Battle Tools: {ex.ToString()}");
                 return false;
             }
         }
