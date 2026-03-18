@@ -3499,6 +3499,11 @@ namespace CrusaderWars
 
                 // 1. Read battle armies
                 DataSearch.FindSiegeCombatID();
+                if (!twbattle.BattleState.IsSiegeBattle)
+                {
+                    BattleResult.GetPlayerCombatResult();
+                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                }
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
@@ -3634,6 +3639,11 @@ namespace CrusaderWars
                 // Read armies to get total soldier count for map size calculation
                 DataSearch.FindSiegeCombatID();
                 BattleResult.ReadCombatBlockByProvinceID(); // Read province name from combat block
+                if (!twbattle.BattleState.IsSiegeBattle)
+                {
+                    BattleResult.GetPlayerCombatResult();
+                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                }
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
