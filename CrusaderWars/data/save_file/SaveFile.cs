@@ -150,7 +150,7 @@ namespace CrusaderWars.data.save_file
         }
 
 
-        internal static void ExtractGamestate(string zipFilePath, string extractPath)
+        public static void ExtractGamestate(string zipFilePath, string extractPath)
         {
             if (File.Exists(@".\data\save_file_data\gamestate_file\gamestate"))
                 File.Delete(@".\data\save_file_data\gamestate_file\gamestate");

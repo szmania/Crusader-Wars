@@ -3387,7 +3387,7 @@ namespace CrusaderWars
         {
             try
             {
-                string saveGamePath = Settings.Default.CK3_Saves;
+                string saveGamePath = Settings.Default.VAR_dir_save;
                 if (string.IsNullOrEmpty(saveGamePath) || !Directory.Exists(saveGamePath))
                 {
                     MessageBox.Show("CK3 save game path is not configured or not found. Please check settings.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
