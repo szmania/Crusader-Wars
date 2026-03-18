@@ -3385,38 +3385,11 @@ namespace CrusaderWars
 
         private bool PrepareBattleDataContext()
         {
-            try
-            {
-                string saveGamePath = Settings.Default.VAR_dir_save;
-                if (string.IsNullOrEmpty(saveGamePath) || !Directory.Exists(saveGamePath))
-                {
-                    MessageBox.Show("CK3 save game path is not configured or not found. Please check settings.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-
-                var directory = new DirectoryInfo(saveGamePath);
-                var latestSave = directory.GetFiles("*.ck3")
-                    .OrderByDescending(f => f.LastWriteTime)
-                    .FirstOrDefault();
-
-                if (latestSave == null)
-                {
-                    MessageBox.Show("No CK3 save files found in the configured directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-
-                Program.Logger.Debug($"Found latest save file for Battle Tools: {latestSave.FullName}");
-                string gamestatePath = @".\data\save_file_data\gamestate_file\";
-                SaveFile.ExtractGamestate(latestSave.FullName, gamestatePath);
-                Program.Logger.Debug("Gamestate extracted successfully for Battle Tools.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Failed to prepare battle data from save file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Program.Logger.Debug($"Failed to extract gamestate for Battle Tools: {ex.ToString()}");
-                return false;
-            }
+            // This method was attempting to re-extract the gamestate from a save file,
+            // which is unnecessary and causes errors when the "Battle Tools" button is used
+            // during an active battle. The gamestate is already extracted at this point.
+            Program.Logger.Debug("PrepareBattleDataContext: Skipping gamestate extraction as battle is in progress.");
+            return true;
         }
 
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
