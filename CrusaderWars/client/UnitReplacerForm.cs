@@ -580,6 +580,7 @@ namespace CrusaderWars.client
             // Apply the new positions
             btnReplace.Left = newButtonX;
             btnUndo.Left = newButtonX;
+            btnReset.Left = newButtonX;
         }
 
 
