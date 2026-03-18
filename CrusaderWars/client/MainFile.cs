@@ -27,6 +27,8 @@ using CrusaderWars.sieges; // Added for SiegeEngineGenerator
 using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace CrusaderWars
@@ -3380,22 +3382,61 @@ namespace CrusaderWars
             }
         }
 
+        private bool PrepareBattleDataContext()
+        {
+            try
+            {
+                string saveGamePath = Properties.Settings.Default.CK3_Saves;
+                if (string.IsNullOrEmpty(saveGamePath) || !Directory.Exists(saveGamePath))
+                {
+                    MessageBox.Show("CK3 save game path is not configured or not found. Please check settings.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                var directory = new DirectoryInfo(saveGamePath);
+                var latestSave = directory.GetFiles("*.ck3")
+                    .OrderByDescending(f => f.LastWriteTime)
+                    .FirstOrDefault();
+
+                if (latestSave == null)
+                {
+                    MessageBox.Show("No CK3 save files found in the configured directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                Program.Logger.Debug($"Found latest save file for Battle Tools: {latestSave.FullName}");
+                SaveFile.ExtractGamestate(latestSave.FullName);
+                Program.Logger.Debug("Gamestate extracted successfully for Battle Tools.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to prepare battle data from save file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Program.Logger.Error($"Failed to extract gamestate for Battle Tools: {ex.ToString()}");
+                return false;
+            }
+        }
+
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
         {
             string originalInfoText = infoLabel.Text;
             infoLabel.Text = "Loading Battle Tools...";
 
-            // Load log snippet to determine if it's a siege battle to correctly populate strategies.
-            string? logSnippet = BattleState.LoadLogSnippet();
-            if (logSnippet == null)
+            if (!PrepareBattleDataContext())
             {
-                MessageBox.Show(this, "Could not find saved battle information. The tools cannot be used until a battle has been started and saved.", "Battle Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 infoLabel.Text = originalInfoText;
                 return;
             }
-            DataSearch.Search(logSnippet); // This sets BattleState.IsSiegeBattle
 
-            // Simplified tool selection dialog
+            string? logSnippet = BattleState.LoadLogSnippet();
+            if (logSnippet == null)
+            {
+                MessageBox.Show(this, "Could not find saved battle information (log snippet). The tools cannot be used until a battle has been started and saved.", "Battle Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                infoLabel.Text = originalInfoText;
+                return;
+            }
+            DataSearch.Search(logSnippet);
+
             using (var form = new Form())
             {
                 form.Text = "Select a Battle Tool";
@@ -3426,7 +3467,7 @@ namespace CrusaderWars
                 }
             }
             
-            infoLabel.Text = originalInfoText; // Reset label after tool is used or cancelled
+            infoLabel.Text = originalInfoText;
         }
 
         public void LaunchUnitReplacerTool()
