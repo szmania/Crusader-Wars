@@ -3444,6 +3444,7 @@ namespace CrusaderWars
 
         public void LaunchUnitReplacerTool()
         {
+            Program.Logger.Debug("LaunchUnitReplacerTool called.");
             try
             {
                 Program.Logger.Debug("--- Manual AutoFixer Launched from UI ---");
@@ -3578,6 +3579,7 @@ namespace CrusaderWars
 
         public void LaunchDeploymentZoneEditor()
         {
+            Program.Logger.Debug("LaunchDeploymentZoneEditor called.");
             try
             {
                 Program.Logger.Debug("--- Manual Deployment Zone Editor Launched from UI ---");
