@@ -27,8 +27,6 @@ using CrusaderWars.sieges; // Added for SiegeEngineGenerator
 using CrusaderWars.data.battle_results; // Added for BattleResult class
 
 
-using CrusaderWars.client;
-
 namespace CrusaderWars
 {
     
