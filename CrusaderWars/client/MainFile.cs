@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CrusaderWars.client;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
