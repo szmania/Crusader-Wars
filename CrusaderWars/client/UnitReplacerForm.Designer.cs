@@ -48,6 +48,7 @@ namespace CrusaderWars.client
             this.btnNextAvailable = new System.Windows.Forms.Button();
             this.btnSearchCurrent = new System.Windows.Forms.Button();
             this.btnSearchAvailable = new System.Windows.Forms.Button();
+            this.btnReset = new System.Windows.Forms.Button();
             this.lblCurrentSearch = new System.Windows.Forms.Label();
             this.lblAvailableSearch = new System.Windows.Forms.Label();
             this.InstructionsBox.SuspendLayout();
