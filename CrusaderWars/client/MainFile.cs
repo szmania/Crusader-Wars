@@ -3401,9 +3401,8 @@ namespace CrusaderWars
                 allStrategies.Remove(BattleProcessor.AutofixState.AutofixStrategy.MapSize);
             }
 
-            // var (userResponse, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, allStrategies, isAfterCrash: false); // Method doesn't exist - commented out
-            DialogResult userResponse = DialogResult.No;
-            BattleProcessor.AutofixState.AutofixStrategy? chosenStrategy = null;
+            var toolSelector = new ToolSelectorForm(allStrategies, autofixState.IsFixNeeded);
+            var (userResponse, chosenStrategy) = toolSelector.ShowDialogWithResult();
 
             if (userResponse == DialogResult.No || chosenStrategy == null)
             {
