@@ -82,7 +82,7 @@ namespace CrusaderWars.client
             this.btnReplace.Name = "btnReplace";
             this.btnReplace.Size = new System.Drawing.Size(100, 23);
             this.btnReplace.TabIndex = 2;
-            this.btnReplace.Text = "-> Replace ->";
+            this.btnReplace.Text = "<-> Replace <->";
             this.btnReplace.UseVisualStyleBackColor = true;
             this.btnReplace.Click += new System.EventHandler(this.btnReplace_Click);
             // 
