@@ -3498,13 +3498,13 @@ namespace CrusaderWars
 
 
                 // 1. Read battle armies
+                DataSearch.FindSiegeCombatID();
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
                     MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                DataSearch.FindSiegeCombatID();
                 Program.Logger.Debug($"LaunchAutoFixer: Read {attackerArmies.Count} attacker and {defenderArmies.Count} defender armies.");
 
 
@@ -3632,14 +3632,14 @@ namespace CrusaderWars
 
 
                 // Read armies to get total soldier count for map size calculation
+                DataSearch.FindSiegeCombatID();
+                BattleResult.ReadCombatBlockByProvinceID(); // Read province name from combat block
                 var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
                     MessageBox.Show("Could not read army data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                DataSearch.FindSiegeCombatID();
-                BattleResult.ReadCombatBlockByProvinceID(); // Read province name from combat block
                 int total_soldiers = attackerArmies.Sum(a => a.GetTotalSoldiers()) + defenderArmies.Sum(a => a.GetTotalSoldiers());
                 string option_map_size = ModOptions.DeploymentsZones();
 
