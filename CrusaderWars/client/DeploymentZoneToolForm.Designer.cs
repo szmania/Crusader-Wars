@@ -49,6 +49,7 @@ namespace CrusaderWars.client
             this.lblDefenderX = new System.Windows.Forms.Label();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.btnReset = new System.Windows.Forms.Button();
             this.lblBattleDate = new System.Windows.Forms.Label();
             this.lblBattleType = new System.Windows.Forms.Label();
             this.lblProvinceName = new System.Windows.Forms.Label();
