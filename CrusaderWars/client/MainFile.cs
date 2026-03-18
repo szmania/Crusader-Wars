@@ -3395,52 +3395,37 @@ namespace CrusaderWars
             }
             DataSearch.Search(logSnippet); // This sets BattleState.IsSiegeBattle
 
-            var allStrategies = Enum.GetValues(typeof(BattleProcessor.AutofixState.AutofixStrategy))
-                                   .Cast<BattleProcessor.AutofixState.AutofixStrategy>()
-                                   .ToList();
-
-            if (BattleState.IsSiegeBattle)
+            // Simplified tool selection dialog
+            using (var form = new Form())
             {
-                allStrategies.Remove(BattleProcessor.AutofixState.AutofixStrategy.MapSize);
-            }
+                form.Text = "Select a Battle Tool";
+                form.Size = new System.Drawing.Size(300, 150);
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.MaximizeBox = false;
+                form.MinimizeBox = false;
 
-            var toolSelector = new ToolSelectorForm(allStrategies, false);
-            var (userResponse, chosenStrategy) = toolSelector.ShowDialogWithResult();
+                var btnUnitReplacer = new Button() { Text = "Unit Replacer", Left = 50, Top = 20, Width = 200, Height = 30 };
+                var btnDeploymentEditor = new Button() { Text = "Deployment Zone Editor", Left = 50, Top = 60, Width = 200, Height = 30 };
 
-            if (userResponse == DialogResult.No || chosenStrategy == null)
-            {
-                Program.Logger.Debug("User cancelled tool selection.");
-                infoLabel.Text = originalInfoText; // Reset label
-                return;
-            }
+                btnUnitReplacer.Click += (s, ev) => { form.DialogResult = DialogResult.Yes; form.Close(); };
+                btnDeploymentEditor.Click += (s, ev) => { form.DialogResult = DialogResult.No; form.Close(); };
 
-            switch (chosenStrategy)
-            {
-                case BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement:
+                form.Controls.Add(btnUnitReplacer);
+                form.Controls.Add(btnDeploymentEditor);
+                form.AcceptButton = btnUnitReplacer;
+
+                var result = form.ShowDialog();
+                if (result == DialogResult.Yes)
+                {
                     LaunchUnitReplacerTool();
-                    break;
-                case BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor:
+                }
+                else if (result == DialogResult.No)
+                {
                     LaunchDeploymentZoneEditor();
-                    break;
-                case BattleProcessor.AutofixState.AutofixStrategy.MapSize:
-                    // For now, cycle through Big -> Huge -> default
-                    string nextSize = BattleState.AutofixDeploymentSizeOverride == "Big" ? "Huge" : "Big";
-                    BattleState.AutofixDeploymentSizeOverride = nextSize;
-                    MessageBox.Show($"Autofix setting applied: Map size will be forced to '{nextSize}' for the next battle.", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    break;
-                case BattleProcessor.AutofixState.AutofixStrategy.Deployment:
-                    BattleState.AutofixDeploymentRotationOverride = !(BattleState.AutofixDeploymentRotationOverride ?? false);
-                    string rotationState = BattleState.AutofixDeploymentRotationOverride == true ? "enabled" : "disabled";
-                    MessageBox.Show($"Autofix setting applied: Deployment rotation is now {rotationState} for the next battle.", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    break;
-                case BattleProcessor.AutofixState.AutofixStrategy.MapVariant:
-                    BattleState.AutofixMapVariantOffset++;
-                    MessageBox.Show($"Autofix setting applied: Map variant offset will be increased by 1 for the next battle (current offset: {BattleState.AutofixMapVariantOffset}).", "Autofix Applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    break;
-                case BattleProcessor.AutofixState.AutofixStrategy.Units:
-                    MessageBox.Show("The 'Change Units' strategy is an automatic process that runs after a crash and cannot be configured beforehand. Please use the 'Unit Replacer Tool' for manual changes.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    break;
+                }
             }
+            
             infoLabel.Text = originalInfoText; // Reset label after tool is used or cancelled
         }
 
