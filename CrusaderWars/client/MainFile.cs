@@ -1636,19 +1636,19 @@ namespace CrusaderWars
                                  if (activePlaythrough == "AGOT")
                                  {
                                      int agotPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(agotPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(agotPatchSteam, StringComparison.OrdinalIgnoreCase));
-                                     if (agotPatchIndex != enabledModsList.Count - 1 || mainModIndex != agotPatchIndex - 1)
+                                     if (mainModIndex == -1 || agotPatchIndex != enabledModsList.Count - 1 || mainModIndex > agotPatchIndex)
                                      {
                                          loadOrderCorrect = false;
-                                         expectedOrderMessage = "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded just before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
+                                         expectedOrderMessage = "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
                                      }
                                  }
                                  else if (activePlaythrough == "RealmsInExile")
                                  {
                                      int lotrPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(lotrPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(lotrPatchSteam, StringComparison.OrdinalIgnoreCase));
-                                     if (lotrPatchIndex != enabledModsList.Count - 1 || mainModIndex != lotrPatchIndex - 1)
+                                     if (mainModIndex == -1 || lotrPatchIndex != enabledModsList.Count - 1 || mainModIndex > lotrPatchIndex)
                                      {
                                          loadOrderCorrect = false;
-                                         expectedOrderMessage = "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded just before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
+                                         expectedOrderMessage = "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
                                      }
                                  }
                                  else // Default case
