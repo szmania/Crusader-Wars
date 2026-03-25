@@ -231,7 +231,7 @@ namespace CrusaderWars.unit_mapper
                                 Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
                                 ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
                             };
-                            string? replaceAttr = node.Attributes?["replace"]?.Value;
+                            string? replaceAttr = node.Attributes?["replacing"]?.Value;
                             if (!string.IsNullOrEmpty(replaceAttr))
                             {
                                 submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
@@ -942,7 +942,7 @@ namespace CrusaderWars.unit_mapper
                                         Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
                                         ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
                                     };
-                                    string? replaceAttr = node.Attributes?["replace"]?.Value;
+                                    string? replaceAttr = node.Attributes?["replacing"]?.Value;
                                     if (!string.IsNullOrEmpty(replaceAttr))
                                     {
                                         submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
