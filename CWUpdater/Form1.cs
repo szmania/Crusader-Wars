@@ -743,14 +743,33 @@ del ""%~f0""
 
             Directory.CreateDirectory(backupPath);
 
-            foreach (var dirPath in Directory.GetDirectories(applicationPath, "*", SearchOption.AllDirectories))
+            string normalizedAppPath = applicationPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+            foreach (string dirPath in Directory.GetDirectories(applicationPath, "*", SearchOption.AllDirectories))
             {
-                Directory.CreateDirectory(dirPath.Replace(applicationPath, backupPath));
+                string relativePath = dirPath.Substring(normalizedAppPath.Length);
+                Directory.CreateDirectory(Path.Combine(backupPath, relativePath));
             }
 
-            foreach (var filePath in Directory.GetFiles(applicationPath, "*.*", SearchOption.AllDirectories))
+            foreach (string filePath in Directory.GetFiles(applicationPath, "*.*", SearchOption.AllDirectories))
             {
-                File.Copy(filePath, filePath.Replace(applicationPath, backupPath), true);
+                try
+                {
+                    FileAttributes attributes = File.GetAttributes(filePath);
+                    if (attributes.HasFlag(FileAttributes.ReadOnly))
+                    {
+                        File.SetAttributes(filePath, attributes & ~FileAttributes.ReadOnly);
+                        Logger.Log($"Removed read-only attribute from: {filePath}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Warning: Failed to remove read-only attribute from '{filePath}'. {ex.Message}");
+                }
+
+                string relativePath = filePath.Substring(normalizedAppPath.Length);
+                string destinationPath = Path.Combine(backupPath, relativePath);
+                File.Copy(filePath, destinationPath, true);
             }
             Logger.Log("Backup complete.");
         }
@@ -788,14 +807,19 @@ del ""%~f0""
             // Ensure the applicationPath exists (it might have been partially deleted)
             Directory.CreateDirectory(applicationPath);
 
+            string normalizedBackupPath = backupPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
             foreach (var dirPath in Directory.GetDirectories(backupPath, "*", SearchOption.AllDirectories))
             {
-                Directory.CreateDirectory(dirPath.Replace(backupPath, applicationPath));
+                string relativePath = dirPath.Substring(normalizedBackupPath.Length);
+                Directory.CreateDirectory(Path.Combine(applicationPath, relativePath));
             }
 
             foreach (var filePath in Directory.GetFiles(backupPath, "*.*", SearchOption.AllDirectories))
             {
-                File.Copy(filePath, filePath.Replace(backupPath, applicationPath), true);
+                string relativePath = filePath.Substring(normalizedBackupPath.Length);
+                string destinationPath = Path.Combine(applicationPath, relativePath);
+                File.Copy(filePath, destinationPath, true);
             }
             Logger.Log("Restore complete.");
         }
