@@ -10,6 +10,10 @@ namespace CrusaderWars.client.LinuxSetup.Services
     {
         public bool IsRunningOnLinux()
         {
+            if (Environment.GetEnvironmentVariable("CC_LINUX") == "true")
+            {
+                return true;
+            }
             return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         }
 
