@@ -512,6 +512,22 @@ namespace CrusaderWars
         string saveGames_Path = documentsPath + "\\Paradox Interactive\\Crusader Kings III\\save games";
         private async void Form1_Load(object sender, EventArgs e)
         {
+            // Linux Setup Wizard Check
+            if (new client.LinuxSetup.Services.LinuxEnvironmentDetector().IsRunningOnLinux())
+            {
+                if (!client.ModOptions.GetLinuxSetupCompleted())
+                {
+                    var result = MessageBox.Show("It looks like you are running on Linux. Would you like to run the Linux Setup Wizard to configure the game for Proton?", "Linux Environment Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        using (var wizard = new client.LinuxSetup.LinuxSetupWizard())
+                        {
+                            wizard.ShowDialog();
+                        }
+                    }
+                }
+            }
+
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
             Options.ReadGamePaths();
