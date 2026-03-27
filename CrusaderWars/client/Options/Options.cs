@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Media;
 using Control = System.Windows.Forms.Control;
+using CrusaderWars.client.LinuxSetup;
+using CrusaderWars.client.LinuxSetup.Services;
 using CrusaderWars.mod_manager;
 using CrusaderWars.unit_mapper;
 using Timer = System.Windows.Forms.Timer;
@@ -132,8 +134,20 @@ namespace CrusaderWars
         }
 
 
+        private void btnLinuxSetup_Click(object sender, EventArgs e)
+        {
+            using (var wizard = new LinuxSetupWizard())
+            {
+                wizard.ShowDialog();
+            }
+        }
+
         private void Options_Load(object sender, EventArgs e)
         {
+            if (new LinuxEnvironmentDetector().IsRunningOnLinux())
+            {
+                btnLinuxSetup.Visible = true;
+            }
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
             Units_Tab = new UC_UnitsOptions();
@@ -297,6 +311,7 @@ namespace CrusaderWars
                 var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
                 var SelectedCustomMapper_Value = GetOptionValue(xmlDoc, "SelectedCustomMapper", "");
                 var CombineKnights_Value = GetOptionValue(xmlDoc, "CombineKnights", "Disabled");
+                var LinuxSetupCompleted_Value = GetOptionValue(xmlDoc, "LinuxSetupCompleted", "False");
 
 
                 xmlDoc.Save(file);
@@ -339,6 +354,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
                 ModOptions.optionsValuesCollection.Add("SelectedCustomMapper", SelectedCustomMapper_Value);
                 ModOptions.optionsValuesCollection.Add("CombineKnights", CombineKnights_Value);
+                ModOptions.optionsValuesCollection.Add("LinuxSetupCompleted", LinuxSetupCompleted_Value);
                 ModOptions.SelectedCustomMapper = SelectedCustomMapper_Value;
                 Program.Logger.Debug("Options collection populated.");
 
@@ -680,6 +696,12 @@ namespace CrusaderWars
                     newOption.SetAttribute("name", "CombineKnights");
                     newOption.InnerText = ModOptions.optionsValuesCollection["CombineKnights"];
                     xmlDoc.DocumentElement?.AppendChild(newOption);
+                }
+
+                var LinuxSetupCompleted_Node = xmlDoc.SelectSingleNode("//Option [@name='LinuxSetupCompleted']");
+                if (LinuxSetupCompleted_Node != null && ModOptions.optionsValuesCollection.ContainsKey("LinuxSetupCompleted"))
+                {
+                    LinuxSetupCompleted_Node.InnerText = ModOptions.optionsValuesCollection["LinuxSetupCompleted"];
                 }
 
                 xmlDoc.Save(file);
