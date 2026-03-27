@@ -421,13 +421,13 @@ namespace CrusaderWars
                 var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
 
-                LeviesMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
-                RangedMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
-                InfantryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
-                CavalryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
+                if (LeviesMax_ComboBox != null) LeviesMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
+                if (RangedMax_ComboBox != null) RangedMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
+                if (InfantryMax_ComboBox != null) InfantryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
+                if (CavalryMax_ComboBox != null) CavalryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
 
-                BattleScale_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
-                AutoScaleUnits_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
+                if (BattleScale_ComboBox != null) BattleScale_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
+                if (AutoScaleUnits_ComboBox != null) AutoScaleUnits_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
 
                 // Temporarily disable event handlers in CandK_Tab to prevent validation logic from firing
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptionsForEvents)
