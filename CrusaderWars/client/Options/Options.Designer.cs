@@ -620,6 +620,17 @@
             this.TableLayoutModManager.Size = new System.Drawing.Size(1077, 279);
             this.TableLayoutModManager.TabIndex = 0;
             // 
+            // btnLinuxSetup
+            // 
+            this.btnLinuxSetup.Location = new System.Drawing.Point(23, 100);
+            this.btnLinuxSetup.Name = "btnLinuxSetup";
+            this.btnLinuxSetup.Size = new System.Drawing.Size(120, 36);
+            this.btnLinuxSetup.TabIndex = 39;
+            this.btnLinuxSetup.Text = "Linux Setup";
+            this.btnLinuxSetup.UseVisualStyleBackColor = true;
+            this.btnLinuxSetup.Visible = false;
+            this.btnLinuxSetup.Click += new System.EventHandler(this.btnLinuxSetup_Click);
+            // 
             // Options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -633,6 +644,7 @@
             this.Controls.Add(this.TableLayoutSettings);
             this.Controls.Add(this.TableLayoutGamePaths);
             this.Controls.Add(this.CloseBtn);
+            this.Controls.Add(this.btnLinuxSetup);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.MaximizeBox = true;
@@ -702,5 +714,6 @@
         private System.Windows.Forms.TableLayoutPanel TableLayoutSettings;
         private System.Windows.Forms.TableLayoutPanel TableLayoutPlaythroughs;
         private System.Windows.Forms.TableLayoutPanel TableLayoutModManager;
+        private System.Windows.Forms.Button btnLinuxSetup;
     }
 }
