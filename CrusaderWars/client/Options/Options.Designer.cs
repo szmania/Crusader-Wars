@@ -275,7 +275,7 @@
             // 
             this.Btn_CandKTab.AutoSize = true;
             this.Btn_CandKTab.BackColor = System.Drawing.Color.LightGray;
-            this.Btn_CandKTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_BattleScaleTab.BackgroundImage")));
+            this.Btn_CandKTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_AGOTTab.BackgroundImage")));
             this.Btn_CandKTab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Btn_CandKTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_CandKTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
