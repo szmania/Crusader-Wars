@@ -664,6 +664,7 @@
             this.flowLayoutPanelSystem.Name = "flowLayoutPanelSystem";
             this.flowLayoutPanelSystem.Size = new System.Drawing.Size(504, 34);
             this.flowLayoutPanelSystem.TabIndex = 33;
+            this.flowLayoutPanelSystem.WrapContents = false;
             // 
             // Btn_GamePaths
             // 
