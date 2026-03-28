@@ -556,7 +556,8 @@
             this.TableLayoutGamePaths.Controls.Add(this.ck3Btn, 0, 1);
             this.TableLayoutGamePaths.Controls.Add(this.AttilaBtn, 1, 1);
             this.TableLayoutGamePaths.Controls.Add(this.label2, 0, 0);
-            this.TableLayoutGamePaths.Location = new System.Drawing.Point(20, 142);
+            this.TableLayoutGamePaths.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TableLayoutGamePaths.Location = new System.Drawing.Point(0, 0);
             this.TableLayoutGamePaths.Name = "TableLayoutGamePaths";
             this.TableLayoutGamePaths.RowCount = 3;
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
@@ -621,9 +622,96 @@
             this.TableLayoutModManager.Size = new System.Drawing.Size(1077, 279);
             this.TableLayoutModManager.TabIndex = 0;
             // 
+            // TableLayoutSystem
+            // 
+            this.TableLayoutSystem.BackColor = System.Drawing.Color.Transparent;
+            this.TableLayoutSystem.ColumnCount = 1;
+            this.TableLayoutSystem.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TableLayoutSystem.Controls.Add(this.labelSystem, 0, 0);
+            this.TableLayoutSystem.Controls.Add(this.flowLayoutPanelSystem, 0, 1);
+            this.TableLayoutSystem.Controls.Add(this.SystemContentPanel, 0, 2);
+            this.TableLayoutSystem.Location = new System.Drawing.Point(20, 100);
+            this.TableLayoutSystem.Name = "TableLayoutSystem";
+            this.TableLayoutSystem.RowCount = 3;
+            this.TableLayoutSystem.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TableLayoutSystem.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TableLayoutSystem.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TableLayoutSystem.Size = new System.Drawing.Size(510, 280);
+            this.TableLayoutSystem.TabIndex = 40;
+            // 
+            // labelSystem
+            // 
+            this.labelSystem.AutoSize = true;
+            this.labelSystem.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelSystem.Location = new System.Drawing.Point(3, 0);
+            this.labelSystem.Name = "labelSystem";
+            this.labelSystem.Size = new System.Drawing.Size(63, 21);
+            this.labelSystem.TabIndex = 17;
+            this.labelSystem.Text = "System";
+            // 
+            // flowLayoutPanelSystem
+            // 
+            this.flowLayoutPanelSystem.Controls.Add(this.Btn_GamePaths);
+            this.flowLayoutPanelSystem.Controls.Add(this.Btn_OS);
+            this.flowLayoutPanelSystem.Location = new System.Drawing.Point(3, 24);
+            this.flowLayoutPanelSystem.Name = "flowLayoutPanelSystem";
+            this.flowLayoutPanelSystem.Size = new System.Drawing.Size(504, 34);
+            this.flowLayoutPanelSystem.TabIndex = 33;
+            // 
+            // Btn_GamePaths
+            // 
+            this.Btn_GamePaths.AutoSize = true;
+            this.Btn_GamePaths.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_GamePaths.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
+            this.Btn_GamePaths.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_GamePaths.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_GamePaths.ForeColor = System.Drawing.Color.White;
+            this.Btn_GamePaths.Location = new System.Drawing.Point(3, 3);
+            this.Btn_GamePaths.Name = "Btn_GamePaths";
+            this.Btn_GamePaths.Size = new System.Drawing.Size(113, 28);
+            this.Btn_GamePaths.TabIndex = 0;
+            this.Btn_GamePaths.Text = "Game Paths";
+            this.Btn_GamePaths.UseVisualStyleBackColor = false;
+            this.Btn_GamePaths.Click += new System.EventHandler(this.Btn_GamePaths_Click);
+            // 
+            // Btn_OS
+            // 
+            this.Btn_OS.AutoSize = true;
+            this.Btn_OS.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_OS.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
+            this.Btn_OS.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_OS.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_OS.ForeColor = System.Drawing.Color.White;
+            this.Btn_OS.Location = new System.Drawing.Point(122, 3);
+            this.Btn_OS.Name = "Btn_OS";
+            this.Btn_OS.Size = new System.Drawing.Size(123, 28);
+            this.Btn_OS.TabIndex = 1;
+            this.Btn_OS.Text = "Operating System";
+            this.Btn_OS.UseVisualStyleBackColor = false;
+            this.Btn_OS.Click += new System.EventHandler(this.Btn_OS_Click);
+            // 
+            // SystemContentPanel
+            // 
+            this.SystemContentPanel.Controls.Add(this.TableLayoutGamePaths);
+            this.SystemContentPanel.Controls.Add(this.OSPanel);
+            this.SystemContentPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SystemContentPanel.Location = new System.Drawing.Point(3, 64);
+            this.SystemContentPanel.Name = "SystemContentPanel";
+            this.SystemContentPanel.Size = new System.Drawing.Size(504, 213);
+            this.SystemContentPanel.TabIndex = 34;
+            // 
+            // OSPanel
+            // 
+            this.OSPanel.Controls.Add(this.btnLinuxSetup);
+            this.OSPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.OSPanel.Location = new System.Drawing.Point(0, 0);
+            this.OSPanel.Name = "OSPanel";
+            this.OSPanel.Size = new System.Drawing.Size(504, 213);
+            this.OSPanel.TabIndex = 37;
+            // 
             // btnLinuxSetup
             // 
-            this.btnLinuxSetup.Location = new System.Drawing.Point(23, 100);
+            this.btnLinuxSetup.Location = new System.Drawing.Point(20, 20);
             this.btnLinuxSetup.Name = "btnLinuxSetup";
             this.btnLinuxSetup.Size = new System.Drawing.Size(120, 36);
             this.btnLinuxSetup.TabIndex = 39;
@@ -643,9 +731,8 @@
             this.Controls.Add(this.TableLayoutModManager);
             this.Controls.Add(this.TableLayoutPlaythroughs);
             this.Controls.Add(this.TableLayoutSettings);
-            this.Controls.Add(this.TableLayoutGamePaths);
+            this.Controls.Add(this.TableLayoutSystem);
             this.Controls.Add(this.CloseBtn);
-            this.Controls.Add(this.btnLinuxSetup);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.MaximizeBox = true;
@@ -674,6 +761,12 @@
             this.TableLayoutPlaythroughs.PerformLayout();
             this.TableLayoutModManager.ResumeLayout(false);
             this.TableLayoutModManager.PerformLayout();
+            this.TableLayoutSystem.ResumeLayout(false);
+            this.TableLayoutSystem.PerformLayout();
+            this.flowLayoutPanelSystem.ResumeLayout(false);
+            this.flowLayoutPanelSystem.PerformLayout();
+            this.SystemContentPanel.ResumeLayout(false);
+            this.OSPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -716,5 +809,12 @@
         private System.Windows.Forms.TableLayoutPanel TableLayoutPlaythroughs;
         private System.Windows.Forms.TableLayoutPanel TableLayoutModManager;
         private System.Windows.Forms.Button btnLinuxSetup;
+        private System.Windows.Forms.TableLayoutPanel TableLayoutSystem;
+        private System.Windows.Forms.Label labelSystem;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSystem;
+        private System.Windows.Forms.Button Btn_GamePaths;
+        private System.Windows.Forms.Button Btn_OS;
+        private System.Windows.Forms.Panel SystemContentPanel;
+        private System.Windows.Forms.Panel OSPanel;
     }
 }

@@ -142,11 +142,60 @@ namespace CrusaderWars
             }
         }
 
+        private void Btn_GamePaths_Click(object sender, EventArgs e)
+        {
+            ChangeSystemTab(TableLayoutGamePaths);
+        }
+
+        private void Btn_OS_Click(object sender, EventArgs e)
+        {
+            ChangeSystemTab(OSPanel);
+        }
+
+        void ChangeSystemTab(Control control)
+        {
+            // Hide all controls in the content panel
+            if(SystemContentPanel != null)
+            {
+                SystemContentPanel.Controls.OfType<Control>().ToList().ForEach(c => c.Visible = false);
+            }
+            
+            // Show the selected control
+            control.Visible = true;
+            control.Dock = DockStyle.Fill;
+
+            // Define colors
+            Color inactiveColor = System.Drawing.Color.FromArgb(140, 87, 63);
+            Color activeColor = System.Drawing.Color.FromArgb(128, 53, 0);
+
+            // Reset all buttons
+            Btn_GamePaths.BackColor = inactiveColor;
+            Btn_OS.BackColor = inactiveColor;
+            Btn_GamePaths.FlatAppearance.BorderSize = 1;
+            Btn_OS.FlatAppearance.BorderSize = 1;
+
+            // Highlight active button
+            Button activeButton = null;
+            if (control == TableLayoutGamePaths) activeButton = Btn_GamePaths;
+            else if (control == OSPanel) activeButton = Btn_OS;
+
+            if (activeButton != null)
+            {
+                activeButton.BackColor = activeColor;
+                activeButton.FlatAppearance.BorderSize = 2;
+            }
+        }
+
         private void Options_Load(object sender, EventArgs e)
         {
             if (new LinuxEnvironmentDetector().IsRunningOnLinux())
             {
                 btnLinuxSetup.Visible = true;
+                if(Btn_OS != null) Btn_OS.Visible = true;
+            }
+            else
+            {
+                if (Btn_OS != null) Btn_OS.Visible = false;
             }
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
@@ -172,6 +221,12 @@ namespace CrusaderWars
             panel1.Visible = _isModManagerExpanded;
             toggleModManagerButton.Text = "Mod Manager [▲]";
             ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
+
+            // Set default system tab
+            if(TableLayoutGamePaths != null)
+            {
+                ChangeSystemTab(TableLayoutGamePaths);
+            }
         }
 
         /*##############################################
