@@ -714,14 +714,22 @@
             this.OSPanel.Size = new System.Drawing.Size(504, 213);
             this.OSPanel.TabIndex = 37;
             // 
+            // 
             // btnLinuxSetup
             // 
+            this.btnLinuxSetup.AutoSize = true;
+            this.btnLinuxSetup.BackColor = System.Drawing.Color.LightGray;
+            this.btnLinuxSetup.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
+            this.btnLinuxSetup.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLinuxSetup.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.btnLinuxSetup.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLinuxSetup.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLinuxSetup.ForeColor = System.Drawing.Color.White;
             this.btnLinuxSetup.Location = new System.Drawing.Point(20, 20);
             this.btnLinuxSetup.Name = "btnLinuxSetup";
-            this.btnLinuxSetup.Size = new System.Drawing.Size(120, 36);
             this.btnLinuxSetup.TabIndex = 39;
             this.btnLinuxSetup.Text = "Linux Setup";
-            this.btnLinuxSetup.UseVisualStyleBackColor = true;
+            this.btnLinuxSetup.UseVisualStyleBackColor = false;
             this.btnLinuxSetup.Visible = false;
             this.btnLinuxSetup.Click += new System.EventHandler(this.btnLinuxSetup_Click);
             // 
