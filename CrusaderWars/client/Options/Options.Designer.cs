@@ -731,6 +731,7 @@
             this.btnLinuxSetup.Text = "Linux Setup";
             this.btnLinuxSetup.UseVisualStyleBackColor = false;
             this.btnLinuxSetup.Visible = false;
+            this.ToolTip_Options.SetToolTip(this.btnLinuxSetup, "Run the setup wizard to configure the game for Linux/Proton.");
             this.btnLinuxSetup.Click += new System.EventHandler(this.btnLinuxSetup_Click);
             // 
             // Options
