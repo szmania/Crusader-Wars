@@ -30,6 +30,13 @@
         {
             this.Btn_CustomTab = new System.Windows.Forms.Button();
             this.components = new System.ComponentModel.Container();
+            this.TableLayoutSystem = new System.Windows.Forms.TableLayoutPanel();
+            this.labelSystem = new System.Windows.Forms.Label();
+            this.flowLayoutPanelSystem = new System.Windows.Forms.FlowLayoutPanel();
+            this.Btn_GamePaths = new System.Windows.Forms.Button();
+            this.Btn_OS = new System.Windows.Forms.Button();
+            this.SystemContentPanel = new System.Windows.Forms.Panel();
+            this.OSPanel = new System.Windows.Forms.Panel();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Options));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -87,6 +94,10 @@
             this.TableLayoutSettings.SuspendLayout();
             this.TableLayoutPlaythroughs.SuspendLayout();
             this.TableLayoutModManager.SuspendLayout();
+            this.TableLayoutSystem.SuspendLayout();
+            this.flowLayoutPanelSystem.SuspendLayout();
+            this.SystemContentPanel.SuspendLayout();
+            this.OSPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // ck3Btn
