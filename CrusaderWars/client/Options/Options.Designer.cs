@@ -42,6 +42,13 @@
             this.Status_Attila_Icon = new System.Windows.Forms.PictureBox();
             this.AttilaBtn = new System.Windows.Forms.Button();
             this.btnLinuxSetup = new System.Windows.Forms.Button();
+            this.TableLayoutSystem = new System.Windows.Forms.TableLayoutPanel();
+            this.labelSystem = new System.Windows.Forms.Label();
+            this.flowLayoutPanelSystem = new System.Windows.Forms.FlowLayoutPanel();
+            this.Btn_GamePaths = new System.Windows.Forms.Button();
+            this.Btn_OS = new System.Windows.Forms.Button();
+            this.SystemContentPanel = new System.Windows.Forms.Panel();
+            this.OSPanel = new System.Windows.Forms.Panel();
             this.ToolTip_Attila = new System.Windows.Forms.ToolTip(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
