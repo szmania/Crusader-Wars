@@ -197,6 +197,7 @@ namespace CrusaderWars
             {
                 // Make visible for easier testing on non-Linux systems
                 if (Btn_OS != null) Btn_OS.Visible = true;
+                btnLinuxSetup.Visible = true; 
             }
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
