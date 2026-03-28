@@ -645,27 +645,15 @@
             this.TableLayoutSystem.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutSystem.ColumnCount = 1;
             this.TableLayoutSystem.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutSystem.Controls.Add(this.labelSystem, 0, 0);
-            this.TableLayoutSystem.Controls.Add(this.flowLayoutPanelSystem, 0, 1);
-            this.TableLayoutSystem.Controls.Add(this.SystemContentPanel, 0, 2);
+            this.TableLayoutSystem.Controls.Add(this.flowLayoutPanelSystem, 0, 0);
+            this.TableLayoutSystem.Controls.Add(this.SystemContentPanel, 0, 1);
             this.TableLayoutSystem.Location = new System.Drawing.Point(20, 100);
             this.TableLayoutSystem.Name = "TableLayoutSystem";
-            this.TableLayoutSystem.RowCount = 3;
-            this.TableLayoutSystem.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TableLayoutSystem.RowCount = 2;
             this.TableLayoutSystem.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSystem.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutSystem.Size = new System.Drawing.Size(510, 280);
             this.TableLayoutSystem.TabIndex = 40;
-            // 
-            // labelSystem
-            // 
-            this.labelSystem.AutoSize = true;
-            this.labelSystem.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelSystem.Location = new System.Drawing.Point(3, 0);
-            this.labelSystem.Name = "labelSystem";
-            this.labelSystem.Size = new System.Drawing.Size(63, 21);
-            this.labelSystem.TabIndex = 17;
-            this.labelSystem.Text = "System";
             // 
             // flowLayoutPanelSystem
             // 
@@ -781,7 +769,6 @@
             this.TableLayoutModManager.ResumeLayout(false);
             this.TableLayoutModManager.PerformLayout();
             this.TableLayoutSystem.ResumeLayout(false);
-            this.TableLayoutSystem.PerformLayout();
             this.flowLayoutPanelSystem.ResumeLayout(false);
             this.flowLayoutPanelSystem.PerformLayout();
             this.SystemContentPanel.ResumeLayout(false);
@@ -829,7 +816,6 @@
         private System.Windows.Forms.TableLayoutPanel TableLayoutModManager;
         private System.Windows.Forms.Button btnLinuxSetup;
         private System.Windows.Forms.TableLayoutPanel TableLayoutSystem;
-        private System.Windows.Forms.Label labelSystem;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSystem;
         private System.Windows.Forms.Button Btn_GamePaths;
         private System.Windows.Forms.Button Btn_OS;

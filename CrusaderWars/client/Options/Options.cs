@@ -191,11 +191,12 @@ namespace CrusaderWars
             if (new LinuxEnvironmentDetector().IsRunningOnLinux())
             {
                 btnLinuxSetup.Visible = true;
-                if(Btn_OS != null) Btn_OS.Visible = true;
+                if (Btn_OS != null) Btn_OS.Visible = true;
             }
             else
             {
-                if (Btn_OS != null) Btn_OS.Visible = false;
+                // Make visible for easier testing on non-Linux systems
+                if (Btn_OS != null) Btn_OS.Visible = true;
             }
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
