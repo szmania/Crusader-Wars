@@ -6,4 +6,4 @@
 cd "$(dirname "$0")"
 
 # Launch the application using Wine
-wine "Crusader Conflicts.exe"
+wine "CrusaderConflicts.exe"

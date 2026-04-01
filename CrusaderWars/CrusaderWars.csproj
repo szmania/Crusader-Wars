@@ -73,6 +73,54 @@
     <Compile Update="client\UC_Toggle.Designer.cs">
       <DependentUpon>UC_Toggle.cs</DependentUpon>
     </Compile>
+    <Compile Update="client\LinuxSetup\LinuxSetupWizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\LinuxSetupWizard.Designer.cs">
+      <DependentUpon>LinuxSetupWizard.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\DetectionStepControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\DetectionStepControl.Designer.cs">
+      <DependentUpon>DetectionStepControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\WinePrefixStepControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\WinePrefixStepControl.Designer.cs">
+      <DependentUpon>WinePrefixStepControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\DotNetInstallStepControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\DotNetInstallStepControl.Designer.cs">
+      <DependentUpon>DotNetInstallStepControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\ModSymlinkStepControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\ModSymlinkStepControl.Designer.cs">
+      <DependentUpon>ModSymlinkStepControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\ShortcutCreationStepControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\ShortcutCreationStepControl.Designer.cs">
+      <DependentUpon>ShortcutCreationStepControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\SteamConfigStepControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\SteamConfigStepControl.Designer.cs">
+      <DependentUpon>SteamConfigStepControl.cs</DependentUpon>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\CompletionStepControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="client\LinuxSetup\Steps\CompletionStepControl.Designer.cs">
+      <DependentUpon>CompletionStepControl.cs</DependentUpon>
+    </Compile>
     <Compile Update="client\WarningMessage\WarningMessage.cs">
       <SubType>Form</SubType>
     </Compile>

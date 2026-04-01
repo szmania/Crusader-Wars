@@ -326,5 +326,10 @@ namespace CrusaderWars.client
             }
             return true; // Default to enabled
         }
+
+        public static bool GetLinuxSetupCompleted()
+        {
+            return optionsValuesCollection.TryGetValue("LinuxSetupCompleted", out var value) && bool.TryParse(value, out bool result) && result;
+        }
     }
 }
