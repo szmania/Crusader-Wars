@@ -50,13 +50,24 @@ namespace CWUpdater
                 
                 if (!string.IsNullOrEmpty(UpdateVersion))
                 {
+                    var displayUpdateVersion = UpdateVersion.Trim();
+                    if (!displayUpdateVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                    {
+                        displayUpdateVersion = "v" + displayUpdateVersion;
+                    }
+
                     if (!string.IsNullOrEmpty(CurrentVersion))
                     {
-                        VersionLabel.Text = $"v{CurrentVersion.Trim().TrimStart('v')} -> v{UpdateVersion.Trim().TrimStart('v')}";
+                        var displayCurrentVersion = CurrentVersion.Trim();
+                        if (!displayCurrentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                        {
+                            displayCurrentVersion = "v" + displayCurrentVersion;
+                        }
+                        VersionLabel.Text = $"{displayCurrentVersion} -> {displayUpdateVersion}";
                     }
                     else
                     {
-                        VersionLabel.Text = $"Updating to v{UpdateVersion.Trim().TrimStart('v')}";
+                        VersionLabel.Text = $"Updating to {displayUpdateVersion}";
                     }
                 }
                 else
