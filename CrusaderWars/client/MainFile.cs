@@ -1832,20 +1832,27 @@ namespace CrusaderWars
                     break;
                 }
 
-                try
+                if (!new client.LinuxSetup.Services.LinuxEnvironmentDetector().IsRunningOnLinux())
                 {
-                    CreateAttilaShortcut();
-                    Program.Logger.Debug("Attila shortcut created/verified.");
+                    try
+                    {
+                        CreateAttilaShortcut();
+                        Program.Logger.Debug("Attila shortcut created/verified for Windows.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
+                        MessageBox.Show("Error creating Attila shortcut!", "Crusader Conflicts: File Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        infoLabel.Text = "Ready to start!";
+                        ExecuteButton.Enabled = true;
+                        this.Text = "Crusader Conflicts";
+                        break;
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Program.Logger.Debug($"Error creating Attila shortcut: {ex.Message}");
-                    MessageBox.Show("Error creating Attila shortcut!", "Crusader Conflicts: File Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    infoLabel.Text = "Ready to start!";
-                    ExecuteButton.Enabled = true;
-                    this.Text = "Crusader Conflicts";
-                    break;
+                    Program.Logger.Debug("Running on Linux, skipping Windows shortcut creation.");
                 }
 
                 try
@@ -2670,8 +2677,39 @@ namespace CrusaderWars
 
             public static void StartTotalWArAttilaProcess()
             {
-                Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
-                Process.Start(new ProcessStartInfo(@".\CW.lnk") { UseShellExecute = true });
+                Program.Logger.Debug("Starting Total War: Attila process...");
+                string shortcutPath;
+                bool isLinux = new client.LinuxSetup.Services.LinuxEnvironmentDetector().IsRunningOnLinux();
+
+                if (isLinux)
+                {
+                    shortcutPath = @".\data\attila\Attila CW.lnk";
+                    Program.Logger.Debug($"Using Linux shortcut path: {shortcutPath}");
+                }
+                else
+                {
+                    shortcutPath = @".\CW.lnk";
+                    Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
+                }
+
+                if (!System.IO.File.Exists(shortcutPath))
+                {
+                    string errorMessage = $"The required launcher shortcut was not found at '{shortcutPath}'.";
+                    if (isLinux)
+                    {
+                        errorMessage += "\nPlease run the Linux Setup wizard from the Mod Settings screen to generate it.";
+                    }
+                    else
+                    {
+                        errorMessage += "\nPlease restart the process. The application should create it automatically.";
+                    }
+                    Program.Logger.Debug(errorMessage);
+                    MessageBox.Show(errorMessage, "Crusader Conflicts: Shortcut Missing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return; // Stop execution
+                }
+
+                Program.Logger.Debug($"Executing shortcut: {shortcutPath}");
+                Process.Start(new ProcessStartInfo(shortcutPath) { UseShellExecute = true });
             }
 
             public async static Task CloseTotalWarAttilaProcess()
