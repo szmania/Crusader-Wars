@@ -1503,7 +1503,8 @@ namespace CrusaderWars
                              }
 
                              // Check for base mod
-                             if (!enabledMods.Contains("crusader_conflicts.mod") && !enabledMods.Contains("ugc_3612451961.mod"))
+                             bool isBaseModEnabled = enabledMods.Contains("crusader_conflicts.mod") || enabledMods.Contains("ugc_3612451961.mod");
+                             if (!isBaseModEnabled)
                              {
                                  Program.Logger.Debug("Crusader Conflicts mod (local or steam) not found in enabled_mods in dlc_load.json.");
                                  var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
@@ -1618,9 +1619,11 @@ namespace CrusaderWars
                              }
 
                              // Check for recommended load order
-                             var enabledModsList = new List<string>();
-                             using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                             if (isBaseModEnabled)
                              {
+                                 var enabledModsList = new List<string>();
+                                 using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                                 {
                                  JsonElement root = doc.RootElement;
                                  if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
                                  {
@@ -1689,6 +1692,7 @@ namespace CrusaderWars
                                          return; // Stop execution
                                      }
                                  }
+                             }
                              }
                          }
                          catch (Exception ex)
