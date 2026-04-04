@@ -16,4 +16,4 @@ command -v wine &> /dev/null || {
 cd "$(dirname "$0")"
 
 # Launch the application using Wine
-wine "CrusaderConflicts.exe"
+WINEPREFIX=~/.crusader-conflicts-net-pfx wine "CrusaderConflicts.exe"
