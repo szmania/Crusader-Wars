@@ -30,6 +30,7 @@ namespace CrusaderWars.client
             PopulateReport();
         }
 
+        [SupportedOSPlatform("windows")]
         private void PopulateReport()
         {
             treeViewReport.BeginUpdate();
@@ -146,6 +147,7 @@ namespace CrusaderWars.client
             lblTotalKills.Visible = true;
         }
 
+        [SupportedOSPlatform("windows")]
         private void PopulateSide(TreeNode sideNode, SideReport sideReport)
         {
             foreach (var army in sideReport.Armies)
@@ -206,6 +208,7 @@ namespace CrusaderWars.client
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private void treeViewReport_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             var node = e.Node;
@@ -334,6 +337,7 @@ namespace CrusaderWars.client
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private void treeViewReport_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             var node = e.Node;
@@ -355,12 +359,14 @@ namespace CrusaderWars.client
         }
 
 
+        [SupportedOSPlatform("windows")]
         private void btnContinue_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
+        [SupportedOSPlatform("windows")]
         private string GenerateClipboardContent()
         {
             var sb = new StringBuilder();
@@ -405,6 +411,7 @@ namespace CrusaderWars.client
             return sb.ToString();
         }
 
+        [SupportedOSPlatform("windows")]
         private void AppendSideDetails(StringBuilder sb, SideReport side, string sideName)
         {
             foreach (var army in side.Armies)
@@ -431,6 +438,7 @@ namespace CrusaderWars.client
         }
 
         // Add the button click event handler
+        [SupportedOSPlatform("windows")]
         private void btnCopyToClipboard_Click(object sender, EventArgs e)
         {
             try
