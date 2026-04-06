@@ -1,4 +1,3 @@
-#pragma warning disable CA1416 // Validate platform compatibility
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using CrusaderWars.armies;
 using CrusaderWars.client;
@@ -59,6 +59,7 @@ namespace CrusaderWars.twbattle
             public List<Army> OriginalDefenderArmies { get; set; } = new List<Army>();
         }
 
+        [SupportedOSPlatform("windows")]
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
         {
             BattleResult.WarID = ArmiesReader.FindWarID();
@@ -1451,6 +1452,7 @@ namespace CrusaderWars.twbattle
             Program.Logger.Debug("Finished processing prominent knights.");
         }
 
+        [SupportedOSPlatform("windows")]
         private static void ShowClickableLinkMessageBox(Form parentForm, string messageText, string title, string linkText, string url, string reportContent)
         {
             // Create a custom form with clickable link
@@ -1518,6 +1520,7 @@ namespace CrusaderWars.twbattle
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form parentForm, List<AutofixState.AutofixStrategy> availableStrategies)
         {
             AutofixState.AutofixStrategy? selectedStrategy = null;
@@ -2145,4 +2148,3 @@ namespace CrusaderWars.twbattle
         }
     }
 }
-#pragma warning restore CA1416 // Validate platform compatibility
