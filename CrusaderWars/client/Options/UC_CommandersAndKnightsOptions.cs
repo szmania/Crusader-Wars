@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 
 namespace CrusaderWars.client.Options
 {
+    [SupportedOSPlatform("windows")]
     public partial class UC_CommandersAndKnightsOptions : UserControl
     {
         private List<NumericUpDown> commanderControls;

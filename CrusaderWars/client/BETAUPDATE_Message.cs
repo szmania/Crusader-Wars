@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Media;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,6 +9,7 @@ using CrusaderWars.client; // Added for Program.Logger
 
 namespace CrusaderWars.client.BETAUPDATE_Message
 {
+    [SupportedOSPlatform("windows")]
     public partial class BETAUPDATE_Message : Form
     {
         public BETAUPDATE_Message()
