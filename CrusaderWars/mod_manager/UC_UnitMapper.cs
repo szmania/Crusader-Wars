@@ -12,9 +12,11 @@ using System.Threading.Tasks;
 using CrusaderWars.unit_mapper;
 using System.Xml;
 using System.Xml.Schema;
+using System.Runtime.Versioning;
 
 namespace CrusaderWars.mod_manager
 {
+    [SupportedOSPlatform("windows")]
     public partial class UC_UnitMapper : UserControl
     {
         public event EventHandler? ToggleClicked;
