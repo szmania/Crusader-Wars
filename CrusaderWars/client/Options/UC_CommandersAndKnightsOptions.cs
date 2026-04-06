@@ -177,6 +177,7 @@ namespace CrusaderWars.client.Options
             UpdateKnightTotal();
         }
 
+        [SupportedOSPlatform("windows")]
         private void AdjustTableLayouts()
         {
             // Add tooltips to group boxes
@@ -235,29 +236,37 @@ namespace CrusaderWars.client.Options
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public bool IsCommanderTotalValid()
         {
             return commanderControls.Sum(c => (int)c.Value) == 100;
         }
 
+        [SupportedOSPlatform("windows")]
         public bool IsKnightTotalValid()
         {
             return knightControls.Sum(c => (int)c.Value) == 100;
         }
 
+        [SupportedOSPlatform("windows")]
         public int GetCommanderTotal()
         {
             return commanderControls.Sum(c => (int)c.Value);
         }
 
+        [SupportedOSPlatform("windows")]
         public int GetKnightTotal()
         {
             return knightControls.Sum(c => (int)c.Value);
         }
 
+        [SupportedOSPlatform("windows")]
         public int GetCommanderSlainChance() => (int)numCommanderSlain.Value;
+        [SupportedOSPlatform("windows")]
         public int GetKnightSlainChance() => (int)numKnightSlain.Value;
+        [SupportedOSPlatform("windows")]
         public int GetCommanderPrisonerChance() => (int)numCommanderPrisoner.Value;
+        [SupportedOSPlatform("windows")]
         public int GetKnightPrisonerChance() => (int)numKnightPrisoner.Value;
     }
 }
