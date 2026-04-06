@@ -1470,6 +1470,7 @@ namespace CrusaderWars
         }
 
         [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private static void SetBattleDescription(Army army, int total_soldiers)
         {
             switch (army.CombatSide)
@@ -1488,7 +1489,6 @@ namespace CrusaderWars
             }
         }
 
-        [SupportedOSPlatform("windows")]
         [SupportedOSPlatform("windows")]
         private static void SetBattleDescription(string combat_side, int total_soldiers)
         {
