@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using CrusaderWars.armies;
 using CrusaderWars.client;
@@ -24,6 +25,7 @@ using CrusaderWars.data.battle_results.editors;
 
 namespace CrusaderWars.twbattle
 {
+    [SupportedOSPlatform("windows")]
     public static class BattleProcessor
     {
         private static readonly Random _random = new Random();
