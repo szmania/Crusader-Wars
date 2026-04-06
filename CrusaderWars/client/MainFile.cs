@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Versioning;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ using CrusaderWars.Properties;
 
 namespace CrusaderWars
 {
-
+    [SupportedOSPlatform("windows")]
     public partial class HomePage : Form
     {
         private LoadingScreen? loadingScreen;

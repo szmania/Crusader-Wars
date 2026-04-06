@@ -1,11 +1,13 @@
 using System;
 using System.ComponentModel;
 using System.Media;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using System.IO; // Added for File.Exists
 
 namespace CrusaderWars.client
 {
+    [SupportedOSPlatform("windows")]
     public partial class UC_Toggle : UserControl
     {
         [Browsable(true)]

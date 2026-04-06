@@ -440,6 +440,7 @@ namespace CrusaderWars.client
         // Add the button click event handler
         [SupportedOSPlatform("windows")]
         [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void btnCopyToClipboard_Click(object sender, EventArgs e)
         {
             try
