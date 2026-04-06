@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -12,6 +13,7 @@ namespace CrusaderWars.data.attila_settings
         static string preferences_file_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\The Creative Assembly\Attila\scripts\preferences.script.txt";
         static string user_script_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\The Creative Assembly\Attila\scripts\user.script.txt";
 
+        [SupportedOSPlatform("windows")]
         public static void ValidateOnStartup()
         {
             if (File.Exists(user_script_path))
@@ -29,6 +31,7 @@ namespace CrusaderWars.data.attila_settings
                 }
             }
         }
+        [SupportedOSPlatform("windows")]
         public static bool ValidateBeforeLaunch()
         {
             while (true) // Loop until the file is cleared or the user cancels

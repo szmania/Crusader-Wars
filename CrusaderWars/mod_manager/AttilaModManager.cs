@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Runtime.Versioning;
 using System.Xml.Linq;
 using System.Xml.Schema;
 using CrusaderWars.unit_mapper;
@@ -62,6 +63,7 @@ namespace CrusaderWars.mod_manager
         public List<(string FileName, string ExpectedSha, string? ScreenName, string? Url)> MismatchedFiles { get; } = new List<(string, string, string?, string?)>();
     }
 
+    [SupportedOSPlatform("windows")]
     public static class AttilaModManager
     {
         static DataGridView? ModManagerControl { get; set; }

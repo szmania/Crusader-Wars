@@ -2,10 +2,12 @@ using CrusaderWars.terrain;
 using System;
 using System.Drawing;
 using System.Globalization;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 
 namespace CrusaderWars.client
 {
+    [SupportedOSPlatform("windows")]
     public partial class DeploymentZoneToolForm : Form
     {
         private readonly DeploymentArea _initialAttackerArea;

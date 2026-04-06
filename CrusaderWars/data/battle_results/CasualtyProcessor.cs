@@ -11,6 +11,8 @@ using System.Globalization; // Added for CultureInfo
 using CrusaderWars.armies; // Added for List<Army>
 using CrusaderWars.unit_mapper;
 using CrusaderWars.locs;
+using System.Runtime.Versioning;
+using System.Windows.Forms;
 
 
 namespace CrusaderWars.data.battle_results
@@ -23,6 +25,7 @@ namespace CrusaderWars.data.battle_results
             Kills
         }
 
+        [SupportedOSPlatform("windows")]
         public static void ReadAttilaResults(Army army, string path_attila_log)
         {
             Program.Logger.Debug($"Reading Attila results for army {army.ID} from log: {path_attila_log}");

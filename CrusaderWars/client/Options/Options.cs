@@ -13,10 +13,12 @@ using System.Media;
 using Control = System.Windows.Forms.Control;
 using CrusaderWars.mod_manager;
 using CrusaderWars.unit_mapper;
+using System.Runtime.Versioning;
 using Timer = System.Windows.Forms.Timer;
 
 namespace CrusaderWars
 {
+    [SupportedOSPlatform("windows")]
     public partial class Options : Form
     {
         private Timer _pulseTimer;
