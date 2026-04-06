@@ -1469,6 +1469,7 @@ namespace CrusaderWars
             File.AppendAllText(battlePath, PR_OpenAlliance);
         }
 
+        [SupportedOSPlatform("windows")]
         private static void SetBattleDescription(Army army, int total_soldiers)
         {
             switch (army.CombatSide)
