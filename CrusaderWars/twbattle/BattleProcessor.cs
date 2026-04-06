@@ -1652,6 +1652,7 @@ namespace CrusaderWars.twbattle
             return (result, selectedStrategy);
         }
 
+        [SupportedOSPlatform("windows")]
         private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner)
         {
             var report = new BattleReport();

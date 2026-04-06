@@ -559,6 +559,7 @@ namespace CrusaderWars
             twbattle.BattleState.BattleType = battleType;
         }
 
+        [SupportedOSPlatform("windows")]
         public static void BETA_CreateBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Starting TW:Attila battle file creation...");

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 
 namespace CrusaderWars
 {
@@ -15,6 +16,7 @@ namespace CrusaderWars
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
+        [SupportedOSPlatform("windows")]
         static void Main()
         {
             Logger.Debug("Application starting...");
@@ -30,6 +32,7 @@ namespace CrusaderWars
             Application.Run(new HomePage());
         }
 
+        [SupportedOSPlatform("windows")]
         static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             // Handle the exception
@@ -39,6 +42,7 @@ namespace CrusaderWars
             Logger.Log(e.Exception);
         }
 
+        [SupportedOSPlatform("windows")]
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Handle the exception

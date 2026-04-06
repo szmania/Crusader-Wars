@@ -200,6 +200,7 @@ namespace CrusaderWars.mod_manager
             for (int i = 0; i < references.Length; i++) { AllControlsReferences.Add(references[i]); }
         }
 
+        [SupportedOSPlatform("windows")]
         private void button1_Click(object sender, EventArgs e)
         {
             if (_playthroughTag == "TheFallenEagle" || _playthroughTag == "AGOT") // Modified condition
@@ -261,6 +262,7 @@ namespace CrusaderWars.mod_manager
             return uC_Toggle1.State;
         }
 
+        [SupportedOSPlatform("windows")]
         private async void uC_Toggle1_Click(object sender, EventArgs e)
         {
             if (uC_Toggle1.State && _playthroughTag == "Custom" && customMapperComboBox.SelectedItem == null)
@@ -469,6 +471,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private void ShowClickableMessageBox(string text, string title)
         {
             using (Form form = new Form())
@@ -532,6 +535,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private DialogResult ShowClickableWarningDialog(string text, string title, MessageBoxButtons buttons)
         {
             using (Form form = new Form())
@@ -598,6 +602,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async void BtnVerifyMods_Click(object sender, EventArgs e)
         {
             if (RequiredModsList != null)
@@ -707,6 +712,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async void BtnSubmods_Click(object sender, EventArgs e)
         {
             var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(_playthroughTag);
@@ -839,6 +845,7 @@ namespace CrusaderWars.mod_manager
 
     public static class XmlValidator
     {
+        [SupportedOSPlatform("windows")]
         public static List<string> ValidateUnitMapper(string unitMapperDirectory)
         {
             var allErrors = new List<string>();
@@ -933,6 +940,7 @@ namespace CrusaderWars.mod_manager
             }
             return allErrors;
         }
+        [SupportedOSPlatform("windows")]
         public static List<string> Validate(string xmlPath, string xsdPath)
         {
             var errors = new List<string>();

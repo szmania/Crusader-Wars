@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using System.Runtime.Versioning;
 using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
@@ -199,6 +200,7 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private static (List<ModFile> requiredMods, List<Submod> submods) ParseModsFileFromMapperPath(string mapperPath)
         {
             var requiredMods = new List<ModFile>();
@@ -265,6 +267,7 @@ namespace CrusaderWars.unit_mapper
             }
             return (requiredMods, submods);
         }
+        [SupportedOSPlatform("windows")]
         public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
         {
             var allRequiredMods = new List<ModFile>();
@@ -521,6 +524,7 @@ namespace CrusaderWars.unit_mapper
             return combinedList;
         }
 
+        [SupportedOSPlatform("windows")]
         private static void ReadTerrainsFile()
         {
             SiegeEngines.Clear(); // Clear the list to prevent duplicate data on re-read
@@ -818,6 +822,7 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods)
         {
             ActivePlaythroughTag = tag;
@@ -889,6 +894,7 @@ namespace CrusaderWars.unit_mapper
             return requiredMods; // Return empty list if no suitable mapper is found
         }
 
+        [SupportedOSPlatform("windows")]
         private static List<string> ProcessMapper(string mapperPath, List<string> activeSubmods)
         {
             List<string> requiredMods = new List<string>();
