@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using CrusaderWars.armies;
 using CrusaderWars.client;
@@ -665,6 +666,7 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
         static string SearchForTerrain(string content)
         {
             string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)LeftSide_ID").Groups[1].Value;

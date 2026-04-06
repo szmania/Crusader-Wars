@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using CrusaderWars.twbattle;
 
 namespace CrusaderWars.client
 {
+    [SupportedOSPlatform("windows")]
     public partial class UnitReplacerForm : Form
     {
         private readonly List<Unit> _currentUnits;
