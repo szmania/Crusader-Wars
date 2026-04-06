@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 using CrusaderWars.armies;
 using CrusaderWars.client;
 using CrusaderWars.data.save_file;
@@ -196,6 +197,7 @@ namespace CrusaderWars
             CloseBattle();
         }
 
+        [SupportedOSPlatform("windows")]
         static void FriendliesOnlyArmies(List<Army> temp_attacker_armies, List<Army> temp_defender_armies, Army player_main_army, Army enemy_main_army, int total_soldiers, (string X, string Y, string[] attPositions, string[] defPositions) battleMap, Dictionary<string, int> siegeEngines)
         {
             Program.Logger.Debug("--- Starting FriendliesOnlyArmies setup ---");
@@ -1484,6 +1486,7 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private static void SetBattleDescription(string combat_side, int total_soldiers)
         {
             // 0 = player defender 
