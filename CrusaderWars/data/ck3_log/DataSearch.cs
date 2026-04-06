@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -25,9 +25,9 @@ namespace CrusaderWars
         string ID { get; set; }
         string CultureID { get; set; }
 
-        public PlayerChar(string iD,string culture_id)
+        public PlayerChar(string iD, string culture_id)
         {
-            ID = iD;;
+            ID = iD; ;
             CultureID = culture_id;
         }
 
@@ -65,7 +65,7 @@ namespace CrusaderWars
         {
             internal static void SetMainParticipant((string id, string culture_id) data) { LeftSide_MainParticipant = data; }
             internal static void SetCommander((string name, string id, int prowess, int martial, int rank, string culture_id) data) { LeftSide_Commander = data; }
-            internal static void  SetRealmName(string name) { LeftSide_RealmName = name; }
+            internal static void SetRealmName(string name) { LeftSide_RealmName = name; }
             internal static void SetModifiers(Modifiers t) { LeftSide_Modifiers = t; }
             internal static void SetKnights(List<(string id, string prowess, string name, int effectiveness)> t) { LeftSide_Knights = t; }
 
@@ -76,9 +76,9 @@ namespace CrusaderWars
             public static List<(string id, string prowess, string name, int effectiveness)> GetKnights() { return LeftSide_Knights; }
             public static bool CheckIfHasKnight(string character_id)
             {
-                foreach(var knight in LeftSide_Knights)
+                foreach (var knight in LeftSide_Knights)
                 {
-                    if(knight.id == character_id)
+                    if (knight.id == character_id)
                     {
                         return true;
                     }
@@ -90,7 +90,7 @@ namespace CrusaderWars
 
         public struct RightSide
         {
-            internal static void SetMainParticipant((string id, string culture_id)data) { RightSide_MainParticipant = data; }
+            internal static void SetMainParticipant((string id, string culture_id) data) { RightSide_MainParticipant = data; }
             internal static void SetCommander((string name, string id, int prowess, int martial, int rank, string culture_id) data) { RightSide_Commander = data; }
             internal static void SetRealmName(string name) { RightSide_RealmName = name; }
             internal static void SetModifiers(Modifiers t) { RightSide_Modifiers = t; }
@@ -152,17 +152,17 @@ namespace CrusaderWars
             string holdingLevel = Regex.Match(log, @"HoldingLevel:\s*(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found HoldingLevel Key: {holdingLevel}");
             twbattle.Sieges.SetHoldingLevelKey(holdingLevel);
-                        
+
             // Disease
             string diseaseFrameStr = Regex.Match(log, @"Diseases:\s*(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Sickness Status: {diseaseFrameStr}");
             twbattle.Sieges.SetHoldingSickness(diseaseFrameStr);
-            
+
             // Starvation
             string suppliesStr = Regex.Match(log, @"Supplies:\s*(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Supply Status: {suppliesStr}");
             twbattle.Sieges.SetHoldingSupplies(suppliesStr);
-            
+
             // Walls
             string wallsStr = Regex.Match(log, @"Walls:\s*(.+)").Groups[1].Value.Trim();
             Program.Logger.Debug($"Found Breach Status: {wallsStr}");
@@ -177,7 +177,7 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Found Fort Level: {fortLevel}");
                 twbattle.Sieges.SetFortLevel(fortLevel); // Changed from SetGarrisonSize to SetFortLevel
             }
-            
+
             // Garrison culture and heritage
             string garrisonCulture = Regex.Match(log, @"GarrisonCulture:.*?ONCLICK:CULTURE[,]*(\d+)").Groups[1].Value.Trim();
             string garrisonHeritage = Regex.Match(log, @"GarrisonHeritage:.*?TOOLTIP:CULTURE_PILLAR[,]*(\S+)").Groups[1].Value.Trim();
@@ -319,7 +319,7 @@ namespace CrusaderWars
             TerrainSearch(log);
 
             UniqueMapsSearch(log);
-            
+
 
             /*---------------------------------------------
              * ::::::::::::::Left-Side-Army:::::::::::::::::::
@@ -356,7 +356,7 @@ namespace CrusaderWars
             /*---------------------------------------------
              * :::::::::::Enemy Knight System:::::::::::::
              ---------------------------------------------*/
-            
+
             KnightsSearch(EnemyArmy, DataSearchSides.RightSide);
 
             /*---------------------------------------------
@@ -391,7 +391,7 @@ namespace CrusaderWars
 
                 // Existing cleanup logic for multiple spaces
                 battle_name = Regex.Replace(battle_name, @"\s{2,}", " ").Trim();
-                
+
                 Program.Logger.Debug($"Cleaned siege battle name: '{battle_name}'");
             }
 
@@ -476,7 +476,7 @@ namespace CrusaderWars
                         {
                             left_side_advantages += line;
                         }
-                        else if(rightReadStart)
+                        else if (rightReadStart)
                         {
                             right_side_advantages += line;
                         }
@@ -515,13 +515,15 @@ namespace CrusaderWars
 
 
             string pattern = @"";
-            if(side is DataSearchSides.LeftSide) { 
+            if (side is DataSearchSides.LeftSide)
+            {
                 pattern = @"LeftSide_Prowess:(?<Num>\d+)";
                 rank = Int32.Parse(Regex.Match(log, @"LeftSide_Rank:(?<Name>.+)").Groups["Name"].Value);
                 name = Regex.Match(log, @"LeftSide_Name:(?<Name>.+)").Groups["Name"].Value;
             }
-            else if (side is DataSearchSides.RightSide) { 
-                pattern = @"RightSide_Prowess:(?<Num>\d+)"; 
+            else if (side is DataSearchSides.RightSide)
+            {
+                pattern = @"RightSide_Prowess:(?<Num>\d+)";
                 rank = Int32.Parse(Regex.Match(log, @"RightSide_Rank:(?<Name>.+)").Groups["Name"].Value);
                 name = Regex.Match(log, @"RightSide_Name:(?<Name>.+)").Groups["Name"].Value;
             }
@@ -537,8 +539,8 @@ namespace CrusaderWars
                 prowess = 0;
             }
 
-            
-            
+
+
 
             if (side is DataSearchSides.LeftSide)
             {
@@ -546,7 +548,7 @@ namespace CrusaderWars
             }
             else if (side is DataSearchSides.RightSide)
             {
-                CK3LogData.RightSide.SetCommander((name, id, prowess, martial, rank,culture_id));
+                CK3LogData.RightSide.SetCommander((name, id, prowess, martial, rank, culture_id));
             }
 
         }
@@ -619,7 +621,7 @@ namespace CrusaderWars
             foreach (Match knight in Regex.Matches(names, @"L  (.+): "))
             {
                 string name = knight.Groups[1].Value;
-                name = Regex.Replace(name,@"\s+", " ");
+                name = Regex.Replace(name, @"\s+", " ");
                 names_arr[count] = name;
                 count++;
             }
@@ -656,13 +658,13 @@ namespace CrusaderWars
         static void UniqueMapsSearch(string log)
         {
             Match match = Regex.Match(log, @"SpecialBuilding:(.+)");
-            if(match.Success)
+            if (match.Success)
             {
                 string building_key = match.Groups[1].Value;
                 UniqueMaps.ReadSpecialBuilding(building_key);
             }
         }
-        
+
         static string SearchForTerrain(string content)
         {
             string terrain_data = Regex.Match(content, "---------Completed---------([\\s\\S]*?)LeftSide_ID").Groups[1].Value;

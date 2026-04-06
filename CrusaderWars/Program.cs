@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,17 +16,17 @@ namespace CrusaderWars
         /// </summary>
         [STAThread]
         static void Main()
-       {
+        {
             Logger.Debug("Application starting...");
             Logger.Debug(AppDomain.CurrentDomain.BaseDirectory);
             System.IO.Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
+
             // Subscribe to global exception events
             Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            
+
             Application.Run(new HomePage());
         }
 
@@ -106,7 +106,7 @@ namespace CrusaderWars
                 }
                 catch (Exception logEx)
                 {
-                     Console.WriteLine($"FATAL: Could not write to error log. {logEx.Message}");
+                    Console.WriteLine($"FATAL: Could not write to error log. {logEx.Message}");
                 }
             }
         }

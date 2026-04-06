@@ -118,7 +118,7 @@ namespace CrusaderWars
             {
                 return AGOT_Tab;
             }
-            if(Custom_Tab != null && Custom_Tab.GetState())
+            if (Custom_Tab != null && Custom_Tab.GetState())
             {
                 return Custom_Tab;
             }
@@ -145,7 +145,7 @@ namespace CrusaderWars
             SetOptionsUIData();
             Status_Refresh();
 
-            if(!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
             {
                 Program.Logger.Debug("Attila path found. Initializing mod manager...");
                 AttilaModManager.SetControlReference(ModManager);
@@ -226,7 +226,7 @@ namespace CrusaderWars
         }
 
         //this is to read the options values on the .xml file
-        
+
         private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
         {
             XmlNode? node = doc.SelectSingleNode($"//Option [@name='{optionName}']");
@@ -420,37 +420,37 @@ namespace CrusaderWars
                 }
 
                 // Set Commander NumericUpDown values with proper validation
-                if (numCommanderWounded != null) 
+                if (numCommanderWounded != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderWoundedChance"]);
                     numCommanderWounded.Value = Math.Max(numCommanderWounded.Minimum, Math.Min(numCommanderWounded.Maximum, val));
                 }
-                if (numCommanderSeverelyInjured != null) 
+                if (numCommanderSeverelyInjured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderSeverelyInjuredChance"]);
                     numCommanderSeverelyInjured.Value = Math.Max(numCommanderSeverelyInjured.Minimum, Math.Min(numCommanderSeverelyInjured.Maximum, val));
                 }
-                if (numCommanderBrutallyMauled != null) 
+                if (numCommanderBrutallyMauled != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderBrutallyMauledChance"]);
                     numCommanderBrutallyMauled.Value = Math.Max(numCommanderBrutallyMauled.Minimum, Math.Min(numCommanderBrutallyMauled.Maximum, val));
                 }
-                if (numCommanderMaimed != null) 
+                if (numCommanderMaimed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderMaimedChance"]);
                     numCommanderMaimed.Value = Math.Max(numCommanderMaimed.Minimum, Math.Min(numCommanderMaimed.Maximum, val));
                 }
-                if (numCommanderOneLegged != null) 
+                if (numCommanderOneLegged != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderOneLeggedChance"]);
                     numCommanderOneLegged.Value = Math.Max(numCommanderOneLegged.Minimum, Math.Min(numCommanderOneLegged.Maximum, val));
                 }
-                if (numCommanderOneEyed != null) 
+                if (numCommanderOneEyed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderOneEyedChance"]);
                     numCommanderOneEyed.Value = Math.Max(numCommanderOneEyed.Minimum, Math.Min(numCommanderOneEyed.Maximum, val));
                 }
-                if (numCommanderDisfigured != null) 
+                if (numCommanderDisfigured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderDisfiguredChance"]);
                     numCommanderDisfigured.Value = Math.Max(numCommanderDisfigured.Minimum, Math.Min(numCommanderDisfigured.Maximum, val));
@@ -462,37 +462,37 @@ namespace CrusaderWars
                 }
 
                 // Set Knight NumericUpDown values with proper validation
-                if (numKnightWounded != null) 
+                if (numKnightWounded != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightWoundedChance"]);
                     numKnightWounded.Value = Math.Max(numKnightWounded.Minimum, Math.Min(numKnightWounded.Maximum, val));
                 }
-                if (numKnightSeverelyInjured != null) 
+                if (numKnightSeverelyInjured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightSeverelyInjuredChance"]);
                     numKnightSeverelyInjured.Value = Math.Max(numKnightSeverelyInjured.Minimum, Math.Min(numKnightSeverelyInjured.Maximum, val));
                 }
-                if (numKnightBrutallyMauled != null) 
+                if (numKnightBrutallyMauled != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightBrutallyMauledChance"]);
                     numKnightBrutallyMauled.Value = Math.Max(numKnightBrutallyMauled.Minimum, Math.Min(numKnightBrutallyMauled.Maximum, val));
                 }
-                if (numKnightMaimed != null) 
+                if (numKnightMaimed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightMaimedChance"]);
                     numKnightMaimed.Value = Math.Max(numKnightMaimed.Minimum, Math.Min(numKnightMaimed.Maximum, val));
                 }
-                if (numKnightOneLegged != null) 
+                if (numKnightOneLegged != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightOneLeggedChance"]);
                     numKnightOneLegged.Value = Math.Max(numKnightOneLegged.Minimum, Math.Min(numKnightOneLegged.Maximum, val));
                 }
-                if (numKnightOneEyed != null) 
+                if (numKnightOneEyed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightOneEyedChance"]);
                     numKnightOneEyed.Value = Math.Max(numKnightOneEyed.Minimum, Math.Min(numKnightOneEyed.Maximum, val));
                 }
-                if (numKnightDisfigured != null) 
+                if (numKnightDisfigured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightDisfiguredChance"]);
                     numKnightDisfigured.Value = Math.Max(numKnightDisfigured.Minimum, Math.Min(numKnightDisfigured.Maximum, val));
@@ -672,7 +672,7 @@ namespace CrusaderWars
                 if (SelectedCustomMapper_Node != null) SelectedCustomMapper_Node.InnerText = ModOptions.SelectedCustomMapper;
 
                 var CombineKnights_Node = xmlDoc.SelectSingleNode("//Option [@name='CombineKnights']");
-                if (CombineKnights_Node != null) 
+                if (CombineKnights_Node != null)
                     CombineKnights_Node.InnerText = ModOptions.optionsValuesCollection["CombineKnights"];
                 else
                 {
@@ -750,7 +750,7 @@ namespace CrusaderWars
             openFileDialog1.Title = "Select 'ck3.exe' from the installation folder";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                
+
                 CK3_Path = openFileDialog1.FileName; // Get the selected file path
                 Properties.Settings.Default.VAR_ck3_path = CK3_Path;
                 ChangePathSettings(game_node, CK3_Path);
@@ -770,7 +770,7 @@ namespace CrusaderWars
             openFileDialog1.Title = "Select 'Attila.exe' from the installation folder";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                
+
                 Attila_Path = openFileDialog1.FileName; // Get the selected file path
                 Properties.Settings.Default.VAR_attila_path = Attila_Path;
                 if (Attila_Path.Contains("Attila.exe"))
@@ -923,7 +923,7 @@ namespace CrusaderWars
                 XmlNode? ck3_node = root.SelectSingleNode("CrusaderKings");
                 if (ck3_node == null)
                 {
-                Program.Logger.Debug("CrusaderKings node not found. Creating.");
+                    Program.Logger.Debug("CrusaderKings node not found. Creating.");
                     ck3_node = xmlDoc.CreateElement("CrusaderKings");
                     root.AppendChild(ck3_node);
                     fileModified = true;
@@ -1300,7 +1300,8 @@ namespace CrusaderWars
                     mapperElement.SetAttribute("name", name);
                     mapperElement.InnerText = "False";
                     rootElement.AppendChild(mapperElement);
-                };
+                }
+                ;
 
                 createMapper("DefaultCK3");
                 createMapper("TheFallenEagle");

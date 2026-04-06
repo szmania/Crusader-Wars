@@ -61,7 +61,7 @@ namespace CrusaderWars.client
         {
             return Int32.Parse(optionsValuesCollection["BattleScale"].Trim('%'));
         }
-        
+
         public static bool GetAutoScale()
         {
             switch (optionsValuesCollection["AutoScaleUnits"])
@@ -79,7 +79,7 @@ namespace CrusaderWars.client
 
         public static bool CloseCK3DuringBattle()
         {
-            switch(optionsValuesCollection["CloseCK3"])
+            switch (optionsValuesCollection["CloseCK3"])
             {
                 case "Disabled":
                     return false;
@@ -92,7 +92,7 @@ namespace CrusaderWars.client
 
         public static void CloseAttila()
         {
-            switch(optionsValuesCollection["CloseAttila"])
+            switch (optionsValuesCollection["CloseAttila"])
             {
                 case "Disabled":
                     return;
@@ -103,7 +103,7 @@ namespace CrusaderWars.client
                     return;
 
             }
-            
+
         }
 
         public enum ArmiesSetup
@@ -128,7 +128,7 @@ namespace CrusaderWars.client
 
             }
         }
-        
+
         public static string DeploymentsZones()
         {
             return optionsValuesCollection["BattleMapsSize"];
@@ -191,7 +191,7 @@ namespace CrusaderWars.client
 
         public static string TimeLimit()
         {
-            switch (optionsValuesCollection["TimeLimit"]) 
+            switch (optionsValuesCollection["TimeLimit"])
             {
                 case "Disabled":
                     return "";

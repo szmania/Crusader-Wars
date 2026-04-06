@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Globalization;
 using CrusaderWars.terrain;
@@ -70,7 +70,7 @@ namespace CrusaderWars
 
         public static void isRiverBattle(bool yn)
         {
-            switch(yn) 
+            switch (yn)
             {
                 case true:
                     isRiver = true;
@@ -107,7 +107,7 @@ namespace CrusaderWars
         {
             // Check for army movement across a land bridge first (strait/river crossing)
             var landBridge = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
-            
+
             if (landBridge != null)
             {
                 var allArmyIDs = attacker_armies.Concat(defender_armies).Select(a => a.ArmyUnitID).Where(id => !string.IsNullOrEmpty(id)).ToHashSet();
@@ -180,10 +180,10 @@ namespace CrusaderWars
 
 
         public static (string X, string Y, string[] attPositions, string[] defPositions) GetBattleMap()
-       {
+        {
 
             //Special Battle Maps           
-            if(isUnique)
+            if (isUnique)
             {
                 Program.Logger.Debug("Getting unique battle map.");
                 var battlemap = UniqueMaps.GetBattleMap();
@@ -204,7 +204,7 @@ namespace CrusaderWars
             }
 
             //Straits Battle Maps
-            if(isStrait)
+            if (isStrait)
             {
                 var landBridgeStrait = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
                 if (landBridgeStrait != null && landBridgeStrait.CK3Type == "strait" && landBridgeStrait.Variants.Any())
@@ -217,12 +217,12 @@ namespace CrusaderWars
                 }
 
                 Program.Logger.Debug($"Getting strait battle map for terrain: {TerrainType}");
-                var battlemap = Straits.GetBattleMap(Region ,TerrainType);
-                return battlemap;   
+                var battlemap = Straits.GetBattleMap(Region, TerrainType);
+                return battlemap;
             }
 
             //River Battle Maps
-            if(isRiver) 
+            if (isRiver)
             {
                 var landBridgeRiver = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
                 if (landBridgeRiver != null && landBridgeRiver.CK3Type != "strait" && landBridgeRiver.Variants.Any())
@@ -241,7 +241,7 @@ namespace CrusaderWars
 
             //Land Battle Maps
             bool isLand = (!isStrait && !isRiver && !isUnique && !isCoastal);
-            if (isLand) 
+            if (isLand)
             {
                 Program.Logger.Debug($"Getting land battle map for terrain: {TerrainType}");
                 var battlemap = Lands.GetBattleMap(TerrainType, data.battle_results.BattleResult.ProvinceName ?? "");
@@ -250,6 +250,6 @@ namespace CrusaderWars
 
 
             return ("0.146", "0.177", new string[] { "All", "All" }, new string[] { "All", "All" });
-       }
+        }
     }
 }

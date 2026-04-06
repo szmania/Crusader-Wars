@@ -28,7 +28,7 @@ namespace CrusaderWars.armies
             string SecundaryAbilityKey = !string.IsNullOrEmpty(SecundaryAttribute_Name)
                 ? GetSecundaryAttributeSpecialAbilityKey(SecundaryAttribute_Name, SecondaryAttribute_Level)
                 : "null";
-            
+
             var specialAbilitiesKeys = (PrimaryAbilityKey, SecundaryAbilityKey);
 
             return specialAbilitiesKeys;
@@ -588,17 +588,17 @@ namespace CrusaderWars.armies
 
         private static int DetermineAbilityLevel(int Rank, bool isPrimary)
         {
-            if(isPrimary)
+            if (isPrimary)
             {
-                if(Rank == 1 || Rank == 2) 
+                if (Rank == 1 || Rank == 2)
                 {
                     return 1;
                 }
-                else if(Rank == 3 || Rank == 4)
+                else if (Rank == 3 || Rank == 4)
                 {
                     return 2;
                 }
-                else if(Rank == 5 || Rank == 6)
+                else if (Rank == 5 || Rank == 6)
                 {
                     return 3;
                 }
@@ -617,7 +617,7 @@ namespace CrusaderWars.armies
                 {
                     return 2;
                 }
-                else if(Rank == 6)
+                else if (Rank == 6)
                 {
                     return 3;
                 }
@@ -628,11 +628,11 @@ namespace CrusaderWars.armies
 
         private static int GetRank(int Honor)
         {
-            if(Honor >= 100 && Honor < 300)
+            if (Honor >= 100 && Honor < 300)
             {
                 return 1;
             }
-            else if(Honor >= 300 && Honor < 600)
+            else if (Honor >= 300 && Honor < 600)
             {
                 return 2;
             }
@@ -659,8 +659,8 @@ namespace CrusaderWars.armies
         private static string? GetAttribute(string attribute)
         {
             if (attribute == null) return null;
-            
-            switch(attribute)
+
+            switch (attribute)
             {
                 case "contender_attribute":
                     return Attributes.Contender();

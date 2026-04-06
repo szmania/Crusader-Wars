@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -34,7 +34,7 @@ namespace CrusaderWars.terrain
 
         };
 
-        
+
 
         public static void ReadSpecialBuilding(string building)
         {
@@ -42,7 +42,7 @@ namespace CrusaderWars.terrain
             string x, y;
 
             //Search for added historical maps by unit mappers
-            
+
             if (UnitMappers_BETA.Terrains != null)
             {
                 Program.Logger.Debug($"Checking for custom unique map in unit mapper for building: '{building}'");
@@ -64,8 +64,8 @@ namespace CrusaderWars.terrain
             {
                 Program.Logger.Debug("No unit mapper terrains loaded. Checking hardcoded unique maps.");
             }
-            
-            switch (building) 
+
+            switch (building)
             {
                 case "the_pyramids_01":
                     x = BattleMaps.PyramidsOfGizeh.X;
@@ -83,7 +83,7 @@ namespace CrusaderWars.terrain
                     return;
                 case "hadrians_wall_01":
                     Program.Logger.Debug($"Found hardcoded unique map for '{building}'. Terrain type: '{TerrainGenerator.TerrainType}'");
-                    switch(TerrainGenerator.TerrainType)
+                    switch (TerrainGenerator.TerrainType)
                     {
                         case "Forest":
                         case "Bosque":
@@ -109,7 +109,7 @@ namespace CrusaderWars.terrain
 
                     }
                     return;
-                    
+
             }
 
 

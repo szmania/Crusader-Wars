@@ -66,11 +66,11 @@ namespace CrusaderWars.armies
             return value;
 
         }
-        private  void GetTotalOfDeployments(int army_size)
+        private void GetTotalOfDeployments(int army_size)
         {
             double num = army_size / 750;
             double total = Math.Round(num);
-            if(total < 1) { total = 1; }
+            if (total < 1) { total = 1; }
             TotalDeployments = (int)total;
         }
         public DefensiveSystem(int army_size, int martial_skill, int deployables_boost)
@@ -82,9 +82,9 @@ namespace CrusaderWars.armies
                 TotalDeployments = 0;
                 return;
             }
-            
+
             int defensive_level = GetDefensiveLevel(martial_skill);
-            GetTotalOfDeployments (army_size);
+            GetTotalOfDeployments(army_size);
 
             int num_spikes = 0;
             int num_ditches = 0;
@@ -112,7 +112,7 @@ namespace CrusaderWars.armies
                     num_spikes = (int)Math.Round(TotalDeployments * 0.75);
 
                     break;
-                    
+
                 /*
                  * Level 3 (Average Martial) - 75% low tier and 25% mid tier.
                  */
@@ -156,7 +156,7 @@ namespace CrusaderWars.armies
                           $"<deployable_item name=\"deployable_spiketrap\" num_deployables =\"{num_ditches}\">\n" +
                            "</deployable_item>\n" +
                           $"<deployable_item name=\"deployable_caltrop\" num_deployables =\"{num_caltrops}\">\n" +
-                          "</deployable_item>\n" + 
+                          "</deployable_item>\n" +
                            "</deployables>\n\n";
 
             TotalDeployments = 0;

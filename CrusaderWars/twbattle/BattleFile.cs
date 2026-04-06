@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -31,7 +31,7 @@ namespace CrusaderWars
 
         public static void ClearFile()
         {
-            
+
             bool isCreated = false;
             if (isCreated == false)
             {
@@ -116,11 +116,11 @@ namespace CrusaderWars
                 }
             }
 
-            foreach(var army in attacker_armies.Concat(defender_armies))
+            foreach (var army in attacker_armies.Concat(defender_armies))
             {
                 if (army.Units == null) continue;
                 bool isPlayerArmy = army.IsPlayer();
-                foreach(var unit in army.Units)
+                foreach (var unit in army.Units)
                 {
                     unit.SetIsPlayer(isPlayerArmy);
                 }
@@ -158,7 +158,7 @@ namespace CrusaderWars
             }
             else if (player_army.CombatSide == "defender")
             {
-                foreach(var army in temp_defender_armies)
+                foreach (var army in temp_defender_armies)
                 {
                     WriteArmy(army, total_soldiers, army.IsReinforcementArmy(), "stark", siegeEngines);
                 }
@@ -275,7 +275,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"Armies after merging down to three: {temp_attacker_armies.Count} attackers, {temp_defender_armies.Count} defenders.");
 
             // WRITE DECLARATIONS
-            if(!isUserAlly)
+            if (!isUserAlly)
                 DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army);
             else
                 DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies, userAlliedArmy!, enemy_main_army);
@@ -287,7 +287,7 @@ namespace CrusaderWars
             OpenPlayerAlliance();
 
             //#### WRITE HUMAN PLAYER ARMY
-            if(!isUserAlly)
+            if (!isUserAlly)
             {
                 Program.Logger.Debug($"Writing player main army {player_main_army.ID} to file.");
                 WriteArmy(player_main_army, total_soldiers, player_main_army.IsReinforcementArmy(), "stark", siegeEngines);
@@ -388,11 +388,11 @@ namespace CrusaderWars
             //  Merge armies until there are only four      
             //----------------------------------------------
 
-            if(player_main_army.Owner?.GetID() == DataSearch.Player_Character?.GetID())
+            if (player_main_army.Owner?.GetID() == DataSearch.Player_Character?.GetID())
             {
                 isUserAlly = false;
                 ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
-                if(!twbattle.BattleState.IsSiegeBattle)
+                if (!twbattle.BattleState.IsSiegeBattle)
                 {
                     ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
                 }
@@ -420,12 +420,12 @@ namespace CrusaderWars
                 }
 
                 ArmiesControl.MergeArmiesUntilFour(temp_attacker_armies);
-                if(!twbattle.BattleState.IsSiegeBattle)
+                if (!twbattle.BattleState.IsSiegeBattle)
                 {
                     ArmiesControl.MergeArmiesUntilFour(temp_defender_armies);
                 }
             }
-            
+
 
             // WRITE DECLARATIONS
             DeclarationsFile.CreateAlliances(temp_attacker_armies, temp_defender_armies);
@@ -436,7 +436,7 @@ namespace CrusaderWars
             OpenPlayerAlliance();
 
             //#### WRITE HUMAN PLAYER ARMY
-            if(!isUserAlly)
+            if (!isUserAlly)
                 WriteArmy(player_main_army, total_soldiers, player_main_army.IsReinforcementArmy(), "stark", siegeEngines);
             else
                 WriteArmy(userAlliedArmy!, total_soldiers, userAlliedArmy.IsReinforcementArmy(), "stark", siegeEngines);
@@ -595,16 +595,20 @@ namespace CrusaderWars
             }
 
             //
-            if(player_main_army.Commander!=null)  {
+            if (player_main_army.Commander != null)
+            {
                 UnitsFile.PlayerCommanderTraits = player_main_army.Commander.CommanderTraits;
             }
-            else { 
+            else
+            {
                 UnitsFile.PlayerCommanderTraits = null;
             }
-            if (enemy_main_army.Commander != null) {
+            if (enemy_main_army.Commander != null)
+            {
                 UnitsFile.EnemyCommanderTraits = enemy_main_army.Commander.CommanderTraits;
             }
-            else {
+            else
+            {
                 UnitsFile.EnemyCommanderTraits = null;
             }
 
@@ -625,7 +629,7 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug("Siege battle detected. Attempting to find custom settlement map.");
                 string defenderAttilaFaction = UnitMappers_BETA.GetAttilaFaction(twbattle.Sieges.GetGarrisonCulture(), twbattle.Sieges.GetGarrisonHeritage());
-                
+
                 string siegeBattleType;
                 int holdingLevel = twbattle.Sieges.GetHoldingLevel();
                 if (holdingLevel > 1)
@@ -669,7 +673,7 @@ namespace CrusaderWars
             {
                 Program.Logger.Debug("Land battle detected. Using TerrainGenerator.GetBattleMap().");
                 battleMap = TerrainGenerator.GetBattleMap(); // Existing logic for land battles
-            
+
                 var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
                 var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(false);
 
@@ -720,7 +724,7 @@ namespace CrusaderWars
         private static void WriteArmy(Army army, int total_soldiers, bool isReinforcement, string x, Dictionary<string, int> siegeEngines)
         {
             Program.Logger.Debug($"Writing army {army.ID} to battle file. Side: {army.CombatSide}, Alliance: {x}, IsReinforcement: {isReinforcement}");
-            
+
             // Determine player and enemy realm names dynamically
             string playerRealmName;
             string enemyRealmName;
@@ -772,13 +776,13 @@ namespace CrusaderWars
                 OpenArmy();
 
             //Write army faction name
-            if(army.IsPlayer() && army.isMainArmy)
+            if (army.IsPlayer() && army.isMainArmy)
                 AddArmyName(playerRealmName);
-            else if(army.IsEnemy() && army.isMainArmy)
-                AddArmyName(enemyRealmName);     
+            else if (army.IsEnemy() && army.isMainArmy)
+                AddArmyName(enemyRealmName);
             else
                 AddArmyName("Allied Army");
-            
+
 
             //Write essential data
             if (x == "stark")
@@ -791,7 +795,7 @@ namespace CrusaderWars
             {
                 File.AppendAllText(battlePath, "<can_withdraw>true</can_withdraw>\n\n");
             }
-            
+
             // Set deployment area and unit positions
             string deploymentDirection;
 
@@ -799,7 +803,7 @@ namespace CrusaderWars
             {
                 // This logic applies to any reinforcement army (currently only in sieges)
                 deploymentDirection = Deployments.GetOppositeDirection(Deployments.beta_GeDirection("attacker"));
-                
+
                 // Only add a deployment area for reinforcements in a siege battle, as requested.
                 if (twbattle.BattleState.IsSiegeBattle)
                 {
@@ -832,7 +836,7 @@ namespace CrusaderWars
             }
 
             SetPositions(total_soldiers, deploymentDirection, army.IsReinforcementArmy());
-            
+
             //Write all player army units
             UnitsFile.BETA_ConvertandAddArmyUnits(army);
 
@@ -852,7 +856,7 @@ namespace CrusaderWars
                         // Set position for reinforcement units to spawn at the map edge
                         string deploymentDirectionForMerged = Deployments.GetOppositeDirection(Deployments.beta_GeDirection("attacker"));
                         SetPositions(total_soldiers, deploymentDirectionForMerged, true);
-                        
+
                         // Write the units for this merged reinforcement army
                         UnitsFile.BETA_ConvertandAddArmyUnits(mergedArmy);
                     }
@@ -914,13 +918,13 @@ namespace CrusaderWars
 
         private static void AddArmyName(string name)
         {
-            if(name != String.Empty)
+            if (name != String.Empty)
             {
                 string PR_ArmyName = $"<army_name>{name}</army_name>\n\n";
 
                 File.AppendAllText(battlePath, PR_ArmyName);
             }
-            
+
         }
 
         private static void SetPlayerFaction(Army army)
@@ -959,10 +963,10 @@ namespace CrusaderWars
         private static string GetAOJFaction(Army army, bool isPlayer)
         {
             string faction = isPlayer ? "historical_house_stark" : "historical_house_bolton";
-            
+
             // Add null check for army.Units
             if (army.Units == null) return faction;
-            
+
             foreach (Unit unit in army.Units)
             {
                 if (unit != null)
@@ -997,7 +1001,7 @@ namespace CrusaderWars
 
         private static void SetDeploymentArea(string combat_side)
         {
-            string? PR_Deployment = Deployments.beta_GetDeployment(combat_side); 
+            string? PR_Deployment = Deployments.beta_GetDeployment(combat_side);
             if (PR_Deployment != null)
             {
                 File.AppendAllText(battlePath, PR_Deployment);
@@ -1032,7 +1036,7 @@ namespace CrusaderWars
         public static void SetPositions(int total_soldiers, string direction, bool isReinforcement)
         {
 
-            UnitsDeploymentsPosition UnitsPosition = new UnitsDeploymentsPosition(direction, ModOptions.DeploymentsZones(), total_soldiers, isReinforcement) ;
+            UnitsDeploymentsPosition UnitsPosition = new UnitsDeploymentsPosition(direction, ModOptions.DeploymentsZones(), total_soldiers, isReinforcement);
 
             if (UnitsPosition.Direction == "N")
             {
@@ -1066,7 +1070,7 @@ namespace CrusaderWars
                 return;
             }
 
-            if(numSoldiers <= 1 || numUnits == 0) return;
+            if (numSoldiers <= 1 || numUnits == 0) return;
 
 
             int experience = 0;
@@ -1120,7 +1124,7 @@ namespace CrusaderWars
 
 
                 //Add horizontal spacing between units
-                if(direction is "N" || direction is "S")
+                if (direction is "N" || direction is "S")
                     Position.AddUnitXSpacing(direction);
                 else
                 {
@@ -1134,28 +1138,28 @@ namespace CrusaderWars
                 DeclarationsFile.AddUnitDeclaration("UNIT" + Unit_Script_Name, Unit_Script_Name);
                 BattleScript.SetLocals(Unit_Script_Name, "UNIT" + Unit_Script_Name);
                 Data.units_scripts.Add((Unit_Script_Name, "UNIT" + Unit_Script_Name));
-                
+
                 //Write to file
                 File.AppendAllText(battlePath, PR_Unit);
             }
 
             //Add vertical spacing between units
             if (direction is "N" || direction is "S")
-            Position.AddUnitYSpacing(direction);
+                Position.AddUnitYSpacing(direction);
             else
-            Position.AddUnitXSpacing(direction);
+                Position.AddUnitXSpacing(direction);
 
         }
 
         public static void AddGeneralUnit(CommanderSystem Commander, string troopType, string unitScript, int experience, string direction)
         {
             if (Position == null)
-                {
+            {
                 Program.Logger.Debug("CRITICAL: BattleFile.Position was null when trying to add a unit. Aborting unit addition.");
                 return;
             }
 
-            if(Commander != null)
+            if (Commander != null)
             {
                 string name = Commander.Name;
                 int numberOfSoldiers = Commander.GetUnitSoldiers();
@@ -1178,7 +1182,7 @@ namespace CrusaderWars
                      $"<unit_experience level=\"{experience}\"/>\n";
 
 
-                    if(accolade != null)
+                    if (accolade != null)
                     {
                         var special_ability = AccoladesAbilities.ReturnAbilitiesKeys(accolade);
                         if (special_ability.primaryKey != "null" || special_ability.secundaryKey != "null")
@@ -1196,12 +1200,12 @@ namespace CrusaderWars
                         }
                     }
 
-                     PR_General += 
-                     "<general>\n" +
-                     $"<name>{name}</name>\n" +
-                     $"<star_rating level=\"{Commander.GetCommanderStarRating()}\"/>\n" +
-                     "</general>\n" +
-                     "</unit>\n\n";
+                    PR_General +=
+                    "<general>\n" +
+                    $"<name>{name}</name>\n" +
+                    $"<star_rating level=\"{Commander.GetCommanderStarRating()}\"/>\n" +
+                    "</general>\n" +
+                    "</unit>\n\n";
 
                     //Add horizontal spacing between units
                     if (direction is "N" || direction is "S")
@@ -1256,10 +1260,10 @@ namespace CrusaderWars
                  $"<orientation radians=\"{Rotation}\"/>\n" +
                  "<width metres=\"21.70\"/>\n" +
                  $"<unit_experience level=\"{experience}\"/>\n";
-                
+
                 //accolades special abilities
                 List<string> validAbilities = new List<string>();
-                if(accoladesList != null)
+                if (accoladesList != null)
                 {
                     foreach (var accolade in accoladesList)
                     {
@@ -1527,7 +1531,7 @@ namespace CrusaderWars
                                           "<boiling_oil></boiling_oil>\n" +
                                           fortificationDamageTags +
                                           "</battle_description>\n\n";
-            
+
             string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers, twbattle.BattleState.IsSiegeBattle)}\"/>\n\n";
 
             File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
@@ -1555,7 +1559,7 @@ namespace CrusaderWars
                                              $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n";
             }
 
-            PR_BattleTerrain =   "<weather>\n" +
+            PR_BattleTerrain = "<weather>\n" +
                                         $"<environment_key>{weather_key}</environment_key>\n" +
                                         "<prevailing_wind x=\"1.00\" y=\"0.00\"/>\n" +
                                         "</weather>\n\n" +

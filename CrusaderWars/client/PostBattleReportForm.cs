@@ -67,18 +67,24 @@ namespace CrusaderWars.client
 
             // Populate summary
             lblBattleResult.Text = $"Battle Result: {_report.BattleResult}";
-            if(_report.BattleResult == "Victory") {
+            if (_report.BattleResult == "Victory")
+            {
                 lblBattleResult.ForeColor = Color.LightGreen;
-            } else {
+            }
+            else
+            {
                 lblBattleResult.ForeColor = Color.OrangeRed;
             }
 
-            if(_report.SiegeResult != "N/A") {
+            if (_report.SiegeResult != "N/A")
+            {
                 lblSiegeResult.Text = $"Siege Result: {_report.SiegeResult}";
                 lblWallDamage.Text = $"Wall Damage: {_report.WallDamage}";
                 lblSiegeResult.Visible = true;
                 lblWallDamage.Visible = true;
-            } else {
+            }
+            else
+            {
                 lblSiegeResult.Visible = false;
                 lblWallDamage.Visible = false;
             }
@@ -112,13 +118,13 @@ namespace CrusaderWars.client
             {
                 lblWarScoreChange.Visible = false;
             }
-            
+
             // Add total battle statistics at the bottom
             int totalDeployed = _report.AttackerSide.TotalDeployed + _report.DefenderSide.TotalDeployed;
             int totalRemaining = _report.AttackerSide.TotalRemaining + _report.DefenderSide.TotalRemaining;
             int totalLosses = _report.AttackerSide.TotalLosses + _report.DefenderSide.TotalLosses;
             int totalKills = _report.AttackerSide.TotalKills + _report.DefenderSide.TotalKills;
-            
+
             // Verify totals consistency
             if (totalLosses != totalKills)
             {
@@ -143,7 +149,7 @@ namespace CrusaderWars.client
             foreach (var army in sideReport.Armies)
             {
                 var armyNode = new TreeNode($"{army.ArmyName} (Commander: {army.CommanderName}) (Deployed: {army.TotalDeployed}, Losses: {army.TotalLosses}, Remaining: {army.TotalRemaining}, Kills: {army.TotalKills})");
-                
+
                 // Display individual units without grouping
                 var individualUnits = army.Units
                     .OrderByDescending(u => u.Ck3UnitType == "Commander")
@@ -175,7 +181,7 @@ namespace CrusaderWars.client
                     }
                     var unitNode = new TreeNode(unitText);
                     unitNode.Tag = unit; // Store the full unit report object
-                    
+
                     // Always add dummy node to make ALL units expandable for detailed information
                     unitNode.Nodes.Add(new TreeNode("..."));
 
@@ -212,7 +218,7 @@ namespace CrusaderWars.client
                     // Always show basic unit information
                     node.Nodes.Add(new TreeNode($"CK3 Unit Type: {unitReport.Ck3UnitType ?? "N/A"}") { ForeColor = Color.Cyan });
                     node.Nodes.Add(new TreeNode($"Attila Unit Key: {unitReport.AttilaUnitKey ?? "N/A"}") { ForeColor = Color.Cyan });
-                    
+
                     if (unitReport.IsSiegeUnit)
                     {
                         node.Nodes.Add(new TreeNode($"Deployed: {unitReport.Deployed} ({unitReport.DeployedMachines} engines)") { ForeColor = Color.LightGray });
@@ -249,7 +255,7 @@ namespace CrusaderWars.client
                     else if (unitReport.Ck3UnitType == "Knight")
                     {
                         node.Nodes.Add(new TreeNode("Note: This unit represents combined knights from CK3") { ForeColor = Color.LightBlue });
-                        
+
                         // NEW: Add individual knight details
                         if (unitReport.KnightDetails.Any())
                         {
@@ -274,7 +280,7 @@ namespace CrusaderWars.client
                             }
                             node.Nodes.Add(knightsNode);
                         }
-                        
+
                         // Add Rank field for Knight units
                         if (unitReport.Rank > 0)
                         {
@@ -309,7 +315,7 @@ namespace CrusaderWars.client
                         foreach (var character in unitReport.Characters.OrderBy(c => c.Name))
                         {
                             var charNode = new TreeNode($"{character.Name}: {character.Status}");
-                            if(character.Status != "Unharmed")
+                            if (character.Status != "Unharmed")
                             {
                                 charNode.ForeColor = Color.LightCoral;
                                 charNode.Nodes.Add(new TreeNode($"Details: {character.Details}") { ForeColor = Color.Tomato });
@@ -356,7 +362,7 @@ namespace CrusaderWars.client
         private string GenerateClipboardContent()
         {
             var sb = new StringBuilder();
-            
+
             // Battle Header Details
             sb.AppendLine("=== CRUSADER CONFLICTS BATTLE REPORT ===");
             sb.AppendLine($"Battle Name: {_report.BattleName}");
@@ -409,7 +415,7 @@ namespace CrusaderWars.client
                 {
                     sb.AppendLine($"  Unit: {unit.AttilaUnitName}");
                     sb.AppendLine($"    Deployed: {unit.Deployed}, Losses: {unit.Losses}, Remaining: {unit.Remaining}, Kills: {unit.Kills}");
-                    
+
                     if (unit.Characters.Any())
                     {
                         sb.AppendLine("    Characters:");

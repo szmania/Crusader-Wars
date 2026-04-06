@@ -46,7 +46,7 @@ namespace CrusaderWars.twbattle
         }
         public static ZoneOverride? DeploymentZoneOverrideAttacker { get; set; } = null;
         public static ZoneOverride? DeploymentZoneOverrideDefender { get; set; } = null;
-        
+
         private const string SETTINGS_FILE = @"persistent_settings.json";
 
         static BattleState()
@@ -57,7 +57,7 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug($"BattleState: State folder not found at '{StateFolder}'. Creating it.");
                 Directory.CreateDirectory(StateFolder);
             }
-            
+
             // Load persistent settings on startup
             LoadPersistentBattleSettings();
         }
@@ -139,7 +139,7 @@ namespace CrusaderWars.twbattle
                 return null;
             }
         }
-        
+
         // Methods for handling persistent battle settings
         public static void SavePersistentBattleSettings()
         {

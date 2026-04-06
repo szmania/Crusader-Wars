@@ -30,10 +30,10 @@ namespace CrusaderWars.client
             InitializeComponent();
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
-            
+
             // Initialize the replacements dictionary
             Replacements = new Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)>();
-            
+
             // Initialize with existing replacements passed from BattleState
             if (existingReplacements != null)
             {
@@ -42,7 +42,7 @@ namespace CrusaderWars.client
                     Replacements[kvp.Key] = kvp.Value;
                 }
             }
-            
+
             _unitScreenNames = unitScreenNames ?? new Dictionary<string, string>();
             txtSearchCurrent.TextChanged += TxtSearchCurrent_TextChanged;
             txtSearchAvailable.TextChanged += TxtSearchAvailable_TextChanged;
@@ -88,7 +88,8 @@ namespace CrusaderWars.client
                     // --- Process Non-Levy Units ---
                     var nonLevyUnits = factionGroup.Where(u => u.GetRegimentType() != RegimentType.Levy);
                     var groupedForDisplay = nonLevyUnits
-                        .GroupBy(u => {
+                        .GroupBy(u =>
+                        {
                             var type = u.GetRegimentType();
                             string groupIdentifier = (type == RegimentType.MenAtArms) ? u.GetName() : type.ToString();
                             return new { RegimentType = type, Identifier = groupIdentifier };
@@ -524,7 +525,8 @@ namespace CrusaderWars.client
         {
             List<TreeNode> allNodes = new List<TreeNode>();
             Action<TreeNodeCollection> collectNodes = null;
-            collectNodes = (nodes) => {
+            collectNodes = (nodes) =>
+            {
                 foreach (TreeNode node in nodes)
                 {
                     allNodes.Add(node);

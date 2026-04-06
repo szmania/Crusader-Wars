@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
@@ -10,7 +10,7 @@ namespace CrusaderWars
 {
     public static class DeclarationsFile
     {
-     
+
         static string filePath = GetFilePath();
 
         private static string GetFilePath()
@@ -75,10 +75,10 @@ namespace CrusaderWars
             }
         }
 
-        public static void CreateAlliances(List<Army>attacker, List<Army>defender)
+        public static void CreateAlliances(List<Army> attacker, List<Army> defender)
         {
             string alliances_ = "--\r\n-- Alliance declarations\r\n--\r\n\r\nAlliances = bm:alliances();\r\n\r\nAlliance_Stark = Alliances:item(1);\r\nAlliance_Bolton = Alliances:item(2);\r\n\r\n";
-            
+
             /*
              *  SET STARK AND BOLTON ARMIES
              */
@@ -89,7 +89,7 @@ namespace CrusaderWars
             for (int i = 1; i <= stark_armies.Count; i++)
             {
                 string t = $"Stark_Army{i} = Alliance_Stark:armies():item({i});\r\n";
-                alliances_ += t ;
+                alliances_ += t;
             }
 
             for (int i = 1; i <= bolton_armies.Count; i++)
@@ -175,7 +175,7 @@ namespace CrusaderWars
                 }
             }
 
-            if(stark_armies.Count > 1)
+            if (stark_armies.Count > 1)
             {
                 if (stark_armies[1].MergedArmies != null)
                 {
@@ -194,7 +194,7 @@ namespace CrusaderWars
 
 
             index = stark_armies.FindIndex(x => x.ID == army_id);
-            if(index == -1)
+            if (index == -1)
             {
                 if (bolton_armies[0].MergedArmies != null)
                 {
@@ -208,8 +208,8 @@ namespace CrusaderWars
                     }
                 }
 
-                
-                if(bolton_armies.Count > 1)
+
+                if (bolton_armies.Count > 1)
                 {
                     foreach (var merged_army in bolton_armies[1].MergedArmies)
                     {
@@ -222,18 +222,18 @@ namespace CrusaderWars
                 }
 
                 index = bolton_armies.FindIndex(x => x.ID == army_id);
-                side = $"Bolton_Army{index+1}";
+                side = $"Bolton_Army{index + 1}";
             }
             else
             {
-                side = $"Stark_Army{index+1}";
+                side = $"Stark_Army{index + 1}";
             }
-            
+
 
 
             string unit_declaration = $"\n{unit_name} = script_unit:new({side}, \"{unit_script_name}\");";
             File.AppendAllText(filePath, unit_declaration);
-            
+
         }
 
         public static void DeclareSiegeVariables()

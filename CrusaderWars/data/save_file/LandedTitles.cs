@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace CrusaderWars.data.save_file
 {
-    
+
     //Change to internal later
     public static class LandedTitles
     {
@@ -32,7 +32,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug($"Reading enabled mods from: {ck3_mods_enabled_file_path}");
             string enabled_mods_json_text = File.ReadAllText(ck3_mods_enabled_file_path);
             var json = JsonSerializer.Deserialize<Dictionary<string, string[]>>(enabled_mods_json_text);
-            
+
             if (json != null && json.Any())
             {
                 EnabledMods = json.First().Value.Select(mod => mod.Replace("mod/", "")).ToList();
@@ -51,21 +51,21 @@ namespace CrusaderWars.data.save_file
             ck3_mods_folder_path = Regex.Replace(ck3_mods_folder_path, @"console_history.txt", "mod");
             var all_mods_paths = Directory.GetFiles(ck3_mods_folder_path);
 
-            
-            foreach(var mod_path in all_mods_paths)
+
+            foreach (var mod_path in all_mods_paths)
             {
-                foreach(string enabled_mod in EnabledMods)
+                foreach (string enabled_mod in EnabledMods)
                 {
-                    if(mod_path.Contains(enabled_mod))
+                    if (mod_path.Contains(enabled_mod))
                     {
                         using (StreamReader sr = new StreamReader(mod_path))
                         {
-                            while(!sr.EndOfStream)
+                            while (!sr.EndOfStream)
                             {
                                 string? line = sr.ReadLine();
                                 if (line == null) break;
 
-                                if(line.StartsWith("path="))
+                                if (line.StartsWith("path="))
                                 {
                                     string path = Regex.Match(line, @"path=""([^""]*)""").Groups[1].Value;
 
@@ -99,7 +99,7 @@ namespace CrusaderWars.data.save_file
 
         static void ReadModsLandedTitles(List<Army> attacker_armies, List<Army> defender_armies)
         {
-            foreach(var mod_folder_path in EnabledMods_Folders_Paths)
+            foreach (var mod_folder_path in EnabledMods_Folders_Paths)
             {
                 string landed_titles_dir = mod_folder_path.Trim('"') + @"\common\landed_titles";
                 if (Directory.Exists(landed_titles_dir))
@@ -170,7 +170,7 @@ namespace CrusaderWars.data.save_file
                         empire = Regex.Match(line, @"(e_.+) = {").Groups[1].Value;
                         empire_started = true;
                     }
-                    else if(empire_started && line.StartsWith("\tcapital"))
+                    else if (empire_started && line.StartsWith("\tcapital"))
                     {
                         empire_capital = Regex.Match(line, @"capital = (\w+)").Groups[1].Value;
                         SetTitleRegimentsCountiesKeys(attacker_armies, empire_capital, empire);

@@ -40,13 +40,13 @@ namespace CrusaderWars.sieges
                         }
                         if (line.Trim() == "}")
                         {
-                            break; 
+                            break;
                         }
                     }
                 }
             }
             Program.Logger.Debug($"Warning: Could not find culture name for ID {cultureID}. Falling back to ID.");
-            return cultureID; 
+            return cultureID;
         }
 
         /// <summary>

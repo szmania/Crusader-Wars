@@ -15,7 +15,7 @@ namespace CrusaderWars.locs
 {
     static class UnitsCardsNames
     {
-        static List<string> default_text_files = new List<string>() 
+        static List<string> default_text_files = new List<string>()
         {
             "CW_special_ability_phases.loc",
             "random_localisation_strings.loc",
@@ -30,7 +30,7 @@ namespace CrusaderWars.locs
         {
 
             string path = @".\data\battle files\text\db";
-            foreach(var file in Directory.GetFiles(path))
+            foreach (var file in Directory.GetFiles(path))
             {
                 string fileName = Path.GetFileName(file);
                 if (default_text_files.Exists(x => x == fileName))
@@ -139,10 +139,10 @@ namespace CrusaderWars.locs
                 string loc_file_name = Path.GetFileName(loc_file_path);
                 string file_to_edit_path = $@".\data\{loc_file_name}";
 
-                
-                if(File.Exists(file_to_edit_path)) 
+
+                if (File.Exists(file_to_edit_path))
                     File.Delete(file_to_edit_path);
-                
+
                 //Copy original loc file
                 File.Copy(loc_file_path, file_to_edit_path);
 
@@ -275,9 +275,9 @@ namespace CrusaderWars.locs
                                             }
                                             string levelInfo = unitToApply.GarrisonLevel > 1 ? $" (Level {unitToApply.GarrisonLevel})" : "";
                                             newName = $"Garrison {originalName}{levelInfo}{commanderNameSuffix}";
-                                        shouldReplace = true;
+                                            shouldReplace = true;
+                                        }
                                     }
-                                }
 
                                     if (shouldReplace)
                                     {
@@ -297,7 +297,7 @@ namespace CrusaderWars.locs
                 string battle_files_path = $@".\data\battle files\text\db\{loc_file_name}";
 
                 File.WriteAllText(file_to_edit_path, edited_names);
-                if(File.Exists(battle_files_path))File.Delete(battle_files_path);
+                if (File.Exists(battle_files_path)) File.Delete(battle_files_path);
                 File.Move(file_to_edit_path, battle_files_path);
 
             }
@@ -311,7 +311,7 @@ namespace CrusaderWars.locs
             string defaultCK3DLCLocFilePath = Properties.Settings.Default.VAR_ck3_path.Replace(@"binaries\ck3.exe", @"game\localization\english\dlc\fp1\dlc_fp1_regiment_l_english.yml");
 
             var maaList = new List<Unit>();
-            foreach(Army army in armies)
+            foreach (Army army in armies)
             {
                 maaList.AddRange(army.Units.Where(x => x.GetRegimentType() == RegimentType.MenAtArms));
             }
@@ -322,13 +322,14 @@ namespace CrusaderWars.locs
                 defaultCK3DLCLocFilePath
 
             };
-            foreach(string modFolder in enabledCK3ModsPaths)
+            foreach (string modFolder in enabledCK3ModsPaths)
             {
                 if (Directory.Exists($@"{modFolder}\localization\english\"))
                 {
                     var files = Directory.GetFiles($@"{modFolder}\localization\english\").ToList();
                     bool doesRegimentLocFileExists = files.Exists(x => x.Contains("regiment_l_"));
-                    if (doesRegimentLocFileExists) { 
+                    if (doesRegimentLocFileExists)
+                    {
                         string? regimentLocFilePath = files.FirstOrDefault(x => x.Contains("regiment_l_"));
                         if (regimentLocFilePath != null)
                         {
@@ -338,7 +339,7 @@ namespace CrusaderWars.locs
                 }
             }
 
-            foreach(string path in allRegimentLocFilesPaths)
+            foreach (string path in allRegimentLocFilesPaths)
             {
                 if (!File.Exists(path)) continue;
                 using (StreamReader SR = new StreamReader(path))
@@ -465,7 +466,7 @@ namespace CrusaderWars.locs
         public static string GetFormattedUnitName(Unit unit, Army army)
         {
             string commanderNameSuffix = "";
-            
+
             // Use actual commander name instead of "attacker"/"defender"
             if (army.Commander != null)
             {

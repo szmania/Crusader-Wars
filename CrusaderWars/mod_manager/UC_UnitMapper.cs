@@ -22,7 +22,7 @@ namespace CrusaderWars.mod_manager
         private bool _pulseState;
         List<UC_UnitMapper> AllControlsReferences { get; set; } = null!;
 
-        string SteamCollectionLink {  get; set; }
+        string SteamCollectionLink { get; set; }
         List<(string FileName, string Sha256, string? ScreenName, string? Url)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
         private List<Submod> _availableSubmods;
@@ -341,7 +341,7 @@ namespace CrusaderWars.mod_manager
 
                 if (unitMapperDirectories.Any())
                 {
-                    foreach(var dir in unitMapperDirectories)
+                    foreach (var dir in unitMapperDirectories)
                     {
                         allErrors.AddRange(XmlValidator.ValidateUnitMapper(dir));
                     }
@@ -354,7 +354,8 @@ namespace CrusaderWars.mod_manager
                         sb.AppendLine();
 
                         var groupedErrors = allErrors
-                            .Select(e => {
+                            .Select(e =>
+                            {
                                 var parts = e.Split(new[] { ", Error: " }, 2, StringSplitOptions.None);
                                 var filePart = parts[0].Replace("File: ", "").Trim();
                                 var messagePart = parts.Length > 1 ? parts[1] : filePart; // if no 'Error:', message is the file part
@@ -385,7 +386,8 @@ namespace CrusaderWars.mod_manager
 
 
                 statusLabel.Text = "Validating TW:Attila mod files...";
-                var progress = new Progress<string>(update => {
+                var progress = new Progress<string>(update =>
+                {
                     statusLabel.Text = update;
                 });
 
@@ -487,7 +489,8 @@ namespace CrusaderWars.mod_manager
                     Font = new Font("Segoe UI", 9F),
                     Padding = new Padding(10)
                 };
-                richTextBox.LinkClicked += (s, args) => {
+                richTextBox.LinkClicked += (s, args) =>
+                {
                     Process.Start(new ProcessStartInfo(args.LinkText) { UseShellExecute = true });
                 };
 
@@ -507,7 +510,7 @@ namespace CrusaderWars.mod_manager
                 };
                 panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
                 panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-                
+
                 panel.Controls.Add(richTextBox, 0, 0);
 
                 FlowLayoutPanel buttonPanel = new FlowLayoutPanel
@@ -517,7 +520,7 @@ namespace CrusaderWars.mod_manager
                     Padding = new Padding(0, 5, 10, 0)
                 };
                 buttonPanel.Controls.Add(okButton);
-                
+
                 panel.Controls.Add(buttonPanel, 0, 1);
 
                 form.Controls.Add(panel);
@@ -549,7 +552,8 @@ namespace CrusaderWars.mod_manager
                     Font = new Font("Segoe UI", 9F),
                     Padding = new Padding(10)
                 };
-                richTextBox.LinkClicked += (s, args) => {
+                richTextBox.LinkClicked += (s, args) =>
+                {
                     try
                     {
                         if (args != null && !string.IsNullOrEmpty(args.LinkText))
@@ -621,7 +625,8 @@ namespace CrusaderWars.mod_manager
                 statusForm.Controls.Add(statusLabel);
                 statusForm.Show(this.FindForm());
 
-                var progress = new Progress<string>(update => {
+                var progress = new Progress<string>(update =>
+                {
                     statusLabel.Text = update;
                 });
 
@@ -764,7 +769,8 @@ namespace CrusaderWars.mod_manager
                     statusForm.Controls.Add(statusLabel);
                     statusForm.Show(this.FindForm());
 
-                    var progress = new Progress<string>(update => {
+                    var progress = new Progress<string>(update =>
+                    {
                         statusLabel.Text = update;
                     });
 

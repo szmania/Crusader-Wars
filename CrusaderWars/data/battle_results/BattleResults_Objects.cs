@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,19 +10,19 @@ namespace CrusaderWars
 {
     public class UnitCasualitiesReport
     {
-        RegimentType UnitType {  get; set; }
-        public string Type {  get; private set; }
+        RegimentType UnitType { get; set; }
+        public string Type { get; private set; }
         Culture Culture { get; set; }
         public string AttilaFaction { get; private set; }
         public string Script { get; private set; }
-        int StartingSoldiers {  get; set; }
+        int StartingSoldiers { get; set; }
         int RemainingSoldiersBeforePursuit { get; set; }
         int RemainingSoldiersAfterPursuit { get; set; } = -1;
         int Casualties { get; set; } // Renamed from Killed
         int Kills { get; set; } // New property for kills inflicted
         int StartingMachines { get; set; } // New property for siege engines
 
-        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers, int startingMachines, string attilaFaction, string script)
+        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiers, int startingMachines, string attilaFaction, string script)
         {
             UnitType = unit_type;
             Type = type;
@@ -60,9 +60,9 @@ namespace CrusaderWars
                 remaining = RemainingSoldiersBeforePursuit;
             else
                 remaining = RemainingSoldiersAfterPursuit;
-            Program.Logger.Debug("CASUALITIES REPORT: " + $"{Type}\n" + 
-                             $"Culture: {Culture.GetCultureName()}\n" + 
-                             $"Starting: {StartingSoldiers}\n" + 
+            Program.Logger.Debug("CASUALITIES REPORT: " + $"{Type}\n" +
+                             $"Culture: {Culture.GetCultureName()}\n" +
+                             $"Starting: {StartingSoldiers}\n" +
                              $"Alive: {remaining}");
             Program.Logger.Debug("\n\n");
         }
@@ -76,9 +76,9 @@ namespace CrusaderWars
         {
             Casualties = i;
         }
-        
-        public int GetStarting() {  return StartingSoldiers; }
-        public int GetAliveBeforePursuit() {  return RemainingSoldiersBeforePursuit; }
+
+        public int GetStarting() { return StartingSoldiers; }
+        public int GetAliveBeforePursuit() { return RemainingSoldiersBeforePursuit; }
         public int GetAliveAfterPursuit() { return RemainingSoldiersAfterPursuit; }
         public RegimentType GetUnitType() { return UnitType; }
         public string GetTypeName()
@@ -108,7 +108,7 @@ namespace CrusaderWars
     {
 
         //SOLDIERS ALIVE
-        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase { get; private  set; } = new List<(string, string, string, string)>();
+        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase { get; private set; } = new List<(string, string, string, string)>();
         public List<(string Script, string Type, string CultureID, string Remaining)> Alive_PursuitPhase { get; private set; } = new List<(string, string, string, string)>();
 
 
@@ -132,7 +132,7 @@ namespace CrusaderWars
             }
         }
 
-        void ScaleList(List<(string, string, string, string )> list, double porcentage)
+        void ScaleList(List<(string, string, string, string)> list, double porcentage)
         {
             if (list == null) return;
 
@@ -184,7 +184,7 @@ namespace CrusaderWars
                 deaths = army_reports.Where(y => y.GetTypeName() == type)
                                      .Sum(x => Math.Max(0, x.GetAliveBeforePursuit() - x.GetAliveAfterPursuit()));
             }
-                
+
 
             return deaths;
         }
@@ -228,7 +228,7 @@ namespace CrusaderWars
         /// <param name="list">List of Pursuit Phase Kills of soldiers</param>
         public void SetKillsPursuitPhase(List<(string, string, string, string)> list)
         {
-            Kills_PursuitPhase= list;
+            Kills_PursuitPhase = list;
         }
 
     }

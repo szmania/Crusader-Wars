@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -16,7 +16,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Starting .pack file creation process...");
             // Create and import .pack file
 
-            string create_path =Directory.GetCurrentDirectory() + @"\CrusaderConflicts.pack";
+            string create_path = Directory.GetCurrentDirectory() + @"\CrusaderConflicts.pack";
             string add_path = Directory.GetCurrentDirectory() + @"\data\battle files";
             string thumbnail_path = Directory.GetCurrentDirectory() + @"\settings\CrusaderWars.png";
             string tsv_path = Directory.GetCurrentDirectory() + @"\data\schema_att.ron";
@@ -39,7 +39,7 @@ namespace CrusaderWars
             }
             File.Move(pack_to_move_path, pack_file_path);
 
-            if(!File.Exists(thumb_file_path))
+            if (!File.Exists(thumb_file_path))
             {
                 File.Copy(thumbnail_path, thumb_file_path);
             }
@@ -49,7 +49,7 @@ namespace CrusaderWars
         private static string? CreatePackFile(string command)
         {
             Program.Logger.Debug($"Executing RPFM command: {command}");
-            string rpfm_client_path =  @".\data\rpfm\rpfm_cli.exe";
+            string rpfm_client_path = @".\data\rpfm\rpfm_cli.exe";
 
             ProcessStartInfo procStartInfo = new ProcessStartInfo(rpfm_client_path, command)
 
@@ -57,7 +57,7 @@ namespace CrusaderWars
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
-                
+
             };
 
             try

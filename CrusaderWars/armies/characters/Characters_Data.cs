@@ -1,4 +1,4 @@
-﻿using CrusaderWars.armies;
+using CrusaderWars.armies;
 using CrusaderWars.terrain;
 using System;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ namespace CrusaderWars
     }
 
 
-    internal static  class CharacterWounds
+    internal static class CharacterWounds
     {
         static string[] ids = { WoundedTraits.Wounded().ToString(), WoundedTraits.Severely_Injured().ToString(), WoundedTraits.Brutally_Mauled().ToString(),
                              WoundedTraits.Maimed().ToString(), WoundedTraits.One_Eyed().ToString(),
@@ -54,7 +54,7 @@ namespace CrusaderWars
             str = Regex.Replace(str, " }", "");
 
             //check if it is already wounded
-            string already_wounded_trait="";
+            string already_wounded_trait = "";
             if (str.Contains($" {ids[0]} ") || str.Contains($" {ids[0]}"))
             {
                 already_wounded_trait = ids[0];
@@ -67,7 +67,7 @@ namespace CrusaderWars
             {
                 already_wounded_trait = ids[2];
             }
-            
+
 
             //if its not wounded, give wounded trait
             if (already_wounded_trait == string.Empty)
@@ -80,7 +80,7 @@ namespace CrusaderWars
             else //if its already wounded, increase wound
             {
                 var match_1 = Regex.Match(str, $" {already_wounded_trait} ");
-                if(match_1.Success)
+                if (match_1.Success)
                 {
                     string edited_str = Regex.Replace(str, $" {already_wounded_trait} ", $" {WoundedTraits.Brutally_Mauled()} ");
                     return edited_str + " }";

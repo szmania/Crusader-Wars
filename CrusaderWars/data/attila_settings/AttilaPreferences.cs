@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -69,7 +69,7 @@ namespace CrusaderWars.data.attila_settings
         }
         public static void ChangeUnitSizes()
         {
-            if(!isUnitsSetToUltra())
+            if (!isUnitsSetToUltra())
             {
                 string new_data = "";
                 using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
@@ -104,7 +104,7 @@ namespace CrusaderWars.data.attila_settings
         {
 
             if (!File.Exists(preferences_file_path)) return true;
-            
+
             string unit_size_setting = "";
             using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(attila_settings_file))
@@ -124,13 +124,13 @@ namespace CrusaderWars.data.attila_settings
             }
 
             Match isCorrect = Regex.Match(unit_size_setting, @"gfx_unit_size 3");
-            if(isCorrect.Success) 
+            if (isCorrect.Success)
             {
                 return true;
             }
-            else 
-            { 
-                return false; 
+            else
+            {
+                return false;
             }
 
         }

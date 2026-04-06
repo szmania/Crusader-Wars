@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Odbc;
 using System.Drawing;
@@ -26,9 +26,9 @@ namespace CrusaderWars.mod_manager
         Bitmap? Image { get; set; } // Changed to nullable Bitmap
         string Name { get; set; }
         ModLocalization Localization { get; set; }
-        string FullPath {  get; set; }
-        bool RequiredMod {  get; set; }
-        bool LoadingMod {  get; set; }
+        string FullPath { get; set; }
+        bool RequiredMod { get; set; }
+        bool LoadingMod { get; set; }
         int LoadOrder { get; set; }
 
         public Mod(bool isEnabled, Bitmap? pngImg, string name, ModLocalization local, string fullPath) // Changed to nullable Bitmap
@@ -39,7 +39,7 @@ namespace CrusaderWars.mod_manager
             Localization = local;
             FullPath = fullPath;
         }
-        public void ChangeEnabledState(bool yn) {  Enabled = yn; }
+        public void ChangeEnabledState(bool yn) { Enabled = yn; }
         public void IsRequiredMod(bool yn) { RequiredMod = yn; }
         public void IsLoadingRequiredMod(bool yn) { LoadingMod = yn; }
         public void SetLoadOrderValue(int orderNum) { LoadOrder = orderNum; }
@@ -66,7 +66,7 @@ namespace CrusaderWars.mod_manager
     {
         static DataGridView? ModManagerControl { get; set; }
         static List<Mod> ModsPaths { get; set; } = new List<Mod>();
-        
+
         public static void SetControlReference(DataGridView dataGrid)
         {
             ModManagerControl = dataGrid;
@@ -79,11 +79,11 @@ namespace CrusaderWars.mod_manager
 
             foreach (var mapper in unitMappers_folders)
             {
-                string[] files  = Directory.GetFiles(mapper);
-                foreach(var file in files)
+                string[] files = Directory.GetFiles(mapper);
+                foreach (var file in files)
                 {
                     string fileName = Path.GetFileName(file);
-                    if(fileName == "Mods.xml")
+                    if (fileName == "Mods.xml")
                     {
                         try
                         {
@@ -130,13 +130,13 @@ namespace CrusaderWars.mod_manager
                 mod.IsLoadingRequiredMod(false);
             }
 
-            foreach(var mod in ModsPaths)
+            foreach (var mod in ModsPaths)
             {
-                if(mod.IsRequiredMod())
+                if (mod.IsRequiredMod())
                 {
-                    foreach(var requiredMod in requiredMods)
+                    foreach (var requiredMod in requiredMods)
                     {
-                        if(mod.GetName() == requiredMod)
+                        if (mod.GetName() == requiredMod)
                         {
                             mod.IsLoadingRequiredMod(true);
                             mod.SetLoadOrderValue(requiredMods.IndexOf(requiredMod));
@@ -152,7 +152,7 @@ namespace CrusaderWars.mod_manager
             string attilaPath = Properties.Settings.Default.VAR_attila_path;
             if (string.IsNullOrEmpty(attilaPath) || !System.IO.File.Exists(attilaPath))
             {
-                return null; 
+                return null;
             }
 
             DirectoryInfo? dirInfo = new DirectoryInfo(Path.GetDirectoryName(attilaPath)!);
@@ -209,7 +209,7 @@ namespace CrusaderWars.mod_manager
             }
 
             // Get ordered lists of mods
-            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod() 
+            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod()
                                                 && !modsToExclude.Contains(x.GetName()))
                                        .OrderBy(x => x.GetLoadOrderValue())
                                        .ToList();
@@ -266,15 +266,15 @@ namespace CrusaderWars.mod_manager
             ModsPaths = new List<Mod>();
             //Read data folder
             var dataModsPaths = Directory.GetFiles(data_folder_path);
-            foreach(var file in dataModsPaths)
+            foreach (var file in dataModsPaths)
             {
                 var fileName = Path.GetFileName(file);
-                if(Path.GetExtension(fileName) == ".pack")
+                if (Path.GetExtension(fileName) == ".pack")
                 {
                     // Skip Attila Packs
-                    if(fileName == "belisarius.pack" ||
+                    if (fileName == "belisarius.pack" ||
                        fileName == "boot.pack" ||
-                       fileName == "charlemagne.pack"||
+                       fileName == "charlemagne.pack" ||
                        fileName == "data.pack" ||
                        fileName == "local_en.pack" ||
                        fileName == "local_en_shared_rome2.pack" ||
@@ -305,7 +305,7 @@ namespace CrusaderWars.mod_manager
             }
 
             // Read steam workshop folder
-            if(Directory.Exists(workshop_folder_path))
+            if (Directory.Exists(workshop_folder_path))
             {
                 var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);
                 foreach (var folder in steamModsFoldersPaths)
@@ -328,7 +328,7 @@ namespace CrusaderWars.mod_manager
                             image_path = file;
                         }
                     }
-                    if(name != string.Empty)
+                    if (name != string.Empty)
                     {
                         Bitmap? thumbnail = LoadBitmapWithReducedSize(image_path);
                         ModsPaths.Add(new Mod(false, thumbnail, name, ModLocalization.Steam, fullPath));
@@ -410,7 +410,7 @@ namespace CrusaderWars.mod_manager
 
         static void DisposeImages()
         {
-            foreach(var mod in ModsPaths)
+            foreach (var mod in ModsPaths)
             {
                 mod.DisposeThumbnail();
             }
@@ -438,10 +438,12 @@ namespace CrusaderWars.mod_manager
         static void SetActiveMods()
         {
             var activeMods = File.ReadAllLines(@".\data\mod manager\active_mods.txt").ToList();
-            foreach(Mod mod in ModsPaths) { 
+            foreach (Mod mod in ModsPaths)
+            {
                 string name = mod.GetName();
-                foreach(var x in activeMods) { 
-                    if(name == x)
+                foreach (var x in activeMods)
+                {
+                    if (name == x)
                     {
                         mod.ChangeEnabledState(true);
                         break;
@@ -466,13 +468,14 @@ namespace CrusaderWars.mod_manager
         {
             Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
-            
+
             // Create a dictionary to track verification state for each mod
             var modStates = modsToVerifyList
                 .GroupBy(item => item.FileName)
                 .ToDictionary(
                     g => g.Key,
-                    g => new {
+                    g => new
+                    {
                         Info = g.First(),
                         Found = false,
                         Matched = false
@@ -494,7 +497,7 @@ namespace CrusaderWars.mod_manager
                     {
                         var modState = modStates[fileName];
                         var screenName = modState.Info.ScreenName;
-                        
+
                         string progressMessage = string.IsNullOrEmpty(screenName)
                             ? $"Verifying: {fileName}"
                             : $"Verifying: {screenName} - {fileName}";
@@ -551,12 +554,12 @@ namespace CrusaderWars.mod_manager
                         if (modStates.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
                         {
                             var modState = modStates[fileName];
-                            
+
                             // Skip if already matched (found in data folder or already matched in workshop)
                             if (modState.Matched) continue;
 
                             var screenName = modState.Info.ScreenName;
-                            
+
                             string progressMessage = string.IsNullOrEmpty(screenName)
                                 ? $"Verifying: {fileName}"
                                 : $"Verifying: {screenName} - {fileName}";

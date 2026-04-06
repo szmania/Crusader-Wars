@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Media;
 using System.Text;
 using System.Threading.Tasks;

@@ -450,7 +450,7 @@ namespace CrusaderWars.client
             nudY.Value = (decimal)(zone.Y + zone.Height / 2);
             nudW.Value = (decimal)zone.Width;
             nudH.Value = (decimal)zone.Height;
-            
+
             _ignoreNudChanges = false;
         }
 

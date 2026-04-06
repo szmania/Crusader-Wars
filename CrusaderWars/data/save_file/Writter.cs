@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -147,7 +147,7 @@ namespace CrusaderWars.data.save_file
                     }
 
                     //Achievements
-                    if(line == "\tcan_get_achievements=no")
+                    if (line == "\tcan_get_achievements=no")
                     {
                         streamWriter.WriteLine("\tcan_get_achievements=yes");
                         continue;
@@ -161,7 +161,7 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug("EDITED BATTLE RESULTS SENT!");
                         CombatResults_NeedsSkiping = true;
                     }
-                    
+
                     //Combat START
                     else if (line == "\tcombats={")
                     {
@@ -322,10 +322,10 @@ namespace CrusaderWars.data.save_file
         static void WriteDataToSaveFile(StreamWriter streamWriter, string data_file_path, FileType fileType)
         {
             Program.Logger.Debug($"Reading entire content from {data_file_path} to write into save file stream.");
-            
+
             // Read the entire content of the temporary file
             string fileContent = File.ReadAllText(data_file_path);
-            
+
             // Write the content directly to the stream.
             // Using Write instead of WriteLine prevents adding an extra newline.
             streamWriter.Write(fileContent);
@@ -362,7 +362,7 @@ namespace CrusaderWars.data.save_file
             public static string Counties_Path() { return @".\data\save_file_data\Counties.txt"; }
             public static string Traits_Path() { return @".\data\save_file_data\Traits.txt"; }
             public static string Units_Path() { return @".\data\save_file_data\Units.txt"; }
-			public static string CourtPositions_Path() { return @".\data\save_file_data\CourtPositions.txt"; }
+            public static string CourtPositions_Path() { return @".\data\save_file_data\CourtPositions.txt"; }
             public static string LandedTitles() { return @".\data\save_file_data\LandedTitles.txt"; }
             public static string Accolades() { return @".\data\save_file_data\Accolades.txt"; }
             public static string Dynasties_Path() { return @".\data\save_file_data\Dynasties.txt"; }

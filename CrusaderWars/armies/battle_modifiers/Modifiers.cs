@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,10 +15,10 @@ namespace CrusaderWars.armies
         bool isLiegeLeadingArmy { get; set; }
         bool isRealmInDebt { get; set; }
         bool isArmyGathering { get; set; }
-        bool isArmyLowOnSupplies { get;set; }
+        bool isArmyLowOnSupplies { get; set; }
         bool isArmyOutOfSupplies { get; set; }
         bool isArmyRecentlyDisembarked { get; set; }
-        bool isFightingHostileFaith {  get; set; }
+        bool isFightingHostileFaith { get; set; }
 
         public Modifiers(string modifiers_text_side)
         {
@@ -32,14 +32,14 @@ namespace CrusaderWars.armies
             if (isFightingHostileFaith) xp += 1;
 
             if (isRealmInDebt) xp -= 1;
-            if(isArmyGathering) xp -= 1;
+            if (isArmyGathering) xp -= 1;
             if (isArmyLowOnSupplies) xp -= 1;
             if (isArmyOutOfSupplies) xp -= 2;
             if (isArmyRecentlyDisembarked) xp -= 3;
 
             return xp;
         }
-        
+
         void ReadModifiers(string modifiers_text_side)
         {
 
@@ -54,6 +54,6 @@ namespace CrusaderWars.armies
             if (modifiers_text_side.Contains("faith_hostility")) { isFightingHostileFaith = true; }
             if (modifiers_text_side.Contains("recently_disembarked")) { isArmyRecentlyDisembarked = true; }
         }
-        
+
     }
 }

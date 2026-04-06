@@ -1,11 +1,11 @@
-﻿namespace CrusaderWars
+namespace CrusaderWars
 {
     public static class Date
     {
         public static int Month { get; set; }
         public static int Year { get; set; }
         public static int Day { get; set; }
-        
+
         public static string GetSeason()
         {
             int month = Month;
@@ -46,5 +46,5 @@
         }
     }
 
-    
+
 }

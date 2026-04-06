@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -14,9 +14,9 @@ using CrusaderWars.client; // Added for ModOptions
 
 namespace CrusaderWars
 {
-    public  class Updater
+    public class Updater
     {
-        public  string AppVersion { get; set; } = string.Empty;
+        public string AppVersion { get; set; } = string.Empty;
         public string UMVersion { get; set; } = string.Empty;
         private bool _updaterChecked = false;
 
@@ -59,7 +59,7 @@ namespace CrusaderWars
                                                        tagName.Contains("-beta") ||
                                                        tagName.Contains("-alpha") ||
                                                        tagName.Contains("-rc");
-                        
+
                         Program.Logger.Debug($"Evaluating release: {tagName} (Is pre-release: {isEffectivelyPreRelease})");
 
                         if (optInPreReleases)
@@ -105,7 +105,7 @@ namespace CrusaderWars
                                         Program.Logger.Debug($"Found matching asset: {assetName}");
                                         break;
                                     }
-                                 }
+                                }
 
                                 // Fallback if no specific asset was found
                                 if (string.IsNullOrEmpty(downloadUrl))
@@ -143,7 +143,7 @@ namespace CrusaderWars
                                 downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
                             }
                         }
-                        
+
                         Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}, Release API URL: {releaseApiUrl} (Pre-release opt-in: {optInPreReleases})");
                         return (latestVersion, downloadUrl, releaseApiUrl);
                     }
@@ -360,7 +360,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"  Versions are considered equivalent or B is not newer.");
             return false;
         }
-        
+
 
         bool HasInternetConnection()
         {
@@ -746,7 +746,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                        Program.Logger.Debug($"Error checking release for user {user}: {ex.Message}");
+                    Program.Logger.Debug($"Error checking release for user {user}: {ex.Message}");
                 }
             }
 
@@ -757,5 +757,5 @@ namespace CrusaderWars
         }
     }
 
-   
+
 }

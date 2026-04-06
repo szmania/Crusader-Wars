@@ -35,7 +35,7 @@ namespace CrusaderWars.client
         public int TotalLosses { get; set; }
         public int TotalRemaining { get; set; }
         public int TotalKills { get; set; }
-        
+
         // Add consistency check
         public bool IsConsistent => TotalLosses == TotalKills;
     }
@@ -67,7 +67,7 @@ namespace CrusaderWars.client
         public int Remaining { get; set; }
         public int Kills { get; set; }
         public int Losses { get; set; } // Changed from computed property to regular property
-        
+
         // Ensure losses are always non-negative
         public int GetLosses() => Math.Max(0, Deployed - Remaining);
 
@@ -79,14 +79,14 @@ namespace CrusaderWars.client
         public string AttilaFaction { get; set; }
         public string Script { get; set; }
         public List<CharacterReport> Characters { get; set; } = new List<CharacterReport>();
-        
+
         // New property for combined knight unit details
         public List<KnightDetailReport> KnightDetails { get; set; } = new List<KnightDetailReport>();
-        
+
         // Additional fields for better unit information
         public int Rank { get; set; } = 0; // For Commander and Knight units
         public int GarrisonLevel { get; set; } = 0; // For Garrison units
-        
+
         // Siege engine properties
         public bool IsSiegeUnit { get; set; }
         public int DeployedMachines { get; set; }

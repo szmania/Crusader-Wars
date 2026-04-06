@@ -34,7 +34,7 @@ using CrusaderWars.Properties;
 
 namespace CrusaderWars
 {
-    
+
     public partial class HomePage : Form
     {
         private LoadingScreen? loadingScreen;
@@ -96,7 +96,7 @@ namespace CrusaderWars
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
-            
+
             // Set fonts programmatically
             ExecuteButton.Font = new Font("Yu Gothic UI", 16f, FontStyle.Bold);
             ContinueBattleButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
@@ -137,14 +137,19 @@ namespace CrusaderWars
             labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             // NEW HOVER EFFECTS FOR linkOptInPreReleases
-            linkOptInPreReleases.MouseEnter += (sender, e) => {
+            linkOptInPreReleases.MouseEnter += (sender, e) =>
+            {
                 _preReleasePulseTimer?.Stop();
-                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
+                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             };
-            linkOptInPreReleases.MouseLeave += (sender, e) => {
-                if (ModOptions.GetOptInPreReleases()) {
+            linkOptInPreReleases.MouseLeave += (sender, e) =>
+            {
+                if (ModOptions.GetOptInPreReleases())
+                {
                     linkOptInPreReleases.ForeColor = Color.Gold;
-                } else {
+                }
+                else
+                {
                     _preReleasePulseTimer?.Start();
                 }
             };
@@ -275,7 +280,7 @@ namespace CrusaderWars
                 MessageBox.Show("Font file not found.", "Crusader Conflicts: Font error");
             }
         }
-        
+
 
         System.Drawing.Color Original_Color;
 
@@ -429,7 +434,8 @@ namespace CrusaderWars
                     sb.AppendLine();
 
                     var groupedErrors = allErrors
-                        .Select(e => {
+                        .Select(e =>
+                        {
                             var parts = e.Split(new[] { ", Error: " }, 2, StringSplitOptions.None);
                             var filePart = parts[0].Replace("File: ", "").Trim();
                             var messagePart = parts.Length > 1 ? parts[1] : filePart;
@@ -470,23 +476,23 @@ namespace CrusaderWars
                 bool unitMappers = VerifyEnabledUnitMappers();
 
 
-                if(!gamePaths || !unitMappers)
+                if (!gamePaths || !unitMappers)
                 {
                     infoLabel.AutoSize = false;
                     infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
-                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
+                    if (!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
                     else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Mod Settings screen.";
                     ExecuteButton.Enabled = false;
                     infoLabel.ForeColor = Color.White;
                     infoLabel.BackColor = Color.FromArgb(180, 74, 0, 0);
 
-                    if(!_isPulsing)
+                    if (!_isPulsing)
                     {
                         _isPulsing = true;
                         _pulseTimer.Start();
                     }
                 }
-                else if(gamePaths && unitMappers)
+                else if (gamePaths && unitMappers)
                 {
                     infoLabel.AutoSize = true;
                     ExecuteButton.Enabled = true;
@@ -793,7 +799,7 @@ namespace CrusaderWars
                     // 2. Mod Validation
                     var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag);
                     var modsToVerify = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
-                    
+
                     // Create and show a simple status form for mod verification
                     Form statusForm = new Form
                     {
@@ -814,7 +820,8 @@ namespace CrusaderWars
                     statusForm.Show(this);
                     statusForm.Update();
 
-                    var progress = new Progress<string>(update => {
+                    var progress = new Progress<string>(update =>
+                    {
                         statusLabel.Text = update;
                     });
 
@@ -1379,7 +1386,7 @@ namespace CrusaderWars
             if (needsUpdate)
             {
                 try
-                    {
+                {
                     CreateShortcut(shortcutPath, targetPath, workingDirectory, arguments, description);
                     Program.Logger.Debug("Attila shortcut created/updated successfully.");
                 }
@@ -1446,245 +1453,245 @@ namespace CrusaderWars
             string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
             if (!string.IsNullOrEmpty(ck3SaveGameDir))
             {
-                 string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
-                 if (parentDir != null && Directory.Exists(parentDir))
-                 {
-                     string dlcLoadPath = Path.Combine(parentDir, "dlc_load.json");
-                     if (File.Exists(dlcLoadPath))
-                     {
-                         try
-                         {
-                             string jsonContent = File.ReadAllText(dlcLoadPath);
-                             var enabledMods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                             using (JsonDocument doc = JsonDocument.Parse(jsonContent))
-                             {
-                                 JsonElement root = doc.RootElement;
-                                 if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
-                                 {
-                                     foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
-                                     {
-                                         string? modPath = modEntry.GetString();
-                                         if (modPath != null)
-                                         {
-                                             // The path is like "mod/crusader_conflicts.mod", GetFileName extracts the .mod file name
-                                             enabledMods.Add(Path.GetFileName(modPath));
-                                         }
-                                     }
-                                 }
-                             }
-                             
-                             // NEW: Check for incompatible Paradox Plaza version
-                             if (enabledMods.Contains("pdx_120158.mod"))
-                             {
-                                 Program.Logger.Debug("Incompatible Paradox Plaza version of Crusader Conflicts mod found in enabled_mods.");
-                                 MessageBox.Show("It appears you have the Paradox Plaza version of the 'Crusader Conflicts' mod enabled in your Paradox Launcher playset.\n\n" +
-                                                 "This version is incompatible with the Crusader Conflicts application.\n\n" +
-                                                 "Please unsubscribe from the Paradox Plaza version and enable the local 'crusader_conflicts.mod' provided with this application instead.",
-                                                 "Incompatible Mod Version Detected",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Error);
-                                 return; // Stop execution
-                             }
+                string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
+                if (parentDir != null && Directory.Exists(parentDir))
+                {
+                    string dlcLoadPath = Path.Combine(parentDir, "dlc_load.json");
+                    if (File.Exists(dlcLoadPath))
+                    {
+                        try
+                        {
+                            string jsonContent = File.ReadAllText(dlcLoadPath);
+                            var enabledMods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                            {
+                                JsonElement root = doc.RootElement;
+                                if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                    {
+                                        string? modPath = modEntry.GetString();
+                                        if (modPath != null)
+                                        {
+                                            // The path is like "mod/crusader_conflicts.mod", GetFileName extracts the .mod file name
+                                            enabledMods.Add(Path.GetFileName(modPath));
+                                        }
+                                    }
+                                }
+                            }
 
-                             // Check for base mod
-                             if (!enabledMods.Contains("crusader_conflicts.mod") && !enabledMods.Contains("ugc_3612451961.mod"))
-                             {
-                                 Program.Logger.Debug("Crusader Conflicts mod (local or steam) not found in enabled_mods in dlc_load.json.");
-                                 var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
-                                                              "Crusader Conflicts Mod Not Enabled",
-                                                              MessageBoxButtons.YesNo,
-                                                              MessageBoxIcon.Warning);
-                                 if (result == DialogResult.No)
-                                 {
-                                     Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
-                                     return; // Stop execution
-                                 }
-                             }
-                             else
-                             {
-                                 Program.Logger.Debug("Crusader Conflicts mod is enabled in the current Paradox Launcher playset.");
-                             }
- 
-                             // Check for compatibility patches based on playthrough
-                             string activePlaythrough = GetActivePlaythroughTag();
-                             string requiredPatch = "";
-                             string playthroughName = "";
- 
-                             if (activePlaythrough == "AGOT")
-                             {
-                                 requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
-                                 playthroughName = "A Game of Thrones (AGOT)";
-                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
-                                 {
-                                     Program.Logger.Debug($"Required AGOT compatibility patch (local or steam) not found in dlc_load.json.");
-                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
-                                                                  "Compatibility Patch Not Enabled",
-                                                                  MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
-                                     if (result == DialogResult.No)
-                                     {
-                                         Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
-                                         return; // Stop execution
-                                     }
-                                 }
-                                 else
-                                 {
-                                     Program.Logger.Debug($"Required AGOT compatibility patch is enabled.");
-                                 }
-                             }
-                             else if (activePlaythrough == "RealmsInExile")
-                             {
-                                 requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
-                                 playthroughName = "Realms in Exile (LOTR)";
-                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526762.mod"))
-                                 {
-                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch (local or steam) not found in dlc_load.json.");
-                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
-                                                                  "Compatibility Patch Not Enabled",
-                                                                  MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
-                                     if (result == DialogResult.No)
-                                     {
-                                         Program.Logger.Debug("User cancelled execution because Realms in Exile compatibility patch is not enabled.");
-                                         return; // Stop execution
-                                     }
-                                 }
-                                 else
-                                 {
-                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
-                                 }
-                             }
- 
-                             // Check for incorrectly enabled compatibility patches
-                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
-                             string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
- 
-                             if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
-                             {
-                                 Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
-                                 MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
-                                                 "Incorrect Compatibility Patch Enabled",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
-                                 return;
-                             }
- 
-                             if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
-                             {
-                                 Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
-                                 MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                 "Incorrect Compatibility Patch Enabled",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
-                                 return;
-                             }
- 
-                             if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
-                             {
-                                 if (enabledMods.Contains(agotPatch))
-                                 {
-                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but AGOT patch is also enabled.");
-                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                     "Incorrect Compatibility Patch Enabled",
-                                                     MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
-                                     return;
-                                 }
-                                 if (enabledMods.Contains(lotrPatch))
-                                 {
-                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
-                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
-                                                     "Incorrect Compatibility Patch Enabled",
-                                                     MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
-                                     return;
-                                 }
-                             }
+                            // NEW: Check for incompatible Paradox Plaza version
+                            if (enabledMods.Contains("pdx_120158.mod"))
+                            {
+                                Program.Logger.Debug("Incompatible Paradox Plaza version of Crusader Conflicts mod found in enabled_mods.");
+                                MessageBox.Show("It appears you have the Paradox Plaza version of the 'Crusader Conflicts' mod enabled in your Paradox Launcher playset.\n\n" +
+                                                "This version is incompatible with the Crusader Conflicts application.\n\n" +
+                                                "Please unsubscribe from the Paradox Plaza version and enable the local 'crusader_conflicts.mod' provided with this application instead.",
+                                                "Incompatible Mod Version Detected",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Error);
+                                return; // Stop execution
+                            }
 
-                             // Check for recommended load order
-                             var enabledModsList = new List<string>();
-                             using (JsonDocument doc = JsonDocument.Parse(jsonContent))
-                             {
-                                 JsonElement root = doc.RootElement;
-                                 if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
-                                 {
-                                     foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
-                                     {
-                                         string? modPath = modEntry.GetString();
-                                         if (modPath != null)
-                                         {
-                                             enabledModsList.Add(Path.GetFileName(modPath));
-                                         }
-                                     }
-                                 }
-                             }
+                            // Check for base mod
+                            if (!enabledMods.Contains("crusader_conflicts.mod") && !enabledMods.Contains("ugc_3612451961.mod"))
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod (local or steam) not found in enabled_mods in dlc_load.json.");
+                                var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
+                                                             "Crusader Conflicts Mod Not Enabled",
+                                                             MessageBoxButtons.YesNo,
+                                                             MessageBoxIcon.Warning);
+                                if (result == DialogResult.No)
+                                {
+                                    Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
+                                    return; // Stop execution
+                                }
+                            }
+                            else
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod is enabled in the current Paradox Launcher playset.");
+                            }
 
-                             if (enabledModsList.Any())
-                             {
-                                 string mainModLocal = "crusader_conflicts.mod";
-                                 string mainModSteam = "ugc_3612451961.mod";
-                                 string agotPatchLocal = "crusader_conflicts_agot_compat_patch.mod";
-                                 string agotPatchSteam = "ugc_3612526842.mod";
-                                 string lotrPatchLocal = "crusader_conflicts_realms_in_exile_compat_patch.mod";
-                                 string lotrPatchSteam = "ugc_3612526762.mod";
+                            // Check for compatibility patches based on playthrough
+                            string activePlaythrough = GetActivePlaythroughTag();
+                            string requiredPatch = "";
+                            string playthroughName = "";
 
-                                 int mainModIndex = enabledModsList.FindLastIndex(m => m.Equals(mainModLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(mainModSteam, StringComparison.OrdinalIgnoreCase));
+                            if (activePlaythrough == "AGOT")
+                            {
+                                requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
+                                playthroughName = "A Game of Thrones (AGOT)";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
+                                {
+                                    Program.Logger.Debug($"Required AGOT compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required AGOT compatibility patch is enabled.");
+                                }
+                            }
+                            else if (activePlaythrough == "RealmsInExile")
+                            {
+                                requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                playthroughName = "Realms in Exile (LOTR)";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526762.mod"))
+                                {
+                                    Program.Logger.Debug($"Required Realms in Exile compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because Realms in Exile compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
+                                }
+                            }
 
-                                 bool loadOrderCorrect = true;
-                                 string expectedOrderMessage = "";
+                            // Check for incorrectly enabled compatibility patches
+                            string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
+                            string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
 
-                                 if (activePlaythrough == "AGOT")
-                                 {
-                                     int agotPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(agotPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(agotPatchSteam, StringComparison.OrdinalIgnoreCase));
-                                     if (mainModIndex == -1 || agotPatchIndex != enabledModsList.Count - 1 || mainModIndex > agotPatchIndex)
-                                     {
-                                         loadOrderCorrect = false;
-                                         expectedOrderMessage = "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
-                                     }
-                                 }
-                                 else if (activePlaythrough == "RealmsInExile")
-                                 {
-                                     int lotrPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(lotrPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(lotrPatchSteam, StringComparison.OrdinalIgnoreCase));
-                                     if (mainModIndex == -1 || lotrPatchIndex != enabledModsList.Count - 1 || mainModIndex > lotrPatchIndex)
-                                     {
-                                         loadOrderCorrect = false;
-                                         expectedOrderMessage = "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
-                                     }
-                                 }
-                                 else // Default case
-                                 {
-                                     if (mainModIndex != enabledModsList.Count - 1)
-                                     {
-                                         loadOrderCorrect = false;
-                                         expectedOrderMessage = "For maximum compatibility, it is recommended to place the 'Crusader Conflicts' mod at the very end of your playset's load order.";
-                                     }
-                                 }
+                            if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
+                            {
+                                Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
+                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
 
-                                 if (!loadOrderCorrect)
-                                 {
-                                     Program.Logger.Debug("Incorrect mod load order detected.");
-                                     var result = MessageBox.Show($"{expectedOrderMessage}\n\nYour current load order might cause issues.\n\nDo you still want to continue?",
-                                                                  "Mod Load Order Warning",
-                                                                  MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
-                                     if (result == DialogResult.No)
-                                     {
-                                         Program.Logger.Debug("User cancelled execution due to incorrect mod load order.");
-                                         return; // Stop execution
-                                     }
-                                 }
-                             }
-                         }
-                         catch (Exception ex)
-                         {
-                             Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
-                         }
-                     }
-                     else
-                     {
-                         Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
-                     }
-                 }
+                            if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
+                            {
+                                Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
+                                MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
+                            {
+                                if (enabledMods.Contains(agotPatch))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but AGOT patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                                if (enabledMods.Contains(lotrPatch))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                            }
+
+                            // Check for recommended load order
+                            var enabledModsList = new List<string>();
+                            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                            {
+                                JsonElement root = doc.RootElement;
+                                if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                    {
+                                        string? modPath = modEntry.GetString();
+                                        if (modPath != null)
+                                        {
+                                            enabledModsList.Add(Path.GetFileName(modPath));
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (enabledModsList.Any())
+                            {
+                                string mainModLocal = "crusader_conflicts.mod";
+                                string mainModSteam = "ugc_3612451961.mod";
+                                string agotPatchLocal = "crusader_conflicts_agot_compat_patch.mod";
+                                string agotPatchSteam = "ugc_3612526842.mod";
+                                string lotrPatchLocal = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                string lotrPatchSteam = "ugc_3612526762.mod";
+
+                                int mainModIndex = enabledModsList.FindLastIndex(m => m.Equals(mainModLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(mainModSteam, StringComparison.OrdinalIgnoreCase));
+
+                                bool loadOrderCorrect = true;
+                                string expectedOrderMessage = "";
+
+                                if (activePlaythrough == "AGOT")
+                                {
+                                    int agotPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(agotPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(agotPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                    if (mainModIndex == -1 || agotPatchIndex != enabledModsList.Count - 1 || mainModIndex > agotPatchIndex)
+                                    {
+                                        loadOrderCorrect = false;
+                                        expectedOrderMessage = "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
+                                    }
+                                }
+                                else if (activePlaythrough == "RealmsInExile")
+                                {
+                                    int lotrPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(lotrPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(lotrPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                    if (mainModIndex == -1 || lotrPatchIndex != enabledModsList.Count - 1 || mainModIndex > lotrPatchIndex)
+                                    {
+                                        loadOrderCorrect = false;
+                                        expectedOrderMessage = "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
+                                    }
+                                }
+                                else // Default case
+                                {
+                                    if (mainModIndex != enabledModsList.Count - 1)
+                                    {
+                                        loadOrderCorrect = false;
+                                        expectedOrderMessage = "For maximum compatibility, it is recommended to place the 'Crusader Conflicts' mod at the very end of your playset's load order.";
+                                    }
+                                }
+
+                                if (!loadOrderCorrect)
+                                {
+                                    Program.Logger.Debug("Incorrect mod load order detected.");
+                                    var result = MessageBox.Show($"{expectedOrderMessage}\n\nYour current load order might cause issues.\n\nDo you still want to continue?",
+                                                                 "Mod Load Order Warning",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution due to incorrect mod load order.");
+                                        return; // Stop execution
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
+                    }
+                }
             }
 
 
@@ -1733,7 +1740,7 @@ namespace CrusaderWars
             string gamestateFile = @".\data\save_file_data\gamestate_file\gamestate";
             string editedGamestateFile = @".\data\save_file_data\gamestate";
             string savefileZip = @".\data\save_file_data\last_save.zip";
-            if (System.IO.File.Exists(gamestateFile) )
+            if (System.IO.File.Exists(gamestateFile))
                 System.IO.File.Delete(gamestateFile);
             if (System.IO.File.Exists(editedGamestateFile))
                 System.IO.File.Delete(editedGamestateFile);
@@ -1875,7 +1882,7 @@ namespace CrusaderWars
                             infoLabel.Text = "Waiting for CK3 battle...";
                         }
                         // Paste the line here
-                        ExecuteButton.Size = new Size(197, 115); 
+                        ExecuteButton.Size = new Size(197, 115);
 
                         Program.Logger.Debug("Waiting for CRUSADERCONFLICTS keyword in CK3 log...");
                         try
@@ -1976,7 +1983,7 @@ namespace CrusaderWars
                                 AttilaModManager.CreateUserModsFile();
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Program.Logger.Debug($"Error reading battle data from log: {ex.Message}");
                             this.Show();
@@ -2029,7 +2036,7 @@ namespace CrusaderWars
                     {
                         throw new IOException("Timed out waiting for CK3 to finish writing the save file. The file may be locked or corrupted.");
                     }
-                    
+
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.CloseCrusaderKingsProcess();
@@ -2081,7 +2088,7 @@ namespace CrusaderWars
 
                     continue;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Program.Logger.Debug($"Error reading save file: {ex.Message}");
                     this.Show();
@@ -2123,12 +2130,12 @@ namespace CrusaderWars
                     // The previous siege garrison generation logic has been removed as ArmiesReader now correctly identifies siege defenders.
 
                     Program.Logger.Debug($"Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
-            
+
                     // Mark battle as started only if setup succeeded
                     BattleState.MarkBattleStarted();
                     UpdateUIForBattleState();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     string errorDetails = $"Error reading battle armies: {ex.Message}";
                     string? stackTrace = ex.StackTrace;
@@ -2431,9 +2438,9 @@ namespace CrusaderWars
                 ContinueBattleButton.Enabled = true;
                 LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                 if (ExecuteButton.Enabled)
-                    {
-                        ExecuteButton.BackgroundImage = Properties.Resources.start_new;
-                    }
+                {
+                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                }
                 _myVariable = 0;
             }
         }
@@ -2452,7 +2459,8 @@ namespace CrusaderWars
         {
             if (infoLabel != null && !infoLabel.IsDisposed && infoLabel.IsHandleCreated)
             {
-                infoLabel.BeginInvoke(new Action(() => {
+                infoLabel.BeginInvoke(new Action(() =>
+                {
                     if (infoLabel != null && !infoLabel.IsDisposed)
                     {
                         infoLabel.Text = message ?? string.Empty;
@@ -2465,7 +2473,8 @@ namespace CrusaderWars
         {
             if (ExecuteButton != null && !ExecuteButton.IsDisposed && ExecuteButton.IsHandleCreated)
             {
-                ExecuteButton.BeginInvoke(new Action(() => {
+                ExecuteButton.BeginInvoke(new Action(() =>
+                {
                     ExecuteButton.Enabled = enabled;
                     if (ContinueBattleButton != null && !ContinueBattleButton.IsDisposed)
                     {
@@ -2783,7 +2792,7 @@ namespace CrusaderWars
             string apostrophe = "'";
             foreach (char c in inputString)
             {
-                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_' || c == '\n' || c == '-' || c == ':' || c == ' '|| char.IsLetter(c) || c == '?' || c == apostrophe[0] || c== '%')
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_' || c == '\n' || c == '-' || c == ':' || c == ' ' || char.IsLetter(c) || c == '?' || c == apostrophe[0] || c == '%')
                 {
                     sb.Append(c);
                 }
@@ -2818,14 +2827,14 @@ namespace CrusaderWars
             Program.Logger.Debug("Settings button clicked.");
             SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_click;
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            
+
             // Capture state before settings change
             string originalPlaythrough = GetActivePlaythroughTag();
             bool wasBattleInProgress = BattleState.IsBattleInProgress();
 
             Options optionsChild = new Options();
             optionsChild.ShowDialog();
-            
+
             // Check if playthrough changed during an active battle
             if (wasBattleInProgress)
             {
@@ -2845,7 +2854,7 @@ namespace CrusaderWars
                     UpdateUIForBattleState();
                 }
             }
-            
+
             Options.ReadOptionsFile();
             UpdatePlaythroughDisplay(); // Update display after settings are closed
         }
@@ -2882,7 +2891,7 @@ namespace CrusaderWars
         private void viewLogsLink_Click(object sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            
+
             string logPath = Path.GetFullPath(@".\data\debug.log");
             if (System.IO.File.Exists(logPath))
             {
@@ -2938,8 +2947,8 @@ namespace CrusaderWars
 
         private void ExecuteButton_MouseHover(object sender, EventArgs e)
         {
-            if(ExecuteButton.Enabled)
-            ExecuteButton.BackgroundImage = Properties.Resources.start_new_hover;
+            if (ExecuteButton.Enabled)
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new_hover;
         }
 
         private void ExecuteButton_MouseLeave(object sender, EventArgs e)
@@ -2999,7 +3008,7 @@ namespace CrusaderWars
             if (!string.IsNullOrEmpty(version))
             {
                 string? url = await _updater.GetReleaseUrlForVersion(version, false);
-                if(!string.IsNullOrEmpty(url))
+                if (!string.IsNullOrEmpty(url))
                 {
                     Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });
                 }
@@ -3073,7 +3082,7 @@ namespace CrusaderWars
             public string OldVersion { get; set; } = "0.0.0";
             public string NewVersion { get; set; } = "0.0.0";
             public string SourceModFile { get; set; } = "";
-            public string SourceModDir { get; set; }  = "";
+            public string SourceModDir { get; set; } = "";
             public string TargetModFile { get; set; } = "";
             public string TargetModDir { get; set; } = "";
             public string ModDirectoryName { get; set; } = "";
@@ -3441,7 +3450,7 @@ namespace CrusaderWars
                     LaunchDeploymentZoneEditor();
                 }
             }
-            
+
             infoLabel.Text = originalInfoText;
         }
 
@@ -3674,13 +3683,20 @@ namespace CrusaderWars
                 string provinceName = BattleResult.ProvinceName ?? "Unknown";
                 string battleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
                 string battleType;
-                if (BattleState.IsSiegeBattle) {
+                if (BattleState.IsSiegeBattle)
+                {
                     battleType = "Siege Battle";
-                } else if (TerrainGenerator.isRiver || TerrainGenerator.isStrait) {
+                }
+                else if (TerrainGenerator.isRiver || TerrainGenerator.isStrait)
+                {
                     battleType = "River/Strait Battle";
-                } else if (TerrainGenerator.isCoastal) {
+                }
+                else if (TerrainGenerator.isCoastal)
+                {
                     battleType = "Coastal Battle";
-                } else {
+                }
+                else
+                {
                     battleType = "Field Battle";
                 }
 
