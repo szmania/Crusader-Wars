@@ -22,16 +22,15 @@ namespace CrusaderWars
             string tsv_path = Directory.GetCurrentDirectory() + @"\data\schema_att.ron";
 
             string create_command = $@"--game attila pack create -p ""{create_path}""";
-            //string add_command = $@"--game attila pack add -p ""{create_path}"" -F ""{add_path}""";
             string add_command = $@"--game attila pack add -p ""{create_path}"" -t ""{tsv_path}"" -F ""{add_path}""";
 
             CreatePackFile(create_command);
             CreatePackFile(add_command);
 
-            string pack_dir_path = Path.GetDirectoryName(Properties.Settings.Default.VAR_attila_path) + @"\data";
+            string pack_dir_path = Path.Combine(Path.GetDirectoryName(Properties.Settings.Default.VAR_attila_path), "data");
             string pack_to_move_path = create_path;
-            string pack_file_path = pack_dir_path + @"\CrusaderConflicts.pack";
-            string thumb_file_path = pack_dir_path + @"\CrusaderWars.png";
+            string pack_file_path = Path.Combine(pack_dir_path, "CrusaderConflicts.pack");
+            string thumb_file_path = Path.Combine(pack_dir_path, "CrusaderWars.png");
 
             if (File.Exists(pack_file_path))
             {
