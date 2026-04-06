@@ -74,6 +74,7 @@ namespace CrusaderWars.mod_manager
             ModManagerControl = dataGrid;
         }
 
+        [SupportedOSPlatform("windows")]
         static void RemoveRequiredMods()
         {
             string[] unitMappers_folders = Directory.GetDirectories(@".\unit mappers\");
@@ -124,6 +125,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public static void SetLoadingRequiredMods(List<string> requiredMods)
         {
             // Reset all mods' loading required status before setting new ones
@@ -174,6 +176,7 @@ namespace CrusaderWars.mod_manager
             return null; // "steamapps" not found
         }
 
+        [SupportedOSPlatform("windows")]
         public static void CreateUserModsFile()
         {
             Program.Logger.Debug("Creating user mods file for Attila...");
@@ -259,6 +262,7 @@ namespace CrusaderWars.mod_manager
                 sw.Close();
             }
         }
+        [SupportedOSPlatform("windows")]
         public static void ReadInstalledMods()
         {
             Program.Logger.Debug("Reading installed Attila mods...");
@@ -348,6 +352,7 @@ namespace CrusaderWars.mod_manager
             Program.Logger.Debug($"Found {ModsPaths.Count} installed mods.");
         }
 
+        [SupportedOSPlatform("windows")]
         public static void ReadInstalledModsAndPopulateModManager()
         {
             ReadInstalledMods();
@@ -410,6 +415,7 @@ namespace CrusaderWars.mod_manager
         }
 
 
+        [SupportedOSPlatform("windows")]
         static void DisposeImages()
         {
             foreach (var mod in ModsPaths)
@@ -417,6 +423,7 @@ namespace CrusaderWars.mod_manager
                 mod.DisposeThumbnail();
             }
         }
+        [SupportedOSPlatform("windows")]
         public static void SaveActiveMods()
         {
             var activeMods = ModsPaths.Where(mod => mod.IsEnabled()).Select(x => x.GetName()).ToArray();
@@ -424,6 +431,7 @@ namespace CrusaderWars.mod_manager
             DisposeImages();
         }
 
+        [SupportedOSPlatform("windows")]
         public static void ChangeEnabledState(DataGridViewRow row)
         {
             string? stringValue = row.Cells[0].Value?.ToString();
@@ -437,6 +445,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         static void SetActiveMods()
         {
             var activeMods = File.ReadAllLines(@".\data\mod manager\active_mods.txt").ToList();
@@ -466,6 +475,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress)
         {
             Program.Logger.Debug("Verifying mod files...");

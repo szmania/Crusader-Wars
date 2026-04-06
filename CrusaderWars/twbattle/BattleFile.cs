@@ -1489,6 +1489,7 @@ namespace CrusaderWars
         }
 
         [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private static void SetBattleDescription(string combat_side, int total_soldiers)
         {
             // 0 = player defender 

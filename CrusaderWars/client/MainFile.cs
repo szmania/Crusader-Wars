@@ -3016,6 +3016,7 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async void labelMappersVersion_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(_umVersion))
@@ -3028,6 +3029,7 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async void linkOptInPreReleases_Click(object sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
@@ -3065,11 +3067,13 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private void LaunchAutoFixerButton_MouseEnter(object sender, EventArgs e)
         {
             LaunchAutoFixerButton.BackgroundImage = Properties.Resources.start_new_hover;
         }
 
+        [SupportedOSPlatform("windows")]
         private void LaunchAutoFixerButton_MouseLeave(object sender, EventArgs e)
         {
             LaunchAutoFixerButton.BackgroundImage = Properties.Resources.start_new;
@@ -3091,6 +3095,7 @@ namespace CrusaderWars
             public bool IsSteamWorkshopPresent { get; set; } = false; // Added to track if Steam version exists
         }
 
+        [SupportedOSPlatform("windows")]
         private (string version, string name, string pathDir, string steamWorkshopId) ParseModFile(string modFilePath)
         {
             if (!File.Exists(modFilePath))
@@ -3151,6 +3156,7 @@ namespace CrusaderWars
             return (version, name, pathDir, steamWorkshopId);
         }
 
+        [SupportedOSPlatform("windows")]
         private async Task<bool> CheckForCK3ModUpdatesAsync()
         {
             Program.Logger.Debug("Checking for CK3 mod updates...");
@@ -3301,6 +3307,7 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async Task<bool> PerformModUpdateAsync(List<ModUpdateInfo> modsToUpdate, string targetModsDir)
         {
             Program.Logger.Debug("Starting CK3 mod update process...");
@@ -3368,6 +3375,7 @@ namespace CrusaderWars
             return false; // Should not be reached if successCount != modsToUpdate.Count and no exception was thrown.
         }
 
+        [SupportedOSPlatform("windows")]
         private static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
         {
             var dir = new DirectoryInfo(sourceDir);
@@ -3402,6 +3410,7 @@ namespace CrusaderWars
             return true;
         }
 
+        [SupportedOSPlatform("windows")]
         private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
         {
             string originalInfoText = infoLabel.Text;
@@ -3455,6 +3464,7 @@ namespace CrusaderWars
             infoLabel.Text = originalInfoText;
         }
 
+        [SupportedOSPlatform("windows")]
         public void LaunchUnitReplacerTool()
         {
             Program.Logger.Debug("LaunchUnitReplacerTool called.");
@@ -3595,6 +3605,7 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public void LaunchDeploymentZoneEditor()
         {
             Program.Logger.Debug("LaunchDeploymentZoneEditor called.");
