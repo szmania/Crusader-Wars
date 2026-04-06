@@ -8,9 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 
 namespace CrusaderWars.client
 {
+    [SupportedOSPlatform("windows")]
     public partial class PostBattleReportForm : Form
     {
         private readonly BattleReport _report;
