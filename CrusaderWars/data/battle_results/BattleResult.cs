@@ -1585,12 +1585,12 @@ namespace CrusaderWars.data.battle_results
             // --- STAGE 1: Calculate Battle Impact Score (0-100) ---
 
             // 1.1: Calculate Casualty Rates
-            double totalLosingStart = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
-            double totalLosingEnd = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double totalLosingStart = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalLosingEnd = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
             double loserCasualtyRate = (totalLosingStart > 0) ? (totalLosingStart - totalLosingEnd) / totalLosingStart : 0;
 
-            double totalWinningStart = winningArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
-            double totalWinningEnd = winningArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double totalWinningStart = winningArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalWinningEnd = winningArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
             double winnerCasualtyRate = (totalWinningStart > 0) ? (totalWinningStart - totalWinningEnd) / totalWinningStart : 0;
 
             // 1.2: Calculate Impact Components
@@ -1598,7 +1598,7 @@ namespace CrusaderWars.data.battle_results
             double victoryMarginImpact = Math.Max(0, loserCasualtyRate - winnerCasualtyRate) * 30.0;
             double characterImpact = 0;
 
-            foreach (var army in losingArmies)
+            foreach (var army in losingArmies.Where(a => a != null))
             {
                 if (army.Commander != null)
                 {
@@ -1645,7 +1645,7 @@ namespace CrusaderWars.data.battle_results
         private static double CalculatePrestige(double warScore, List<Army> losingArmies)
         {
             // Calculate total size of losing armies from their starting casualties
-            double totalLosingArmySize = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>())
+            double totalLosingArmySize = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>())
                                                      .Sum(r => (double)r.GetStarting());
 
             // Calculate prestige based on war score and size of defeated force
@@ -1930,7 +1930,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -1968,7 +1968,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -1984,7 +1984,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2000,7 +2000,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2066,7 +2066,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2104,7 +2104,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2120,7 +2120,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2136,7 +2136,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
