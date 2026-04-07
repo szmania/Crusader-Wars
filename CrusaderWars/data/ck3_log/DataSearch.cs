@@ -203,6 +203,7 @@ namespace CrusaderWars
             twbattle.Sieges.CalculateAndSetHoldingLevel();
         }
 
+        [SupportedOSPlatform("windows")]
         public static void Search(string log)
         {
             Program.Logger.Debug("Starting CK3 log search...");

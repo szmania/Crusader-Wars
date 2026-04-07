@@ -416,6 +416,7 @@ namespace CrusaderWars.mod_manager
 
 
         [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         static void DisposeImages()
         {
             foreach (var mod in ModsPaths)

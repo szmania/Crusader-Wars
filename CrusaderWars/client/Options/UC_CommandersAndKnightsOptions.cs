@@ -264,7 +264,6 @@ namespace CrusaderWars.client.Options
         public int GetCommanderSlainChance() => (int)numCommanderSlain.Value;
         [SupportedOSPlatform("windows")]
         [SupportedOSPlatform("windows")]
-        [SupportedOSPlatform("windows")]
         public int GetKnightSlainChance() => (int)numKnightSlain.Value;
         [SupportedOSPlatform("windows")]
         [SupportedOSPlatform("windows")]

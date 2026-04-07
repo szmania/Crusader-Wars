@@ -2763,7 +2763,7 @@ namespace CrusaderWars.unit_mapper
                     if (FactionsFile.DocumentElement == null) continue;
 
                     // Find a MenAtArm node with the matching type attribute
-                    XmlNode maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
+                    XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
                     if (maaNode != null)
                     {
                         return maaNode.Attributes?["max"]?.Value;

@@ -56,6 +56,7 @@ namespace CrusaderWars.client
             tvAvailableUnits.BeforeSelect += TreeView_BeforeSelect;
         }
 
+        [SupportedOSPlatform("windows")]
         private void UnitReplacerForm_Load(object sender, EventArgs e)
         {
             PopulateCurrentUnitsTree();
