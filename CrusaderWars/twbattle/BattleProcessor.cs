@@ -1700,204 +1700,36 @@ namespace CrusaderWars.twbattle
             }
 
             // Attacker side
-            report.AttackerSide = new SideReport();
-            report.AttackerSide.SideName = "Attackers";
-            report.AttackerSide.Armies = new List<ArmyReport>();
-
-            int totalAttackerDeployed = 0;
-            int totalAttackerLosses = 0;
-            int totalAttackerRemaining = 0;
-            int totalAttackerKills = 0;
-
-            foreach (var army in attacker_armies)
-            {
-                var armyReport = new ArmyReport();
-                armyReport.ArmyName = $"Army {army.ID}";
-                armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
-                armyReport.Units = new List<UnitReport>();
-                armyReport.SiegeEngines = new List<SiegeEngineReport>();
-
-                int armyTotalDeployed = 0;
-                int armyTotalLosses = 0;
-                int armyTotalRemaining = 0;
-                int armyTotalKills = 0;
-
-                if (army.CasualitiesReports != null)
-                {
-                    foreach (var unitReport in army.CasualitiesReports)
-                    {
-                        var unit = new UnitReport();
-
-                        // Get the corresponding Unit object to access additional data
-                        var correspondingUnit = army.Units.FirstOrDefault(u =>
-                        {
-                            // For knight units, match only by type and culture since GetTypeName() returns "Knight"
-                            if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
-                            {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
-                            }
-                            // For levy and garrison units, match by Attila unit key instead of name
-                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
-                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
-                            {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.Type &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
-                            }
-                            else
-                            {
-                                // Original matching logic for other unit types
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetName() == unitReport.GetTypeName() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
-                            }
-                        });
-
-                        // Set basic casualty data
-                        unit.AttilaUnitName = unitReport.GetTypeName();
-                        unit.Deployed = unitReport.GetStarting();
-                        unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                        unit.Kills = unitReport.GetKills();
-                        unit.Losses = Math.Max(0, unit.Deployed - unit.Remaining); // Prevent negative losses
-
-                        // Set CK3 and Attila specific data
-                        if (correspondingUnit != null)
-                        {
-                            unit.Ck3UnitType = correspondingUnit.GetRegimentType().ToString();
-                            unit.AttilaUnitKey = correspondingUnit.GetAttilaUnitKey() ?? "N/A";
-                            unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
-                            unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
-                            unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
-                            unit.Script = unitReport.Script;
-
-                            // Get formatted unit name using the same logic as UnitsCardsNames
-                            string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
-                            unit.AttilaUnitName = formattedName; // Use the formatted name
-
-                            // Set rank for Commander and Knight units
-                            if (correspondingUnit.GetRegimentType() == RegimentType.Commander ||
-                                correspondingUnit.GetRegimentType() == RegimentType.Knight)
-                            {
-                                unit.Rank = correspondingUnit.CharacterRank;
-                            }
-
-                            // Set garrison level for Garrison units
-                            if (correspondingUnit.GetRegimentType() == RegimentType.Garrison)
-                            {
-                                unit.GarrisonLevel = correspondingUnit.GarrisonLevel;
-                            }
-
-                            // Set siege engine data
-                            if (correspondingUnit.IsSiege())
-                            {
-                                unit.IsSiegeUnit = true;
-                                unit.DeployedMachines = unitReport.GetStartingMachines();
-
-                                // Calculate remaining machines based on soldier survival rate
-                                double survivalRate = (unit.Deployed > 0) ? (double)unit.Remaining / unit.Deployed : 0;
-                                unit.RemainingMachines = (int)Math.Round(unit.DeployedMachines * survivalRate);
-                                unit.MachineLosses = unit.DeployedMachines - unit.RemainingMachines;
-                            }
-                            else
-                            {
-                                unit.IsSiegeUnit = false;
-                                unit.DeployedMachines = 0;
-                                unit.RemainingMachines = 0;
-                                unit.MachineLosses = 0;
-                            }
-                        }
-                        else
-                        {
-                            // Fallback if no corresponding unit found
-                            unit.Ck3UnitType = unitReport.GetUnitType().ToString();
-                            unit.AttilaUnitKey = "N/A";
-                            unit.Ck3Heritage = "N/A";
-                            unit.Ck3Culture = "N/A";
-                            unit.AttilaFaction = "N/A";
-                            unit.IsSiegeUnit = false;
-                            unit.DeployedMachines = 0;
-                            unit.RemainingMachines = 0;
-                            unit.MachineLosses = 0;
-                        }
-
-                        // Add character info if available
-                        unit.Characters = new List<CharacterReport>();
-
-                        // Add commander character info if this is a commander unit
-                        if (correspondingUnit?.GetRegimentType() == RegimentType.Commander && army.Commander != null)
-                        {
-                            var commanderReport = GetCharacterReport(army.Commander);
-                            unit.Characters.Add(commanderReport);
-                        }
-                        // Add knight commander info if this is an MAA unit with a knight commander
-                        else if (correspondingUnit?.GetRegimentType() == RegimentType.MenAtArms && correspondingUnit.KnightCommander != null)
-                        {
-                            var knightCommanderReport = GetCharacterReport(correspondingUnit.KnightCommander);
-                            unit.Characters.Add(knightCommanderReport);
-                        }
-                        // Add knight details if this is a knight unit
-                        else if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
-                        {
-                            var knightDetails = new List<KnightDetailReport>();
-                            foreach (var knight in army.Knights.GetKnightsList())
-                            {
-                                knightDetails.Add(new KnightDetailReport
-                                {
-                                    Name = knight.GetName(),
-                                    BodyguardSize = knight.GetSoldiers(),
-                                    Kills = knight.GetKills(),
-                                    Fallen = knight.HasFallen(),
-                                    Status = knight.HasFallen() ? "Slain" : "Unharmed"
-                                });
-                            }
-                            unit.KnightDetails = knightDetails;
-                        }
-
-                        armyReport.Units.Add(unit);
-
-                        armyTotalDeployed += unit.Deployed;
-                        armyTotalLosses += unit.Losses;
-                        armyTotalRemaining += unit.Remaining;
-                        armyTotalKills += unit.Kills;
-                    }
-                }
-
-                armyReport.TotalDeployed = armyTotalDeployed;
-                armyReport.TotalLosses = armyTotalLosses;
-                armyReport.TotalRemaining = armyTotalRemaining;
-                armyReport.TotalKills = armyTotalKills;
-
-                report.AttackerSide.Armies.Add(armyReport);
-
-                totalAttackerDeployed += armyTotalDeployed;
-                totalAttackerLosses += armyTotalLosses;
-                totalAttackerRemaining += armyTotalRemaining;
-                totalAttackerKills += armyTotalKills;
-            }
-
-            report.AttackerSide.TotalDeployed = totalAttackerDeployed;
-            report.AttackerSide.TotalLosses = totalAttackerLosses;
-            report.AttackerSide.TotalRemaining = totalAttackerRemaining;
-            report.AttackerSide.TotalKills = totalAttackerKills;
+            report.AttackerSide = GenerateSideReport(attacker_armies, "Attackers");
 
             // Defender side
-            report.DefenderSide = new SideReport();
-            report.DefenderSide.SideName = "Defenders";
-            report.DefenderSide.Armies = new List<ArmyReport>();
+            report.DefenderSide = GenerateSideReport(defender_armies, "Defenders");
 
-            int totalDefenderDeployed = 0;
-            int totalDefenderLosses = 0;
-            int totalDefenderRemaining = 0;
-            int totalDefenderKills = 0;
+            return report;
+        }
 
-            foreach (var army in defender_armies)
+        private static SideReport GenerateSideReport(List<Army> armies, string sideName)
+        {
+            var sideReport = new SideReport
             {
-                var armyReport = new ArmyReport();
-                armyReport.ArmyName = $"Army {army.ID}";
-                armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
-                armyReport.Units = new List<UnitReport>();
-                armyReport.SiegeEngines = new List<SiegeEngineReport>();
+                SideName = sideName,
+                Armies = new List<ArmyReport>()
+            };
+
+            int totalSideDeployed = 0;
+            int totalSideLosses = 0;
+            int totalSideRemaining = 0;
+            int totalSideKills = 0;
+
+            foreach (var army in armies)
+            {
+                var armyReport = new ArmyReport
+                {
+                    ArmyName = $"Army {army.ID}",
+                    CommanderName = army.Commander?.Name ?? "Unknown Commander",
+                    Units = new List<UnitReport>(),
+                    SiegeEngines = new List<SiegeEngineReport>()
+                };
 
                 int armyTotalDeployed = 0;
                 int armyTotalLosses = 0;
@@ -1906,7 +1738,7 @@ namespace CrusaderWars.twbattle
 
                 if (army.CasualitiesReports != null)
                 {
-                    foreach (var unitReport in army.CasualitiesReports)
+                    foreach (var unitReportData in army.CasualitiesReports)
                     {
                         var unit = new UnitReport();
 
@@ -1914,33 +1746,33 @@ namespace CrusaderWars.twbattle
                         var correspondingUnit = army.Units.FirstOrDefault(u =>
                         {
                             // For knight units, match only by type and culture since GetTypeName() returns "Knight"
-                            if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
+                            if (u.GetRegimentType() == RegimentType.Knight && unitReportData.GetUnitType() == RegimentType.Knight)
                             {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                                return u.GetRegimentType() == unitReportData.GetUnitType() &&
+                                       u.GetObjCulture()?.ID == unitReportData.GetCulture()?.ID;
                             }
                             // For levy and garrison units, match by Attila unit key instead of name
-                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
-                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
+                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReportData.GetUnitType() == RegimentType.Levy) ||
+                                     (u.GetRegimentType() == RegimentType.Garrison && unitReportData.GetUnitType() == RegimentType.Garrison))
                             {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.Type &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                                return u.GetRegimentType() == unitReportData.GetUnitType() &&
+                                       u.GetAttilaUnitKey() == unitReportData.Type &&
+                                       u.GetObjCulture()?.ID == unitReportData.GetCulture()?.ID;
                             }
                             else
                             {
                                 // Original matching logic for other unit types
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetName() == unitReport.GetTypeName() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                                return u.GetRegimentType() == unitReportData.GetUnitType() &&
+                                       u.GetName() == unitReportData.GetTypeName() &&
+                                       u.GetObjCulture()?.ID == unitReportData.GetCulture()?.ID;
                             }
                         });
 
                         // Set basic casualty data
-                        unit.AttilaUnitName = unitReport.GetTypeName();
-                        unit.Deployed = unitReport.GetStarting();
-                        unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                        unit.Kills = unitReport.GetKills();
+                        unit.AttilaUnitName = unitReportData.GetTypeName();
+                        unit.Deployed = unitReportData.GetStarting();
+                        unit.Remaining = unitReportData.GetAliveAfterPursuit() != -1 ? unitReportData.GetAliveAfterPursuit() : unitReportData.GetAliveBeforePursuit();
+                        unit.Kills = unitReportData.GetKills();
                         unit.Losses = Math.Max(0, unit.Deployed - unit.Remaining); // Prevent negative losses
 
                         // Set CK3 and Attila specific data
@@ -1951,7 +1783,7 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
                             unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
                             unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
-                            unit.Script = unitReport.Script;
+                            unit.Script = unitReportData.Script;
 
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
@@ -1974,7 +1806,7 @@ namespace CrusaderWars.twbattle
                             if (correspondingUnit.IsSiege())
                             {
                                 unit.IsSiegeUnit = true;
-                                unit.DeployedMachines = unitReport.GetStartingMachines();
+                                unit.DeployedMachines = unitReportData.GetStartingMachines();
 
                                 // Calculate remaining machines based on soldier survival rate
                                 double survivalRate = (unit.Deployed > 0) ? (double)unit.Remaining / unit.Deployed : 0;
@@ -1992,7 +1824,7 @@ namespace CrusaderWars.twbattle
                         else
                         {
                             // Fallback if no corresponding unit found
-                            unit.Ck3UnitType = unitReport.GetUnitType().ToString();
+                            unit.Ck3UnitType = unitReportData.GetUnitType().ToString();
                             unit.AttilaUnitKey = "N/A";
                             unit.Ck3Heritage = "N/A";
                             unit.Ck3Culture = "N/A";
@@ -2050,20 +1882,20 @@ namespace CrusaderWars.twbattle
                 armyReport.TotalRemaining = armyTotalRemaining;
                 armyReport.TotalKills = armyTotalKills;
 
-                report.DefenderSide.Armies.Add(armyReport);
+                sideReport.Armies.Add(armyReport);
 
-                totalDefenderDeployed += armyTotalDeployed;
-                totalDefenderLosses += armyTotalLosses;
-                totalDefenderRemaining += armyTotalRemaining;
-                totalDefenderKills += armyTotalKills;
+                totalSideDeployed += armyTotalDeployed;
+                totalSideLosses += armyTotalLosses;
+                totalSideRemaining += armyTotalRemaining;
+                totalSideKills += armyTotalKills;
             }
 
-            report.DefenderSide.TotalDeployed = totalDefenderDeployed;
-            report.DefenderSide.TotalLosses = totalDefenderLosses;
-            report.DefenderSide.TotalRemaining = totalDefenderRemaining;
-            report.DefenderSide.TotalKills = totalDefenderKills;
+            sideReport.TotalDeployed = totalSideDeployed;
+            sideReport.TotalLosses = totalSideLosses;
+            sideReport.TotalRemaining = totalSideRemaining;
+            sideReport.TotalKills = totalSideKills;
 
-            return report;
+            return sideReport;
         }
 
         // Autofix strategy implementations
