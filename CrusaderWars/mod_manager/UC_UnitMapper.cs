@@ -27,7 +27,7 @@ namespace CrusaderWars.mod_manager
         string SteamCollectionLink { get; set; }
         List<(string FileName, string Sha256, string? ScreenName, string? Url)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
-        private List<Submod> _availableSubmods;
+        private List<Submod> _availableSubmods = new List<Submod>();
         private readonly string _playthroughTag;
 
         public string GetPlaythroughTag() { return _playthroughTag; }
@@ -107,7 +107,8 @@ namespace CrusaderWars.mod_manager
                 {
                     customMapperComboBox.SelectedIndex = 0;
                 }
-                UpdateCustomMapperSelection(customMapperComboBox.SelectedItem.ToString());
+                if(customMapperComboBox.SelectedItem != null)
+                    UpdateCustomMapperSelection(customMapperComboBox.SelectedItem.ToString()!);
             }
             else
             {
@@ -117,11 +118,11 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        private void CustomMapperComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void CustomMapperComboBox_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (customMapperComboBox.SelectedItem != null)
             {
-                string selectedMapper = customMapperComboBox.SelectedItem.ToString();
+                string selectedMapper = customMapperComboBox.SelectedItem.ToString()!;
                 UpdateCustomMapperSelection(selectedMapper);
             }
         }

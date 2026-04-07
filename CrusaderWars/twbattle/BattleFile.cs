@@ -75,7 +75,7 @@ namespace CrusaderWars
                 {
                     // Fallback: If player character is not explicitly found on either side,
                     // assume they are defending if their army is not among the attackers.
-                    playerIsDefender = !attacker_armies.Any(army => army.Owner?.GetID() == player_character_id);
+                    playerIsDefender = !attacker_armies.Any(army => army.Owner != null && army.Owner.GetID() == player_character_id);
                     Program.Logger.Debug($"Siege battle: Player side not explicitly found in log. Using fallback: playerIsDefender = {playerIsDefender}.");
                 }
 
@@ -339,7 +339,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition(player_main_army);
+            SetVictoryCondition(player_main_army!);
             //Write essential data
             CloseAlliance();
             //Write essential data
@@ -375,7 +375,7 @@ namespace CrusaderWars
             //Write essential data
             CloseAlliance();
             //Write battle description
-            SetBattleDescription(player_main_army!, total_soldiers);
+            SetBattleDescription(player_main_army, total_soldiers);
             //Write battle map
             SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
             //Write essential data
@@ -479,7 +479,7 @@ namespace CrusaderWars
             }
 
             //Write essential data
-            SetVictoryCondition(player_main_army);
+            SetVictoryCondition(player_main_army!);
             //Write essential data
             CloseAlliance();
             //Write essential data
@@ -513,7 +513,7 @@ namespace CrusaderWars
             //Write essential data
             CloseAlliance();
             //Write battle description
-            SetBattleDescription(player_main_army!, total_soldiers);
+            SetBattleDescription(player_main_army, total_soldiers);
             //Write battle map
             SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
             //Write essential data
