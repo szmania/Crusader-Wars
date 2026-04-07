@@ -426,7 +426,6 @@ namespace CrusaderWars.mod_manager
             }
         }
         [SupportedOSPlatform("windows")]
-        [SupportedOSPlatform("windows")]
         public static void SaveActiveMods()
         {
             var activeMods = ModsPaths.Where(mod => mod.IsEnabled()).Select(x => x.GetName()).ToArray();

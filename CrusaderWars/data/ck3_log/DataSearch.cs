@@ -204,7 +204,6 @@ namespace CrusaderWars
         }
 
         [SupportedOSPlatform("windows")]
-        [SupportedOSPlatform("windows")]
         public static void Search(string log)
         {
             Program.Logger.Debug("Starting CK3 log search...");
