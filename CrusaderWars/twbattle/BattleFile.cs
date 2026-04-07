@@ -1365,14 +1365,15 @@ namespace CrusaderWars
             return (x, y);
         }
 
-        private static void SetVictoryCondition(Army army)
+        private static void SetVictoryCondition(Army? army)
         {
+            if (army is null) { return; }
             StringBuilder victoryConditions = new StringBuilder();
 
             // Always add kill_or_rout_enemy
-            victoryConditions.AppendLine("<victory_condition>");
-            victoryConditions.AppendLine("<kill_or_rout_enemy></kill_or_rout_enemy>");
-            victoryConditions.AppendLine("</victory_condition>");
+            victoryConditions.Append("<victory_condition>\n");
+            victoryConditions.Append("<kill_or_rout_enemy></kill_or_rout_enemy>\n");
+            victoryConditions.Append("</victory_condition>\n");
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
@@ -1384,36 +1385,36 @@ namespace CrusaderWars
                 if (strategic_side == "attacker")
                 {
                     // Attacker (besieger) specific conditions for siege
-                    victoryConditions.AppendLine("<victory_condition>");
-                    victoryConditions.AppendLine("<capture_settlement></capture_settlement>");
-                    victoryConditions.AppendLine("</victory_condition>");
+                    victoryConditions.Append("<victory_condition>\n");
+                    victoryConditions.Append("<capture_settlement></capture_settlement>\n");
+                    victoryConditions.Append("</victory_condition>\n");
 
                     // Rout position for attacker (same side as deployment)
                     string attackerDeploymentDirection = Deployments.beta_GeDirection("attacker");
                     (string routX, string stringY) = GetRoutPositionCoordinates(attackerDeploymentDirection);
-                    victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{stringY}\"/>");
+                    victoryConditions.Append($"<rout_position x=\"{routX}\" y=\"{stringY}\"/>\n");
                 }
                 else // Defender (besieged) specific conditions for siege
                 {
                     if (twbattle.BattleState.BattleType == "settlement_standard")
                     {
-                        victoryConditions.AppendLine("<starting_tickets>200</starting_tickets>");
+                        victoryConditions.Append("<starting_tickets>200</starting_tickets>\n");
                     }
                     else // settlement_unfortified or other types
                     {
-                        victoryConditions.AppendLine("<starting_tickets>150</starting_tickets>");
+                        victoryConditions.Append("<starting_tickets>150</starting_tickets>\n");
                     }
 
                     // Rout position for defender (opposite side of attacker's deployment)
                     string attackerDeploymentDirection = Deployments.beta_GeDirection("attacker");
                     string defenderRoutDirection = Deployments.GetOppositeDirection(attackerDeploymentDirection);
                     (string routX, string routY) = GetRoutPositionCoordinates(defenderRoutDirection);
-                    victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
+                    victoryConditions.Append($"<rout_position x=\"{routX}\" y=\"{routY}\"/>\n");
                 }
 
                 if (army.IsPlayer())
                 {
-                    victoryConditions.AppendLine("<deploys_first></deploys_first>");
+                    victoryConditions.Append("<deploys_first></deploys_first>\n");
                 }
             }
             else // Not a siege battle (field battle)
@@ -1421,10 +1422,10 @@ namespace CrusaderWars
                 // Rout position for field battles (same side as deployment)
                 string deploymentDirection = Deployments.beta_GeDirection(army.CombatSide);
                 (string routX, string routY) = GetRoutPositionCoordinates(deploymentDirection);
-                victoryConditions.AppendLine($"<rout_position x=\"{routX}\" y=\"{routY}\"/>");
+                victoryConditions.Append($"<rout_position x=\"{routX}\" y=\"{routY}\"/>\n");
             }
 
-            victoryConditions.AppendLine(); // Add an extra newline for formatting
+            victoryConditions.Append("\n"); // Add an extra newline for formatting
 
             File.AppendAllText(battlePath, victoryConditions.ToString());
         }
@@ -1449,8 +1450,13 @@ namespace CrusaderWars
         }
 
         [SupportedOSPlatform("windows")]
-        private static void SetBattleDescription(Army army, int total_soldiers)
+        private static void SetBattleDescription(Army? army, int total_soldiers)
         {
+            if (army is null)
+            {
+                SetBattleDescription("1", total_soldiers);
+                return;
+            }
             switch (army.CombatSide)
             {
                 // 0 = player defender 
@@ -1524,7 +1530,6 @@ namespace CrusaderWars
 
         private static void SetBattleTerrain(string X, string Y, string weather_key, string attila_map)
         {
-            string PR_BattleTerrain;
             string battleMapDefinitionContent;
 
             if (twbattle.BattleState.IsSiegeBattle)
