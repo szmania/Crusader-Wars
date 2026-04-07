@@ -106,7 +106,7 @@ namespace CrusaderWars
         public static void CheckForSpecialCrossingBattle(List<Army> attacker_armies, List<Army> defender_armies)
         {
             // Check for army movement across a land bridge first (strait/river crossing)
-            var landBridge = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
+            var landBridge = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID!);
 
             if (landBridge != null)
             {
@@ -161,7 +161,7 @@ namespace CrusaderWars
             }
 
             // If no strait/river crossing was detected, check for a coastal battle.
-            var coastalMapByLocation = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
+            var coastalMapByLocation = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID!);
             if (coastalMapByLocation != null)
             {
                 if (_random.Next(100) < 30)
@@ -192,11 +192,11 @@ namespace CrusaderWars
 
             if (isCoastal)
             {
-                var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID);
+                var coastalMap = unit_mapper.UnitMappers_BETA.GetCoastalMap(data.battle_results.BattleResult.ProvinceID!);
                 if (coastalMap != null && coastalMap.Variants.Any())
                 {
                     Program.Logger.Debug($"Getting coastal battle map for province: {data.battle_results.BattleResult.ProvinceID}");
-                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, coastalMap.Variants.Count);
+                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID!, coastalMap.Variants.Count);
                     var variant = coastalMap.Variants[index];
                     string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
                     return (variant.X, variant.Y, orientations, orientations);
@@ -206,11 +206,11 @@ namespace CrusaderWars
             //Straits Battle Maps
             if (isStrait)
             {
-                var landBridgeStrait = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
+                var landBridgeStrait = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID!);
                 if (landBridgeStrait != null && landBridgeStrait.CK3Type == "strait" && landBridgeStrait.Variants.Any())
                 {
                     Program.Logger.Debug($"Getting land bridge (strait type) battle map for province: {data.battle_results.BattleResult.ProvinceID}");
-                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeStrait.Variants.Count);
+                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID!, landBridgeStrait.Variants.Count);
                     var variant = landBridgeStrait.Variants[index];
                     string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
                     return (variant.X, variant.Y, orientations, orientations);
@@ -224,11 +224,11 @@ namespace CrusaderWars
             //River Battle Maps
             if (isRiver)
             {
-                var landBridgeRiver = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID);
+                var landBridgeRiver = unit_mapper.UnitMappers_BETA.GetLandBridgeMap(data.battle_results.BattleResult.ProvinceID!);
                 if (landBridgeRiver != null && landBridgeRiver.CK3Type != "strait" && landBridgeRiver.Variants.Any())
                 {
                     Program.Logger.Debug($"Getting land bridge battle map for province: {data.battle_results.BattleResult.ProvinceID}");
-                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID, landBridgeRiver.Variants.Count);
+                    int index = unit_mapper.UnitMappers_BETA.GetDeterministicIndex(data.battle_results.BattleResult.ProvinceID!, landBridgeRiver.Variants.Count);
                     var variant = landBridgeRiver.Variants[index];
                     string[] orientations = (variant.Orientations != null && variant.Orientations.Any()) ? variant.Orientations.ToArray() : new string[] { "All" };
                     return (variant.X, variant.Y, orientations, orientations);

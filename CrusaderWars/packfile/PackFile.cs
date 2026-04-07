@@ -27,7 +27,7 @@ namespace CrusaderWars
             CreatePackFile(create_command);
             CreatePackFile(add_command);
 
-            string pack_dir_path = Path.Combine(Path.GetDirectoryName(Properties.Settings.Default.VAR_attila_path), "data");
+            string pack_dir_path = Path.Combine(Path.GetDirectoryName(Properties.Settings.Default.VAR_attila_path)!, "data");
             string pack_to_move_path = create_path;
             string pack_file_path = Path.Combine(pack_dir_path, "CrusaderConflicts.pack");
             string thumb_file_path = Path.Combine(pack_dir_path, "CrusaderWars.png");

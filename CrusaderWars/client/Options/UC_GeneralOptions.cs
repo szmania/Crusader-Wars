@@ -21,25 +21,25 @@ namespace CrusaderWars.client
 
         // Methods to get values from controls
         [SupportedOSPlatform("windows")]
-        public string GetCloseCK3() => OptionSelection_CloseCK3.SelectedItem.ToString();
+        public string GetCloseCK3() => OptionSelection_CloseCK3.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
-        public string GetCloseAttila() => OptionSelection_CloseAttila.SelectedItem.ToString();
+        public string GetCloseAttila() => OptionSelection_CloseAttila.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
-        public string GetFullArmies() => OptionSelection_FullArmies.SelectedItem.ToString();
+        public string GetFullArmies() => OptionSelection_FullArmies.SelectedItem?.ToString() ?? "Disabled";
         [SupportedOSPlatform("windows")]
-        public string GetTimeLimit() => OptionSelection_TimeLimit.SelectedItem.ToString();
+        public string GetTimeLimit() => OptionSelection_TimeLimit.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
-        public string GetBattleMapsSize() => OptionSelection_BattleMapsSize.SelectedItem.ToString();
+        public string GetBattleMapsSize() => OptionSelection_BattleMapsSize.SelectedItem?.ToString() ?? "Dynamic";
         [SupportedOSPlatform("windows")]
-        public string GetDefensiveDeployables() => OptionSelection_DefensiveDeployables.SelectedItem.ToString();
+        public string GetDefensiveDeployables() => OptionSelection_DefensiveDeployables.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
-        public string GetUnitCards() => OptionSelection_UnitCards.SelectedItem.ToString();
+        public string GetUnitCards() => OptionSelection_UnitCards.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
-        public string GetSeparateArmies() => OptionSelection_SeparateArmies.SelectedItem.ToString();
+        public string GetSeparateArmies() => OptionSelection_SeparateArmies.SelectedItem?.ToString() ?? "Friendly Only";
         [SupportedOSPlatform("windows")]
-        public string GetSiegeEnginesInFieldBattles() => OptionSelection_SiegeEngines.SelectedItem.ToString();
+        public string GetSiegeEnginesInFieldBattles() => OptionSelection_SiegeEngines.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
-        public string GetShowPostBattleReport() => OptionSelection_ShowPostBattleReport.SelectedItem.ToString();
+        public string GetShowPostBattleReport() => OptionSelection_ShowPostBattleReport.SelectedItem?.ToString() ?? "Enabled";
 
         // Methods to set values of controls
         [SupportedOSPlatform("windows")]

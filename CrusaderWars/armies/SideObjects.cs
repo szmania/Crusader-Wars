@@ -29,7 +29,7 @@ namespace CrusaderWars
         public CommanderSystem? Commander { get; private set; }
         public DefensiveSystem? Defences { get; private set; }
 
-        public string? CommanderID { get; set; }
+        public string? CommanderID { get; set; } = string.Empty;
         public bool isMainArmy { get; set; } // Changed to public set for easier modification in ArmiesReader
         bool IsPlayerArmy { get; set; }
         bool IsEnemyArmy { get; set; }
@@ -37,7 +37,7 @@ namespace CrusaderWars
         public bool IsReinforcement { get; private set; } // New property for reinforcements
 
         public string? RealmName { get; set; }
-        public string CombatSide { get; set; }
+        public string CombatSide { get; set; } = string.Empty;
         public UnitsResults? UnitsResults { get; set; }
         public List<UnitCasualitiesReport> CasualitiesReports { get; private set; } = new List<UnitCasualitiesReport>();
         public Dictionary<string, int> SiegeEngines { get; set; } = new Dictionary<string, int>();

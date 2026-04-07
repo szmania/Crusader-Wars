@@ -1,59 +1,29 @@
 using System;
-using System.Runtime.Versioning;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using CrusaderWars.client;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Media;
-using System.Linq;
-using System.Drawing;
-using CrusaderWars.client;
-using CrusaderWars.locs;
-using CrusaderWars.data.attila_settings;
-using CrusaderWars.data.save_file;
-using CrusaderWars.unit_mapper;
-using CrusaderWars.twbattle; // Added for BattleProcessor
-using CrusaderWars.terrain;
-using System.Threading; // Added for CancellationToken
-using System.Text.Json; // Added for playset check
-using CrusaderWars.mod_manager;
-using System;
-using System.Runtime.Versioning;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using CrusaderWars.client;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Media;
-using System.Linq;
 using System.Drawing;
-using CrusaderWars.client;
-using CrusaderWars.locs;
-using CrusaderWars.data.attila_settings;
-using CrusaderWars.data.save_file;
-using CrusaderWars.unit_mapper;
-using CrusaderWars.twbattle; // Added for BattleProcessor
-using CrusaderWars.terrain;
-using System.Threading; // Added for CancellationToken
-using System.Text.Json; // Added for playset check
-using CrusaderWars.mod_manager;
-using System.Xml;
 using System.Drawing.Text;
-using CrusaderWars.sieges; // Added for SiegeEngineGenerator
-using CrusaderWars.data.battle_results; // Added for BattleResult class
-
-
 using System.IO;
 using System.Linq;
+using System.Media;
+using System.Reflection;
+using System.Runtime.Versioning;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
+using CrusaderWars.data.attila_settings;
+using CrusaderWars.data.battle_results; // Added for BattleResult class
+using CrusaderWars.data.save_file;
+using CrusaderWars.locs;
+using CrusaderWars.mod_manager;
 using CrusaderWars.Properties;
+using CrusaderWars.sieges; // Added for SiegeEngineGenerator
+using CrusaderWars.terrain;
+using CrusaderWars.twbattle; // Added for BattleProcessor
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars
 {

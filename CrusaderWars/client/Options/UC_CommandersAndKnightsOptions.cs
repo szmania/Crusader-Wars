@@ -44,7 +44,7 @@ namespace CrusaderWars.client.Options
 
         private bool _combineKnightsChanged = false;
 
-        private void comboCombineKnights_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboCombineKnights_SelectedIndexChanged(object? sender, EventArgs e)
         {
             _combineKnightsChanged = true;
         }
@@ -61,7 +61,7 @@ namespace CrusaderWars.client.Options
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public string CombineKnightsValue
         {
-            get { return comboCombineKnights.SelectedItem.ToString(); }
+            get { return comboCombineKnights.SelectedItem?.ToString() ?? "Disabled"; }
             set { comboCombineKnights.SelectedItem = value; }
         }
 

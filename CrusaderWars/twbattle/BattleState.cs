@@ -24,17 +24,17 @@ namespace CrusaderWars.twbattle
         // Serializable classes for JSON persistence
         public class ReplacementEntry
         {
-            public string OriginalKey { get; set; }
+            public string OriginalKey { get; set; } = string.Empty;
             public bool IsPlayerAlliance { get; set; }
-            public string ReplacementKey { get; set; }
+            public string ReplacementKey { get; set; } = string.Empty;
             public bool IsSiege { get; set; }
         }
 
         public class PersistentSettings
         {
-            public List<ReplacementEntry> ManualUnitReplacements { get; set; }
-            public ZoneOverride DeploymentZoneOverrideAttacker { get; set; }
-            public ZoneOverride DeploymentZoneOverrideDefender { get; set; }
+            public List<ReplacementEntry> ManualUnitReplacements { get; set; } = new List<ReplacementEntry>();
+            public ZoneOverride? DeploymentZoneOverrideAttacker { get; set; }
+            public ZoneOverride? DeploymentZoneOverrideDefender { get; set; }
         }
 
         public class ZoneOverride

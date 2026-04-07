@@ -1521,7 +1521,7 @@ namespace CrusaderWars.twbattle
         }
 
         [SupportedOSPlatform("windows")]
-        private static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form parentForm, List<AutofixState.AutofixStrategy> availableStrategies)
+        private static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form? parentForm, List<AutofixState.AutofixStrategy> availableStrategies)
         {
             AutofixState.AutofixStrategy? selectedStrategy = null;
             DialogResult result = DialogResult.None;
@@ -1935,7 +1935,7 @@ namespace CrusaderWars.twbattle
             return (true, $"changing deployment rotation to {rotationState}");
         }
 
-        private static (bool, string) TryUnitFix(AutofixState autofixState, Form form)
+        private static (bool, string) TryUnitFix(AutofixState autofixState, Form? form)
         {
             if (autofixState.NextUnitKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
                 return (false, ""); // No more units to try replacing

@@ -183,8 +183,10 @@ namespace CrusaderWars.client
                         unitText = String.Format("{0,-65} | {1,20} | {2,20} | {3,20} | {4,10}",
                             displayName, unit.Deployed, unit.Losses, unit.Remaining, unit.Kills);
                     }
-                    var unitNode = new TreeNode(unitText);
-                    unitNode.Tag = unit; // Store the full unit report object
+                    var unitNode = new TreeNode(unitText)
+                    {
+                        Tag = unit // Store the full unit report object
+                    };
 
                     // Always add dummy node to make ALL units expandable for detailed information
                     unitNode.Nodes.Add(new TreeNode("..."));
@@ -338,7 +340,7 @@ namespace CrusaderWars.client
         }
 
         [SupportedOSPlatform("windows")]
-        private void treeViewReport_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void treeViewReport_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
             var node = e.Node;
             // Check if it's a unit node with details
@@ -360,7 +362,7 @@ namespace CrusaderWars.client
 
 
         [SupportedOSPlatform("windows")]
-        private void btnContinue_Click(object sender, EventArgs e)
+        private void btnContinue_Click(object? sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -439,7 +441,7 @@ namespace CrusaderWars.client
 
         // Add the button click event handler
         [SupportedOSPlatform("windows")]
-        private void btnCopyToClipboard_Click(object sender, EventArgs e)
+        private void btnCopyToClipboard_Click(object? sender, EventArgs e)
         {
             try
             {

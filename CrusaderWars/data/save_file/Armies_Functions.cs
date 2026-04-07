@@ -35,7 +35,7 @@ namespace CrusaderWars.data.save_file
                     foreach (Regiment regiment in armyRegiment.Regiments)
                     {
                         //if county key is empty, skip
-                        if (string.IsNullOrEmpty(regiment.GetCountyKey()))
+                        if (string.IsNullOrEmpty(regiment.GetCountyKey()) || regiment.GetCountyKey() is null)
                         {
                             continue;
                         }
@@ -68,7 +68,7 @@ namespace CrusaderWars.data.save_file
 
                     foreach (Regiment regiment in armyRegiment.Regiments)
                     {
-                        string owner_id = regiment.Owner;
+                        string? owner_id = regiment.Owner;
                         if (!string.IsNullOrEmpty(owner_id))
                         {
                             if (temp_characters_cultures.Exists(t => t.char_id == owner_id))

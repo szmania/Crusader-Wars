@@ -267,7 +267,7 @@ namespace CrusaderWars.terrain
         public string Height { get; private set; }
 
         //MAP SIZE OPTION
-        string MapSize { get; set; }
+        string MapSize { get; set; } = string.Empty;
 
         public float MinX { get; private set; }
         public float MaxX { get; private set; }
@@ -467,7 +467,7 @@ namespace CrusaderWars.terrain
         //MAP SIZE USER OPTION
         private string MapSize { get; set; }
 
-        private DeploymentArea _deploymentArea;
+        private DeploymentArea _deploymentArea = new DeploymentArea("N", "Medium", 0);
 
         /// <summary>
         /// Dynamic constructor for units positioning
@@ -529,6 +529,7 @@ namespace CrusaderWars.terrain
             Y = y;
             Direction = string.Empty; // Initialize Direction
             MapSize = string.Empty;   // Initialize MapSize
+            _deploymentArea = new DeploymentArea("N", "Medium", 0); // Initialize to default
             // _deploymentArea is not initialized here, as this constructor is for default values, not dynamic deployment.
             // If this constructor is used for units that need boundary checks, _deploymentArea would need to be passed or initialized differently.
             // For now, assuming this constructor is for fixed positions not requiring dynamic boundary checks.

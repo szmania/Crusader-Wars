@@ -505,7 +505,7 @@ namespace CrusaderWars.data.battle_results
                     var report = army.CasualitiesReports.FirstOrDefault(r =>
                         r.GetUnitType() == unit.GetRegimentType() &&
                         r.GetTypeName() == unit.GetName() &&
-                        r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
+                        r.GetCulture()?.ID == unit.GetObjCulture()!.ID);
 
                     if (report != null && report.GetStarting() > 0)
                     {

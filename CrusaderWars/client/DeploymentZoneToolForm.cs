@@ -154,7 +154,7 @@ namespace CrusaderWars.client
             mapPanel.Invalidate(); // Trigger repaint
         }
 
-        private void MapPanel_Paint(object sender, PaintEventArgs e)
+        private void MapPanel_Paint(object? sender, PaintEventArgs e)
         {
             var g = e.Graphics;
             g.Clear(Color.DarkSeaGreen); // Map background
@@ -229,7 +229,7 @@ namespace CrusaderWars.client
         }
 
 
-        private void MapPanel_MouseDown(object sender, MouseEventArgs e)
+        private void MapPanel_MouseDown(object? sender, MouseEventArgs e)
         {
             PointF mapPoint = PixelToMapCoords(e.Location);
             _activeHandle = GetHandleAtPoint(_attackerZone, mapPoint);
@@ -253,7 +253,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void MapPanel_MouseMove(object sender, MouseEventArgs e)
+        private void MapPanel_MouseMove(object? sender, MouseEventArgs e)
         {
             if (!_isDragging)
             {
@@ -321,7 +321,7 @@ namespace CrusaderWars.client
             mapPanel.Invalidate();
         }
 
-        private void MapPanel_MouseUp(object sender, MouseEventArgs e)
+        private void MapPanel_MouseUp(object? sender, MouseEventArgs e)
         {
             _isDragging = false;
             _activeHandle = DragHandle.None;
@@ -457,7 +457,7 @@ namespace CrusaderWars.client
         }
 
 
-        private void BtnSave_Click(object sender, EventArgs e)
+        private void BtnSave_Click(object? sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;
             this.Close();

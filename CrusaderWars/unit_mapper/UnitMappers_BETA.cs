@@ -1003,14 +1003,14 @@ namespace CrusaderWars.unit_mapper
             return requiredMods;
         }
 
-        public static LandBridgeMap? GetLandBridgeMap(string provinceId)
+        public static LandBridgeMap? GetLandBridgeMap(string? provinceId)
         {
             if (Terrains?.LandBridgeMaps == null) return null;
 
             return Terrains.LandBridgeMaps.FirstOrDefault(lb => lb.ProvinceFrom == provinceId || lb.ProvinceTo == provinceId);
         }
 
-        public static CoastalMap? GetCoastalMap(string provinceId)
+        public static CoastalMap? GetCoastalMap(string? provinceId)
         {
             if (Terrains?.CoastalMaps == null) return null;
 
@@ -1733,7 +1733,7 @@ namespace CrusaderWars.unit_mapper
         private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)
         {
             // Check for manual replacements first.
-            if (key != NOT_FOUND_KEY && BattleState.ManualUnitReplacements.TryGetValue((key, unit.IsPlayer()), out var manualReplacement))
+            if (key != NOT_FOUND_KEY && key is not null && BattleState.ManualUnitReplacements.TryGetValue((key, unit.IsPlayer()), out var manualReplacement))
             {
                 Program.Logger.Debug($"Manual Replace: Applying replacement for unit key '{key}' with '{manualReplacement.replacementKey}' for {(unit.IsPlayer() ? "player" : "enemy")} alliance.");
                 unit.SetIsSiege(manualReplacement.isSiege);
@@ -1741,7 +1741,7 @@ namespace CrusaderWars.unit_mapper
             }
 
             // Check if the determined key has an autofix replacement.
-            if (key != NOT_FOUND_KEY && BattleProcessor.AutofixReplacements.TryGetValue(key, out var replacement))
+            if (key != NOT_FOUND_KEY && key is not null && BattleProcessor.AutofixReplacements.TryGetValue(key, out var replacement))
             {
                 Program.Logger.Debug($"Autofix: Applying replacement for unit key '{key}' with '{replacement.replacementKey}'.");
                 unit.SetIsSiege(replacement.isSiege);
@@ -1758,7 +1758,7 @@ namespace CrusaderWars.unit_mapper
         public static (string, bool) GetUnitKey(Unit unit)
         {
             (string unit_key, bool isSiege) result;
-            string initial_key = unit.GetAttilaUnitKey();
+            string? initial_key = unit.GetAttilaUnitKey();
 
             // 0. Check for manual replacements first, using the key already on the unit if available.
             // This is crucial for levies and garrisons which are handled as compositions.

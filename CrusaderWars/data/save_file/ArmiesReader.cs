@@ -783,9 +783,9 @@ namespace CrusaderWars.data.save_file
                                 var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
                                 if (commanderKnight.id != null) // Reverted from commanderKnight != null
                                 {
-                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
+                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess!);
                                     if (nonMainCommander_Rank == 1)
-                                        nonMainCommander_Name = commanderKnight.name;
+                                        nonMainCommander_Name = commanderKnight.name!;
                                     else
                                         nonMainCommander_Name = $"{commanderKnight.name} of {landedTitlesData.titleName}";
                                 }
@@ -802,9 +802,9 @@ namespace CrusaderWars.data.save_file
                                 var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
                                 if (commanderKnight.id != null) // Reverted from commanderKnight != null
                                 {
-                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
+                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess!);
                                     if (nonMainCommander_Rank == 1)
-                                        nonMainCommander_Name = commanderKnight.name;
+                                        nonMainCommander_Name = commanderKnight.name!;
                                     else
                                         nonMainCommander_Name = $"{commanderKnight.name} of {landedTitlesData.titleName}";
                                 }

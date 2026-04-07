@@ -347,7 +347,7 @@ namespace CrusaderWars.locs
                     string? line;
                     while ((line = SR.ReadLine()) != null && !SR.EndOfStream)
                     {
-                        if (line == " " || line == string.Empty || char.IsUpper(line[1]))
+                        if (string.IsNullOrWhiteSpace(line) || line.Length < 2 || char.IsUpper(line[1]))
                             continue;
 
                         foreach (Unit maa in maaList)
