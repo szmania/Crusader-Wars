@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using CrusaderWars.client;
 using CrusaderWars.data.attila_settings;
 using CrusaderWars.data.battle_results; // Added for BattleResult class
 using CrusaderWars.data.save_file;

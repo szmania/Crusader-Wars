@@ -601,7 +601,7 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug("Editing Living file...");
             var allArmies = attacker_armies.Concat(defender_armies).ToList();
             string? playerCharId = DataSearch.Player_Character.GetID();
-            if (playerCharId is null) { return ""; }
+            if (playerCharId is null) { return; }
             string? playerHeirId = DataSearch.Player_Heir_ID;
 
             // --- Determine which combat side corresponds to the "left" side from CK3 log data ---
