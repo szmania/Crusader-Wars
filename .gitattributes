@@ -61,3 +61,5 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+# Enforce Unix-style line endings for shell scripts to ensure they are executable on Linux
+*.sh text eol=lf
