@@ -893,50 +893,38 @@ namespace CrusaderWars
 
         private static void OpenBattle()
         {
-            string PR_CreateBattle = "<?xml version=\"1.0\"?>\n" +
-                                     "<battle>\n";
-
-            File.AppendAllText(battlePath, PR_CreateBattle);
+            File.AppendAllText(battlePath, "<?xml version=\"1.0\"?>\n<battle>\n");
 
         }
 
         private static void OpenPlayerAlliance()
         {
-            string PR_OpenAlliance = "<alliance id=\"0\">\n";
-
-            File.AppendAllText(battlePath, PR_OpenAlliance);
+            File.AppendAllText(battlePath, "<alliance id=\"0\">\n");
 
         }
 
         private static void OpenArmy()
         {
-            string PR_OpenArmy = "<army>\n\n";
-
-            File.AppendAllText(battlePath, PR_OpenArmy);
+            File.AppendAllText(battlePath, "<army>\n\n");
         }
 
         private static void OpenReinforcementArmy()
         {
-            string PR_OpenArmy = "<army>\n\n";
-            File.AppendAllText(battlePath, PR_OpenArmy);
+            File.AppendAllText(battlePath, "<army>\n\n");
         }
 
         private static void AddArmyName(string name)
         {
             if (name != String.Empty)
             {
-                string PR_ArmyName = $"<army_name>{name}</army_name>\n\n";
-
-                File.AppendAllText(battlePath, PR_ArmyName);
+                File.AppendAllText(battlePath, $"<army_name>{name}</army_name>\n\n");
             }
 
         }
 
         private static void SetPlayerFaction(Army army)
         {
-            string PR_PlayerFaction = $"<faction>{GetAOJFaction(army, true)}</faction>\n\n";
-
-            File.AppendAllText(battlePath, PR_PlayerFaction);
+            File.AppendAllText(battlePath, $"<faction>{GetAOJFaction(army, true)}</faction>\n\n");
         }
 
         // TEMPORARY CODE FOR AGE OF JUSTINIAN REPEATED UNIT KEYS
@@ -999,9 +987,7 @@ namespace CrusaderWars
 
         private static void SetEnemyFaction(Army army)
         {
-            string PR_EnemyFaction = $"<faction>{GetAOJFaction(army, false)}</faction>\n\n";
-
-            File.AppendAllText(battlePath, PR_EnemyFaction);
+            File.AppendAllText(battlePath, $"<faction>{GetAOJFaction(army, false)}</faction>\n\n");
         }
 
         private static void SetDeploymentArea(string combat_side)
@@ -1097,12 +1083,12 @@ namespace CrusaderWars
 
                 Unit_Script_Name = unitScript + i.ToString();
                 var prUnitBuilder = new StringBuilder();
-                prUnitBuilder.AppendLine($"<unit num_soldiers= \"{numSoldiers}\" script_name= \"{Unit_Script_Name}\">");
-                prUnitBuilder.AppendLine($"<unit_type type=\"{troopKey}\"/>");
-                prUnitBuilder.AppendLine($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>");
-                prUnitBuilder.AppendLine($"<orientation radians=\"{Rotation}\"/>");
-                prUnitBuilder.AppendLine("<width metres=\"21.70\"/>");
-                prUnitBuilder.AppendLine($"<unit_experience level=\"{unit_experience}\"/>");
+                prUnitBuilder.Append($"<unit num_soldiers= \"{numSoldiers}\" script_name= \"{Unit_Script_Name}\">\n");
+                prUnitBuilder.Append($"<unit_type type=\"{troopKey}\"/>\n");
+                prUnitBuilder.Append($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n");
+                prUnitBuilder.Append($"<orientation radians=\"{Rotation}\"/>\n");
+                prUnitBuilder.Append("<width metres=\"21.70\"/>\n");
+                prUnitBuilder.Append($"<unit_experience level=\"{unit_experience}\"/>\n");
 
                 if (knightCommander != null)
                 {
@@ -1112,22 +1098,21 @@ namespace CrusaderWars
                         var special_ability = AccoladesAbilities.ReturnAbilitiesKeys(accolade);
                         if (special_ability.primaryKey != "null" || special_ability.secundaryKey != "null")
                         {
-                            prUnitBuilder.AppendLine("<unit_capabilities>");
+                            prUnitBuilder.Append("<unit_capabilities>\n");
                             if (special_ability.primaryKey != "null")
                             {
-                                prUnitBuilder.AppendLine($"<special_ability>{special_ability.primaryKey}</special_ability>");
+                                prUnitBuilder.Append($"<special_ability>{special_ability.primaryKey}</special_ability>\n");
                             }
                             if (special_ability.secundaryKey != "null")
                             {
-                                prUnitBuilder.AppendLine($"<special_ability>{special_ability.secundaryKey}</special_ability>");
+                                prUnitBuilder.Append($"<special_ability>{special_ability.secundaryKey}</special_ability>\n");
                             }
-                            prUnitBuilder.AppendLine("</unit_capabilities>");
+                            prUnitBuilder.Append("</unit_capabilities>\n");
                         }
                     }
                 }
 
-                prUnitBuilder.AppendLine("</unit>");
-                prUnitBuilder.AppendLine();
+                prUnitBuilder.Append("</unit>\n\n");
                 string PR_Unit = prUnitBuilder.ToString();
 
 
@@ -1182,12 +1167,12 @@ namespace CrusaderWars
                     Unit_Script_Name = unitScript + i.ToString();
 
                     var prGeneralBuilder = new StringBuilder();
-                    prGeneralBuilder.AppendLine($"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">");
-                    prGeneralBuilder.AppendLine($"<unit_type type=\"{troopType}\"/>");
-                    prGeneralBuilder.AppendLine($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>");
-                    prGeneralBuilder.AppendLine($"<orientation radians=\"{Rotation}\"/>");
-                    prGeneralBuilder.AppendLine("<width metres=\"21.70\"/>");
-                    prGeneralBuilder.AppendLine($"<unit_experience level=\"{experience}\"/>");
+                    prGeneralBuilder.Append($"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n");
+                    prGeneralBuilder.Append($"<unit_type type=\"{troopType}\"/>\n");
+                    prGeneralBuilder.Append($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n");
+                    prGeneralBuilder.Append($"<orientation radians=\"{Rotation}\"/>\n");
+                    prGeneralBuilder.Append("<width metres=\"21.70\"/>\n");
+                    prGeneralBuilder.Append($"<unit_experience level=\"{experience}\"/>\n");
 
 
                     if (accolade != null)
@@ -1195,25 +1180,24 @@ namespace CrusaderWars
                         var special_ability = AccoladesAbilities.ReturnAbilitiesKeys(accolade);
                         if (special_ability.primaryKey != "null" || special_ability.secundaryKey != "null")
                         {
-                            prGeneralBuilder.AppendLine("<unit_capabilities>");
+                            prGeneralBuilder.Append("<unit_capabilities>\n");
                             if (special_ability.primaryKey != "null")
                             {
-                                prGeneralBuilder.AppendLine($"<special_ability>{special_ability.primaryKey}</special_ability>");
+                                prGeneralBuilder.Append($"<special_ability>{special_ability.primaryKey}</special_ability>\n");
                             }
                             if (special_ability.secundaryKey != "null")
                             {
-                                prGeneralBuilder.AppendLine($"<special_ability>{special_ability.secundaryKey}</special_ability>");
+                                prGeneralBuilder.Append($"<special_ability>{special_ability.secundaryKey}</special_ability>\n");
                             }
-                            prGeneralBuilder.AppendLine("</unit_capabilities>");
+                            prGeneralBuilder.Append("</unit_capabilities>\n");
                         }
                     }
 
-                    prGeneralBuilder.AppendLine("<general>");
-                    prGeneralBuilder.AppendLine($"<name>{name}</name>");
-                    prGeneralBuilder.AppendLine($"<star_rating level=\"{Commander.GetCommanderStarRating()}\"/>");
-                    prGeneralBuilder.AppendLine("</general>");
-                    prGeneralBuilder.AppendLine("</unit>");
-                    prGeneralBuilder.AppendLine();
+                    prGeneralBuilder.Append("<general>\n");
+                    prGeneralBuilder.Append($"<name>{name}</name>\n");
+                    prGeneralBuilder.Append($"<star_rating level=\"{Commander.GetCommanderStarRating()}\"/>\n");
+                    prGeneralBuilder.Append("</general>\n");
+                    prGeneralBuilder.Append("</unit>\n\n");
                     string PR_General = prGeneralBuilder.ToString();
 
                     //Add horizontal spacing between units
@@ -1263,12 +1247,12 @@ namespace CrusaderWars
                 Unit_Script_Name = unitScript + i.ToString();
 
                 var prUnitBuilder = new StringBuilder();
-                prUnitBuilder.AppendLine($"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">");
-                prUnitBuilder.AppendLine($"<unit_type type=\"{troopType}\"/>");
-                prUnitBuilder.AppendLine($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>");
-                prUnitBuilder.AppendLine($"<orientation radians=\"{Rotation}\"/>");
-                prUnitBuilder.AppendLine("<width metres=\"21.70\"/>");
-                prUnitBuilder.AppendLine($"<unit_experience level=\"{experience}\"/>");
+                prUnitBuilder.Append($"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n");
+                prUnitBuilder.Append($"<unit_type type=\"{troopType}\"/>\n");
+                prUnitBuilder.Append($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n");
+                prUnitBuilder.Append($"<orientation radians=\"{Rotation}\"/>\n");
+                prUnitBuilder.Append("<width metres=\"21.70\"/>\n");
+                prUnitBuilder.Append($"<unit_experience level=\"{experience}\"/>\n");
 
                 //accolades special abilities
                 List<string> validAbilities = new List<string>();
@@ -1290,16 +1274,15 @@ namespace CrusaderWars
 
                 if (validAbilities.Any())
                 {
-                    prUnitBuilder.AppendLine("<unit_capabilities>");
+                    prUnitBuilder.Append("<unit_capabilities>\n");
                     foreach (var ability in validAbilities)
                     {
-                        prUnitBuilder.AppendLine($"<special_ability>{ability}</special_ability>");
+                        prUnitBuilder.Append($"<special_ability>{ability}</special_ability>\n");
                     }
-                    prUnitBuilder.AppendLine("</unit_capabilities>");
+                    prUnitBuilder.Append("</unit_capabilities>\n");
                 }
 
-                prUnitBuilder.AppendLine("</unit>");
-                prUnitBuilder.AppendLine();
+                prUnitBuilder.Append("</unit>\n\n");
                 string PR_Unit = prUnitBuilder.ToString();
 
                 //Add vertical spacing between units
@@ -1332,7 +1315,7 @@ namespace CrusaderWars
             }
 
             var assaultEquipmentBuilder = new StringBuilder();
-            assaultEquipmentBuilder.AppendLine("<assault_equipment>");
+            assaultEquipmentBuilder.Append("<assault_equipment>\n");
 
             foreach (var entry in siegeEngines)
             {
@@ -1342,19 +1325,17 @@ namespace CrusaderWars
 
                 for (int i = 0; i < quantity; i++)
                 {
-                    assaultEquipmentBuilder.AppendLine($"<assault_equipment_item equipment_name=\"{engineKey}\">");
-                    assaultEquipmentBuilder.AppendLine($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>");
-                    assaultEquipmentBuilder.AppendLine($"<orientation radians=\"{Rotation}\"/>");
-                    assaultEquipmentBuilder.AppendLine("</assault_equipment_item>");
-                    assaultEquipmentBuilder.AppendLine();
+                    assaultEquipmentBuilder.Append($"<assault_equipment_item equipment_name=\"{engineKey}\">\n");
+                    assaultEquipmentBuilder.Append($"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n");
+                    assaultEquipmentBuilder.Append($"<orientation radians=\"{Rotation}\"/>\n");
+                    assaultEquipmentBuilder.Append("</assault_equipment_item>\n\n");
 
                     // Advance position for the next equipment item
                     Position.AddUnitXSpacing(Deployments.beta_GeDirection("attacker"));
                 }
             }
 
-            assaultEquipmentBuilder.AppendLine("</assault_equipment>");
-            assaultEquipmentBuilder.AppendLine();
+            assaultEquipmentBuilder.Append("</assault_equipment>\n\n");
             File.AppendAllText(battlePath, assaultEquipmentBuilder.ToString());
             Program.Logger.Debug("Finished adding assault equipment.");
         }
@@ -1450,33 +1431,21 @@ namespace CrusaderWars
 
         private static void CloseArmy()
         {
-            string PR_CloseArmy = "</army>\n\n";
-
-            File.AppendAllText(battlePath, PR_CloseArmy);
-
+            File.AppendAllText(battlePath, "</army>\n\n");
         }
         private static void CloseReinforcementArmy()
         {
-            string PR_CloseArmy = "</army>\n\n";
-
-            File.AppendAllText(battlePath, PR_CloseArmy);
-
+            File.AppendAllText(battlePath, "</army>\n\n");
         }
 
         private static void CloseAlliance()
         {
-            string PR_CloseAlliance = "</alliance>\n\n";
-
-            File.AppendAllText(battlePath, PR_CloseAlliance);
-
-
+            File.AppendAllText(battlePath, "</alliance>\n\n");
         }
 
         private static void OpenEnemyAlliance()
         {
-            string PR_OpenAlliance = "<alliance id=\"1\">\n";
-
-            File.AppendAllText(battlePath, PR_OpenAlliance);
+            File.AppendAllText(battlePath, "<alliance id=\"1\">\n");
         }
 
         [SupportedOSPlatform("windows")]
@@ -1533,23 +1502,24 @@ namespace CrusaderWars
             }
 
 
-            string PR_BattleDescription = "<battle_description>\n" +
-                                          $"<battle_script prepare_for_fade_in=\"false\">{battleScript}</battle_script>\n" +
-                                          "<time_of_day>day</time_of_day>\n" +
-                                          "<season>Summer</season>\n" +
-                                          "<precipitation_type>snow</precipitation_type>\n" +
-                                          $"<type>{battleType}</type>\n" +
-                                          subcultureTag +
-                                          ModOptions.TimeLimit() +
-                                          $"<timeout_winning_alliance_index>{combat_side}</timeout_winning_alliance_index>\n" +
-                                          $"<battlefield_owner_alliance_index>{combat_side}</battlefield_owner_alliance_index>\n" +
-                                          "<boiling_oil></boiling_oil>\n" +
-                                          fortificationDamageTags +
-                                          "</battle_description>\n\n";
+            var battleDescriptionBuilder = new StringBuilder();
+            battleDescriptionBuilder.Append("<battle_description>\n");
+            battleDescriptionBuilder.Append($"<battle_script prepare_for_fade_in=\"false\">{battleScript}</battle_script>\n");
+            battleDescriptionBuilder.Append("<time_of_day>day</time_of_day>\n");
+            battleDescriptionBuilder.Append("<season>Summer</season>\n");
+            battleDescriptionBuilder.Append("<precipitation_type>snow</precipitation_type>\n");
+            battleDescriptionBuilder.Append($"<type>{battleType}</type>\n");
+            battleDescriptionBuilder.Append(subcultureTag);
+            battleDescriptionBuilder.Append(ModOptions.TimeLimit());
+            battleDescriptionBuilder.Append($"<timeout_winning_alliance_index>{combat_side}</timeout_winning_alliance_index>\n");
+            battleDescriptionBuilder.Append($"<battlefield_owner_alliance_index>{combat_side}</battlefield_owner_alliance_index>\n");
+            battleDescriptionBuilder.Append("<boiling_oil></boiling_oil>\n");
+            battleDescriptionBuilder.Append(fortificationDamageTags);
+            battleDescriptionBuilder.Append("</battle_description>\n\n");
 
-            string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers, twbattle.BattleState.IsSiegeBattle)}\"/>\n\n";
+            battleDescriptionBuilder.Append($"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers, twbattle.BattleState.IsSiegeBattle)}\"/>\n\n");
 
-            File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
+            File.AppendAllText(battlePath, battleDescriptionBuilder.ToString());
         }
 
         private static void SetBattleTerrain(string X, string Y, string weather_key, string attila_map)
@@ -1574,25 +1544,22 @@ namespace CrusaderWars
                                              $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n";
             }
 
-            PR_BattleTerrain = "<weather>\n" +
-                                        $"<environment_key>{weather_key}</environment_key>\n" +
-                                        "<prevailing_wind x=\"1.00\" y=\"0.00\"/>\n" +
-                                        "</weather>\n\n" +
+            var battleTerrainBuilder = new StringBuilder();
+            battleTerrainBuilder.Append("<weather>\n");
+            battleTerrainBuilder.Append($"<environment_key>{weather_key}</environment_key>\n");
+            battleTerrainBuilder.Append("<prevailing_wind x=\"1.00\" y=\"0.00\"/>\n");
+            battleTerrainBuilder.Append("</weather>\n\n");
+            battleTerrainBuilder.Append("<sea_surface_name>wind_level_4</sea_surface_name>\n\n");
+            battleTerrainBuilder.Append("<battle_map_definition>\n");
+            battleTerrainBuilder.Append(battleMapDefinitionContent);
+            battleTerrainBuilder.Append("</battle_map_definition>\n\n");
 
-                                        "<sea_surface_name>wind_level_4</sea_surface_name>\n\n" +
-
-                                        "<battle_map_definition>\n" +
-                                        battleMapDefinitionContent +
-                                        "</battle_map_definition>\n\n";
-
-            File.AppendAllText(battlePath, PR_BattleTerrain);
+            File.AppendAllText(battlePath, battleTerrainBuilder.ToString());
         }
 
         private static void CloseBattle()
         {
-            string PR_CloseBattle = "</battle>\n";
-
-            File.AppendAllText(battlePath, PR_CloseBattle);
+            File.AppendAllText(battlePath, "</battle>\n");
         }
 
 
