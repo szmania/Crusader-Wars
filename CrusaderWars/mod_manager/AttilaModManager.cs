@@ -236,15 +236,15 @@ namespace CrusaderWars.mod_manager
                     if (mod.GetLocalization() == ModLocalization.Steam)
                     {
                         string workingDirectory = mod.GetFullPath().Replace(@"\", @"/");
-                        sw.WriteLine($"add_working_directory \"{workingDirectory}\";");
+                        sw.Write($"add_working_directory \"{workingDirectory}\";\n");
                         Program.Logger.Debug($"  - {type} WD: {workingDirectory}");
                     }
-                    sw.WriteLine($"mod \"{mod.GetName()}\";");
+                    sw.Write($"mod \"{mod.GetName()}\";\n");
                     Program.Logger.Debug($"  - {type} Mod: {mod.GetName()}");
                 };
 
                 // 1. CrusaderConflicts.pack (Highest priority, written first in file, loaded last by game)
-                sw.WriteLine($"mod \"CrusaderConflicts.pack\";");
+                sw.Write($"mod \"CrusaderConflicts.pack\";\n");
                 Program.Logger.Debug("  - Mod: CrusaderConflicts.pack (Highest Priority)");
 
                 // 2. Optional (user-selected) mods

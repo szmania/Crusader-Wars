@@ -211,34 +211,34 @@ namespace CrusaderWars.mod_manager
 
                 if (_playthroughTag == "AGOT")
                 {
-                    modsMessage.AppendLine("For the 'A Game of Thrones (AGOT)' playthrough, please ensure you have the following CK3 submod installed:");
-                    modsMessage.AppendLine("• Lord of the Tides (adds House Velaryon)");
-                    modsMessage.AppendLine("  Download: https://www.moddb.com/downloads/lord-of-the-tides-v04");
-                    modsMessage.AppendLine();
-                    modsMessage.AppendLine("Additionally, the following Total War: Attila mods are required:");
+                    modsMessage.Append("For the 'A Game of Thrones (AGOT)' playthrough, please ensure you have the following CK3 submod installed:\n");
+                    modsMessage.Append("• Lord of the Tides (adds House Velaryon)\n");
+                    modsMessage.Append("  Download: https://www.moddb.com/downloads/lord-of-the-tides-v04\n");
+                    modsMessage.Append("\n");
+                    modsMessage.Append("Additionally, the following Total War: Attila mods are required:\n");
                 }
                 else // TheFallenEagle
                 {
-                    modsMessage.AppendLine($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:");
+                    modsMessage.Append($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:\n");
                 }
 
                 if (RequiredModsList != null && RequiredModsList.Count > 0)
                 {
                     foreach (var (mod, _, screenName, _) in RequiredModsList)
                     {
-                        modsMessage.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? mod : $"{screenName} ({mod})")}");
+                        modsMessage.Append($"- {(string.IsNullOrEmpty(screenName) ? mod : $"{screenName} ({mod})")}\n");
                     }
-                    modsMessage.AppendLine("\nPlease ensure these are enabled in the Attila Mod Manager.");
+                    modsMessage.Append("\nPlease ensure these are enabled in the Attila Mod Manager.\n");
                 }
                 else
                 {
                     if (_playthroughTag == "AGOT")
                     {
-                        modsMessage.AppendLine("No additional Total War: Attila mods are listed as required for this playthrough.");
+                        modsMessage.Append("No additional Total War: Attila mods are listed as required for this playthrough.\n");
                     }
                     else
                     {
-                        modsMessage.AppendLine($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.");
+                        modsMessage.Append($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.\n");
                     }
                 }
 
@@ -353,9 +353,9 @@ namespace CrusaderWars.mod_manager
                     if (allErrors.Any())
                     {
                         StringBuilder sb = new StringBuilder();
-                        sb.AppendLine("The selected unit mapper has validation errors and cannot be enabled.");
-                        sb.AppendLine("Please fix the following issues:");
-                        sb.AppendLine();
+                        sb.Append("The selected unit mapper has validation errors and cannot be enabled.\n");
+                        sb.Append("Please fix the following issues:\n");
+                        sb.Append("\n");
 
                         var groupedErrors = allErrors
                             .Select(e =>
@@ -370,12 +370,12 @@ namespace CrusaderWars.mod_manager
 
                         foreach (var group in groupedErrors)
                         {
-                            sb.AppendLine($"File: {group.Key}");
+                            sb.Append($"File: {group.Key}\n");
                             foreach (var error in group)
                             {
-                                sb.AppendLine($"  - {error.Message}");
+                                sb.Append($"  - {error.Message}\n");
                             }
-                            sb.AppendLine();
+                            sb.Append("\n");
                         }
 
                         ShowClickableMessageBox(sb.ToString(), "Unit Mapper Validation Failed");
@@ -401,7 +401,7 @@ namespace CrusaderWars.mod_manager
                 if (verificationResult.MissingFiles.Any())
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("You are missing these required mods:");
+                    sb.Append("You are missing these required mods:\n");
                     foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                     {
                         string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -409,7 +409,7 @@ namespace CrusaderWars.mod_manager
                         {
                             line += $"\n  {url}";
                         }
-                        sb.AppendLine(line);
+                        sb.Append(line + "\n");
                     }
                     ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Mods!");
                     uC_Toggle1.SetState(false);
@@ -420,9 +420,9 @@ namespace CrusaderWars.mod_manager
                 if (verificationResult.MismatchedFiles.Any())
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("One or more required Total War: Attila mod files for this playthrough have different versions than expected.");
-                    sb.AppendLine("This could mean the mod is outdated, or it has been updated by the mod author and may still be compatible.");
-                    sb.AppendLine("\nMismatched files:");
+                    sb.Append("One or more required Total War: Attila mod files for this playthrough have different versions than expected.\n");
+                    sb.Append("This could mean the mod is outdated, or it has been updated by the mod author and may still be compatible.\n");
+                    sb.Append("\nMismatched files:\n");
                     foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                     {
                         string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -430,11 +430,11 @@ namespace CrusaderWars.mod_manager
                         {
                             line += $"\n  {url}";
                         }
-                        sb.AppendLine(line);
+                        sb.Append(line + "\n");
                     }
-                    sb.AppendLine("\nPlease ensure you have the latest versions of these mods from the Steam Workshop.");
-                    sb.AppendLine("If your mods are up-to-date and you still see this warning, please report it to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j so we can update our compatibility check.");
-                    sb.AppendLine("\nDo you want to activate this playthrough anyway?");
+                    sb.Append("\nPlease ensure you have the latest versions of these mods from the Steam Workshop.\n");
+                    sb.Append("If your mods are up-to-date and you still see this warning, please report it to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j so we can update our compatibility check.\n");
+                    sb.Append("\nDo you want to activate this playthrough anyway?\n");
 
                     var dialogResult = ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: Mod Version Warning", MessageBoxButtons.YesNo);
 
@@ -645,7 +645,7 @@ namespace CrusaderWars.mod_manager
                     if (verificationResult.MissingFiles.Any())
                     {
                         var sb = new StringBuilder();
-                        sb.AppendLine("You are missing these mods:");
+                        sb.Append("You are missing these mods:\n");
                         foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                         {
                             string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -653,7 +653,7 @@ namespace CrusaderWars.mod_manager
                             {
                                 line += $"\n  {url}";
                             }
-                            sb.AppendLine(line);
+                            sb.Append(line + "\n");
                         }
                         ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Mods!");
                         uC_Toggle1.SetState(false);
@@ -663,7 +663,7 @@ namespace CrusaderWars.mod_manager
                     if (verificationResult.MismatchedFiles.Any())
                     {
                         var sb = new StringBuilder();
-                        sb.AppendLine("The following required mods have a different version than expected:");
+                        sb.Append("The following required mods have a different version than expected:\n");
                         foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                         {
                             string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -671,10 +671,10 @@ namespace CrusaderWars.mod_manager
                             {
                                 line += $"\n  {url}";
                             }
-                            sb.AppendLine(line);
+                            sb.Append(line + "\n");
                         }
-                        sb.AppendLine("\nThis may cause issues. Please ensure you have the latest versions of these mods from the Steam Workshop.");
-                        sb.AppendLine("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j");
+                        sb.Append("\nThis may cause issues. Please ensure you have the latest versions of these mods from the Steam Workshop.\n");
+                        sb.Append("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j\n");
                         ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.OK);
                     }
 
@@ -789,7 +789,7 @@ namespace CrusaderWars.mod_manager
                         if (verificationResult.MissingFiles.Any())
                         {
                             var sb = new StringBuilder();
-                            sb.AppendLine("You are missing these required sub-mod files:");
+                            sb.Append("You are missing these required sub-mod files:\n");
                             foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                             {
                                 string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -797,7 +797,7 @@ namespace CrusaderWars.mod_manager
                                 {
                                     line += $"\n  {url}";
                                 }
-                                sb.AppendLine(line);
+                                sb.Append(line + "\n");
                             }
                             ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Sub-Mod Files!");
                             return;
@@ -806,9 +806,9 @@ namespace CrusaderWars.mod_manager
                         if (verificationResult.MismatchedFiles.Any())
                         {
                             var sb = new StringBuilder();
-                            sb.AppendLine("One or more required sub-mod files have different versions than expected.");
-                            sb.AppendLine("This could mean the mod is outdated or has been updated by its author.");
-                            sb.AppendLine("\nMismatched files:");
+                            sb.Append("One or more required sub-mod files have different versions than expected.\n");
+                            sb.Append("This could mean the mod is outdated or has been updated by its author.\n");
+                            sb.Append("\nMismatched files:\n");
                             foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                             {
                                 string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -816,9 +816,9 @@ namespace CrusaderWars.mod_manager
                                 {
                                     line += $"\n  {url}";
                                 }
-                                sb.AppendLine(line);
+                                sb.Append(line + "\n");
                             }
-                            sb.AppendLine("\nDo you want to activate these sub-mods anyway?");
+                            sb.Append("\nDo you want to activate these sub-mods anyway?\n");
 
                             var dialogResult = ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: Sub-Mod Version Warning", MessageBoxButtons.YesNo);
 
