@@ -3,6 +3,7 @@ using System.Windows.Forms;
 
 namespace CrusaderWars
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class LoadingScreen : Form
     {
         public LoadingScreen()

@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace CrusaderWars.client.WarningMessage
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class WarningMessage : Form
     {
         public WarningMessage()

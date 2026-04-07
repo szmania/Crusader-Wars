@@ -539,6 +539,7 @@ namespace CrusaderWars
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public async Task CheckAppVersion()
         {
             await CheckForUpdaterUpdateAsync();
@@ -618,6 +619,7 @@ namespace CrusaderWars
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public async Task CheckUnitMappersVersion()
         {
             await CheckForUpdaterUpdateAsync();

@@ -54,6 +54,7 @@ namespace CrusaderWars.mod_manager
         public ModLocalization GetLocalization() { return Localization; }
         public string GetFullPath() { return FullPath; }
 
+        [SupportedOSPlatform("windows")]
         public void DisposeThumbnail() { Image?.Dispose(); Image = null; } // Used null-conditional operator
     }
 
@@ -424,6 +425,7 @@ namespace CrusaderWars.mod_manager
                 mod.DisposeThumbnail();
             }
         }
+        [SupportedOSPlatform("windows")]
         [SupportedOSPlatform("windows")]
         public static void SaveActiveMods()
         {

@@ -11,6 +11,7 @@ using CrusaderWars.twbattle;
 namespace CrusaderWars.client
 {
     [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows")]
     public partial class UnitReplacerForm : Form
     {
         private readonly List<Unit> _currentUnits;

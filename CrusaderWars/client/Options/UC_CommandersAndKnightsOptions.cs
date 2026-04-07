@@ -263,14 +263,9 @@ namespace CrusaderWars.client.Options
         [SupportedOSPlatform("windows")]
         public int GetCommanderSlainChance() => (int)numCommanderSlain.Value;
         [SupportedOSPlatform("windows")]
-        [SupportedOSPlatform("windows")]
         public int GetKnightSlainChance() => (int)numKnightSlain.Value;
         [SupportedOSPlatform("windows")]
-        [SupportedOSPlatform("windows")]
-        [SupportedOSPlatform("windows")]
         public int GetCommanderPrisonerChance() => (int)numCommanderPrisoner.Value;
-        [SupportedOSPlatform("windows")]
-        [SupportedOSPlatform("windows")]
         [SupportedOSPlatform("windows")]
         public int GetKnightPrisonerChance() => (int)numKnightPrisoner.Value;
     }
