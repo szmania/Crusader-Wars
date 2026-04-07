@@ -21,6 +21,29 @@ using CrusaderWars.terrain;
 using System.Threading; // Added for CancellationToken
 using System.Text.Json; // Added for playset check
 using CrusaderWars.mod_manager;
+using System;
+using System.Runtime.Versioning;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using CrusaderWars.client;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
+using System.Media;
+using System.Linq;
+using System.Drawing;
+using CrusaderWars.client;
+using CrusaderWars.locs;
+using CrusaderWars.data.attila_settings;
+using CrusaderWars.data.save_file;
+using CrusaderWars.unit_mapper;
+using CrusaderWars.twbattle; // Added for BattleProcessor
+using CrusaderWars.terrain;
+using System.Threading; // Added for CancellationToken
+using System.Text.Json; // Added for playset check
+using CrusaderWars.mod_manager;
 using System.Xml;
 using System.Drawing.Text;
 using CrusaderWars.sieges; // Added for SiegeEngineGenerator
