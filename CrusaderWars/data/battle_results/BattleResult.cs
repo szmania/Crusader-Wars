@@ -439,7 +439,7 @@ namespace CrusaderWars.data.battle_results
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
-                            bool hasFallen = (searchData.isCommander && searchData.commander!.hasFallen) || (searchData.isKnight && searchData.knight!.HasFallen());
+                            bool hasFallen = (searchData.isCommander && searchData.commander != null && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight != null && searchData.knight.HasFallen());
                             if (hasFallen)
                             {
                                 string? traitsLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("traits={"));
@@ -449,16 +449,16 @@ namespace CrusaderWars.data.battle_results
                                     bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
                                                            (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
 
-                                    (bool isSlain, bool isCaptured, string newTraits) healthResult;
-                                    if (searchData.isCommander)
+                                    (bool isSlain, bool isCaptured, string newTraits) healthResult = (false, false, traitsLine);
+                                    if (searchData.isCommander && searchData.commander != null)
                                     {
-                                        healthResult = searchData.commander!.Health(traitsLine, wasOnLosingSide);
+                                        healthResult = searchData.commander.Health(traitsLine, wasOnLosingSide);
                                         searchData.commander.IsSlain = healthResult.isSlain;
                                         searchData.commander.IsPrisoner = healthResult.isCaptured;
                                     }
-                                    else // isKnight
+                                    else if (searchData.isKnight && searchData.knight != null) // isKnight
                                     {
-                                        healthResult = searchData.knight!.Health(traitsLine, wasOnLosingSide);
+                                        healthResult = searchData.knight.Health(traitsLine, wasOnLosingSide);
                                         searchData.knight.IsSlain = healthResult.isSlain;
                                         searchData.knight.IsPrisoner = healthResult.isCaptured;
                                     }
@@ -600,7 +600,7 @@ namespace CrusaderWars.data.battle_results
         {
             Program.Logger.Debug("Editing Living file...");
             var allArmies = attacker_armies.Concat(defender_armies).ToList();
-            string? playerCharId = DataSearch.Player_Character.GetID();
+            string? playerCharId = DataSearch.Player_Character?.GetID();
             if (playerCharId is null) { return; }
             string? playerHeirId = DataSearch.Player_Heir_ID;
 
@@ -664,8 +664,8 @@ namespace CrusaderWars.data.battle_results
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
-                            bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.HasFallen());
-                            bool isCaptured = (searchData.isCommander && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight.IsPrisoner);
+                            bool isSlain = (searchData.isCommander && searchData.commander != null && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight != null && searchData.knight.HasFallen());
+                            bool isCaptured = (searchData.isCommander && searchData.commander != null && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight != null && searchData.knight.IsPrisoner);
 
                             // Remove court_data if employer was slain
                             int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
@@ -676,7 +676,7 @@ namespace CrusaderWars.data.battle_results
                                 {
                                     string employerId = Regex.Match(charBlock[employerLineIdx], @"employer=(\d+)").Groups[1].Value;
                                     var employerSearch = SearchCharacters(employerId, allArmies);
-                                    bool employerSlain = (employerSearch.isCommander && employerSearch.commander!.IsSlain) || (employerSearch.isKnight && employerSearch.knight!.HasFallen());
+                                    bool employerSlain = (employerSearch.isCommander && employerSearch.commander != null && employerSearch.commander.IsSlain) || (employerSearch.isKnight && employerSearch.knight != null && employerSearch.knight.HasFallen());
 
                                     if (employerSlain)
                                     {
@@ -848,18 +848,18 @@ namespace CrusaderWars.data.battle_results
                             }
                             else // Not slain, but could be wounded and/or captured
                             {
-                                (bool _, bool __, string newTraits) healthResult;
                                 bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
                                                        (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
 
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
                                 if (traitsLineIndex != -1)
                                 {
-                                    if (searchData.isCommander)
+                                    (bool _, bool __, string newTraits) healthResult = (false, false, charBlock[traitsLineIndex]);
+                                    if (searchData.isCommander && searchData.commander != null)
                                     {
                                         healthResult = searchData.commander.Health(charBlock[traitsLineIndex], wasOnLosingSide);
                                     }
-                                    else // isKnight
+                                    else if (searchData.isKnight && searchData.knight != null) // isKnight
                                     {
                                         healthResult = searchData.knight.Health(charBlock[traitsLineIndex], wasOnLosingSide);
                                     }

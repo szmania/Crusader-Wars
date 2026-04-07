@@ -1444,7 +1444,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Execute button clicked.");
 
             // Check if Crusader Conflicts mod is enabled in the playset
-            string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
+            string? ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
             if (!string.IsNullOrEmpty(ck3SaveGameDir))
             {
                 string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
@@ -1467,8 +1467,12 @@ namespace CrusaderWars
                                         string? modPath = modEntry.GetString();
                                         if (modPath != null)
                                         {
-                                            // The path is like "mod/crusader_conflicts.mod", GetFileName extracts the .mod file name
-                                            enabledMods.Add(Path.GetFileName(modPath));
+                                            string? fileName = Path.GetFileName(modPath);
+                                            if (fileName != null)
+                                            {
+                                                // The path is like "mod/crusader_conflicts.mod", GetFileName extracts the .mod file name
+                                                enabledMods.Add(fileName);
+                                            }
                                         }
                                     }
                                 }
@@ -3023,7 +3027,7 @@ namespace CrusaderWars
         }
 
         [SupportedOSPlatform("windows")]
-        private async void linkOptInPreReleases_Click(object sender, EventArgs e)
+        private async void linkOptInPreReleases_Click(object? sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
 
