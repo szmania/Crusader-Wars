@@ -122,10 +122,10 @@ namespace CrusaderWars.unit_mapper
 
     public class AvailableUnit
     {
-        public string FactionName { get; set; }
-        public string UnitType { get; set; } // e.g., General, Knights, MenAtArm
-        public string AttilaUnitKey { get; set; }
-        public string DisplayName { get; set; } // For MenAtArm, this will be the 'type' attribute
+        public string FactionName { get; set; } = string.Empty;
+        public string UnitType { get; set; } = string.Empty;
+        public string AttilaUnitKey { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public int? Rank { get; set; }
         public int? Level { get; set; }
         public string? MaxCategory { get; set; }
@@ -178,6 +178,7 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(file);
+                if (doc.DocumentElement == null) continue;
                 _factionFileCache[file] = doc;
 
                 foreach (XmlNode factionNode in doc.SelectNodes("/Factions/Faction"))
@@ -1086,9 +1087,11 @@ namespace CrusaderWars.unit_mapper
                                 {
                                     if (unit.GetRegimentType() == RegimentType.Levy)
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
-                                        max = MaxType.GetMax(maxAttrValue);
-                                        Program.Logger.Debug($"Assigned max for Default Levy (from attribute '{maxAttrValue}'): {max}");
+                                        if (node.Attributes?["max"]?.Value is string maxAttrValue)
+                                        {
+                                            max = MaxType.GetMax(maxAttrValue);
+                                            Program.Logger.Debug($"Assigned max for Default Levy (from attribute '{maxAttrValue}'): {max}");
+                                        }
                                         continue;
                                     }
                                     else
@@ -1099,9 +1102,11 @@ namespace CrusaderWars.unit_mapper
                                 {
                                     if (unit.GetRegimentType() == RegimentType.Garrison) // Changed from unit.GetName() == "Garrison"
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
-                                        max = MaxType.GetMax(maxAttrValue);
-                                        Program.Logger.Debug($"Assigned max for Default Garrison (from attribute '{maxAttrValue}'): {max}");
+                                        if (node.Attributes?["max"]?.Value is string maxAttrValue)
+                                        {
+                                            max = MaxType.GetMax(maxAttrValue);
+                                            Program.Logger.Debug($"Assigned max for Default Garrison (from attribute '{maxAttrValue}'): {max}");
+                                        }
                                         continue;
                                     }
                                     else
@@ -1113,9 +1118,11 @@ namespace CrusaderWars.unit_mapper
                                     // Original code: max = MaxType.GetMax(node.Attributes["type"].Value);
                                     // This line is potentially problematic as "type" attribute is unit name, not a max category or number.
                                     // Logging the input and result as per instruction to not alter logic.
-                                    string inputToMaxType = node.Attributes["type"]!.Value; // Null-forgiving operator added as per instruction
-                                    max = MaxType.GetMax(inputToMaxType);
-                                    Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (input to MaxType.GetMax: '{inputToMaxType}'): {max}");
+                                    if(node.Attributes?["type"]?.Value is string inputToMaxType)
+                                    {
+                                        max = MaxType.GetMax(inputToMaxType);
+                                        Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (input to MaxType.GetMax: '{inputToMaxType}'): {max}");
+                                    }
                                 }
                             }
                         }
@@ -1130,9 +1137,8 @@ namespace CrusaderWars.unit_mapper
 
                                 if (node.Name == "Levies")
                                 {
-                                    if (unit.GetRegimentType() == RegimentType.Levy && node.Attributes?["max"] != null)
+                                    if (unit.GetRegimentType() == RegimentType.Levy && node.Attributes?["max"]?.Value is string maxAttrValue)
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);
                                         Program.Logger.Debug($"Assigned max for specific faction '{faction}' Levy (from attribute '{maxAttrValue}'): {max}");
                                         continue;
@@ -1143,9 +1149,8 @@ namespace CrusaderWars.unit_mapper
                                 // New Garrison handling
                                 if (node.Name == "Garrison")
                                 {
-                                    if (unit.GetRegimentType() == RegimentType.Garrison && node.Attributes?["max"] != null) // Changed from unit.GetName() == "Garrison"
+                                    if (unit.GetRegimentType() == RegimentType.Garrison && node.Attributes?["max"]?.Value is string maxAttrValue) // Changed from unit.GetName() == "Garrison"
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);
                                         Program.Logger.Debug($"Assigned max for specific faction '{faction}' Garrison (from attribute '{maxAttrValue}'): {max}");
                                         continue;
@@ -1157,9 +1162,8 @@ namespace CrusaderWars.unit_mapper
                                 // Line 187 - Add null check
                                 if (node?.Attributes?["type"]?.Value == unit.GetName())
                                 {
-                                    if (node?.Attributes?["max"] != null)
+                                    if (node?.Attributes?["max"]?.Value is string maxAttrValue)
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);
                                         Program.Logger.Debug($"Assigned max for specific faction '{faction}' unit '{unit.GetName()}' (from attribute '{maxAttrValue}'): {max}");
                                     }
@@ -1276,8 +1280,8 @@ namespace CrusaderWars.unit_mapper
 
                 name = $"Levy_{porcentage}";
 
-                if (levies_node.Attributes?["max"] != null)
-                    max = MaxType.GetMax(levies_node.Attributes["max"]!.Value).ToString();
+                if (levies_node.Attributes?["max"]?.Value is string maxAttr)
+                    max = MaxType.GetMax(maxAttr).ToString();
 
                 list.Add((porcentage, key, name, max));
             }
@@ -1331,8 +1335,8 @@ namespace CrusaderWars.unit_mapper
 
                 name = $"Garrison_{percentage}"; // Naming convention for garrison units
 
-                if (garrison_node.Attributes?["max"] != null)
-                    max = MaxType.GetMax(garrison_node.Attributes["max"]!.Value).ToString();
+                if (garrison_node.Attributes?["max"]?.Value is string maxAttr)
+                    max = MaxType.GetMax(maxAttr).ToString();
 
                 list.Add((percentage, key, name, max, level));
             }
@@ -1460,7 +1464,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument TitlesFile = new XmlDocument();
                     TitlesFile.Load(xml_file);
-                    if (TitlesFile.DocumentElement == null) continue; // Added null check
+                    if (TitlesFile.DocumentElement == null) continue;
 
                     //MAA|COMMANDER|KNIGHT
                     foreach (XmlNode element in TitlesFile.DocumentElement.ChildNodes)
@@ -1509,6 +1513,7 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{unit.GetAttilaFaction()}']");
 
                 if (factionNode != null)
@@ -1529,6 +1534,8 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='Default' or @name='DEFAULT']");
 
                 if (factionNode != null)
@@ -1981,7 +1988,11 @@ namespace CrusaderWars.unit_mapper
                         .Select(node => node.Attributes?["key"]?.Value)
                         .Where(key => !string.IsNullOrEmpty(key) && key != keyToExclude)
                         .ToList();
-                    if (levyKeys != null && levyKeys.Any()) return (levyKeys.OrderBy(k => k).First(), false);
+                    if (levyKeys != null && levyKeys.Any())
+                    {
+                        string? firstKey = levyKeys.OrderBy(k => k).FirstOrDefault();
+                        if (firstKey != null) return (firstKey, false);
+                    }
                     break;
             }
 
@@ -2005,6 +2016,7 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{targetFaction}']");
 
                 if (factionNode != null)
@@ -2103,7 +2115,7 @@ namespace CrusaderWars.unit_mapper
 
                                 if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
                                 {
-                                    string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
+                                    string? found_culture_faction = culture.Attributes?["faction"]?.Value;
                                     if (!string.IsNullOrEmpty(found_culture_faction))
                                     {
                                         culture_mapping = (found_culture_faction, currentFile);
@@ -2111,7 +2123,7 @@ namespace CrusaderWars.unit_mapper
                                         cultureMatchFoundInThisBlock = true;
 
                                         // Also update heritage mapping from this file, as it's the most relevant context
-                                        string found_heritage_faction_context = heritage.Attributes?["faction"]?.Value ?? string.Empty;
+                                        string? found_heritage_faction_context = heritage.Attributes?["faction"]?.Value;
                                         if (!string.IsNullOrEmpty(found_heritage_faction_context))
                                         {
                                             heritage_mapping = (found_heritage_faction_context, currentFile);
@@ -2124,7 +2136,7 @@ namespace CrusaderWars.unit_mapper
                             // If no specific culture was found in this block, check for a heritage-level mapping
                             if (!cultureMatchFoundInThisBlock)
                             {
-                                string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
+                                string? found_heritage_faction = heritage.Attributes?["faction"]?.Value;
                                 // Only apply this heritage mapping if we haven't found a specific culture mapping in a *previous* file.
                                 if (!string.IsNullOrEmpty(found_heritage_faction) && string.IsNullOrEmpty(culture_mapping.faction))
                                 {
@@ -2170,9 +2182,9 @@ namespace CrusaderWars.unit_mapper
                                 {
                                     if (culture is XmlComment) continue;
                                     string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
-                                    if (culture_name == "Default" && heritage.Attributes?["faction"]?.Value != null)
+                                    if (culture_name == "Default" && heritage.Attributes?["faction"]?.Value is string factionValue)
                                     {
-                                        faction = heritage.Attributes["faction"]!.Value;
+                                        faction = factionValue;
                                         if (!string.IsNullOrEmpty(faction))
                                         {
                                             Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using fallback 'Default/Default' mapping from '{Path.GetFileName(xml_file)}'.");
@@ -2599,6 +2611,7 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{attilaFaction}']");
 
                 if (factionNode != null)
