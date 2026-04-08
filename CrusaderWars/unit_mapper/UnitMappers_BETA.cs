@@ -1940,8 +1940,8 @@ namespace CrusaderWars.unit_mapper
 
                 case RegimentType.MenAtArms:
                     string category = GetUnitMaxCategory(unitToReplace);
-                    var candidates = new List<(string key, bool isSiege)>();
-                    var fallbackCandidates = new List<(string key, bool isSiege)>();
+                    var candidates = new List<(string? key, bool isSiege)>();
+                    var fallbackCandidates = new List<(string? key, bool isSiege)>();
                     foreach (XmlNode maaNode in defaultFactionNode.SelectNodes("MenAtArm"))
                     {
                         string? key = maaNode.Attributes?["key"]?.Value;
@@ -1955,8 +1955,16 @@ namespace CrusaderWars.unit_mapper
                             candidates.Add((key, isSiege));
                         }
                     }
-                    if (candidates.Any()) return candidates.OrderBy(c => c.key).First();
-                    if (fallbackCandidates.Any()) return fallbackCandidates.OrderBy(c => c.key).First();
+                    if (candidates.Any())
+                    {
+                        var candidate = candidates.OrderBy(c => c.key).First();
+                        if (candidate.key != null) return (candidate.key, candidate.isSiege);
+                    }
+                    if (fallbackCandidates.Any())
+                    {
+                        var candidate = fallbackCandidates.OrderBy(c => c.key).First();
+                        if (candidate.key != null) return (candidate.key, candidate.isSiege);
+                    }
                     break;
 
                 case RegimentType.Garrison:
