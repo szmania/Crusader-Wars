@@ -1118,7 +1118,7 @@ namespace CrusaderWars.unit_mapper
                                     // Original code: max = MaxType.GetMax(node.Attributes["type"].Value);
                                     // This line is potentially problematic as "type" attribute is unit name, not a max category or number.
                                     // Logging the input and result as per instruction to not alter logic.
-                                    if(node.Attributes?["type"]?.Value is string inputToMaxType)
+                                    if (node.Attributes?["type"]?.Value is string inputToMaxType)
                                     {
                                         max = MaxType.GetMax(inputToMaxType);
                                         Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (input to MaxType.GetMax: '{inputToMaxType}'): {max}");
