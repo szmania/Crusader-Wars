@@ -490,6 +490,7 @@ namespace CrusaderWars
 
             return (left_side_advantages, right_side_advantages);
         }
+        [SupportedOSPlatform("windows")]
         static void TerrainSearch(string log)
         {
             TerrainGenerator.TerrainType = SearchForTerrain(log);
