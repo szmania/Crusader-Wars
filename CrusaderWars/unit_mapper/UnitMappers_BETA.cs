@@ -1770,16 +1770,16 @@ namespace CrusaderWars.unit_mapper
             // 0. Check for manual replacements first, using the key already on the unit if available.
             // This is crucial for levies and garrisons which are handled as compositions.
             // For garrison units, the AttilaUnitKey is set directly in GarrisonGenerator.
-            if (unit.GetRegimentType() == RegimentType.Garrison && !string.IsNullOrEmpty(initial_key) && initial_key != NOT_FOUND_KEY)
+            if ((unit.GetRegimentType() == RegimentType.Garrison || unit.GetRegimentType() == RegimentType.Levy) && !string.IsNullOrEmpty(initial_key) && initial_key != NOT_FOUND_KEY)
             {
                 if (BattleState.ManualUnitReplacements.TryGetValue((initial_key, unit.IsPlayer()), out var manualReplacement))
                 {
-                    Program.Logger.Debug($"Manual Replace (Pre-check): Applying replacement for pre-set garrison unit key '{initial_key}' with '{manualReplacement.replacementKey}'.");
+                    Program.Logger.Debug($"Manual Replace (Pre-check): Applying replacement for pre-set {unit.GetRegimentType()} unit key '{initial_key}' with '{manualReplacement.replacementKey}'.");
                     unit.SetIsSiege(manualReplacement.isSiege);
                     return (manualReplacement.replacementKey, manualReplacement.isSiege);
                 }
-                // If no manual replacement, return the pre-set garrison key.
-                return (initial_key, false);
+                // If no manual replacement, return the pre-set key.
+                return (initial_key, false); // Levies and Garrisons are not siege units by default in this path
             }
 
 
