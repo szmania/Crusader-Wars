@@ -1,4 +1,4 @@
-﻿using CrusaderWars.armies.commander_traits;
+using CrusaderWars.armies.commander_traits;
 using CrusaderWars.armies;
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ namespace CrusaderWars.data.save_file
                         Program.Logger.Debug($"##Army Regiment - {x.ID} |{x.Type} | {x.MAA_Name}");
                         armyRegimentsTotal += x.CurrentNum;
                     }
-                        
+
                     foreach (var t in x.Regiments)
                     {
                         if (!t.isMercenary())
@@ -54,13 +54,13 @@ namespace CrusaderWars.data.save_file
                             Program.Logger.Debug($"## ## Mercenary Chunk Regiment: {t.ID} | Owner: {t.Owner} | Index: {t.Index} | Origin: {t.Origin} | Soldiers: {ModOptions.FullArmies(t)} | County Key: {t.GetCountyKey()} | Culture: {t.Culture?.GetCultureName() ?? "null"} | Heritage: {t.Culture?.GetHeritageName() ?? "null"}"); // Applied null-conditional and null-coalescing
                             regimentsTotal += int.TryParse(t.CurrentNum, out int currentNum) ? currentNum : 0;
                         }
-                            
+
                     }
 
                 }
                 Program.Logger.Debug("\n");
             }
-            
+
             Program.Logger.Debug("\n");
             Program.Logger.Debug($"ARMY REGIMENTS TOTAL FOUND: {armyRegimentsTotal}\n" +
                               $"REGIMENTS TOTAL FOUND: {regimentsTotal}\n");
@@ -77,7 +77,7 @@ namespace CrusaderWars.data.save_file
         string Name { get; set; }
         RegimentType Type { get; set; }
         Culture? UnitCulture { get; set; }
-        Owner? Owner {  get; set; }
+        Owner? Owner { get; set; }
         bool IsMercenaryBool { get; set; }
         int Soldiers { get; set; }
         private int OriginalSoldiers { get; set; }
@@ -86,12 +86,18 @@ namespace CrusaderWars.data.save_file
         int Max { get; set; }
         string LocName { get; set; }
         public int CharacterRank { get; private set; }
+        public int GarrisonLevel { get; private set; } // NEW: For Garrison units
         private bool IsSiegeWeapon { get; set; }
         private bool IsSiegeEnginePerUnitBool { get; set; }
         private int NumGuns { get; set; }
+        private bool IsPlayerUnitBool { get; set; }
+        public Knight? KnightCommander { get; set; }
+        public string? CharacterID { get; private set; }
+        public int UniqueID { get; private set; }
+        private static int _nextUniqueID = 1;
 
 
-        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, int garrisonLevel = 0)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -102,12 +108,16 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            GarrisonLevel = garrisonLevel; // NEW: Set garrison level
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
+            KnightCommander = null;
+            CharacterID = null;
+            UniqueID = _nextUniqueID++;
         }
 
-        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, int garrisonLevel = 0)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -119,11 +129,15 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            GarrisonLevel = garrisonLevel; // NEW: Set garrison level
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
+            KnightCommander = null;
+            CharacterID = null;
+            UniqueID = _nextUniqueID++;
         }
-        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner)
+        public Unit(string regiment_name, int soldiers, Culture? culture_obj, RegimentType type, bool is_merc, Owner? owner, int garrisonLevel = 0)
         {
             Name = regiment_name;
             UnitCulture = culture_obj;
@@ -136,9 +150,13 @@ namespace CrusaderWars.data.save_file
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
+            GarrisonLevel = garrisonLevel; // NEW: Set garrison level
             IsSiegeWeapon = false;
             IsSiegeEnginePerUnitBool = false;
             NumGuns = 1;
+            KnightCommander = null;
+            CharacterID = null;
+            UniqueID = _nextUniqueID++;
         }
 
 
@@ -148,14 +166,25 @@ namespace CrusaderWars.data.save_file
         public void SetUnitKey(string unit_key) { AttilaKey = unit_key; }
         public void ChangeName(string y) { Name = y; }
         public void ChangeSoldiers(int y) { Soldiers = y; }
+        public void AddSoldiers(int soldiers) { Soldiers += soldiers; }
         public void SetSoldiers(int soldiers) { Soldiers = soldiers; }
         public void SetMax(int i) { Max = i; }
         public void SetLocName(string t) { LocName = t; }
         public void ChangeCulture(Culture culture) { UnitCulture = culture; }
         public void SetCharacterRank(int rank) { CharacterRank = rank; }
+        public void SetGarrisonLevel(int level) { GarrisonLevel = level; } // NEW: Method to set garrison level
         public void SetIsSiege(bool isSiege) { IsSiegeWeapon = isSiege; }
         public void SetIsSiegeEnginePerUnit(bool isPerUnit) { IsSiegeEnginePerUnitBool = isPerUnit; }
         public void SetNumGuns(int numGuns) { NumGuns = numGuns; }
+        public void SetIsPlayer(bool isPlayer) { IsPlayerUnitBool = isPlayer; }
+        public void SetCharacterID(string id) { CharacterID = id; }
+
+
+        public static void ResetUniqueIDCounter()
+        {
+            _nextUniqueID = 1;
+            Program.Logger.Debug("Unit UniqueID counter has been reset.");
+        }
 
 
         public int GetMax() { return Max; }
@@ -163,22 +192,25 @@ namespace CrusaderWars.data.save_file
         public string GetAttilaUnitKey() { return AttilaKey; }
         public Owner? GetOwner() { return Owner; }
         public string GetName() { return Name; }
-        public Culture? GetObjCulture() { 
+        public Culture? GetObjCulture()
+        {
 
-            return UnitCulture; 
+            return UnitCulture;
         }
-        public string GetCulture() {
+        public string GetCulture()
+        {
             if (UnitCulture == null)
-            { 
+            {
                 return "not_found";
             }
-                
-            return UnitCulture.GetCultureName(); 
+
+            return UnitCulture.GetCultureName();
         }
-        public string GetHeritage() { 
-            if (UnitCulture == null) 
-                return "not_found"; 
-            return UnitCulture.GetHeritageName(); 
+        public string GetHeritage()
+        {
+            if (UnitCulture == null)
+                return "not_found";
+            return UnitCulture.GetHeritageName();
         }
         public int GetSoldiers() { return Soldiers; }
         public int GetOriginalSoldiers() { return OriginalSoldiers; }
@@ -188,6 +220,8 @@ namespace CrusaderWars.data.save_file
         public bool IsSiege() { return IsSiegeWeapon; }
         public bool IsSiegeEnginePerUnit() { return IsSiegeEnginePerUnitBool; }
         public int GetNumGuns() { return NumGuns; }
+        public bool IsPlayer() { return IsPlayerUnitBool; }
+        public string? GetCharacterID() { return CharacterID; }
 
     }
 
@@ -206,8 +240,8 @@ namespace CrusaderWars.data.save_file
         public RegimentType Type { get; private set; }
         public string MAA_Name { get; private set; }
         public List<Regiment> Regiments { get; private set; }
-        public int CurrentNum { get; private set; }
-        public int StartingNum { get; private set; }
+        public int CurrentNum { get; set; }
+        public int StartingNum { get; set; }
         public int Max { get; private set; }
 
 
@@ -235,17 +269,9 @@ namespace CrusaderWars.data.save_file
             Regiments = regiments;
 
         }
-        public void SetCurrentNum (string x)
-        {
-            CurrentNum = Int32.Parse(x);
-        }
         public void SetMax(string x)
         {
             Max = Int32.Parse(x);
-        }
-        public void SetStartingNum(string x)
-        {
-            StartingNum = Int32.Parse(x);
         }
     }
 
@@ -257,12 +283,12 @@ namespace CrusaderWars.data.save_file
         public string OriginKey { get; private set; }
         public string OwningTitle { get; private set; }
         public string Owner { get; private set; }
-        public string Max {  get; private set; }
+        public string Max { get; private set; }
         public string CurrentNum { get; private set; }
         public Culture Culture { get; private set; }
         string county_key { get; set; }
         bool IsMercenary { get; set; }
-        bool isGarrison {  get; set; }
+        bool isGarrison { get; set; }
 
         public Regiment(string id, string index)
         {
@@ -292,11 +318,11 @@ namespace CrusaderWars.data.save_file
         public void SetOrigin(string origin) { this.Origin = origin; }
         public void SetOriginKey(string key) { this.OriginKey = key; }
         public void SetMax(string max) { this.Max = max; }
-        public void SetSoldiers(string soldiers) {this.CurrentNum = soldiers; }
+        public void SetSoldiers(string soldiers) { this.CurrentNum = soldiers; }
         public void StoreCountyKey(string key) { this.county_key = key; }
         public void ChangeIndex(string index) { this.Index = index; }
 
-        
+
     }
 
     public class Culture
@@ -357,6 +383,6 @@ namespace CrusaderWars.data.save_file
 
         public string GetID() { return ID; }
         public Culture GetCulture() { return Culture; }
-        public string GetPrimaryTitleKey() {  return PrimaryTitleKey; }
+        public string GetPrimaryTitleKey() { return PrimaryTitleKey; }
     }
 }

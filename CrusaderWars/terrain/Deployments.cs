@@ -74,31 +74,31 @@ namespace CrusaderWars.terrain
                 return PR_Deployment;
             }
 
-            public static string? SetOppositeDirection(string direction, int total_soldiers)
+            public static string? SetOppositeDirection(string direction, int total_soldiers, bool isGarrisonDeployment = false)
             {
                 DeploymentArea DEPLOYMENT_AREA;
                 switch (direction)
                 {
                     case "N":
-                        DEPLOYMENT_AREA = new DeploymentArea("S", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("S", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetSouth(DEPLOYMENT_AREA);
                     case "S":
-                        DEPLOYMENT_AREA = new DeploymentArea("N", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("N", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetNorth(DEPLOYMENT_AREA);
                     case "E":
-                        DEPLOYMENT_AREA = new DeploymentArea("W", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("W", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetWest(DEPLOYMENT_AREA);
                     case "W":
-                        DEPLOYMENT_AREA = new DeploymentArea("E", ModOptions.DeploymentsZones(), total_soldiers);
+                        DEPLOYMENT_AREA = new DeploymentArea("E", ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                         return Directions.SetEast(DEPLOYMENT_AREA);
                     default:
                         throw new ArgumentException($"Invalid direction provided: {direction}", nameof(direction));
                 }
             }
 
-            public static string? SetDirection(string direction, int total_soldiers)
+            public static string? SetDirection(string direction, int total_soldiers, bool isGarrisonDeployment = false)
             {
-                DeploymentArea DEPLOYMENT_AREA = new DeploymentArea(direction, ModOptions.DeploymentsZones(), total_soldiers);
+                DeploymentArea DEPLOYMENT_AREA = new DeploymentArea(direction, ModOptions.DeploymentsZones(), total_soldiers, isGarrisonDeployment);
                 switch (direction)
                 {
                     case "N":
@@ -131,7 +131,7 @@ namespace CrusaderWars.terrain
                 }
             }
         }
- 
+
         static string attacker_direction = "", defender_direction = "";
         static string? attacker_deployment, defender_deployment = "";
 
@@ -152,7 +152,7 @@ namespace CrusaderWars.terrain
             //Defined directions battle maps
             else
             {
-                if(useRotatedDeployment)
+                if (useRotatedDeployment)
                 {
                     int defender_index = _random.Next(0, battle_map.attacker_dir.Length);
                     defender_direction = battle_map.attacker_dir[defender_index];
@@ -177,20 +177,7 @@ namespace CrusaderWars.terrain
             siege_center_x = "0.00";
             siege_center_y = "0.00";
 
-            // Defender deployment area is now a fixed size for all sieges.
-            string width = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
-            string height = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
-
-            // Defender is at the center of the settlement.
-            defender_direction = "S"; // Default direction, provides a forward-facing orientation.
-            defender_deployment = "<deployment_area>\n" +
-                                  $"<centre x =\"{siege_center_x}\" y =\"{siege_center_y}\"/>\n" +
-                                  $"<width metres =\"{width}\"/>\n" +
-                                  $"<height metres =\"{height}\"/>\n" +
-                                  $"<orientation radians =\"{ROTATION_0º}\"/>\n" +
-                                  "</deployment_area>\n\n";
-
-            // Attacker gets a random direction from the edges of the map.
+            // 1. Determine Attacker Direction
             if (BattleState.AutofixAttackerDirectionOverride != null)
             {
                 attacker_direction = BattleState.AutofixAttackerDirectionOverride;
@@ -214,15 +201,28 @@ namespace CrusaderWars.terrain
                 BattleState.OriginalSiegeAttackerDirection = attacker_direction; // Store the initial direction
                 Program.Logger.Debug($"Initial siege attacker direction set to '{attacker_direction}'.");
             }
-            
-            // Use existing logic to place the attacker at the map edge.
+
+            // 2. Determine Defender Direction
+            defender_direction = "S"; // Default direction
+            // Prevent attacker and defender directions from being the same, which confuses override logic.
+            if (attacker_direction == defender_direction)
+            {
+                defender_direction = Directions.GetOppositeDirection(attacker_direction);
+                Program.Logger.Debug($"Attacker and defender directions were the same. Changed defender direction to '{defender_direction}'.");
+            }
+
+            // 3. Create Deployments
+            // Defender is at the center of the settlement.
+            defender_deployment = Directions.SetDirection(defender_direction, total_soldiers, true);
+
+            // Attacker is at the map edge.
             attacker_deployment = Directions.SetDirection(attacker_direction, total_soldiers);
         }
 
         public static string? beta_GetDeployment(string combat_side)
         {
 
-            switch(combat_side)
+            switch (combat_side)
             {
                 case "attacker":
                     return attacker_deployment;
@@ -256,7 +256,7 @@ namespace CrusaderWars.terrain
         }
     }
 
-    class DeploymentArea
+    public class DeploymentArea
     {
         //CENTER POSITIONS
         public string X { get; private set; }
@@ -267,7 +267,7 @@ namespace CrusaderWars.terrain
         public string Height { get; private set; }
 
         //MAP SIZE OPTION
-        string MapSize { get; set; }
+        string MapSize { get; set; } = string.Empty;
 
         public float MinX { get; private set; }
         public float MaxX { get; private set; }
@@ -278,122 +278,144 @@ namespace CrusaderWars.terrain
         {
             float centerX, centerY, width, height;
 
-            if (BattleState.IsSiegeBattle && isGarrisonDeployment)
+            // Check for manual overrides from the Deployment Zone Tool
+            var attackerOverride = BattleState.DeploymentZoneOverrideAttacker;
+            var defenderOverride = BattleState.DeploymentZoneOverrideDefender;
+            string globalAttackerDir = Deployments.beta_GeDirection("attacker");
+            bool isAttacker = (direction == globalAttackerDir);
+
+            Program.Logger.Debug($"--- DeploymentArea ---");
+            Program.Logger.Debug($"Direction: '{direction}', Global Attacker Direction: '{globalAttackerDir}', Is Attacker: {isAttacker}");
+            Program.Logger.Debug($"Attacker Override is {(attackerOverride == null ? "NULL" : "PRESENT")}");
+            Program.Logger.Debug($"Defender Override is {(defenderOverride == null ? "NULL" : "PRESENT")}");
+
+
+            if (isAttacker && attackerOverride != null)
             {
-                // Special case for the central garrison deployment area
-                centerX = 0f;
-                centerY = 0f;
-                string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
-                string height_str = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
-                float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out width);
-                float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out height);
-
-                this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
-                this.Y = centerY.ToString("F2", CultureInfo.InvariantCulture);
-                this.Width = width.ToString("F2", CultureInfo.InvariantCulture);
-                this.Height = height.ToString("F2", CultureInfo.InvariantCulture);
-
-                this.MinX = centerX - (width / 2f);
-                this.MaxX = centerX + (width / 2f);
-                this.MinY = centerY - (height / 2f);
-                this.MaxY = centerY + (height / 2f);
-                return; // Exit early, skipping edge-of-map logic
+                centerX = attackerOverride.X;
+                centerY = attackerOverride.Y;
+                width = attackerOverride.Width;
+                height = attackerOverride.Height;
+                Program.Logger.Debug($"Applying manual override for Attacker zone: X={centerX}, Y={centerY}, W={width}, H={height}");
             }
-
-            // Determine MapSize category ("Medium", "Big", "Huge")
-            string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
-            if (map_size_source == "Dynamic")
+            else if (!isAttacker && defenderOverride != null)
             {
-                if (BattleState.IsSiegeBattle)
-                {
-                    int holdingLevel = Sieges.GetHoldingLevel();
-                    if (holdingLevel <= 2) { MapSize = "Medium"; }
-                    else if (holdingLevel <= 4) { MapSize = "Big"; }
-                    else { MapSize = "Huge"; }
-                }
-                else // Field battle
-                {
-                    if (total_soldiers <= 5000) { MapSize = "Medium"; }
-                    else if (total_soldiers > 5000 && total_soldiers < 20000) { MapSize = "Big"; }
-                    else if (total_soldiers >= 20000) { MapSize = "Huge"; }
-                    else { MapSize = "Medium"; }
-                }
+                centerX = defenderOverride.X;
+                centerY = defenderOverride.Y;
+                width = defenderOverride.Width;
+                height = defenderOverride.Height;
+                Program.Logger.Debug($"Applying manual override for Defender zone: X={centerX}, Y={centerY}, W={width}, H={height}");
             }
             else
             {
-                MapSize = map_size_source;
-            }
-
-            // Determine playable area boundary
-            string map_dimension_str = ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle);
-            float map_dimension = float.Parse(map_dimension_str, CultureInfo.InvariantCulture);
-            float playable_boundary = map_dimension / 2f;
-
-            // Determine deployment zone dimensions and position
-            if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
-            {
-                float inter_zone_buffer = 125f; // Space between defender and attacker zones
-                float map_edge_buffer = 50f;   // Space between attacker zone and map edge
-
-                string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
-                float.TryParse(defender_width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float defender_width_val);
-                float defender_radius = defender_width_val / 2f;
-
-                float attacker_depth = playable_boundary - defender_radius - inter_zone_buffer - map_edge_buffer;
-                if (attacker_depth < 50f) attacker_depth = 50f;
-
-                if (direction == "N" || direction == "S")
+                // Original logic if no override is present
+                if (BattleState.IsSiegeBattle && isGarrisonDeployment)
                 {
-                    width = (playable_boundary - map_edge_buffer) * 2f;
-                    height = attacker_depth;
+                    // Special case for the central garrison deployment area
                     centerX = 0f;
-                    centerY = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
-                    if (direction == "S")
-                    {
-                        centerY = -centerY;
-                    }
-                }
-                else // "E" or "W"
-                {
-                    height = (playable_boundary - map_edge_buffer) * 2f;
-                    width = attacker_depth;
                     centerY = 0f;
-                    centerX = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
-                    if (direction == "W")
-                    {
-                        centerX = -centerX;
-                    }
+                    string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
+                    string height_str = BattleStateBridge.BesiegedDeploymentHeight ?? "1500";
+                    float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out width);
+                    float.TryParse(height_str, NumberStyles.Any, CultureInfo.InvariantCulture, out height);
                 }
-            }
-            else // Field Battle
-            {
-                float buffer = 100f;
-                if (direction == "N" || direction == "S")
+                else
                 {
-                    // Horizontal deployment (along top or bottom edge)
-                    width = (playable_boundary - buffer) * 2f;
-                    height = GetDeploymentDepth(playable_boundary, buffer);
-                    centerX = 0f;
-                    centerY = playable_boundary - buffer - (height / 2f);
-                    if (direction == "S")
+                    // Determine MapSize category ("Medium", "Big", "Huge")
+                    string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
+                    if (map_size_source == "Dynamic")
                     {
-                        centerY = -centerY;
+                        if (BattleState.IsSiegeBattle)
+                        {
+                            int holdingLevel = Sieges.GetHoldingLevel();
+                            if (holdingLevel <= 2) { MapSize = "Medium"; }
+                            else if (holdingLevel <= 4) { MapSize = "Big"; }
+                            else { MapSize = "Huge"; }
+                        }
+                        else // Field battle
+                        {
+                            if (total_soldiers <= 5000) { MapSize = "Medium"; }
+                            else if (total_soldiers > 5000 && total_soldiers < 20000) { MapSize = "Big"; }
+                            else if (total_soldiers >= 20000) { MapSize = "Huge"; }
+                            else { MapSize = "Medium"; }
+                        }
                     }
-                }
-                else // "E" or "W"
-                {
-                    // Vertical deployment (along left or right edge)
-                    height = (playable_boundary - buffer) * 2f;
-                    width = GetDeploymentDepth(playable_boundary, buffer);
-                    centerY = 0f;
-                    centerX = playable_boundary - buffer - (width / 2f);
-                    if (direction == "W")
+                    else
                     {
-                        centerX = -centerX;
+                        MapSize = map_size_source;
                     }
-                }
-            }
 
+                    // Determine playable area boundary
+                    string map_dimension_str = ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle);
+                    float map_dimension = float.Parse(map_dimension_str, CultureInfo.InvariantCulture);
+                    float playable_boundary = map_dimension / 2f;
+
+                    // Determine deployment zone dimensions and position
+                    if (BattleState.IsSiegeBattle) // Besieger (Attacker) Deployment
+                    {
+                        float inter_zone_buffer = 125f; // Space between defender and attacker zones
+                        float map_edge_buffer = 50f;   // Space between attacker zone and map edge
+
+                        string defender_width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
+                        float.TryParse(defender_width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float defender_width_val);
+                        float defender_radius = defender_width_val / 2f;
+
+                        float attacker_depth = playable_boundary - defender_radius - inter_zone_buffer - map_edge_buffer;
+                        if (attacker_depth < 50f) attacker_depth = 50f;
+
+                        if (direction == "N" || direction == "S")
+                        {
+                            width = (playable_boundary - map_edge_buffer) * 2f;
+                            height = attacker_depth;
+                            centerX = 0f;
+                            centerY = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
+                            if (direction == "S")
+                            {
+                                centerY = -centerY;
+                            }
+                        }
+                        else // "E" or "W"
+                        {
+                            height = (playable_boundary - map_edge_buffer) * 2f;
+                            width = attacker_depth;
+                            centerY = 0f;
+                            centerX = defender_radius + inter_zone_buffer + (attacker_depth / 2f);
+                            if (direction == "W")
+                            {
+                                centerX = -centerX;
+                            }
+                        }
+                    }
+                    else // Field Battle
+                    {
+                        float buffer = 100f;
+                        if (direction == "N" || direction == "S")
+                        {
+                            // Horizontal deployment (along top or bottom edge)
+                            width = (playable_boundary - buffer) * 2f;
+                            height = GetDeploymentDepth(playable_boundary, buffer);
+                            centerX = 0f;
+                            centerY = playable_boundary - buffer - (height / 2f);
+                            if (direction == "S")
+                            {
+                                centerY = -centerY;
+                            }
+                        }
+                        else // "E" or "W"
+                        {
+                            // Vertical deployment (along left or right edge)
+                            height = (playable_boundary - buffer) * 2f;
+                            width = GetDeploymentDepth(playable_boundary, buffer);
+                            centerY = 0f;
+                            centerX = playable_boundary - buffer - (width / 2f);
+                            if (direction == "W")
+                            {
+                                centerX = -centerX;
+                            }
+                        }
+                    }
+                }
+            }
 
             // Assign final string values
             this.X = centerX.ToString("F2", CultureInfo.InvariantCulture);
@@ -416,7 +438,7 @@ namespace CrusaderWars.terrain
                 string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
                 float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float width);
                 float defender_radius = width / 2f;
-                
+
                 float depth = playable_boundary - defender_radius - buffer;
                 return depth < 50f ? 50f : depth; // ensure minimum depth
             }
@@ -436,7 +458,7 @@ namespace CrusaderWars.terrain
     class UnitsDeploymentsPosition
     {
         //UNITS DEPLOYMENT AREA DEFAULT POSITION
-        public int X {  get; private set; }
+        public int X { get; private set; }
         public int Y { get; private set; }
 
         //DEPLOYMENT AREA DIRECTION
@@ -445,7 +467,7 @@ namespace CrusaderWars.terrain
         //MAP SIZE USER OPTION
         private string MapSize { get; set; }
 
-        private DeploymentArea _deploymentArea;
+        private DeploymentArea _deploymentArea = new DeploymentArea("N", "Medium", 0);
 
         /// <summary>
         /// Dynamic constructor for units positioning
@@ -453,7 +475,7 @@ namespace CrusaderWars.terrain
         /// <param name="direction"></param>
         /// <param name="option_map_size"></param>
         /// <param name="total_soldiers"></param>
-        public UnitsDeploymentsPosition(string direction, string option_map_size, int total_soldiers, bool isReinforcement = false) 
+        public UnitsDeploymentsPosition(string direction, string option_map_size, int total_soldiers, bool isReinforcement = false)
         {
             Direction = direction;
             MapSize = option_map_size;
@@ -507,6 +529,7 @@ namespace CrusaderWars.terrain
             Y = y;
             Direction = string.Empty; // Initialize Direction
             MapSize = string.Empty;   // Initialize MapSize
+            _deploymentArea = new DeploymentArea("N", "Medium", 0); // Initialize to default
             // _deploymentArea is not initialized here, as this constructor is for default values, not dynamic deployment.
             // If this constructor is used for units that need boundary checks, _deploymentArea would need to be passed or initialized differently.
             // For now, assuming this constructor is for fixed positions not requiring dynamic boundary checks.
@@ -570,7 +593,7 @@ namespace CrusaderWars.terrain
         private void BattleMap(string option_map_size, int total_soldiers)
         {
             string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
-            if(map_size_source == "Dynamic")
+            if (map_size_source == "Dynamic")
             {
                 if (BattleState.IsSiegeBattle)
                 {
@@ -613,7 +636,7 @@ namespace CrusaderWars.terrain
             }
             else if (Direction == "S")
             {
-                Direction= "N";
+                Direction = "N";
             }
             else if (Direction == "E")
             {

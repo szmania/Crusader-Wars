@@ -1,13 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Odbc;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Runtime.Versioning;
 using System.Xml.Linq;
 using System.Xml.Schema;
 using CrusaderWars.unit_mapper;
@@ -25,9 +27,9 @@ namespace CrusaderWars.mod_manager
         Bitmap? Image { get; set; } // Changed to nullable Bitmap
         string Name { get; set; }
         ModLocalization Localization { get; set; }
-        string FullPath {  get; set; }
-        bool RequiredMod {  get; set; }
-        bool LoadingMod {  get; set; }
+        string FullPath { get; set; }
+        bool RequiredMod { get; set; }
+        bool LoadingMod { get; set; }
         int LoadOrder { get; set; }
 
         public Mod(bool isEnabled, Bitmap? pngImg, string name, ModLocalization local, string fullPath) // Changed to nullable Bitmap
@@ -38,7 +40,7 @@ namespace CrusaderWars.mod_manager
             Localization = local;
             FullPath = fullPath;
         }
-        public void ChangeEnabledState(bool yn) {  Enabled = yn; }
+        public void ChangeEnabledState(bool yn) { Enabled = yn; }
         public void IsRequiredMod(bool yn) { RequiredMod = yn; }
         public void IsLoadingRequiredMod(bool yn) { LoadingMod = yn; }
         public void SetLoadOrderValue(int orderNum) { LoadOrder = orderNum; }
@@ -52,19 +54,28 @@ namespace CrusaderWars.mod_manager
         public ModLocalization GetLocalization() { return Localization; }
         public string GetFullPath() { return FullPath; }
 
+        [SupportedOSPlatform("windows")]
         public void DisposeThumbnail() { Image?.Dispose(); Image = null; } // Used null-conditional operator
     }
 
+    public class VerificationResult
+    {
+        public List<(string FileName, string? ScreenName, string? Url)> MissingFiles { get; } = new List<(string, string?, string?)>();
+        public List<(string FileName, string ExpectedSha, string? ScreenName, string? Url)> MismatchedFiles { get; } = new List<(string, string, string?, string?)>();
+    }
+
+    [SupportedOSPlatform("windows")]
     public static class AttilaModManager
     {
         static DataGridView? ModManagerControl { get; set; }
         static List<Mod> ModsPaths { get; set; } = new List<Mod>();
-        
+
         public static void SetControlReference(DataGridView dataGrid)
         {
             ModManagerControl = dataGrid;
         }
 
+        [SupportedOSPlatform("windows")]
         static void RemoveRequiredMods()
         {
             string[] unitMappers_folders = Directory.GetDirectories(@".\unit mappers\");
@@ -72,11 +83,11 @@ namespace CrusaderWars.mod_manager
 
             foreach (var mapper in unitMappers_folders)
             {
-                string[] files  = Directory.GetFiles(mapper);
-                foreach(var file in files)
+                string[] files = Directory.GetFiles(mapper);
+                foreach (var file in files)
                 {
                     string fileName = Path.GetFileName(file);
-                    if(fileName == "Mods.xml")
+                    if (fileName == "Mods.xml")
                     {
                         try
                         {
@@ -115,6 +126,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public static void SetLoadingRequiredMods(List<string> requiredMods)
         {
             // Reset all mods' loading required status before setting new ones
@@ -123,13 +135,13 @@ namespace CrusaderWars.mod_manager
                 mod.IsLoadingRequiredMod(false);
             }
 
-            foreach(var mod in ModsPaths)
+            foreach (var mod in ModsPaths)
             {
-                if(mod.IsRequiredMod())
+                if (mod.IsRequiredMod())
                 {
-                    foreach(var requiredMod in requiredMods)
+                    foreach (var requiredMod in requiredMods)
                     {
-                        if(mod.GetName() == requiredMod)
+                        if (mod.GetName() == requiredMod)
                         {
                             mod.IsLoadingRequiredMod(true);
                             mod.SetLoadOrderValue(requiredMods.IndexOf(requiredMod));
@@ -145,7 +157,7 @@ namespace CrusaderWars.mod_manager
             string attilaPath = Properties.Settings.Default.VAR_attila_path;
             if (string.IsNullOrEmpty(attilaPath) || !System.IO.File.Exists(attilaPath))
             {
-                return null; 
+                return null;
             }
 
             DirectoryInfo? dirInfo = new DirectoryInfo(Path.GetDirectoryName(attilaPath)!);
@@ -165,6 +177,7 @@ namespace CrusaderWars.mod_manager
             return null; // "steamapps" not found
         }
 
+        [SupportedOSPlatform("windows")]
         public static void CreateUserModsFile()
         {
             Program.Logger.Debug("Creating user mods file for Attila...");
@@ -202,7 +215,8 @@ namespace CrusaderWars.mod_manager
             }
 
             // Get ordered lists of mods
-            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod() && !modsToExclude.Contains(x.GetName()))
+            var requiredMods = ModsPaths.Where(x => x.IsLoadingModRequiredMod()
+                                                && !modsToExclude.Contains(x.GetName()))
                                        .OrderBy(x => x.GetLoadOrderValue())
                                        .ToList();
 
@@ -222,62 +236,34 @@ namespace CrusaderWars.mod_manager
                     if (mod.GetLocalization() == ModLocalization.Steam)
                     {
                         string workingDirectory = mod.GetFullPath().Replace(@"\", @"/");
-                        sw.WriteLine($"add_working_directory \"{workingDirectory}\";");
+                        sw.Write($"add_working_directory \"{workingDirectory}\";\n");
                         Program.Logger.Debug($"  - {type} WD: {workingDirectory}");
                     }
-                    sw.WriteLine($"mod \"{mod.GetName()}\";");
+                    sw.Write($"mod \"{mod.GetName()}\";\n");
                     Program.Logger.Debug($"  - {type} Mod: {mod.GetName()}");
                 };
 
                 // 1. CrusaderConflicts.pack (Highest priority, written first in file, loaded last by game)
-                sw.WriteLine($"mod \"CrusaderConflicts.pack\";");
+                sw.Write($"mod \"CrusaderConflicts.pack\";\n");
                 Program.Logger.Debug("  - Mod: CrusaderConflicts.pack (Highest Priority)");
 
-                // 2. Active Submod packs
-                if (UnitMappers_BETA.ActivePlaythroughTag != null)
-                {
-                    var activeSubmodTags = SubmodManager.GetActiveSubmodsForPlaythrough(UnitMappers_BETA.ActivePlaythroughTag);
-                    if (activeSubmodTags.Any() && UnitMappers_BETA.AvailableSubmods.Any())
-                    {
-                        // Filter to get active submods, preserving the original order from Mods.xml
-                        var activeSubmodsInOrder = UnitMappers_BETA.AvailableSubmods
-                            .Where(s => activeSubmodTags.Contains(s.Tag))
-                            .ToList();
-                        
-                        foreach (var submod in activeSubmodsInOrder)
-                        {
-                            foreach (var submodPack in submod.Mods)
-                            {
-                                var modObject = ModsPaths.FirstOrDefault(m => m.GetName() == submodPack.FileName);
-                                if (modObject != null)
-                                {
-                                    writeModEntry(modObject, "Submod");
-                                }
-                                else
-                                {
-                                    Program.Logger.Debug($"  - WARNING: Active submod pack '{submodPack.FileName}' for submod '{submod.Tag}' not found in installed mods list.");
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 3. Optional (user-selected) mods
+                // 2. Optional (user-selected) mods
                 foreach (var mod in optionalMods)
                 {
                     writeModEntry(mod, "Optional");
                 }
 
-                // 4. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
+                // 3. Required mods for the playthrough (Lowest priority, written last in file, loaded first by game)
                 foreach (var mod in requiredMods)
                 {
-                    writeModEntry(mod, "Required");
+                    writeModEntry(mod, "Required/Submod");
                 }
 
                 sw.Dispose();
                 sw.Close();
             }
         }
+        [SupportedOSPlatform("windows")]
         public static void ReadInstalledMods()
         {
             Program.Logger.Debug("Reading installed Attila mods...");
@@ -287,15 +273,15 @@ namespace CrusaderWars.mod_manager
             ModsPaths = new List<Mod>();
             //Read data folder
             var dataModsPaths = Directory.GetFiles(data_folder_path);
-            foreach(var file in dataModsPaths)
+            foreach (var file in dataModsPaths)
             {
                 var fileName = Path.GetFileName(file);
-                if(Path.GetExtension(fileName) == ".pack")
+                if (Path.GetExtension(fileName) == ".pack")
                 {
                     // Skip Attila Packs
-                    if(fileName == "belisarius.pack" ||
+                    if (fileName == "belisarius.pack" ||
                        fileName == "boot.pack" ||
-                       fileName == "charlemagne.pack"||
+                       fileName == "charlemagne.pack" ||
                        fileName == "data.pack" ||
                        fileName == "local_en.pack" ||
                        fileName == "local_en_shared_rome2.pack" ||
@@ -326,7 +312,7 @@ namespace CrusaderWars.mod_manager
             }
 
             // Read steam workshop folder
-            if(Directory.Exists(workshop_folder_path))
+            if (Directory.Exists(workshop_folder_path))
             {
                 var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);
                 foreach (var folder in steamModsFoldersPaths)
@@ -349,7 +335,7 @@ namespace CrusaderWars.mod_manager
                             image_path = file;
                         }
                     }
-                    if(name != string.Empty)
+                    if (name != string.Empty)
                     {
                         Bitmap? thumbnail = LoadBitmapWithReducedSize(image_path);
                         ModsPaths.Add(new Mod(false, thumbnail, name, ModLocalization.Steam, fullPath));
@@ -367,6 +353,7 @@ namespace CrusaderWars.mod_manager
             Program.Logger.Debug($"Found {ModsPaths.Count} installed mods.");
         }
 
+        [SupportedOSPlatform("windows")]
         public static void ReadInstalledModsAndPopulateModManager()
         {
             ReadInstalledMods();
@@ -429,13 +416,16 @@ namespace CrusaderWars.mod_manager
         }
 
 
+        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         static void DisposeImages()
         {
-            foreach(var mod in ModsPaths)
+            foreach (var mod in ModsPaths)
             {
                 mod.DisposeThumbnail();
             }
         }
+        [SupportedOSPlatform("windows")]
         public static void SaveActiveMods()
         {
             var activeMods = ModsPaths.Where(mod => mod.IsEnabled()).Select(x => x.GetName()).ToArray();
@@ -443,6 +433,7 @@ namespace CrusaderWars.mod_manager
             DisposeImages();
         }
 
+        [SupportedOSPlatform("windows")]
         public static void ChangeEnabledState(DataGridViewRow row)
         {
             string? stringValue = row.Cells[0].Value?.ToString();
@@ -456,19 +447,195 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         static void SetActiveMods()
         {
             var activeMods = File.ReadAllLines(@".\data\mod manager\active_mods.txt").ToList();
-            foreach(Mod mod in ModsPaths) { 
+            foreach (Mod mod in ModsPaths)
+            {
                 string name = mod.GetName();
-                foreach(var x in activeMods) { 
-                    if(name == x)
+                foreach (var x in activeMods)
+                {
+                    if (name == x)
                     {
                         mod.ChangeEnabledState(true);
                         break;
                     }
                 }
             }
+        }
+
+        public static string CalculateSHA256(string filePath)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    var hash = sha256.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+
+        [SupportedOSPlatform("windows")]
+        public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress)
+        {
+            Program.Logger.Debug("Verifying mod files...");
+            var result = new VerificationResult();
+
+            // Create a dictionary to track verification state for each mod
+            var modStates = modsToVerifyList
+                .GroupBy(item => item.FileName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => new
+                    {
+                        Info = g.First(),
+                        Found = false,
+                        Matched = false
+                    }
+                );
+
+            Program.Logger.Debug($"Mods to verify: {string.Join(", ", modStates.Keys)}");
+
+            // Verify data folder (priority location)
+            string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
+            Program.Logger.Debug($"Checking Attila data folder: {data_folder_path}");
+            if (Directory.Exists(data_folder_path))
+            {
+                var dataModsPaths = Directory.GetFiles(data_folder_path);
+                foreach (var file in dataModsPaths)
+                {
+                    var fileName = Path.GetFileName(file);
+                    if (modStates.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
+                    {
+                        var modState = modStates[fileName];
+                        var screenName = modState.Info.ScreenName;
+
+                        string progressMessage = string.IsNullOrEmpty(screenName)
+                            ? $"Verifying: {fileName}"
+                            : $"Verifying: {screenName} - {fileName}";
+                        progress?.Report(progressMessage);
+
+                        // Mark as found
+                        modStates[fileName] = new { Info = modState.Info, Found = true, Matched = modState.Matched };
+
+                        if (!string.IsNullOrEmpty(modState.Info.Sha256))
+                        {
+                            string actualSha = CalculateSHA256(file);
+                            if (string.Equals(modState.Info.Sha256, actualSha, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Program.Logger.Debug($"Found required mod in data folder with matching hash: {fileName}");
+                                // Mark as matched and stop searching for this mod
+                                modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
+                            }
+                            else
+                            {
+                                Program.Logger.Debug($"Found required mod '{fileName}' in data folder but hash mismatched. Expected: {modState.Info.Sha256}, Actual: {actualSha}");
+                                // Since data folder has priority, this is a definitive mismatch
+                                result.MismatchedFiles.Add((fileName, modState.Info.Sha256, screenName, modState.Info.Url));
+                                // Mark as matched to stop searching (because data folder takes precedence)
+                                modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
+                            }
+                        }
+                        else // No hash provided, just check for existence
+                        {
+                            Program.Logger.Debug($"Found required mod in data folder (no hash check): {fileName}");
+                            // Mark as matched and stop searching
+                            modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Error reading Attila data folder. This is caused by wrong Attila path.", "Crusader Conflicts: Game Paths Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+            }
+
+            // Verify workshop folder (only for mods not yet matched)
+            string? workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
+            Program.Logger.Debug($"Checking Attila workshop folder: {workshop_folder_path}");
+            if (Directory.Exists(workshop_folder_path))
+            {
+                var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);
+                foreach (var folder in steamModsFoldersPaths)
+                {
+                    var files = Directory.GetFiles(folder);
+                    foreach (var file in files)
+                    {
+                        var fileName = Path.GetFileName(file);
+                        if (modStates.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
+                        {
+                            var modState = modStates[fileName];
+
+                            // Skip if already matched (found in data folder or already matched in workshop)
+                            if (modState.Matched) continue;
+
+                            var screenName = modState.Info.ScreenName;
+
+                            string progressMessage = string.IsNullOrEmpty(screenName)
+                                ? $"Verifying: {fileName}"
+                                : $"Verifying: {screenName} - {fileName}";
+                            progress?.Report(progressMessage);
+
+                            // Mark as found
+                            modStates[fileName] = new { Info = modState.Info, Found = true, Matched = modState.Matched };
+
+                            if (!string.IsNullOrEmpty(modState.Info.Sha256))
+                            {
+                                string actualSha = CalculateSHA256(file);
+                                if (string.Equals(modState.Info.Sha256, actualSha, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Program.Logger.Debug($"Found required mod in workshop folder with matching hash: {fileName}");
+                                    // Mark as matched
+                                    modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {modState.Info.Sha256}, Actual: {actualSha}");
+                                    // Store mismatch info but keep searching other workshop folders
+                                    // We'll add it to MismatchedFiles later only if no correct version is found
+                                }
+                            }
+                            else // No hash provided, just check for existence
+                            {
+                                Program.Logger.Debug($"Found required mod in workshop folder (no hash check): {fileName}");
+                                // Mark as matched
+                                modStates[fileName] = new { Info = modState.Info, Found = true, Matched = true };
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Process final states
+            foreach (var kvp in modStates)
+            {
+                string fileName = kvp.Key;
+                var modState = kvp.Value;
+                var info = modState.Info;
+
+                if (!modState.Found)
+                {
+                    // Mod not found in any location
+                    result.MissingFiles.Add((fileName, info.ScreenName, info.Url));
+                }
+                else if (!modState.Matched)
+                {
+                    // Mod found but no version matched - this means all found versions had hash mismatches
+                    // Only report mismatch if we actually found the file (this prevents double reporting)
+                    if (!string.IsNullOrEmpty(info.Sha256))
+                    {
+                        result.MismatchedFiles.Add((fileName, info.Sha256, info.ScreenName, info.Url));
+                    }
+                }
+            }
+
+            if (result.MissingFiles.Any()) Program.Logger.Debug($"Mods not found: {string.Join(", ", result.MissingFiles.Select(f => f.FileName))}");
+            if (result.MismatchedFiles.Any()) Program.Logger.Debug($"Mismatched mods: {string.Join(", ", result.MismatchedFiles.Select(m => m.FileName))}");
+            if (!result.MissingFiles.Any() && !result.MismatchedFiles.Any()) Program.Logger.Debug("All required mods were found and hashes match.");
+            return result;
         }
     }
 }

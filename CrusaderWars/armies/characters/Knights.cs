@@ -4,23 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CrusaderWars.data.save_file;
+using CrusaderWars.client; // Added for ModOptions
 
 namespace CrusaderWars
 {
     public class Accolade
     {
-        string ID {  get; set; }
-        string PrimaryAttribute { get; set;}
+        string ID { get; set; }
+        string PrimaryAttribute { get; set; }
         string SecundaryAttribute { get; set; }
         int Glory { get; set; }
-        public Accolade(string id, string primaryAtt, string secundaryAtt, string glory) { 
+        public Accolade(string id, string primaryAtt, string secundaryAtt, string glory)
+        {
             ID = id;
             PrimaryAttribute = primaryAtt;
             SecundaryAttribute = secundaryAtt;
             Glory = Int32.Parse(glory);
         }
 
-        public string GetPrimaryAttribute() { return PrimaryAttribute;}
+        public string GetPrimaryAttribute() { return PrimaryAttribute; }
         public string GetSecundaryAttribute() { return SecundaryAttribute; }
         public int GetGlory() { return Glory; }
     }
@@ -31,16 +33,31 @@ namespace CrusaderWars
         Culture CultureObj { get; set; }
         int Prowess { get; set; }
         int Soldiers { get; set; }
+        int BaseSoldiers { get; set; }
         public int Rank { get; private set; }
-        List<(int Index, string Key)>? Traits { get; set; }
+        List<(int, string)>? Traits { get; set; }
         BaseSkills? BaseSkills { get; set; }
         bool hasFallen { get; set; }
+        public bool IsSlain { get; set; } = false;
+        public bool IsPrisoner { get; set; } = false;
         int Kills { get; set; }
 
         bool isAccoladeKnight { get; set; }
         Accolade? Accolade { get; set; }
+        private bool _isProminent;
+        public bool IsProminent
+        {
+            get { return _isProminent; }
+            set
+            {
+                _isProminent = value;
+                Soldiers = SetStrengh(BaseSoldiers);
+            }
+        }
 
-        public string GetName() {  return Name; }
+        private KnightSystem? _knightSystem; // Added: Reference to parent KnightSystem
+
+        public string GetName() { return Name; }
         public string GetID() { return ID; }
         public string GetCultureName() { return CultureObj?.GetCultureName() ?? "unknown_culture"; }
         public string GetHeritageName() { return CultureObj?.GetHeritageName() ?? "unknown_heritage"; }
@@ -48,27 +65,32 @@ namespace CrusaderWars
         public int GetSoldiers() { return Soldiers; }
         public int GetProwess() { return Prowess; }
         public bool IsAccolade() { return isAccoladeKnight; }
-        public Accolade? GetAccolade() { return Accolade; } 
+        public Accolade? GetAccolade() { return Accolade; }
         public bool HasFallen() { return hasFallen; }
         public int GetKills() { return Kills; }
+        public List<(int, string)> GetTraits() { return Traits ?? new List<(int, string)>(); }
 
-        internal void HasFallen(bool yn) { hasFallen = yn; }
+        internal void SetHasFallen(bool yn) { hasFallen = yn; }
         public void SetKills(int kills) { Kills = kills; }
         public void ChangeCulture(Culture cul) { CultureObj = cul; }
         public void SetTraits(List<(int, string)> list_trait) { Traits = list_trait; }
         public void IsAccolade(bool yn, Accolade accolade) { isAccoladeKnight = yn; Accolade = accolade; Soldiers += 4; }
-        public void SetBaseSkills(BaseSkills t) { BaseSkills =  t; }
+        public void SetBaseSkills(BaseSkills t) { BaseSkills = t; }
+        public void SetKnightSystem(KnightSystem ks) { _knightSystem = ks; } // Added: Setter for KnightSystem
 
 
-        internal Knight(string name, string id, Culture culture, int prowess, int soldiers) { 
+        internal Knight(string name, string id, Culture culture, int prowess, int soldiers)
+        {
             Name = name;
             ID = id;
             CultureObj = culture;
             Prowess = prowess;
+            BaseSoldiers = soldiers;
+            _isProminent = false;
             Soldiers = SetStrengh(soldiers);
             SetRank();
         }
-        
+
 
         private void SetRank()
         {
@@ -92,15 +114,15 @@ namespace CrusaderWars
             //Health soldiers debuff
             if (Traits != null)
             {
-                foreach(var trait in Traits)
+                foreach (var trait in Traits)
                 {
-                    if (trait.Index == WoundedTraits.Wounded()) debuff += -1;
-                    if (trait.Index == WoundedTraits.Severely_Injured()) debuff += -2;
-                    if (trait.Index == WoundedTraits.Brutally_Mauled()) debuff += -3;
-                    if (trait.Index == WoundedTraits.Maimed()) debuff += -2;
-                    if (trait.Index == WoundedTraits.One_Eyed()) debuff += -1;
-                    if (trait.Index == WoundedTraits.One_Legged()) debuff += -2;
-                    if (trait.Index == WoundedTraits.Disfigured()) debuff += -1;
+                    if (trait.Item1 == WoundedTraits.Wounded()) debuff += -1;
+                    if (trait.Item1 == WoundedTraits.Severely_Injured()) debuff += -2;
+                    if (trait.Item1 == WoundedTraits.Brutally_Mauled()) debuff += -3;
+                    if (trait.Item1 == WoundedTraits.Maimed()) debuff += -2;
+                    if (trait.Item1 == WoundedTraits.One_Eyed()) debuff += -1;
+                    if (trait.Item1 == WoundedTraits.One_Legged()) debuff += -2;
+                    if (trait.Item1 == WoundedTraits.Disfigured()) debuff += -1;
                 }
             }
 
@@ -114,26 +136,64 @@ namespace CrusaderWars
             int value = 0;
             if (Prowess <= 4)
             {
-                value += 0;
+                value += 2;
             }
             else if (Prowess >= 5 && Prowess <= 8)
             {
-                value += 1;
+                value += 3;
             }
             else if (Prowess >= 9 && Prowess <= 12)
             {
-                value += 2;
+                value += 4;
             }
             else if (Prowess >= 13 && Prowess <= 16)
             {
-                value += 3;
+                value += 5;
             }
             else if (Prowess >= 17)
             {
-                value += 4;
+                value += 6;
             }
 
-            return soldiers + value;
+            int finalSoldiers = soldiers + value;
+            return finalSoldiers;
+        }
+
+        public void CalculateMAACommanderFate(double casualty_percentage)
+        {
+            if (casualty_percentage <= 0) return;
+
+            // NEW: Guarantee fall if unit is 100% wiped out
+            if (casualty_percentage >= 1.0)
+            {
+                hasFallen = true;
+                Program.Logger.Debug($"Knight {Name} ({ID}) commanding an MAA unit has fallen. Unit Casualties: 100%.");
+                return;
+            }
+
+            // Prowess provides a survival bonus (reduces chance of falling)
+            double prowess_survival_bonus = 0.0;
+            if (Prowess >= 17) prowess_survival_bonus = 0.15;       // 15% bonus for Excellent
+            else if (Prowess >= 13) prowess_survival_bonus = 0.10;  // 10% bonus for Good
+            else if (Prowess >= 9) prowess_survival_bonus = 0.05;   // 5% bonus for Average
+
+            double final_chance_to_fall = casualty_percentage - prowess_survival_bonus;
+
+            // Ensure chance is not negative
+            if (final_chance_to_fall < 0) final_chance_to_fall = 0;
+
+            // Roll the dice
+            var random_roll = CharacterSharedRandom.Rng.NextDouble(); // Returns a value between 0.0 and 1.0
+
+            if (random_roll <= final_chance_to_fall)
+            {
+                hasFallen = true;
+                Program.Logger.Debug($"Knight {Name} ({ID}) commanding an MAA unit has fallen. Unit Casualties: {casualty_percentage:P2}, Prowess: {Prowess}, Survival Bonus: {prowess_survival_bonus:P2}, Final Chance: {final_chance_to_fall:P2}, Roll: {random_roll:P2}.");
+            }
+            else
+            {
+                Program.Logger.Debug($"Knight {Name} ({ID}) commanding an MAA unit survived. Unit Casualties: {casualty_percentage:P2}, Prowess: {Prowess}, Survival Bonus: {prowess_survival_bonus:P2}, Final Chance: {final_chance_to_fall:P2}, Roll: {random_roll:P2}.");
+            }
         }
 
         public (bool isSlain, bool isCaptured, string newTraits) Health(string traits_line, bool wasOnLosingSide)
@@ -224,6 +284,42 @@ namespace CrusaderWars
             return (false, false, traits_line);
         }
 
+        public int GetProminentKnightExperienceBoost()
+        {
+            double prowess_contribution = 0.0;
+            if (Prowess <= 4) prowess_contribution = 0.0;
+            else if (Prowess >= 5 && Prowess <= 8) prowess_contribution = 0.1;
+            else if (Prowess >= 9 && Prowess <= 12) prowess_contribution = 0.2;
+            else if (Prowess >= 13 && Prowess <= 16) prowess_contribution = 0.3;
+            else if (Prowess >= 17) prowess_contribution = 0.4;
+
+            // A prominent knight's prowess has a greater impact on a single unit's experience.
+            // We scale the contribution to make it significant after rounding.
+            // A scaling factor of 5 makes an excellent knight contribute 2 points before effectiveness.
+            double scaled_prowess_value = prowess_contribution * 5;
+
+            int prowess_level = (int)Math.Round(scaled_prowess_value);
+
+            // Safely get effectiveness from the KnightSystem
+            if (_knightSystem == null)
+            {
+                Program.Logger.Debug("WARNING: Knight's KnightSystem is not set. Cannot calculate effectiveness boost.");
+                return prowess_level;
+            }
+            int effectiveness = _knightSystem.Effectiveness; // Modified: Get from _knightSystem
+            double effectiveness_bonus = 0;
+            if (prowess_level > 0)
+            {
+                double multiplier = (double)effectiveness / 100.0; // Fixed: Integer division
+                effectiveness_bonus = prowess_level * multiplier;
+            }
+
+            int final_level = (int)Math.Round(prowess_level + effectiveness_bonus);
+            return final_level;
+        }
+
+        public void AddSoldiers(int soldiers) { Soldiers += soldiers; } // Added AddSoldiers method
+
     }
     public class KnightSystem
     {
@@ -232,7 +328,7 @@ namespace CrusaderWars
         private List<Accolade>? Accolades { get; set; }
         private int UnitSoldiers { get; set; }
 
-        private int Effectiveness { get; set; }
+        public int Effectiveness { get; private set; }
 
         //private List<Knight> KilledKnights { get; set; }
         private bool hasKnights { get; set; }
@@ -246,6 +342,10 @@ namespace CrusaderWars
                 Effectiveness = effectiveness;
                 hasKnights = true;
                 SetKnightsCount();
+                foreach (var knight in Knights) // Added: Set back-reference to KnightSystem
+                {
+                    knight.SetKnightSystem(this);
+                }
             }
             else
             {
@@ -269,24 +369,24 @@ namespace CrusaderWars
 
         public void SetMajorCulture()
         {
-              MajorCulture = Knights.GroupBy(knight => knight.GetCultureObj())
-                                    .OrderByDescending(group => group.Count())
-                                    .Select(group => group.Key)
-                                    .FirstOrDefault();
+            MajorCulture = Knights.GroupBy(knight => knight.GetCultureObj())
+                                  .OrderByDescending(group => group.Count())
+                                  .Select(group => group.Key)
+                                  .FirstOrDefault();
 
-              if(MajorCulture == null)
+            if (MajorCulture == null)
                 MajorCulture = Knights.FirstOrDefault(x => x.GetCultureObj() != null)?.GetCultureObj(); // ADDED NULL-CONDITIONAL OPERATOR
         }
 
 
         public void SetAccolades()
         {
-            if(Knights.Exists(x=> x.IsAccolade()))
+            if (Knights.Exists(x => x.IsAccolade()))
             {
                 Accolades = new List<Accolade>();
                 foreach (var knight in Knights)
                 {
-                    if(knight.IsAccolade())
+                    if (knight.IsAccolade())
                     {
                         if (knight.GetAccolade() != null)
                         {
@@ -306,7 +406,7 @@ namespace CrusaderWars
         {
             if (level > 0)
             {
-                double mulltiplier = Effectiveness / 100;
+                double mulltiplier = Effectiveness / 100.0; // Fixed: Integer division
 
                 double value_to_increase = level * mulltiplier;
                 return value_to_increase;
@@ -320,7 +420,7 @@ namespace CrusaderWars
 
         public void GetKills(int kills)
         {
-            if(hasKnights)
+            if (hasKnights)
             {
                 Random random = new Random();
 
@@ -360,38 +460,47 @@ namespace CrusaderWars
         {
             if (hasKnights)
             {
-                //KilledKnights = new List<Knight>();
+                // This method is now only for the combined, standard knights unit.
+                // All knights in the KnightSystem (who are not already fallen) are part of the combined bodyguard unit
+                // unless they are explicitly leading an MAA unit (which is handled in BattleProcessor.ProcessProminentKnights).
+                // Therefore, all remaining knights are subject to casualties.
+                var eligibleKnights = Knights.Where(k => !k.HasFallen()).ToList();
+                if (!eligibleKnights.Any()) return;
 
-                int totalSoldiers = UnitSoldiers;
-                int remainingSoldiers = remaining;
+                int totalSoldiers = eligibleKnights.Sum(k => k.GetSoldiers()); // This is the unscaled total
 
+                // Un-scale 'remaining' to compare with the unscaled total
+                double scale = ArmyProportions.BattleScale / 100.0;
+                if (scale <= 0) scale = 1.0; // Avoid division by zero
+                int unscaledRemaining = (int)Math.Round(remaining / scale);
 
-                //random knight
-                int soldiers_lost = totalSoldiers - remainingSoldiers;
-                int weakest_knight_num = Knights.Select(x => x.GetSoldiers()).Min();
-                List<Knight> tempKnightsList = new List<Knight>();
-                tempKnightsList.AddRange(Knights);
-                while (soldiers_lost >= weakest_knight_num)
+                int soldiers_lost = totalSoldiers - unscaledRemaining;
+                if (soldiers_lost <= 0) return;
+
+                // Find the weakest knight to ensure we can start removing knights
+                int weakest_knight_num = eligibleKnights.Min(x => x.GetSoldiers());
+                if (weakest_knight_num == 0) weakest_knight_num = 1; // Avoid infinite loop if a knight has 0 soldiers
+
+                List<Knight> tempKnightsList = new List<Knight>(eligibleKnights);
+                while (soldiers_lost >= weakest_knight_num && tempKnightsList.Any())
                 {
-                    if (tempKnightsList.Count == 0) break;
-
                     Random random = new Random();
                     int random_index = random.Next(tempKnightsList.Count);
                     var knight = tempKnightsList[random_index];
 
                     soldiers_lost -= knight.GetSoldiers();
 
-                    //if (soldiers_lost <= 0) break;
-                    
-                    knight.HasFallen(true);
+                    knight.SetHasFallen(true);
                     tempKnightsList.Remove(knight);
 
+                    // Update weakest_knight_num in case the weakest was removed
+                    if (tempKnightsList.Any())
+                    {
+                        weakest_knight_num = tempKnightsList.Min(x => x.GetSoldiers());
+                        if (weakest_knight_num == 0) weakest_knight_num = 1;
+                    }
                 }
-
-
             }
-
-
         }
 
 
@@ -407,7 +516,7 @@ namespace CrusaderWars
         public int GetKnightsSoldiers()
         {
             int num = 0;
-            foreach(Knight knight in Knights)
+            foreach (Knight knight in Knights)
             {
                 num += knight.GetSoldiers();
             }
@@ -480,6 +589,17 @@ namespace CrusaderWars
             }
         }
 
+
+        public void RemoveKnight(Knight knightToRemove)
+        {
+            if (Knights != null && knightToRemove != null)
+            {
+                if (Knights.Remove(knightToRemove))
+                {
+                    Program.Logger.Debug($"Removed knight {knightToRemove.GetName()} ({knightToRemove.GetID()}) from KnightSystem.");
+                }
+            }
+        }
 
     }
 }

@@ -1,33 +1,34 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
+using System.Linq;
+using System.Media;
+using System.Reflection;
+using System.Runtime.Versioning;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Media;
-using System.Linq;
-using System.Drawing;
-using CrusaderWars.client;
-using CrusaderWars.locs;
-using CrusaderWars.data.attila_settings;
-using CrusaderWars.data.save_file;
-using CrusaderWars.unit_mapper;
-using CrusaderWars.twbattle; // Added for BattleProcessor
-using System.Threading; // Added for CancellationToken
-using System.Text.Json; // Added for playset check
-using CrusaderWars.mod_manager;
 using System.Xml;
-using System.Web;
-using System.Drawing.Text;
-using CrusaderWars.sieges; // Added for SiegeEngineGenerator
+using CrusaderWars.client;
+using CrusaderWars.data.attila_settings;
 using CrusaderWars.data.battle_results; // Added for BattleResult class
-
+using CrusaderWars.data.save_file;
+using CrusaderWars.locs;
+using CrusaderWars.mod_manager;
+using CrusaderWars.Properties;
+using CrusaderWars.sieges; // Added for SiegeEngineGenerator
+using CrusaderWars.terrain;
+using CrusaderWars.twbattle; // Added for BattleProcessor
+using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars
 {
-    
+    [SupportedOSPlatform("windows")]
     public partial class HomePage : Form
     {
         private LoadingScreen? loadingScreen;
@@ -37,13 +38,12 @@ namespace CrusaderWars
         public bool battleJustCompleted = false; // Changed to public for BattleProcessor access
         private string _appVersion = null!;
         private string? _umVersion = null; // Made nullable
-        private Updater _updater = null!;
+        Updater _updater = null!;
         private System.Windows.Forms.Timer _pulseTimer = null!;
         private bool _isPulsing = false;
         private int _pulseStep = 0;
         private Color _originalInfoLabelBackColor;
         private CancellationTokenSource? _battleMonitoringCts; // Added cancellation token source
-
         // Playthrough Display UI Elements
         private Panel playthroughPanel = null!;
         private PictureBox playthroughPictureBox = null!;
@@ -72,6 +72,7 @@ namespace CrusaderWars
                 Directory.CreateDirectory(@".\font");
                 Directory.CreateDirectory(@".\settings");
                 Directory.CreateDirectory(@".\unit mappers");
+                Directory.CreateDirectory(@".\unit mappers\schemas");
                 Program.Logger.Debug("Required directories created/verified.");
             }
             catch (Exception ex)
@@ -89,10 +90,12 @@ namespace CrusaderWars
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
-            
+
             // Set fonts programmatically
             ExecuteButton.Font = new Font("Yu Gothic UI", 16f, FontStyle.Bold);
             ContinueBattleButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
+            LaunchAutoFixerButton.Font = new Font("Yu Gothic UI", 12f, FontStyle.Bold);
+            LaunchAutoFixerButton.Text = "Battle Tools";
             btt_debug.Font = new Font("Microsoft Sans Serif", 12f);
             infoLabel.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
             viewLogsLink.Font = new Font("Microsoft Sans Serif", 12f, FontStyle.Bold);
@@ -106,6 +109,7 @@ namespace CrusaderWars
             // Set FlatStyle programmatically
             ExecuteButton.FlatStyle = FlatStyle.Flat;
             ContinueBattleButton.FlatStyle = FlatStyle.Flat;
+            LaunchAutoFixerButton.FlatStyle = FlatStyle.Flat;
             btt_debug.FlatStyle = FlatStyle.Flat;
             SettingsBtn.FlatStyle = FlatStyle.Flat;
             viewLogsLink.FlatStyle = FlatStyle.Flat;
@@ -127,14 +131,19 @@ namespace CrusaderWars
             labelMappersVersion.MouseEnter += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); };
             labelMappersVersion.MouseLeave += (sender, e) => { labelMappersVersion.ForeColor = System.Drawing.Color.WhiteSmoke; };
             // NEW HOVER EFFECTS FOR linkOptInPreReleases
-            linkOptInPreReleases.MouseEnter += (sender, e) => {
+            linkOptInPreReleases.MouseEnter += (sender, e) =>
+            {
                 _preReleasePulseTimer?.Stop();
-                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150); 
+                linkOptInPreReleases.ForeColor = System.Drawing.Color.FromArgb(200, 200, 150);
             };
-            linkOptInPreReleases.MouseLeave += (sender, e) => {
-                if (ModOptions.GetOptInPreReleases()) {
+            linkOptInPreReleases.MouseLeave += (sender, e) =>
+            {
+                if (ModOptions.GetOptInPreReleases())
+                {
                     linkOptInPreReleases.ForeColor = Color.Gold;
-                } else {
+                }
+                else
+                {
                     _preReleasePulseTimer?.Start();
                 }
             };
@@ -211,6 +220,8 @@ namespace CrusaderWars
             _preReleasePulseTimer = new System.Windows.Forms.Timer();
             _preReleasePulseTimer.Interval = 75; // Sets the pulse speed
             _preReleasePulseTimer.Tick += PreReleasePulseTimer_Tick;
+
+            // LaunchAutoFixerButton is now initialized in the designer, its click event is also there.
         }
 
         private void PulseTimer_Tick(object? sender, EventArgs e)
@@ -225,12 +236,26 @@ namespace CrusaderWars
         {
             if (ModOptions.GetOptInPreReleases()) return; // Safety check
 
-            _preReleasePulseStep = (_preReleasePulseStep + 1) % 20; // 20 steps for a full cycle
-            // Pulse between a bright yellow (255, 255, 150) and a slightly dimmer yellow (255, 255, 50)
-            int pulseValue = (_preReleasePulseStep < 10 ? _preReleasePulseStep * 10 : (20 - _preReleasePulseStep) * 10);
-            int blueComponent = 150 - pulseValue;
-            blueComponent = Math.Max(0, Math.Min(255, blueComponent)); // Clamp the value
-            linkOptInPreReleases.ForeColor = Color.FromArgb(255, 255, blueComponent);
+            _preReleasePulseStep = (_preReleasePulseStep + 1) % 40; // 40 steps for a smoother cycle
+
+            // Define two vibrant colors to pulse between
+            Color color1 = Color.Gold;
+            Color color2 = Color.FromArgb(100, 200, 255); // A shimmering light blue
+
+            // Calculate interpolation factor 't' (from 0.0 to 1.0 and back)
+            float t = (_preReleasePulseStep < 20)
+                ? _preReleasePulseStep / 19.0f
+                : (39 - _preReleasePulseStep) / 19.0f;
+
+            // Clamp t to be safe
+            t = Math.Max(0.0f, Math.Min(1.0f, t));
+
+            // Interpolate RGB components
+            int r = (int)(color1.R * (1 - t) + color2.R * t);
+            int g = (int)(color1.G * (1 - t) + color2.G * t);
+            int b = (int)(color1.B * (1 - t) + color2.B * t);
+
+            linkOptInPreReleases.ForeColor = Color.FromArgb(r, g, b);
         }
 
         private PrivateFontCollection fonts = new PrivateFontCollection();
@@ -249,7 +274,7 @@ namespace CrusaderWars
                 MessageBox.Show("Font file not found.", "Crusader Conflicts: Font error");
             }
         }
-        
+
 
         System.Drawing.Color Original_Color;
 
@@ -304,6 +329,137 @@ namespace CrusaderWars
             return false;
         }
 
+        private async Task<bool> ValidateActiveUnitMapper()
+        {
+            string activePlaythroughTag = GetActivePlaythroughTag();
+            if (string.IsNullOrEmpty(activePlaythroughTag))
+            {
+                MessageBox.Show("No Unit Mapper has been selected. Please select a playthrough in the Mod Settings.", "No Playthrough Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (activePlaythroughTag == "Custom")
+            {
+                string customMapperTag = client.ModOptions.GetSelectedCustomMapper();
+                if (string.IsNullOrEmpty(customMapperTag))
+                {
+                    MessageBox.Show("The 'Custom' playthrough is active, but no custom unit mapper has been selected from the dropdown in Mod Settings.", "Custom Mapper Not Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+            }
+
+            // Create and show a simple status form
+            Form statusForm = new Form
+            {
+                Width = 300,
+                Height = 100,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = "Verification in Progress",
+                StartPosition = FormStartPosition.CenterParent,
+                ControlBox = false
+            };
+            Label statusLabel = new Label
+            {
+                Text = "Validating Unit Mapper XML files...",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            statusForm.Controls.Add(statusLabel);
+            statusForm.Show(this);
+            statusForm.Update();
+
+            try
+            {
+                var allErrors = await Task.Run(() =>
+                {
+                    string unitMappersBaseDir = @".\unit mappers";
+                    var unitMapperDirectories = new List<string>();
+                    var errors = new List<string>();
+
+                    if (activePlaythroughTag == "Custom")
+                    {
+                        string customMapperTag = client.ModOptions.GetSelectedCustomMapper();
+                        if (Directory.Exists(unitMappersBaseDir))
+                        {
+                            unitMapperDirectories.AddRange(
+                                Directory.GetDirectories(unitMappersBaseDir)
+                                         .Where(dir =>
+                                         {
+                                             string tagFile = Path.Combine(dir, "tag.txt");
+                                             return File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase);
+                                         })
+                            );
+                        }
+                    }
+                    else
+                    {
+                        if (Directory.Exists(unitMappersBaseDir))
+                        {
+                            foreach (var dir in Directory.GetDirectories(unitMappersBaseDir))
+                            {
+                                string tagFile = Path.Combine(dir, "tag.txt");
+                                if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
+                                {
+                                    unitMapperDirectories.Add(dir);
+                                }
+                            }
+                        }
+                    }
+
+                    if (unitMapperDirectories.Any())
+                    {
+                        foreach (var dir in unitMapperDirectories)
+                        {
+                            errors.AddRange(XmlValidator.ValidateUnitMapper(dir));
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Unit mapper directory not found for playthrough '{activePlaythroughTag}'. Skipping validation.");
+                    }
+                    return errors;
+                });
+
+                if (allErrors.Any())
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("The selected unit mapper has validation errors and cannot be used.");
+                    sb.AppendLine("Please fix the following issues or select a different playthrough:");
+                    sb.AppendLine();
+
+                    var groupedErrors = allErrors
+                        .Select(e =>
+                        {
+                            var parts = e.Split(new[] { ", Error: " }, 2, StringSplitOptions.None);
+                            var filePart = parts[0].Replace("File: ", "").Trim();
+                            var messagePart = parts.Length > 1 ? parts[1] : filePart;
+                            return new { FilePath = filePart, Message = messagePart };
+                        })
+                        .GroupBy(e => e.FilePath)
+                        .OrderBy(g => g.Key);
+
+                    foreach (var group in groupedErrors)
+                    {
+                        sb.AppendLine($"File: {group.Key}");
+                        foreach (var error in group)
+                        {
+                            sb.AppendLine($"  - {error.Message}");
+                        }
+                        sb.AppendLine();
+                    }
+
+                    MessageBox.Show(sb.ToString(), "Unit Mapper Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            finally
+            {
+                statusForm.Close();
+            }
+
+            return true;
+        }
+
         private void Timer_Tick(object? sender, EventArgs e)
         {
             if (_myVariable == 0)
@@ -314,23 +470,23 @@ namespace CrusaderWars
                 bool unitMappers = VerifyEnabledUnitMappers();
 
 
-                if(!gamePaths || !unitMappers)
+                if (!gamePaths || !unitMappers)
                 {
                     infoLabel.AutoSize = false;
                     infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
-                    if(!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
+                    if (!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
                     else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Mod Settings screen.";
                     ExecuteButton.Enabled = false;
                     infoLabel.ForeColor = Color.White;
                     infoLabel.BackColor = Color.FromArgb(180, 74, 0, 0);
 
-                    if(!_isPulsing)
+                    if (!_isPulsing)
                     {
                         _isPulsing = true;
                         _pulseTimer.Start();
                     }
                 }
-                else if(gamePaths && unitMappers)
+                else if (gamePaths && unitMappers)
                 {
                     infoLabel.AutoSize = true;
                     ExecuteButton.Enabled = true;
@@ -359,6 +515,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
             Options.ReadGamePaths();
+            ApplyEnvironmentVariableOverrides();
             SubmodManager.LoadActiveSubmods();
 
             // Set locations programmatically
@@ -380,7 +537,7 @@ namespace CrusaderWars
 
             // Set sizes programmatically
             btt_debug.Size = new Size(179, 39);
-            infoLabel.Size = new Size(199, 31);
+            // infoLabel.Size = new Size(199, 31); // REMOVED THIS LINE
             SettingsBtn.Size = new Size(248, 158);
             pictureBox1.Size = new Size(295, 300);
             discordLink.Size = new Size(32, 32);
@@ -417,6 +574,7 @@ namespace CrusaderWars
             // Set BackgroundImageLayout properties programmatically
             ExecuteButton.BackgroundImageLayout = ImageLayout.Zoom;
             ContinueBattleButton.BackgroundImageLayout = ImageLayout.Zoom;
+            LaunchAutoFixerButton.BackgroundImageLayout = ImageLayout.Zoom;
             SettingsBtn.BackgroundImageLayout = ImageLayout.Zoom;
             WebsiteBTN.BackgroundImageLayout = ImageLayout.Zoom;
             SteamBTN.BackgroundImageLayout = ImageLayout.Zoom;
@@ -493,7 +651,6 @@ namespace CrusaderWars
             InitializePlaythroughDisplay();
 
             // Options.ReadOptionsFile(); // REMOVED: Moved to constructor
-            // Line 452 - Add null check
             // Removed the block:
             // if (Options.optionsValuesCollection != null)
             // {
@@ -529,11 +686,207 @@ namespace CrusaderWars
             await _updater.CheckAppVersion();
             // If an app update is found, the process will exit and the next line won't be reached.
             await _updater.CheckUnitMappersVersion();
+            await CheckForUnitMapperUpdateAndRevalidate();
             await CheckForCK3ModUpdatesAsync(); // MOVED TO Form1_Load
 
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
+
+        private void ApplyEnvironmentVariableOverrides()
+        {
+            Program.Logger.Debug("Checking for game path environment variable overrides...");
+
+            string ck3PathOverride = Environment.GetEnvironmentVariable("CC_CK3_PATH");
+            if (!string.IsNullOrEmpty(ck3PathOverride))
+            {
+                Program.Logger.Debug($"Found CC_CK3_PATH environment variable: {ck3PathOverride}");
+                if (File.Exists(ck3PathOverride))
+                {
+                    Properties.Settings.Default.VAR_ck3_path = ck3PathOverride;
+                    Program.Logger.Debug($"Successfully overrode CK3 path to: {Properties.Settings.Default.VAR_ck3_path}");
+                }
+                else
+                {
+                    Program.Logger.Debug($"Warning: CC_CK3_PATH ('{ck3PathOverride}') points to a non-existent file. Ignoring override.");
+                }
+            }
+
+            string attilaPathOverride = Environment.GetEnvironmentVariable("CC_ATTILA_PATH");
+            if (!string.IsNullOrEmpty(attilaPathOverride))
+            {
+                Program.Logger.Debug($"Found CC_ATTILA_PATH environment variable: {attilaPathOverride}");
+                if (File.Exists(attilaPathOverride))
+                {
+                    Properties.Settings.Default.VAR_attila_path = attilaPathOverride;
+                    Program.Logger.Debug($"Successfully overrode Attila path to: {Properties.Settings.Default.VAR_attila_path}");
+                }
+                else
+                {
+                    Program.Logger.Debug($"Warning: CC_ATTILA_PATH ('{attilaPathOverride}') points to a non-existent file. Ignoring override.");
+                }
+            }
+        }
+
+        private async Task CheckForUnitMapperUpdateAndRevalidate()
+        {
+            Program.Logger.Debug("Checking for unit mapper update and revalidating if necessary...");
+            string versionFilePath = @".\settings\last_um_version.txt";
+            string lastKnownVersion = "0.0.0";
+
+            if (File.Exists(versionFilePath))
+            {
+                lastKnownVersion = File.ReadAllText(versionFilePath).Trim();
+            }
+            else
+            {
+                Program.Logger.Debug("last_um_version.txt not found. This is likely the first run with this feature. Creating file.");
+                File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
+                return; // Nothing to compare against, so exit.
+            }
+
+            if (_updater.IsNewerVersion(lastKnownVersion, _umVersion ?? "0.0.0"))
+            {
+                Program.Logger.Debug($"Newer unit mapper version detected. Old: {lastKnownVersion}, New: {_umVersion}. Re-validating active playthrough.");
+
+                string activePlaythroughTag = GetActivePlaythroughTag();
+                if (string.IsNullOrEmpty(activePlaythroughTag))
+                {
+                    Program.Logger.Debug("No active playthrough to re-validate.");
+                    File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
+                    return;
+                }
+
+                MessageBox.Show(this, $"The Unit Mappers have been updated to v{_umVersion}.\n\n" +
+                                      $"The application will now re-validate your currently selected playthrough ('{GetFriendlyPlaythroughName(activePlaythroughTag)}') to ensure compatibility.",
+                                      "Unit Mappers Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                var allErrors = new List<string>();
+                string playthroughFolderPath = "";
+                string unitMappersDir = @".\unit mappers";
+
+                // Find playthrough directory
+                if (Directory.Exists(unitMappersDir))
+                {
+                    string tagToFind = activePlaythroughTag == "Custom" ? ModOptions.GetSelectedCustomMapper() : activePlaythroughTag;
+                    foreach (var dir in Directory.GetDirectories(unitMappersDir))
+                    {
+                        string tagFile = Path.Combine(dir, "tag.txt");
+                        if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
+                        {
+                            playthroughFolderPath = dir;
+                            break;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(playthroughFolderPath))
+                {
+                    allErrors.Add("The directory for the active playthrough could not be found.");
+                }
+                else
+                {
+                    // 1. Schema Validation
+                    allErrors.AddRange(XmlValidator.ValidateUnitMapper(playthroughFolderPath));
+
+                    // 2. Mod Validation
+                    var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag);
+                    var modsToVerify = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
+
+                    // Create and show a simple status form for mod verification
+                    Form statusForm = new Form
+                    {
+                        Width = 300,
+                        Height = 100,
+                        FormBorderStyle = FormBorderStyle.FixedDialog,
+                        Text = "Verification in Progress",
+                        StartPosition = FormStartPosition.CenterParent,
+                        ControlBox = false
+                    };
+                    Label statusLabel = new Label
+                    {
+                        Text = "Validating TW:Attila mod files...",
+                        Dock = DockStyle.Fill,
+                        TextAlign = ContentAlignment.MiddleCenter
+                    };
+                    statusForm.Controls.Add(statusLabel);
+                    statusForm.Show(this);
+                    statusForm.Update();
+
+                    var progress = new Progress<string>(update =>
+                    {
+                        statusLabel.Text = update;
+                    });
+
+                    VerificationResult verificationResult;
+                    try
+                    {
+                        verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToVerify, progress));
+                    }
+                    finally
+                    {
+                        statusForm.Close();
+                    }
+
+                    if (verificationResult.MissingFiles.Any())
+                    {
+                        allErrors.Add("Missing required mod files:");
+                        foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                        {
+                            allErrors.Add($"  - {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}" + (!string.IsNullOrEmpty(url) ? $" -> {url}" : ""));
+                        }
+                    }
+                    if (verificationResult.MismatchedFiles.Any())
+                    {
+                        allErrors.Add("Mismatched mod file versions (please update from Steam Workshop):");
+                        foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
+                        {
+                            allErrors.Add($"  - {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}" + (!string.IsNullOrEmpty(url) ? $" -> {url}" : ""));
+                        }
+                    }
+                }
+
+                // 3. Handle Results
+                if (allErrors.Any())
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"Your active playthrough '{GetFriendlyPlaythroughName(activePlaythroughTag)}' is no longer valid after the Unit Mapper update and has been disabled.");
+                    sb.AppendLine("Please resolve the following issues and then re-enable it in the Mod Settings:");
+                    sb.AppendLine();
+                    sb.AppendLine(string.Join("\n", allErrors));
+
+                    MessageBox.Show(this, sb.ToString(), "Playthrough Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                    // Deactivate playthrough
+                    string um_file = @".\settings\UnitMappers.xml";
+                    if (File.Exists(um_file))
+                    {
+                        XmlDocument xmlDoc = new XmlDocument();
+                        xmlDoc.Load(um_file);
+                        var node = xmlDoc.SelectSingleNode($"//UnitMappers[@name='{activePlaythroughTag}']");
+                        if (node != null)
+                        {
+                            node.InnerText = "False";
+                            xmlDoc.Save(um_file);
+                            Program.Logger.Debug($"Deactivated playthrough '{activePlaythroughTag}' due to validation failure.");
+                        }
+                    }
+
+                    // Deactivate submods
+                    SubmodManager.SetActiveSubmodsForPlaythrough(activePlaythroughTag, new List<string>());
+                    SubmodManager.SaveActiveSubmods();
+                    Program.Logger.Debug($"Cleared active submods for '{activePlaythroughTag}'.");
+                }
+                else
+                {
+                    MessageBox.Show(this, $"Your active playthrough '{GetFriendlyPlaythroughName(activePlaythroughTag)}' was successfully re-validated against the new Unit Mapper files.",
+                                    "Re-Validation Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+            // Always update the version file at the end
+            File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
         }
 
         private void UpdatePreReleaseLinkState()
@@ -659,13 +1012,20 @@ namespace CrusaderWars
                 string unitMappersDir = @".\unit mappers";
                 if (Directory.Exists(unitMappersDir))
                 {
-                    // Find the directory whose tag.txt matches the active playthrough tag
+                    string tagToFind = activePlaythroughTag;
+                    if (activePlaythroughTag == "Custom")
+                    {
+                        tagToFind = ModOptions.GetSelectedCustomMapper();
+                        Program.Logger.Debug($"Custom playthrough is active. Searching for folder with tag: '{tagToFind}'");
+                    }
+
+                    // Find the directory whose tag.txt matches the tagToFind
                     foreach (var dir in Directory.GetDirectories(unitMappersDir))
                     {
                         string tagFile = Path.Combine(dir, "tag.txt");
                         if (File.Exists(tagFile))
                         {
-                            if (File.ReadAllText(tagFile).Trim() == activePlaythroughTag)
+                            if (File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
                             {
                                 playthroughFolderPath = dir;
                                 break;
@@ -711,7 +1071,14 @@ namespace CrusaderWars
                     }
 
                     // Format name and update label
-                    userFriendlyName = System.Text.RegularExpressions.Regex.Replace(activePlaythroughTag, "(\\B[A-Z])", " $1");
+                    if (activePlaythroughTag == "Custom")
+                    {
+                        userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
+                    }
+                    else
+                    {
+                        userFriendlyName = System.Text.RegularExpressions.Regex.Replace(activePlaythroughTag, "(\\B[A-Z])", " $1");
+                    }
                     playthroughNameLabel.Text = userFriendlyName;
                     playthroughNameLabel.ForeColor = Color.WhiteSmoke;
                     playthroughPanel.Visible = true;
@@ -836,52 +1203,39 @@ namespace CrusaderWars
                     notificationForm.ShowInTaskbar = false;
                     notificationForm.Icon = this.Icon;
 
+                    // Panel for the button at the bottom
+                    Panel bottomPanel = new Panel
+                    {
+                        Dock = DockStyle.Bottom,
+                        Height = 50,
+                    };
+                    notificationForm.Controls.Add(bottomPanel);
+
+                    // Panel for the scrollable content, fills the rest of the space
                     Panel scrollPanel = new Panel
                     {
                         Dock = DockStyle.Fill,
                         AutoScroll = true,
-                        Padding = new Padding(10),
-                        Height = notificationForm.ClientSize.Height - 50,
-                        Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+                        Padding = new Padding(10)
                     };
                     notificationForm.Controls.Add(scrollPanel);
 
                     Label messageLabel = new Label
                     {
-                        Text = "River, Strait, and Coastal Battles!\n\n" +
+                        Text = "Custom Mapper Playthroughs!\n\n" +
+                               "• New Custom Mapper playthroughs supported, including Mapper file validation, Custom mapper submod support and the ability to maintain mulitple custom mappers at one time. Custom mappers will not be overwritten during mapper updates.\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "Manual Unit Replacer Tool!\n\n" +
+                               "• New Manual Unit Replacer tool in the autofixer, giving players full control of army composition, after a crash.\n" +
+                               "----------------------------------------------------------\n\n" +
+                               "River, Strait, and Coastal Battles!\n\n" +
                                "• Armies crossing rivers, straits, or fighting in coastal provinces will now battle on unique, immersive maps that reflect the terrain.\n" +
                                "----------------------------------------------------------\n\n" +
                                "Prisoners of War & Slain in Battle!\n\n" +
-                               "• Characters can now be slain or taken prisoner on the battlefield, with outcomes influenced by their prowess, traits, and the battle's result.\n" +
-                               "----------------------------------------------------------\n\n" +
-                               "New Optional Sub-Mod for Medieval Playthroughs for the Far East!\n\n" +
-                               "• Added support for 'Dahan China' for the Medieval playthroughs.\n" +
-                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=2826656101\n" +
-                               "• And here: https://steamcommunity.com/sharedfiles/filedetails/?id=1559011232\n" +
-                               "----------------------------------------------------------\n\n" +
-                               "New Required Mods for AGOT Playthrough!\n\n" +
-                               "For a more immersive and authentic AGOT experience, the following Total War: Attila mods are now required:\n" +
-                               "• Medieval Kingdoms 1212 AD Models Pack 1.v2\n" +
-                               "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1429140619\n" +
-                               "• Medieval Kingdoms 1212 AD Models Pack 5\n" +
-                               "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=1592154821\n" +
-                               "• Medieval Kingdoms 1212AD - Custom cities beta\n" +
-                               "  Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n" +
-                               "----------------------------------------------------------\n\n" +
-                               "New Optional Sub-Mod for The Fallen Eagle!\n\n" +
-                               "• Added support for 'Fall of the Eagles' for the Late-Roman The Fallen Eagle playthrough.\n" +
-                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=434826744\n" +
-                               "----------------------------------------------------------\n\n" +
-                               "Support for Optional Sub-Mods!\n\n" +
-                               "• Added support for 'Ice and Fire Total War: War for Westeros' for the AGOT Playthrough.\n" +
-                               "• Download it here: https://www.moddb.com/mods/total-war-ice-fire-book-inspired-mod\n" +
-                               "----------------------------------------------------------\n\n" +
-                               "New Required Mod for Medieval Playthroughs!\n\n" +
-                               "• The High, Late, and Renaissance medieval playthroughs now require the 'Medieval Kingdoms 1212AD - Custom cities beta' mod.\n" +
-                               "• Download it here: https://steamcommunity.com/workshop/filedetails/?id=3010246623\n",
+                               "• Characters can now be slain or taken prisoner on the battlefield, with outcomes influenced by their prowess, traits, and the battle's result.\n",
                         Font = new Font("Microsoft Sans Serif", 10f),
                         AutoSize = true,
-                        MaximumSize = new Size(scrollPanel.ClientSize.Width - 25, 0),
+                        MaximumSize = new Size(notificationForm.ClientSize.Width - 40, 0),
                         Location = new Point(0, 0)
                     };
                     scrollPanel.Controls.Add(messageLabel);
@@ -911,10 +1265,10 @@ namespace CrusaderWars
                         Text = "OK",
                         DialogResult = DialogResult.OK,
                         Size = new Size(100, 30),
-                        Location = new Point((notificationForm.ClientSize.Width - 100) / 2, notificationForm.ClientSize.Height - 40),
-                        Anchor = AnchorStyles.Bottom
+                        Location = new Point((bottomPanel.ClientSize.Width - 100) / 2, 10), // Centered in bottom panel
+                        Anchor = AnchorStyles.None // Let the panel handle positioning
                     };
-                    notificationForm.Controls.Add(okButton);
+                    bottomPanel.Controls.Add(okButton);
                     notificationForm.AcceptButton = okButton;
 
                     notificationForm.ShowDialog(this);
@@ -940,6 +1294,7 @@ namespace CrusaderWars
             bool battleInProgress = BattleState.IsBattleInProgress();
 
             ContinueBattleButton.Visible = battleInProgress;
+            LaunchAutoFixerButton.Visible = battleInProgress;
 
             if (battleInProgress)
             {
@@ -950,6 +1305,7 @@ namespace CrusaderWars
                 // Resize buttons to fit side-by-by
                 ExecuteButton.Size = new Size(197, 115);
                 ContinueBattleButton.Size = new Size(197, 115);
+                LaunchAutoFixerButton.Size = new Size(197, 50);
             }
             else
             {
@@ -1024,7 +1380,7 @@ namespace CrusaderWars
             if (needsUpdate)
             {
                 try
-                    {
+                {
                     CreateShortcut(shortcutPath, targetPath, workingDirectory, arguments, description);
                     Program.Logger.Debug("Attila shortcut created/updated successfully.");
                 }
@@ -1079,161 +1435,261 @@ namespace CrusaderWars
         List<Army> defender_armies = null!;
         private async void ExecuteButton_Click(object sender, EventArgs e)
         {
+            SetBattleButtonsEnabled(false);
+            if (await ValidateActiveUnitMapper() == false)
+            {
+                SetBattleButtonsEnabled(true);
+                return;
+            }
             Program.Logger.Debug("Execute button clicked.");
 
             // Check if Crusader Conflicts mod is enabled in the playset
-            string ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
+            string? ck3SaveGameDir = Properties.Settings.Default.VAR_dir_save;
             if (!string.IsNullOrEmpty(ck3SaveGameDir))
             {
-                 string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
-                 if (parentDir != null && Directory.Exists(parentDir))
-                 {
-                     string dlcLoadPath = Path.Combine(parentDir, "dlc_load.json");
-                     if (File.Exists(dlcLoadPath))
-                     {
-                         try
-                         {
-                             string jsonContent = File.ReadAllText(dlcLoadPath);
-                             var enabledMods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                             using (JsonDocument doc = JsonDocument.Parse(jsonContent))
-                             {
-                                 JsonElement root = doc.RootElement;
-                                 if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
-                                 {
-                                     foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
-                                     {
-                                         string? modPath = modEntry.GetString();
-                                         if (modPath != null)
-                                         {
-                                             // The path is like "mod/crusader_conflicts.mod", GetFileName extracts the .mod file name
-                                             enabledMods.Add(Path.GetFileName(modPath));
-                                         }
-                                     }
-                                 }
-                             }
-                             
-                             // NEW: Check for incompatible Paradox Plaza version
-                             if (enabledMods.Contains("pdx_120158.mod"))
-                             {
-                                 Program.Logger.Debug("Incompatible Paradox Plaza version of Crusader Conflicts mod found in enabled_mods.");
-                                 MessageBox.Show("It appears you have the Paradox Plaza version of the 'Crusader Conflicts' mod enabled in your Paradox Launcher playset.\n\n" +
-                                                 "This version is incompatible with the Crusader Conflicts application.\n\n" +
-                                                 "Please unsubscribe from the Paradox Plaza version and enable the local 'crusader_conflicts.mod' provided with this application instead.",
-                                                 "Incompatible Mod Version Detected",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Error);
-                                 return; // Stop execution
-                             }
+                string? parentDir = Path.GetDirectoryName(ck3SaveGameDir);
+                if (parentDir != null && Directory.Exists(parentDir))
+                {
+                    string dlcLoadPath = Path.Combine(parentDir, "dlc_load.json");
+                    if (File.Exists(dlcLoadPath))
+                    {
+                        try
+                        {
+                            string jsonContent = File.ReadAllText(dlcLoadPath);
+                            var enabledMods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                            {
+                                JsonElement root = doc.RootElement;
+                                if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                    {
+                                        string? modPath = modEntry.GetString();
+                                        if (modPath != null)
+                                        {
+                                            string? fileName = Path.GetFileName(modPath);
+                                            if (fileName != null)
+                                            {
+                                                // The path is like "mod/crusader_conflicts.mod", GetFileName extracts the .mod file name
+                                                enabledMods.Add(fileName);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
-                             // Check for base mod
-                             if (!enabledMods.Contains("crusader_conflicts.mod"))
-                             {
-                                 Program.Logger.Debug("Crusader Conflicts mod not found in enabled_mods in dlc_load.json.");
-                                 var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
-                                                              "Crusader Conflicts Mod Not Enabled",
-                                                              MessageBoxButtons.YesNo,
-                                                              MessageBoxIcon.Warning);
-                                 if (result == DialogResult.No)
-                                 {
-                                     Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
-                                     return; // Stop execution
-                                 }
-                             }
-                             else
-                             {
-                                 Program.Logger.Debug("Crusader Conflicts mod is enabled in the current Paradox Launcher playset.");
-                             }
- 
-                             // Check for compatibility patches based on playthrough
-                             string activePlaythrough = GetActivePlaythroughTag();
-                             string requiredPatch = "";
-                             string playthroughName = "";
- 
-                             if (activePlaythrough == "AGOT")
-                             {
-                                 requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
-                                 playthroughName = "A Game of Thrones (AGOT)";
-                             }
-                             else if (activePlaythrough == "RealmsInExile")
-                             {
-                                 requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
-                                 playthroughName = "Realms in Exile (LOTR)";
-                             }
- 
-                             if (!string.IsNullOrEmpty(requiredPatch) && !enabledMods.Contains(requiredPatch))
-                             {
-                                 Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' not found in dlc_load.json.");
-                                 var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch}\n\nDo you still want to continue?",
-                                                              "Compatibility Patch Not Enabled",
-                                                              MessageBoxButtons.YesNo,
-                                                              MessageBoxIcon.Warning);
-                                 if (result == DialogResult.No)
-                                 {
-                                     Program.Logger.Debug("User cancelled execution because compatibility patch is not enabled.");
-                                     return; // Stop execution
-                                 }
-                             }
-                             else if (!string.IsNullOrEmpty(requiredPatch))
-                             {
-                                 Program.Logger.Debug($"Required compatibility patch '{requiredPatch}' for playthrough '{playthroughName}' is enabled.");
-                             }
- 
-                             // Check for incorrectly enabled compatibility patches
-                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
-                             string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
- 
-                             if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
-                             {
-                                 Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
-                                 MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
-                                                 "Incorrect Compatibility Patch Enabled",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
-                                 return;
-                             }
- 
-                             if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
-                             {
-                                 Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
-                                 MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                 "Incorrect Compatibility Patch Enabled",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
-                                 return;
-                             }
- 
-                             if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
-                             {
-                                 if (enabledMods.Contains(agotPatch))
-                                 {
-                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but AGOT patch is also enabled.");
-                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                     "Incorrect Compatibility Patch Enabled",
-                                                     MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
-                                     return;
-                                 }
-                                 if (enabledMods.Contains(lotrPatch))
-                                 {
-                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
-                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
-                                                     "Incorrect Compatibility Patch Enabled",
-                                                     MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
-                                     return;
-                                 }
-                             }
-                         }
-                         catch (Exception ex)
-                         {
-                             Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
-                         }
-                     }
-                     else
-                     {
-                         Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
-                     }
-                 }
+                            // NEW: Check for incompatible Paradox Plaza version
+                            if (enabledMods.Contains("pdx_120158.mod"))
+                            {
+                                Program.Logger.Debug("Incompatible Paradox Plaza version of Crusader Conflicts mod found in enabled_mods.");
+                                MessageBox.Show("It appears you have the Paradox Plaza version of the 'Crusader Conflicts' mod enabled in your Paradox Launcher playset.\n\n" +
+                                                "This version is incompatible with the Crusader Conflicts application.\n\n" +
+                                                "Please unsubscribe from the Paradox Plaza version and enable the local 'crusader_conflicts.mod' provided with this application instead.",
+                                                "Incompatible Mod Version Detected",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Error);
+                                return; // Stop execution
+                            }
+
+                            // Check for base mod
+                            if (!enabledMods.Contains("crusader_conflicts.mod") && !enabledMods.Contains("ugc_3612451961.mod"))
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod (local or steam) not found in enabled_mods in dlc_load.json.");
+                                var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
+                                                             "Crusader Conflicts Mod Not Enabled",
+                                                             MessageBoxButtons.YesNo,
+                                                             MessageBoxIcon.Warning);
+                                if (result == DialogResult.No)
+                                {
+                                    Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
+                                    return; // Stop execution
+                                }
+                            }
+                            else
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod is enabled in the current Paradox Launcher playset.");
+                            }
+
+                            // Check for compatibility patches based on playthrough
+                            string activePlaythrough = GetActivePlaythroughTag();
+                            string requiredPatch = "";
+                            string playthroughName = "";
+
+                            if (activePlaythrough == "AGOT")
+                            {
+                                requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
+                                playthroughName = "A Game of Thrones (AGOT)";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
+                                {
+                                    Program.Logger.Debug($"Required AGOT compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required AGOT compatibility patch is enabled.");
+                                }
+                            }
+                            else if (activePlaythrough == "RealmsInExile")
+                            {
+                                requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                playthroughName = "Realms in Exile (LOTR)";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526762.mod"))
+                                {
+                                    Program.Logger.Debug($"Required Realms in Exile compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because Realms in Exile compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
+                                }
+                            }
+
+                            // Check for incorrectly enabled compatibility patches
+                            string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
+                            string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+
+                            if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
+                            {
+                                Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
+                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
+                            {
+                                Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
+                                MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
+                            {
+                                if (enabledMods.Contains(agotPatch))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but AGOT patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                                if (enabledMods.Contains(lotrPatch))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                            }
+
+                            // Check for recommended load order
+                            var enabledModsList = new List<string>();
+                            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                            {
+                                JsonElement root = doc.RootElement;
+                                if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) && enabledModsElement.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                    {
+                                        string? modPath = modEntry.GetString();
+                                        if (modPath != null)
+                                        {
+                                            enabledModsList.Add(Path.GetFileName(modPath));
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (enabledModsList.Any())
+                            {
+                                string mainModLocal = "crusader_conflicts.mod";
+                                string mainModSteam = "ugc_3612451961.mod";
+                                string agotPatchLocal = "crusader_conflicts_agot_compat_patch.mod";
+                                string agotPatchSteam = "ugc_3612526842.mod";
+                                string lotrPatchLocal = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                string lotrPatchSteam = "ugc_3612526762.mod";
+
+                                int mainModIndex = enabledModsList.FindLastIndex(m => m.Equals(mainModLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(mainModSteam, StringComparison.OrdinalIgnoreCase));
+
+                                bool loadOrderCorrect = true;
+                                string expectedOrderMessage = "";
+
+                                if (activePlaythrough == "AGOT")
+                                {
+                                    int agotPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(agotPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(agotPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                    if (mainModIndex == -1 || agotPatchIndex != enabledModsList.Count - 1 || mainModIndex > agotPatchIndex)
+                                    {
+                                        loadOrderCorrect = false;
+                                        expectedOrderMessage = "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
+                                    }
+                                }
+                                else if (activePlaythrough == "RealmsInExile")
+                                {
+                                    int lotrPatchIndex = enabledModsList.FindLastIndex(m => m.Equals(lotrPatchLocal, StringComparison.OrdinalIgnoreCase) || m.Equals(lotrPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                    if (mainModIndex == -1 || lotrPatchIndex != enabledModsList.Count - 1 || mainModIndex > lotrPatchIndex)
+                                    {
+                                        loadOrderCorrect = false;
+                                        expectedOrderMessage = "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
+                                    }
+                                }
+                                else // Default case
+                                {
+                                    if (mainModIndex != enabledModsList.Count - 1)
+                                    {
+                                        loadOrderCorrect = false;
+                                        expectedOrderMessage = "For maximum compatibility, it is recommended to place the 'Crusader Conflicts' mod at the very end of your playset's load order.";
+                                    }
+                                }
+
+                                if (!loadOrderCorrect)
+                                {
+                                    Program.Logger.Debug("Incorrect mod load order detected.");
+                                    var result = MessageBox.Show($"{expectedOrderMessage}\n\nYour current load order might cause issues.\n\nDo you still want to continue?",
+                                                                 "Mod Load Order Warning",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution due to incorrect mod load order.");
+                                        return; // Stop execution
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
+                    }
+                }
             }
 
 
@@ -1253,6 +1709,7 @@ namespace CrusaderWars
                                                      MessageBoxIcon.Warning);
                 if (confirmResult == DialogResult.No)
                 {
+                    SetBattleButtonsEnabled(true); // Re-enable buttons if user cancels
                     _battleMonitoringCts.Cancel(); // Cancel the newly created CTS if user aborts
                     return;
                 }
@@ -1271,6 +1728,7 @@ namespace CrusaderWars
 
             BattleResult.Player_Combat = null; // Reset the static combat data
             BattleState.ClearBattleState();
+            Unit.ResetUniqueIDCounter();
             UpdateUIForBattleState();
 
             /*
@@ -1280,7 +1738,7 @@ namespace CrusaderWars
             string gamestateFile = @".\data\save_file_data\gamestate_file\gamestate";
             string editedGamestateFile = @".\data\save_file_data\gamestate";
             string savefileZip = @".\data\save_file_data\last_save.zip";
-            if (System.IO.File.Exists(gamestateFile) )
+            if (System.IO.File.Exists(gamestateFile))
                 System.IO.File.Delete(gamestateFile);
             if (System.IO.File.Exists(editedGamestateFile))
                 System.IO.File.Delete(editedGamestateFile);
@@ -1306,6 +1764,11 @@ namespace CrusaderWars
 
                 Program.Logger.Debug("Starting main loop, waiting for CK3 battle.");
                 this.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
+
+                if (battleJustCompleted)
+                {
+                    // await BattleProcessor.CleanupAfterBattle(); // Method doesn't exist - commented out
+                }
 
                 bool filesCleared = false;
                 int maxRetries = 3;
@@ -1400,17 +1863,24 @@ namespace CrusaderWars
                         logFile.Position = 0;
                         reader.DiscardBufferedData();
 
-                        if (battleJustCompleted && !ModOptions.CloseCK3DuringBattle())
+                        if (battleJustCompleted)
                         {
-                            await Task.Delay(5000); // Delay to allow CK3 to recognize the new save file
-                            infoLabel.Text = "Waiting for CK3 battle... Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
+                            if (ModOptions.CloseCK3DuringBattle())
+                            {
+                                infoLabel.Text = "Battle complete! Loading 'battle_results.ck3' into CK3...";
+                            }
+                            else
+                            {
+                                await Task.Delay(5000); // Delay to allow CK3 to recognize the new save file
+                                infoLabel.Text = "Battle complete! In CK3, use 'Continue' or load 'battle_results.ck3' save.";
+                            }
                         }
                         else
                         {
                             infoLabel.Text = "Waiting for CK3 battle...";
                         }
                         // Paste the line here
-                        ExecuteButton.Size = new Size(197, 115); 
+                        ExecuteButton.Size = new Size(197, 115);
 
                         Program.Logger.Debug("Waiting for CRUSADERCONFLICTS keyword in CK3 log...");
                         try
@@ -1511,7 +1981,7 @@ namespace CrusaderWars
                                 AttilaModManager.CreateUserModsFile();
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Program.Logger.Debug($"Error reading battle data from log: {ex.Message}");
                             this.Show();
@@ -1547,7 +2017,24 @@ namespace CrusaderWars
                 try
                 {
                     UpdateLoadingScreenMessage("Getting data from CK3 save file...");
-                    await Task.Delay(2000); //Old was 3000ms
+
+                    // Find the latest save file
+                    var directory = new DirectoryInfo(saveGames_Path);
+                    var lastSave = directory.GetFiles("*.ck3")
+                        .OrderByDescending(f => f.LastWriteTime)
+                        .FirstOrDefault();
+
+                    if (lastSave == null)
+                    {
+                        throw new FileNotFoundException("No CK3 save file found in the save games directory.");
+                    }
+
+                    // NEW: Wait for the file to be accessible
+                    if (await WaitForFileAccess(lastSave.FullName, token) == false)
+                    {
+                        throw new IOException("Timed out waiting for CK3 to finish writing the save file. The file may be locked or corrupted.");
+                    }
+
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.CloseCrusaderKingsProcess();
@@ -1569,7 +2056,37 @@ namespace CrusaderWars
                         BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
                     }
                 }
-                catch(Exception ex)
+                catch (InvalidDataException ex) // SPECIFIC CATCH for zip errors
+                {
+                    Program.Logger.Debug($"Error reading save file (InvalidDataException): {ex.Message}");
+                    this.Show();
+                    if (loadingScreen != null) CloseLoadingScreen();
+                    string errorMessage = "Error reading the save file: The file is not a valid save or is corrupted.\n\n" +
+                                          "This often happens with Ironman or Cloud saves, which are not supported.\n\n" +
+                                          "Troubleshooting:\n" +
+                                          "1. Disable Ironman mode.\n" +
+                                          "2. Use local saves instead of Steam Cloud.\n" +
+                                          "3. Ensure the game has fully saved before a battle starts.\n" +
+                                          "4. Verify game files in Steam.";
+                    MessageBox.Show($"{errorMessage}\n\nTechnical Details: {ex.Message}", "Crusader Conflicts: Invalid Save File",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+
+                    if (ModOptions.CloseCK3DuringBattle())
+                    {
+                        Games.StartCrusaderKingsProcess();
+                    }
+                    else
+                    {
+                        ProcessCommands.ResumeProcess();
+                    }
+
+                    //Data Clear
+                    Data.Reset();
+                    SetPlaythrough(); // Re-initialize playthrough after reset
+
+                    continue;
+                }
+                catch (Exception ex)
                 {
                     Program.Logger.Debug($"Error reading save file: {ex.Message}");
                     this.Show();
@@ -1611,12 +2128,12 @@ namespace CrusaderWars
                     // The previous siege garrison generation logic has been removed as ArmiesReader now correctly identifies siege defenders.
 
                     Program.Logger.Debug($"Found {attacker_armies.Count} attacker armies and {defender_armies.Count} defender armies.");
-            
+
                     // Mark battle as started only if setup succeeded
                     BattleState.MarkBattleStarted();
                     UpdateUIForBattleState();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     string errorDetails = $"Error reading battle armies: {ex.Message}";
                     string? stackTrace = ex.StackTrace;
@@ -1673,6 +2190,8 @@ namespace CrusaderWars
                     break;
                 }
 
+                ExecuteButton.Enabled = false;
+                ContinueBattleButton.Enabled = false;
                 if (!await BattleProcessor.ProcessBattle(this, attacker_armies, defender_armies, token))
                 {
                     break;
@@ -1681,8 +2200,8 @@ namespace CrusaderWars
                 // Battle processed successfully. Loop will continue.
                 // Manually reset some UI elements for the next iteration,
                 // without touching infoLabel.
-                ContinueBattleButton.Visible = false;
-                ExecuteButton.Text = "";
+                battleJustCompleted = true;
+                UpdateUIForBattleState();
                 // The line `ExecuteButton.Size = new Size(197, 115);` was moved from here.
             }
 
@@ -1694,11 +2213,92 @@ namespace CrusaderWars
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
             }
             UpdateUIForBattleState();
+            if (BattleState.IsBattleInProgress())
+            {
+                ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true;
+            }
             this.Text = "Crusader Conflicts";
+        }
+
+        private async Task<bool> WaitForFileAccess(string filePath, CancellationToken token)
+        {
+            UpdateLoadingScreenMessage("Waiting for CK3 to finish saving...");
+            Program.Logger.Debug($"Waiting for file access to: {filePath}");
+
+            long lastSize = -1;
+            int stableCounter = 0;
+            const int checksForStability = 3; // e.g., 3 checks * 500ms = 1.5 seconds of stability
+
+            var stopwatch = Stopwatch.StartNew();
+            while (stopwatch.Elapsed.TotalSeconds < 30)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    Program.Logger.Debug("File access wait cancelled by user.");
+                    return false;
+                }
+
+                try
+                {
+                    long currentSize = new FileInfo(filePath).Length;
+
+                    if (lastSize == currentSize)
+                    {
+                        stableCounter++;
+                        Program.Logger.Debug($"File size stable at {currentSize} bytes. Count: {stableCounter}/{checksForStability}");
+                    }
+                    else
+                    {
+                        stableCounter = 0;
+                        Program.Logger.Debug($"File size changed to {currentSize} bytes. Resetting stability count.");
+                    }
+
+                    lastSize = currentSize;
+
+                    if (stableCounter >= checksForStability)
+                    {
+                        // Now that size is stable, try to get exclusive access as a final check
+                        using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                        {
+                            fs.Close();
+                            Program.Logger.Debug("File size stable and exclusive access acquired. Proceeding.");
+                            return true;
+                        }
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    Program.Logger.Debug("Save file not found yet. Waiting...");
+                    stableCounter = 0; // Reset if file disappears
+                }
+                catch (IOException)
+                {
+                    // File is locked, wait and try again.
+                    Program.Logger.Debug("Save file is locked by another process. Waiting...");
+                    stableCounter = 0; // Reset stability count if we lose access
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"An unexpected error occurred while waiting for file access: {ex.Message}");
+                    return false;
+                }
+
+                await Task.Delay(500, token); // Wait 500ms before the next check
+            }
+
+            Program.Logger.Debug("Timed out waiting for file access after 30 seconds.");
+            return false; // Timeout reached
         }
 
         private async void ContinueBattleButton_Click(object sender, EventArgs e)
         {
+            SetBattleButtonsEnabled(false);
+            if (await ValidateActiveUnitMapper() == false)
+            {
+                SetBattleButtonsEnabled(true);
+                return;
+            }
             Program.Logger.Debug("Continue Battle button clicked.");
 
             // Cancel any previous monitoring operation
@@ -1709,13 +2309,12 @@ namespace CrusaderWars
 
             PlaySound(@".\data\sounds\sword-slash-with-metal-shield-impact-185444.wav");
             _myVariable = 1;
-            ExecuteButton.Enabled = false;
-            ContinueBattleButton.Enabled = false;
             ExecuteButton.BackgroundImage = Properties.Resources.start_new_disabled;
 
             // Update status label immediately
             infoLabel.Text = "Preparing TW:Attila battle...";
             this.Text = "Crusader Conflicts (Preparing TW:Attila battle...)";
+            await Task.Delay(50); // Allow UI to update
 
             // Ensure Attila shortcut exists
             CreateAttilaShortcut();
@@ -1730,12 +2329,14 @@ namespace CrusaderWars
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
                 infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
                 this.Text = "Crusader Conflicts"; // Reset status on early exit
                 return;
             }
             Data.Reset(); // ADDED as per plan
+            Unit.ResetUniqueIDCounter();
             Reader.ReadMetaData();
             DataSearch.Search(logSnippet);
 
@@ -1771,6 +2372,7 @@ namespace CrusaderWars
                 _myVariable = 0;
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                 ExecuteButton.BackgroundImage = Properties.Resources.start_new;
                 infoLabel.Text = "A battle is in progress!"; // Reset status on early exit
                 this.Text = "Crusader Conflicts"; // Reset status on early exit
@@ -1804,6 +2406,7 @@ namespace CrusaderWars
                     _myVariable = 0;
                     ExecuteButton.Enabled = true;
                     ContinueBattleButton.Enabled = true;
+                    LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                     if (ExecuteButton.Enabled)
                     {
                         ExecuteButton.BackgroundImage = Properties.Resources.start_new;
@@ -1815,11 +2418,15 @@ namespace CrusaderWars
                 }
             }
 
+            ExecuteButton.Enabled = false;
+            ContinueBattleButton.Enabled = false;
             _programmaticClick = true;
             if (await BattleProcessor.ProcessBattle(this, attacker_armies, defender_armies, token, regenerateAndRestart))
             {
+                battleJustCompleted = true;
                 // The battle finished successfully, start the main loop to wait for the next one.
-                ExecuteButton.PerformClick();
+                // ExecuteButton.PerformClick() does not work on a disabled button, so we call the handler directly.
+                ExecuteButton_Click(this, EventArgs.Empty);
             }
             else
             {
@@ -1827,10 +2434,11 @@ namespace CrusaderWars
                 UpdateUIForBattleState();
                 ExecuteButton.Enabled = true;
                 ContinueBattleButton.Enabled = true;
+                LaunchAutoFixerButton.Enabled = true; // Re-enable Battle Tools button
                 if (ExecuteButton.Enabled)
-                    {
-                        ExecuteButton.BackgroundImage = Properties.Resources.start_new;
-                    }
+                {
+                    ExecuteButton.BackgroundImage = Properties.Resources.start_new;
+                }
                 _myVariable = 0;
             }
         }
@@ -1843,6 +2451,39 @@ namespace CrusaderWars
         private void ContinueBattleButton_MouseLeave(object sender, EventArgs e)
         {
             ContinueBattleButton.BackgroundImage = Properties.Resources.start_new;
+        }
+
+        public void UpdateInfoLabel(string? message)
+        {
+            if (infoLabel != null && !infoLabel.IsDisposed && infoLabel.IsHandleCreated)
+            {
+                infoLabel.BeginInvoke(new Action(() =>
+                {
+                    if (infoLabel != null && !infoLabel.IsDisposed)
+                    {
+                        infoLabel.Text = message ?? string.Empty;
+                    }
+                }));
+            }
+        }
+
+        public void SetBattleButtonsEnabled(bool enabled)
+        {
+            if (ExecuteButton != null && !ExecuteButton.IsDisposed && ExecuteButton.IsHandleCreated)
+            {
+                ExecuteButton.BeginInvoke(new Action(() =>
+                {
+                    ExecuteButton.Enabled = enabled;
+                    if (ContinueBattleButton != null && !ContinueBattleButton.IsDisposed)
+                    {
+                        ContinueBattleButton.Enabled = enabled;
+                    }
+                    if (LaunchAutoFixerButton != null && !LaunchAutoFixerButton.IsDisposed)
+                    {
+                        LaunchAutoFixerButton.Enabled = enabled;
+                    }
+                }));
+            }
         }
 
         /*---------------------------------------------
@@ -1931,6 +2572,8 @@ namespace CrusaderWars
                     return "Realms in Exile (LOTR)";
                 case "AGOT":
                     return "A Game of Thrones (AGOT)";
+                case "Custom":
+                    return "Custom";
                 default:
                     return "Selected"; // A safe default
             }
@@ -2029,7 +2672,7 @@ namespace CrusaderWars
                     worker.Dispose();
                 }
 
-                await Task.Delay(1000);
+                await Task.Delay(1);
                 Program.Logger.Debug("Total War: Attila process closed.");
             }
         };
@@ -2147,7 +2790,7 @@ namespace CrusaderWars
             string apostrophe = "'";
             foreach (char c in inputString)
             {
-                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_' || c == '\n' || c == '-' || c == ':' || c == ' '|| char.IsLetter(c) || c == '?' || c == apostrophe[0] || c== '%')
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_' || c == '\n' || c == '-' || c == ':' || c == ' ' || char.IsLetter(c) || c == '?' || c == apostrophe[0] || c == '%')
                 {
                     sb.Append(c);
                 }
@@ -2182,9 +2825,34 @@ namespace CrusaderWars
             Program.Logger.Debug("Settings button clicked.");
             SettingsBtn.BackgroundImage = Properties.Resources.options_btn_new_click;
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            
+
+            // Capture state before settings change
+            string originalPlaythrough = GetActivePlaythroughTag();
+            bool wasBattleInProgress = BattleState.IsBattleInProgress();
+
             Options optionsChild = new Options();
             optionsChild.ShowDialog();
+
+            // Check if playthrough changed during an active battle
+            if (wasBattleInProgress)
+            {
+                string newPlaythrough = GetActivePlaythroughTag();
+                if (originalPlaythrough != newPlaythrough)
+                {
+                    Program.Logger.Debug("Playthrough changed during active battle. Resetting battle state.");
+                    MessageBox.Show(
+                        "The active playthrough was changed while a battle was in progress. " +
+                        "The previous battle has been discarded to prevent conflicts.",
+                        "Battle Discarded",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    BattleState.ClearBattleState();
+                    Unit.ResetUniqueIDCounter();
+                    UpdateUIForBattleState();
+                }
+            }
+
             Options.ReadOptionsFile();
             UpdatePlaythroughDisplay(); // Update display after settings are closed
         }
@@ -2221,7 +2889,7 @@ namespace CrusaderWars
         private void viewLogsLink_Click(object sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            
+
             string logPath = Path.GetFullPath(@".\data\debug.log");
             if (System.IO.File.Exists(logPath))
             {
@@ -2266,7 +2934,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Steam button clicked.");
             SteamBTN.BackgroundImage = Properties.Resources.steam_btn_new_click;
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://mods.paradoxplaza.com/mods/120158/Any") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://steamcommunity.com/sharedfiles/filedetails/?id=3612451961") { UseShellExecute = true });
         }
 
         private void ExecuteButton_MouseEnter(object sender, EventArgs e)
@@ -2277,8 +2945,8 @@ namespace CrusaderWars
 
         private void ExecuteButton_MouseHover(object sender, EventArgs e)
         {
-            if(ExecuteButton.Enabled)
-            ExecuteButton.BackgroundImage = Properties.Resources.start_new_hover;
+            if (ExecuteButton.Enabled)
+                ExecuteButton.BackgroundImage = Properties.Resources.start_new_hover;
         }
 
         private void ExecuteButton_MouseLeave(object sender, EventArgs e)
@@ -2338,13 +3006,14 @@ namespace CrusaderWars
             if (!string.IsNullOrEmpty(version))
             {
                 string? url = await _updater.GetReleaseUrlForVersion(version, false);
-                if(!string.IsNullOrEmpty(url))
+                if (!string.IsNullOrEmpty(url))
                 {
                     Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true });
                 }
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async void labelMappersVersion_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(_umVersion))
@@ -2357,7 +3026,8 @@ namespace CrusaderWars
             }
         }
 
-        private async void linkOptInPreReleases_Click(object sender, EventArgs e)
+        [SupportedOSPlatform("windows")]
+        private async void linkOptInPreReleases_Click(object? sender, EventArgs e)
         {
             PlaySound(@".\data\sounds\metal-dagger-hit-185444.wav");
 
@@ -2394,6 +3064,18 @@ namespace CrusaderWars
             }
         }
 
+        [SupportedOSPlatform("windows")]
+        private void LaunchAutoFixerButton_MouseEnter(object sender, EventArgs e)
+        {
+            LaunchAutoFixerButton.BackgroundImage = Properties.Resources.start_new_hover;
+        }
+
+        [SupportedOSPlatform("windows")]
+        private void LaunchAutoFixerButton_MouseLeave(object sender, EventArgs e)
+        {
+            LaunchAutoFixerButton.BackgroundImage = Properties.Resources.start_new;
+        }
+
         #region CK3 Mod Updater Logic
 
         private class ModUpdateInfo
@@ -2406,18 +3088,22 @@ namespace CrusaderWars
             public string TargetModFile { get; set; } = "";
             public string TargetModDir { get; set; } = "";
             public string ModDirectoryName { get; set; } = "";
+            public string SteamWorkshopId { get; set; } = ""; // Added to track Steam Workshop ID
+            public bool IsSteamWorkshopPresent { get; set; } = false; // Added to track if Steam version exists
         }
 
-        private (string version, string name, string pathDir) ParseModFile(string modFilePath)
+        [SupportedOSPlatform("windows")]
+        private (string version, string name, string pathDir, string steamWorkshopId) ParseModFile(string modFilePath)
         {
             if (!File.Exists(modFilePath))
             {
-                return ("0.0.0", "", "");
+                return ("0.0.0", "", "", "");
             }
 
             string version = "0.0.0";
             string name = "";
             string pathDir = "";
+            string steamWorkshopId = "";
 
             try
             {
@@ -2448,17 +3134,26 @@ namespace CrusaderWars
                             pathDir = Path.GetFileName(match.Groups[1].Value.TrimEnd('/', '\\'));
                         }
                     }
+                    else if (line.Trim().StartsWith("steam_workshop_id="))
+                    {
+                        var match = System.Text.RegularExpressions.Regex.Match(line, @"steam_workshop_id\s*=\s*""([^""]*)""");
+                        if (match.Success)
+                        {
+                            steamWorkshopId = match.Groups[1].Value;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Error parsing .mod file '{modFilePath}': {ex.Message}");
-                return ("0.0.0", "", "");
+                return ("0.0.0", "", "", "");
             }
 
-            return (version, name, pathDir);
+            return (version, name, pathDir, steamWorkshopId);
         }
 
+        [SupportedOSPlatform("windows")]
         private async Task<bool> CheckForCK3ModUpdatesAsync()
         {
             Program.Logger.Debug("Checking for CK3 mod updates...");
@@ -2484,12 +3179,13 @@ namespace CrusaderWars
             }
 
             var modsToUpdate = new List<ModUpdateInfo>();
+            var skippedMods = new List<string>(); // Track mods that are skipped
 
             try
             {
                 foreach (var sourceModFile in Directory.GetFiles(sourceModsDir, "*.mod"))
                 {
-                    var (newVersion, modName, modDirName) = ParseModFile(sourceModFile);
+                    var (newVersion, modName, modDirName, steamWorkshopId) = ParseModFile(sourceModFile);
 
                     if (string.IsNullOrEmpty(modName) || string.IsNullOrEmpty(modDirName))
                     {
@@ -2498,9 +3194,23 @@ namespace CrusaderWars
                     }
 
                     string targetModFile = Path.Combine(targetModsDir, Path.GetFileName(sourceModFile));
-                    var (oldVersion, _, _) = ParseModFile(targetModFile);
+                    var (oldVersion, _, _, _) = ParseModFile(targetModFile);
 
-                    if (_updater.IsNewerVersion(oldVersion, newVersion))
+                    // Check if a Steam Workshop version exists
+                    bool isSteamWorkshopPresent = false;
+                    if (!string.IsNullOrEmpty(steamWorkshopId))
+                    {
+                        string steamWorkshopModFile = Path.Combine(targetModsDir, $"ugc_{steamWorkshopId}.mod");
+                        isSteamWorkshopPresent = File.Exists(steamWorkshopModFile);
+                        if (isSteamWorkshopPresent)
+                        {
+                            Program.Logger.Debug($"Steam Workshop version of '{modName}' (ugc_{steamWorkshopId}.mod) found. Skipping local mod installation.");
+                            skippedMods.Add(modName);
+                        }
+                    }
+
+                    // Only add to update list if Steam Workshop version is NOT present
+                    if (_updater.IsNewerVersion(oldVersion, newVersion) && !isSteamWorkshopPresent)
                     {
                         Program.Logger.Debug($"Found newer version for mod '{modName}'. Old: {oldVersion}, New: {newVersion}");
                         modsToUpdate.Add(new ModUpdateInfo
@@ -2512,7 +3222,9 @@ namespace CrusaderWars
                             TargetModFile = targetModFile,
                             ModDirectoryName = modDirName,
                             SourceModDir = Path.Combine(sourceModsDir, modDirName),
-                            TargetModDir = Path.Combine(targetModsDir, modDirName)
+                            TargetModDir = Path.Combine(targetModsDir, modDirName),
+                            SteamWorkshopId = steamWorkshopId,
+                            IsSteamWorkshopPresent = isSteamWorkshopPresent
                         });
                     }
                 }
@@ -2523,9 +3235,17 @@ namespace CrusaderWars
                 return true; // Allow execution to continue on unexpected error
             }
 
-            if (modsToUpdate.Any())
+            if (!modsToUpdate.Any() && !skippedMods.Any())
             {
-                var sb = new StringBuilder();
+                Program.Logger.Debug("All CK3 mods are up-to-date.");
+                return true;
+            }
+
+            var sb = new StringBuilder();
+            bool needsUpdate = modsToUpdate.Any();
+
+            if (needsUpdate)
+            {
                 sb.AppendLine("Updates are available for your Crusader Kings III mods managed by this app.");
                 sb.AppendLine();
                 sb.AppendLine("The following mods will be updated:");
@@ -2537,6 +3257,35 @@ namespace CrusaderWars
                 sb.AppendLine($"Mods will be updated in the following directory:");
                 sb.AppendLine(targetModsDir);
                 sb.AppendLine();
+            }
+
+            if (skippedMods.Any())
+            {
+                if (needsUpdate)
+                {
+                    sb.AppendLine("The following mods will NOT be updated because you have the Steam Workshop version installed:");
+                }
+                else
+                {
+                    sb.AppendLine("All available mod updates have been skipped because you have the Steam Workshop versions installed:");
+                }
+
+                foreach (var modName in skippedMods)
+                {
+                    sb.AppendLine($"  • {modName}");
+                }
+                sb.AppendLine();
+            }
+
+            if (!needsUpdate)
+            {
+                sb.AppendLine("No local mod updates will be performed.");
+                MessageBox.Show(sb.ToString(), "CK3 Mod Updates Skipped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Program.Logger.Debug("All CK3 mod updates skipped due to Steam Workshop versions being present.");
+                return true;
+            }
+            else
+            {
                 sb.AppendLine("Crusader Kings III must be closed to perform this update.");
                 sb.AppendLine();
                 sb.AppendLine("Do you want to update these mods now?");
@@ -2550,16 +3299,12 @@ namespace CrusaderWars
                 else
                 {
                     Program.Logger.Debug("User declined CK3 mod updates.");
-                    return true; // User declined, but allow execution to continue
+                    return true;
                 }
-            }
-            else
-            {
-                Program.Logger.Debug("All CK3 mods are up-to-date.");
-                return true; // No updates needed, allow execution to continue
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async Task<bool> PerformModUpdateAsync(List<ModUpdateInfo> modsToUpdate, string targetModsDir)
         {
             Program.Logger.Debug("Starting CK3 mod update process...");
@@ -2627,6 +3372,7 @@ namespace CrusaderWars
             return false; // Should not be reached if successCount != modsToUpdate.Count and no exception was thrown.
         }
 
+        [SupportedOSPlatform("windows")]
         private static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
         {
             var dir = new DirectoryInfo(sourceDir);
@@ -2652,6 +3398,359 @@ namespace CrusaderWars
             }
         }
 
+        private bool PrepareBattleDataContext()
+        {
+            // This method was attempting to re-extract the gamestate from a save file,
+            // which is unnecessary and causes errors when the "Battle Tools" button is used
+            // during an active battle. The gamestate is already extracted at this point.
+            Program.Logger.Debug("PrepareBattleDataContext: Skipping gamestate extraction as battle is in progress.");
+            return true;
+        }
+
+        [SupportedOSPlatform("windows")]
+        private void LaunchAutoFixerButton_Click(object sender, EventArgs e)
+        {
+            string originalInfoText = infoLabel.Text;
+            infoLabel.Text = "Loading Battle Tools...";
+
+            if (!PrepareBattleDataContext())
+            {
+                infoLabel.Text = originalInfoText;
+                return;
+            }
+
+            string? logSnippet = BattleState.LoadLogSnippet();
+            if (logSnippet == null)
+            {
+                MessageBox.Show(this, "Could not find saved battle information (log snippet). The tools cannot be used until a battle has been started and saved.", "Battle Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                infoLabel.Text = originalInfoText;
+                return;
+            }
+            DataSearch.Search(logSnippet);
+
+            using (var form = new Form())
+            {
+                form.Text = "Select a Battle Tool";
+                form.Size = new System.Drawing.Size(300, 150);
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.MaximizeBox = false;
+                form.MinimizeBox = false;
+
+                var btnUnitReplacer = new Button() { Text = "Unit Replacer", Left = 50, Top = 20, Width = 200, Height = 30 };
+                var btnDeploymentEditor = new Button() { Text = "Deployment Zone Editor", Left = 50, Top = 60, Width = 200, Height = 30 };
+
+                btnUnitReplacer.Click += (s, ev) => { form.DialogResult = DialogResult.Yes; form.Close(); };
+                btnDeploymentEditor.Click += (s, ev) => { form.DialogResult = DialogResult.No; form.Close(); };
+
+                form.Controls.Add(btnUnitReplacer);
+                form.Controls.Add(btnDeploymentEditor);
+                form.AcceptButton = btnUnitReplacer;
+
+                var result = form.ShowDialog();
+                if (result == DialogResult.Yes)
+                {
+                    LaunchUnitReplacerTool();
+                }
+                else if (result == DialogResult.No)
+                {
+                    LaunchDeploymentZoneEditor();
+                }
+            }
+
+            infoLabel.Text = originalInfoText;
+        }
+
+        [SupportedOSPlatform("windows")]
+        public void LaunchUnitReplacerTool()
+        {
+            Program.Logger.Debug("LaunchUnitReplacerTool called.");
+            try
+            {
+                Program.Logger.Debug("--- Manual AutoFixer Launched from UI ---");
+                Options.ReadOptionsFile();
+
+                // Load log snippet to restore context before reading armies
+                string? logSnippet = BattleState.LoadLogSnippet();
+                if (logSnippet == null)
+                {
+                    MessageBox.Show("Could not find the saved battle information (log snippet). The AutoFixer cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                DataSearch.Search(logSnippet);
+
+                // Manually determine and set the active playthrough for the autofixer context
+                string? activePlaythroughTag = GetActivePlaythroughTag();
+                if (!string.IsNullOrEmpty(activePlaythroughTag))
+                {
+                    if (ModOptions.optionsValuesCollection.ContainsKey("Playthrough"))
+                    {
+                        ModOptions.optionsValuesCollection["Playthrough"] = activePlaythroughTag;
+                    }
+                    else
+                    {
+                        ModOptions.optionsValuesCollection.Add("Playthrough", activePlaythroughTag);
+                    }
+                    Program.Logger.Debug($"Autofixer context: Active playthrough set to '{activePlaythroughTag}'.");
+                }
+
+                // Load the unit mapper before reading armies
+                string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
+                if (string.IsNullOrEmpty(selectedPlaythrough))
+                {
+                    MessageBox.Show("No playthrough is selected. The AutoFixer cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                UnitMappers_BETA.ClearFactionCache(); // Clear any old data
+                var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(selectedPlaythrough);
+                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods);
+
+                if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
+                {
+                    MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                Program.Logger.Debug($"LaunchAutoFixer: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
+
+
+                // 1. Read battle armies
+                DataSearch.FindSiegeCombatID();
+                if (!twbattle.BattleState.IsSiegeBattle)
+                {
+                    BattleResult.GetPlayerCombatResult();
+                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                }
+                var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
+                if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
+                {
+                    MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                Program.Logger.Debug($"LaunchAutoFixer: Read {attackerArmies.Count} attacker and {defenderArmies.Count} defender armies.");
+
+
+                // 2. Set army sides and collect data
+                BattleFile.SetArmiesSides(attackerArmies, defenderArmies);
+                Program.Logger.Debug("LaunchAutoFixer: Army sides set.");
+                var allArmies = attackerArmies.Concat(defenderArmies).ToList();
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {allArmies.Count} total armies.");
+
+                var currentUnits = allArmies.Where(a => a.Units != null).SelectMany(a => a.Units)
+                                            .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            .ToList();
+                var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+                var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+
+                if (unitScreenNames is null)
+                {
+                    Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
+                    MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (allAvailableUnits is null)
+                {
+                    Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
+                    MessageBox.Show(this, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Filter units to only those that have a screen name to prevent crashes inside the form.
+                var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey) && unitScreenNames.ContainsKey(u.AttilaUnitKey)).ToList();
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {allAvailableUnits.Count} total available units, filtered down to {availableUnits.Count} with screen names.");
+                Program.Logger.Debug($"LaunchAutoFixer: Collected {unitScreenNames.Count} unit screen names.");
+
+
+                // 3. Show form
+                Program.Logger.Debug("LaunchAutoFixer: Creating UnitReplacerForm...");
+                using (var replacerForm = new client.UnitReplacerForm(currentUnits, availableUnits, BattleState.ManualUnitReplacements, unitScreenNames))
+                {
+                    Program.Logger.Debug("LaunchAutoFixer: UnitReplacerForm created. Showing dialog...");
+                    if (replacerForm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        // 4. Process results
+                        var replacements = replacerForm.Replacements;
+                        if (replacements.Any())
+                        {
+                            Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements from UI.");
+                            BattleState.ManualUnitReplacements.Clear(); // Clear previous manual fixes
+
+                            foreach (var replacement in replacements)
+                            {
+                                BattleState.ManualUnitReplacements[replacement.Key] = replacement.Value;
+                                Program.Logger.Debug($"  - Storing replacement for '{replacement.Key.originalKey}' with '{replacement.Value.replacementKey}' for {(replacement.Key.isPlayerAlliance ? "Player" : "Enemy")}");
+                            }
+                            MessageBox.Show("Unit replacements have been saved. They will be applied when you click 'Continue Battle'.", "Replacements Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            BattleState.ManualUnitReplacements.Clear();
+                            Program.Logger.Debug("Manual unit replacement window was closed with OK, but no replacements were made. Clearing any existing replacements.");
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug("Manual unit replacement was cancelled.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error in LaunchUnitReplacerTool: {ex.Message}\n{ex.StackTrace}");
+                MessageBox.Show($"An unexpected error occurred while launching the Unit Replacer: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        [SupportedOSPlatform("windows")]
+        public void LaunchDeploymentZoneEditor()
+        {
+            Program.Logger.Debug("LaunchDeploymentZoneEditor called.");
+            try
+            {
+                Program.Logger.Debug("--- Manual Deployment Zone Editor Launched from UI ---");
+                Options.ReadOptionsFile();
+
+                // Load log snippet to restore context
+                string? logSnippet = BattleState.LoadLogSnippet();
+                if (logSnippet == null)
+                {
+                    MessageBox.Show("Could not find the saved battle information (log snippet). The tool cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                DataSearch.Search(logSnippet);
+
+                // Set playthrough
+                string? activePlaythroughTag = GetActivePlaythroughTag();
+                if (!string.IsNullOrEmpty(activePlaythroughTag))
+                {
+                    if (ModOptions.optionsValuesCollection.ContainsKey("Playthrough"))
+                    {
+                        ModOptions.optionsValuesCollection["Playthrough"] = activePlaythroughTag;
+                    }
+                    else
+                    {
+                        ModOptions.optionsValuesCollection.Add("Playthrough", activePlaythroughTag);
+                    }
+                }
+
+                // Load the unit mapper before reading armies
+                string? selectedPlaythrough = ModOptions.GetSelectedPlaythrough();
+                if (string.IsNullOrEmpty(selectedPlaythrough))
+                {
+                    MessageBox.Show("No playthrough is selected. The tool cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                UnitMappers_BETA.ClearFactionCache(); // Clear any old data
+                var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(selectedPlaythrough);
+                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods);
+
+                if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
+                {
+                    MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                Program.Logger.Debug($"LaunchDeploymentZoneEditor: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
+
+
+                // Read armies to get total soldier count for map size calculation
+                DataSearch.FindSiegeCombatID();
+                BattleResult.ReadCombatBlockByProvinceID(); // Read province name from combat block
+                if (!twbattle.BattleState.IsSiegeBattle)
+                {
+                    BattleResult.GetPlayerCombatResult();
+                    BattleResult.ReadPlayerCombat(CK3LogData.LeftSide.GetCommander().id);
+                }
+                var (attackerArmies, defenderArmies) = ArmiesReader.ReadBattleArmies();
+                if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
+                {
+                    MessageBox.Show("Could not read army data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                int total_soldiers = attackerArmies.Sum(a => a.GetTotalSoldiers()) + defenderArmies.Sum(a => a.GetTotalSoldiers());
+                string option_map_size = ModOptions.DeploymentsZones();
+
+                // Determine which side is the player
+                BattleFile.SetArmiesSides(attackerArmies, defenderArmies);
+                bool isAttackerPlayer = attackerArmies.First().IsPlayer();
+
+                // Generate initial deployment areas
+                string attacker_direction = BattleState.IsSiegeBattle ? (BattleState.OriginalSiegeAttackerDirection ?? "N") : "N";
+                string defender_direction = "S";
+
+                DeploymentArea attackerArea = new DeploymentArea(attacker_direction, option_map_size, total_soldiers);
+                DeploymentArea defenderArea = new DeploymentArea(defender_direction, option_map_size, total_soldiers, BattleState.IsSiegeBattle);
+                float map_dimension = float.Parse(ModOptions.SetMapSize(total_soldiers, BattleState.IsSiegeBattle), System.Globalization.CultureInfo.InvariantCulture);
+
+                // Get Battle Details
+                if (!BattleState.IsSiegeBattle)
+                {
+                    TerrainGenerator.CheckForSpecialCrossingBattle(attackerArmies, defenderArmies);
+                }
+                var (mapX, mapY, _, _) = TerrainGenerator.GetBattleMap();
+                string provinceName = BattleResult.ProvinceName ?? "Unknown";
+                string battleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
+                string battleType;
+                if (BattleState.IsSiegeBattle)
+                {
+                    battleType = "Siege Battle";
+                }
+                else if (TerrainGenerator.isRiver || TerrainGenerator.isStrait)
+                {
+                    battleType = "River/Strait Battle";
+                }
+                else if (TerrainGenerator.isCoastal)
+                {
+                    battleType = "Coastal Battle";
+                }
+                else
+                {
+                    battleType = "Field Battle";
+                }
+
+
+                using (var toolForm = new client.DeploymentZoneToolForm(attackerArea, defenderArea, map_dimension, isAttackerPlayer, BattleState.IsSiegeBattle, battleDate, battleType, provinceName, mapX, mapY))
+                {
+                    if (toolForm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        if (toolForm.IsReset)
+                        {
+                            BattleState.ClearDeploymentZoneOverrides();
+                            MessageBox.Show("Default deployment zones have been restored and saved.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            var attackerValues = toolForm.GetAttackerValues();
+                            var defenderValues = toolForm.GetDefenderValues();
+
+                            BattleState.DeploymentZoneOverrideAttacker = new BattleState.ZoneOverride
+                            {
+                                X = (float)attackerValues.CenterX,
+                                Y = (float)attackerValues.CenterY,
+                                Width = (float)attackerValues.Width,
+                                Height = (float)attackerValues.Height
+                            };
+                            BattleState.DeploymentZoneOverrideDefender = new BattleState.ZoneOverride
+                            {
+                                X = (float)defenderValues.CenterX,
+                                Y = (float)defenderValues.CenterY,
+                                Width = (float)defenderValues.Width,
+                                Height = (float)defenderValues.Height
+                            };
+
+                            BattleState.SavePersistentBattleSettings();
+                            MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error in LaunchDeploymentZoneEditor: {ex.Message}");
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         #endregion
     }
 }

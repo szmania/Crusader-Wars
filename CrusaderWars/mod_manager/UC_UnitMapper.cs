@@ -10,9 +10,13 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CrusaderWars.unit_mapper;
+using System.Xml;
+using System.Xml.Schema;
+using System.Runtime.Versioning;
 
 namespace CrusaderWars.mod_manager
 {
+    [SupportedOSPlatform("windows")]
     public partial class UC_UnitMapper : UserControl
     {
         public event EventHandler? ToggleClicked;
@@ -20,15 +24,15 @@ namespace CrusaderWars.mod_manager
         private bool _pulseState;
         List<UC_UnitMapper> AllControlsReferences { get; set; } = null!;
 
-        string SteamCollectionLink {  get; set; }
-        List<(string FileName, string Sha256, string ScreenName, string Url)> RequiredModsList { get; set; }
+        string SteamCollectionLink { get; set; }
+        List<(string FileName, string Sha256, string? ScreenName, string? Url)> RequiredModsList { get; set; }
         private ToolTip toolTip2; // Added ToolTip field
-        private readonly List<Submod> _availableSubmods;
+        private List<Submod> _availableSubmods = new List<Submod>();
         private readonly string _playthroughTag;
 
         public string GetPlaythroughTag() { return _playthroughTag; }
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string ScreenName, string Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string? ScreenName, string? Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
         {
             InitializeComponent();
 
@@ -47,6 +51,123 @@ namespace CrusaderWars.mod_manager
             _availableSubmods = submods;
 
             BtnSubmods.Visible = _availableSubmods != null && _availableSubmods.Any();
+
+            if (_playthroughTag == "Custom")
+            {
+                customMapperLabel.Visible = true;
+                customMapperComboBox.Visible = true;
+                button1.Visible = false; // "Required Mods" button
+                BtnVerifyMods.Visible = false; // "Verify Mods" button
+                PopulateCustomMappers();
+                customMapperComboBox.SelectedIndexChanged += CustomMapperComboBox_SelectedIndexChanged;
+                toolTip2.SetToolTip(customMapperComboBox, "Select a custom unit mapper. The values are from the 'tag.txt' file within each custom mapper folder, which must be prefixed with 'Custom'.");
+            }
+        }
+
+        private void PopulateCustomMappers()
+        {
+            customMapperComboBox.Items.Clear();
+            string unitMappersDir = @".\unit mappers";
+            if (Directory.Exists(unitMappersDir))
+            {
+                var customTags = Directory.GetDirectories(unitMappersDir)
+                                          .Select(d =>
+                                          {
+                                              string tagFile = Path.Combine(d, "tag.txt");
+                                              if (File.Exists(tagFile))
+                                              {
+                                                  string tag = File.ReadAllText(tagFile).Trim();
+                                                  if (tag.StartsWith("Custom", StringComparison.OrdinalIgnoreCase))
+                                                  {
+                                                      return tag;
+                                                  }
+                                              }
+                                              return null;
+                                          })
+                                          .Where(t => t != null)
+                                          .Distinct()
+                                          .OrderBy(t => t)
+                                          .ToList();
+
+
+                foreach (var tag in customTags)
+                {
+                    customMapperComboBox.Items.Add(tag);
+                }
+            }
+
+            if (customMapperComboBox.Items.Count > 0)
+            {
+                string selectedMapper = client.ModOptions.GetSelectedCustomMapper();
+                if (!string.IsNullOrEmpty(selectedMapper) && customMapperComboBox.Items.Contains(selectedMapper))
+                {
+                    customMapperComboBox.SelectedItem = selectedMapper;
+                }
+                else
+                {
+                    customMapperComboBox.SelectedIndex = 0;
+                }
+                if(customMapperComboBox.SelectedItem != null)
+                    UpdateCustomMapperSelection(customMapperComboBox.SelectedItem.ToString()!);
+            }
+            else
+            {
+                // No custom mappers found, clear any saved selection.
+                client.ModOptions.SelectedCustomMapper = string.Empty;
+                UpdateCustomMapperSelection(null);
+            }
+        }
+
+        private void CustomMapperComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (customMapperComboBox.SelectedItem != null)
+            {
+                string selectedMapper = customMapperComboBox.SelectedItem.ToString()!;
+                UpdateCustomMapperSelection(selectedMapper);
+            }
+        }
+
+        private void UpdateCustomMapperSelection(string? selectedMapper)
+        {
+            if (string.IsNullOrEmpty(selectedMapper))
+            {
+                this.RequiredModsList = new List<(string FileName, string Sha256, string? ScreenName, string? Url)>();
+                this._availableSubmods.Clear();
+                BtnSubmods.Visible = false;
+                client.ModOptions.SelectedCustomMapper = "";
+                return;
+            }
+
+            // 1. Update the static ModOptions
+            client.ModOptions.SelectedCustomMapper = selectedMapper;
+
+            // 2. Persist the selection immediately for the main window
+            try
+            {
+                string file = @".\settings\Options.xml";
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(file);
+                var node = xmlDoc.SelectSingleNode("//Option [@name='SelectedCustomMapper']");
+                if (node != null)
+                {
+                    node.InnerText = selectedMapper;
+                    xmlDoc.Save(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error saving selected custom mapper on change: {ex.Message}");
+            }
+
+            // 3. Update this control's instance with the new mod/submod data
+            var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(selectedMapper);
+            this.RequiredModsList = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
+
+            this._availableSubmods.Clear();
+            this._availableSubmods.AddRange(modsCollection.submods);
+
+            // 4. Update the UI
+            BtnSubmods.Visible = this._availableSubmods.Any();
         }
 
         public void SetPulsing(bool isPulsing)
@@ -80,6 +201,7 @@ namespace CrusaderWars.mod_manager
             for (int i = 0; i < references.Length; i++) { AllControlsReferences.Add(references[i]); }
         }
 
+        [SupportedOSPlatform("windows")]
         private void button1_Click(object sender, EventArgs e)
         {
             if (_playthroughTag == "TheFallenEagle" || _playthroughTag == "AGOT") // Modified condition
@@ -90,34 +212,34 @@ namespace CrusaderWars.mod_manager
 
                 if (_playthroughTag == "AGOT")
                 {
-                    modsMessage.AppendLine("For the 'A Game of Thrones (AGOT)' playthrough, please ensure you have the following CK3 submod installed:");
-                    modsMessage.AppendLine("• Lord of the Tides (adds House Velaryon)");
-                    modsMessage.AppendLine("  Download: https://www.moddb.com/downloads/lord-of-the-tides-v04");
-                    modsMessage.AppendLine();
-                    modsMessage.AppendLine("Additionally, the following Total War: Attila mods are required:");
+                    modsMessage.Append("For the 'A Game of Thrones (AGOT)' playthrough, please ensure you have the following CK3 submod installed:\n");
+                    modsMessage.Append("• Lord of the Tides (adds House Velaryon)\n");
+                    modsMessage.Append("  Download: https://www.moddb.com/downloads/lord-of-the-tides-v04\n");
+                    modsMessage.Append("\n");
+                    modsMessage.Append("Additionally, the following Total War: Attila mods are required:\n");
                 }
                 else // TheFallenEagle
                 {
-                    modsMessage.AppendLine($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:");
+                    modsMessage.Append($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:\n");
                 }
 
                 if (RequiredModsList != null && RequiredModsList.Count > 0)
                 {
                     foreach (var (mod, _, screenName, _) in RequiredModsList)
                     {
-                        modsMessage.AppendLine($"- {(string.IsNullOrEmpty(screenName) ? mod : screenName)}");
+                        modsMessage.Append($"- {(string.IsNullOrEmpty(screenName) ? mod : $"{screenName} ({mod})")}\n");
                     }
-                    modsMessage.AppendLine("\nPlease ensure these are enabled in the Attila Mod Manager.");
+                    modsMessage.Append("\nPlease ensure these are enabled in the Attila Mod Manager.\n");
                 }
                 else
                 {
                     if (_playthroughTag == "AGOT")
                     {
-                        modsMessage.AppendLine("No additional Total War: Attila mods are listed as required for this playthrough.");
+                        modsMessage.Append("No additional Total War: Attila mods are listed as required for this playthrough.\n");
                     }
                     else
                     {
-                        modsMessage.AppendLine($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.");
+                        modsMessage.Append($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.\n");
                     }
                 }
 
@@ -141,8 +263,16 @@ namespace CrusaderWars.mod_manager
             return uC_Toggle1.State;
         }
 
+        [SupportedOSPlatform("windows")]
         private async void uC_Toggle1_Click(object sender, EventArgs e)
         {
+            if (uC_Toggle1.State && _playthroughTag == "Custom" && customMapperComboBox.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a custom unit mapper from the dropdown before enabling.", "No Mapper Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                uC_Toggle1.SetState(false); // Revert the toggle state
+                return;
+            }
+
             // 1. When deactivating a playthrough, clear its submods and skip verification.
             if (!uC_Toggle1.State)
             {
@@ -169,34 +299,118 @@ namespace CrusaderWars.mod_manager
             };
             Label statusLabel = new Label
             {
-                Text = "Validating TW:Attila mod files...",
+                Text = "Validating Unit Mapper XML files...",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter
             };
             statusForm.Controls.Add(statusLabel);
             statusForm.Show(this.FindForm());
 
-            var progress = new Progress<string>(update => {
-                statusLabel.Text = update;
-            });
-
             try
             {
-                var verificationResult = await Task.Run(() => VerifyModFiles(RequiredModsList, progress));
+                // XML VALIDATION LOGIC
+                var allErrors = new List<string>();
+                string unitMappersBaseDir = @".\unit mappers";
+                var unitMapperDirectories = new List<string>();
+
+                if (_playthroughTag == "Custom")
+                {
+                    string customMapperTag = client.ModOptions.GetSelectedCustomMapper();
+                    if (!string.IsNullOrEmpty(customMapperTag) && Directory.Exists(unitMappersBaseDir))
+                    {
+                        unitMapperDirectories.AddRange(
+                            Directory.GetDirectories(unitMappersBaseDir)
+                                     .Where(dir =>
+                                     {
+                                         string tagFile = Path.Combine(dir, "tag.txt");
+                                         return File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(customMapperTag, StringComparison.OrdinalIgnoreCase);
+                                     })
+                        );
+                    }
+                }
+                else
+                {
+                    if (Directory.Exists(unitMappersBaseDir))
+                    {
+                        foreach (var dir in Directory.GetDirectories(unitMappersBaseDir))
+                        {
+                            string tagFile = Path.Combine(dir, "tag.txt");
+                            if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim() == _playthroughTag)
+                            {
+                                unitMapperDirectories.Add(dir);
+                                // Removed 'break;' here to allow finding all directories with the same tag
+                            }
+                        }
+                    }
+                }
+
+                if (unitMapperDirectories.Any())
+                {
+                    foreach (var dir in unitMapperDirectories)
+                    {
+                        allErrors.AddRange(XmlValidator.ValidateUnitMapper(dir));
+                    }
+
+                    if (allErrors.Any())
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("The selected unit mapper has validation errors and cannot be enabled.\n");
+                        sb.Append("Please fix the following issues:\n");
+                        sb.Append("\n");
+
+                        var groupedErrors = allErrors
+                            .Select(e =>
+                            {
+                                var parts = e.Split(new[] { ", Error: " }, 2, StringSplitOptions.None);
+                                var filePart = parts[0].Replace("File: ", "").Trim();
+                                var messagePart = parts.Length > 1 ? parts[1] : filePart; // if no 'Error:', message is the file part
+                                return new { FilePath = filePart, Message = messagePart };
+                            })
+                            .GroupBy(e => e.FilePath)
+                            .OrderBy(g => g.Key);
+
+                        foreach (var group in groupedErrors)
+                        {
+                            sb.Append($"File: {group.Key}\n");
+                            foreach (var error in group)
+                            {
+                                sb.Append($"  - {error.Message}\n");
+                            }
+                            sb.Append("\n");
+                        }
+
+                        ShowClickableMessageBox(sb.ToString(), "Unit Mapper Validation Failed");
+                        uC_Toggle1.SetState(false);
+                        return; // Stop execution
+                    }
+                }
+                else
+                {
+                    Program.Logger.Debug($"Unit mapper directory not found for playthrough '{_playthroughTag}'. Skipping validation.");
+                }
+
+
+                statusLabel.Text = "Validating TW:Attila mod files...";
+                var progress = new Progress<string>(update =>
+                {
+                    statusLabel.Text = update;
+                });
+
+                var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(RequiredModsList, progress));
 
                 // 1. Check for missing files (highest priority)
                 if (verificationResult.MissingFiles.Any())
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("You are missing these required mods:");
+                    sb.Append("You are missing these required mods:\n");
                     foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                     {
-                        string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                        string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                         if (!string.IsNullOrEmpty(url))
                         {
                             line += $"\n  {url}";
                         }
-                        sb.AppendLine(line);
+                        sb.Append(line + "\n");
                     }
                     ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Mods!");
                     uC_Toggle1.SetState(false);
@@ -207,9 +421,9 @@ namespace CrusaderWars.mod_manager
                 if (verificationResult.MismatchedFiles.Any())
                 {
                     var sb = new StringBuilder();
-                    sb.AppendLine("One or more required Total War: Attila mod files for this playthrough have different versions than expected.");
-                    sb.AppendLine("This could mean the mod is outdated, or it has been updated by the mod author and may still be compatible.");
-                    sb.AppendLine("\nMismatched files:");
+                    sb.Append("One or more required Total War: Attila mod files for this playthrough have different versions than expected.\n");
+                    sb.Append("This could mean the mod is outdated, or it has been updated by the mod author and may still be compatible.\n");
+                    sb.Append("\nMismatched files:\n");
                     foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                     {
                         string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -217,11 +431,11 @@ namespace CrusaderWars.mod_manager
                         {
                             line += $"\n  {url}";
                         }
-                        sb.AppendLine(line);
+                        sb.Append(line + "\n");
                     }
-                    sb.AppendLine("\nPlease ensure you have the latest versions of these mods from the Steam Workshop.");
-                    sb.AppendLine("If your mods are up-to-date and you still see this warning, please report it to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j so we can update our compatibility check.");
-                    sb.AppendLine("\nDo you want to activate this playthrough anyway?");
+                    sb.Append("\nPlease ensure you have the latest versions of these mods from the Steam Workshop.\n");
+                    sb.Append("If your mods are up-to-date and you still see this warning, please report it to the Crusader Conflicts Development Team at https://discord.gg/eFZTprHh3j so we can update our compatibility check.\n");
+                    sb.Append("\nDo you want to activate this playthrough anyway?\n");
 
                     var dialogResult = ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: Mod Version Warning", MessageBoxButtons.YesNo);
 
@@ -258,16 +472,17 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private void ShowClickableMessageBox(string text, string title)
         {
             using (Form form = new Form())
             {
                 form.Text = title;
                 form.StartPosition = FormStartPosition.CenterParent;
-                form.FormBorderStyle = FormBorderStyle.FixedDialog;
-                form.ClientSize = new Size(480, 250);
-                form.MaximizeBox = false;
-                form.MinimizeBox = false;
+                form.FormBorderStyle = FormBorderStyle.Sizable;
+                form.ClientSize = new Size(900, 500);
+                form.MaximizeBox = true;
+                form.MinimizeBox = true;
 
                 RichTextBox richTextBox = new RichTextBox
                 {
@@ -280,7 +495,8 @@ namespace CrusaderWars.mod_manager
                     Font = new Font("Segoe UI", 9F),
                     Padding = new Padding(10)
                 };
-                richTextBox.LinkClicked += (s, args) => {
+                richTextBox.LinkClicked += (s, args) =>
+                {
                     Process.Start(new ProcessStartInfo(args.LinkText) { UseShellExecute = true });
                 };
 
@@ -300,7 +516,7 @@ namespace CrusaderWars.mod_manager
                 };
                 panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
                 panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-                
+
                 panel.Controls.Add(richTextBox, 0, 0);
 
                 FlowLayoutPanel buttonPanel = new FlowLayoutPanel
@@ -310,7 +526,7 @@ namespace CrusaderWars.mod_manager
                     Padding = new Padding(0, 5, 10, 0)
                 };
                 buttonPanel.Controls.Add(okButton);
-                
+
                 panel.Controls.Add(buttonPanel, 0, 1);
 
                 form.Controls.Add(panel);
@@ -320,6 +536,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private DialogResult ShowClickableWarningDialog(string text, string title, MessageBoxButtons buttons)
         {
             using (Form form = new Form())
@@ -342,7 +559,8 @@ namespace CrusaderWars.mod_manager
                     Font = new Font("Segoe UI", 9F),
                     Padding = new Padding(10)
                 };
-                richTextBox.LinkClicked += (s, args) => {
+                richTextBox.LinkClicked += (s, args) =>
+                {
                     try
                     {
                         if (args != null && !string.IsNullOrEmpty(args.LinkText))
@@ -385,6 +603,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        [SupportedOSPlatform("windows")]
         private async void BtnVerifyMods_Click(object sender, EventArgs e)
         {
             if (RequiredModsList != null)
@@ -414,27 +633,28 @@ namespace CrusaderWars.mod_manager
                 statusForm.Controls.Add(statusLabel);
                 statusForm.Show(this.FindForm());
 
-                var progress = new Progress<string>(update => {
+                var progress = new Progress<string>(update =>
+                {
                     statusLabel.Text = update;
                 });
 
                 try
                 {
-                    var verificationResult = await Task.Run(() => VerifyModFiles(RequiredModsList, progress));
+                    var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(RequiredModsList, progress));
 
                     // 1. Check for missing files
                     if (verificationResult.MissingFiles.Any())
                     {
                         var sb = new StringBuilder();
-                        sb.AppendLine("You are missing these mods:");
+                        sb.Append("You are missing these mods:\n");
                         foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                         {
-                            string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                            string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                             if (!string.IsNullOrEmpty(url))
                             {
                                 line += $"\n  {url}";
                             }
-                            sb.AppendLine(line);
+                            sb.Append(line + "\n");
                         }
                         ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Mods!");
                         uC_Toggle1.SetState(false);
@@ -444,7 +664,7 @@ namespace CrusaderWars.mod_manager
                     if (verificationResult.MismatchedFiles.Any())
                     {
                         var sb = new StringBuilder();
-                        sb.AppendLine("The following required mods have a different version than expected:");
+                        sb.Append("The following required mods have a different version than expected:\n");
                         foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                         {
                             string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -452,10 +672,10 @@ namespace CrusaderWars.mod_manager
                             {
                                 line += $"\n  {url}";
                             }
-                            sb.AppendLine(line);
+                            sb.Append(line + "\n");
                         }
-                        sb.AppendLine("\nThis may cause issues. Please ensure you have the latest versions of these mods from the Steam Workshop.");
-                        sb.AppendLine("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j");
+                        sb.Append("\nThis may cause issues. Please ensure you have the latest versions of these mods from the Steam Workshop.\n");
+                        sb.Append("If you believe this is an error, please raise the issue on our Discord: https://discord.gg/eFZTprHh3j\n");
                         ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: TW:Attila Mod Version Mismatch", MessageBoxButtons.OK);
                     }
 
@@ -480,12 +700,6 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        internal class VerificationResult
-        {
-            public List<(string FileName, string ScreenName, string Url)> MissingFiles { get; } = new List<(string, string, string)>();
-            public List<(string FileName, string ExpectedSha, string ScreenName, string Url)> MismatchedFiles { get; } = new List<(string, string, string, string)>();
-        }
-
         public void SetSteamLinkButtonTooltip(string text)
         {
             Button? btn = this.Controls.Find("button1", true).FirstOrDefault() as Button;
@@ -499,131 +713,7 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        private string CalculateSHA256(string filePath)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                using (var stream = File.OpenRead(filePath))
-                {
-                    var hash = sha256.ComputeHash(stream);
-                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                }
-            }
-        }
-
-        private VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string ScreenName, string Url)> modsToVerifyList, IProgress<string>? progress)
-        {
-            Program.Logger.Debug("Verifying mod files...");
-            var result = new VerificationResult();
-            var modsToFind = modsToVerifyList
-                .GroupBy(item => item.FileName)
-                .Select(group => group.First())
-                .ToDictionary(item => item.FileName, item => (Sha: item.Sha256, ScreenName: item.ScreenName, Url: item.Url));
-            Program.Logger.Debug($"Mods to verify: {string.Join(", ", modsToFind.Keys)}");
-
-
-            //Verify data folder
-            string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
-            Program.Logger.Debug($"Checking Attila data folder: {data_folder_path}");
-            if (Directory.Exists(data_folder_path))
-            {
-                var dataModsPaths = Directory.GetFiles(data_folder_path);
-                foreach (var file in dataModsPaths)
-                {
-                    var fileName = Path.GetFileName(file);
-                    if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
-                    {
-                        string screenName = modsToFind[fileName].ScreenName;
-                        string progressMessage = string.IsNullOrEmpty(screenName)
-                            ? $"Verifying: {fileName}"
-                            : $"Verifying: {screenName} - {fileName}";
-                        progress?.Report(progressMessage);
-                        string expectedSha = modsToFind[fileName].Sha;
-                        string url = modsToFind[fileName].Url;
-                        if (!string.IsNullOrEmpty(expectedSha))
-                        {
-                            string actualSha = CalculateSHA256(file);
-                            if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
-                            {
-                                Program.Logger.Debug($"Found required mod in data folder with matching hash: {fileName}");
-                                modsToFind.Remove(fileName);
-                            }
-                            else
-                            {
-                                Program.Logger.Debug($"Found required mod '{fileName}' in data folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
-                                result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
-                                modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
-                            }
-                        }
-                        else // No hash provided, just check for existence
-                        {
-                            Program.Logger.Debug($"Found required mod in data folder (no hash check): {fileName}");
-                            modsToFind.Remove(fileName);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                MessageBox.Show("Error reading Attila data folder. This is caused by wrong Attila path.", "Crusader Conflicts: Game Paths Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-            }
-
-            //Verify workshop folder
-            string? workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
-            Program.Logger.Debug($"Checking Attila workshop folder: {workshop_folder_path}");
-            if (Directory.Exists(workshop_folder_path))
-            {
-                var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);
-                foreach (var folder in steamModsFoldersPaths)
-                {
-                    var files = Directory.GetFiles(folder);
-                    foreach (var file in files)
-                    {
-                        var fileName = Path.GetFileName(file);
-                        if (modsToFind.ContainsKey(fileName) && Path.GetExtension(fileName) == ".pack")
-                        {
-                            string screenName = modsToFind[fileName].ScreenName;
-                            string progressMessage = string.IsNullOrEmpty(screenName)
-                                ? $"Verifying: {fileName}"
-                                : $"Verifying: {screenName} - {fileName}";
-                            progress?.Report(progressMessage);
-                            string expectedSha = modsToFind[fileName].Sha;
-                            string url = modsToFind[fileName].Url;
-                            if (!string.IsNullOrEmpty(expectedSha))
-                            {
-                                string actualSha = CalculateSHA256(file);
-                                if (string.Equals(expectedSha, actualSha, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Program.Logger.Debug($"Found required mod in workshop folder with matching hash: {fileName}");
-                                    modsToFind.Remove(fileName);
-                                }
-                                else
-                                {
-                                    Program.Logger.Debug($"Found required mod '{fileName}' in workshop folder but hash mismatched. Expected: {expectedSha}, Actual: {actualSha}");
-                                    result.MismatchedFiles.Add((fileName, expectedSha, screenName, url));
-                                    modsToFind.Remove(fileName); // Still remove it so it's not counted as missing
-                                }
-                            }
-                            else // No hash provided, just check for existence
-                            {
-                                Program.Logger.Debug($"Found required mod in workshop folder (no hash check): {fileName}");
-                                modsToFind.Remove(fileName);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Any mods remaining in modsToFind are missing from both locations.
-            result.MissingFiles.AddRange(modsToFind.Select(kvp => (kvp.Key, kvp.Value.ScreenName, kvp.Value.Url)));
-
-            if (result.MissingFiles.Any()) Program.Logger.Debug($"Mods not found: {string.Join(", ", result.MissingFiles.Select(f => f.FileName))}");
-            if (result.MismatchedFiles.Any()) Program.Logger.Debug($"Mismatched mods: {string.Join(", ", result.MismatchedFiles.Select(m => m.FileName))}");
-            if (!result.MissingFiles.Any() && !result.MismatchedFiles.Any()) Program.Logger.Debug("All required mods were found and hashes match.");
-            return result;
-        }
-
+        [SupportedOSPlatform("windows")]
         private async void BtnSubmods_Click(object sender, EventArgs e)
         {
             var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(_playthroughTag);
@@ -688,26 +778,27 @@ namespace CrusaderWars.mod_manager
                     statusForm.Controls.Add(statusLabel);
                     statusForm.Show(this.FindForm());
 
-                    var progress = new Progress<string>(update => {
+                    var progress = new Progress<string>(update =>
+                    {
                         statusLabel.Text = update;
                     });
 
                     try
                     {
-                        var verificationResult = await Task.Run(() => VerifyModFiles(modsToValidate, progress));
+                        var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToValidate, progress));
 
                         if (verificationResult.MissingFiles.Any())
                         {
                             var sb = new StringBuilder();
-                            sb.AppendLine("You are missing these required sub-mod files:");
+                            sb.Append("You are missing these required sub-mod files:\n");
                             foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
                             {
-                                string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : screenName)}";
+                                string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                                 if (!string.IsNullOrEmpty(url))
                                 {
                                     line += $"\n  {url}";
                                 }
-                                sb.AppendLine(line);
+                                sb.Append(line + "\n");
                             }
                             ShowClickableMessageBox(sb.ToString(), "Crusader Conflicts: Missing Sub-Mod Files!");
                             return;
@@ -716,9 +807,9 @@ namespace CrusaderWars.mod_manager
                         if (verificationResult.MismatchedFiles.Any())
                         {
                             var sb = new StringBuilder();
-                            sb.AppendLine("One or more required sub-mod files have different versions than expected.");
-                            sb.AppendLine("This could mean the mod is outdated or has been updated by its author.");
-                            sb.AppendLine("\nMismatched files:");
+                            sb.Append("One or more required sub-mod files have different versions than expected.\n");
+                            sb.Append("This could mean the mod is outdated or has been updated by its author.\n");
+                            sb.Append("\nMismatched files:\n");
                             foreach (var (fileName, _, screenName, url) in verificationResult.MismatchedFiles)
                             {
                                 string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
@@ -726,9 +817,9 @@ namespace CrusaderWars.mod_manager
                                 {
                                     line += $"\n  {url}";
                                 }
-                                sb.AppendLine(line);
+                                sb.Append(line + "\n");
                             }
-                            sb.AppendLine("\nDo you want to activate these sub-mods anyway?");
+                            sb.Append("\nDo you want to activate these sub-mods anyway?\n");
 
                             var dialogResult = ShowClickableWarningDialog(sb.ToString(), "Crusader Conflicts: Sub-Mod Version Warning", MessageBoxButtons.YesNo);
 
@@ -750,6 +841,163 @@ namespace CrusaderWars.mod_manager
                     }
                 }
             }
+        }
+    }
+
+    public static class XmlValidator
+    {
+        [SupportedOSPlatform("windows")]
+        public static List<string> ValidateUnitMapper(string unitMapperDirectory)
+        {
+            var allErrors = new List<string>();
+            string schemasDir = @".\unit mappers\schemas";
+
+            // Validate Mods.xml
+            string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
+            if (File.Exists(modsXml))
+                allErrors.AddRange(Validate(modsXml, Path.Combine(schemasDir, "mods.xsd")));
+
+            // Validate Time Period.xml
+            string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
+            if (!File.Exists(timePeriodXml))
+            {
+                timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
+            }
+            if (File.Exists(timePeriodXml))
+                allErrors.AddRange(Validate(timePeriodXml, Path.Combine(schemasDir, "timeperiod.xsd")));
+
+            // Validate Cultures
+            string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
+            if (Directory.Exists(culturesDir))
+            {
+                foreach (var file in Directory.GetFiles(culturesDir, "*.xml"))
+                {
+                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "cultures.xsd")));
+                }
+            }
+
+            // Validate Factions
+            string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
+            if (Directory.Exists(factionsDir))
+            {
+                string factionsSchema = Path.Combine(schemasDir, "factions.xsd");
+                string factionsAddonSchema = Path.Combine(schemasDir, "factions_addons.xsd");
+                bool factionsAddonSchemaExists = File.Exists(factionsAddonSchema);
+
+                foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
+                {
+                    string schemaToUse = factionsSchema; // Default schema
+
+                    if (factionsAddonSchemaExists)
+                    {
+                        bool useAddonSchema = false;
+                        string fileName = Path.GetFileName(file);
+
+                        // Condition 1: check for submod_addon_tag attribute
+                        try
+                        {
+                            using (var reader = XmlReader.Create(file))
+                            {
+                                reader.MoveToContent();
+                                if (reader.GetAttribute("submod_addon_tag") != null)
+                                {
+                                    useAddonSchema = true;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            allErrors.Add($"File: {file}, Error: Could not read XML to check for addon tag. {ex.Message}");
+                        }
+
+                        // Condition 2: check filename (if not already decided)
+                        if (!useAddonSchema)
+                        {
+                            if (!fileName.StartsWith("OfficialCC_", StringComparison.OrdinalIgnoreCase) &&
+                                !fileName.StartsWith("Submod_", StringComparison.OrdinalIgnoreCase))
+                            {
+                                useAddonSchema = true;
+                            }
+                        }
+
+                        if (useAddonSchema)
+                        {
+                            schemaToUse = factionsAddonSchema;
+                        }
+                    }
+
+                    allErrors.AddRange(Validate(file, schemaToUse));
+                }
+            }
+
+            // Validate Titles
+            string titlesDir = Path.Combine(unitMapperDirectory, "Titles");
+            if (Directory.Exists(titlesDir))
+            {
+                foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
+                {
+                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "titles.xsd")));
+                }
+            }
+            return allErrors;
+        }
+        [SupportedOSPlatform("windows")]
+        public static List<string> Validate(string xmlPath, string xsdPath)
+        {
+            var errors = new List<string>();
+            string fullXmlPath = Path.GetFullPath(xmlPath);
+
+            if (!File.Exists(fullXmlPath))
+            {
+                errors.Add($"File: {fullXmlPath}, Error: XML file not found.");
+                return errors;
+            }
+
+            if (!File.Exists(xsdPath))
+            {
+                errors.Add($"Schema file not found: {xsdPath}. Please contact the developers.");
+                return errors;
+            }
+
+            try
+            {
+                var settings = new XmlReaderSettings
+                {
+                    ValidationType = ValidationType.Schema,
+                    ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings | XmlSchemaValidationFlags.ProcessInlineSchema | XmlSchemaValidationFlags.ProcessSchemaLocation
+                };
+                settings.Schemas.Add(null, xsdPath);
+
+                settings.ValidationEventHandler += (sender, args) =>
+                {
+                    // Ignore missing sha256 attribute errors
+                    if (args.Message.Contains("'sha256'"))
+                    {
+                        return;
+                    }
+                    string message;
+                    if (args.Exception != null)
+                    {
+                        message = $"File: {fullXmlPath}, Error: Line {args.Exception.LineNumber}, Position {args.Exception.LinePosition} - {args.Message}";
+                    }
+                    else
+                    {
+                        message = $"File: {fullXmlPath}, Error: {args.Message}";
+                    }
+                    if (!errors.Contains(message)) errors.Add(message);
+                };
+
+                using (var reader = XmlReader.Create(fullXmlPath, settings))
+                {
+                    while (reader.Read()) { }
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"An error occurred during validation of {Path.GetFileName(fullXmlPath)}: {ex.Message}");
+            }
+
+            return errors;
         }
     }
 }

@@ -13,10 +13,12 @@ using System.Media;
 using Control = System.Windows.Forms.Control;
 using CrusaderWars.mod_manager;
 using CrusaderWars.unit_mapper;
+using System.Runtime.Versioning;
 using Timer = System.Windows.Forms.Timer;
 
 namespace CrusaderWars
 {
+    [SupportedOSPlatform("windows")]
     public partial class Options : Form
     {
         private Timer _pulseTimer;
@@ -46,14 +48,16 @@ namespace CrusaderWars
             Btn_CK3Tab.FlatAppearance.BorderSize = 1;
             Btn_TFETab.FlatAppearance.BorderSize = 1;
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
-            Btn_AGOTTab.FlatAppearance.BorderSize = 1; // Added AGOT tab
+            Btn_AGOTTab.FlatAppearance.BorderSize = 1;
+            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
             Btn_CK3Tab.FlatAppearance.BorderColor = Color.Black;
             Btn_TFETab.FlatAppearance.BorderColor = Color.Black;
             Btn_LOTRTab.FlatAppearance.BorderColor = Color.Black;
-            Btn_AGOTTab.FlatAppearance.BorderColor = Color.Black; // Added AGOT tab
+            Btn_AGOTTab.FlatAppearance.BorderColor = Color.Black;
+            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderColor = Color.Black;
 
             // Reset submod button borders on all playthrough tabs
-            foreach (var playthrough in new[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab })
+            foreach (var playthrough in new[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab })
             {
                 if (playthrough != null)
                 {
@@ -116,6 +120,10 @@ namespace CrusaderWars
             {
                 return AGOT_Tab;
             }
+            if (Custom_Tab != null && Custom_Tab.GetState())
+            {
+                return Custom_Tab;
+            }
             return null;
         }
 
@@ -139,7 +147,7 @@ namespace CrusaderWars
             SetOptionsUIData();
             Status_Refresh();
 
-            if(!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
             {
                 Program.Logger.Debug("Attila path found. Initializing mod manager...");
                 AttilaModManager.SetControlReference(ModManager);
@@ -160,8 +168,8 @@ namespace CrusaderWars
          *####          Mod options section         ####
          *##############################################
          */
-        UserControl General_Tab = null!;
-        UserControl Units_Tab = null!;
+        UC_GeneralOptions General_Tab = null!;
+        UC_UnitsOptions Units_Tab = null!;
         UC_CommandersAndKnightsOptions CandK_Tab = null!; // Changed type to UC_CommandersAndKnightsOptions
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
@@ -189,8 +197,8 @@ namespace CrusaderWars
             control.BringToFront();
 
             // Define colors
-            Color inactiveColor = System.Drawing.Color.FromArgb(128, 53, 0);
-            Color activeColor = System.Drawing.Color.FromArgb(140, 87, 63);
+            Color inactiveColor = System.Drawing.Color.FromArgb(140, 87, 63);
+            Color activeColor = System.Drawing.Color.FromArgb(128, 53, 0);
 
             // Reset all buttons
             Btn_GeneralTab.BackgroundImage = null;
@@ -220,7 +228,7 @@ namespace CrusaderWars
         }
 
         //this is to read the options values on the .xml file
-        
+
         private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
         {
             XmlNode? node = doc.SelectSingleNode($"//Option [@name='{optionName}']");
@@ -264,6 +272,7 @@ namespace CrusaderWars
                 var AutoScaleUnits_Value = GetOptionValue(xmlDoc, "AutoScaleUnits", "Enabled");
                 var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
                 var SiegeEnginesInFieldBattles_Value = GetOptionValue(xmlDoc, "SiegeEnginesInFieldBattles", "Enabled");
+                var ShowPostBattleReport_Value = GetOptionValue(xmlDoc, "ShowPostBattleReport", "Enabled");
 
                 // New Commander and Knight wound chances
                 var CommanderWoundedChance_Value = GetOptionValue(xmlDoc, "CommanderWoundedChance", "65");
@@ -288,6 +297,8 @@ namespace CrusaderWars
 
                 // Add new OptInPreReleases option
                 var OptInPreReleases_Value = GetOptionValue(xmlDoc, "OptInPreReleases", "False");
+                var SelectedCustomMapper_Value = GetOptionValue(xmlDoc, "SelectedCustomMapper", "");
+                var CombineKnights_Value = GetOptionValue(xmlDoc, "CombineKnights", "Disabled");
 
 
                 xmlDoc.Save(file);
@@ -308,6 +319,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("BattleScale", BattleScale_Value);
                 ModOptions.optionsValuesCollection.Add("AutoScaleUnits", AutoScaleUnits_Value);
                 ModOptions.optionsValuesCollection.Add("SiegeEnginesInFieldBattles", SiegeEnginesInFieldBattles_Value);
+                ModOptions.optionsValuesCollection.Add("ShowPostBattleReport", ShowPostBattleReport_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderWoundedChance", CommanderWoundedChance_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderSeverelyInjuredChance", CommanderSeverelyInjuredChance_Value);
                 ModOptions.optionsValuesCollection.Add("CommanderBrutallyMauledChance", CommanderBrutallyMauledChance_Value);
@@ -327,6 +339,9 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("KnightSlainChance", KnightSlainChance_Value);
                 ModOptions.optionsValuesCollection.Add("KnightPrisonerChance", KnightPrisonerChance_Value);
                 ModOptions.optionsValuesCollection.Add("OptInPreReleases", OptInPreReleases_Value); // Add new option
+                ModOptions.optionsValuesCollection.Add("SelectedCustomMapper", SelectedCustomMapper_Value);
+                ModOptions.optionsValuesCollection.Add("CombineKnights", CombineKnights_Value);
+                ModOptions.SelectedCustomMapper = SelectedCustomMapper_Value;
                 Program.Logger.Debug("Options collection populated.");
 
 
@@ -345,15 +360,21 @@ namespace CrusaderWars
             Program.Logger.Debug("Setting options UI data...");
             try
             {
-                var CloseCK3_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
-                var CloseAttila_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
-                var FullArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
-                var TimeLimit_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
-                var BattleMapsSize_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
-                var DefensiveDeployables_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
-                var UnitCards_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
-                var SeparateArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
-                var SiegeEnginesInFieldBattles_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
+                // General Tab
+                if (General_Tab != null)
+                {
+                    General_Tab.SetCloseCK3(ModOptions.optionsValuesCollection["CloseCK3"]);
+                    General_Tab.SetCloseAttila(ModOptions.optionsValuesCollection["CloseAttila"]);
+                    General_Tab.SetFullArmies(ModOptions.optionsValuesCollection["FullArmies"]);
+                    General_Tab.SetTimeLimit(ModOptions.optionsValuesCollection["TimeLimit"]);
+                    General_Tab.SetBattleMapsSize(ModOptions.optionsValuesCollection["BattleMapsSize"]);
+                    General_Tab.SetDefensiveDeployables(ModOptions.optionsValuesCollection["DefensiveDeployables"]);
+                    General_Tab.SetUnitCards(ModOptions.optionsValuesCollection["UnitCards"]);
+                    General_Tab.SetSeparateArmies(ModOptions.optionsValuesCollection["SeparateArmies"]);
+                    General_Tab.SetSiegeEnginesInFieldBattles(ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"]);
+                    General_Tab.SetShowPostBattleReport(ModOptions.optionsValuesCollection["ShowPostBattleReport"]);
+                }
+
 
                 var LeviesMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
                 var RangedMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
@@ -386,16 +407,6 @@ namespace CrusaderWars
                 var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
 
-                CloseCK3_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseCK3"];
-                CloseAttila_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["CloseAttila"];
-                FullArmies_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["FullArmies"];
-                TimeLimit_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["TimeLimit"];
-                BattleMapsSize_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["BattleMapsSize"];
-                DefensiveDeployables_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["DefensiveDeployables"];
-                UnitCards_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["UnitCards"];
-                SeparateArmies_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["SeparateArmies"];
-                SiegeEnginesInFieldBattles_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"];
-
                 LeviesMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
                 RangedMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
                 InfantryMax_ComboBox!.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
@@ -411,37 +422,37 @@ namespace CrusaderWars
                 }
 
                 // Set Commander NumericUpDown values with proper validation
-                if (numCommanderWounded != null) 
+                if (numCommanderWounded != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderWoundedChance"]);
                     numCommanderWounded.Value = Math.Max(numCommanderWounded.Minimum, Math.Min(numCommanderWounded.Maximum, val));
                 }
-                if (numCommanderSeverelyInjured != null) 
+                if (numCommanderSeverelyInjured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderSeverelyInjuredChance"]);
                     numCommanderSeverelyInjured.Value = Math.Max(numCommanderSeverelyInjured.Minimum, Math.Min(numCommanderSeverelyInjured.Maximum, val));
                 }
-                if (numCommanderBrutallyMauled != null) 
+                if (numCommanderBrutallyMauled != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderBrutallyMauledChance"]);
                     numCommanderBrutallyMauled.Value = Math.Max(numCommanderBrutallyMauled.Minimum, Math.Min(numCommanderBrutallyMauled.Maximum, val));
                 }
-                if (numCommanderMaimed != null) 
+                if (numCommanderMaimed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderMaimedChance"]);
                     numCommanderMaimed.Value = Math.Max(numCommanderMaimed.Minimum, Math.Min(numCommanderMaimed.Maximum, val));
                 }
-                if (numCommanderOneLegged != null) 
+                if (numCommanderOneLegged != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderOneLeggedChance"]);
                     numCommanderOneLegged.Value = Math.Max(numCommanderOneLegged.Minimum, Math.Min(numCommanderOneLegged.Maximum, val));
                 }
-                if (numCommanderOneEyed != null) 
+                if (numCommanderOneEyed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderOneEyedChance"]);
                     numCommanderOneEyed.Value = Math.Max(numCommanderOneEyed.Minimum, Math.Min(numCommanderOneEyed.Maximum, val));
                 }
-                if (numCommanderDisfigured != null) 
+                if (numCommanderDisfigured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["CommanderDisfiguredChance"]);
                     numCommanderDisfigured.Value = Math.Max(numCommanderDisfigured.Minimum, Math.Min(numCommanderDisfigured.Maximum, val));
@@ -453,37 +464,37 @@ namespace CrusaderWars
                 }
 
                 // Set Knight NumericUpDown values with proper validation
-                if (numKnightWounded != null) 
+                if (numKnightWounded != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightWoundedChance"]);
                     numKnightWounded.Value = Math.Max(numKnightWounded.Minimum, Math.Min(numKnightWounded.Maximum, val));
                 }
-                if (numKnightSeverelyInjured != null) 
+                if (numKnightSeverelyInjured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightSeverelyInjuredChance"]);
                     numKnightSeverelyInjured.Value = Math.Max(numKnightSeverelyInjured.Minimum, Math.Min(numKnightSeverelyInjured.Maximum, val));
                 }
-                if (numKnightBrutallyMauled != null) 
+                if (numKnightBrutallyMauled != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightBrutallyMauledChance"]);
                     numKnightBrutallyMauled.Value = Math.Max(numKnightBrutallyMauled.Minimum, Math.Min(numKnightBrutallyMauled.Maximum, val));
                 }
-                if (numKnightMaimed != null) 
+                if (numKnightMaimed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightMaimedChance"]);
                     numKnightMaimed.Value = Math.Max(numKnightMaimed.Minimum, Math.Min(numKnightMaimed.Maximum, val));
                 }
-                if (numKnightOneLegged != null) 
+                if (numKnightOneLegged != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightOneLeggedChance"]);
                     numKnightOneLegged.Value = Math.Max(numKnightOneLegged.Minimum, Math.Min(numKnightOneLegged.Maximum, val));
                 }
-                if (numKnightOneEyed != null) 
+                if (numKnightOneEyed != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightOneEyedChance"]);
                     numKnightOneEyed.Value = Math.Max(numKnightOneEyed.Minimum, Math.Min(numKnightOneEyed.Maximum, val));
                 }
-                if (numKnightDisfigured != null) 
+                if (numKnightDisfigured != null)
                 {
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightDisfiguredChance"]);
                     numKnightDisfigured.Value = Math.Max(numKnightDisfigured.Minimum, Math.Min(numKnightDisfigured.Maximum, val));
@@ -505,6 +516,9 @@ namespace CrusaderWars
                     int val = Int32.Parse(ModOptions.optionsValuesCollection["KnightPrisonerChance"]);
                     numKnightPrisoner.Value = Math.Max(numKnightPrisoner.Minimum, Math.Min(numKnightPrisoner.Maximum, val));
                 }
+
+                // Set CombineKnights dropdown value
+                CandK_Tab.comboCombineKnights.SelectedItem = ModOptions.optionsValuesCollection["CombineKnights"];
 
                 // Manually trigger UpdateTotal for CandK_Tab after setting values
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
@@ -537,15 +551,39 @@ namespace CrusaderWars
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
 
-                var CloseCK3_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseCK3", true).FirstOrDefault() as ComboBox;
-                var CloseAttila_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
-                var FullArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
-                var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
-                var BattleMapsSize_ComboBox = General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
-                var DefensiveDeployables_ComboBox = General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
-                var UnitCards_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
-                var SeparateArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
-                var SiegeEnginesInFieldBattles_ComboBox = General_Tab.Controls.Find("OptionSelection_SiegeEngines", true).FirstOrDefault() as ComboBox;
+                if (General_Tab != null)
+                {
+                    var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
+                    if (CloseCK3_Node != null) CloseCK3_Node.InnerText = General_Tab.GetCloseCK3();
+
+                    var CloseAttila_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']");
+                    if (CloseAttila_Node != null) CloseAttila_Node.InnerText = General_Tab.GetCloseAttila();
+
+                    var FullArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']");
+                    if (FullArmies_Node != null) FullArmies_Node.InnerText = General_Tab.GetFullArmies();
+
+                    var TimeLimit_Node = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']");
+                    if (TimeLimit_Node != null) TimeLimit_Node.InnerText = General_Tab.GetTimeLimit();
+
+                    var BattleMapsSize_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']");
+                    if (BattleMapsSize_Node != null) BattleMapsSize_Node.InnerText = General_Tab.GetBattleMapsSize();
+
+                    var DefensiveDeployables_Node = xmlDoc.SelectSingleNode("//Option [@name='DefensiveDeployables']");
+                    if (DefensiveDeployables_Node != null) DefensiveDeployables_Node.InnerText = General_Tab.GetDefensiveDeployables();
+
+                    var UnitCards_Node = xmlDoc.SelectSingleNode("//Option [@name='UnitCards']");
+                    if (UnitCards_Node != null) UnitCards_Node.InnerText = General_Tab.GetUnitCards();
+
+                    var SeparateArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']");
+                    if (SeparateArmies_Node != null) SeparateArmies_Node.InnerText = General_Tab.GetSeparateArmies();
+
+                    var SiegeEnginesInFieldBattles_Node = xmlDoc.SelectSingleNode("//Option [@name='SiegeEnginesInFieldBattles']");
+                    if (SiegeEnginesInFieldBattles_Node != null) SiegeEnginesInFieldBattles_Node.InnerText = General_Tab.GetSiegeEnginesInFieldBattles();
+
+                    var ShowPostBattleReport_Node = xmlDoc.SelectSingleNode("//Option [@name='ShowPostBattleReport']");
+                    if (ShowPostBattleReport_Node != null) ShowPostBattleReport_Node.InnerText = General_Tab.GetShowPostBattleReport();
+                }
+
 
                 var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
                 var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
@@ -577,25 +615,6 @@ namespace CrusaderWars
                 var numKnightSlain = CandK_Tab.numKnightSlain;
                 var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
-
-                var CloseCK3_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseCK3']");
-                if (CloseCK3_Node != null && CloseCK3_ComboBox != null) CloseCK3_Node.InnerText = CloseCK3_ComboBox.Text;
-                var CloseAttila_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']");
-                if (CloseAttila_Node != null && CloseAttila_ComboBox != null) CloseAttila_Node.InnerText = CloseAttila_ComboBox.Text;
-                var FullArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']");
-                if (FullArmies_Node != null && FullArmies_ComboBox != null) FullArmies_Node.InnerText = FullArmies_ComboBox.Text;
-                var TimeLimit_Node = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']");
-                if (TimeLimit_Node != null && TimeLimit_ComboBox != null) TimeLimit_Node.InnerText = TimeLimit_ComboBox.Text;
-                var BattleMapsSize_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']");
-                if (BattleMapsSize_Node != null && BattleMapsSize_ComboBox != null) BattleMapsSize_Node.InnerText = BattleMapsSize_ComboBox.Text;
-                var DefensiveDeployables_Node = xmlDoc.SelectSingleNode("//Option [@name='DefensiveDeployables']");
-                if (DefensiveDeployables_Node != null && DefensiveDeployables_ComboBox != null) DefensiveDeployables_Node.InnerText = DefensiveDeployables_ComboBox.Text;
-                var UnitCards_Node = xmlDoc.SelectSingleNode("//Option [@name='UnitCards']");
-                if (UnitCards_Node != null && UnitCards_ComboBox != null) UnitCards_Node.InnerText = UnitCards_ComboBox.Text;
-                var SeparateArmies_Node = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']");
-                if (SeparateArmies_Node != null && SeparateArmies_ComboBox != null) SeparateArmies_Node.InnerText = SeparateArmies_ComboBox.Text;
-                var SiegeEnginesInFieldBattles_Node = xmlDoc.SelectSingleNode("//Option [@name='SiegeEnginesInFieldBattles']");
-                if (SiegeEnginesInFieldBattles_Node != null && SiegeEnginesInFieldBattles_ComboBox != null) SiegeEnginesInFieldBattles_Node.InnerText = SiegeEnginesInFieldBattles_ComboBox.Text;
 
                 var LeviesMax_Node = xmlDoc.SelectSingleNode("//Option [@name='LeviesMax']");
                 if (LeviesMax_Node != null && LeviesMax_ComboBox != null) LeviesMax_Node.InnerText = LeviesMax_ComboBox.Text;
@@ -651,6 +670,19 @@ namespace CrusaderWars
                 var KnightPrisonerChance_Node = xmlDoc.SelectSingleNode("//Option [@name='KnightPrisonerChance']");
                 if (KnightPrisonerChance_Node != null && numKnightPrisoner != null) KnightPrisonerChance_Node.InnerText = numKnightPrisoner.Value.ToString();
 
+                var SelectedCustomMapper_Node = xmlDoc.SelectSingleNode("//Option [@name='SelectedCustomMapper']");
+                if (SelectedCustomMapper_Node != null) SelectedCustomMapper_Node.InnerText = ModOptions.SelectedCustomMapper;
+
+                var CombineKnights_Node = xmlDoc.SelectSingleNode("//Option [@name='CombineKnights']");
+                if (CombineKnights_Node != null)
+                    CombineKnights_Node.InnerText = ModOptions.optionsValuesCollection["CombineKnights"];
+                else
+                {
+                    XmlElement newOption = xmlDoc.CreateElement("Option");
+                    newOption.SetAttribute("name", "CombineKnights");
+                    newOption.InnerText = ModOptions.optionsValuesCollection["CombineKnights"];
+                    xmlDoc.DocumentElement?.AppendChild(newOption);
+                }
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("Options saved to file.");
@@ -720,7 +752,7 @@ namespace CrusaderWars
             openFileDialog1.Title = "Select 'ck3.exe' from the installation folder";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                
+
                 CK3_Path = openFileDialog1.FileName; // Get the selected file path
                 Properties.Settings.Default.VAR_ck3_path = CK3_Path;
                 ChangePathSettings(game_node, CK3_Path);
@@ -740,7 +772,7 @@ namespace CrusaderWars
             openFileDialog1.Title = "Select 'Attila.exe' from the installation folder";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                
+
                 Attila_Path = openFileDialog1.FileName; // Get the selected file path
                 Properties.Settings.Default.VAR_attila_path = Attila_Path;
                 if (Attila_Path.Contains("Attila.exe"))
@@ -893,7 +925,7 @@ namespace CrusaderWars
                 XmlNode? ck3_node = root.SelectSingleNode("CrusaderKings");
                 if (ck3_node == null)
                 {
-                Program.Logger.Debug("CrusaderKings node not found. Creating.");
+                    Program.Logger.Debug("CrusaderKings node not found. Creating.");
                     ck3_node = xmlDoc.CreateElement("CrusaderKings");
                     root.AppendChild(ck3_node);
                     fileModified = true;
@@ -1124,6 +1156,7 @@ namespace CrusaderWars
         UC_UnitMapper TheFallenEagle_Tab = null!;
         UC_UnitMapper RealmsInExile_Tab = null!;
         UC_UnitMapper AGOT_Tab = null!; // Added AGOT tab
+        UC_UnitMapper Custom_Tab = null!;
 
         private void Btn_CK3Tab_Click(object sender, EventArgs e)
         {
@@ -1149,6 +1182,12 @@ namespace CrusaderWars
                 ChangeUnitMappersTab(AGOT_Tab);
         }
 
+        private void Btn_CustomTab_Click(object sender, EventArgs e)
+        {
+            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != Custom_Tab)
+                ChangeUnitMappersTab(Custom_Tab);
+        }
+
 
         void ChangeUnitMappersTab(Control control)
         {
@@ -1158,26 +1197,30 @@ namespace CrusaderWars
             control.BringToFront();
 
             // Define colors
-            Color inactiveColor = System.Drawing.Color.FromArgb(128, 53, 0);
-            Color activeColor = System.Drawing.Color.FromArgb(140, 87, 63);
+            Color inactiveColor = System.Drawing.Color.FromArgb(140, 87, 63);
+            Color activeColor = System.Drawing.Color.FromArgb(128, 53, 0);
 
             // Reset all buttons
             Btn_CK3Tab.BackgroundImage = null;
             Btn_TFETab.BackgroundImage = null;
             Btn_LOTRTab.BackgroundImage = null;
             Btn_AGOTTab.BackgroundImage = null; // Added AGOT tab
+            if (Btn_CustomTab != null) Btn_CustomTab.BackgroundImage = null;
             Btn_CK3Tab.BackColor = inactiveColor;
             Btn_TFETab.BackColor = inactiveColor;
             Btn_LOTRTab.BackColor = inactiveColor;
             Btn_AGOTTab.BackColor = inactiveColor; // Added AGOT tab
+            if (Btn_CustomTab != null) Btn_CustomTab.BackColor = inactiveColor;
             Btn_CK3Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black; // Added AGOT tab
+            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_CK3Tab.FlatAppearance.BorderSize = 1;
             Btn_TFETab.FlatAppearance.BorderSize = 1;
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
             Btn_AGOTTab.FlatAppearance.BorderSize = 1; // Added AGOT tab
+            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
             Button? activeButton = null;
@@ -1185,10 +1228,12 @@ namespace CrusaderWars
             else if (control == TheFallenEagle_Tab) activeButton = Btn_TFETab;
             else if (control == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
             else if (control == AGOT_Tab) activeButton = Btn_AGOTTab; // Added AGOT tab
+            else if (control == Custom_Tab) activeButton = Btn_CustomTab;
 
             if (activeButton != null)
             {
                 activeButton.BackColor = activeColor;
+                activeButton.FlatAppearance.BorderSize = 2;
             }
         }
 
@@ -1212,6 +1257,29 @@ namespace CrusaderWars
             }
         }
 
+        private Bitmap LoadCustomPlaythroughImage()
+        {
+            string imagePath = @"Resources\playthrough_custom.png";
+            if (File.Exists(imagePath))
+            {
+                try
+                {
+                    return new Bitmap(imagePath);
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Log(ex);
+                    // Fallback to default image if loading fails
+                    return Properties.Resources._default;
+                }
+            }
+            else
+            {
+                Program.Logger.Debug($"Custom playthrough image not found at {imagePath}. Using default image.");
+                // Fallback to default image if file doesn't exist
+                return Properties.Resources._default;
+            }
+        }
         void ReadUnitMappersOptions()
         {
             string file = @".\settings\UnitMappers.xml";
@@ -1234,7 +1302,8 @@ namespace CrusaderWars
                     mapperElement.SetAttribute("name", name);
                     mapperElement.InnerText = "False";
                     rootElement.AppendChild(mapperElement);
-                };
+                }
+                ;
 
                 createMapper("DefaultCK3");
                 createMapper("TheFallenEagle");
@@ -1253,6 +1322,7 @@ namespace CrusaderWars
             var tfeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "TheFallenEagle");
             var lotrToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "RealmsInExile");
             var agotToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "AGOT");
+            var customToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "Custom");
 
             if (_unitMappersXmlChanged)
             {
@@ -1260,11 +1330,12 @@ namespace CrusaderWars
                 Program.Logger.Debug("UnitMappers.xml updated with new entries.");
             }
 
-            bool ck3ToggleState = false; bool tfeToggleState = false; bool lotrToggleState = false; bool agotToggleState = false; // Added agotToggleState
+            bool ck3ToggleState = false; bool tfeToggleState = false; bool lotrToggleState = false; bool agotToggleState = false; bool customToggleState = false;
             if (ck3ToggleStateStr == "True") ck3ToggleState = true; else ck3ToggleState = false;
             if (tfeToggleStateStr == "True") tfeToggleState = true; else tfeToggleState = false;
             if (lotrToggleStateStr == "True") lotrToggleState = true; else lotrToggleState = false;
             if (agotToggleStateStr == "True") agotToggleState = true; else agotToggleState = false; // Added AGOT tab
+            if (customToggleStateStr == "True") customToggleState = true; else customToggleState = false;
 
             // NOTE: The constructor for UC_UnitMapper will need to be updated to accept the list of submods.
             // This change is commented out because the UC_UnitMapper.cs file was not provided.
@@ -1273,24 +1344,34 @@ namespace CrusaderWars
             var tfeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle");
             var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
             var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
-
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, string.Empty, tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements", tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, string.Empty, agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList()); // Changed to use playthrough_agot
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, "https://crusader-conflicts-website.vercel.app/playthroughs/a-game-of-thrones#mod-requirements", agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList()); // Changed to use playthrough_agot
+            Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), string.Empty, new List<(string, string, string?, string?)>(), customToggleState, "Custom", new List<Submod>());
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             RealmsInExile_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             AGOT_Tab.ToggleClicked += PlaythroughToggle_Clicked; // Added AGOT tab
+            Custom_Tab.ToggleClicked += PlaythroughToggle_Clicked;
 
-            CrusaderKings_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab }); // Added AGOT tab
-            TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, RealmsInExile_Tab, AGOT_Tab }); // Added AGOT tab
-            RealmsInExile_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, AGOT_Tab }); // Added AGOT tab
-            AGOT_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab }); // Added AGOT tab
+            CrusaderKings_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
+            TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
+            RealmsInExile_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, AGOT_Tab, Custom_Tab });
+            AGOT_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, Custom_Tab });
+            Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
 
-            ChangeUnitMappersTab(CrusaderKings_Tab);
+            var activePlaythrough = GetActivePlaythrough();
+            if (activePlaythrough != null)
+            {
+                ChangeUnitMappersTab(activePlaythrough);
+            }
+            else
+            {
+                ChangeUnitMappersTab(CrusaderKings_Tab);
+            }
             CheckPlaythroughSelection();
         }
 
@@ -1308,6 +1389,8 @@ namespace CrusaderWars
             if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
             var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']"); // Added AGOT tab
             if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString(); // Added AGOT tab
+            var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
+            if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
             xmlDoc.Save(file);
         }
 
@@ -1333,6 +1416,7 @@ namespace CrusaderWars
             TheFallenEagle_Tab?.SetPulsing(false);
             RealmsInExile_Tab?.SetPulsing(false);
             AGOT_Tab?.SetPulsing(false); // Added AGOT tab
+            Custom_Tab?.SetPulsing(false);
 
             if (activePlaythrough == null)
             {
@@ -1365,8 +1449,15 @@ namespace CrusaderWars
         {
             Program.Logger.Debug("Options form closing event triggered.");
 
+            // Save Combine Knights setting before closing
+            UC_CommandersAndKnightsOptions? candKOptions = CandK_Tab as UC_CommandersAndKnightsOptions;
+            if (candKOptions != null)
+            {
+                candKOptions.SaveCombineKnightsSetting();
+            }
+
             // Perform validation for Commander and Knight wound chances
-            if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptions)
+            if (candKOptions != null)
             {
                 bool commanderValid = candKOptions.IsCommanderTotalValid();
                 bool knightValid = candKOptions.IsKnightTotalValid();

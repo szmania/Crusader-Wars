@@ -1,0 +1,19 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# C# files
+[*.cs]
+indent_style = space
+indent_size = 4
+tab_width = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# C# code style settings
+[*.cs]
+# IDE0055: Fix formatting
+dotnet_diagnostic.IDE0055.severity = warning

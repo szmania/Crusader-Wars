@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CrusaderWars.twbattle;
@@ -155,6 +155,12 @@ namespace CrusaderWars.sieges
             }
             Program.Logger.Debug($"Final siege engine count after applying limit: {currentTotalEngines}.");
             // --- END: NEW CAPPING LOGIC ---
+
+            // Store siege engines in each army
+            foreach (var army in attackerArmies)
+            {
+                army.SiegeEngines = new Dictionary<string, int>(siegeEnginesToBuild);
+            }
 
             Program.Logger.Debug($"Finished SiegeEngineGenerator.Generate(). Generated {siegeEnginesToBuild.Count} unique siege engine types.");
             return siegeEnginesToBuild;

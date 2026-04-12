@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,14 +32,16 @@ namespace CrusaderWars
         public int Martial { get; private set; }
         public int Prowess { get; private set; }
         private Culture? CultureObj { get; set; }
-        public List<(int Index, string Key)> Traits_List { get; private set; } = new List<(int, string)>(); // INITIALIZED HERE
+        public List<(int, string)> Traits_List { get; private set; } = new List<(int, string)>(); // INITIALIZED HERE
 
         public BaseSkills? BaseSkills { get; private set; }
         public CommanderTraits? CommanderTraits { get; private set; }
         private List<CourtPosition>? Employees { get; set; }
 
         public bool hasFallen { get; private set; }
-        private bool MainCommander {  get; set; }
+        public bool IsSlain { get; set; } = false;
+        public bool IsPrisoner { get; set; } = false;
+        private bool MainCommander { get; set; }
         private Accolade? Accolade { get; set; }
         private bool IsAccoladeCommander { get; set; }
 
@@ -70,17 +72,18 @@ namespace CrusaderWars
             CultureObj = culture;
             MainCommander = false;
         }
-        public void ChangeCulture(Culture obj) {CultureObj = obj;}
+        public void ChangeCulture(Culture obj) { CultureObj = obj; }
         public void SetBaseSkills(BaseSkills t) { BaseSkills = t; }
         public void SetAccolade(Accolade accolade) { Accolade = accolade; IsAccoladeCommander = true; }
 
         public string GetID() { return ID; }
         public string GetCultureName() { return CultureObj?.GetCultureName() ?? "unknown_culture"; } // NULL-SAFE
         public string GetHeritageName() { return CultureObj?.GetHeritageName() ?? "unknown_heritage"; } // NULL-SAFE
-        public Culture? GetCultureObj () { return CultureObj; } // NULLABLE RETURN TYPE
+        public Culture? GetCultureObj() { return CultureObj; } // NULLABLE RETURN TYPE
         public bool IsMainCommander() { return MainCommander; }
         public Accolade? GetAccolade() { return Accolade; }
         public bool IsAccolade() { return IsAccoladeCommander; }
+        public List<(int, string)> GetTraits() { return Traits_List; }
 
 
 
@@ -118,7 +121,7 @@ namespace CrusaderWars
         {
             Traits_List = traits;
 
-            if(MainCommander)
+            if (MainCommander)
             {
                 CommanderTraits = new CommanderTraits(Traits_List);
             }
@@ -183,18 +186,18 @@ namespace CrusaderWars
             }
 
             //Health soldiers debuff
-            foreach(var trait in Traits_List)
+            foreach (var trait in Traits_List)
             {
-                if (trait.Index == WoundedTraits.Wounded()) soldiers += -5;
-                if (trait.Index == WoundedTraits.Severely_Injured()) soldiers += -10;
-                if (trait.Index == WoundedTraits.Brutally_Mauled()) soldiers += -15;
-                if (trait.Index == WoundedTraits.Maimed()) soldiers += -10;
-                if (trait.Index == WoundedTraits.One_Eyed()) soldiers += -5;
-                if (trait.Index == WoundedTraits.One_Legged()) soldiers += -10;
-                if (trait.Index == WoundedTraits.Disfigured()) soldiers += -5;
+                if (trait.Item1 == WoundedTraits.Wounded()) soldiers += -5;
+                if (trait.Item1 == WoundedTraits.Severely_Injured()) soldiers += -10;
+                if (trait.Item1 == WoundedTraits.Brutally_Mauled()) soldiers += -15;
+                if (trait.Item1 == WoundedTraits.Maimed()) soldiers += -10;
+                if (trait.Item1 == WoundedTraits.One_Eyed()) soldiers += -5;
+                if (trait.Item1 == WoundedTraits.One_Legged()) soldiers += -10;
+                if (trait.Item1 == WoundedTraits.Disfigured()) soldiers += -5;
             }
 
-            
+
 
             //Minimum of 1 soldier
             if (soldiers < 1) soldiers = 1;
@@ -331,7 +334,7 @@ namespace CrusaderWars
 
         }
 
-        
+
         public void HasGeneralFallen(string path_attila_log)
         {
             using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -352,7 +355,7 @@ namespace CrusaderWars
                 hasFallen = false;
             }
         }
-        
+
 
         public (bool isSlain, bool isCaptured, string newTraits) Health(string traits_line, bool wasOnLosingSide)
         {

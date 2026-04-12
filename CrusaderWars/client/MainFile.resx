@@ -148,6 +148,24 @@
   <data name="&gt;&gt;ContinueBattleButton.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
+  <data name="LaunchAutoFixerButton.Text" xml:space="preserve">
+    <value>Launch AutoFixer</value>
+  </data>
+  <data name="LaunchAutoFixerButton.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;LaunchAutoFixerButton.Name" xml:space="preserve">
+    <value>LaunchAutoFixerButton</value>
+  </data>
+  <data name="&gt;&gt;LaunchAutoFixerButton.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;LaunchAutoFixerButton.Parent" xml:space="preserve">
+    <value>ButtonsContainerPanel</value>
+  </data>
+  <data name="&gt;&gt;LaunchAutoFixerButton.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
   <data name="btt_debug.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
   </data>

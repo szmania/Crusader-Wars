@@ -1008,7 +1008,7 @@ window = {
 
 
 			state = {
-				name = "start_crusader_wars"
+				name = "start_crusader_conflicts"
 				on_finish = "[ExecuteConsoleCommand('debug_mode')]"
 			}	
 			
@@ -1029,7 +1029,7 @@ window = {
 		button = { name = Play_Battle_Disabled
 			visible = "[Not(CombatWindow.IsCombatInPursuitPhase)]" # Always visable, but smaller and behind the other button should only be seen when the other button is not active
 			#raw_tooltip = "This character may not control battles."
-			tooltip = cw_bw_fight_button_disabled
+			tooltip = cc_bw_fight_button_disabled
 			parentanchor = center
 			position = { -20 20 }
 			texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
@@ -1045,10 +1045,10 @@ window = {
 		button = { name = Play_Battle_control1
 			visible = "[And(CombatWindow.GetLeftSideCommander.IsPlayer, Not(CombatWindow.IsCombatInPursuitPhase))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
 			# 
-			#visible = "[And(CombatWindow.GetLeftSideCommander.IsPlayer, Or(Not(GetVariableSystem.Exists( 'cw_op_control')), GetVariableSystem.HasValue( 'cw_op_control', 'control1' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # PLAYER + MARSHAL can direct control battles
+			#visible = "[And(CombatWindow.GetLeftSideCommander.IsPlayer, Or(Not(GetVariableSystem.Exists( 'cc_op_control')), GetVariableSystem.HasValue( 'cc_op_control', 'control1' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # PLAYER + MARSHAL can direct control battles
 
 			#raw_tooltip = "Fight the battle yourself!"
-			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cw_bw_fight_button', 'cw_bw_wait_button')]"
+			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cc_bw_fight_button', 'cc_bw_wait_button')]"
 			enabled = "[GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0')]"
 			parentanchor = center
 			position = { -20 20 }
@@ -1375,10 +1375,10 @@ window = {
 		###      Enabled for player + marshal lead army          ### 
 		############################################################
 		button = { name = Play_Battle_control2
-			visible = "[And(Or(CombatWindow.GetLeftSideCommander.IsPlayer, ObjectsEqual(CombatWindow.GetLeftSideCommander.GetCouncilTitle, 'Marshal')), GetVariableSystem.HasValue( 'cw_op_control', 'control2' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # PLAYER + MARSHAL can direct control battles
+			visible = "[And(Or(CombatWindow.GetLeftSideCommander.IsPlayer, ObjectsEqual(CombatWindow.GetLeftSideCommander.GetCouncilTitle, 'Marshal')), GetVariableSystem.HasValue( 'cc_op_control', 'control2' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # PLAYER + MARSHAL can direct control battles
 			
 			#raw_tooltip = "Fight the battle yourself!"
-			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cw_bw_fight_button', 'cw_bw_wait_button')]"
+			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cc_bw_fight_button', 'cc_bw_wait_button')]"
 			enabled = "[GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0')]"
 			parentanchor = center
 			position = { -20 20 }
@@ -1704,10 +1704,10 @@ window = {
 		###      Enabled for any player dynasty lead army        ### 
 		############################################################
 		button = { name = Play_Battle_control3
-			visible = "[And(ObjectsEqual(CombatWindow.GetLeftSideCommander.GetDynasty,GetPlayer.GetDynasty), GetVariableSystem.HasValue( 'cw_op_control', 'control3' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # ALL DYNASTY can direct control battles
+			visible = "[And(ObjectsEqual(CombatWindow.GetLeftSideCommander.GetDynasty,GetPlayer.GetDynasty), GetVariableSystem.HasValue( 'cc_op_control', 'control3' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # ALL DYNASTY can direct control battles
 			
 			#raw_tooltip = "Fight the battle yourself!"
-			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cw_bw_fight_button', 'cw_bw_wait_button')]"
+			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cc_bw_fight_button', 'cc_bw_wait_button')]"
 			enabled = "[GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0')]"
 			parentanchor = center
 			position = { -20 20 }
@@ -2033,10 +2033,10 @@ window = {
 		###      Enabled for ANY character lead army             ### 
 		############################################################
 		button = { name = Play_Battle_control4
-			visible = "[And(CombatWindow.GetLeftSideCommander.IsValid, GetVariableSystem.HasValue( 'cw_op_control', 'control4' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # any character can direct control battles 
+			visible = "[And(CombatWindow.GetLeftSideCommander.IsValid, GetVariableSystem.HasValue( 'cc_op_control', 'control4' )), Not(CombatWindow.IsCombatInPursuitPhase)]" # any character can direct control battles 
 			
 			#raw_tooltip = "Fight the battle yourself!"
-			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cw_bw_fight_button', 'cw_bw_wait_button')]"
+			tooltip = "[SelectLocalization(GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0'), 'cc_bw_fight_button', 'cc_bw_wait_button')]"
 			enabled = "[GreaterThan_CFixedPoint(CombatWindow.GetLeftCombatSide.GetSoftCasualties, '(CFixedPoint)0')]"
 			parentanchor = center
 			position = { -20 20 }
@@ -2370,53 +2370,53 @@ window = {
 		############################################################
 		# The following two entries give us the options scroll/settings button and the background grey nice looking circle around it
 		# The two separate entries with all the same actions/states allow for a player to either click the icon(background circle) or the scroll image and get the same result, opens the mod options window 
-		button = { name = cw_options_icon
+		button = { name = cc_options_icon
 			visible = "[Not(CombatWindow.IsCombatInPursuitPhase)]"
 			parentanchor = center
 			position = { 30 20 }
 			texture = "gfx/interface/buttons/button_lifestyles_base.dds"
 			size = { 42 42 }
 
-			onclick = "[ExecuteConsoleCommand('gui.createwidget gui/custom_gui/cw_options.gui cw_options')]"
+			onclick = "[ExecuteConsoleCommand('gui.createwidget gui/custom_gui/cc_options.gui cc_options')]"
 			### SET DEFAULTS CW OPTIONS ### 
 			# When opening CW options menu, set a number of defaults visual indicators for options
-			onclick = "[GetVariableSystem.Set( 'cw_op_tabs', 'prefs' )]"
+			onclick = "[GetVariableSystem.Set( 'cc_op_tabs', 'prefs' )]"
 			# Disabled the default on click, this was overwriting player choices each time they opened the mod options window
 			# Probably a better way to do this, will work on it later. Commented out for now
-			#onclick = "[GetVariableSystem.Set( 'cw_op_scale', 'scale3' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_auto_scale', 'auto_enable' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_maxnum', 'maxnum2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_levysize', 'levysize2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_meleesize', 'meleesize2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_rangedsize', 'rangedsize2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_mountedsize', 'mountedsize2' )]"
-			onclick = "[And(Not(GetVariableSystem.Exists('cw_op_tabs')), GetVariableSystem.Set( 'cw_op_control', 'control1' ))]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_unitnames', 'unitnames1' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_scale', 'scale3' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_auto_scale', 'auto_enable' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_maxnum', 'maxnum2' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_levysize', 'levysize2' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_meleesize', 'meleesize2' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_rangedsize', 'rangedsize2' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_mountedsize', 'mountedsize2' )]"
+			onclick = "[And(Not(GetVariableSystem.Exists('cc_op_tabs')), GetVariableSystem.Set( 'cc_op_control', 'control1' ))]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_unitnames', 'unitnames1' )]"
 		}
 		
-		button_settings = { name = cw_options_button
+		button_settings = { name = cc_options_button
 			visible = "[Not(CombatWindow.IsCombatInPursuitPhase)]"
 			parentanchor = center
 			position = { 30 20 }
 			size = { 30 30 }	
 			#raw_tooltip = "Crusader Conflicts Mod Options"
-			tooltip = cw_bw_options_button
+			tooltip = cc_bw_options_button
 
-			onclick = "[ExecuteConsoleCommand('gui.createwidget gui/custom_gui/cw_options.gui cw_options')]"
+			onclick = "[ExecuteConsoleCommand('gui.createwidget gui/custom_gui/cc_options.gui cc_options')]"
 			### SET DEFAULT CW OPTIONS ### 
 			# When opening CW options menu, set a number of default visual indicators for options
-			onclick = "[GetVariableSystem.Set( 'cw_op_tabs', 'prefs' )]"
+			onclick = "[GetVariableSystem.Set( 'cc_op_tabs', 'prefs' )]"
 			# Disabled the default on click, this was overwriting player choices each time they opened the mod options window
 			# Probably a better way to do this, will work on it later. Commented out for now
-			#onclick = "[GetVariableSystem.Set( 'cw_op_scale', 'scale3' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_auto_scale', 'auto_enable' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_maxnum', 'maxnum2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_levysize', 'levysize1' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_meleesize', 'meleesize2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_rangedsize', 'rangedsize2' )]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_mountedsize', 'mountedsize1' )]"
-			onclick = "[And(Not(GetVariableSystem.Exists('cw_op_tabs')), GetVariableSystem.Set( 'cw_op_control', 'control1' ))]"
-			#onclick = "[GetVariableSystem.Set( 'cw_op_unitnames', 'unitnames1' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_scale', 'scale3' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_auto_scale', 'auto_enable' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_maxnum', 'maxnum2' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_levysize', 'levysize1' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_meleesize', 'meleesize2' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_rangedsize', 'rangedsize2' )]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_mountedsize', 'mountedsize1' )]"
+			onclick = "[And(Not(GetVariableSystem.Exists('cc_op_tabs')), GetVariableSystem.Set( 'cc_op_control', 'control1' ))]"
+			#onclick = "[GetVariableSystem.Set( 'cc_op_unitnames', 'unitnames1' )]"
 		}
 
 		############################################################

@@ -23,7 +23,7 @@
         ###                                                      ### 
         ############################################################
         state = {
-            name = "cw_confirm_overwrite_save"
+            name = "cc_confirm_overwrite_save"
             #trigger_when = "[GetVariableSystem.HasValue(GameDialog.GetTitle, 'Overwrite save')]"
             on_finish = "[GameDialog.Accept]"
             on_finish = "[GameDialog.Decline]"

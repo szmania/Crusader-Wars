@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using System.Runtime.Versioning;
 using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.twbattle;
@@ -103,7 +104,7 @@ namespace CrusaderWars.unit_mapper
         internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps, List<LandBridgeMap> landBridgeMaps, List<CoastalMap> coastalMaps)
         {
             AttilaMap = attilaMap;
-            HistoricalMaps = historicalMaps;    
+            HistoricalMaps = historicalMaps;
             NormalMaps = normalMaps;
             SettlementMaps = settlementMaps;
             UniqueSettlementMaps = uniqueSettlementMaps;
@@ -118,6 +119,19 @@ namespace CrusaderWars.unit_mapper
         public List<UniqueSettlementMap> GetUniqueSettlementMaps() { return UniqueSettlementMaps; }
 
     }
+
+    public class AvailableUnit
+    {
+        public string FactionName { get; set; } = string.Empty;
+        public string UnitType { get; set; } = string.Empty;
+        public string AttilaUnitKey { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public int? Rank { get; set; }
+        public int? Level { get; set; }
+        public string? MaxCategory { get; set; }
+        public bool IsSiege { get; set; }
+    }
+
     internal static class UnitMappers_BETA
     {
         /*----------------------------------------------------------------
@@ -126,7 +140,7 @@ namespace CrusaderWars.unit_mapper
          ----------------------------------------------------------------*/
 
         public static List<Submod> AvailableSubmods { get; private set; } = new List<Submod>();
-        public static TerrainsUM? Terrains { get;private set; }  
+        public static TerrainsUM? Terrains { get; private set; }
         static string? LoadedUnitMapper_FolderPath { get; set; }
         public static string? ActivePlaythroughTag { get; private set; }
         public const string NOT_FOUND_KEY = "not_found";
@@ -135,97 +149,231 @@ namespace CrusaderWars.unit_mapper
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
-        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
+        private static Dictionary<string, XmlDocument>? _factionFileCache;
+        private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
+        private static Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>? _garrisonCache;
+
+        public static void ClearFactionCache()
         {
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            _factionFileCache = null;
+            _levyCache = null;
+            _garrisonCache = null;
+        }
+
+        private static void EnsureFactionCacheLoaded()
+        {
+            if (_factionFileCache != null) return; // Cache is already loaded
+
+            _factionFileCache = new Dictionary<string, XmlDocument>();
+            _levyCache = new Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>();
+            _garrisonCache = new Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>();
+
+            if (LoadedUnitMapper_FolderPath == null) return;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+
+            foreach (var file in files_paths)
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.Load(file);
+                if (doc.DocumentElement == null) continue;
+                _factionFileCache[file] = doc;
+
+                foreach (XmlNode factionNode in doc.SelectNodes("/Factions/Faction"))
+                {
+                    string factionName = factionNode.Attributes?["name"]?.Value ?? string.Empty;
+                    if (string.IsNullOrEmpty(factionName)) continue;
+
+                    var levies = Levies(doc, factionName);
+                    if (levies.Any())
+                    {
+                        _levyCache[factionName] = (levies, factionName);
+                    }
+
+                    var garrisons = Garrison(doc, factionName);
+                    if (garrisons.Any())
+                    {
+                        _garrisonCache[factionName] = garrisons;
+                    }
+                }
+            }
+        }
+
+        [SupportedOSPlatform("windows")]
+        private static (List<ModFile> requiredMods, List<Submod> submods) ParseModsFileFromMapperPath(string mapperPath)
+        {
             var requiredMods = new List<ModFile>();
             var submods = new List<Submod>();
-
-            foreach (var mapper in unit_mappers_folder)
+            string modsPath = Path.Combine(mapperPath, "Mods.xml");
+            if (File.Exists(modsPath))
             {
-                string? mapperName = Path.GetDirectoryName(mapper);
-                var files = Directory.GetFiles(mapper);
-                foreach (var file in files)
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(modsPath);
+                if (xmlDocument.DocumentElement != null)
                 {
-                    string fileName = Path.GetFileName(file);
-                    if (fileName == "tag.txt")
+                    foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
                     {
-                        string fileTag = File.ReadAllText(file).Trim(); // Trim whitespace from the file content
-                        if (tag == fileTag)
+                        if (node is XmlComment) continue;
+                        if (node.Name == "Mod")
                         {
-                            string modsPath = mapper + @"\Mods.xml";
-                            if (File.Exists(modsPath))
+                            var modFile = new ModFile
                             {
-                                XmlDocument xmlDocument = new XmlDocument();
-                                xmlDocument.Load(modsPath);
-                                if (xmlDocument.DocumentElement != null)
+                                FileName = node.InnerText,
+                                Sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty,
+                                ScreenName = node.Attributes?["screen_name"]?.Value,
+                                Url = node.Attributes?["url"]?.Value
+                            };
+                            requiredMods.Add(modFile);
+                        }
+                        else if (node.Name == "Submod")
+                        {
+                            var submod = new Submod
+                            {
+                                Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                            };
+                            string? replaceAttr = node.Attributes?["replace"]?.Value;
+                            if (!string.IsNullOrEmpty(replaceAttr))
+                            {
+                                submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
+                            }
+                            foreach (XmlNode submod_modNode in node.ChildNodes)
+                            {
+                                if (submod_modNode.Name == "Mod")
                                 {
-                                    foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
+                                    var modFile = new ModFile
                                     {
-                                        if (node is XmlComment) continue;
-                                        if (node.Name == "Mod")
+                                        FileName = submod_modNode.InnerText,
+                                        Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
+                                        ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
+                                        Url = submod_modNode.Attributes?["url"]?.Value
+                                    };
+                                    submod.Mods.Add(modFile);
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(submod.Tag))
+                            {
+                                submods.Add(submod);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show($"Mods.xml was not found in {mapperPath}", "Crusader Conflicts: Crusader Conflicts: Unit Mappers Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+            }
+            return (requiredMods, submods);
+        }
+        [SupportedOSPlatform("windows")]
+        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
+        {
+            var allRequiredMods = new List<ModFile>();
+            var allSubmods = new List<Submod>();
+
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            if (tag == "Custom")
+            {
+                string selectedMapperTag = ModOptions.GetSelectedCustomMapper();
+                if (!string.IsNullOrEmpty(selectedMapperTag))
+                {
+                    foreach (var mapper in unit_mappers_folder)
+                    {
+                        string tagFile = Path.Combine(mapper, "tag.txt");
+                        if (File.Exists(tagFile))
+                        {
+                            string fileTag = File.ReadAllText(tagFile).Trim();
+                            if (selectedMapperTag.Equals(fileTag, StringComparison.OrdinalIgnoreCase))
+                            {
+                                var (mods, submods) = ParseModsFileFromMapperPath(mapper);
+                                allRequiredMods.AddRange(mods);
+                                foreach (var newSubmod in submods)
+                                {
+                                    var existingSubmod = allSubmods.FirstOrDefault(s => s.Tag == newSubmod.Tag);
+                                    if (existingSubmod != null)
+                                    {
+                                        // Merge Mods, ensuring no duplicates
+                                        foreach (var newModFile in newSubmod.Mods)
                                         {
-                                            var modFile = new ModFile
+                                            if (!existingSubmod.Mods.Any(m => m.FileName == newModFile.FileName))
                                             {
-                                                FileName = node.InnerText,
-                                                Sha256 = node.Attributes?["sha256"]?.Value ?? string.Empty,
-                                                ScreenName = node.Attributes?["screen_name"]?.Value,
-                                                Url = node.Attributes?["url"]?.Value
-                                            };
-                                            requiredMods.Add(modFile);
+                                                existingSubmod.Mods.Add(newModFile);
+                                            }
                                         }
-                                        else if (node.Name == "Submod")
+                                        // Merge Replaces, ensuring no duplicates
+                                        foreach (var newReplace in newSubmod.Replaces)
                                         {
-                                            var submod = new Submod
+                                            if (!existingSubmod.Replaces.Contains(newReplace))
                                             {
-                                                Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
-                                                ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
-                                            };
-                                            string? replaceAttr = node.Attributes?["replace"]?.Value;
-                                            if (!string.IsNullOrEmpty(replaceAttr))
-                                            {
-                                                submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
-                                            }
-                                            foreach (XmlNode submod_modNode in node.ChildNodes)
-                                            {
-                                                if(submod_modNode.Name == "Mod")
-                                                {
-                                                    var modFile = new ModFile
-                                                    {
-                                                        FileName = submod_modNode.InnerText,
-                                                        Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
-                                                        ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
-                                                        Url = submod_modNode.Attributes?["url"]?.Value
-                                                    };
-                                                    submod.Mods.Add(modFile);
-                                                }
-                                            }
-                                            if(!string.IsNullOrEmpty(submod.Tag))
-                                            {
-                                                submods.Add(submod);
+                                                existingSubmod.Replaces.Add(newReplace);
                                             }
                                         }
                                     }
+                                    else
+                                    {
+                                        allSubmods.Add(newSubmod);
+                                    }
                                 }
                             }
-                            else
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var mapper in unit_mappers_folder)
+                {
+                    string tagFile = Path.Combine(mapper, "tag.txt");
+                    if (File.Exists(tagFile))
+                    {
+                        string fileTag = File.ReadAllText(tagFile).Trim();
+                        if (tag == fileTag)
+                        {
+                            var (mods, submods) = ParseModsFileFromMapperPath(mapper);
+                            allRequiredMods.AddRange(mods);
+                            foreach (var newSubmod in submods)
                             {
-                                MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Conflicts: Crusader Conflicts: Unit Mappers Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                var existingSubmod = allSubmods.FirstOrDefault(s => s.Tag == newSubmod.Tag);
+                                if (existingSubmod != null)
+                                {
+                                    // Merge Mods, ensuring no duplicates
+                                    foreach (var newModFile in newSubmod.Mods)
+                                    {
+                                        if (!existingSubmod.Mods.Any(m => m.FileName == newModFile.FileName))
+                                        {
+                                            existingSubmod.Mods.Add(newModFile);
+                                        }
+                                    }
+                                    // Merge Replaces, ensuring no duplicates
+                                    foreach (var newReplace in newSubmod.Replaces)
+                                    {
+                                        if (!existingSubmod.Replaces.Contains(newReplace))
+                                        {
+                                            existingSubmod.Replaces.Add(newReplace);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    allSubmods.Add(newSubmod);
+                                }
                             }
-                            break;
                         }
                     }
                 }
             }
 
-            return (requiredMods, submods);
+            return (allRequiredMods, allSubmods);
         }
 
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
-        public static string? GetLoadedUnitMapperString() { 
-            switch(GetLoadedUnitMapperName())
+        public static string? GetLoadedUnitMapperString()
+        {
+            switch (GetLoadedUnitMapperName())
             {
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     return "EARLY MEDIEVAL";
@@ -238,7 +386,7 @@ namespace CrusaderWars.unit_mapper
                 case "OfficialCC_TheFallenEagle_AgeOfJustinain":
                     return "DARK AGES";
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                case "OfficialCC_TheFallenEagle_FireforgedEmpires":
+                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
                     return "LATE ANTIQUITY";
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     return "SECOND AGE";
@@ -247,7 +395,7 @@ namespace CrusaderWars.unit_mapper
                 default:
                     return null;
             }
-            
+
         }
 
         public static void ClearProvinceMapCache()
@@ -373,18 +521,30 @@ namespace CrusaderWars.unit_mapper
             combinedList.AddRange(otherFiles);
             combinedList.AddRange(submodFiles);
             combinedList.AddRange(addonFiles);
-            
+
             return combinedList;
         }
 
+        [SupportedOSPlatform("windows")]
         private static void ReadTerrainsFile()
         {
             SiegeEngines.Clear(); // Clear the list to prevent duplicate data on re-read
 
-            if (LoadedUnitMapper_FolderPath == null || !Directory.Exists($@"{LoadedUnitMapper_FolderPath}\terrains")) { Terrains = null; return; }
+            if (LoadedUnitMapper_FolderPath == null) { Terrains = null; return; }
+
+            string terrainsFolderPath = Path.Combine(LoadedUnitMapper_FolderPath, "terrains");
+            if (!Directory.Exists(terrainsFolderPath))
+            {
+                terrainsFolderPath = Path.Combine(LoadedUnitMapper_FolderPath, "Terrains");
+                if (!Directory.Exists(terrainsFolderPath))
+                {
+                    Terrains = null;
+                    return;
+                }
+            }
 
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var terrainFiles = GetSortedFilePaths($@"{LoadedUnitMapper_FolderPath}\terrains", priorityFilePattern);
+            var terrainFiles = GetSortedFilePaths(terrainsFolderPath, priorityFilePattern);
 
             try
             {
@@ -663,133 +823,195 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods)
         {
             ActivePlaythroughTag = tag;
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
+
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            if (tag == "Custom")
+            {
+                string customMapperTag = ModOptions.GetSelectedCustomMapper();
+                if (string.IsNullOrEmpty(customMapperTag))
+                {
+                    LoadedUnitMapper_FolderPath = null;
+                    Terrains = null;
+                    return requiredMods;
+                }
+
+                var matchingMappers = new List<string>();
+                foreach (var mapper in unit_mappers_folder)
+                {
+                    string tagFilePath = Path.Combine(mapper, "tag.txt");
+                    if (File.Exists(tagFilePath))
+                    {
+                        string fileTag = File.ReadAllText(tagFilePath).Trim();
+                        if (customMapperTag.Equals(fileTag, StringComparison.OrdinalIgnoreCase))
+                        {
+                            matchingMappers.Add(mapper);
+                        }
+                    }
+                }
+
+                if (matchingMappers.Any())
+                {
+                    foreach (var mapperPath in matchingMappers)
+                    {
+                        var mods = ProcessMapper(mapperPath, activeSubmods);
+                        if (mods.Any()) // ProcessMapper returns empty list on time period mismatch
+                        {
+                            requiredMods.AddRange(mods); // Aggregate mods
+                        }
+                    }
+                }
+
+                if (!requiredMods.Any()) // If no mods were found after checking all custom mappers
+                {
+                    MessageBox.Show($"The selected custom unit mapper '{customMapperTag}' does not have a valid configuration for the current in-game year ({Date.Year}).", "Crusader Conflicts: Configuration Error",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                }
+                return requiredMods;
+            }
 
             foreach (var mapper in unit_mappers_folder)
             {
-                string mapperName = Path.GetFileName(mapper); // Changed GetDirectoryName to GetFileName
-                var files = Directory.GetFiles(mapper);
-                foreach (var file in files)
+                string tagFilePath = Path.Combine(mapper, "tag.txt");
+                if (File.Exists(tagFilePath))
+                {
+                    string fileTag = File.ReadAllText(tagFilePath).Trim();
+                    if (tag == fileTag)
                     {
-                    string fileName = Path.GetFileName(file);
-                    if (fileName == "tag.txt")
-                    {
-                        string fileTag = File.ReadAllText(file).Trim();
-                        if (tag == fileTag)
+                        var mods = ProcessMapper(mapper, activeSubmods);
+                        if (mods.Any()) // ProcessMapper returns empty list on time period mismatch
                         {
-                            // TIME PERIOD
-                            int startYear = -1, endYear = -1;
-                            bool isDefault = false;
-                            string timePeriodPath = mapper + @"\Time Period.xml";
-                            if (File.Exists(timePeriodPath))
-                            {
-                                XmlDocument xmlDocument = new XmlDocument();
-                                xmlDocument.Load(timePeriodPath);
-                                if (xmlDocument.DocumentElement == null) continue; // Added null check
-                                string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
-                                string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
-                                
-                                if(startYearStr == "Default" || startYearStr == "DEFAULT")
-                                {
-                                    isDefault = true;
-                                    startYear = 0;
-                                    endYear = 0;
-                                }
-
-                                if(!int.TryParse(startYearStr, out startYear))
-                                {
-                                    isDefault = true;
-                                    startYear = 0;
-                                    endYear = 0;
-                                }
-
-                                if (!int.TryParse(endYearStr, out endYear))
-                                {
-                                    isDefault = true;
-                                    startYear = 0;
-                                    endYear = 0;
-                                }
-
-                                if(startYear != -1 && endYear != -1)
-                                {
-
-                                    if((Date.Year >= startYear && Date.Year <= endYear) || isDefault)
-                                    {
-                                        //  MODS
-                                        string modsPath = mapper + @"\Mods.xml";
-                                        if (File.Exists(modsPath))
-                                        {
-                                            XmlDocument xmlMods = new XmlDocument();
-                                            xmlMods.Load(modsPath);
-                                            if (xmlMods.DocumentElement != null) // Added null check
-                                            {
-                                                foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
-                                                {
-                                                    if (node is XmlComment) continue;
-                                                    if (node.Name == "Mod")
-                                                    {
-                                                        requiredMods.Add(node.InnerText);
-                                                    }
-                                                    else if (node.Name == "Submod")
-                                                    {
-                                                        // This part is for adding active submod files to the load order
-                                                        string? submodTag = node.Attributes?["submod_tag"]?.Value;
-                                                        if (!string.IsNullOrEmpty(submodTag) && activeSubmods.Contains(submodTag))
-                                                        {
-                                                            foreach (XmlNode submod_modNode in node.ChildNodes)
-                                                            {
-                                                                if (submod_modNode.Name == "Mod")
-                                                                {
-                                                                    requiredMods.Add(submod_modNode.InnerText);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            LoadedUnitMapper_FolderPath = mapper;
-                                            ReadTerrainsFile();
-                                            return requiredMods;
-                                        }
-                                        else
-                                        {
-                                            MessageBox.Show($"Mods.xml was not found in {mapper}", "Crusader Conflicts: Unit Mappers Error",
-                                            MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                MessageBox.Show($"Time Period.xml was not found in {mapper}", "Crusader Conflicts: Unit Mappers Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                            }
-                            break;
+                            requiredMods.AddRange(mods); // Aggregate mods
                         }
                     }
                 }
             }
 
+            return requiredMods; // Return empty list if no suitable mapper is found
+        }
+
+        [SupportedOSPlatform("windows")]
+        private static List<string> ProcessMapper(string mapperPath, List<string> activeSubmods)
+        {
+            List<string> requiredMods = new List<string>();
+
+            // TIME PERIOD CHECK
+            int startYear = -1, endYear = -1;
+            bool isDefault = false;
+            string timePeriodPath = Path.Combine(mapperPath, "Time Period.xml");
+            if (!File.Exists(timePeriodPath))
+            {
+                timePeriodPath = Path.Combine(mapperPath, "TimePeriod.xml");
+            }
+
+            if (File.Exists(timePeriodPath))
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(timePeriodPath);
+                if (xmlDocument.DocumentElement == null) return requiredMods;
+
+                string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
+                string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
+
+                if (startYearStr.Equals("Default", StringComparison.OrdinalIgnoreCase)) isDefault = true;
+                if (!int.TryParse(startYearStr, out startYear)) isDefault = true;
+                if (!int.TryParse(endYearStr, out endYear)) isDefault = true;
+
+                if (isDefault) { startYear = 0; endYear = 9999; }
+
+                if ((Date.Year >= startYear && Date.Year <= endYear))
+                {
+                    // MODS and SUBMODS
+                    string modsPath = Path.Combine(mapperPath, "Mods.xml");
+                    if (File.Exists(modsPath))
+                    {
+                        XmlDocument xmlMods = new XmlDocument();
+                        xmlMods.Load(modsPath);
+                        if (xmlMods.DocumentElement != null)
+                        {
+                            var activeSubmodTags = new HashSet<string>(activeSubmods); // For faster lookups
+
+                            foreach (XmlNode node in xmlMods.DocumentElement.ChildNodes)
+                            {
+                                if (node is XmlComment) continue;
+                                if (node.Name == "Mod")
+                                {
+                                    requiredMods.Add(node.InnerText);
+                                }
+                                else if (node.Name == "Submod")
+                                {
+                                    var submod = new Submod
+                                    {
+                                        Tag = node.Attributes?["submod_tag"]?.Value ?? string.Empty,
+                                        ScreenName = node.Attributes?["screen_name"]?.Value ?? string.Empty,
+                                    };
+                                    string? replaceAttr = node.Attributes?["replace"]?.Value;
+                                    if (!string.IsNullOrEmpty(replaceAttr))
+                                    {
+                                        submod.Replaces.AddRange(replaceAttr.Split(',').Select(m => m.Trim()));
+                                    }
+                                    foreach (XmlNode submod_modNode in node.ChildNodes)
+                                    {
+                                        if (submod_modNode.Name == "Mod")
+                                        {
+                                            var modFile = new ModFile
+                                            {
+                                                FileName = submod_modNode.InnerText,
+                                                Sha256 = submod_modNode.Attributes?["sha256"]?.Value ?? string.Empty,
+                                                ScreenName = submod_modNode.Attributes?["screen_name"]?.Value,
+                                                Url = submod_modNode.Attributes?["url"]?.Value
+                                            };
+                                            submod.Mods.Add(modFile);
+                                        }
+                                    }
+                                    if (!string.IsNullOrEmpty(submod.Tag))
+                                    {
+                                        AvailableSubmods.Add(submod);
+
+                                        // If this submod is active, add its mods to the list in order.
+                                        if (activeSubmodTags.Contains(submod.Tag))
+                                        {
+                                            foreach (var modFile in submod.Mods)
+                                            {
+                                                requiredMods.Add(modFile.FileName);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        LoadedUnitMapper_FolderPath = mapperPath; // This will only store the last loaded mapper path.
+                        ReadTerrainsFile(); // This will only read terrains from the last loaded mapper path.
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Mods.xml was not found in {mapperPath}", "Crusader Conflicts: Unit Mappers Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show($"Time Period.xml or TimePeriod.xml was not found in {mapperPath}", "Crusader Conflicts: Unit Mappers Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+            }
+
             return requiredMods;
         }
 
-        public static LandBridgeMap? GetLandBridgeMap(string provinceId)
+        public static LandBridgeMap? GetLandBridgeMap(string? provinceId)
         {
             if (Terrains?.LandBridgeMaps == null) return null;
 
             return Terrains.LandBridgeMaps.FirstOrDefault(lb => lb.ProvinceFrom == provinceId || lb.ProvinceTo == provinceId);
         }
 
-        public static CoastalMap? GetCoastalMap(string provinceId)
+        public static CoastalMap? GetCoastalMap(string? provinceId)
         {
             if (Terrains?.CoastalMaps == null) return null;
 
@@ -813,7 +1035,7 @@ namespace CrusaderWars.unit_mapper
                     case "SPECIAL":
                         return 1111;
                     default:
-                        if (int.TryParse(MaxValue, out int max_int)) 
+                        if (int.TryParse(MaxValue, out int max_int))
                             return max_int;
                         else
                             return ModOptions.GetInfantryMax();
@@ -865,9 +1087,11 @@ namespace CrusaderWars.unit_mapper
                                 {
                                     if (unit.GetRegimentType() == RegimentType.Levy)
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
-                                        max = MaxType.GetMax(maxAttrValue);
-                                        Program.Logger.Debug($"Assigned max for Default Levy (from attribute '{maxAttrValue}'): {max}");
+                                        if (node.Attributes?["max"]?.Value is string maxAttrValue)
+                                        {
+                                            max = MaxType.GetMax(maxAttrValue);
+                                            Program.Logger.Debug($"Assigned max for Default Levy (from attribute '{maxAttrValue}'): {max}");
+                                        }
                                         continue;
                                     }
                                     else
@@ -878,9 +1102,11 @@ namespace CrusaderWars.unit_mapper
                                 {
                                     if (unit.GetRegimentType() == RegimentType.Garrison) // Changed from unit.GetName() == "Garrison"
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
-                                        max = MaxType.GetMax(maxAttrValue);
-                                        Program.Logger.Debug($"Assigned max for Default Garrison (from attribute '{maxAttrValue}'): {max}");
+                                        if (node.Attributes?["max"]?.Value is string maxAttrValue)
+                                        {
+                                            max = MaxType.GetMax(maxAttrValue);
+                                            Program.Logger.Debug($"Assigned max for Default Garrison (from attribute '{maxAttrValue}'): {max}");
+                                        }
                                         continue;
                                     }
                                     else
@@ -892,9 +1118,11 @@ namespace CrusaderWars.unit_mapper
                                     // Original code: max = MaxType.GetMax(node.Attributes["type"].Value);
                                     // This line is potentially problematic as "type" attribute is unit name, not a max category or number.
                                     // Logging the input and result as per instruction to not alter logic.
-                                    string inputToMaxType = node.Attributes["type"]!.Value; // Null-forgiving operator added as per instruction
-                                    max = MaxType.GetMax(inputToMaxType);
-                                    Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (input to MaxType.GetMax: '{inputToMaxType}'): {max}");
+                                    if (node.Attributes?["type"]?.Value is string inputToMaxType)
+                                    {
+                                        max = MaxType.GetMax(inputToMaxType);
+                                        Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (input to MaxType.GetMax: '{inputToMaxType}'): {max}");
+                                    }
                                 }
                             }
                         }
@@ -909,9 +1137,9 @@ namespace CrusaderWars.unit_mapper
 
                                 if (node.Name == "Levies")
                                 {
-                                    if(unit.GetRegimentType() == RegimentType.Levy && node.Attributes?["max"] != null) {
-                                        string maxAttrValue = node.Attributes["max"]!.Value; 
-                                        max = MaxType.GetMax(maxAttrValue); 
+                                    if (unit.GetRegimentType() == RegimentType.Levy && node.Attributes?["max"]?.Value is string maxAttrValue)
+                                    {
+                                        max = MaxType.GetMax(maxAttrValue);
                                         Program.Logger.Debug($"Assigned max for specific faction '{faction}' Levy (from attribute '{maxAttrValue}'): {max}");
                                         continue;
                                     }
@@ -921,9 +1149,8 @@ namespace CrusaderWars.unit_mapper
                                 // New Garrison handling
                                 if (node.Name == "Garrison")
                                 {
-                                    if (unit.GetRegimentType() == RegimentType.Garrison && node.Attributes?["max"] != null) // Changed from unit.GetName() == "Garrison"
+                                    if (unit.GetRegimentType() == RegimentType.Garrison && node.Attributes?["max"]?.Value is string maxAttrValue) // Changed from unit.GetName() == "Garrison"
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);
                                         Program.Logger.Debug($"Assigned max for specific faction '{faction}' Garrison (from attribute '{maxAttrValue}'): {max}");
                                         continue;
@@ -935,9 +1162,8 @@ namespace CrusaderWars.unit_mapper
                                 // Line 187 - Add null check
                                 if (node?.Attributes?["type"]?.Value == unit.GetName())
                                 {
-                                    if(node?.Attributes?["max"] != null)
+                                    if (node?.Attributes?["max"]?.Value is string maxAttrValue)
                                     {
-                                        string maxAttrValue = node.Attributes["max"]!.Value;
                                         max = MaxType.GetMax(maxAttrValue);
                                         Program.Logger.Debug($"Assigned max for specific faction '{faction}' unit '{unit.GetName()}' (from attribute '{maxAttrValue}'): {max}");
                                     }
@@ -945,7 +1171,7 @@ namespace CrusaderWars.unit_mapper
                                     {
                                         Program.Logger.Debug($"WARNING: Unit '{unit.GetName()}' in faction '{faction}' found, but 'max' attribute is missing. Keeping previous max value: {max}");
                                         break;
-                                    }   
+                                    }
                                 }
                             }
                         }
@@ -1010,7 +1236,7 @@ namespace CrusaderWars.unit_mapper
 
             if (!string.IsNullOrEmpty(default_subculture))
             {
-                Program.Logger.Debug($"No specific subculture found for faction '{attila_faction}'. Using default subculture '{default_subculture}'.");
+                Program.Logger.Debug($"No specific subculture found for faction '{attila_faction}'. Using 'Default' subculture '{default_subculture}'.");
                 return default_subculture;
             }
 
@@ -1023,7 +1249,7 @@ namespace CrusaderWars.unit_mapper
             var levies_nodes = factions_file.SelectNodes($"/Factions/Faction[@name=\"{attila_faction}\"]/Levies");
             List<(int porcentage, string unit_key, string name, string max)> list = new List<(int porcentage, string unit_key, string name, string max)>();
 
-            if (levies_nodes?.Count == 0) 
+            if (levies_nodes?.Count == 0)
                 return list;
 
 
@@ -1054,8 +1280,8 @@ namespace CrusaderWars.unit_mapper
 
                 name = $"Levy_{porcentage}";
 
-                if (levies_node.Attributes?["max"] != null)
-                    max = MaxType.GetMax(levies_node.Attributes["max"]!.Value).ToString();
+                if (levies_node.Attributes?["max"]?.Value is string maxAttr)
+                    max = MaxType.GetMax(maxAttr).ToString();
 
                 list.Add((porcentage, key, name, max));
             }
@@ -1109,8 +1335,8 @@ namespace CrusaderWars.unit_mapper
 
                 name = $"Garrison_{percentage}"; // Naming convention for garrison units
 
-                if (garrison_node.Attributes?["max"] != null)
-                    max = MaxType.GetMax(garrison_node.Attributes["max"]!.Value).ToString();
+                if (garrison_node.Attributes?["max"]?.Value is string maxAttr)
+                    max = MaxType.GetMax(maxAttr).ToString();
 
                 list.Add((percentage, key, name, max, level));
             }
@@ -1119,53 +1345,23 @@ namespace CrusaderWars.unit_mapper
         }
 
 
-        public static (List<(int porcentage, string unit_key, string name, string max)>, string) GetFactionLevies(string attila_faction)
+        public static (List<(int percentage, string unit_key, string name, string max)>, string) GetFactionLevies(string attila_faction)
         {
             Program.Logger.Debug($"Getting faction levies: '{attila_faction}'");
-            if (LoadedUnitMapper_FolderPath == null)
+            EnsureFactionCacheLoaded();
+
+            if (_levyCache != null && _levyCache.TryGetValue(attila_faction, out var specificLevies))
             {
-                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get faction levies.");
-                throw new Exception("Unit mapper folder path not configured");
+                Program.Logger.Debug($"Found specific levy definitions for faction '{attila_faction}' in cache.");
+                return specificLevies;
             }
 
-            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths.Reverse(); // Search from last-loaded to first
-
-            // Priority 1: Search for specific faction levies in reverse file order
-            foreach (var xml_file in files_paths)
+            if (_levyCache != null && _levyCache.TryGetValue("Default", out var defaultLevies))
             {
-                XmlDocument FactionsFile = new XmlDocument();
-                FactionsFile.Load(xml_file);
-                if (FactionsFile.DocumentElement == null) continue;
-
-                var foundSpecific = Levies(FactionsFile, attila_faction);
-                if (foundSpecific.Any())
-                {
-                    Program.Logger.Debug($"Found specific levy definitions for faction '{attila_faction}' in file '{Path.GetFileName(xml_file)}'. Using this definition.");
-                    return (foundSpecific, attila_faction);
-                }
+                Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Using 'Default' definitions from cache.");
+                return defaultLevies;
             }
 
-            // Priority 2: If not found, search for default faction levies in reverse file order
-            Program.Logger.Debug($"No specific levy definitions found for faction '{attila_faction}'. Searching for 'Default' faction definitions.");
-            foreach (var xml_file in files_paths.ToList()) // Create a copy to iterate again
-            {
-                XmlDocument FactionsFile = new XmlDocument();
-                FactionsFile.Load(xml_file);
-                if (FactionsFile.DocumentElement == null) continue;
-
-                var foundDefault = Levies(FactionsFile, "Default");
-                if (foundDefault.Any())
-                {
-                    Program.Logger.Debug($"Found 'Default' levy definitions in file '{Path.GetFileName(xml_file)}'. Using this definition as fallback.");
-                    return (foundDefault, "Default");
-                }
-            }
-
-
-            // If neither loop finds any levies, throw an exception
             throw new Exception($"Unit Mapper Error: Could not find any levy definitions for faction '{attila_faction}' or for the 'Default' faction. Please check your unit mapper configuration.");
         }
 
@@ -1178,53 +1374,19 @@ namespace CrusaderWars.unit_mapper
             }
 
             Program.Logger.Debug($"Getting faction garrison for: '{attila_faction}' at holding level: {holdingLevel}");
-            if (LoadedUnitMapper_FolderPath == null)
-            {
-                Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get faction garrison.");
-                throw new Exception("Unit mapper folder path not configured");
-            }
-
-            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
-            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
-            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
-            files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
+            EnsureFactionCacheLoaded();
 
             List<(int percentage, string unit_key, string name, string max, int level)> garrisonDefinitions = new List<(int percentage, string unit_key, string name, string max, int level)>();
 
-            // Priority 1: Search for specific faction garrisons in reverse file order
-            foreach (var xml_file in files_paths)
+            if (_garrisonCache != null && _garrisonCache.TryGetValue(attila_faction, out var specificGarrisons))
             {
-                XmlDocument FactionsFile = new XmlDocument();
-                FactionsFile.Load(xml_file);
-                if (FactionsFile.DocumentElement == null) continue;
-
-                var foundSpecific = Garrison(FactionsFile, attila_faction);
-                if (foundSpecific.Any())
-                {
-                    Program.Logger.Debug($"Found specific garrison definitions for faction '{attila_faction}' in file '{Path.GetFileName(xml_file)}'. Using this definition.");
-                    garrisonDefinitions = foundSpecific;
-                    break; // Found the highest priority definition, stop searching
-                }
+                Program.Logger.Debug($"Found specific garrison definitions for faction '{attila_faction}' in cache.");
+                garrisonDefinitions = specificGarrisons;
             }
-
-            // Priority 2: If not found, search for default faction garrisons in reverse file order
-            if (!garrisonDefinitions.Any())
+            else if (_garrisonCache != null && _garrisonCache.TryGetValue("Default", out var defaultGarrisons))
             {
-                Program.Logger.Debug($"No specific garrison definitions found for faction '{attila_faction}'. Searching for 'Default' faction definitions.");
-                foreach (var xml_file in files_paths)
-                {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue;
-
-                    var foundDefault = Garrison(FactionsFile, "Default");
-                    if (foundDefault.Any())
-                    {
-                        Program.Logger.Debug($"Found 'Default' garrison definitions in file '{Path.GetFileName(xml_file)}'. Using this definition as fallback.");
-                        garrisonDefinitions = foundDefault;
-                        break; // Found the highest priority definition, stop searching
-                    }
-                }
+                Program.Logger.Debug($"No specific garrison definitions found for faction '{attila_faction}'. Using 'Default' definitions from cache.");
+                garrisonDefinitions = defaultGarrisons;
             }
 
             List<(int percentage, string unit_key, string name, string max)> finalGarrisonComposition;
@@ -1282,14 +1444,14 @@ namespace CrusaderWars.unit_mapper
 
             string titles_folder_path = LoadedUnitMapper_FolderPath + @"\Titles";
             if (!Directory.Exists(titles_folder_path)) return (NOT_FOUND_KEY, false);
-            
+
             string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
             var files_paths = GetSortedFilePaths(titles_folder_path, priorityFilePattern);
 
             var owner = unit.GetOwner();
-            if(owner == null || owner.GetPrimaryTitleKey() == string.Empty)
+            if (owner == null || owner.GetPrimaryTitleKey() == string.Empty)
                 return (NOT_FOUND_KEY, false);
-            
+
             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false);
             //Garrison units also skip this, as their keys are set directly
@@ -1302,7 +1464,7 @@ namespace CrusaderWars.unit_mapper
                 {
                     XmlDocument TitlesFile = new XmlDocument();
                     TitlesFile.Load(xml_file);
-                    if (TitlesFile.DocumentElement == null) continue; // Added null check
+                    if (TitlesFile.DocumentElement == null) continue;
 
                     //MAA|COMMANDER|KNIGHT
                     foreach (XmlNode element in TitlesFile.DocumentElement.ChildNodes)
@@ -1340,7 +1502,7 @@ namespace CrusaderWars.unit_mapper
             files_paths.Reverse(); // Search from last-loaded (submods) to first (OfficialCC)
 
             //LEVIES skip
-            if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false) ;
+            if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false);
             //Garrison units also skip this, as their keys are set directly
             if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"
 
@@ -1351,6 +1513,7 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{unit.GetAttilaFaction()}']");
 
                 if (factionNode != null)
@@ -1371,6 +1534,8 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='Default' or @name='DEFAULT']");
 
                 if (factionNode != null)
@@ -1390,6 +1555,7 @@ namespace CrusaderWars.unit_mapper
 
         private static string SelectRankedUnitKey(List<(int rank, string key)> candidates, int requiredRank, string? keyToExclude = null)
         {
+            Program.Logger.Debug($"      - SelectRankedUnitKey: Called with {candidates.Count} candidates, required rank <= {requiredRank}.");
             if (!candidates.Any()) return NOT_FOUND_KEY;
 
             // NEW: Exclude the problematic key if provided
@@ -1398,13 +1564,14 @@ namespace CrusaderWars.unit_mapper
                 candidates = candidates.Where(c => c.key != keyToExclude).ToList();
                 if (!candidates.Any())
                 {
-                    Program.Logger.Debug($"SelectRankedUnitKey: All candidates were excluded (key: {keyToExclude}).");
+                    Program.Logger.Debug($"      - SelectRankedUnitKey: All candidates were excluded (key: {keyToExclude}).");
                     return NOT_FOUND_KEY; // All candidates were the one to be excluded
                 }
             }
 
             // Find all candidates at or below the required rank
             var suitableCandidates = candidates.Where(t => t.rank <= requiredRank).ToList();
+            Program.Logger.Debug($"      - SelectRankedUnitKey: Found {suitableCandidates.Count} suitable candidates with rank <= {requiredRank}.");
 
             List<(int rank, string key)> finalSelectionPool;
 
@@ -1413,21 +1580,25 @@ namespace CrusaderWars.unit_mapper
                 // Find the best rank among the suitable candidates
                 int bestRank = suitableCandidates.Max(t => t.rank);
                 finalSelectionPool = suitableCandidates.Where(t => t.rank == bestRank).ToList();
+                Program.Logger.Debug($"      - SelectRankedUnitKey: Best suitable rank is {bestRank}. Final pool has {finalSelectionPool.Count} units.");
             }
             else
             {
                 // Fallback: No suitable rank found, so use the lowest available rank overall
                 int lowestRank = candidates.Min(t => t.rank);
                 finalSelectionPool = candidates.Where(t => t.rank == lowestRank).ToList();
+                Program.Logger.Debug($"      - SelectRankedUnitKey: No suitable rank found. Falling back to lowest available rank {lowestRank}. Final pool has {finalSelectionPool.Count} units.");
             }
 
-            // Randomly select one candidate from the final pool
+            // Deterministically select one candidate from the final pool
             if (finalSelectionPool.Any())
             {
-                int index = _random.Next(finalSelectionPool.Count);
-                return finalSelectionPool[index].key;
+                string selectedKey = finalSelectionPool.OrderBy(c => c.key).First().key;
+                Program.Logger.Debug($"      - SelectRankedUnitKey: Deterministically selected '{selectedKey}' from the final pool.");
+                return selectedKey;
             }
 
+            Program.Logger.Debug("      - SelectRankedUnitKey: Final selection pool was empty. Returning NOT_FOUND_KEY.");
             return NOT_FOUND_KEY;
         }
 
@@ -1436,6 +1607,7 @@ namespace CrusaderWars.unit_mapper
         {
             if (unit.GetRegimentType() == RegimentType.Commander)
             {
+                Program.Logger.Debug($"    - FindUnitKeyInFaction: Searching for COMMANDER unit in faction '{factionElement.Attributes?["name"]?.Value ?? "Unknown"}'.");
                 var generalRanks = new List<(int rank, string key)>();
                 foreach (XmlNode generalNode in factionElement.SelectNodes("General"))
                 {
@@ -1453,16 +1625,24 @@ namespace CrusaderWars.unit_mapper
 
                 if (generalRanks.Any())
                 {
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: Found {generalRanks.Count} possible general units: [{string.Join(", ", generalRanks.Select(g => $"{g.key} (rank {g.rank})"))}]");
                     // Map CK3 title Rank to a required rank level for the general unit
                     int requiredRank = 1;
                     if (unit.CharacterRank >= 4) requiredRank = 3; // King or Emperor gets rank 3 general
                     else if (unit.CharacterRank == 3) requiredRank = 2; // Duke gets rank 2 general
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: Commander's CK3 rank is {unit.CharacterRank}, required Attila rank is {requiredRank}.");
 
                     string selectedKey = SelectRankedUnitKey(generalRanks, requiredRank, keyToExclude);
                     if (selectedKey != NOT_FOUND_KEY)
                     {
+                        Program.Logger.Debug($"    - FindUnitKeyInFaction: Selected general unit key '{selectedKey}'.");
                         return (selectedKey, false);
                     }
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: No suitable general unit key found for rank {requiredRank}.");
+                }
+                else
+                {
+                    Program.Logger.Debug($"    - FindUnitKeyInFaction: No <General> nodes found in this faction block.");
                 }
             }
             else if (unit.GetRegimentType() == RegimentType.Knight)
@@ -1519,7 +1699,7 @@ namespace CrusaderWars.unit_mapper
                             if (node.Attributes?["key"]?.Value is string unit_key && !string.IsNullOrEmpty(unit_key))
                             {
                                 if (unit_key == keyToExclude) continue;
-                                
+
                                 bool isSiege = node.Attributes?["siege"]?.Value == "true";
                                 if (isSiege)
                                 {
@@ -1559,8 +1739,16 @@ namespace CrusaderWars.unit_mapper
 
         private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)
         {
+            // Check for manual replacements first.
+            if (key != NOT_FOUND_KEY && key is not null && BattleState.ManualUnitReplacements.TryGetValue((key, unit.IsPlayer()), out var manualReplacement))
+            {
+                Program.Logger.Debug($"Manual Replace: Applying replacement for unit key '{key}' with '{manualReplacement.replacementKey}' for {(unit.IsPlayer() ? "player" : "enemy")} alliance.");
+                unit.SetIsSiege(manualReplacement.isSiege);
+                return (manualReplacement.replacementKey, manualReplacement.isSiege);
+            }
+
             // Check if the determined key has an autofix replacement.
-            if (key != NOT_FOUND_KEY && BattleProcessor.AutofixReplacements.TryGetValue(key, out var replacement))
+            if (key != NOT_FOUND_KEY && key is not null && BattleProcessor.AutofixReplacements.TryGetValue(key, out var replacement))
             {
                 Program.Logger.Debug($"Autofix: Applying replacement for unit key '{key}' with '{replacement.replacementKey}'.");
                 unit.SetIsSiege(replacement.isSiege);
@@ -1577,20 +1765,31 @@ namespace CrusaderWars.unit_mapper
         public static (string, bool) GetUnitKey(Unit unit)
         {
             (string unit_key, bool isSiege) result;
+            string? initial_key = unit.GetAttilaUnitKey();
+
+            // 0. Check for manual replacements first, using the key already on the unit if available.
+            // This is crucial for levies and garrisons which are handled as compositions.
+            // For garrison units, the AttilaUnitKey is set directly in GarrisonGenerator.
+            if (unit.GetRegimentType() == RegimentType.Garrison && !string.IsNullOrEmpty(initial_key) && initial_key != NOT_FOUND_KEY)
+            {
+                if (BattleState.ManualUnitReplacements.TryGetValue((initial_key, unit.IsPlayer()), out var manualReplacement))
+                {
+                    Program.Logger.Debug($"Manual Replace (Pre-check): Applying replacement for pre-set garrison unit key '{initial_key}' with '{manualReplacement.replacementKey}'.");
+                    unit.SetIsSiege(manualReplacement.isSiege);
+                    return (manualReplacement.replacementKey, manualReplacement.isSiege);
+                }
+                // If no manual replacement, return the pre-set garrison key.
+                return (initial_key, false);
+            }
+
 
             // 1. Initial search in specific files
-            if (unit.GetRegimentType() == RegimentType.Garrison && unit.GetAttilaUnitKey() != string.Empty)
+            result = SearchInTitlesFile(unit);
+            if (result.unit_key == NOT_FOUND_KEY)
             {
-                result = (unit.GetAttilaUnitKey(), false);
+                result = SearchInFactionFiles(unit);
             }
-            else
-            {
-                result = SearchInTitlesFile(unit);
-                if (result.unit_key == NOT_FOUND_KEY)
-                {
-                    result = SearchInFactionFiles(unit);
-                }
-            }
+
 
             // 2. Check for exclusion based on initial search result
             bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
@@ -1741,8 +1940,8 @@ namespace CrusaderWars.unit_mapper
 
                 case RegimentType.MenAtArms:
                     string category = GetUnitMaxCategory(unitToReplace);
-                    var candidates = new List<(string key, bool isSiege)>();
-                    var fallbackCandidates = new List<(string key, bool isSiege)>();
+                    var candidates = new List<(string? key, bool isSiege)>();
+                    var fallbackCandidates = new List<(string? key, bool isSiege)>();
                     foreach (XmlNode maaNode in defaultFactionNode.SelectNodes("MenAtArm"))
                     {
                         string? key = maaNode.Attributes?["key"]?.Value;
@@ -1756,8 +1955,16 @@ namespace CrusaderWars.unit_mapper
                             candidates.Add((key, isSiege));
                         }
                     }
-                    if (candidates.Any()) return candidates[_random.Next(candidates.Count)];
-                    if (fallbackCandidates.Any()) return fallbackCandidates[_random.Next(fallbackCandidates.Count)];
+                    if (candidates.Any())
+                    {
+                        var candidate = candidates.OrderBy(c => c.key).First();
+                        if (candidate.key != null) return (candidate.key, candidate.isSiege);
+                    }
+                    if (fallbackCandidates.Any())
+                    {
+                        var candidate = fallbackCandidates.OrderBy(c => c.key).First();
+                        if (candidate.key != null) return (candidate.key, candidate.isSiege);
+                    }
                     break;
 
                 case RegimentType.Garrison:
@@ -1780,7 +1987,7 @@ namespace CrusaderWars.unit_mapper
                         List<(string key, int level)> finalSelectionPool = suitableGarrisons.Any()
                             ? suitableGarrisons.Where(g => g.level == suitableGarrisons.Max(s => s.level)).ToList()
                             : allGarrisons.Where(g => g.level == allGarrisons.Min(s => s.level)).ToList();
-                        if (finalSelectionPool.Any()) return (finalSelectionPool[_random.Next(finalSelectionPool.Count)].key, false);
+                        if (finalSelectionPool.Any()) return (finalSelectionPool.OrderBy(g => g.key).First().key, false);
                     }
                     break;
 
@@ -1789,7 +1996,11 @@ namespace CrusaderWars.unit_mapper
                         .Select(node => node.Attributes?["key"]?.Value)
                         .Where(key => !string.IsNullOrEmpty(key) && key != keyToExclude)
                         .ToList();
-                    if (levyKeys != null && levyKeys.Any()) return (levyKeys[_random.Next(levyKeys.Count)], false);
+                    if (levyKeys != null && levyKeys.Any())
+                    {
+                        string? firstKey = levyKeys.OrderBy(k => k).FirstOrDefault();
+                        if (firstKey != null) return (firstKey, false);
+                    }
                     break;
             }
 
@@ -1813,6 +2024,7 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{targetFaction}']");
 
                 if (factionNode != null)
@@ -1878,7 +2090,7 @@ namespace CrusaderWars.unit_mapper
                 Program.Logger.Debug("Error: LoadedUnitMapper_FolderPath is not set. Cannot get Attila faction.");
                 throw new Exception("Unit mapper folder path not configured");
             }
-            
+
             string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
             Program.Logger.Debug($"Searching for Attila faction for Culture '{CultureName}', Heritage '{HeritageName}' in: {cultures_folder_path}");
 
@@ -1894,35 +2106,50 @@ namespace CrusaderWars.unit_mapper
                     CulturesFile.Load(xml_file);
 
                     if (CulturesFile.DocumentElement == null) continue; // Add null check for DocumentElement
-                    foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
+                    foreach (XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
                     {
                         if (heritage is XmlComment) continue;
 
-                        string heritage_name = heritage.Attributes?["name"]?.Value ?? string.Empty;                       
+                        string heritage_name = heritage.Attributes?["name"]?.Value ?? string.Empty;
 
-                        if(heritage_name == HeritageName && !string.IsNullOrEmpty(HeritageName))
+                        if (heritage_name == HeritageName && !string.IsNullOrEmpty(HeritageName))
                         {
-                            string found_heritage_faction = heritage.Attributes?["faction"]?.Value ?? string.Empty;
-                            if (!string.IsNullOrEmpty(found_heritage_faction))
+                            bool cultureMatchFoundInThisBlock = false;
+                            // First, loop for a specific culture match
+                            foreach (XmlNode culture in heritage.ChildNodes)
                             {
-                                heritage_mapping = (found_heritage_faction, currentFile);
-                                culture_mapping = ("", ""); // Reset culture mapping to ensure heritage override takes priority
-                                Program.Logger.Debug($"  - Found/Updated heritage mapping: {HeritageName} -> {heritage_mapping.faction}. Culture mapping was reset.");
-                            }
-
-                            foreach(XmlNode culture in heritage.ChildNodes)
-                            {
-                                if (culture is XmlComment) continue; 
+                                if (culture is XmlComment) continue;
                                 string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
 
                                 if (culture_name == CultureName && !string.IsNullOrEmpty(CultureName))
                                 {
-                                    string found_culture_faction = culture.Attributes?["faction"]?.Value ?? string.Empty;
+                                    string? found_culture_faction = culture.Attributes?["faction"]?.Value;
                                     if (!string.IsNullOrEmpty(found_culture_faction))
                                     {
                                         culture_mapping = (found_culture_faction, currentFile);
                                         Program.Logger.Debug($"  - Found/Updated culture mapping: {CultureName} -> {culture_mapping.faction}");
+                                        cultureMatchFoundInThisBlock = true;
+
+                                        // Also update heritage mapping from this file, as it's the most relevant context
+                                        string? found_heritage_faction_context = heritage.Attributes?["faction"]?.Value;
+                                        if (!string.IsNullOrEmpty(found_heritage_faction_context))
+                                        {
+                                            heritage_mapping = (found_heritage_faction_context, currentFile);
+                                            Program.Logger.Debug($"  - Contextual heritage mapping updated: {HeritageName} -> {heritage_mapping.faction}");
+                                        }
                                     }
+                                }
+                            }
+
+                            // If no specific culture was found in this block, check for a heritage-level mapping
+                            if (!cultureMatchFoundInThisBlock)
+                            {
+                                string? found_heritage_faction = heritage.Attributes?["faction"]?.Value;
+                                // Only apply this heritage mapping if we haven't found a specific culture mapping in a *previous* file.
+                                if (!string.IsNullOrEmpty(found_heritage_faction) && string.IsNullOrEmpty(culture_mapping.faction))
+                                {
+                                    heritage_mapping = (found_heritage_faction, currentFile);
+                                    Program.Logger.Debug($"  - Found/Updated heritage mapping: {HeritageName} -> {heritage_mapping.faction}.");
                                 }
                             }
                         }
@@ -1953,19 +2180,19 @@ namespace CrusaderWars.unit_mapper
                         CulturesFile.Load(xml_file);
 
                         if (CulturesFile.DocumentElement == null) continue; // Add null check for DocumentElement
-                        foreach(XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
+                        foreach (XmlNode heritage in CulturesFile.DocumentElement.ChildNodes)
                         {
                             if (heritage is XmlComment) continue;
                             string heritage_name = heritage.Attributes?["name"]?.Value ?? string.Empty;
                             if (heritage_name == "Default")
                             {
-                                foreach(XmlNode culture in heritage.ChildNodes)
+                                foreach (XmlNode culture in heritage.ChildNodes)
                                 {
                                     if (culture is XmlComment) continue;
                                     string culture_name = culture.Attributes?["name"]?.Value ?? string.Empty;
-                                    if (culture_name == "Default" && heritage.Attributes?["faction"]?.Value != null)
+                                    if (culture_name == "Default" && heritage.Attributes?["faction"]?.Value is string factionValue)
                                     {
-                                        faction = heritage.Attributes["faction"]!.Value;
+                                        faction = factionValue;
                                         if (!string.IsNullOrEmpty(faction))
                                         {
                                             Program.Logger.Debug($"Resolved faction for '{CultureName}/{HeritageName}' to '{faction}' using fallback 'Default/Default' mapping from '{Path.GetFileName(xml_file)}'.");
@@ -2036,7 +2263,7 @@ namespace CrusaderWars.unit_mapper
                 var uniqueMapByProvName = Terrains.UniqueSettlementMaps
                     .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
                                            sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-                
+
                 if (uniqueMapByProvName != null && uniqueMapByProvName.Variants.Any())
                 {
                     Program.Logger.Debug($"Found unique settlement map by 'province_names' attribute for Province '{provinceName}'.");
@@ -2071,7 +2298,7 @@ namespace CrusaderWars.unit_mapper
                     .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
                                            sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
                                            sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
-                
+
                 if (genericMapByProvName == null)
                 {
                     genericMapByProvName = Terrains.SettlementMaps
@@ -2145,6 +2372,99 @@ namespace CrusaderWars.unit_mapper
             }
         }
 
+        public static string? GetSiegeBattleType(string faction, string battleType, string provinceName)
+        {
+            Program.Logger.Debug($"Attempting to get siege battle type for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'");
+
+            bool forceGeneric = BattleState.AutofixForceGenericMap;
+
+            // Priority 1: Unique Map by province_names attribute
+            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
+            {
+                var uniqueMapByProvName = Terrains.UniqueSettlementMaps
+                    .FirstOrDefault(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+
+                if (uniqueMapByProvName != null)
+                {
+                    Program.Logger.Debug($"Found siege battle type '{uniqueMapByProvName.BattleType}' from unique map by province name.");
+                    return uniqueMapByProvName.BattleType;
+                }
+            }
+
+            // Priority 2: Unique Map by Variant key (existing logic)
+            if (!forceGeneric && Terrains?.UniqueSettlementMaps != null)
+            {
+                var matchingUniqueMaps = Terrains.UniqueSettlementMaps
+                                         .Where(sm => sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase))
+                                         .ToList();
+
+                foreach (var uniqueMap in matchingUniqueMaps)
+                {
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                    if (uniqueMatch != null)
+                    {
+                        Program.Logger.Debug($"Found siege battle type '{uniqueMap.BattleType}' from unique map by variant key '{uniqueMatch.Key}'.");
+                        return uniqueMap.BattleType;
+                    }
+                }
+            }
+
+            // Priority 3: Generic Map by province_names attribute (Specific Faction then Default)
+            if (Terrains?.SettlementMaps != null)
+            {
+                var genericMapByProvName = Terrains.SettlementMaps
+                    .FirstOrDefault(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                           sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+
+                if (genericMapByProvName == null)
+                {
+                    genericMapByProvName = Terrains.SettlementMaps
+                        .FirstOrDefault(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                               sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                               sm.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0));
+                }
+
+                if (genericMapByProvName != null)
+                {
+                    Program.Logger.Debug($"Found siege battle type '{genericMapByProvName.BattleType}' from generic map by province name for faction '{genericMapByProvName.Faction}'.");
+                    return genericMapByProvName.BattleType;
+                }
+            }
+
+            // Priority 4 & 5: Generic Map by faction (existing logic, excluding those with province_names)
+            if (Terrains?.SettlementMaps != null)
+            {
+                var matchingGenericMaps = Terrains.SettlementMaps
+                                          .Where(sm => sm.Faction.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                       !sm.ProvinceNames.Any())
+                                          .ToList();
+
+                if (matchingGenericMaps.Any())
+                {
+                    Program.Logger.Debug($"Found siege battle type '{matchingGenericMaps.First().BattleType}' from generic map for faction '{faction}'.");
+                    return matchingGenericMaps.First().BattleType;
+                }
+
+                matchingGenericMaps = Terrains.SettlementMaps
+                                          .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
+                                                       sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
+                                                       !sm.ProvinceNames.Any())
+                                          .ToList();
+
+                if (matchingGenericMaps.Any())
+                {
+                    Program.Logger.Debug($"Found siege battle type '{matchingGenericMaps.First().BattleType}' from generic map for 'Default' faction.");
+                    return matchingGenericMaps.First().BattleType;
+                }
+            }
+
+            Program.Logger.Debug($"No specific siege battle type found for Faction: '{faction}', BattleType: '{battleType}', Province: '{provinceName}'. Returning null.");
+            return null; // Fallback
+        }
+
         public static string GetSettlementMapDescription(string faction, string battleType, string provinceName)
         {
             if (Terrains == null) return "Unknown Map";
@@ -2213,14 +2533,6 @@ namespace CrusaderWars.unit_mapper
                                                    sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
                                                    !sm.ProvinceNames.Any())
                                       .ToList();
-            if (!matchingGenericMaps.Any())
-            {
-                matchingGenericMaps = Terrains.SettlementMaps
-                                      .Where(sm => sm.Faction.Equals("Default", StringComparison.OrdinalIgnoreCase) &&
-                                                   sm.BattleType.Equals(battleType, StringComparison.OrdinalIgnoreCase) &&
-                                                   !sm.ProvinceNames.Any())
-                                      .ToList();
-            }
             if (matchingGenericMaps.Any())
             {
                 var allGenericVariants = matchingGenericMaps.SelectMany(sm => sm.Variants).ToList();
@@ -2247,7 +2559,7 @@ namespace CrusaderWars.unit_mapper
 
                 string mapperFolderPath = LoadedUnitMapper_FolderPath; // Local variable for compiler analysis
                 var image_path = Directory.GetFiles(mapperFolderPath).Where(x => x.EndsWith(".png")).FirstOrDefault();
-                
+
                 if (image_path != null)
                 {
                     File.Copy(image_path, destination_path, true);
@@ -2307,6 +2619,7 @@ namespace CrusaderWars.unit_mapper
             {
                 XmlDocument FactionsFile = new XmlDocument();
                 FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
                 XmlNode? factionNode = FactionsFile.SelectSingleNode($"/Factions/Faction[@name='{attilaFaction}']");
 
                 if (factionNode != null)
@@ -2335,6 +2648,155 @@ namespace CrusaderWars.unit_mapper
             }
 
             return false;
+        }
+
+        public static List<AvailableUnit> GetAllAvailableUnits()
+        {
+            var allUnits = new List<AvailableUnit>();
+            var uniqueUnitTracker = new HashSet<(string, string)>(); // To track faction + key to avoid duplicates
+
+            if (LoadedUnitMapper_FolderPath == null) return allUnits;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            if (!Directory.Exists(factions_folder_path)) return allUnits;
+
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+
+            foreach (var xml_file in files_paths)
+            {
+                try
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    foreach (XmlNode factionNode in FactionsFile.SelectNodes("/Factions/Faction"))
+                    {
+                        string factionName = factionNode.Attributes?["name"]?.Value ?? "Unknown";
+
+                        foreach (XmlNode unitNode in factionNode.ChildNodes)
+                        {
+                            if (unitNode is XmlComment) continue;
+
+                            string? key = unitNode.Attributes?["key"]?.Value;
+                            if (string.IsNullOrEmpty(key)) continue;
+
+                            if (uniqueUnitTracker.Contains((factionName, key))) continue; // Skip duplicates from files with lower priority
+
+                            var availableUnit = new AvailableUnit
+                            {
+                                FactionName = factionName,
+                                AttilaUnitKey = key,
+                                UnitType = unitNode.Name,
+                                DisplayName = key, // Default display name is the key
+                                IsSiege = false
+                            };
+
+                            if (unitNode.Name == "MenAtArm")
+                            {
+                                availableUnit.DisplayName = unitNode.Attributes?["type"]?.Value ?? key;
+                                availableUnit.MaxCategory = unitNode.Attributes?["max"]?.Value;
+                                availableUnit.IsSiege = unitNode.Attributes?["siege"]?.Value == "true";
+                            }
+                            else if (unitNode.Name == "General" || unitNode.Name == "Knights")
+                            {
+                                if (unitNode.Attributes?["rank"]?.Value is string rankStr && int.TryParse(rankStr, out int rank))
+                                {
+                                    availableUnit.Rank = rank;
+                                }
+                            }
+                            else if (unitNode.Name == "Garrison")
+                            {
+                                if (unitNode.Attributes?["level"]?.Value is string levelStr && int.TryParse(levelStr, out int level))
+                                {
+                                    availableUnit.Level = level;
+                                }
+                            }
+
+                            allUnits.Add(availableUnit);
+                            uniqueUnitTracker.Add((factionName, key));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in GetAllAvailableUnits: {ex.Message}");
+                }
+            }
+
+            return allUnits.OrderBy(u => u.FactionName).ThenBy(u => u.UnitType).ThenBy(u => u.DisplayName).ToList();
+        }
+
+        public static bool IsUnitKeySiege(string unitKey)
+        {
+            if (string.IsNullOrEmpty(unitKey) || LoadedUnitMapper_FolderPath == null) return false;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            if (!Directory.Exists(factions_folder_path)) return false;
+
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Prioritize submods, as they can override base files
+
+            foreach (var xml_file in files_paths)
+            {
+                try
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    // Find a MenAtArm node with the matching key
+                    XmlNode maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@key='{unitKey}']");
+                    if (maaNode != null)
+                    {
+                        // If we find the key, we have our answer.
+                        return maaNode.Attributes?["siege"]?.Value == "true";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in IsUnitKeySiege: {ex.Message}");
+                }
+            }
+
+            // If the key is not found in any file, it's not a siege unit (or not a MenAtArm).
+            return false;
+        }
+        public static string? GetMenAtArmMaxCategory(string menAtArmType)
+        {
+            if (string.IsNullOrEmpty(menAtArmType) || LoadedUnitMapper_FolderPath == null) return null;
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            if (!Directory.Exists(factions_folder_path)) return null;
+
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+            files_paths.Reverse(); // Prioritize submods
+
+            foreach (var xml_file in files_paths)
+            {
+                try
+                {
+                    XmlDocument FactionsFile = new XmlDocument();
+                    FactionsFile.Load(xml_file);
+                    if (FactionsFile.DocumentElement == null) continue;
+
+                    // Find a MenAtArm node with the matching type attribute
+                    XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
+                    if (maaNode != null)
+                    {
+                        return maaNode.Attributes?["max"]?.Value;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in GetMenAtArmMaxCategory: {ex.Message}");
+                }
+            }
+
+            return null; // Not found
         }
     }
 }

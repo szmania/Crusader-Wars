@@ -29,7 +29,7 @@ namespace CrusaderWars
         public CommanderSystem? Commander { get; private set; }
         public DefensiveSystem? Defences { get; private set; }
 
-        public string? CommanderID { get; set; }
+        public string? CommanderID { get; set; } = string.Empty;
         public bool isMainArmy { get; set; } // Changed to public set for easier modification in ArmiesReader
         bool IsPlayerArmy { get; set; }
         bool IsEnemyArmy { get; set; }
@@ -37,9 +37,10 @@ namespace CrusaderWars
         public bool IsReinforcement { get; private set; } // New property for reinforcements
 
         public string? RealmName { get; set; }
-        public string CombatSide { get; set; }
+        public string CombatSide { get; set; } = string.Empty;
         public UnitsResults? UnitsResults { get; set; }
         public List<UnitCasualitiesReport> CasualitiesReports { get; private set; } = new List<UnitCasualitiesReport>();
+        public Dictionary<string, int> SiegeEngines { get; set; } = new Dictionary<string, int>();
 
 
         public Army(string id, string combat_side, bool is_main)
@@ -61,14 +62,17 @@ namespace CrusaderWars
 
 
         //Setters
-        public void AddMergedArmy(Army army) { 
-            MergedArmies.Add(army); 
+        public void AddMergedArmy(Army army)
+        {
+            MergedArmies.Add(army);
         }
-        public void IsPlayer(bool u) { 
+        public void IsPlayer(bool u)
+        {
             IsPlayerArmy = u;
             if (u) IsEnemyArmy = false;
         }
-        public void IsEnemy(bool u) { 
+        public void IsEnemy(bool u)
+        {
             IsEnemyArmy = u;
             if (u) IsPlayerArmy = false;
         }
@@ -78,7 +82,8 @@ namespace CrusaderWars
         public void SetIsGarrison(bool isGarrison) { IsGarrisonArmy = isGarrison; }
         public void SetAsReinforcement(bool isReinforcement) { IsReinforcement = isReinforcement; } // New setter for reinforcement
 
-        public void SetOwner(string id) {
+        public void SetOwner(string id)
+        {
 
             if (id == CK3LogData.LeftSide.GetMainParticipant().id)
                 Owner = new Owner(id, new Culture(CK3LogData.LeftSide.GetMainParticipant().culture_id));
@@ -89,8 +94,8 @@ namespace CrusaderWars
         }
         public void SetOwner(Owner owner) { this.Owner = owner; }
         public void SetArmyRegiments(List<ArmyRegiment> list) { ArmyRegiments = list; }
-        public void SetKnights(KnightSystem knights){ Knights = knights; }
-        public void SetCasualitiesReport(List<UnitCasualitiesReport> reports) { CasualitiesReports = reports; } 
+        public void SetKnights(KnightSystem knights) { Knights = knights; }
+        public void SetCasualitiesReport(List<UnitCasualitiesReport> reports) { CasualitiesReports = reports; }
         public void ClearNullArmyRegiments()
         {
             for (int i = 0; i < ArmyRegiments.Count; i++)
@@ -108,9 +113,40 @@ namespace CrusaderWars
             this.ArmyRegiments.RemoveAll(x => (x.Regiments == null || x.Regiments.Count == 0) && x.Type == RegimentType.Levy);
         }
 
+
+
         public int GetTotalSoldiers()
         {
-            if (IsGarrisonArmy)
+            // If Units list is populated, we're in the final battle composition stage
+            if (Units != null && Units.Any())
+            {
+                return Units.Sum(u => u.GetSoldiers());
+            }
+
+            // If we're dealing with a garrison army
+            if (IsGarrison())
+            {
+                if (Units == null) return 0;
+                return Units.Sum(u => u.GetOriginalSoldiers());
+            }
+
+            // For non-garrison armies in initial strength calculation
+            if (ArmyRegiments == null) return 0;
+
+            // For non-garrison armies, calculate initial strength.
+            // StartingNum is from Combats.txt (field battles/relief sieges) and is the most accurate.
+            // CurrentNum is from ArmyRegiments.txt and is the fallback for simple sieges.
+            return ArmyRegiments.Sum(ar => ar.StartingNum > 0 ? ar.StartingNum : ar.CurrentNum);
+        }
+
+        public int GetTotalDeployed()
+        {
+            return GetTotalSoldiers();
+        }
+
+        public int GetTotalRemaining()
+        {
+            if (IsGarrison())
             {
                 if (Units == null) return 0;
                 return Units.Sum(u => u.GetSoldiers());
@@ -149,10 +185,10 @@ namespace CrusaderWars
 
             var major_levy_culture = ascending_list[0];
             int total_soldiers = 0;
-            for(int i = 0; i< Units.Count;i++)
+            for (int i = 0; i < Units.Count; i++)
             {
                 var unit = Units[i];
-                if(unit.GetObjCulture() == null)
+                if (unit.GetObjCulture() == null)
                 {
                     int soldiers = unit.GetSoldiers();
                     total_soldiers += soldiers;
@@ -160,24 +196,24 @@ namespace CrusaderWars
                 }
             }
 
-            foreach(var unit in Units)
+            foreach (var unit in Units)
             {
-                if(major_levy_culture == unit)
+                if (major_levy_culture == unit)
                 {
-                    unit.ChangeSoldiers(unit.GetSoldiers()+total_soldiers);
+                    unit.ChangeSoldiers(unit.GetSoldiers() + total_soldiers);
                 }
             }
         }
 
         public void PrintUnits()
         {
-           
+
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine($"ARMY - {ID} | {CombatSide}");
             Program.Logger.Debug($"ARMY - {ID} | {CombatSide}");
 
-            if(Commander != null)
+            if (Commander != null)
             {
                 string commanderFaction = UnitMappers_BETA.GetAttilaFaction(Commander.GetCultureName(), Commander.GetHeritageName());
                 var commanderUnit = Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Commander);
@@ -192,7 +228,7 @@ namespace CrusaderWars
                     string knightFaction = UnitMappers_BETA.GetAttilaFaction(knight.GetCultureName(), knight.GetHeritageName());
                     var knightUnit = Units.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight && u.GetName() == knight.GetName());
                     string knightKey = knightUnit?.GetAttilaUnitKey() ?? "not_found";
-                    if(knight.IsAccolade())
+                    if (knight.IsAccolade())
                     {
                         sb.AppendLine($"## ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Attila Faction: {knightFaction} | Attila unit Key: {knightKey}");
                         Program.Logger.Debug($"ACCOLADE | Name: {knight.GetName()} | Soldiers: {knight.GetSoldiers()} | Culture: {knight.GetCultureName()} | Heritage: {knight.GetHeritageName()} | Attila Faction: {knightFaction} | Attila unit Key: {knightKey}");
@@ -204,23 +240,23 @@ namespace CrusaderWars
                     }
                 }
             }
-            
+
             // Filter out character units to prevent double logging
             foreach (var unit in Units.Where(u => u.GetRegimentType() != RegimentType.Commander && u.GetRegimentType() != RegimentType.Knight))
             {
                 string unitName = unit.GetName();
-                if(unit.GetRegimentType() == RegimentType.MenAtArms)
+                if (unit.GetRegimentType() == RegimentType.MenAtArms)
                 {
                     unitName = $"MenAtArm - {unitName}";
                 }
 
                 string culture = unit?.GetObjCulture()?.GetCultureName() ?? "NULL_CULTURE";
                 string heritage = unit?.GetObjCulture()?.GetHeritageName() ?? "NULL_HERITAGE";
-                
+
                 sb.AppendLine($"## {unitName} | Soldiers: {unit.GetSoldiers()} | " +
                     $"Culture: {culture} | Heritage: {heritage} | Attila Faction: {unit.GetAttilaFaction()} | " +
                     $"Attila unit Key: {unit.GetAttilaUnitKey()}");
-                
+
                 Program.Logger.Debug($"{unitName} | Soldiers: {unit.GetSoldiers()} | " +
                     $"Culture: {culture} | Heritage: {heritage} | Attila Faction: {unit.GetAttilaFaction()} | " +
                     $"Attila unit Key: {unit.GetAttilaUnitKey()}");
@@ -247,7 +283,7 @@ namespace CrusaderWars
         string? Name { get; set; }
         int Prowess { get; set; }
         int Martial { get; set; }
-        int FeudalRank {  get; set; }
+        int FeudalRank { get; set; }
 
         // SECUNDARY DATA
         Culture? CultureObj { get; set; }

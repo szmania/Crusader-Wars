@@ -103,7 +103,7 @@ namespace CrusaderWars.twbattle
             foreach (var army in otherArmies)
             {
                 baseArmy.AddMergedArmy(army);
-                army.isMainArmy = false; 
+                army.isMainArmy = false;
             }
 
             defender_armies.RemoveRange(1, defender_armies.Count - 1);

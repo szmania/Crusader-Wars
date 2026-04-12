@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -69,7 +69,7 @@ namespace CrusaderWars.terrain
                             ("0.650", "0.768")
                      };
 
-            public static(string X, string Y, string[] attPositions, string[] defPositions)[] DesertMountains_Tiles = new[]
+            public static (string X, string Y, string[] attPositions, string[] defPositions)[] DesertMountains_Tiles = new[]
                     {
                             ("0.107", "0.697", new string[]{"S", "W"}, new string[]{"N", "E"}),
                             ("0.116", "0.695", new string[]{"S", "W"}, new string[]{"N", "E"}),
@@ -123,7 +123,7 @@ namespace CrusaderWars.terrain
                             ("0.825", "0.625", new string[]{"S", "W"}, new string[]{"N", "E"})
                  };
 
-            public static(string X, string Y)[] Dryland_Tiles = new[]
+            public static (string X, string Y)[] Dryland_Tiles = new[]
                     {
                             ("0.100", "0.667"),
                             ("0.106", "0.656"),
@@ -177,7 +177,7 @@ namespace CrusaderWars.terrain
                             ("0.452", "0.730")
            };
 
-            public static(string X, string Y)[] Farmlands_Tiles = new[]
+            public static (string X, string Y)[] Farmlands_Tiles = new[]
            {
                             ("0.142", "0.307"),
                             ("0.294", "0.441"),
@@ -232,7 +232,7 @@ namespace CrusaderWars.terrain
 
             };
 
-            public static(string X, string Y)[] Forest_Tiles = new[]
+            public static (string X, string Y)[] Forest_Tiles = new[]
                            {
                             ("0.285", "0.290"),
                             ("0.474", "0.254"),
@@ -259,7 +259,7 @@ namespace CrusaderWars.terrain
                             ("0.429", "0.203"),
                             ("0.422", "0.192"),
                             ("0.406", "0.189"),
-                            ("0.416", "0.157"), 
+                            ("0.416", "0.157"),
                             ("0.406", "0.189"),
                             ("0.506", "0.276"),
                             ("0.555", "0.267"),
@@ -285,7 +285,7 @@ namespace CrusaderWars.terrain
                             ("0.312", "0.180"),
                             ("0.310", "0.216")
                         };
-            public static(string X, string Y, string[] attPositions, string[] defPositions)[] Hills_Tiles = new[]
+            public static (string X, string Y, string[] attPositions, string[] defPositions)[] Hills_Tiles = new[]
                         {
                             ("0.151", "0.314", new string[]{"S", "W"}, new string[]{"N", "E"}),
                             ("0.130", "0.323", new string[]{"S", "E"}, new string[]{"N", "W"}),
@@ -337,7 +337,7 @@ namespace CrusaderWars.terrain
                             ("0.381", "0.422", new string[]{"S", "W"}, new string[]{"N", "E"}),
                             ("0.375", "0.418", new string[]{"S", "W"}, new string[]{"N", "E"})
                         };
-            public static(string X, string Y, string[] attPositions, string[] defPositions)[] Mountains_Tiles = new[]
+            public static (string X, string Y, string[] attPositions, string[] defPositions)[] Mountains_Tiles = new[]
                         {
                             ("0.183", "0.453", new string[]{"N", "E"}, new string[]{"S", "W"}),
                             ("0.183", "0.487", new string[]{"S", "E"}, new string[]{"N", "W"}),
@@ -390,7 +390,7 @@ namespace CrusaderWars.terrain
                             ("0.721", "0.453", new string[]{"S", "W"}, new string[]{"N", "E"}),
                             ("0.729", "0.437", new string[]{"N", "E"}, new string[]{"S", "W"})
                         };
-            public static(string X, string Y)[] Plains_Tiles = new[]
+            public static (string X, string Y)[] Plains_Tiles = new[]
                            {
                             ("0.143", "0.302"),
                             ("0.159", "0.328"),
@@ -440,7 +440,7 @@ namespace CrusaderWars.terrain
                             ("0.274", "0.145"),
                             ("0.172", "0.204")
                         };
-            public static(string X, string Y)[] Steppe_Tiles = new[]
+            public static (string X, string Y)[] Steppe_Tiles = new[]
                   {
                             ("0.605", "0.194"),
                             ("0.601", "0.194"),
@@ -494,7 +494,7 @@ namespace CrusaderWars.terrain
                             ("0.617", "0.259"),
               };
 
-            public static(string X, string Y)[] Taiga_Tiles = new[]
+            public static (string X, string Y)[] Taiga_Tiles = new[]
                            {
                     ("0.335", "0.100"),
                     ("0.334", "0.100"),
@@ -548,7 +548,7 @@ namespace CrusaderWars.terrain
                     ("0.872", "0.265")
                         };
 
-            public static(string X, string Y)[] Wetlands_Tiles = new[]
+            public static (string X, string Y)[] Wetlands_Tiles = new[]
                            {
                     ("0.165", "0.192"),
                     ("0.168", "0.192"),
@@ -602,7 +602,7 @@ namespace CrusaderWars.terrain
                     ("0.336", "0.163")
                         };
 
-            public static(string X, string Y)[] Floodplains_Tiles = new[]
+            public static (string X, string Y)[] Floodplains_Tiles = new[]
                             {
                     ("0.541", "0.718"),
                     ("0.539", "0.713"),
@@ -621,7 +621,7 @@ namespace CrusaderWars.terrain
                     ("0.562", "0.786")
                         };
 
-            
+
         };
 
         private static int GetDeterministicIndex(string input, int listCount)
@@ -662,13 +662,25 @@ namespace CrusaderWars.terrain
             if (UnitMappers_BETA.Terrains != null)
             {
                 var terrainItems = UnitMappers_BETA.Terrains.GetNormalMaps().Where(item => item.terrain == terrain).ToList();
-                foreach (var item in terrainItems)
+                if (terrainItems.Any())
                 {
-                    allVariants.Add((item.x, item.y, ALL, ALL));
+                    Program.Logger.Debug($"Found {terrainItems.Count} map variants for terrain '{terrain}' in unit mapper XML. Using these exclusively.");
+                    foreach (var item in terrainItems)
+                    {
+                        allVariants.Add((item.x, item.y, ALL, ALL));
+                    }
+                    // Remove duplicates based on X and Y coordinates and return immediately
+                    return allVariants.GroupBy(v => new { v.X, v.Y })
+                                      .Select(g => g.First())
+                                      .ToList();
+                }
+                else
+                {
+                    Program.Logger.Debug($"No map variants found for terrain '{terrain}' in unit mapper XML. Falling back to hardcoded maps.");
                 }
             }
 
-            // 2. Get from hardcoded lists
+            // 2. Get from hardcoded lists (only executed if no XML maps were found)
             switch (terrain)
             {
                 case "desert":

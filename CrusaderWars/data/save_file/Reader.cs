@@ -137,7 +137,7 @@ namespace CrusaderWars.data.save_file
             //Clear Units File
             File.WriteAllText(Writter.DataFilesPaths.Units_Path(), "");
 
-			//Clear Court Positions File
+            //Clear Court Positions File
             File.WriteAllText(Writter.DataFilesPaths.CourtPositions_Path(), "");
 
             //Clear Landed Titles File
@@ -158,6 +158,13 @@ namespace CrusaderWars.data.save_file
             File.WriteAllText(Writter.DataTEMPFilesPaths.PlayedCharacter_Path(), "");
             File.WriteAllText(Writter.DataFilesPaths.CurrentlyPlayedCharacters_Path(), "");
             File.WriteAllText(Writter.DataTEMPFilesPaths.CurrentlyPlayedCharacters_Path(), "");
+
+            File.WriteAllText(Writter.DataFilesPaths.Wars_Path(), "");
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Wars_Path(), "");
+            File.WriteAllText(Writter.DataFilesPaths.VassalContracts_Path(), "");
+            File.WriteAllText(Writter.DataTEMPFilesPaths.VassalContracts_Path(), "");
+            File.WriteAllText(Writter.DataFilesPaths.Opinions_Path(), "");
+            File.WriteAllText(Writter.DataTEMPFilesPaths.Opinions_Path(), "");
             Program.Logger.Debug("Finished clearing all temporary save file data.");
         }
 
@@ -188,7 +195,7 @@ namespace CrusaderWars.data.save_file
                     {
                         Program.Logger.Debug($"... Read {lineCount} lines from save file ...");
                     }
-                    
+
                     if (twbattle.BattleState.IsSiegeBattle && !string.IsNullOrEmpty(BattleResult.ProvinceID))
                     {
                         GetterKeys.ReadProvinceBuildings(line, BattleResult.ProvinceID);
@@ -196,7 +203,7 @@ namespace CrusaderWars.data.save_file
 
 
                     SearchKeys.TraitsList(line);
-                    
+
                     SearchKeys.BattleResults(line);
                     SearchKeys.Combats(line);
                     SearchKeys.Regiments(line);
@@ -216,7 +223,9 @@ namespace CrusaderWars.data.save_file
                     SearchKeys.Accolades(line);
                     SearchKeys.Dynasties(line);
                     SearchKeys.Sieges(line); // Added call to new Sieges search method
-                    
+                    SearchKeys.Wars(line);
+                    SearchKeys.VassalContracts(line);
+                    SearchKeys.Opinions(line);
                 }
                 long endMemoryt = GC.GetTotalMemory(false);
                 long memoryUsaget = endMemoryt - startMemoryt;

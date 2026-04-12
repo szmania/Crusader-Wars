@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,15 +10,19 @@ namespace CrusaderWars
 {
     public class UnitCasualitiesReport
     {
-        RegimentType UnitType {  get; set; }
-        string Type {  get; set; }
+        RegimentType UnitType { get; set; }
+        public string Type { get; private set; }
         Culture Culture { get; set; }
-        int StartingSoldiers {  get; set; }
+        public string AttilaFaction { get; private set; }
+        public string Script { get; private set; }
+        int StartingSoldiers { get; set; }
         int RemainingSoldiersBeforePursuit { get; set; }
         int RemainingSoldiersAfterPursuit { get; set; } = -1;
-        int Killed { get; set; }
-        
-        public UnitCasualitiesReport(RegimentType unit_type, string type,Culture culture, int startingSoldiers,int remaingSoldiers)
+        int Casualties { get; set; } // Renamed from Killed
+        int Kills { get; set; } // New property for kills inflicted
+        int StartingMachines { get; set; } // New property for siege engines
+
+        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiers, int startingMachines, string attilaFaction, string script)
         {
             UnitType = unit_type;
             Type = type;
@@ -26,9 +30,13 @@ namespace CrusaderWars
             StartingSoldiers = startingSoldiers;
             RemainingSoldiersBeforePursuit = remaingSoldiers;
             RemainingSoldiersAfterPursuit = -1;
-            Killed = Math.Max(0, StartingSoldiers - RemainingSoldiersBeforePursuit); 
+            Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersBeforePursuit);
+            Kills = 0;
+            StartingMachines = startingMachines;
+            AttilaFaction = attilaFaction;
+            Script = script;
         }
-        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit)
+        public UnitCasualitiesReport(RegimentType unit_type, string type, Culture culture, int startingSoldiers, int remaingSoldiersMain, int remaingSoldiersPursuit, int startingMachines, string attilaFaction, string script)
         {
             UnitType = unit_type;
             Type = type;
@@ -36,8 +44,14 @@ namespace CrusaderWars
             StartingSoldiers = startingSoldiers;
             RemainingSoldiersBeforePursuit = remaingSoldiersMain;
             RemainingSoldiersAfterPursuit = remaingSoldiersPursuit;
-            Killed = Math.Max(0, StartingSoldiers - RemainingSoldiersAfterPursuit);
+            Casualties = Math.Max(0, StartingSoldiers - RemainingSoldiersAfterPursuit);
+            Kills = 0;
+            StartingMachines = startingMachines;
+            AttilaFaction = attilaFaction;
+            Script = script;
         }
+
+        public int GetStartingMachines() { return StartingMachines; }
 
         public void PrintReport()
         {
@@ -46,27 +60,47 @@ namespace CrusaderWars
                 remaining = RemainingSoldiersBeforePursuit;
             else
                 remaining = RemainingSoldiersAfterPursuit;
-            Program.Logger.Debug("CASUALITIES REPORT: " + $"{Type}\n" + 
-                             $"Culture: {Culture.GetCultureName()}\n" + 
-                             $"Starting: {StartingSoldiers}\n" + 
+            Program.Logger.Debug("CASUALITIES REPORT: " + $"{Type}\n" +
+                             $"Culture: {Culture.GetCultureName()}\n" +
+                             $"Starting: {StartingSoldiers}\n" +
                              $"Alive: {remaining}");
             Program.Logger.Debug("\n\n");
         }
 
-        public void SetKilled(int i)
+        public void SetKills(int i)
         {
-            Killed = i;
+            Kills = i;
         }
-        
-        public int GetStarting() {  return StartingSoldiers; }
-        public int GetAliveBeforePursuit() {  return RemainingSoldiersBeforePursuit; }
+
+        public void SetCasualties(int i)
+        {
+            Casualties = i;
+        }
+
+        public int GetStarting() { return StartingSoldiers; }
+        public int GetAliveBeforePursuit() { return RemainingSoldiersBeforePursuit; }
         public int GetAliveAfterPursuit() { return RemainingSoldiersAfterPursuit; }
         public RegimentType GetUnitType() { return UnitType; }
-        public string GetTypeName() { return Type; }
-        public Culture GetCulture() { return Culture; }
-        public int GetKilled()
+        public string GetTypeName()
         {
-            return Killed;
+            if (UnitType == RegimentType.Levy)
+            {
+                return $"Levy ({Type})";
+            }
+            if (UnitType == RegimentType.Garrison)
+            {
+                return $"Garrison ({Type})";
+            }
+            return Type;
+        }
+        public Culture GetCulture() { return Culture; }
+        public int GetCasualties()
+        {
+            return Casualties;
+        }
+        public int GetKills()
+        {
+            return Kills;
         }
     }
 
@@ -74,7 +108,7 @@ namespace CrusaderWars
     {
 
         //SOLDIERS ALIVE
-        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase { get; private  set; } = new List<(string, string, string, string)>();
+        public List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase { get; private set; } = new List<(string, string, string, string)>();
         public List<(string Script, string Type, string CultureID, string Remaining)> Alive_PursuitPhase { get; private set; } = new List<(string, string, string, string)>();
 
 
@@ -98,7 +132,7 @@ namespace CrusaderWars
             }
         }
 
-        void ScaleList(List<(string, string, string, string )> list, double porcentage)
+        void ScaleList(List<(string, string, string, string)> list, double porcentage)
         {
             if (list == null) return;
 
@@ -150,7 +184,7 @@ namespace CrusaderWars
                 deaths = army_reports.Where(y => y.GetTypeName() == type)
                                      .Sum(x => Math.Max(0, x.GetAliveBeforePursuit() - x.GetAliveAfterPursuit()));
             }
-                
+
 
             return deaths;
         }
@@ -194,7 +228,7 @@ namespace CrusaderWars
         /// <param name="list">List of Pursuit Phase Kills of soldiers</param>
         public void SetKillsPursuitPhase(List<(string, string, string, string)> list)
         {
-            Kills_PursuitPhase= list;
+            Kills_PursuitPhase = list;
         }
 
     }

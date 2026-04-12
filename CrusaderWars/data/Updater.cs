@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -14,9 +14,9 @@ using CrusaderWars.client; // Added for ModOptions
 
 namespace CrusaderWars
 {
-    public  class Updater
+    public class Updater
     {
-        public  string AppVersion { get; set; } = string.Empty;
+        public string AppVersion { get; set; } = string.Empty;
         public string UMVersion { get; set; } = string.Empty;
         private bool _updaterChecked = false;
 
@@ -47,21 +47,38 @@ namespace CrusaderWars
                     bool optInPreReleases = ModOptions.GetOptInPreReleases();
                     JsonElement? targetRelease = null;
 
+                    Program.Logger.Debug($"Searching for releases. Opt-in for pre-releases: {optInPreReleases}");
+
                     foreach (JsonElement release in root.EnumerateArray())
                     {
                         bool isApiPreRelease = release.GetProperty("prerelease").GetBoolean();
                         string tagName = release.GetProperty("tag_name").GetString() ?? "";
 
                         // A release is considered a pre-release if the API flag is true OR the tag contains a pre-release identifier.
-                        bool isEffectivelyPreRelease = isApiPreRelease || 
-                                                       tagName.Contains("-beta") || 
-                                                       tagName.Contains("-alpha") || 
+                        bool isEffectivelyPreRelease = isApiPreRelease ||
+                                                       tagName.Contains("-beta") ||
+                                                       tagName.Contains("-alpha") ||
                                                        tagName.Contains("-rc");
 
-                        if (optInPreReleases || !isEffectivelyPreRelease)
+                        Program.Logger.Debug($"Evaluating release: {tagName} (Is pre-release: {isEffectivelyPreRelease})");
+
+                        if (optInPreReleases)
                         {
+                            // If opted in, take the very first release found (the latest), regardless of whether it's stable or pre-release.
+                            Program.Logger.Debug($"Opted into pre-releases. Selecting latest release: {tagName}");
                             targetRelease = release;
-                            break; // Found the most recent suitable release.
+                            break;
+                        }
+                        else if (!isEffectivelyPreRelease)
+                        {
+                            // If not opted in, take the first release that is NOT a pre-release.
+                            Program.Logger.Debug($"Not opted into pre-releases. Selecting latest stable release: {tagName}");
+                            targetRelease = release;
+                            break;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Skipping pre-release: {tagName}");
                         }
                     }
 
@@ -88,7 +105,7 @@ namespace CrusaderWars
                                         Program.Logger.Debug($"Found matching asset: {assetName}");
                                         break;
                                     }
-                                 }
+                                }
 
                                 // Fallback if no specific asset was found
                                 if (string.IsNullOrEmpty(downloadUrl))
@@ -126,7 +143,7 @@ namespace CrusaderWars
                                 downloadUrl = assets.EnumerateArray().First().GetProperty("browser_download_url").GetString();
                             }
                         }
-                        
+
                         Program.Logger.Debug($"Found version: {latestVersion}, URL: {downloadUrl}, Release API URL: {releaseApiUrl} (Pre-release opt-in: {optInPreReleases})");
                         return (latestVersion, downloadUrl, releaseApiUrl);
                     }
@@ -343,7 +360,7 @@ namespace CrusaderWars
             Program.Logger.Debug($"  Versions are considered equivalent or B is not newer.");
             return false;
         }
-        
+
 
         bool HasInternetConnection()
         {
@@ -522,6 +539,7 @@ namespace CrusaderWars
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public async Task CheckAppVersion()
         {
             await CheckForUpdaterUpdateAsync();
@@ -601,6 +619,7 @@ namespace CrusaderWars
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public async Task CheckUnitMappersVersion()
         {
             await CheckForUpdaterUpdateAsync();
@@ -729,7 +748,7 @@ namespace CrusaderWars
                 }
                 catch (Exception ex)
                 {
-                        Program.Logger.Debug($"Error checking release for user {user}: {ex.Message}");
+                    Program.Logger.Debug($"Error checking release for user {user}: {ex.Message}");
                 }
             }
 
@@ -740,5 +759,5 @@ namespace CrusaderWars
         }
     }
 
-   
+
 }

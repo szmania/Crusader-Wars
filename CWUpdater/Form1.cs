@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -26,7 +26,7 @@ namespace CWUpdater
         public AutoUpdater()
         {
             Logger.Log("Initializing AutoUpdater form.");
-            if(GetArguments())
+            if (GetArguments())
             {
                 // If CurrentVersion was not provided as an argument, try to read it from a local file
                 if (string.IsNullOrEmpty(CurrentVersion))
@@ -47,16 +47,27 @@ namespace CWUpdater
 
                 InitializeComponent();
                 this.TopMost = true;
-                
+
                 if (!string.IsNullOrEmpty(UpdateVersion))
                 {
+                    var displayUpdateVersion = UpdateVersion.Trim();
+                    if (!displayUpdateVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                    {
+                        displayUpdateVersion = "v" + displayUpdateVersion;
+                    }
+
                     if (!string.IsNullOrEmpty(CurrentVersion))
                     {
-                        VersionLabel.Text = $"v{CurrentVersion.Trim().TrimStart('v')} -> v{UpdateVersion.Trim().TrimStart('v')}";
+                        var displayCurrentVersion = CurrentVersion.Trim();
+                        if (!displayCurrentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                        {
+                            displayCurrentVersion = "v" + displayCurrentVersion;
+                        }
+                        VersionLabel.Text = $"{displayCurrentVersion} -> {displayUpdateVersion}";
                     }
                     else
                     {
-                        VersionLabel.Text = $"Updating to v{UpdateVersion.Trim().TrimStart('v')}";
+                        VersionLabel.Text = $"Updating to {displayUpdateVersion}";
                     }
                 }
                 else
@@ -64,13 +75,13 @@ namespace CWUpdater
                     VersionLabel.Visible = false;
                 }
 
-                if(IsUnitMappers)
+                if (IsUnitMappers)
                 {
                     TitleLabel.Text = "New Unit Mappers Update Available!";
                     WarningLabel.Hide();
                 }
                 this.TopMost = false;
-            }                
+            }
             else
             {
                 Logger.Log("Failed to get required arguments. Exiting.");
@@ -227,13 +238,13 @@ namespace CWUpdater
                 }
                 Environment.Exit(1);
             }
-            
+
         }
 
         public async Task DownloadUpdateAsync(string downloadUrl)
         {
             Logger.Log($"Starting download from: {downloadUrl}");
- 
+
             try
             {
                 string downloadPath = Path.Combine(Path.GetTempPath(), "update.zip");
@@ -250,7 +261,7 @@ namespace CWUpdater
                         var buffer = new byte[8192];
                         long totalBytesRead = 0;
                         int bytesRead;
-                        
+
                         while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                         {
                             await fileStream.WriteAsync(buffer, 0, bytesRead);
@@ -259,7 +270,8 @@ namespace CWUpdater
                             if (totalBytes.HasValue)
                             {
                                 int progressPercentage = (int)((double)totalBytesRead / totalBytes.Value * 100);
-                                this.Invoke((MethodInvoker)delegate {
+                                this.Invoke((MethodInvoker)delegate
+                                {
                                     label1.Text = progressPercentage.ToString() + "%";
                                 });
                             }
@@ -270,7 +282,8 @@ namespace CWUpdater
                 Console.WriteLine("Update downloaded successfully.");
                 Logger.Log("Update downloaded successfully.");
 
-                if(!IsUnitMappers) {
+                if (!IsUnitMappers)
+                {
                     Logger.Log("Applying application update.");
                     await ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
                 }
@@ -287,7 +300,7 @@ namespace CWUpdater
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 this.Close();
             }
-            
+
         }
 
         private async Task RetryActionAsync(Action action, string actionName)
@@ -394,6 +407,50 @@ del ""%~f0""
                         string oldDirectory = cleanApplicationPath + "_old";
                         Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
 
+                        // Preserve Custom folders by moving them to a temporary location
+                        string customMappersBackupPath = Path.Combine(Path.GetTempPath(), "cw_custom_mappers_backup");
+                        if (Directory.Exists(customMappersBackupPath))
+                        {
+                            Directory.Delete(customMappersBackupPath, true);
+                        }
+                        Directory.CreateDirectory(customMappersBackupPath);
+
+                        if (Directory.Exists(applicationPath))
+                        {
+                            var customDirs = Directory.GetDirectories(applicationPath)
+                                .Where(d =>
+                                {
+                                    string tagFile = Path.Combine(d, "tag.txt");
+                                    if (File.Exists(tagFile))
+                                    {
+                                        try
+                                        {
+                                            string tag = File.ReadAllText(tagFile).Trim();
+                                            bool isCustom = tag.StartsWith("Custom", StringComparison.OrdinalIgnoreCase);
+                                            if (isCustom)
+                                            {
+                                                Logger.Log($"Found custom mapper to preserve: {Path.GetFileName(d)} with tag '{tag}'");
+                                            }
+                                            return isCustom;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Logger.Log($"Error reading tag file {tagFile}: {ex.Message}");
+                                            return false;
+                                        }
+                                    }
+                                    return false;
+                                });
+
+                            foreach (var dir in customDirs)
+                            {
+                                string dirName = Path.GetFileName(dir);
+                                string destination = Path.Combine(customMappersBackupPath, dirName);
+                                Logger.Log($"Backing up custom mapper: {dir} to {destination}");
+                                await RetryActionAsync(() => Directory.Move(dir, destination), $"Backup custom mapper {dirName}");
+                            }
+                        }
+
                         // 1. Clean up any leftover old directory from a previous failed update
                         if (Directory.Exists(oldDirectory))
                         {
@@ -402,16 +459,43 @@ del ""%~f0""
                         }
 
                         // 2. Rename current directory to _old
-                        Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
-                        await RetryActionAsync(() => Directory.Move(applicationPath, oldDirectory), "Rename current to _old");
+                        if (Directory.Exists(applicationPath))
+                        {
+                            Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
+                            await RetryActionAsync(() => Directory.Move(applicationPath, oldDirectory), "Rename current to _old");
+                        }
 
                         // 3. Move the new directory into place
                         Logger.Log($"Moving '{tempDirectory}' to '{applicationPath}'.");
                         await RetryActionAsync(() => Directory.Move(tempDirectory, applicationPath), "Move new to current");
 
+                        // Restore Custom_ folders
+                        if (Directory.Exists(customMappersBackupPath))
+                        {
+                            foreach (var dir in Directory.GetDirectories(customMappersBackupPath))
+                            {
+                                string dirName = Path.GetFileName(dir);
+                                string destination = Path.Combine(applicationPath, dirName);
+
+                                // NEW: Check if a directory with the same name exists in the destination (from the update package)
+                                if (Directory.Exists(destination))
+                                {
+                                    Logger.Log($"Conflicting directory '{destination}' found from update package. Deleting to prioritize user's custom mapper.");
+                                    await RetryActionAsync(() => Directory.Delete(destination, true), $"Delete conflicting custom mapper {dirName}");
+                                }
+
+                                Logger.Log($"Restoring custom mapper: {dir} to {destination}");
+                                await RetryActionAsync(() => Directory.Move(dir, destination), $"Restore custom mapper {dirName}");
+                            }
+                            Directory.Delete(customMappersBackupPath, true);
+                        }
+
                         // 4. Delete the old directory
-                        Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
-                        await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
+                        if (Directory.Exists(oldDirectory))
+                        {
+                            Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
+                            await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
+                        }
                     }
                     else // Existing logic for App Updater
                     {
@@ -437,9 +521,13 @@ del ""%~f0""
 
                             string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
                             string settingsDir = Path.Combine(applicationPath, "settings");
+                            string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
+                            string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
                             if (destinationPath.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
-                                destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase))
+                                destinationPath.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
+                                destinationPath.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                                destinationPath.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                             {
                                 Logger.Log($"Skipping overwrite of file in protected directory: {finalRelativePath}");
                                 continue;
@@ -558,7 +646,7 @@ del ""%~f0""
             string updaterDir = Path.Combine(mainAppRoot, "data", "updater"); // This is the directory of the running updater
 
             // Delete obsolete files
-            if(IsUnitMappers)
+            if (IsUnitMappers)
             {
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
@@ -598,6 +686,8 @@ del ""%~f0""
             {
                 string settingsDir = Path.Combine(applicationPath, "settings");
                 string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
+                string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
+                string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
@@ -607,7 +697,9 @@ del ""%~f0""
                     // Skip files within the updater, settings, and unit mappers directories to prevent accidental deletion
                     if (file.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) ||
                         file.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
-                        file.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase))
+                        file.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                        file.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativePath = file.Substring(applicationPath.Length + 1);
@@ -630,7 +722,9 @@ del ""%~f0""
                     // Skip the updater, settings, and unit mappers directories
                     if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) || updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
-                        dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase))
+                        dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(battleFilesDir, StringComparison.OrdinalIgnoreCase) ||
+                        dir.StartsWith(saveFileDataDir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
@@ -662,14 +756,33 @@ del ""%~f0""
 
             Directory.CreateDirectory(backupPath);
 
-            foreach (var dirPath in Directory.GetDirectories(applicationPath, "*", SearchOption.AllDirectories))
+            string normalizedAppPath = applicationPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+            foreach (string dirPath in Directory.GetDirectories(applicationPath, "*", SearchOption.AllDirectories))
             {
-                Directory.CreateDirectory(dirPath.Replace(applicationPath, backupPath));
+                string relativePath = dirPath.Substring(normalizedAppPath.Length);
+                Directory.CreateDirectory(Path.Combine(backupPath, relativePath));
             }
 
-            foreach (var filePath in Directory.GetFiles(applicationPath, "*.*", SearchOption.AllDirectories))
+            foreach (string filePath in Directory.GetFiles(applicationPath, "*.*", SearchOption.AllDirectories))
             {
-                File.Copy(filePath, filePath.Replace(applicationPath, backupPath), true);
+                try
+                {
+                    FileAttributes attributes = File.GetAttributes(filePath);
+                    if (attributes.HasFlag(FileAttributes.ReadOnly))
+                    {
+                        File.SetAttributes(filePath, attributes & ~FileAttributes.ReadOnly);
+                        Logger.Log($"Removed read-only attribute from: {filePath}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Warning: Failed to remove read-only attribute from '{filePath}'. {ex.Message}");
+                }
+
+                string relativePath = filePath.Substring(normalizedAppPath.Length);
+                string destinationPath = Path.Combine(backupPath, relativePath);
+                File.Copy(filePath, destinationPath, true);
             }
             Logger.Log("Backup complete.");
         }
@@ -707,14 +820,19 @@ del ""%~f0""
             // Ensure the applicationPath exists (it might have been partially deleted)
             Directory.CreateDirectory(applicationPath);
 
+            string normalizedBackupPath = backupPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
             foreach (var dirPath in Directory.GetDirectories(backupPath, "*", SearchOption.AllDirectories))
             {
-                Directory.CreateDirectory(dirPath.Replace(backupPath, applicationPath));
+                string relativePath = dirPath.Substring(normalizedBackupPath.Length);
+                Directory.CreateDirectory(Path.Combine(applicationPath, relativePath));
             }
 
             foreach (var filePath in Directory.GetFiles(backupPath, "*.*", SearchOption.AllDirectories))
             {
-                File.Copy(filePath, filePath.Replace(backupPath, applicationPath), true);
+                string relativePath = filePath.Substring(normalizedBackupPath.Length);
+                string destinationPath = Path.Combine(applicationPath, relativePath);
+                File.Copy(filePath, destinationPath, true);
             }
             Logger.Log("Restore complete.");
         }
@@ -723,7 +841,7 @@ del ""%~f0""
         {
             Logger.Log("Restarting application.");
 
-            if(!IsUnitMappers)
+            if (!IsUnitMappers)
             {
                 //Update application .txt file version
                 if (updateVersionFile)
@@ -740,7 +858,7 @@ del ""%~f0""
                     }
                 }
             }
-            else if(IsUnitMappers)
+            else if (IsUnitMappers)
             {
                 //Update unit mappers .txt file version
                 if (updateVersionFile)
@@ -812,7 +930,7 @@ del ""%~f0""
 
                 var newVersion = new Version(newVersionInfo.FileVersion);
                 var currentVersion = new Version(currentVersionInfo.FileVersion);
-                
+
                 Logger.Log($"Comparing updater versions. New: {newVersion}, Current: {currentVersion}");
 
                 return newVersion > currentVersion;

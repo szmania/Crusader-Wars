@@ -33,165 +33,204 @@ namespace CrusaderWars.data.save_file
 
             if (twbattle.BattleState.IsSiegeBattle)
             {
-                // Determine the player's actual side, accounting for the log swap when the player is besieged.
-                DataSearchSides playerSide;
-                // If the player is the main participant or commander of the LeftSide (the besiegers in the log),
-                // they are on the attacking side. Otherwise, they must be involved with the RightSide (besieged).
-                if (CK3LogData.LeftSide.GetMainParticipant().id == DataSearch.Player_Character.GetID() ||
-                    CK3LogData.LeftSide.GetCommander().id == DataSearch.Player_Character.GetID())
-                {
-                    playerSide = DataSearchSides.LeftSide;
-                    Program.Logger.Debug("Player is on LeftSide in the log.");
-                }
-                else
-                {
-                    playerSide = DataSearchSides.RightSide;
-                    Program.Logger.Debug("Player is not on LeftSide in the log, so assigning to RightSide.");
-                }
+                // --- NEW LOGIC START ---
+                var (besiegerIds, reliefIds, combatBlock) = FindSiegeCombatBlockAndExtractArmies();
 
-                // Create sets of character IDs for quick lookup
-                var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id).Append(CK3LogData.LeftSide.GetCommander().id));
-                var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
-                // Also include the player's own character ID in the appropriate set to correctly identify armies they own but don't command.
-                if (playerSide == DataSearchSides.LeftSide)
+                if (combatBlock != null)
                 {
-                    attackerCharIDs.Add(DataSearch.Player_Character.GetID());
-                    Program.Logger.Debug($"Player is on LeftSide, adding Player ID {DataSearch.Player_Character.GetID()} to attacker character set.");
-                }
-                else
-                {
-                    defenderCharIDs.Add(DataSearch.Player_Character.GetID());
-                    Program.Logger.Debug($"Player is on RightSide, adding Player ID {DataSearch.Player_Character.GetID()} to defender character set.");
-                }
+                    Program.Logger.Debug("Found combat block. Populating mobile armies from it.");
+                    BattleResult.Player_Combat = combatBlock;
+                    BattleState.HasReliefArmy = reliefIds.Any();
 
-                // Pre-parse Armies.txt to find all merged sub-armies
-                var mergedSubArmyIDs = new HashSet<string>();
-                try
-                {
-                    string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
-                    string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
-                    foreach (var block in armyBlocks)
+                    foreach (var armyId in besiegerIds)
                     {
-                        if (string.IsNullOrWhiteSpace(block)) continue;
-                        var mergedArmiesMatch = Regex.Match(block, @"merged_armies={\s*([\d\s]+)\s*}");
-                        if (mergedArmiesMatch.Success)
+                        attacker_armies.Add(new Army(armyId, "attacker", false));
+                    }
+
+                    foreach (var armyId in reliefIds)
+                    {
+                        var reliefArmy = new Army(armyId, "defender", false);
+                        reliefArmy.SetAsReinforcement(true);
+                        defender_armies.Add(reliefArmy);
+                    }
+                    Program.Logger.Debug($"Populated from combat block: {attacker_armies.Count} besiegers, {defender_armies.Count} relief forces.");
+                }
+                else
+                {
+                    Program.Logger.Debug("No combat block found. Using Units.txt to find besieging armies (simple siege).");
+                    // Determine the player's actual side, accounting for the log swap when the player is besieged.
+                    DataSearchSides playerSide;
+                    // If the player is the main participant or commander of the LeftSide (the besiegers in the log),
+                    // they are on the attacking side. Otherwise, they must be involved with the RightSide (besieged).
+                    if (CK3LogData.LeftSide.GetMainParticipant().id == DataSearch.Player_Character.GetID() ||
+                        CK3LogData.LeftSide.GetCommander().id == DataSearch.Player_Character.GetID())
+                    {
+                        playerSide = DataSearchSides.LeftSide;
+                        Program.Logger.Debug("Player is on LeftSide in the log.");
+                    }
+                    else
+                    {
+                        playerSide = DataSearchSides.RightSide;
+                        Program.Logger.Debug("Player is not on LeftSide in the log, so assigning to RightSide.");
+                    }
+
+                    // Create sets of character IDs for quick lookup
+                    var attackerCharIDs = new HashSet<string>(CK3LogData.LeftSide.GetKnights().Select(k => k.id).Append(CK3LogData.LeftSide.GetMainParticipant().id));
+                    var defenderCharIDs = new HashSet<string>(CK3LogData.RightSide.GetKnights().Select(k => k.id).Append(CK3LogData.RightSide.GetMainParticipant().id).Append(CK3LogData.RightSide.GetCommander().id));
+                    // Also include the player's own character ID in the appropriate set to correctly identify armies they own but don't command.
+                    if (playerSide == DataSearchSides.LeftSide)
+                    {
+                        attackerCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
+                        attackerCharIDs.Add(DataSearch.Player_Character.GetID());
+                        Program.Logger.Debug($"Player is on LeftSide, adding Player ID {DataSearch.Player_Character.GetID()} to attacker character set.");
+                    }
+                    else
+                    {
+                        defenderCharIDs.Add(CK3LogData.LeftSide.GetCommander().id);
+                        defenderCharIDs.Add(DataSearch.Player_Character.GetID());
+                        Program.Logger.Debug($"Player is on RightSide, adding Player ID {DataSearch.Player_Character.GetID()} to defender character set.");
+                    }
+
+                    // Pre-parse Armies.txt to find all merged sub-armies
+                    var mergedSubArmyIDs = new HashSet<string>();
+                    try
+                    {
+                        string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
+                        string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
+                        foreach (var block in armyBlocks)
                         {
-                            var ids = mergedArmiesMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                            foreach (var id in ids)
+                            if (string.IsNullOrWhiteSpace(block)) continue;
+                            var mergedArmiesMatch = Regex.Match(block, @"merged_armies={\s*([\d\s]+)\s*}");
+                            if (mergedArmiesMatch.Success)
                             {
-                                mergedSubArmyIDs.Add(id);
+                                var ids = mergedArmiesMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var id in ids)
+                                {
+                                    mergedSubArmyIDs.Add(id);
+                                }
+                            }
+                        }
+                        Program.Logger.Debug($"Identified {mergedSubArmyIDs.Count} merged sub-armies.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error pre-parsing Armies.txt for merged armies: {ex.Message}");
+                    }
+
+
+                    DataSearchSides besiegerSide = DataSearchSides.LeftSide; // Besiegers are always LeftSide in the log
+                    var potentialBesiegerArmyIDs = new List<string>();
+                    var potentialReliefArmyIDs = new List<string>();
+
+                    // Pre-parse Armies.txt to map army IDs to commander IDs
+                    var armyToCommanderMap = new Dictionary<string, string>();
+                    try
+                    {
+                        string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
+                        string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
+                        foreach (var block in armyBlocks)
+                        {
+                            if (string.IsNullOrWhiteSpace(block)) continue;
+                            var armyIdMatch = Regex.Match(block, @"\t\t(\d+)={");
+                            var commanderIdMatch = Regex.Match(block, @"commander=(\d+)");
+                            if (armyIdMatch.Success && commanderIdMatch.Success) armyToCommanderMap[armyIdMatch.Groups[1].Value] = commanderIdMatch.Groups[1].Value;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Debug($"Error pre-parsing Armies.txt to map commanders: {ex.Message}");
+                        throw new Exception("Could not map armies to commanders, cannot identify siege participants.", ex);
+                    }
+
+                    // 1. Find all mobile forces at the location and categorize their IDs
+                    try
+                    {
+                        string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
+                        string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
+
+                        foreach (string block in unitBlocks)
+                        {
+                            if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
+
+                            // Modified regex to robustly handle whitespace
+                            Match armyIdMatch = Regex.Match(block, @"army=(\d+)");
+                            if (!armyIdMatch.Success)
+                            {
+                                continue; // This block in Units.txt is not a standard army, so skip it.
+                            }
+                            string armyID = armyIdMatch.Groups[1].Value;
+                            string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
+
+                            armyToCommanderMap.TryGetValue(armyID, out var commanderID);
+
+                            DataSearchSides? currentArmySide = null;
+                            if (attackerCharIDs.Contains(ownerID) || (commanderID != null && attackerCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.LeftSide;
+                            else if (defenderCharIDs.Contains(ownerID) || (commanderID != null && defenderCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.RightSide;
+                            else continue;
+
+                            // Categorize army IDs into potential besiegers or relief forces
+                            if (currentArmySide == besiegerSide)
+                            {
+                                if (!potentialBesiegerArmyIDs.Contains(armyID)) potentialBesiegerArmyIDs.Add(armyID);
+                            }
+                            else
+                            {
+                                if (!potentialReliefArmyIDs.Contains(armyID)) potentialReliefArmyIDs.Add(armyID);
                             }
                         }
                     }
-                    Program.Logger.Debug($"Identified {mergedSubArmyIDs.Count} merged sub-armies.");
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Error pre-parsing Armies.txt for merged armies: {ex.Message}");
-                }
-
-
-                DataSearchSides besiegerSide = DataSearchSides.LeftSide; // Besiegers are always LeftSide in the log
-                var potentialBesiegerArmyIDs = new List<string>();
-                var potentialReliefArmyIDs = new List<string>();
-
-                // Pre-parse Armies.txt to map army IDs to commander IDs
-                var armyToCommanderMap = new Dictionary<string, string>();
-                try
-                {
-                    string armiesContent = File.ReadAllText(Writter.DataFilesPaths.Armies_Path());
-                    string[] armyBlocks = Regex.Split(armiesContent, @"(?=\s*\t\t\d+={)");
-                    foreach (var block in armyBlocks)
+                    catch (Exception ex)
                     {
-                        if (string.IsNullOrWhiteSpace(block)) continue;
-                        var armyIdMatch = Regex.Match(block, @"\t\t(\d+)={");
-                        var commanderIdMatch = Regex.Match(block, @"commander=(\d+)");
-                        if (armyIdMatch.Success && commanderIdMatch.Success)armyToCommanderMap[armyIdMatch.Groups[1].Value] = commanderIdMatch.Groups[1].Value;
+                        Program.Logger.Debug($"Error reading besieger armies from Units.txt: {ex.Message}");
                     }
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Error pre-parsing Armies.txt to map commanders: {ex.Message}");
-                    throw new Exception("Could not map armies to commanders, cannot identify siege participants.", ex);
-                }
 
-                // 1. Find all mobile forces at the location and categorize their IDs
-                try
-                {
-                    string unitsContent = File.ReadAllText(Writter.DataFilesPaths.Units_Path());
-                    string[] unitBlocks = Regex.Split(unitsContent, @"(?=\s*\t\d+={)");
+                    // 2. Filter out merged sub-armies to get only top-level commanders
+                    var topLevelBesiegerIDs = potentialBesiegerArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
+                    var topLevelReliefIDs = potentialReliefArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
 
-                    foreach (string block in unitBlocks)
+                    Program.Logger.Debug($"Found {potentialBesiegerArmyIDs.Count} potential besieger armies, filtered to {topLevelBesiegerIDs.Count} top-level armies.");
+                    Program.Logger.Debug($"Found {potentialReliefArmyIDs.Count} potential relief armies, filtered to {topLevelReliefIDs.Count} top-level armies.");
+
+                    // 3. Create Army objects for the top-level armies
+                    var besiegerForce = new List<Army>();
+                    foreach (var armyID in topLevelBesiegerIDs)
                     {
-                        if (string.IsNullOrWhiteSpace(block) || !block.Contains($"location={BattleResult.ProvinceID}")) continue;
-
-                        // Modified regex to robustly handle whitespace
-                        Match armyIdMatch = Regex.Match(block, @"army=(\d+)");
-                        if (!armyIdMatch.Success)
-                        {
-                            continue; // This block in Units.txt is not a standard army, so skip it.
-                        }
-                        string armyID = armyIdMatch.Groups[1].Value;
-                        string ownerID = Regex.Match(block, @"owner=(\d+)").Groups[1].Value; // Original line
-
-                        armyToCommanderMap.TryGetValue(armyID, out var commanderID);
-
-                        DataSearchSides? currentArmySide = null;
-                        if (attackerCharIDs.Contains(ownerID) || (commanderID != null && attackerCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.LeftSide;
-                        else if (defenderCharIDs.Contains(ownerID) || (commanderID != null && defenderCharIDs.Contains(commanderID))) currentArmySide = DataSearchSides.RightSide;
-                        else continue;
-
-                        // Categorize army IDs into potential besiegers or relief forces
-                        if (currentArmySide == besiegerSide)
-                        {
-                            if (!potentialBesiegerArmyIDs.Contains(armyID)) potentialBesiegerArmyIDs.Add(armyID);
-                        }
-                        else
-                        {
-                            if (!potentialReliefArmyIDs.Contains(armyID)) potentialReliefArmyIDs.Add(armyID);
-                        }
+                        string combatSide = "attacker"; // Besiegers are always attackers in Attila
+                        Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
+                        besiegerForce.Add(army);
+                        Program.Logger.Debug($"Created top-level besieger army object for ID {armyID}.");
                     }
+
+                    var reliefForce = new List<Army>();
+                    foreach (var armyID in topLevelReliefIDs)
+                    {
+                        string combatSide = "defender"; // Relief forces are defenders in Attila
+                        Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
+                        reliefForce.Add(army);
+                        Program.Logger.Debug($"Created top-level relief army object for ID {armyID}.");
+                    }
+
+
+                    // Flag relief forces as reinforcements
+                    foreach (var army in reliefForce)
+                    {
+                        army.SetAsReinforcement(true);
+                        Program.Logger.Debug($"Army {army.ID} flagged as reinforcement.");
+                    }
+
+                    // 3. Assign forces to Attila attacker/defender roles
+                    if (!besiegerForce.Any() && !reliefForce.Any())
+                    {
+                        throw new Exception("Could not find any besieger or relief forces for the siege battle.");
+                    }
+
+                    Program.Logger.Debug("Assigning besieger to Attila attacker role and relief to defender role.");
+                    attacker_armies.AddRange(besiegerForce);
+                    defender_armies.AddRange(reliefForce); // Add relief forces to defender_armies
                 }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Error reading besieger armies from Units.txt: {ex.Message}");
-                }
+                // --- NEW LOGIC END ---
 
-                // 2. Filter out merged sub-armies to get only top-level commanders
-                var topLevelBesiegerIDs = potentialBesiegerArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
-                var topLevelReliefIDs = potentialReliefArmyIDs.Where(id => !mergedSubArmyIDs.Contains(id)).ToList();
-
-                Program.Logger.Debug($"Found {potentialBesiegerArmyIDs.Count} potential besieger armies, filtered to {topLevelBesiegerIDs.Count} top-level armies.");
-                Program.Logger.Debug($"Found {potentialReliefArmyIDs.Count} potential relief armies, filtered to {topLevelReliefIDs.Count} top-level armies.");
-
-                // 3. Create Army objects for the top-level armies
-                var besiegerForce = new List<Army>();
-                foreach (var armyID in topLevelBesiegerIDs)
-                {
-                    string combatSide = "attacker"; // Besiegers are always attackers in Attila
-                    Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
-                    besiegerForce.Add(army);
-                    Program.Logger.Debug($"Created top-level besieger army object for ID {armyID}.");
-                }
-
-                var reliefForce = new List<Army>();
-                foreach (var armyID in topLevelReliefIDs)
-                {
-                    string combatSide = "defender"; // Relief forces are defenders in Attila
-                    Army army = new Army(armyID, combatSide, false); // isMainArmy will be set later
-                    reliefForce.Add(army);
-                    Program.Logger.Debug($"Created top-level relief army object for ID {armyID}.");
-                }
-
-
-                // Flag relief forces as reinforcements
-                foreach (var army in reliefForce)
-                {
-                    army.SetAsReinforcement(true);
-                    Program.Logger.Debug($"Army {army.ID} flagged as reinforcement.");
-                }
-
-                // 2. Generate the garrison force
+                // --- This garrison logic should now be here, outside the if/else ---
                 Army? garrisonArmy = null;
                 try
                 {
@@ -202,27 +241,21 @@ namespace CrusaderWars.data.save_file
                         string garrisonCultureID = twbattle.Sieges.GetGarrisonCulture();
                         string garrisonHeritage = twbattle.Sieges.GetGarrisonHeritage();
 
-                        var garrisonOwnerInfo = (besiegerSide == DataSearchSides.LeftSide) ? CK3LogData.RightSide.GetMainParticipant() : CK3LogData.LeftSide.GetMainParticipant();
+                        // For sieges, the besieged side is always RightSide in the log data
+                        var garrisonOwnerInfo = CK3LogData.RightSide.GetMainParticipant();
                         var garrisonOwner = new Owner(garrisonOwnerInfo.id, new Culture(garrisonOwnerInfo.culture_id));
 
                         garrisonArmy = sieges.GarrisonGenerator.CreateGarrisonPlaceholderArmy(garrisonSize, garrisonCultureID, garrisonHeritage, garrisonOwner, true);
+                        if (garrisonArmy != null)
+                        {
+                            defender_armies.Add(garrisonArmy);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Program.Logger.Debug($"Failed to create garrison placeholder army: {ex.Message}");
                 }
-
-                // 3. Assign forces to Attila attacker/defender roles
-                if (!besiegerForce.Any() && garrisonArmy == null && !reliefForce.Any())
-                {
-                    throw new Exception("Could not find any besieger, garrison, or relief forces for the siege battle.");
-                }
-
-                Program.Logger.Debug("Assigning besieger to Attila attacker role and garrison/relief to defender role.");
-                attacker_armies.AddRange(besiegerForce);
-                if (garrisonArmy != null) defender_armies.Add(garrisonArmy);
-                defender_armies.AddRange(reliefForce); // Add relief forces to defender_armies
             }
             else if (BattleResult.Player_Combat is not null)
             {
@@ -234,9 +267,13 @@ namespace CrusaderWars.data.save_file
             ReadArmiesData();
             ReadArmiesUnits();
             ReadArmyRegiments();
+
             ReadCombatSoldiersNum(BattleResult.Player_Combat);
             ReadRegiments();
             ReadOriginsKeys();
+
+            // Correct regiment soldiers to use starting values from combat data
+            CorrectRegimentSoldiers();
 
             // Log army counts before proceeding
             Program.Logger.Debug($"Armies after initialization: attacker={attacker_armies.Count}, defender={defender_armies.Count}");
@@ -257,6 +294,8 @@ namespace CrusaderWars.data.save_file
                 CreateKnights();
                 CreateMainCommanders();
                 ReadCharacters();
+                SetMAARegimentCultures(attacker_armies);
+                SetMAARegimentCultures(defender_armies);
                 ReadCourtPositions();
                 CheckForNullCultures();
                 ReadCultureManager();
@@ -346,6 +385,98 @@ namespace CrusaderWars.data.save_file
             }
         }
 
+        public static string? FindWarID()
+        {
+            Program.Logger.Debug("Finding WarID by matching battle participants with war participants...");
+
+            try
+            {
+                // Get the main participants from the current battle log data
+                string leftParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                string rightParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
+
+                if (string.IsNullOrEmpty(leftParticipantId) || string.IsNullOrEmpty(rightParticipantId))
+                {
+                    Program.Logger.Debug("Could not find main participants in CK3LogData. Cannot determine WarID.");
+                    return null;
+                }
+
+                Program.Logger.Debug($"Battle participants - Left: {leftParticipantId}, Right: {rightParticipantId}");
+
+                // Read the Wars.txt file
+                string warsFilePath = Writter.DataFilesPaths.Wars_Path();
+                if (!File.Exists(warsFilePath))
+                {
+                    Program.Logger.Debug($"Wars file not found at {warsFilePath}. Cannot determine WarID.");
+                    return null;
+                }
+
+                string warsContent = File.ReadAllText(warsFilePath);
+
+                // Split content into individual war blocks
+                // This regex looks for patterns like "123={ ... }" at the top level
+                string[] warBlocks = Regex.Split(warsContent, @"(?=^\s*\d+={)", RegexOptions.Multiline);
+
+                foreach (string warBlock in warBlocks)
+                {
+                    if (string.IsNullOrWhiteSpace(warBlock)) continue;
+
+                    // Extract the WarID from the block header
+                    Match warIdMatch = Regex.Match(warBlock, @"^\s*(\d+)={");
+                    if (!warIdMatch.Success) continue;
+
+                    string warId = warIdMatch.Groups[1].Value;
+                    Program.Logger.Debug($"Checking war ID: {warId}");
+
+                    // Extract attacker and defender participant lists using robust block parsing
+                    var attackerParticipants = new HashSet<string>();
+                    var defenderParticipants = new HashSet<string>();
+
+                    // Find attacker block content and extract participants
+                    // Using the 'defender' block as a delimiter to capture the full attacker block
+                    Match attackerBlockMatch = Regex.Match(warBlock, @"attacker\s*=\s*({[\s\S]*?})\s*defender\s*=\s*{", RegexOptions.Multiline);
+                    if (attackerBlockMatch.Success)
+                    {
+                        string attackerBlockContent = attackerBlockMatch.Groups[1].Value;
+                        foreach (Match charMatch in Regex.Matches(attackerBlockContent, @"character=(\d+)"))
+                        {
+                            attackerParticipants.Add(charMatch.Groups[1].Value);
+                        }
+                    }
+
+                    // Find defender block content and extract participants
+                    // Using the 'start_date' as a delimiter to capture the full defender block
+                    Match defenderBlockMatch = Regex.Match(warBlock, @"defender\s*=\s*({[\s\S]*?})\s*start_date\s*=", RegexOptions.Multiline);
+                    if (defenderBlockMatch.Success)
+                    {
+                        string defenderBlockContent = defenderBlockMatch.Groups[1].Value;
+                        foreach (Match charMatch in Regex.Matches(defenderBlockContent, @"character=(\d+)"))
+                        {
+                            defenderParticipants.Add(charMatch.Groups[1].Value);
+                        }
+                    }
+
+                    // Check if battle participants are on opposite sides in this war
+                    bool isMatch = (attackerParticipants.Contains(leftParticipantId) && defenderParticipants.Contains(rightParticipantId)) ||
+                                  (defenderParticipants.Contains(leftParticipantId) && attackerParticipants.Contains(rightParticipantId));
+
+                    if (isMatch)
+                    {
+                        Program.Logger.Debug($"Found matching war. WarID: {warId}");
+                        return warId;
+                    }
+                }
+
+                Program.Logger.Debug("No matching war found for the current battle participants.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error finding WarID: {ex.Message}");
+                return null;
+            }
+        }
+
 
         static void ClearNullArmyRegiments()
         {
@@ -365,7 +496,7 @@ namespace CrusaderWars.data.save_file
         static void CheckForNullCultures()
         {
             Program.Logger.Debug("ATTACKER  WITH NULL CULTURE REGIMENTS:\n");
-            foreach(Regiment regiment in attacker_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
+            foreach (Regiment regiment in attacker_armies.SelectMany(army => army.ArmyRegiments).SelectMany(armyRegiment => armyRegiment.Regiments))
             {
                 if (regiment?.Culture == null)
                 {
@@ -396,7 +527,7 @@ namespace CrusaderWars.data.save_file
             }
             Program.Logger.Debug($"Finished reading save file traits. Found {save_file_traits.Count} traits.");
         }
-         
+
         public static int GetTraitIndex(string trait_name)
         {
             int index;
@@ -418,8 +549,8 @@ namespace CrusaderWars.data.save_file
         static void ReadCourtPositions()
         {
             Program.Logger.Debug("Reading court positions...");
-            string profession="";
-            string employeeID="";
+            string profession = "";
+            string employeeID = "";
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.CourtPositions_Path()))
             {
                 string? line;
@@ -471,7 +602,7 @@ namespace CrusaderWars.data.save_file
 
             //non-main army commander variables
             int nonMainCommander_Rank = 1;
-            string nonMainCommander_Name="";
+            string nonMainCommander_Name = "";
             BaseSkills? nonMainCommander_BaseSkills = null;
             Culture? nonMainCommander_Culture = null;
             Accolade? nonMainCommander_Accolade = null;
@@ -483,7 +614,7 @@ namespace CrusaderWars.data.save_file
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             {
                 string? line;
-                while((line = sr.ReadLine()) != null && !sr.EndOfStream)
+                while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
                     if (Regex.IsMatch(line, @"\d+={") && !searchStarted)
                     {
@@ -520,7 +651,7 @@ namespace CrusaderWars.data.save_file
                     }
                     else if (searchStarted && line.StartsWith("\tfirst_name=")) //# FIRST NAME
                     {
-                        if(isCommander)
+                        if (isCommander)
                         {
                             nonMainCommander_Name = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
                         }
@@ -539,15 +670,15 @@ namespace CrusaderWars.data.save_file
                         {
                             nonMainCommander_BaseSkills = new BaseSkills(baseSkills_list);
                         }
-                        else if(isKnight && searchingKnight != null)
+                        else if (isKnight && searchingKnight != null)
                         {
                             searchingKnight.SetBaseSkills(new BaseSkills(baseSkills_list));
                         }
                     }
-                    else if(searchStarted && line.StartsWith("\t\taccolade=")) // # ACCOLADE
+                    else if (searchStarted && line.StartsWith("\t\taccolade=")) // # ACCOLADE
                     {
                         string accoladeID = Regex.Match(line, @"\d+").Value;
-                        if(isKnight && searchingKnight != null)
+                        if (isKnight && searchingKnight != null)
                         {
                             var accolade = GetAccolade(accoladeID);
                             if (accolade != null)
@@ -555,7 +686,7 @@ namespace CrusaderWars.data.save_file
                                 searchingKnight.IsAccolade(true, accolade);
                             }
                         }
-                        else if(isMainCommander && searchingArmy?.Commander != null)
+                        else if (isMainCommander && searchingArmy?.Commander != null)
                         {
                             var accolade = GetAccolade(accoladeID);
                             if (accolade != null)
@@ -563,7 +694,7 @@ namespace CrusaderWars.data.save_file
                                 searchingArmy.Commander.SetAccolade(accolade);
                             }
                         }
-                        else if(isCommander)
+                        else if (isCommander)
                         {
                             nonMainCommander_Accolade = GetAccolade(accoladeID);
                         }
@@ -600,13 +731,13 @@ namespace CrusaderWars.data.save_file
                         {
                             searchingArmy.Knights.GetKnightsList().Find(x => x == searchingKnight)?.ChangeCulture(new Culture(culture_id));
                             searchingArmy.Knights.SetMajorCulture();
-                            if(isOwner && searchingArmy != null && searchingArmy.Owner != null) 
+                            if (isOwner && searchingArmy != null && searchingArmy.Owner != null)
                                 searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
 
                         else if (isMainCommander && searchingArmy?.Commander != null && searchingArmy != null && searchingArmy.Owner != null)
                         {
-                            if(searchingArmy != null && searchingArmy.IsPlayer())
+                            if (searchingArmy != null && searchingArmy.IsPlayer())
                                 searchingArmy.Commander.ChangeCulture(new Culture(CK3LogData.LeftSide.GetCommander().culture_id));
                             else
                                 searchingArmy.Commander.ChangeCulture(new Culture(CK3LogData.RightSide.GetCommander().culture_id));
@@ -618,10 +749,10 @@ namespace CrusaderWars.data.save_file
                                 searchingArmy.Owner.SetCulture(new Culture(culture_id));
                             */
                         }
-                        else if(isCommander)
+                        else if (isCommander)
                         {
                             nonMainCommander_Culture = new Culture(culture_id);
-                            if (isOwner && searchingArmy != null && searchingArmy.Owner != null) 
+                            if (isOwner && searchingArmy != null && searchingArmy.Owner != null)
                                 searchingArmy.Owner.SetCulture(new Culture(culture_id));
                         }
                         else if (searchingArmy != null && searchingArmy.Owner != null)
@@ -652,9 +783,9 @@ namespace CrusaderWars.data.save_file
                                 var commanderKnight = CK3LogData.LeftSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
                                 if (commanderKnight.id != null) // Reverted from commanderKnight != null
                                 {
-                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
+                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess!);
                                     if (nonMainCommander_Rank == 1)
-                                        nonMainCommander_Name = commanderKnight.name;
+                                        nonMainCommander_Name = commanderKnight.name!;
                                     else
                                         nonMainCommander_Name = $"{commanderKnight.name} of {landedTitlesData.titleName}";
                                 }
@@ -671,9 +802,9 @@ namespace CrusaderWars.data.save_file
                                 var commanderKnight = CK3LogData.RightSide.GetKnights().FirstOrDefault(x => x.id == searchingArmy.CommanderID);
                                 if (commanderKnight.id != null) // Reverted from commanderKnight != null
                                 {
-                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess);
+                                    nonMainCommander_Prowess = Int32.Parse(commanderKnight.prowess!);
                                     if (nonMainCommander_Rank == 1)
-                                        nonMainCommander_Name = commanderKnight.name;
+                                        nonMainCommander_Name = commanderKnight.name!;
                                     else
                                         nonMainCommander_Name = $"{commanderKnight.name} of {landedTitlesData.titleName}";
                                 }
@@ -728,6 +859,32 @@ namespace CrusaderWars.data.save_file
                 }
             }
             Program.Logger.Debug("Finished reading characters data.");
+        }
+
+        private static void SetMAARegimentCultures(List<Army> armies)
+        {
+            Program.Logger.Debug("Setting MAA regiment cultures...");
+            foreach (var army in armies)
+            {
+                if (army == null || army.Owner == null || army.Owner.GetCulture() == null) continue;
+
+                string ownerCultureId = army.Owner.GetCulture().ID;
+                if (string.IsNullOrEmpty(ownerCultureId)) continue;
+
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null || armyRegiment.Type != RegimentType.MenAtArms) continue;
+
+                    foreach (var regiment in armyRegiment.Regiments)
+                    {
+                        if (regiment == null || (!string.IsNullOrEmpty(regiment.Culture?.ID))) continue;
+
+                        regiment.SetCulture(ownerCultureId);
+                        Program.Logger.Debug($"Set culture '{ownerCultureId}' for MAA regiment '{regiment.ID}' in army '{army.ID}'");
+                    }
+                }
+            }
+            Program.Logger.Debug("Finished setting MAA regiment cultures.");
         }
 
         static Accolade? GetAccolade(string accoladeID)
@@ -797,6 +954,112 @@ namespace CrusaderWars.data.save_file
             }
         }
 
+        private static (List<string> besiegerIds, List<string> reliefIds, string? combatBlock) FindSiegeCombatBlockAndExtractArmies()
+        {
+            Program.Logger.Debug("Searching for siege combat block in Combats.txt...");
+            try
+            {
+                string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+                string[] combatBlocks = Regex.Split(combatsContent, @"(?=^\s*\d+={)", RegexOptions.Multiline);
+
+                string leftParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                string rightParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
+
+                // Create a set of besieger character IDs (LeftSide participants)
+                var besiegerCharIds = new HashSet<string> { leftParticipantId };
+                if (!string.IsNullOrEmpty(CK3LogData.LeftSide.GetCommander().id))
+                {
+                    besiegerCharIds.Add(CK3LogData.LeftSide.GetCommander().id);
+                }
+
+                foreach (string block in combatBlocks)
+                {
+                    string test = BattleResult.ProvinceID;
+                    if (string.IsNullOrWhiteSpace(block)) continue;
+                    if (!block.Contains($"province={BattleResult.ProvinceID}")) continue;
+
+                    var blockAttackerChars = new HashSet<string>();
+                    var blockDefenderChars = new HashSet<string>();
+
+                    Match attackerBlockMatch = Regex.Match(block, @"attacker\s*=\s*({[\s\S]*?})\s*defender\s*=\s*{", RegexOptions.Multiline);
+                    if (attackerBlockMatch.Success)
+                    {
+                        foreach (Match charMatch in Regex.Matches(attackerBlockMatch.Groups[1].Value, @"character=(\d+)"))
+                        {
+                            blockAttackerChars.Add(charMatch.Groups[1].Value);
+                        }
+                    }
+
+                    // Improved regex to handle various delimiters after the defender block
+                    Match defenderBlockMatch = Regex.Match(block, @"defender\s*=\s*({[\s\S]*?})\s*(?:phase=|combat_results=|province=|start_date=)", RegexOptions.Multiline);
+                    if (defenderBlockMatch.Success)
+                    {
+                        foreach (Match charMatch in Regex.Matches(defenderBlockMatch.Groups[1].Value, @"character=(\d+)"))
+                        {
+                            blockDefenderChars.Add(charMatch.Groups[1].Value);
+                        }
+                    }
+
+                    // Check if besiegers are present in either attacker or defender blocks
+                    bool besiegerIsAttacker = besiegerCharIds.Overlaps(blockAttackerChars);
+                    bool besiegerIsDefender = besiegerCharIds.Overlaps(blockDefenderChars);
+                    bool isMatch = besiegerIsAttacker || besiegerIsDefender;
+
+                    if (isMatch)
+                    {
+                        Program.Logger.Debug("Found matching combat block based on besieger presence and province.");
+                        var attackerIds = new List<string>();
+                        var defenderIds = new List<string>();
+
+                        if (attackerBlockMatch.Success)
+                        {
+                            Match armyMatch = Regex.Match(attackerBlockMatch.Groups[1].Value, @"armies={\s*([\d\s]+)\s*}");
+                            if (armyMatch.Success)
+                            {
+                                attackerIds.AddRange(armyMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                            }
+                        }
+                        if (defenderBlockMatch.Success)
+                        {
+                            Match armyMatch = Regex.Match(defenderBlockMatch.Groups[1].Value, @"armies={\s*([\d\s]+)\s*}");
+                            if (armyMatch.Success)
+                            {
+                                defenderIds.AddRange(armyMatch.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                            }
+                        }
+
+                        // Assign army IDs based on where besiegers were found
+                        List<string> besiegerIds;
+                        List<string> reliefIds;
+
+                        if (besiegerIsAttacker)
+                        {
+                            Program.Logger.Debug("Besieger found in attacker block.");
+                            besiegerIds = attackerIds;
+                            reliefIds = defenderIds;
+                        }
+                        else // besiegerIsDefender must be true
+                        {
+                            Program.Logger.Debug("Besieger found in defender block.");
+                            besiegerIds = defenderIds;
+                            reliefIds = attackerIds;
+                        }
+
+                        Program.Logger.Debug($"Extracted Besieger IDs: [{string.Join(", ", besiegerIds)}], Relief IDs: [{string.Join(", ", reliefIds)}]");
+                        return (besiegerIds, reliefIds, block);
+                    }
+                }
+
+                Program.Logger.Debug("No matching siege combat block found.");
+                return (new List<string>(), new List<string>(), null);
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading or parsing Combats.txt for siege battle: {ex.Message}");
+                return (new List<string>(), new List<string>(), null);
+            }
+        }
+
         static void ReadOriginsKeys()
         {
             Program.Logger.Debug("Reading origins keys from landed titles...");
@@ -816,11 +1079,11 @@ namespace CrusaderWars.data.save_file
                     else if (searchStarted && line.StartsWith("\tkey=")) //# KEY
                     {
                         originKey = Regex.Match(line, "=(.+)").Groups[1].Value;
-                        SetRegimentsOriginsKeys(id,originKey);
+                        SetRegimentsOriginsKeys(id, originKey);
                     }
                     else if (searchStarted && line == "}")
                     {
-                        searchStarted= false;
+                        searchStarted = false;
                         originKey = "";
                         id = "";
                     }
@@ -828,6 +1091,169 @@ namespace CrusaderWars.data.save_file
                 }
             }
             Program.Logger.Debug("Finished reading origins keys.");
+        }
+
+        private static void CorrectRegimentSoldiers()
+        {
+            Program.Logger.Debug("Correcting regiment soldiers to use starting values from combat data...");
+
+            // Process attacker armies
+            foreach (var army in attacker_armies)
+            {
+                if (army.ArmyRegiments == null) continue;
+
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
+
+                    // Get the total soldiers from the army regiment's starting number
+                    string? totalSoldiersStr = armyRegiment.StartingNum.ToString();
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
+                    {
+                        totalSoldiersStr = armyRegiment.CurrentNum.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
+                    {
+                        Program.Logger.Debug($"Skipping soldier correction for ArmyRegiment {armyRegiment.ID} in army {army.ID}: no valid combat or current count found. Using value from Regiments.txt.");
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
+                    {
+                        Program.Logger.Debug($"Skipping soldier correction for ArmyRegiment {armyRegiment.ID} in army {army.ID}: no valid combat or current count found. Using value from Regiments.txt.");
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    {
+                        Program.Logger.Debug($"No soldier count found for ArmyRegiment {armyRegiment.ID} in army {army.ID}");
+                        continue;
+                    }
+
+                    int totalSoldiers;
+                    if (!int.TryParse(totalSoldiersStr, out totalSoldiers))
+                    {
+                        Program.Logger.Debug($"Failed to parse soldier count '{totalSoldiersStr}' for ArmyRegiment {armyRegiment.ID}");
+                        continue;
+                    }
+
+                    // Distribute soldiers across all regiment chunks respecting their max values
+                    int soldiersToDistribute = totalSoldiers;
+                    var regiments = armyRegiment.Regiments.ToList();
+
+                    // First pass: distribute soldiers according to max limits
+                    for (int i = 0; i < regiments.Count; i++)
+                    {
+                        var regiment = regiments[i];
+                        if (regiment == null) continue;
+
+                        int maxForChunk = int.MaxValue;
+                        if (!string.IsNullOrEmpty(regiment.Max) && int.TryParse(regiment.Max, out int parsedMax))
+                        {
+                            maxForChunk = parsedMax;
+                        }
+
+                        int soldiersForThisChunk = Math.Min(soldiersToDistribute, maxForChunk);
+                        regiment.SetSoldiers(soldiersForThisChunk.ToString());
+                        soldiersToDistribute -= soldiersForThisChunk;
+
+                        Program.Logger.Debug($"Set {soldiersForThisChunk} soldiers for regiment {regiment.ID} (chunk {i}) in ArmyRegiment {armyRegiment.ID}. Max: {maxForChunk}");
+                    }
+
+                    // Second pass: if we still have soldiers left, add them to the last chunk
+                    if (soldiersToDistribute > 0 && regiments.Count > 0)
+                    {
+                        var lastRegiment = regiments.Last();
+                        if (lastRegiment != null)
+                        {
+                            int currentSoldiers = 0;
+                            if (!string.IsNullOrEmpty(lastRegiment.CurrentNum) && int.TryParse(lastRegiment.CurrentNum, out int parsedCurrent))
+                            {
+                                currentSoldiers = parsedCurrent;
+                            }
+
+                            int newSoldierCount = currentSoldiers + soldiersToDistribute;
+                            lastRegiment.SetSoldiers(newSoldierCount.ToString());
+                            Program.Logger.Debug($"Warning: Had to exceed max limit for last regiment {lastRegiment.ID} in ArmyRegiment {armyRegiment.ID}. Added {soldiersToDistribute} extra soldiers.");
+                        }
+                    }
+                }
+            }
+
+            // Process defender armies
+            foreach (var army in defender_armies)
+            {
+                if (army.ArmyRegiments == null) continue;
+
+                foreach (var armyRegiment in army.ArmyRegiments)
+                {
+                    if (armyRegiment == null || armyRegiment.Regiments == null || !armyRegiment.Regiments.Any()) continue;
+
+                    // Get the total soldiers from the army regiment's starting number
+                    string? totalSoldiersStr = armyRegiment.StartingNum.ToString();
+                    if (string.IsNullOrEmpty(totalSoldiersStr) || totalSoldiersStr == "0")
+                    {
+                        totalSoldiersStr = armyRegiment.CurrentNum.ToString();
+                    }
+
+                    if (string.IsNullOrEmpty(totalSoldiersStr))
+                    {
+                        Program.Logger.Debug($"No soldier count found for ArmyRegiment {armyRegiment.ID} in army {army.ID}");
+                        continue;
+                    }
+
+                    int totalSoldiers;
+                    if (!int.TryParse(totalSoldiersStr, out totalSoldiers))
+                    {
+                        Program.Logger.Debug($"Failed to parse soldier count '{totalSoldiersStr}' for ArmyRegiment {armyRegiment.ID}");
+                        continue;
+                    }
+
+                    // Distribute soldiers across all regiment chunks respecting their max values
+                    int soldiersToDistribute = totalSoldiers;
+                    var regiments = armyRegiment.Regiments.ToList();
+
+                    // First pass: distribute soldiers according to max limits
+                    for (int i = 0; i < regiments.Count; i++)
+                    {
+                        var regiment = regiments[i];
+                        if (regiment == null) continue;
+
+                        int maxForChunk = int.MaxValue;
+                        if (!string.IsNullOrEmpty(regiment.Max) && int.TryParse(regiment.Max, out int parsedMax))
+                        {
+                            maxForChunk = parsedMax;
+                        }
+
+                        int soldiersForThisChunk = Math.Min(soldiersToDistribute, maxForChunk);
+                        regiment.SetSoldiers(soldiersForThisChunk.ToString());
+                        soldiersToDistribute -= soldiersForThisChunk;
+
+                        Program.Logger.Debug($"Set {soldiersForThisChunk} soldiers for regiment {regiment.ID} (chunk {i}) in ArmyRegiment {armyRegiment.ID}. Max: {maxForChunk}");
+                    }
+
+                    // Second pass: if we still have soldiers left, add them to the last chunk
+                    if (soldiersToDistribute > 0 && regiments.Count > 0)
+                    {
+                        var lastRegiment = regiments.Last();
+                        if (lastRegiment != null)
+                        {
+                            int currentSoldiers = 0;
+                            if (!string.IsNullOrEmpty(lastRegiment.CurrentNum) && int.TryParse(lastRegiment.CurrentNum, out int parsedCurrent))
+                            {
+                                currentSoldiers = parsedCurrent;
+                            }
+
+                            int newSoldierCount = currentSoldiers + soldiersToDistribute;
+                            lastRegiment.SetSoldiers(newSoldierCount.ToString());
+                            Program.Logger.Debug($"Warning: Had to exceed max limit for last regiment {lastRegiment.ID} in ArmyRegiment {armyRegiment.ID}. Added {soldiersToDistribute} extra soldiers.");
+                        }
+                    }
+                }
+            }
+
+            Program.Logger.Debug("Finished correcting regiment soldiers.");
         }
 
         static void SetRegimentsOriginsKeys(string title_id, string originKey)
@@ -880,15 +1306,15 @@ namespace CrusaderWars.data.save_file
                 string? line;
                 while ((line = sr.ReadLine()) != null && !sr.EndOfStream)
                 {
-                    if(line == $"{commanderTitleID}={{")
+                    if (line == $"{commanderTitleID}={{")
                     {
                         searchStarted = true;
                     }
-                    else if(searchStarted && line.StartsWith("\tkey=")) //# KEY
+                    else if (searchStarted && line.StartsWith("\tkey=")) //# KEY
                     {
                         string title_key = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
-                        
-                        if(title_key.StartsWith("b_"))
+
+                        if (title_key.StartsWith("b_"))
                         {
                             rankInt = 2;
                         }
@@ -909,7 +1335,7 @@ namespace CrusaderWars.data.save_file
                             rankInt = 6;
                         }
                     }
-                    else if(searchStarted && line.StartsWith("\tname="))
+                    else if (searchStarted && line.StartsWith("\tname="))
                     {
                         string name = Regex.Match(line, "\"(.+)\"").Groups[1].Value;
                         titleName = name;
@@ -926,10 +1352,10 @@ namespace CrusaderWars.data.save_file
         static void RemoveCommandersAsKnights()
         {
             Program.Logger.Debug("Removing commanders from knight regiments...");
-            foreach(Army army in attacker_armies)
+            foreach (Army army in attacker_armies)
             {
                 ArmyRegiment? commanderRegiment = army.ArmyRegiments.FirstOrDefault(x => x.MAA_Name == army.CommanderID);
-                if(commanderRegiment != null)
+                if (commanderRegiment != null)
                 {
                     Program.Logger.Debug($"Removing commander '{army.CommanderID}' from knight regiments in attacker army '{army.ID}'.");
                     army.ArmyRegiments.Remove(commanderRegiment);
@@ -938,7 +1364,7 @@ namespace CrusaderWars.data.save_file
             foreach (Army army in defender_armies)
             {
                 ArmyRegiment? commanderRegiment = army.ArmyRegiments.FirstOrDefault(x => x.MAA_Name == army.CommanderID);
-                if(commanderRegiment != null)
+                if (commanderRegiment != null)
                 {
                     Program.Logger.Debug($"Removing commander '{army.CommanderID}' from knight regiments in defender army '{army.ID}'.");
                     army.ArmyRegiments.Remove(commanderRegiment);
@@ -947,7 +1373,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Finished removing commanders from knight regiments.");
         }
 
-        
+
         public static List<Army>? GetSideArmies(string side, List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug($"Getting armies for side: {side}");
@@ -1007,7 +1433,7 @@ namespace CrusaderWars.data.save_file
             var left_side_armies = GetSideArmies("left", attacker_armies, defender_armies);
             var right_side_armies = GetSideArmies("right", attacker_armies, defender_armies);
 
-            if(left_side_armies != null)
+            if (left_side_armies != null)
             {
                 var left_main_commander_data = CK3LogData.LeftSide.GetCommander();
                 Program.Logger.Debug($"Setting left side main commander: {left_main_commander_data.name} ({left_main_commander_data.id})");
@@ -1018,7 +1444,7 @@ namespace CrusaderWars.data.save_file
                 }
             }
 
-            if(right_side_armies != null)
+            if (right_side_armies != null)
             {
                 var right_main_commander_data = CK3LogData.RightSide.GetCommander();
                 Program.Logger.Debug($"Setting right side main commander: {right_main_commander_data.name} ({right_main_commander_data.id})");
@@ -1040,7 +1466,7 @@ namespace CrusaderWars.data.save_file
 
             var KnightsList = new List<Knight>();
             Program.Logger.Debug("Creating knights for left side armies...");
-            if(left_side_armies != null)
+            if (left_side_armies != null)
             {
                 for (int x = 0; x < left_side_armies.Count; x++)
                 {
@@ -1095,7 +1521,7 @@ namespace CrusaderWars.data.save_file
 
             KnightsList = new List<Knight>();
             Program.Logger.Debug("Creating knights for right side armies...");
-            if(right_side_armies != null)
+            if (right_side_armies != null)
             {
                 for (int x = 0; x < right_side_armies.Count; x++)
                 {
@@ -1167,22 +1593,22 @@ namespace CrusaderWars.data.save_file
                 List<string> regiments_ids = new List<string>();
 
                 string? line;
-                while((line = sr.ReadLine()) != null)
+                while ((line = sr.ReadLine()) != null)
                 {
 
                     //Mercenary Company ID
-                    if(Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
+                    if (Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
                     {
                         isSearchStarted = true;
                         continue;
                     }
-                    else if(line == "\t\t}")
+                    else if (line == "\t\t}")
                     {
                         var attacker_mercenaries_regiments = attacker_armies.SelectMany(army => army.ArmyRegiments.SelectMany(armyRegiment => armyRegiment.Regiments))
                                                             .Where(regiment => regiment.isMercenary())
                                                             .ToList();
 
-                        
+
                         var defender_mercenaries_regiments = defender_armies.SelectMany(army => army.ArmyRegiments.SelectMany(armyRegiment => armyRegiment.Regiments))
                                                             .Where(regiment => regiment.isMercenary())
                                                             .ToList();
@@ -1200,7 +1626,7 @@ namespace CrusaderWars.data.save_file
                             for (int x = 0; x < attacker_armies[i].ArmyRegiments.Count; x++)
                             {
                                 //Regiments
-                                if(attacker_armies[i].ArmyRegiments[x].Regiments != null)
+                                if (attacker_armies[i].ArmyRegiments[x].Regiments != null)
                                 {
                                     for (int y = 0; y < attacker_armies[i].ArmyRegiments[x].Regiments.Count; y++)
                                     {
@@ -1228,7 +1654,7 @@ namespace CrusaderWars.data.save_file
                             for (int x = 0; x < defender_armies[i].ArmyRegiments.Count; x++)
                             {
                                 //Regiments
-                                if(defender_armies[i].ArmyRegiments[x].Regiments != null)
+                                if (defender_armies[i].ArmyRegiments[x].Regiments != null)
                                 {
                                     for (int y = 0; y < defender_armies[i].ArmyRegiments[x].Regiments.Count; y++)
                                     {
@@ -1265,8 +1691,8 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("Finished reading mercenaries data.");
 
             //HOLY ORDER REGIMENTS
-            
-            foreach(var army in attacker_armies)
+
+            foreach (var army in attacker_armies)
             {
                 var attacker_holyorder_regiments = army.ArmyRegiments.SelectMany(armyRegiment => armyRegiment.Regiments)
                                               .Where(regiment => regiment.isMercenary() && regiment.Culture == null);
@@ -1317,27 +1743,27 @@ namespace CrusaderWars.data.save_file
                     if (line == null) break;
 
                     //County Line
-                    if(Regex.IsMatch(line,@"\t\t\w+={") && !isSearchStared)
+                    if (Regex.IsMatch(line, @"\t\t\w+={") && !isSearchStared)
                     {
                         county_key = Regex.Match(line, @"\t\t(\w+)={").Groups[1].Value;
 
-                        isSearchStared =  Armies_Functions.SearchCounty(county_key, attacker_armies);
+                        isSearchStared = Armies_Functions.SearchCounty(county_key, attacker_armies);
                         if (!isSearchStared)
                         {
                             isSearchStared = Armies_Functions.SearchCounty(county_key, defender_armies);
                         }
-                        
+
                     }
 
                     //Culture ID
-                    else if(isSearchStared && line.Contains("\t\t\tculture=")) 
+                    else if (isSearchStared && line.Contains("\t\t\tculture="))
                     {
                         string culture_id = Regex.Match(line, @"\t\t\tculture=(\d+)").Groups[1].Value;
-                        FoundCounties.Add((county_key, culture_id));                        
+                        FoundCounties.Add((county_key, culture_id));
                     }
 
                     // County End Line
-                    else if(isSearchStared && line == "\t\t}")
+                    else if (isSearchStared && line == "\t\t}")
                     {
                         isSearchStared = false;
                     }
@@ -1345,24 +1771,23 @@ namespace CrusaderWars.data.save_file
 
                 }
 
-                
+
                 //Populate regiments with culture id's
                 Armies_Functions.PopulateRegimentsWithCultures(FoundCounties, attacker_armies);
                 Armies_Functions.PopulateRegimentsWithCultures(FoundCounties, defender_armies);
- 
+
             }
             Program.Logger.Debug("Finished reading counties manager data.");
         }
-        
+
 
 
         private static void ReadRegiments()
         {
             bool isSearchStarted = false;
-            Regiment? regiment = null;
+            List<Regiment> foundRegiments = new List<Regiment>();
 
             int index = -1;
-            int reg_chunk_index = 0;
 
             using (StreamReader sr = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
             {
@@ -1374,93 +1799,122 @@ namespace CrusaderWars.data.save_file
                     {
                         string regiment_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
 
-                        var searchingData = Armies_Functions.SearchRegiments(regiment_id, attacker_armies);
-                        if(searchingData.searchHasStarted)
+                        // Find ALL regiments that match this ID across both attacker and defender armies
+                        foundRegiments = attacker_armies.SelectMany(army => army.ArmyRegiments)
+                                             .SelectMany(armyRegiment => armyRegiment.Regiments)
+                                             .Where(reg => reg.ID == regiment_id)
+                                             .ToList();
+
+                        if (foundRegiments.Count == 0)
+                        {
+                            foundRegiments = defender_armies.SelectMany(army => army.ArmyRegiments)
+                                                 .SelectMany(armyRegiment => armyRegiment.Regiments)
+                                                 .Where(reg => reg.ID == regiment_id)
+                                                 .ToList();
+                        }
+
+                        if (foundRegiments.Count > 0)
                         {
                             isSearchStarted = true;
-                            regiment = searchingData.regiment;
-                        }
-                        else
-                        {
-                            searchingData = Armies_Functions.SearchRegiments(regiment_id, defender_armies);
-                            if( searchingData.searchHasStarted )
-                            {
-                                isSearchStarted = true;
-                                regiment = searchingData.regiment;
-                            }
                         }
                     }
 
                     // Index Counter
                     else if (line == "\t\t\t\t{" && isSearchStarted)
                     {
-                        if(regiment != null)
-                        {
-                            string str_index = regiment.Index;
-                            if (!string.IsNullOrEmpty(str_index))
-                            {
-                                reg_chunk_index = Int32.Parse(str_index);
-                                index++;
-                            }
-                            else
-                            {
-                                reg_chunk_index = 0;
-                                index++;
-                            }
-                        }
+                        index++;
                     }
 
                     // isMercenary 
                     else if (isSearchStarted && line.Contains("\t\t\tsource=hired"))
                     {
-                        regiment?.isMercenary(true);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.isMercenary(true);
+                        }
                     }
 
                     // isGarrison 
                     else if (isSearchStarted && line.Contains("\t\t\tsource=garrison"))
                     {
-                        regiment?.IsGarrison(true);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.IsGarrison(true);
+                        }
                     }
                     // Origin 
                     else if (isSearchStarted && line.Contains("\t\t\torigin="))
                     {
                         string origin = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetOrigin(origin);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.SetOrigin(origin);
+                        }
                     }
                     // Owner 
                     else if (isSearchStarted && line.Contains("\t\t\towner="))
                     {
                         string owner = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetOwner(owner);
-
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.SetOwner(owner);
+                        }
                     }
-                    else if(isSearchStarted && line.Contains("\t\t\towning_title="))
+                    else if (isSearchStarted && line.Contains("\t\t\towning_title="))
                     {
                         string owiningTitle = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetOwningTitle(owiningTitle);
+                        foreach (var reg in foundRegiments)
+                        {
+                            reg.SetOwningTitle(owiningTitle);
+                        }
                     }
-                    // Max
+                    // Max (inside chunk)
                     else if (isSearchStarted && line.Contains("\t\t\t\t\tmax="))
                     {
                         string max = Regex.Match(line, @"\d+").Value;
-                        regiment?.SetMax(max);
+                        foreach (var reg in foundRegiments)
+                        {
+                            int reg_chunk_index = 0;
+                            if (!string.IsNullOrEmpty(reg.Index))
+                            {
+                                reg_chunk_index = Int32.Parse(reg.Index);
+                            }
+
+                            if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
+                            {
+                                reg.SetMax(max);
+                            }
+                        }
                     }
 
-                    // Soldiers
-                    else if (isSearchStarted && (line.Contains("\t\t\t\t\tcurrent=") || line.Contains("\t\t\tsize=")))
+                    // Soldiers and Max (top level)
+                    else if (isSearchStarted && (line.Contains("\t\t\t\t\tcurrent=") || line.Contains("\t\t\tsize=") || line.Contains("\t\t\tmax=")))
                     {
                         string current = Regex.Match(line, @"\d+").Value;
-                        if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
+
+                        // Process each found regiment to check if this chunk applies to it
+                        foreach (var reg in foundRegiments)
                         {
-                            regiment?.SetSoldiers(current);
+                            // Calculate reg_chunk_index for this specific regiment
+                            int reg_chunk_index = 0;
+                            if (!string.IsNullOrEmpty(reg.Index))
+                            {
+                                reg_chunk_index = Int32.Parse(reg.Index);
+                            }
+
+                            // Only set soldiers if this chunk index matches the regiment's required index
+                            if (index == reg_chunk_index || (index == -1 && reg_chunk_index == 0))
+                            {
+                                reg.SetSoldiers(current);
+                            }
                         }
 
-                        if(line.Contains("\t\t\tsize="))
+                        if (line.Contains("\t\t\tsize=") || line.Contains("\t\t\tmax="))
                         {
-                            regiment?.SetMax(current);
+                            foreach (var reg in foundRegiments)
+                            {
+                                reg.SetMax(current);
+                            }
                         }
                     }
 
@@ -1469,15 +1923,7 @@ namespace CrusaderWars.data.save_file
                     {
                         isSearchStarted = false;
                         index = -1;
-                        reg_chunk_index = 0;
-
-                        if (regiment != null)
-                        {
-                            EditOgRegiment(regiment, attacker_armies, defender_armies);
-                        }
-
-                        regiment = null;
-                       
+                        foundRegiments.Clear();
                     }
                 }
             }
@@ -1494,51 +1940,6 @@ namespace CrusaderWars.data.save_file
             {
                 defender_armies[i].RemoveGarrisonRegiments();
             }
-        }
-        static void EditOgRegiment(Regiment editedRegiment ,List<Army> attacker_armies, List<Army> defender_armies)
-        {
-            foreach(Army army in attacker_armies)
-            {
-                foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
-                {
-                    foreach(Regiment regiment in armyRegiment.Regiments)
-                    {
-                        if(editedRegiment.ID == regiment.ID)
-                        {
-                            regiment.SetOrigin(editedRegiment.Origin);
-                            regiment.SetMax(editedRegiment.Max);
-                            regiment.SetSoldiers(editedRegiment.CurrentNum);
-                            regiment.SetOwner(editedRegiment.Owner);
-                            regiment.isMercenary(editedRegiment.isMercenary());
-                            regiment.IsGarrison(editedRegiment.IsGarrison());
-                            return;
-                        }
-                        
-                    }
-                }
-            }
-
-            foreach (Army army in defender_armies)
-            {
-                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
-                {
-                    foreach (Regiment regiment in armyRegiment.Regiments)
-                    {
-                        if (editedRegiment.ID == regiment.ID)
-                        {
-                            regiment.SetOrigin(editedRegiment.Origin);
-                            regiment.SetMax(editedRegiment.Max);
-                            regiment.SetSoldiers(editedRegiment.CurrentNum);
-                            regiment.SetOwner(editedRegiment.Owner);
-                            regiment.isMercenary(editedRegiment.isMercenary());
-                            regiment.IsGarrison(editedRegiment.IsGarrison());
-                            return;
-                        }
-
-                    }
-                }
-            }
-
         }
 
 
@@ -1593,7 +1994,7 @@ namespace CrusaderWars.data.save_file
             }
         }
 
-        
+
         private static void ReadArmyRegiments()
         {
             List<Regiment> found_regiments = new List<Regiment>();
@@ -1620,7 +2021,7 @@ namespace CrusaderWars.data.save_file
                     {
                         string army_regiment_id = Regex.Match(line, @"\t\t(\d+)={").Groups[1].Value;
                         var searchingData = Armies_Functions.SearchArmyRegiments(army_regiment_id, attacker_armies);
-                        if(searchingData.searchHasStarted)
+                        if (searchingData.searchHasStarted)
                         {
                             isSearchStarted = true;
                             armyRegiment = searchingData.regiment;
@@ -1628,7 +2029,7 @@ namespace CrusaderWars.data.save_file
                         else
                         {
                             searchingData = Armies_Functions.SearchArmyRegiments(army_regiment_id, defender_armies);
-                            if(searchingData.searchHasStarted)
+                            if (searchingData.searchHasStarted)
                             {
                                 isSearchStarted = true;
                                 armyRegiment = searchingData.regiment;
@@ -1637,18 +2038,18 @@ namespace CrusaderWars.data.save_file
                     }
 
                     //Regiment ID
-                    if(isSearchStarted && line.Contains("\t\t\t\t\tregiment="))
+                    if (isSearchStarted && line.Contains("\t\t\t\t\tregiment="))
                     {
-                        if(isNameSet == false)
+                        if (isNameSet == false)
                         {
-                            if(armyRegiment != null) armyRegiment.SetType(RegimentType.Levy);
+                            if (armyRegiment != null) armyRegiment.SetType(RegimentType.Levy);
                         }
 
-                        regiment_id = Regex.Match(line, @"(\d+)").Groups[1].Value;                    
+                        regiment_id = Regex.Match(line, @"(\d+)").Groups[1].Value;
 
                     }
 
-                    else if(isSearchStarted && line.Contains("\t\t\tchunks={"))
+                    else if (isSearchStarted && line.Contains("\t\t\tchunks={"))
                     {
                         isReadingChunks = true;
                     }
@@ -1671,14 +2072,14 @@ namespace CrusaderWars.data.save_file
                     }
 
                     //Current Number
-                    else if(isSearchStarted && line.Contains("\t\t\t\tcurrent="))
+                    else if (isSearchStarted && (line.Contains("\t\t\t\tcurrent=") || (!isReadingChunks && armyRegiment?.Type == RegimentType.Levy && line.Contains("\t\t\tcurrent="))))
                     {
                         string currentNum = Regex.Match(line, @"\d+").Value;
-                        armyRegiment?.SetCurrentNum(currentNum);
+                        if (armyRegiment != null) armyRegiment.CurrentNum = int.Parse(currentNum);
                     }
 
                     //Max
-                    else if (isSearchStarted && line.Contains("\t\t\t\tmax="))
+                    else if (isSearchStarted && (line.Contains("\t\t\t\tmax=") || (!isReadingChunks && armyRegiment?.Type == RegimentType.Levy && line.Contains("\t\t\tmax="))))
                     {
                         string max = Regex.Match(line, @"\d+").Value;
                         armyRegiment?.SetMax(max);
@@ -1700,7 +2101,7 @@ namespace CrusaderWars.data.save_file
                         isNameSet = true;
                     }
 
-                    
+
                     //Levies
                     else if (isSearchStarted && line == "\t\t\t\tlevies={")
                     {
@@ -1712,7 +2113,7 @@ namespace CrusaderWars.data.save_file
                     else if (line == "\t\t}" && isSearchStarted)
                     {
                         //Debug purposes, remove later...
-                        if(found_regiments != null)
+                        if (found_regiments != null)
                         {
                             armyRegiment?.SetRegiments(found_regiments);
                         }
@@ -1721,7 +2122,7 @@ namespace CrusaderWars.data.save_file
                         regiment_id = "";
                         index = "";
                         isSearchStarted = false;
-                        isNameSet= false;
+                        isNameSet = false;
                         isReadingChunks = false;
                     }
 
@@ -1739,13 +2140,13 @@ namespace CrusaderWars.data.save_file
             int index = 0;
             using (StreamReader SR = new StreamReader(Writter.DataFilesPaths.Armies_Path()))
             {
-                while(true)
+                while (true)
                 {
                     string? line = SR.ReadLine();
                     if (line == null) break;
 
                     // Army ID Line
-                    if(Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
+                    if (Regex.IsMatch(line, @"\t\t\d+={") && !isSearchStarted)
                     {
                         // Check if it's a battle army
 
@@ -1762,7 +2163,7 @@ namespace CrusaderWars.data.save_file
                             }
 
                         }
-                        if(!isSearchStarted)
+                        if (!isSearchStarted)
                         {
                             for (int i = 0; i < defender_armies.Count; i++)
                             {
@@ -1784,26 +2185,26 @@ namespace CrusaderWars.data.save_file
                     {
                         MatchCollection regiments_ids = Regex.Matches(line, @"(\d+) ");
                         List<ArmyRegiment> army_regiments = new List<ArmyRegiment>();
-                        foreach(Match match in regiments_ids)
+                        foreach (Match match in regiments_ids)
                         {
                             string id_ = match.Groups[1].Value;
                             ArmyRegiment army_regiment = new ArmyRegiment(id_);
                             army_regiments.Add(army_regiment);
                         }
 
-                        if(isAttacker)
+                        if (isAttacker)
                         {
                             attacker_armies[index].SetArmyRegiments(army_regiments);
                         }
-                        else if(isDefender)
+                        else if (isDefender)
                         {
                             defender_armies[index].SetArmyRegiments(army_regiments);
                         }
 
                     }
-                    else if(isSearchStarted && line.Contains("\t\t\tcommander="))
+                    else if (isSearchStarted && line.Contains("\t\t\tcommander="))
                     {
-                        string id = Regex.Match(line, @"commander=(\d+)").Groups[1].Value;                                                                                                                                                              
+                        string id = Regex.Match(line, @"commander=(\d+)").Groups[1].Value;
                         if (isAttacker)
                         {
                             attacker_armies[index].CommanderID = id;
@@ -1816,11 +2217,11 @@ namespace CrusaderWars.data.save_file
                     else if (isSearchStarted && line.Contains("\t\t\tunit="))
                     {
                         string armyUnitId = Regex.Match(line, @"\d+").Value;
-                        if(isAttacker)
+                        if (isAttacker)
                         {
                             attacker_armies[index].ArmyUnitID = armyUnitId;
                         }
-                        else if(isDefender)
+                        else if (isDefender)
                         {
                             defender_armies[index].ArmyUnitID = armyUnitId;
                         }
@@ -1873,7 +2274,7 @@ namespace CrusaderWars.data.save_file
                         MatchCollection found_armies = Regex.Matches(line, @"(\d+) ");
                         attacker_armies = new List<Army>();
 
-                        for(int i = 0; i < found_armies.Count; i++)
+                        for (int i = 0; i < found_armies.Count; i++)
                         {
                             //Create new Army with combat sides on the constructor
                             //Army army
@@ -1881,7 +2282,7 @@ namespace CrusaderWars.data.save_file
                             string combat_side = "attacker";
 
                             // main army
-                            if(i == 0) //<-------------------------------------------------------------------[FIX THIS] !!!
+                            if (i == 0) //<-------------------------------------------------------------------[FIX THIS] !!!
                             {
                                 Army army = new Army(id, combat_side, true);
                                 attacker_armies.Add(army);
@@ -1889,11 +2290,11 @@ namespace CrusaderWars.data.save_file
                             // ally army
                             else
                             {
-                               Army army = new Army(id, combat_side, false);
-                               attacker_armies.Add(army);
+                                Army army = new Army(id, combat_side, false);
+                                attacker_armies.Add(army);
                             }
                         }
-  
+
                     }
                     else if (isDefender && line.Contains("\t\t\t\tarmies={"))
                     {
@@ -1926,13 +2327,86 @@ namespace CrusaderWars.data.save_file
             }
         }
 
+        private static string? FindReliefFieldCombatBlock()
+        {
+            Program.Logger.Debug("Searching for relief field combat block in Combats.txt...");
+            try
+            {
+                string combatsContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
+                string[] combatBlocks = Regex.Split(combatsContent, @"(?=^\s*\d+={)", RegexOptions.Multiline);
+
+                // 1. Get all mobile (non-garrison) army IDs from the current battle
+                var mobileArmyIdsInBattle = new HashSet<string>(
+                    attacker_armies.Where(a => !a.IsGarrison()).Select(a => a.ID)
+                    .Concat(defender_armies.Where(a => !a.IsGarrison()).Select(a => a.ID))
+                );
+
+                if (!mobileArmyIdsInBattle.Any())
+                {
+                    Program.Logger.Debug("No mobile armies found in the battle. Cannot search for a field combat block.");
+                    return null;
+                }
+
+                Program.Logger.Debug($"Mobile armies in battle: [{string.Join(", ", mobileArmyIdsInBattle)}]");
+
+                foreach (string block in combatBlocks)
+                {
+                    if (string.IsNullOrWhiteSpace(block)) continue;
+
+                    // 2. Check if the block is in the correct province
+                    if (!block.Contains($"province={BattleResult.ProvinceID}"))
+                    {
+                        continue;
+                    }
+
+                    // 3. Check for attacker and defender armies
+                    if (!block.Contains("attacker={") || !block.Contains("defender={"))
+                    {
+                        continue;
+                    }
+
+                    // 4. Extract all army IDs from this block
+                    var armyIdsInBlock = new HashSet<string>();
+                    MatchCollection armiesMatches = Regex.Matches(block, @"armies={\s*([\d\s]+)\s*}");
+
+                    if (armiesMatches.Count < 2) continue; // Must have at least attacker and defender armies
+
+                    foreach (Match m in armiesMatches)
+                    {
+                        var ids = m.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var id in ids)
+                        {
+                            armyIdsInBlock.Add(id);
+                        }
+                    }
+
+                    // 5. Compare the set of IDs
+                    if (mobileArmyIdsInBattle.SetEquals(armyIdsInBlock))
+                    {
+                        Program.Logger.Debug($"Found matching field combat block for province {BattleResult.ProvinceID}.");
+                        return block;
+                    }
+                }
+
+                Program.Logger.Debug("No matching relief field combat block found.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading or parsing Combats.txt for relief battle: {ex.Message}");
+                return null;
+            }
+        }
+
         static void ReadCombatSoldiersNum(string? combat_string)
         {
             if (combat_string == null) return;
 
+            string? combatStringToParse = combat_string; // Keep this variable for the using statement
+
             bool isAttacker = false, isDefender = false;
             string? searchingArmyRegiment = null;
-            using (StringReader SR = new StringReader(combat_string))//Player_Combat
+            using (StringReader SR = new StringReader(combatStringToParse))//Player_Combat
             {
                 while (true)
                 {
@@ -1964,30 +2438,38 @@ namespace CrusaderWars.data.save_file
                         searchingArmyRegiment = Regex.Match(line, @"\d+").Value;
                     }
 
-                    else if(isAttacker && line.Contains("\t\t\t\t\t\tstarting="))
+                    else if (isAttacker && line.Contains("\t\t\t\t\t\tstarting="))
                     {
                         string startingNum = Regex.Match(line, @"\d+").Value;
                         if (searchingArmyRegiment != null)
                         {
-                            foreach(var army in attacker_armies)
+                            foreach (var army in attacker_armies)
                             {
-                                army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                var regToUpdate = army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment);
+                                if (regToUpdate != null)
+                                {
+                                    regToUpdate.StartingNum = int.Parse(startingNum);
+                                }
                             }
                         }
                     }
-                    else if(isDefender && line.Contains("\t\t\t\t\t\tstarting="))
+                    else if (isDefender && line.Contains("\t\t\t\t\t\tstarting="))
                     {
                         string startingNum = Regex.Match(line, @"\d+").Value;
                         if (searchingArmyRegiment != null)
                         {
                             foreach (var army in defender_armies)
                             {
-                                army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment)?.SetStartingNum(startingNum);
+                                var regToUpdate = army.ArmyRegiments.Where(x => x != null).FirstOrDefault(x => x.ID == searchingArmyRegiment);
+                                if (regToUpdate != null)
+                                {
+                                    regToUpdate.StartingNum = int.Parse(startingNum);
+                                }
                             }
                         }
                     }
 
-                    else if((isAttacker || isDefender) && line == "\t\t\t}")
+                    else if ((isAttacker || isDefender) && line == "\t\t\t}")
                     {
                         isAttacker = false;
                         isDefender = false;
@@ -1995,11 +2477,11 @@ namespace CrusaderWars.data.save_file
                     }
 
                     //end line
-                    else if(line == "\t\t}")
+                    else if (line == "\t\t}")
                     {
                         break;
                     }
- 
+
 
                 }
             }

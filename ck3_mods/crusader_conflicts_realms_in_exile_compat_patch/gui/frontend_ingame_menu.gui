@@ -59,10 +59,10 @@ window = {
 
     state = {
         name = resume_game
-        on_finish = "[PauseMenu.Resume]"
-        on_finish = "[ExecuteConsoleCommand(Concatenate('Keyword:', 'CRUSADERCONFLICTS'))]"   # Crusader Conflicts KEYWORD to start Attila
-        on_finish = "[PauseMenu.ExitGame( '(bool)yes' )]"
-        on_finish = "[PdxGuiTriggerAllAnimations('cw_exit_to_menu')]"	#exit to menu
+		on_finish = "[PauseMenu.Resume]"
+		on_finish = "[ExecuteConsoleCommand(Concatenate('Keyword:', 'CRUSADERCONFLICTS'))]"   # Crusader Conflicts KEYWORD to start Attila
+		on_finish = "[PauseMenu.ExitGame( '(bool)yes' )]"
+		on_finish = "[PdxGuiTriggerAllAnimations('cc_exit_to_menu')]"	#exit to menu
     }
 
     ############################################################

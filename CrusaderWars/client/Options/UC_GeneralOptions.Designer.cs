@@ -33,8 +33,6 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label_CloseCK3 = new System.Windows.Forms.Label();
             this.OptionSelection_CloseCK3 = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.OptionSelection_SeparateArmies = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.OptionSelection_TimeLimit = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -47,8 +45,12 @@ namespace CrusaderWars.client
             this.OptionSelection_BattleMapsSize = new System.Windows.Forms.ComboBox();
             this.OptionSelection_DefensiveDeployables = new System.Windows.Forms.ComboBox();
             this.OptionSelection_UnitCards = new System.Windows.Forms.ComboBox();
+            this.OptionSelection_SeparateArmies = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.label_SiegeEngines = new System.Windows.Forms.Label();
             this.OptionSelection_SiegeEngines = new System.Windows.Forms.ComboBox();
+            this.label_ShowPostBattleReport = new System.Windows.Forms.Label();
+            this.OptionSelection_ShowPostBattleReport = new System.Windows.Forms.ComboBox();
             this.General_ToopTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -69,15 +71,17 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_CloseAttila, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_FullArmies, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.label7, 0, 5);
-            this.tableLayoutPanel1.Controls.Add(this.label8, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_BattleMapsSize, 1, 5);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_DefensiveDeployables, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.label7, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.label8, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_BattleMapsSize, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_DefensiveDeployables, 1, 7);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_UnitCards, 1, 6);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SeparateArmies, 1, 8);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 8);
-            this.tableLayoutPanel1.Controls.Add(this.label_SiegeEngines, 0, 7);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SiegeEngines, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label_SiegeEngines, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SiegeEngines, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label_ShowPostBattleReport, 0, 9);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_ShowPostBattleReport, 1, 9);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -124,36 +128,6 @@ namespace CrusaderWars.client
             this.OptionSelection_CloseCK3.TabIndex = 15;
             this.General_ToopTip.SetToolTip(this.OptionSelection_CloseCK3, "Enabled: Crusader Kings 3 will close during TW:Attila battles\r\nDisabled: CK3 will" +
         " stay open but suspended during battles");
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(3, 256);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(129, 19);
-            this.label2.TabIndex = 12;
-            this.label2.Text = "Armies Control:";
-            // 
-            // OptionSelection_SeparateArmies
-            // 
-            this.OptionSelection_SeparateArmies.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.OptionSelection_SeparateArmies.BackColor = System.Drawing.Color.White;
-            this.OptionSelection_SeparateArmies.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.OptionSelection_SeparateArmies.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.OptionSelection_SeparateArmies.FormattingEnabled = true;
-            this.OptionSelection_SeparateArmies.Items.AddRange(new object[] {
-            "All Controled",
-            "Friendly Only",
-            "All Separate"});
-            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(360, 259);
-            this.OptionSelection_SeparateArmies.Name = "OptionSelection_SeparateArmies";
-            this.OptionSelection_SeparateArmies.Size = new System.Drawing.Size(181, 26);
-            this.OptionSelection_SeparateArmies.TabIndex = 13;
-            this.General_ToopTip.SetToolTip(this.OptionSelection_SeparateArmies, resources.GetString("OptionSelection_SeparateArmies.ToolTip"));
             // 
             // label1
             // 
@@ -263,7 +237,7 @@ namespace CrusaderWars.client
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.ForeColor = System.Drawing.Color.White;
-            this.label7.Location = new System.Drawing.Point(3, 160);
+            this.label7.Location = new System.Drawing.Point(3, 128);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(137, 19);
             this.label7.TabIndex = 6;
@@ -274,7 +248,7 @@ namespace CrusaderWars.client
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(3, 128);
+            this.label8.Location = new System.Drawing.Point(3, 224);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(180, 19);
             this.label8.TabIndex = 8;
@@ -294,7 +268,7 @@ namespace CrusaderWars.client
             "Medium",
             "Big",
             "Huge"});
-            this.OptionSelection_BattleMapsSize.Location = new System.Drawing.Point(360, 163);
+            this.OptionSelection_BattleMapsSize.Location = new System.Drawing.Point(360, 131);
             this.OptionSelection_BattleMapsSize.Name = "OptionSelection_BattleMapsSize";
             this.OptionSelection_BattleMapsSize.Size = new System.Drawing.Size(181, 26);
             this.OptionSelection_BattleMapsSize.TabIndex = 7;
@@ -312,7 +286,7 @@ namespace CrusaderWars.client
             this.OptionSelection_DefensiveDeployables.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.OptionSelection_DefensiveDeployables.Location = new System.Drawing.Point(360, 131);
+            this.OptionSelection_DefensiveDeployables.Location = new System.Drawing.Point(360, 227);
             this.OptionSelection_DefensiveDeployables.Name = "OptionSelection_DefensiveDeployables";
             this.OptionSelection_DefensiveDeployables.Size = new System.Drawing.Size(181, 26);
             this.OptionSelection_DefensiveDeployables.TabIndex = 9;
@@ -338,12 +312,42 @@ namespace CrusaderWars.client
             this.General_ToopTip.SetToolTip(this.OptionSelection_UnitCards, "Disabled: Unit card names will be from the Attila mods.\r\nEnabled: Unit card names" +
         " will use the names from CK3.");
             // 
+            // OptionSelection_SeparateArmies
+            // 
+            this.OptionSelection_SeparateArmies.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.OptionSelection_SeparateArmies.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_SeparateArmies.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OptionSelection_SeparateArmies.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_SeparateArmies.FormattingEnabled = true;
+            this.OptionSelection_SeparateArmies.Items.AddRange(new object[] {
+            "All Controled",
+            "Friendly Only",
+            "All Separate"});
+            this.OptionSelection_SeparateArmies.Location = new System.Drawing.Point(360, 259);
+            this.OptionSelection_SeparateArmies.Name = "OptionSelection_SeparateArmies";
+            this.OptionSelection_SeparateArmies.Size = new System.Drawing.Size(181, 26);
+            this.OptionSelection_SeparateArmies.TabIndex = 13;
+            this.General_ToopTip.SetToolTip(this.OptionSelection_SeparateArmies, resources.GetString("OptionSelection_SeparateArmies.ToolTip"));
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(3, 256);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(129, 19);
+            this.label2.TabIndex = 12;
+            this.label2.Text = "Armies Control:";
+            // 
             // label_SiegeEngines
             // 
             this.label_SiegeEngines.AutoSize = true;
             this.label_SiegeEngines.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label_SiegeEngines.ForeColor = System.Drawing.Color.White;
-            this.label_SiegeEngines.Location = new System.Drawing.Point(3, 224);
+            this.label_SiegeEngines.Location = new System.Drawing.Point(3, 160);
             this.label_SiegeEngines.Name = "label_SiegeEngines";
             this.label_SiegeEngines.Size = new System.Drawing.Size(222, 19);
             this.label_SiegeEngines.TabIndex = 16;
@@ -361,13 +365,43 @@ namespace CrusaderWars.client
             this.OptionSelection_SiegeEngines.Items.AddRange(new object[] {
             "Enabled",
             "Disabled"});
-            this.OptionSelection_SiegeEngines.Location = new System.Drawing.Point(360, 227);
+            this.OptionSelection_SiegeEngines.Location = new System.Drawing.Point(360, 163);
             this.OptionSelection_SiegeEngines.Name = "OptionSelection_SiegeEngines";
             this.OptionSelection_SiegeEngines.Size = new System.Drawing.Size(181, 26);
             this.OptionSelection_SiegeEngines.TabIndex = 17;
             this.General_ToopTip.SetToolTip(this.OptionSelection_SiegeEngines, "Enabled: Siege engines (e.g. trebuchets, mangonels) can appear in field battles.\r" +
         "\nDisabled: Siege engines will be excluded from field battles. This does not aff" +
         "ect sieges.");
+            // 
+            // label_ShowPostBattleReport
+            // 
+            this.label_ShowPostBattleReport.AutoSize = true;
+            this.label_ShowPostBattleReport.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_ShowPostBattleReport.ForeColor = System.Drawing.Color.White;
+            this.label_ShowPostBattleReport.Location = new System.Drawing.Point(3, 288);
+            this.label_ShowPostBattleReport.Name = "label_ShowPostBattleReport";
+            this.label_ShowPostBattleReport.Size = new System.Drawing.Size(208, 19);
+            this.label_ShowPostBattleReport.TabIndex = 18;
+            this.label_ShowPostBattleReport.Text = "Show Post-Battle Report:";
+            // 
+            // OptionSelection_ShowPostBattleReport
+            // 
+            this.OptionSelection_ShowPostBattleReport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.OptionSelection_ShowPostBattleReport.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_ShowPostBattleReport.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OptionSelection_ShowPostBattleReport.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_ShowPostBattleReport.FormattingEnabled = true;
+            this.OptionSelection_ShowPostBattleReport.Items.AddRange(new object[] {
+            "Enabled",
+            "Disabled"});
+            this.OptionSelection_ShowPostBattleReport.Location = new System.Drawing.Point(360, 291);
+            this.OptionSelection_ShowPostBattleReport.Name = "OptionSelection_ShowPostBattleReport";
+            this.OptionSelection_ShowPostBattleReport.Size = new System.Drawing.Size(181, 26);
+            this.OptionSelection_ShowPostBattleReport.TabIndex = 19;
+            this.General_ToopTip.SetToolTip(this.OptionSelection_ShowPostBattleReport, "Enabled: Shows a detailed report screen after each battle.\r\nDisabled: Skips the r" +
+        "eport screen and returns directly to CK3.");
             // 
             // General_ToopTip
             // 
@@ -414,5 +448,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.ComboBox OptionSelection_CloseCK3;
         private System.Windows.Forms.Label label_SiegeEngines;
         private System.Windows.Forms.ComboBox OptionSelection_SiegeEngines;
+        private System.Windows.Forms.Label label_ShowPostBattleReport;
+        private System.Windows.Forms.ComboBox OptionSelection_ShowPostBattleReport;
     }
 }

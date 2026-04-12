@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.Btn_CustomTab = new System.Windows.Forms.Button();
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Options));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -117,7 +118,7 @@
             this.CloseBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.CloseBtn.FlatAppearance.BorderSize = 0;
             this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CloseBtn.Location = new System.Drawing.Point(1012, 35);
+            this.CloseBtn.Location = new System.Drawing.Point(1237, 35);
             this.CloseBtn.Name = "CloseBtn";
             this.CloseBtn.Size = new System.Drawing.Size(53, 54);
             this.CloseBtn.TabIndex = 9;
@@ -426,7 +427,7 @@
             this.UMpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.UMpanel.Location = new System.Drawing.Point(3, 64);
             this.UMpanel.Name = "UMpanel";
-            this.UMpanel.Size = new System.Drawing.Size(480, 185);
+            this.UMpanel.Size = new System.Drawing.Size(580, 185);
             this.UMpanel.TabIndex = 32;
             // 
             // flowLayoutPanel2
@@ -436,9 +437,10 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(477, 34);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(580, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             this.flowLayoutPanel2.WrapContents = false;
             // 
@@ -522,6 +524,26 @@
             this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
             // 
+            // Btn_CustomTab
+            // 
+            this.Btn_CustomTab.AutoSize = true;
+            this.Btn_CustomTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_CustomTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
+            this.Btn_CustomTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_CustomTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_CustomTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_CustomTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_CustomTab.Location = new System.Drawing.Point(457, 3);
+            this.Btn_CustomTab.Name = "Btn_CustomTab";
+            this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_CustomTab.TabIndex = 4;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CustomTab, "Custom playthrough with a custom unit mapper.");
+            this.Btn_CustomTab.Text = "Custom";
+            this.Btn_CustomTab.UseVisualStyleBackColor = false;
+            this.Btn_CustomTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_CustomTab.Click += new System.EventHandler(this.Btn_CustomTab_Click);
+            // 
             // TableLayoutGamePaths
             // 
             this.TableLayoutGamePaths.BackColor = System.Drawing.Color.Transparent;
@@ -552,7 +574,7 @@
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(512, 145);
+            this.TableLayoutSettings.Location = new System.Drawing.Point(715, 145);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -577,7 +599,7 @@
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(486, 252);
+            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(600, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             // 
@@ -605,7 +627,7 @@
             this.AutoSize = false;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.options_bk;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1077, 928);
+            this.ClientSize = new System.Drawing.Size(1300, 928);
             this.Controls.Add(this.TableLayoutModManager);
             this.Controls.Add(this.TableLayoutPlaythroughs);
             this.Controls.Add(this.TableLayoutSettings);
@@ -671,6 +693,7 @@
         private System.Windows.Forms.Button Btn_TFETab;
         private System.Windows.Forms.Button Btn_LOTRTab;
         private System.Windows.Forms.Button Btn_AGOTTab;
+        private System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
         private System.Windows.Forms.DataGridViewImageColumn ImageColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn ModName;

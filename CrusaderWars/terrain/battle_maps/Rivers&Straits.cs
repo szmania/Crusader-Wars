@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -59,7 +59,7 @@ namespace CrusaderWars.terrain
                 ("0.141", "0.243", new string[]{"N", "N"}, new string[]{"S", "S"})
                 };
 
-            public static(string X, string Y, string[] attackerPositions, string[] defenderPositions)[] Desert_Straits = new[]
+            public static (string X, string Y, string[] attackerPositions, string[] defenderPositions)[] Desert_Straits = new[]
                 {
                 ("0.822", "0.472", new string[]{"S", "S"}, new string[]{"N", "N"}),
                 ("0.823", "0.496", new string[]{"N", "N"}, new string[]{"S", "S"}),
@@ -92,7 +92,7 @@ namespace CrusaderWars.terrain
                     defPositions = BattleMaps.Northern_Straits[index].defenderPositions;
                     Program.Logger.Debug($"Selected map based on region '{region}': ({Coordinates.X}, {Coordinates.Y}), Att: [{string.Join(",", attPositions)}], Def: [{string.Join(",", defPositions)}]");
                     return (Coordinates.X, Coordinates.Y, attPositions, defPositions);
-                
+
                 case "Italia":
                     int i = random.Next(0, BattleMaps.Italy_Straits.Length);
                     Coordinates.X = BattleMaps.Italy_Straits[i].X;
@@ -130,7 +130,7 @@ namespace CrusaderWars.terrain
             }
 
             Program.Logger.Debug($"Region '{region}' not matched. Attempting to select map based on terrain: '{terrain}'");
-            switch(terrain)
+            switch (terrain)
             {
                 //desert
                 case "Desert":

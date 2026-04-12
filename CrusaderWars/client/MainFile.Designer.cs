@@ -42,6 +42,7 @@
             this.MainPanelLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonsContainerPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.ContinueBattleButton = new System.Windows.Forms.Button();
+            this.LaunchAutoFixerButton = new System.Windows.Forms.Button();
             this.BottomPanelLayout = new System.Windows.Forms.TableLayoutPanel();
             this.BottomLeftFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.linkOptInPreReleases = new System.Windows.Forms.Label();
@@ -95,6 +96,9 @@
             // infoLabel
             // 
             resources.ApplyResources(this.infoLabel, "infoLabel");
+            this.infoLabel.AutoSize = true;
+            this.infoLabel.MaximumSize = new System.Drawing.Size(450, 0);
+            this.infoLabel.Margin = new System.Windows.Forms.Padding(3, -25, 3, 0);
             this.infoLabel.BackColor = System.Drawing.Color.Transparent;
             this.infoLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.infoLabel.Name = "infoLabel";
@@ -200,7 +204,9 @@
             this.ButtonsContainerPanel.BackColor = System.Drawing.Color.Transparent;
             this.ButtonsContainerPanel.Controls.Add(this.ExecuteButton);
             this.ButtonsContainerPanel.Controls.Add(this.ContinueBattleButton);
-            this.ButtonsContainerPanel.Margin = new System.Windows.Forms.Padding(47, 4, 4, 4);
+            this.ButtonsContainerPanel.Controls.Add(this.LaunchAutoFixerButton);
+            this.ButtonsContainerPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.ButtonsContainerPanel.Margin = new System.Windows.Forms.Padding(47, -35, 4, 4);
             this.ButtonsContainerPanel.Name = "ButtonsContainerPanel";
             // 
             // ContinueBattleButton
@@ -221,6 +227,24 @@
             this.ContinueBattleButton.Click += new System.EventHandler(this.ContinueBattleButton_Click);
             this.ContinueBattleButton.MouseEnter += new System.EventHandler(this.ContinueBattleButton_MouseEnter);
             this.ContinueBattleButton.MouseLeave += new System.EventHandler(this.ContinueBattleButton_MouseLeave);
+            // 
+            // LaunchAutoFixerButton
+            // 
+            this.LaunchAutoFixerButton.BackColor = System.Drawing.Color.Transparent;
+            this.LaunchAutoFixerButton.BackgroundImage = global::CrusaderWars.Properties.Resources.start_new;
+            resources.ApplyResources(this.LaunchAutoFixerButton, "LaunchAutoFixerButton");
+            this.LaunchAutoFixerButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.LaunchAutoFixerButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.LaunchAutoFixerButton.FlatAppearance.BorderSize = 0;
+            this.LaunchAutoFixerButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.LaunchAutoFixerButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.LaunchAutoFixerButton.ForeColor = System.Drawing.Color.White;
+            this.LaunchAutoFixerButton.Name = "LaunchAutoFixerButton";
+            this.LaunchAutoFixerButton.TabStop = false;
+            this.LaunchAutoFixerButton.UseVisualStyleBackColor = true;
+            this.LaunchAutoFixerButton.Click += new System.EventHandler(this.LaunchAutoFixerButton_Click);
+            this.LaunchAutoFixerButton.MouseEnter += new System.EventHandler(this.LaunchAutoFixerButton_MouseEnter);
+            this.LaunchAutoFixerButton.MouseLeave += new System.EventHandler(this.LaunchAutoFixerButton_MouseLeave);
             // 
             // BottomPanelLayout
             // 
@@ -445,5 +469,6 @@
         private System.Windows.Forms.Label labelSeparatorRight;
         private System.Windows.Forms.FlowLayoutPanel VersionInfoFlowPanel;
         private System.Windows.Forms.Label linkOptInPreReleases;
+        public System.Windows.Forms.Button LaunchAutoFixerButton;
     }
 }

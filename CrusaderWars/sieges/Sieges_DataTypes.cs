@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +27,7 @@ namespace CrusaderWars.sieges
                 //Western
                 struct Western
                 {
-                   public string GetCivicVariation() { return "terrain/tiles/battle/settlement_western_cities/western_city_a/medium/"; }
+                    public string GetCivicVariation() { return "terrain/tiles/battle/settlement_western_cities/western_city_a/medium/"; }
                 };
             };
         };
@@ -36,7 +36,7 @@ namespace CrusaderWars.sieges
         {
             public static string GetEscalationTileUpgrade(string wall_breach)
             {
-                switch(wall_breach) 
+                switch (wall_breach)
                 {
                     case "Intact":
                         return "<tile_upgrade>escalation1</tile_upgrade>";
@@ -84,7 +84,7 @@ namespace CrusaderWars.sieges
         {
             public static string GetArchitecture(string architecture)
             {
-                switch(architecture)
+                switch (architecture)
                 {
                     case "African": return "muslim";
                     case "Arabic": return "muslim";
@@ -99,12 +99,12 @@ namespace CrusaderWars.sieges
                 }
             }
 
-            public static string GetVariation(string[] building_keys) 
+            public static string GetVariation(string[] building_keys)
             {
                 //not adding longhouses_01:1 "Gathering Halls"
                 //because they will counted as mixed variation
 
-                string[] CivicBuildings = 
+                string[] CivicBuildings =
                     { "tradeport_",
                       "university_",
                       "pastures_",
@@ -141,9 +141,9 @@ namespace CrusaderWars.sieges
                 int civic_points = 0;
                 int military_points = 0;
 
-                for (int i = 0; i < building_keys.Length; i++) 
+                for (int i = 0; i < building_keys.Length; i++)
                 {
-                    if (building_keys[i] == CivicBuildings.FirstOrDefault(x => x.Contains(building_keys[i]))) 
+                    if (building_keys[i] == CivicBuildings.FirstOrDefault(x => x.Contains(building_keys[i])))
                     {
                         civic_points++;
                     }
@@ -154,12 +154,12 @@ namespace CrusaderWars.sieges
                 }
 
                 //Military Variation
-                if(civic_points == 0 && military_points > 0)
+                if (civic_points == 0 && military_points > 0)
                 {
                     return "military";
                 }
                 //Civic Variation
-                else if(military_points == 0 && civic_points > 0)
+                else if (military_points == 0 && civic_points > 0)
                 {
                     return "civic";
                 }

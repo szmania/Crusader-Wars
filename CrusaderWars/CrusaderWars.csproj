@@ -12,12 +12,17 @@
     <ProductName>Crusader Conflicts</ProductName>
     <PublisherName>Faray and Community</PublisherName>
     <StartupObject>CrusaderWars.Program</StartupObject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="SharpZipLib" Version="1.4.2" />
       <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
       <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
 <!--      <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0" />-->
 <!--      <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />-->
 <!--      <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />-->
@@ -175,7 +180,6 @@
     <None Include="Resources\logo.ico" />
     <None Include="Resources\searchModsIcon.png" />
     <None Include="Resources\LOTR.png" />
-    <None Include="Resources\tfe1.png" />
     <None Include="Resources\tfe.png" />
     <None Include="Resources\toggle_yes.png" />
     <None Include="Resources\toggle_no.png" />
@@ -247,10 +251,31 @@
     <None Include="Resources\paper.jpg" />
     <None Include="Resources\info.png" />
     <None Include="Resources\playthrough_agot.png" />
+    <None Include="Resources\playthrough_custom.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="unit mappers\schemas\cultures.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\schemas\factions.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\schemas\mods.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\schemas\timeperiod.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\schemas\titles.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

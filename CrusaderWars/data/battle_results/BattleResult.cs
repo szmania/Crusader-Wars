@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -9,7 +9,6 @@ using static CrusaderWars.data.save_file.Writter;
 using CrusaderWars.twbattle; // Added for BattleFile access
 using System.Globalization; // Added for CultureInfo
 using CrusaderWars.armies; // Added for List<Army>
-using CrusaderWars.unit_mapper;
 
 
 namespace CrusaderWars.data.battle_results
@@ -23,6 +22,8 @@ namespace CrusaderWars.data.battle_results
         public static string? SiegeID { get; set; }
         public static string? ProvinceName { get; set; }
         public static bool IsAttackerVictorious { get; set; } = false;
+        public static double? WarScoreValue { get; set; }
+        public static string? WarID { get; set; }
         //public static twbattle.Date FirstDay_Date { get; set; }
 
         public static string? Original_Player_Combat;
@@ -32,6 +33,21 @@ namespace CrusaderWars.data.battle_results
 
         //Combats
         public static string? Player_Combat;
+
+        public class SuccessorTransferData
+        {
+            public List<string> LandedDataBlock { get; set; } = new List<string>();
+            public string? Culture { get; set; }
+            public string? Faith { get; set; }
+            public string SlainCharId { get; set; } = "";
+            public double Gold { get; set; } = 0;
+            public List<string> IncomeBlock { get; set; } = new List<string>();
+            public List<string> VassalContractIds { get; set; } = new List<string>();
+            public List<string> PlayableDataBlock { get; set; } = new List<string>();
+        }
+
+        public static Dictionary<string, SuccessorTransferData> PendingLandedData = new Dictionary<string, SuccessorTransferData>();
+        public static HashSet<string> InvalidatedVassalContracts = new HashSet<string>();
 
         public static void ReadPlayerCombat(string playerID)
         {
@@ -329,6 +345,14 @@ namespace CrusaderWars.data.battle_results
             GC.Collect();
         }
 
+        public static void CalculateAndSetWarScore(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Calculating and setting war score...");
+            double newWarScore = CalculateWarScore(attacker_armies, defender_armies);
+            WarScoreValue = newWarScore;
+            Program.Logger.Debug($"War score calculated and set to: {newWarScore}");
+        }
+
 
 
 
@@ -336,593 +360,7 @@ namespace CrusaderWars.data.battle_results
         //---------------------------------//
         //----------Functions--------------//
         //---------------------------------//
-        public static (List<string> AliveList, List<string> KillsList) GetRemainingAndKills(string path_attila_log)
-        {
-            Program.Logger.Debug($"Entering GetRemainingAndKills for log file: {path_attila_log}");
-            // Initialize with empty collections
-            List<string> aliveList = new();
-            List<string> killsList = new();
-
-            if (!File.Exists(path_attila_log))
-            {
-                Program.Logger.Debug($"Attila log file not found at: {path_attila_log}. Returning empty lists.");
-                return (aliveList, killsList);
-            }
-
-            string aliveText = "";
-            string killsText = "";
-
-            bool aliveSearchStarted = false;
-            bool killsSearchStarted = false;
-
-            using (StreamReader reader = new StreamReader(path_attila_log))
-            {
-                string? line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (line == "-----REMAINING SOLDIERS-----!!")
-                    {
-                        Program.Logger.Debug("Found '-----REMAINING SOLDIERS-----!!' marker.");
-                        aliveSearchStarted = true;
-                        killsSearchStarted = false;
-                    }
-
-                    else if (line == "-----NUMBERS OF KILLS-----!!")
-                    {
-                        Program.Logger.Debug("Found '-----NUMBERS OF KILLS-----!!' marker.");
-                        aliveSearchStarted = false;
-                        killsSearchStarted = true;
-                    }
-
-                    else if (line == "-----PRINT ENDED-----!!")
-                    {
-                        Program.Logger.Debug("Found '-----PRINT ENDED-----!!' marker. Adding current report.");
-                        aliveList.Add(aliveText);
-                        killsList.Add(killsText);
-                        aliveText = "";
-                        killsText = "";
-                        aliveSearchStarted = false;
-                        killsSearchStarted = false;
-                    }
-
-                    else if (aliveSearchStarted)
-                    {
-                        aliveText += line + "\n";
-                    }
-
-                    else if (killsSearchStarted && line.StartsWith("kills"))
-                    {
-                        killsText += line + "\n";
-                    }
-                }
-            }
-
-            Program.Logger.Debug(
-                $"Found {aliveList.Count} entries for alive reports and {killsList.Count} entries for kill reports.");
-            return (aliveList, killsList);
-        }
-
-        // Get attila remaining soldiers
-        public static void ReadAttilaResults(Army army, string path_attila_log)
-        {
-            Program.Logger.Debug($"Reading Attila results for army {army.ID} from log: {path_attila_log}");
-            try
-            {
-                UnitsResults units = new UnitsResults();
-                List<(string Script, string Type, string CultureID, string Remaining)> Alive_MainPhase =
-                    new List<(string Script, string Type, string CultureID, string Remaining)>();
-                List<(string Script, string Type, string CultureID, string Remaining)> Alive_PursuitPhase =
-                    new List<(string Script, string Type, string CultureID, string Remaining)>();
-                List<(string Script, string Type, string CultureID, string Kills)> Kills_MainPhase =
-                    new List<(string Name, string Type, string CultureID, string Kills)>();
-                List<(string Script, string Type, string CultureID, string Kills)> Kills_PursuitPhase =
-                    new List<(string Script, string Type, string CultureID, string Kills)>();
-
-                var (AliveList, KillsList) = GetRemainingAndKills(path_attila_log);
-                if (AliveList.Count == 0)
-                {
-                    Program.Logger.Debug(
-                        $"Warning: No battle reports found in Attila log for army {army.ID}. Assuming no survivors or battle did not generate logs.");
-                }
-                else if (AliveList.Count == 1)
-                {
-                    Program.Logger.Debug($"Single battle phase detected for army {army.ID}.");
-                    Alive_MainPhase = ReturnList(army, AliveList.Last(), DataType.Alive);
-                    units.SetAliveMainPhase(Alive_MainPhase);
-                    Kills_MainPhase = ReturnList(army, KillsList.Last(), DataType.Kills);
-                    units.SetKillsMainPhase(Kills_MainPhase);
-
-                }
-                else if (AliveList.Count > 1)
-                {
-                    Program.Logger.Debug(
-                        $"Multiple battle reports found for army {army.ID}. Using the last two reports for Main and Pursuit phases.");
-                    // Use the second-to-last report for the Main Phase
-                    Alive_MainPhase = ReturnList(army, AliveList[AliveList.Count - 2], DataType.Alive);
-                    units.SetAliveMainPhase(Alive_MainPhase);
-
-                    // Use the very last report for the Pursuit Phase
-                    Alive_PursuitPhase = ReturnList(army, AliveList.Last(), DataType.Alive);
-                    units.SetAlivePursuitPhase(Alive_PursuitPhase);
-
-                    Kills_MainPhase = ReturnList(army, KillsList[KillsList.Count - 2], DataType.Kills);
-                    units.SetKillsMainPhase(Kills_MainPhase);
-
-                    Kills_PursuitPhase = ReturnList(army, KillsList.Last(), DataType.Kills);
-                    units.SetKillsPursuitPhase(Kills_PursuitPhase);
-                }
-
-                army.UnitsResults = units;
-                army.UnitsResults.ScaleTo100Porcent();
-
-                CreateUnitsReports(army);
-                ChangeRegimentsSoldiers(army);
-            }
-            catch (Exception e)
-            {
-                Program.Logger.Debug($"Error reading Attila results for army {army.ID}: {e.ToString()}");
-                MessageBox.Show($"Error reading Attila results: {e.ToString()}",
-                    "Crusader Conflicts: Battle Results Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
-                    MessageBoxOptions.DefaultDesktopOnly);
-                throw new Exception();
-
-            }
-
-        }
-
-        private enum DataType
-        {
-            Alive,
-            Kills
-        }
-
-
-        private static List<(string, string, string, string)> ReturnList(Army army, string text, DataType list_type)
-        {
-            Program.Logger.Debug($"Entering ReturnList for army {army.ID}, data type: {list_type}");
-            var list = new List<(string, string, string, string)>();
-
-            MatchCollection pattern;
-            switch (list_type)
-            {
-                case DataType.Alive:
-                    pattern = Regex.Matches(text,
-                        $@"(?<Unit>.+_army{army.ID}_TYPE(?<Type>.+)_CULTURE(?<Culture>.+)_.+)-(?<Remaining>.+)");
-                    foreach (Match match in pattern)
-                    {
-                        string unit_script = match.Groups["Unit"].Value;
-                        string remaining = match.Groups["Remaining"].Value;
-                        string culture_id = match.Groups["Culture"].Value;
-                        string type = Regex.Match(match.Groups["Type"].Value, @"\D+").Value;
-
-                        list.Add((unit_script, type, culture_id, remaining));
-                    }
-
-                    break;
-                case DataType.Kills:
-                    pattern = Regex.Matches(text,
-                        $@"(?<Unit>kills_.+_army{army.ID}_TYPE(?<Type>.+)_CULTURE(?<Culture>.+)_.+)-(?<Kills>.+)");
-                    foreach (Match match in pattern)
-                    {
-
-                        string unit_script = match.Groups["Unit"].Value;
-                        string kills = match.Groups["Kills"].Value;
-                        string culture_id = match.Groups["Culture"].Value;
-                        string type = Regex.Match(match.Groups["Type"].Value, @"\D+").Value;
-
-                        list.Add((unit_script, type, culture_id, kills));
-                    }
-
-                    break;
-            }
-
-            Program.Logger.Debug($"Found {list.Count} entries for army {army.ID}, data type: {list_type}.");
-            return list;
-        }
-
-
-        static void ChangeRegimentsSoldiers(Army army)
-        {
-            Program.Logger.Debug($"Entering ChangeRegimentsSoldiers for army {army.ID}.");
-            if (army.IsGarrison())
-            {
-                Program.Logger.Debug($"Processing casualties for Garrison Army {army.ID}.");
-                foreach (var unit in army.Units)
-                {
-                    if (unit == null) continue;
-
-                    var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
-                            x.GetUnitType() == unit.GetRegimentType() &&
-                            x.GetCulture()?.ID == unit.GetObjCulture()?.ID &&
-                            x.GetTypeName() == unit.GetAttilaUnitKey() // Garrisons are matched by Attila key
-                    );
-
-                    if (unitReport != null)
-                    {
-                        int killed = unitReport.GetKilled();
-                        if (killed <= 0) continue;
-
-                        int originalSoldiers = unit.GetSoldiers();
-                        int remainingSoldiers = Math.Max(0, originalSoldiers - killed);
-                        int casualtiesApplied = originalSoldiers - remainingSoldiers;
-
-                        unit.ChangeSoldiers(remainingSoldiers);
-                        unitReport.SetKilled(killed - casualtiesApplied); // Update report with remaining casualties
-
-                        Program.Logger.Debug(
-                            $"Garrison Unit Report: Type '{unit.GetAttilaUnitKey()}', Culture: {unit.GetCulture()}: Soldiers changed from {originalSoldiers} to {remainingSoldiers}.");
-                    }
-                }
-                return; // Exit after processing garrison
-            }
-
-            foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
-            {
-                if (armyRegiment.Type == data.save_file.RegimentType.Commander ||
-                    armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
-
-                // Determine if this ArmyRegiment represents a siege unit
-                bool isSiegeType = false;
-                // The `Unit` objects in army.Units are the *processed* units for Attila.
-                // We need to find the Unit that corresponds to this ArmyRegiment's *type* and *name*.
-                // For MAA, the Unit.GetName() is armyRegiment.MAA_Name.
-                // For Levy, the Unit.GetName() is "Levy".
-                // For Garrison, the Unit.GetName() is "Garrison".
-                string unitNameToMatch = armyRegiment.MAA_Name;
-                if (armyRegiment.Type == RegimentType.Levy) unitNameToMatch = "Levy";
-                if (armyRegiment.Type == RegimentType.Garrison) unitNameToMatch = "Garrison";
-
-                // Find a corresponding Unit object. We use the culture of the first regiment for matching,
-                // assuming all regiments within an ArmyRegiment share the same base unit type and culture for siege status.
-                Unit? correspondingUnit = army.Units.FirstOrDefault(u =>
-                    u.GetRegimentType() == armyRegiment.Type &&
-                    u.GetName() == unitNameToMatch &&
-                    u.GetObjCulture()?.ID == armyRegiment.Regiments.FirstOrDefault()?.Culture?.ID
-                );
-
-                if (correspondingUnit != null && correspondingUnit.IsSiege())
-                {
-                    isSiegeType = true;
-                    Program.Logger.Debug(
-                        $"ArmyRegiment {armyRegiment.ID} (Type: {armyRegiment.Type}, Name: {armyRegiment.MAA_Name}) identified as a siege unit.");
-                }
-                else
-                {
-                    Program.Logger.Debug(
-                        $"ArmyRegiment {armyRegiment.ID} (Type: {armyRegiment.Type}, Name: {armyRegiment.MAA_Name}) identified as a non-siege unit.");
-                }
-
-
-                foreach (Regiment regiment in armyRegiment.Regiments)
-                {
-                    if (regiment.Culture is null) continue; // skip siege maa
-
-                    string unitTypeNameToFind;
-                    if (armyRegiment.Type == RegimentType.Levy)
-                    {
-                        unitTypeNameToFind = "Levy";
-                    }
-                    else
-                    {
-                        unitTypeNameToFind = armyRegiment.MAA_Name;
-                    }
-
-                    var unitReport = army.CasualitiesReports.FirstOrDefault(x =>
-                        x.GetUnitType() == armyRegiment.Type && x.GetCulture() != null &&
-                        x.GetCulture().ID == regiment.Culture.ID && x.GetTypeName() == unitTypeNameToFind);
-                    if (unitReport == null)
-                        continue;
-
-                    int killed = unitReport.GetKilled();
-
-                    // Check if CurrentNum is null or empty before parsing
-                    if (string.IsNullOrEmpty(regiment.CurrentNum)) continue;
-
-                    if (isSiegeType)
-                    {
-                        // NEW LOGIC: Proportional casualties for all siege weapon types
-                        int finalMachineCount = 0;
-                        int originalMachines = Int32.Parse(regiment.CurrentNum);
-
-                        if (correspondingUnit != null && unitReport.GetStarting() > 0)
-                        {
-                            int finalMenCount = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                            int startingMen = unitReport.GetStarting();
-
-                            double survivalRate = (double)finalMenCount / startingMen;
-                            if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate))
-                            {
-                                survivalRate = 0;
-                            }
-
-                            finalMachineCount = (int)Math.Round(originalMachines * survivalRate);
-                        }
-                        else
-                        {
-                            // Fallback or if unit had 0 men to begin with
-                            finalMachineCount = 0;
-                        }
-
-                        // Cap the final count at the original number to prevent negative casualties from scaling artifacts.
-                        int cappedFinalMachineCount = Math.Min(originalMachines, finalMachineCount);
-
-                        regiment.SetSoldiers(cappedFinalMachineCount.ToString());
-                        Program.Logger.Debug(
-                            $"Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Machines changed from {originalMachines} to {cappedFinalMachineCount}.");
-                    }
-                    else
-                    {
-                        // Original logic for non-siege units (soldiers)
-                        int originalSoldiers = Int32.Parse(regiment.CurrentNum); // Capture original value
-                        int regSoldiers = originalSoldiers;
-                        while (regSoldiers > 0 && killed > 0)
-                        {
-                            if (regSoldiers > killed)
-                            {
-                                regSoldiers -= killed;
-                                killed = 0;
-                            }
-                            else
-                            {
-                                killed -= regSoldiers;
-                                regSoldiers = 0;
-                            }
-                        }
-
-                        regiment.SetSoldiers(regSoldiers.ToString());
-                        unitReport.SetKilled(killed);
-                        Program.Logger.Debug(
-                            $"Non-Siege Regiment {regiment.ID} (Type: {armyRegiment.Type}, Culture: {regiment.Culture?.ID ?? "N/A"}): Soldiers changed from {originalSoldiers} to {regSoldiers}.");
-                    }
-                }
-
-                // Moved these lines outside the inner loop
-                int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum))
-                    .Sum(x => Int32.Parse(x.CurrentNum!));
-                armyRegiment.SetCurrentNum(army_regiment_total.ToString());
-                Program.Logger.Debug(
-                    $"Updated ArmyRegiment {armyRegiment.ID} total soldiers to: {army_regiment_total}");
-            }
-        }
-
-        static void CreateUnitsReports(Army army)
-        {
-            if (army.UnitsResults == null)
-            {
-                Program.Logger.Debug(
-                    $"Warning: army.UnitsResults is null for army {army.ID}. Skipping unit reports creation.");
-                return;
-            }
-
-            Program.Logger.Debug($"Entering CreateUnitsReports for army {army.ID}.");
-            List<UnitCasualitiesReport> reportsList = new List<UnitCasualitiesReport>();
-
-            // Group by Type and CultureID
-            var grouped = army.UnitsResults!.Alive_MainPhase.GroupBy(item => new { item.Type, item.CultureID });
-            Program.Logger.Debug($"Found {grouped.Count()} unit groups for army {army.ID}.");
-            var pursuit_grouped =
-                army.UnitsResults.Alive_PursuitPhase?.GroupBy(item => new { item.Type, item.CultureID });
-
-            Program.Logger.Debug("#############################");
-            Program.Logger.Debug($"REPORT FROM {army.CombatSide.ToUpper()} ARMY {army.ID}");
-            foreach (var group in grouped)
-            {
-                if (group.Key.Type == null)
-                {
-                    Program.Logger.Debug(
-                        $"Warning: Skipping unit report due to null unit type in group key for army {army.ID}.");
-                    continue;
-                }
-
-                Program.Logger.Debug(
-                    $"Processing casualty report for group: Type='{group.Key.Type}', CultureID='{group.Key.CultureID}'.");
-
-                RegimentType unitType;
-                string type; // This is the identifier string (CK3 name, Attila key, or generic "Levy")
-
-                if (army.IsGarrison())
-                {
-                    unitType = RegimentType.Garrison;
-                    type = group.Key.Type; // The log type is the Attila unit key
-                }
-                else
-                {
-                    // This logic is for field armies
-                    if (group.Key.Type.Contains("Levy"))
-                    {
-                        unitType = RegimentType.Levy;
-                        type = "Levy"; // Match against the generic unit name "Levy"
-                    }
-                    else if (group.Key.Type.Contains("commander") || group.Key.Type == "knights")
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        unitType = RegimentType.MenAtArms;
-                        type = group.Key.Type; // The log type is the CK3 MAA name
-                    }
-                }
-
-                // Search for type, culture, starting soldiers and remaining soldiers of a Unit
-                if (army.Units == null)
-                {
-                    continue;
-                }
-
-                // Safely get the unit(s), then its culture.
-                var matchingUnits = army.Units.Where(x => x != null &&
-                    x.GetRegimentType() == unitType &&
-                    x.GetObjCulture()?.ID == group.Key.CultureID &&
-                    ((unitType == RegimentType.Garrison && x.GetAttilaUnitKey() == type) ||
-                     (unitType != RegimentType.Garrison && x.GetName() == type))
-                );
-
-                if (!matchingUnits.Any())
-                {
-                    Program.Logger.Debug(
-                        $"Warning: Could not find matching unit for type '{type}' and culture ID '{group.Key.CultureID}' in army {army.ID}. Skipping report for this unit group.");
-                    continue;
-                }
-
-                Culture? culture = matchingUnits.First().GetObjCulture();
-
-                // If culture is null at this point, it means either no matching unit was found,
-                // or the matching unit itself had a null culture object.
-                // This scenario should be logged and skipped to prevent further errors.
-                if (culture == null)
-                {
-                    Program.Logger.Debug(
-                        $"Warning: Could not find valid culture for unit type '{type}' and culture ID '{group.Key.CultureID}' in army {army.ID}. Skipping report for this unit group.");
-                    continue; // Skip this group if culture is unexpectedly null
-                }
-
-                int starting;
-                var firstUnit = matchingUnits.First();
-                
-                int effectiveNumGuns = firstUnit.GetNumGuns();
-                if (firstUnit.IsSiegeEnginePerUnit() && effectiveNumGuns <= 0)
-                {
-                    effectiveNumGuns = 1;
-                }
-
-                if (firstUnit.IsSiege() && effectiveNumGuns > 0)
-                {
-                    // New logic for multi-gun siege units
-                    int totalCk3Machines = matchingUnits.Sum(u => u.GetOriginalSoldiers());
-                    int numGunsPerUnit = effectiveNumGuns;
-                    int numAttilaUnits = (int)Math.Ceiling((double)totalCk3Machines / numGunsPerUnit);
-                    
-                    int totalMen = 0;
-                    for (int j = 0; j < numAttilaUnits; j++)
-                    {
-                        int machinesForThisUnit = (j == numAttilaUnits - 1)
-                            ? totalCk3Machines - (numGunsPerUnit * (numAttilaUnits - 1))
-                            : numGunsPerUnit;
-                        totalMen += UnitMappers_BETA.ConvertMachinesToMen(machinesForThisUnit);
-                    }
-                    starting = totalMen;
-                }
-                else if (firstUnit.IsSiege()) // Old logic for single-entry siege units
-                {
-                    starting = UnitMappers_BETA.ConvertMachinesToMen(matchingUnits.Sum(u => u.GetOriginalSoldiers()));
-                }
-                else // Not a siege unit
-                {
-                    starting = matchingUnits.Sum(u => u.GetOriginalSoldiers());
-                }
-
-                if (unitType == RegimentType.Levy)
-                {
-                    int ratio = CrusaderWars.client.ModOptions.GetBattleScale();
-                    if (ratio > 0 && ratio < 100)
-                    {
-                        double scaleFactor = 100.0 / ratio;
-                        starting = (int)Math.Round(starting * scaleFactor);
-                        Program.Logger.Debug($"Applying reverse scaling to levy 'Starting' count. New value: {starting}");
-                    }
-                }
-
-                int remaining = group.Sum(x => Int32.Parse(x.Remaining));
-
-                // Create a Unit Report of the main casualities as default, if pursuit data is available, it creates one from the pursuit casualties
-                UnitCasualitiesReport unitReport;
-                var pursuitGroup = pursuit_grouped?.FirstOrDefault(x =>
-                    x.Key.Type == group.Key.Type && x.Key.CultureID == group.Key.CultureID);
-
-                if (pursuitGroup != null)
-                {
-                    int pursuitRemaining = pursuitGroup.Sum(x => Int32.Parse(x.Remaining));
-                    unitReport =
-                        new UnitCasualitiesReport(unitType, type, culture, starting, remaining, pursuitRemaining);
-                }
-                else
-                {
-                    unitReport = new UnitCasualitiesReport(unitType, type, culture, starting, remaining);
-                }
-
-
-                unitReport.PrintReport();
-
-                reportsList.Add(unitReport);
-            }
-
-            army.SetCasualitiesReport(reportsList);
-            Program.Logger.Debug($"Created {reportsList.Count} casualty reports for army {army.ID}.");
-        }
-
-        public static void CheckForSlainCommanders(Army army, string path_attila_log)
-        {
-            Program.Logger.Debug($"Checking for slain commander in army {army.ID}");
-            if (army.Commander != null)
-            {
-                army.Commander.HasGeneralFallen(path_attila_log);
-                if (army.Commander.hasFallen)
-                {
-                    Program.Logger.Debug($"Commander {army.Commander.ID} in army {army.ID} has fallen.");
-                }
-                else
-                {
-                    Program.Logger.Debug($"Commander {army.Commander.ID} in army {army.ID} has NOT fallen.");
-                }
-            }
-        }
-
-        public static void CheckForSlainKnights(Army army)
-        {
-            Program.Logger.Debug($"Checking for slain knights in army {army.ID}");
-            if (army.Knights != null && army.Knights.HasKnights())
-            {
-                if (army.UnitsResults == null) return;
-
-                int remaining = 0;
-                var knightReport = default((string Script, string Type, string CultureID, string Remaining));
-
-                if (army.UnitsResults.Alive_PursuitPhase != null)
-                {
-                    knightReport = army.UnitsResults.Alive_PursuitPhase.FirstOrDefault(x => x.Type == "knights");
-                }
-
-                // If no report in pursuit phase, check main phase
-                if (knightReport.Remaining == null && army.UnitsResults.Alive_MainPhase != null)
-                {
-                    knightReport = army.UnitsResults.Alive_MainPhase.FirstOrDefault(x => x.Type == "knights");
-                }
-
-                // If we found a report in either phase, parse it
-                if (knightReport.Remaining != null)
-                {
-                    Int32.TryParse(knightReport.Remaining, out remaining);
-                }
-
-                army.Knights.GetKilled(remaining);
-                foreach (var knight in army.Knights.GetKnightsList().Where(k => k.HasFallen()))
-                {
-                    Program.Logger.Debug($"Knight {knight.GetID()} ({knight.GetName()}) in army {army.ID} has fallen.");
-                }
-            }
-        }
-
-        public static void CheckKnightsKills(Army army)
-        {
-            Program.Logger.Debug($"Checking knight kills for army {army.ID}");
-            if (army.Knights != null && army.Knights.HasKnights())
-            {
-                var knightKillsReport = army.UnitsResults!.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
-                int kills = 0;
-                if (knightKillsReport.Kills != null)
-                {
-                    Int32.TryParse(knightKillsReport.Kills, out kills);
-                }
-
-                army.Knights.GetKills(kills);
-                Program.Logger.Debug($"Total knight kills for army {army.ID}: {kills}");
-            }
-
-        }
-
-        static (bool searchStarted, bool isCommander, CommanderSystem? commander, bool isKnight, Knight? knight, Army? army)
+        public static (bool searchStarted, bool isCommander, CommanderSystem? commander, bool isKnight, Knight? knight, Army? army)
             SearchCharacters(string char_id, List<Army> armies)
         {
             // Program.Logger.Debug($"Searching for character ID: {char_id}");
@@ -955,7 +393,7 @@ namespace CrusaderWars.data.battle_results
                         {
                             Program.Logger.Debug(
                                 $"Commander {char_id} found in merged army {mergedArmy.ID} (part of main army {army.ID}).");
-                            return (true, true, army.Commander, false, null, army);
+                            return (true, true, mergedArmy.Commander, false, null, army);
                         }
                         else if (mergedArmy.Knights?.GetKnightsList() != null)
                         {
@@ -977,11 +415,193 @@ namespace CrusaderWars.data.battle_results
             return (false, false, null, false, null, null);
         }
 
+        public static void DetermineCharacterFates(List<Army> allArmies)
+        {
+            Program.Logger.Debug("Determining character fates and extracting succession data...");
+
+            using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
+            {
+                string? line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\d+={"))
+                    {
+                        string char_id = Regex.Match(line, @"\d+").Value;
+                        List<string> charBlock = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                        {
+                            charBlock.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
+                        var searchData = SearchCharacters(char_id, allArmies);
+                        if (searchData.searchStarted && searchData.army != null)
+                        {
+                            bool hasFallen = (searchData.isCommander && searchData.commander != null && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight != null && searchData.knight.HasFallen());
+                            if (hasFallen)
+                            {
+                                string? traitsLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("traits={"));
+
+                                if (traitsLine != null)
+                                {
+                                    bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
+                                                           (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
+
+                                    (bool isSlain, bool isCaptured, string newTraits) healthResult = (false, false, traitsLine);
+                                    if (searchData.isCommander && searchData.commander != null)
+                                    {
+                                        healthResult = searchData.commander.Health(traitsLine, wasOnLosingSide);
+                                        searchData.commander.IsSlain = healthResult.isSlain;
+                                        searchData.commander.IsPrisoner = healthResult.isCaptured;
+                                    }
+                                    else if (searchData.isKnight && searchData.knight != null) // isKnight
+                                    {
+                                        healthResult = searchData.knight.Health(traitsLine, wasOnLosingSide);
+                                        searchData.knight.IsSlain = healthResult.isSlain;
+                                        searchData.knight.IsPrisoner = healthResult.isCaptured;
+                                    }
+
+                                    if (healthResult.isSlain)
+                                    {
+                                        ExtractSuccessionData(char_id, charBlock);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Program.Logger.Debug("Finished determining character fates.");
+        }
+
+        private static void ExtractSuccessionData(string slainCharId, List<string> charBlock)
+        {
+            int landedDataStart = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+            if (landedDataStart == -1) return;
+
+            List<string> landedBlock = new List<string>();
+            int braceCount = 0;
+            string? successorId = null;
+
+            for (int i = landedDataStart; i < charBlock.Count; i++)
+            {
+                string line = charBlock[i];
+                landedBlock.Add(line);
+                braceCount += line.Count(c => c == '{');
+                braceCount -= line.Count(c => c == '}');
+
+                if (line.Trim().StartsWith("succession={"))
+                {
+                    Match m = Regex.Match(line, @"succession=\{\s*(\d+)");
+                    if (m.Success) successorId = m.Groups[1].Value;
+                }
+                if (braceCount == 0) break;
+            }
+
+            if (!string.IsNullOrEmpty(successorId))
+            {
+                var data = new SuccessorTransferData { LandedDataBlock = landedBlock, SlainCharId = slainCharId };
+
+                // Extract Gold and Income from alive_data
+                int aliveDataIdx = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                if (aliveDataIdx != -1)
+                {
+                    int goldIdx = charBlock.FindIndex(aliveDataIdx, l => l.Trim() == "gold={");
+                    if (goldIdx != -1)
+                    {
+                        string valLine = charBlock[goldIdx + 1];
+                        Match mGold = Regex.Match(valLine, @"value=([\d\.-]+)");
+                        if (mGold.Success && double.TryParse(mGold.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double gVal))
+                        {
+                            data.Gold = gVal;
+                        }
+                    }
+
+                    int incomeIdx = charBlock.FindIndex(aliveDataIdx, l => l.Trim() == "income={");
+                    if (incomeIdx != -1)
+                    {
+                        int bCount = 0;
+                        for (int i = incomeIdx; i < charBlock.Count; i++)
+                        {
+                            data.IncomeBlock.Add(charBlock[i]);
+                            bCount += charBlock[i].Count(c => c == '{');
+                            bCount -= charBlock[i].Count(c => c == '}');
+                            if (bCount == 0) break;
+                        }
+                    }
+                }
+
+                string? cultureLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("culture="));
+                string? faithLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("faith="));
+                if (cultureLine != null) data.Culture = Regex.Match(cultureLine, @"culture=(.+)").Groups[1].Value;
+                if (faithLine != null) data.Faith = Regex.Match(faithLine, @"faith=(.+)").Groups[1].Value;
+
+                // Extract vassal contract IDs using brace counting for proper multi-line support
+                int vassalContractsStart = charBlock.FindIndex(l => l.Trim().StartsWith("vassal_contracts={"));
+                if (vassalContractsStart != -1)
+                {
+                    string landedBlockStr = string.Join("\n", charBlock.Skip(landedDataStart));
+                    int startIndex = landedBlockStr.IndexOf("vassal_contracts={");
+                    if (startIndex != -1)
+                    {
+                        int contractBraceCount = 0;
+                        startIndex += "vassal_contracts={".Length;
+                        var endIndex = startIndex;
+
+                        // Use brace counting to find the matching closing brace
+                        for (int i = startIndex; i < landedBlockStr.Length; i++)
+                        {
+                            if (landedBlockStr[i] == '{')
+                                contractBraceCount++;
+                            else if (landedBlockStr[i] == '}')
+                            {
+                                if (contractBraceCount == 0)
+                                {
+                                    endIndex = i;
+                                    break;
+                                }
+                                contractBraceCount--;
+                            }
+                        }
+
+                        if (endIndex > startIndex)
+                        {
+                            var contractsContent = landedBlockStr.Substring(startIndex, endIndex - startIndex);
+                            var contractIds = contractsContent.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                            data.VassalContractIds.AddRange(contractIds);
+                            Program.Logger.Debug($"Extracted {contractIds.Length} vassal contract IDs for slain character {slainCharId}");
+                        }
+                    }
+                }
+
+                // Extract playable_data
+                int playableDataStart = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                if (playableDataStart != -1)
+                {
+                    int pBraceCount = 0;
+                    for (int i = playableDataStart; i < charBlock.Count; i++)
+                    {
+                        data.PlayableDataBlock.Add(charBlock[i]);
+                        pBraceCount += charBlock[i].Count(c => c == '{');
+                        pBraceCount -= charBlock[i].Count(c => c == '}');
+                        if (pBraceCount == 0) break;
+                    }
+                    Program.Logger.Debug($"Extracted playable_data block for slain character {slainCharId}.");
+                }
+
+                PendingLandedData[successorId] = data;
+                Program.Logger.Debug($"Slain character {slainCharId} identified successor {successorId}. Data queued for transfer.");
+            }
+        }
+
         public static void EditLivingFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
-            Program.Logger.Debug("Editing Living file (2-pass approach)...");
+            Program.Logger.Debug("Editing Living file...");
             var allArmies = attacker_armies.Concat(defender_armies).ToList();
-            string playerCharId = DataSearch.Player_Character.GetID();
+            string? playerCharId = DataSearch.Player_Character?.GetID();
+            if (playerCharId is null) { return; }
             string? playerHeirId = DataSearch.Player_Heir_ID;
 
             // --- Determine which combat side corresponds to the "left" side from CK3 log data ---
@@ -1000,78 +620,32 @@ namespace CrusaderWars.data.battle_results
             }
             Program.Logger.Debug($"Determined Left Side combat role: {leftSideCombatRole}");
 
-
-            // --- PASS 1: Determine all health outcomes ---
-            Program.Logger.Debug("Living file: Starting Pass 1 (Determine outcomes)");
-            var healthOutcomes = new Dictionary<string, (bool isSlain, bool isCaptured, string newTraits)>();
-            bool playerIsSlain = false;
-
-            using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
+            bool playerIsSlain = allArmies.Any(a => a.Commander?.ID == playerCharId && a.Commander.IsSlain);
+            if (!playerIsSlain)
             {
-                string? line;
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    if (Regex.IsMatch(line, @"^\d+={"))
-                    {
-                        string char_id = Regex.Match(line, @"\d+").Value;
-                        var searchData = SearchCharacters(char_id, allArmies);
-                        if (searchData.searchStarted && searchData.army != null)
-                        {
-                            bool hasFallen = (searchData.isCommander && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight.HasFallen());
-                            if (hasFallen)
-                            {
-                                string? traitsLine = null;
-                                int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
-                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
-                                {
-                                    if (line.Trim().StartsWith("traits={"))
-                                    {
-                                        traitsLine = line;
-                                    }
-                                    braceCount += line.Count(c => c == '{');
-                                    braceCount -= line.Count(c => c == '}');
-                                }
-
-                                if (traitsLine != null)
-                                {
-                                    bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
-                                                           (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
-
-                                    (bool isSlain, bool isCaptured, string newTraits) healthResult;
-                                    if (searchData.isCommander)
-                                    {
-                                        healthResult = searchData.commander.Health(traitsLine, wasOnLosingSide);
-                                    }
-                                    else // isKnight
-                                    {
-                                        healthResult = searchData.knight.Health(traitsLine, wasOnLosingSide);
-                                    }
-                                    
-                                    healthOutcomes[char_id] = healthResult;
-
-                                    if (healthResult.isSlain && char_id == playerCharId)
-                                    {
-                                        playerIsSlain = true;
-                                        Program.Logger.Debug($"Player character {playerCharId} was slain.");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                playerIsSlain = allArmies.Any(a => a.Knights?.GetKnightsList().Any(k => k.GetID() == playerCharId && k.IsSlain) ?? false);
             }
-            Program.Logger.Debug($"Living file: Pass 1 complete. Found {healthOutcomes.Count} characters with health outcomes. Player slain: {playerIsSlain}.");
+            if (playerIsSlain) Program.Logger.Debug($"Player character {playerCharId} was slain.");
 
             EditPlayerCharacterFiles(playerIsSlain, playerHeirId);
 
-            // --- PASS 2: Apply changes and write to temp file ---
-            Program.Logger.Debug("Living file: Starting Pass 2 (Apply changes)");
+            // --- Clean up Court Positions for slain characters ---
+            EditCourtPositionsFile(allArmies);
+
+            // --- Update Vassal Contracts for slain characters ---
+            EditVassalContractsFile();
+
+            // --- Update Opinions for slain characters ---
+            EditOpinionsFile(allArmies);
+
+            // --- Apply changes and write to temp file ---
+            Program.Logger.Debug("Living file: Applying pre-determined fates...");
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Living_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Living_Path()))
             {
                 streamWriter.NewLine = "\n";
                 string? line;
-                
+
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     if (Regex.IsMatch(line, @"^\d+={")) // Start of a character block
@@ -1087,11 +661,161 @@ namespace CrusaderWars.data.battle_results
                             braceCount -= line.Count(c => c == '}');
                         }
 
-                        if (healthOutcomes.TryGetValue(char_id, out var outcome))
+                        var searchData = SearchCharacters(char_id, allArmies);
+                        if (searchData.searchStarted && searchData.army != null)
                         {
-                            if (outcome.isSlain)
+                            bool isSlain = (searchData.isCommander && searchData.commander != null && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight != null && searchData.knight.HasFallen());
+                            bool isCaptured = (searchData.isCommander && searchData.commander != null && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight != null && searchData.knight.IsPrisoner);
+
+                            // Remove court_data if employer was slain
+                            int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                            if (courtDataIdx != -1)
                             {
-                                Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data block.");
+                                int employerLineIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                if (employerLineIdx != -1)
+                                {
+                                    string employerId = Regex.Match(charBlock[employerLineIdx], @"employer=(\d+)").Groups[1].Value;
+                                    var employerSearch = SearchCharacters(employerId, allArmies);
+                                    bool employerSlain = (employerSearch.isCommander && employerSearch.commander != null && employerSearch.commander.IsSlain) || (employerSearch.isKnight && employerSearch.knight != null && employerSearch.knight.HasFallen());
+
+                                    if (employerSlain)
+                                    {
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                            charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
+                                            Program.Logger.Debug($"Emptied court_data for {char_id} because employer {employerId} was slain.");
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Update employer for courtiers if their liege was slain
+                            foreach (var kvp in PendingLandedData)
+                            {
+                                string successorId = kvp.Key;
+                                var transfer = kvp.Value;
+
+                                if (courtDataIdx != -1)
+                                {
+                                    int employerIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                    if (employerIdx != -1 && charBlock[employerIdx].Contains(transfer.SlainCharId))
+                                    {
+                                        // If this character is a successor, they cannot be their own courtier or remain in the slain liege's court.
+                                        // We empty the court_data block for all successors found in the slain liege's court.
+                                        if (PendingLandedData.ContainsKey(char_id))
+                                        {
+                                            int courtDataEndIdx = -1;
+                                            int courtBraceCount = 0;
+                                            for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                            {
+                                                courtBraceCount += charBlock[i].Count(c => c == '{');
+                                                courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                                if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                            }
+
+                                            if (courtDataEndIdx != -1)
+                                            {
+                                                string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                                charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                                charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
+                                                Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // This is a regular courtier, update their employer to the successor.
+                                            string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
+                                            charBlock[employerIdx] = $"{indentation}employer={successorId}";
+
+                                            // Update join_court_date to current date
+                                            string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                            int courtDataEndIdx = -1;
+                                            int courtBraceCount = 0;
+                                            for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                            {
+                                                courtBraceCount += charBlock[i].Count(c => c == '{');
+                                                courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                                if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                            }
+
+                                            if (courtDataEndIdx != -1)
+                                            {
+                                                int joinDateIdx = charBlock.FindIndex(courtDataIdx, courtDataEndIdx - courtDataIdx + 1, l => l.Trim().StartsWith("join_court_date="));
+                                                if (joinDateIdx != -1)
+                                                {
+                                                    charBlock[joinDateIdx] = $"{indentation}join_court_date={currentDate}";
+                                                }
+                                                else
+                                                {
+                                                    charBlock.Insert(employerIdx + 1, $"{indentation}join_court_date={currentDate}");
+                                                }
+                                            }
+
+                                            Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId} and updated join_court_date.");
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (isSlain)
+                            {
+                                Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data and landed_data blocks.");
+
+                                // Remove landed_data
+                                int landedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+                                if (landedIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = landedIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(landedIdx, endIdx - landedIdx + 1);
+                                }
+
+                                // Remove court_data
+                                int courtIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                                if (courtIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = courtIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(courtIdx, endIdx - courtIdx + 1);
+                                }
+
+                                // Remove playable_data
+                                int playableIdx = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                                if (playableIdx != -1)
+                                {
+                                    int bCount = 0;
+                                    int endIdx = -1;
+                                    for (int i = playableIdx; i < charBlock.Count; i++)
+                                    {
+                                        bCount += charBlock[i].Count(c => c == '{');
+                                        bCount -= charBlock[i].Count(c => c == '}');
+                                        if (bCount == 0) { endIdx = i; break; }
+                                    }
+                                    if (endIdx != -1) charBlock.RemoveRange(playableIdx, endIdx - playableIdx + 1);
+                                }
+
                                 int aliveDataStartIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
                                 if (aliveDataStartIndex != -1)
                                 {
@@ -1122,82 +846,79 @@ namespace CrusaderWars.data.battle_results
                                     charBlock.Insert(closingBraceIndex + 3, "\t}");
                                 }
                             }
-                            else // Wounded and/or Captured
+                            else // Not slain, but could be wounded and/or captured
                             {
-                                // Apply wound traits first
+                                bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
+                                                       (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
+
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
                                 if (traitsLineIndex != -1)
                                 {
-                                    charBlock[traitsLineIndex] = outcome.newTraits;
+                                    (bool _, bool __, string newTraits) healthResult = (false, false, charBlock[traitsLineIndex]);
+                                    if (searchData.isCommander && searchData.commander != null)
+                                    {
+                                        healthResult = searchData.commander.Health(charBlock[traitsLineIndex], wasOnLosingSide);
+                                    }
+                                    else if (searchData.isKnight && searchData.knight != null) // isKnight
+                                    {
+                                        healthResult = searchData.knight.Health(charBlock[traitsLineIndex], wasOnLosingSide);
+                                    }
+                                    charBlock[traitsLineIndex] = healthResult.newTraits;
                                 }
 
-                                // If captured, add prison_data block
-                                if (outcome.isCaptured)
+                                if (isCaptured)
                                 {
-                                    var searchData = SearchCharacters(char_id, allArmies);
-                                    Army characterArmy = searchData.army;
+                                    string imprisonerId = "";
+                                    bool isCharacterOnLeftSide = !string.IsNullOrEmpty(leftSideCombatRole) && searchData.army.CombatSide == leftSideCombatRole;
 
-                                    if (characterArmy != null)
+                                    if (isCharacterOnLeftSide)
                                     {
-                                        string imprisonerId = "";
-                                        bool isCharacterOnLeftSide = !string.IsNullOrEmpty(leftSideCombatRole) && characterArmy.CombatSide == leftSideCombatRole;
+                                        imprisonerId = CK3LogData.RightSide.GetMainParticipant().id;
+                                    }
+                                    else
+                                    {
+                                        imprisonerId = CK3LogData.LeftSide.GetMainParticipant().id;
+                                    }
 
+                                    if (string.IsNullOrEmpty(imprisonerId))
+                                    {
                                         if (isCharacterOnLeftSide)
                                         {
-                                            imprisonerId = CK3LogData.RightSide.GetMainParticipant().id;
+                                            imprisonerId = CK3LogData.RightSide.GetCommander().id;
                                         }
                                         else
                                         {
-                                            imprisonerId = CK3LogData.LeftSide.GetMainParticipant().id;
+                                            imprisonerId = CK3LogData.LeftSide.GetCommander().id;
                                         }
+                                        Program.Logger.Debug($"Could not find main participant for imprisoner. Falling back to main commander of winning side. Imprisoner ID: {imprisonerId}");
+                                    }
 
-                                        // Fallback logic
-                                        if (string.IsNullOrEmpty(imprisonerId))
+                                    if (!string.IsNullOrEmpty(imprisonerId))
+                                    {
+                                        string dateString = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                        var prisonBlock = new List<string>
                                         {
-                                            if (isCharacterOnLeftSide) // Character was on left side, winner is right side
-                                            {
-                                                imprisonerId = CK3LogData.RightSide.GetCommander().id;
-                                            }
-                                            else // Character was on right side, winner is left side
-                                            {
-                                                imprisonerId = CK3LogData.LeftSide.GetCommander().id;
-                                            }
-                                            Program.Logger.Debug($"Could not find main participant for imprisoner. Falling back to main commander of winning side. Imprisoner ID: {imprisonerId}");
-                                        }
-
-                                        if (!string.IsNullOrEmpty(imprisonerId))
+                                            "\t\tprison_data={",
+                                            $"\t\t\timprisoner={imprisonerId}",
+                                            $"\t\t\tdate={dateString}",
+                                            $"\t\t\timprison_type_date={dateString}",
+                                            "\t\t\ttype=house_arrest",
+                                            "\t\t}"
+                                        };
+                                        int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+                                        if (aliveDataIndex != -1)
                                         {
-                                            string dateString = $"{Date.Year}.{Date.Month}.{Date.Day}";
-
-                                            var prisonBlock = new List<string>
-                                            {
-                                                "\t\tprison_data={",
-                                                $"\t\t\timprisoner={imprisonerId}",
-                                                $"\t\t\tdate={dateString}",
-                                                $"\t\t\timprison_type_date={dateString}",
-                                                "\t\t\ttype=house_arrest",
-                                                "\t\t}"
-                                            };
-
-                                            int aliveDataIndex = charBlock.FindIndex(l => l.Trim() == "alive_data={");
-                                            if (aliveDataIndex != -1)
-                                            {
-                                                charBlock.InsertRange(aliveDataIndex + 1, prisonBlock);
-                                                Program.Logger.Debug($"Character {char_id} captured by {imprisonerId}. Adding prison_data block.");
-                                            }
-                                            else
-                                            {
-                                                Program.Logger.Debug($"Warning: Could not find alive_data block for captured character {char_id}.");
-                                            }
+                                            charBlock.InsertRange(aliveDataIndex + 1, prisonBlock);
+                                            Program.Logger.Debug($"Character {char_id} captured by {imprisonerId}. Adding prison_data block.");
                                         }
                                         else
                                         {
-                                            Program.Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
+                                            Program.Logger.Debug($"Warning: Could not find alive_data block for captured character {char_id}.");
                                         }
                                     }
                                     else
                                     {
-                                        Program.Logger.Debug($"Warning: Could not find army for captured character {char_id}.");
+                                        Program.Logger.Debug($"Warning: Could not determine an imprisoner for captured character {char_id}.");
                                     }
                                 }
                             }
@@ -1217,6 +938,80 @@ namespace CrusaderWars.data.battle_results
                             }
                         }
 
+                        if (PendingLandedData.ContainsKey(char_id))
+                        {
+                            ApplyLandedDataTransfer(char_id, charBlock);
+                        }
+
+                        // Update employer for courtiers if their liege was slain
+                        foreach (var kvp in PendingLandedData)
+                        {
+                            string successorId = kvp.Key;
+                            var transfer = kvp.Value;
+
+                            int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
+                            if (courtDataIdx != -1)
+                            {
+                                int employerIdx = charBlock.FindIndex(courtDataIdx, l => l.Trim().StartsWith("employer="));
+                                if (employerIdx != -1 && charBlock[employerIdx].Contains(transfer.SlainCharId))
+                                {
+                                    // If this character is a successor, they cannot be their own courtier or remain in the slain liege's court.
+                                    // We empty the court_data block for all successors found in the slain liege's court.
+                                    if (PendingLandedData.ContainsKey(char_id))
+                                    {
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            string indentation = charBlock[courtDataIdx].Substring(0, charBlock[courtDataIdx].IndexOf("court_data="));
+                                            charBlock.RemoveRange(courtDataIdx, courtDataEndIdx - courtDataIdx + 1);
+                                            charBlock.Insert(courtDataIdx, $"{indentation}court_data={{\n{indentation}}}");
+                                            Program.Logger.Debug($"Emptied court_data for successor {char_id} as they were previously in the court of slain {transfer.SlainCharId}.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // This is a regular courtier, update their employer to the successor.
+                                        string indentation = charBlock[employerIdx].Substring(0, charBlock[employerIdx].IndexOf("employer="));
+                                        charBlock[employerIdx] = $"{indentation}employer={successorId}";
+
+                                        // Update join_court_date to current date
+                                        string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+                                        int courtDataEndIdx = -1;
+                                        int courtBraceCount = 0;
+                                        for (int i = courtDataIdx; i < charBlock.Count; i++)
+                                        {
+                                            courtBraceCount += charBlock[i].Count(c => c == '{');
+                                            courtBraceCount -= charBlock[i].Count(c => c == '}');
+                                            if (courtBraceCount == 0) { courtDataEndIdx = i; break; }
+                                        }
+
+                                        if (courtDataEndIdx != -1)
+                                        {
+                                            int joinDateIdx = charBlock.FindIndex(courtDataIdx, courtDataEndIdx - courtDataIdx + 1, l => l.Trim().StartsWith("join_court_date="));
+                                            if (joinDateIdx != -1)
+                                            {
+                                                charBlock[joinDateIdx] = $"{indentation}join_court_date={currentDate}";
+                                            }
+                                            else
+                                            {
+                                                charBlock.Insert(employerIdx + 1, $"{indentation}join_court_date={currentDate}");
+                                            }
+                                        }
+
+                                        Program.Logger.Debug($"Updated courtier {char_id} employer from {transfer.SlainCharId} to successor {successorId} and updated join_court_date.");
+                                    }
+                                }
+                            }
+                        }
+
                         foreach (var blockLine in charBlock)
                         {
                             streamWriter.WriteLine(blockLine);
@@ -1229,6 +1024,491 @@ namespace CrusaderWars.data.battle_results
                 }
             }
             Program.Logger.Debug("Finished editing Living file.");
+        }
+
+        private static List<string> RemoveCourtPositionsFromLandedData(List<string> landedBlock)
+        {
+            int cpIdx = landedBlock.FindIndex(l => l.Trim().StartsWith("court_positions={"));
+            if (cpIdx == -1) return landedBlock;
+
+            int braceCount = 0;
+            int endIdx = -1;
+            for (int i = cpIdx; i < landedBlock.Count; i++)
+            {
+                braceCount += landedBlock[i].Count(c => c == '{');
+                braceCount -= landedBlock[i].Count(c => c == '}');
+                if (braceCount == 0)
+                {
+                    endIdx = i;
+                    break;
+                }
+            }
+
+            if (endIdx != -1)
+            {
+                landedBlock.RemoveRange(cpIdx, endIdx - cpIdx + 1);
+                Program.Logger.Debug("Removed court_positions from transferred landed_data block.");
+            }
+
+            return landedBlock;
+        }
+
+        private static void ApplyLandedDataTransfer(string successorId, List<string> charBlock)
+        {
+            var transferData = PendingLandedData[successorId];
+            Program.Logger.Debug($"Applying landed_data transfer to successor {successorId}.");
+
+            // Remove court_positions from the block being transferred to prevent duplicate/invalid entries
+            transferData.LandedDataBlock = RemoveCourtPositionsFromLandedData(transferData.LandedDataBlock);
+
+            // Copy missing culture/faith after ethnicity (or fallback fields)
+            if (transferData.Culture != null || transferData.Faith != null)
+            {
+                bool hasCulture = charBlock.Any(l => l.Trim().StartsWith("culture="));
+                bool hasFaith = charBlock.Any(l => l.Trim().StartsWith("faith="));
+
+                if (!hasCulture || !hasFaith)
+                {
+                    int insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("ethnicity="));
+                    if (insertIdx == -1) insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("nickname_text="));
+                    if (insertIdx == -1) insertIdx = charBlock.FindIndex(l => l.Trim().StartsWith("birth="));
+                    if (insertIdx == -1) insertIdx = 0; // Fallback to start of block if no markers found
+
+                    // Insert Faith first, then Culture, so Culture ends up above Faith if both are inserted
+                    if (!hasFaith && transferData.Faith != null)
+                    {
+                        charBlock.Insert(insertIdx + 1, $"\tfaith={transferData.Faith}");
+                    }
+                    if (!hasCulture && transferData.Culture != null)
+                    {
+                        charBlock.Insert(insertIdx + 1, $"\tculture={transferData.Culture}");
+                    }
+                }
+            }
+
+            int existingLandedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
+            if (existingLandedIdx == -1)
+            {
+                // Ensure successor is not in their own succession list before inserting
+                int succIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("succession={"));
+                if (succIdx != -1)
+                {
+                    string line = transferData.LandedDataBlock[succIdx];
+                    var ids = Regex.Match(line, @"succession=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    if (ids.Remove(successorId))
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("succession="));
+                        transferData.LandedDataBlock[succIdx] = $"{indentation}succession={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed successor {successorId} from their own succession list during transfer.");
+                    }
+                }
+
+                // Remove invalidated vassal contracts
+                int vcIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("vassal_contracts={"));
+                if (vcIdx != -1)
+                {
+                    string line = transferData.LandedDataBlock[vcIdx];
+                    var ids = Regex.Match(line, @"vassal_contracts=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    int originalCount = ids.Count;
+                    ids = ids.Where(id => !InvalidatedVassalContracts.Contains(id)).ToList();
+                    if (ids.Count != originalCount)
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("vassal_contracts="));
+                        transferData.LandedDataBlock[vcIdx] = $"{indentation}vassal_contracts={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed {originalCount - ids.Count} invalidated vassal contracts from transferred landed_data for {successorId}.");
+                    }
+                }
+                // Update became_ruler_date
+                int dateIdx = transferData.LandedDataBlock.FindIndex(l => l.Trim().StartsWith("became_ruler_date="));
+                string newDateLine = $"\t\tbecame_ruler_date={Date.Year}.{Date.Month}.{Date.Day}";
+                if (dateIdx != -1) transferData.LandedDataBlock[dateIdx] = newDateLine;
+                else transferData.LandedDataBlock.Insert(1, newDateLine);
+
+                int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}");
+                if (insertPos != -1) charBlock.InsertRange(insertPos, transferData.LandedDataBlock);
+            }
+            else
+            {
+                // Merge logic
+                List<string> mergedLanded = transferData.LandedDataBlock;
+                int bCount = 0;
+                int endIdx = -1;
+                List<string> successorLanded = new List<string>();
+                for (int i = existingLandedIdx; i < charBlock.Count; i++)
+                {
+                    successorLanded.Add(charBlock[i]);
+                    bCount += charBlock[i].Count(c => c == '{');
+                    bCount -= charBlock[i].Count(c => c == '}');
+                    if (bCount == 0) { endIdx = i; break; }
+                }
+
+                Func<List<string>, string, string> getField = (block, field) =>
+                {
+                    var line = block.FirstOrDefault(l => l.Trim().StartsWith(field + "={"));
+                    return line != null ? Regex.Match(line, field + @"=\{\s*(.*?)\s*\}").Groups[1].Value : "";
+                };
+
+                Action<List<string>, string, string> setField = (block, field, val) =>
+                {
+                    int idx = block.FindIndex(l => l.Trim().StartsWith(field + "={"));
+                    if (idx != -1) block[idx] = Regex.Replace(block[idx], field + @"=\{.*?\}", field + "={ " + val + " }");
+                };
+
+                foreach (string field in new[] { "domain", "vassal_contracts", "succession" })
+                {
+                    var slainVals = getField(mergedLanded, field).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var succVals = getField(successorLanded, field).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var combined = slainVals.Concat(succVals).Distinct().ToList();
+                    if (field == "succession") combined.Remove(successorId);
+                    if (field == "vassal_contracts") combined = combined.Where(id => !InvalidatedVassalContracts.Contains(id)).ToList();
+                    setField(successorLanded, field, string.Join(" ", combined));
+                }
+
+                // Cleanup council
+                var councilLineIdx = successorLanded.FindIndex(l => l.Trim().StartsWith("council={"));
+                if (councilLineIdx != -1)
+                {
+                    var councilVals = Regex.Match(successorLanded[councilLineIdx], @"council=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    if (councilVals.Remove(successorId))
+                        successorLanded[councilLineIdx] = "		council={ " + string.Join(" ", councilVals) + " }";
+                }
+
+                // Update became_ruler_date
+                int dateIdx = successorLanded.FindIndex(l => l.Trim().StartsWith("became_ruler_date="));
+                string newDateLine = $"\t\tbecame_ruler_date={Date.Year}.{Date.Month}.{Date.Day}";
+                if (dateIdx != -1) successorLanded[dateIdx] = newDateLine;
+                else successorLanded.Insert(1, newDateLine);
+
+                charBlock.RemoveRange(existingLandedIdx, endIdx - existingLandedIdx + 1);
+                charBlock.InsertRange(existingLandedIdx, successorLanded);
+            }
+
+            // Transfer Playable Data
+            if (transferData.PlayableDataBlock.Any())
+            {
+                Program.Logger.Debug($"Applying playable_data transfer to successor {successorId}.");
+                List<string> playableBlock = new List<string>(transferData.PlayableDataBlock);
+
+                // Modify knights list
+                int knightsIdx = playableBlock.FindIndex(l => l.Trim().StartsWith("knights={"));
+                if (knightsIdx != -1)
+                {
+                    string line = playableBlock[knightsIdx];
+                    var ids = Regex.Match(line, @"knights=\{\s*(.*?)\s*\}").Groups[1].Value
+                        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                    if (ids.Remove(successorId))
+                    {
+                        string indentation = line.Substring(0, line.IndexOf("knights="));
+                        playableBlock[knightsIdx] = $"{indentation}knights={{ {string.Join(" ", ids)} }}";
+                        Program.Logger.Debug($"Removed successor {successorId} from transferred knights list.");
+                    }
+                }
+
+                // Handle diarchy_successor
+                string? successorSuccessorId = null;
+                int succPlayableIdxInCharBlock = charBlock.FindIndex(l => l.Trim() == "playable_data={");
+                if (succPlayableIdxInCharBlock != -1)
+                {
+                    int diarchyIdx = charBlock.FindIndex(succPlayableIdxInCharBlock, l => l.Trim().StartsWith("diarchy_successor="));
+                    if (diarchyIdx != -1)
+                    {
+                        successorSuccessorId = Regex.Match(charBlock[diarchyIdx], @"diarchy_successor=(\d+)").Groups[1].Value;
+                    }
+                }
+
+                int transferDiarchyIdx = playableBlock.FindIndex(l => l.Trim().StartsWith("diarchy_successor="));
+                if (transferDiarchyIdx != -1)
+                {
+                    if (!string.IsNullOrEmpty(successorSuccessorId))
+                    {
+                        string indentation = playableBlock[transferDiarchyIdx].Substring(0, playableBlock[transferDiarchyIdx].IndexOf("diarchy_successor="));
+                        playableBlock[transferDiarchyIdx] = $"{indentation}diarchy_successor={successorSuccessorId}";
+                        Program.Logger.Debug($"Updated diarchy_successor in transferred playable_data to {successorSuccessorId}.");
+                    }
+                    else
+                    {
+                        playableBlock.RemoveAt(transferDiarchyIdx);
+                        Program.Logger.Debug("Removed diarchy_successor from transferred playable_data as successor has no heir.");
+                    }
+                }
+
+                // Insert the modified playable_data block into the successor's character block
+                // It should replace any existing playable_data block the successor might have.
+                if (succPlayableIdxInCharBlock != -1)
+                {
+                    // Remove existing block
+                    int bCount = 0;
+                    int endIdx = -1;
+                    for (int i = succPlayableIdxInCharBlock; i < charBlock.Count; i++)
+                    {
+                        bCount += charBlock[i].Count(c => c == '{');
+                        bCount -= charBlock[i].Count(c => c == '}');
+                        if (bCount == 0) { endIdx = i; break; }
+                    }
+                    if (endIdx != -1)
+                    {
+                        charBlock.RemoveRange(succPlayableIdxInCharBlock, endIdx - succPlayableIdxInCharBlock + 1);
+                        charBlock.InsertRange(succPlayableIdxInCharBlock, playableBlock);
+                        Program.Logger.Debug($"Replaced existing playable_data for successor {successorId}.");
+                    }
+                }
+                else
+                {
+                    // Insert new block
+                    int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}");
+                    if (insertPos != -1)
+                    {
+                        charBlock.InsertRange(insertPos, playableBlock);
+                        Program.Logger.Debug($"Inserted new playable_data for successor {successorId}.");
+                    }
+                }
+            }
+
+            // Transfer Gold and Income to successor's alive_data
+            int succAliveIdx = charBlock.FindIndex(l => l.Trim() == "alive_data={");
+            if (succAliveIdx != -1)
+            {
+                // Update Gold
+                if (transferData.Gold != 0)
+                {
+                    int goldIdx = charBlock.FindIndex(succAliveIdx, l => l.Trim() == "gold={");
+                    if (goldIdx != -1)
+                    {
+                        int valIdx = goldIdx + 1;
+                        Match m = Regex.Match(charBlock[valIdx], @"value=([\d\.-]+)");
+                        if (m.Success && double.TryParse(m.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double currentGold))
+                        {
+                            double newGold = currentGold + transferData.Gold;
+                            string indentation = charBlock[valIdx].Substring(0, charBlock[valIdx].IndexOf("value="));
+                            charBlock[valIdx] = $"{indentation}value={newGold.ToString("F3", CultureInfo.InvariantCulture)}";
+                            Program.Logger.Debug($"Transferred {transferData.Gold} gold from slain {transferData.SlainCharId} to successor {successorId}. New total: {newGold}");
+                        }
+                    }
+                    else
+                    {
+                        // Successor has no gold block, create one
+                        charBlock.InsertRange(succAliveIdx + 1, new List<string> {
+                            "\t\tgold={",
+                            $"\t\t\tvalue={transferData.Gold.ToString("F3", CultureInfo.InvariantCulture)}",
+                            "\t\t}"
+                        });
+                    }
+                }
+
+                // Copy Income if successor doesn't have it
+                if (transferData.IncomeBlock.Any())
+                {
+                    int succIncomeIdx = charBlock.FindIndex(succAliveIdx, l => l.Trim() == "income={");
+                    if (succIncomeIdx == -1)
+                    {
+                        charBlock.InsertRange(succAliveIdx + 1, transferData.IncomeBlock);
+                        Program.Logger.Debug($"Copied income block from slain {transferData.SlainCharId} to successor {successorId}.");
+                    }
+                }
+            }
+        }
+
+
+        public static void EditVassalContractsFile()
+        {
+            Program.Logger.Debug("Editing Vassal Contracts file...");
+            string path = Writter.DataFilesPaths.VassalContracts_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.VassalContracts_Path();
+
+            if (!File.Exists(path))
+            {
+                Program.Logger.Debug("VassalContracts.txt not found. Skipping.");
+                return;
+            }
+
+            InvalidatedVassalContracts.Clear();
+            string currentDate = $"{Date.Year}.{Date.Month}.{Date.Day}";
+            var successorLookup = PendingLandedData.ToDictionary(kvp => kvp.Value.SlainCharId, kvp => kvp.Key);
+
+            using (StreamReader sr = new StreamReader(path))
+            using (StreamWriter sw = new StreamWriter(tempPath))
+            {
+                sw.NewLine = "\n";
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\s*\d+={"))
+                    {
+                        string contractId = Regex.Match(line, @"^\s*(\d+)={").Groups[1].Value;
+                        List<string> block = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = sr.ReadLine()) != null)
+                        {
+                            block.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
+                        bool isModified = false;
+
+                        int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
+                        int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
+
+                        string? currentVassalId = (vassalIdx != -1) ? Regex.Match(block[vassalIdx], @"vassal=(\d+)").Groups[1].Value : null;
+                        string? currentLiegeId = (liegeIdx != -1) ? Regex.Match(block[liegeIdx], @"liege=(\d+)").Groups[1].Value : null;
+
+                        // Update Liege if slain
+                        if (currentLiegeId != null && successorLookup.TryGetValue(currentLiegeId, out string? liegeSuccessorId))
+                        {
+                            string indent = block[liegeIdx].Substring(0, block[liegeIdx].IndexOf("liege="));
+                            block[liegeIdx] = $"{indent}liege={liegeSuccessorId}";
+                            currentLiegeId = liegeSuccessorId;
+                            isModified = true;
+                            Program.Logger.Debug($"Contract {contractId}: Updated liege from slain character to successor {liegeSuccessorId}.");
+                        }
+
+                        // Update Vassal if slain
+                        if (currentVassalId != null && successorLookup.TryGetValue(currentVassalId, out string? vassalSuccessorId))
+                        {
+                            string indent = block[vassalIdx].Substring(0, block[vassalIdx].IndexOf("vassal="));
+                            block[vassalIdx] = $"{indent}vassal={vassalSuccessorId}";
+                            currentVassalId = vassalSuccessorId;
+                            isModified = true;
+                            Program.Logger.Debug($"Contract {contractId}: Updated vassal from slain character to successor {vassalSuccessorId}.");
+                        }
+
+                        // Self-contract check: if vassal and liege are the same after updates, invalidate the contract.
+                        if (currentVassalId != null && currentLiegeId != null && currentVassalId == currentLiegeId)
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            InvalidatedVassalContracts.Add(contractId);
+                            Program.Logger.Debug($"Contract {contractId}: Vassal and Liege are the same ({currentVassalId}). Setting to none.");
+                            continue;
+                        }
+
+                        // Update date if modified
+                        if (isModified)
+                        {
+                            int dateIdx = block.FindIndex(l => l.Trim().StartsWith("date="));
+                            if (dateIdx != -1)
+                            {
+                                string indent = block[dateIdx].Substring(0, block[dateIdx].IndexOf("date="));
+                                block[dateIdx] = $"{indent}date={currentDate}";
+                            }
+                            else
+                            {
+                                int insertPosition = block.FindLastIndex(l => l.Trim() == "}") - 1;
+                                if (insertPosition >= 0)
+                                {
+                                    string indent = block[insertPosition].Substring(0, block[insertPosition].TakeWhile(char.IsWhiteSpace).Count());
+                                    block.Insert(insertPosition, $"{indent}\tdate={currentDate}");
+                                }
+                            }
+                        }
+
+                        foreach (var bLine in block) sw.WriteLine(bLine);
+                    }
+                    else
+                    {
+                        sw.WriteLine(line);
+                    }
+                }
+            }
+        }
+
+        public static void EditCourtPositionsFile(List<Army> allArmies)
+        {
+            Program.Logger.Debug("Editing Court Positions file...");
+            string path = Writter.DataFilesPaths.CourtPositions_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.CourtPositions_Path();
+
+            if (!File.Exists(path))
+            {
+                Program.Logger.Debug("CourtPositions.txt not found. Skipping.");
+                return;
+            }
+
+            var successorLookup = PendingLandedData.ToDictionary(kvp => kvp.Value.SlainCharId, kvp => kvp.Key);
+
+            using (StreamReader sr = new StreamReader(path))
+            using (StreamWriter sw = new StreamWriter(tempPath))
+            {
+                sw.NewLine = "\n";
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (Regex.IsMatch(line, @"^\s*\d+={"))
+                    {
+                        string contractId = Regex.Match(line, @"^\s*(\d+)={").Groups[1].Value;
+                        List<string> block = new List<string> { line };
+                        int braceCount = line.Count(c => c == '{') - line.Count(c => c == '}');
+                        while (braceCount > 0 && (line = sr.ReadLine()) != null)
+                        {
+                            block.Add(line);
+                            braceCount += line.Count(c => c == '{');
+                            braceCount -= line.Count(c => c == '}');
+                        }
+
+                        int employerIdx = block.FindIndex(l => l.Trim().StartsWith("employer="));
+                        int employeeIdx = block.FindIndex(l => l.Trim().StartsWith("employee="));
+
+                        string? originalEmployerId = (employerIdx != -1) ? Regex.Match(block[employerIdx], @"=(\d+)").Groups[1].Value : null;
+                        string? originalEmployeeId = (employeeIdx != -1) ? Regex.Match(block[employeeIdx], @"=(\d+)").Groups[1].Value : null;
+
+                        string? currentEmployerId = originalEmployerId;
+                        string? currentEmployeeId = originalEmployeeId;
+
+                        // Check and update employer
+                        if (currentEmployerId != null && successorLookup.TryGetValue(currentEmployerId, out string? employerSuccessorId))
+                        {
+                            string indentation = block[employerIdx].Substring(0, block[employerIdx].IndexOf("employer="));
+                            block[employerIdx] = $"{indentation}employer={employerSuccessorId}";
+                            currentEmployerId = employerSuccessorId; // update for the self-check
+                            Program.Logger.Debug($"Court Position {contractId}: Updated employer from slain {originalEmployerId} to successor {employerSuccessorId}.");
+                        }
+
+                        // Check and update employee
+                        if (currentEmployeeId != null && successorLookup.TryGetValue(currentEmployeeId, out string? employeeSuccessorId))
+                        {
+                            string indentation = block[employeeIdx].Substring(0, block[employeeIdx].IndexOf("employee="));
+                            block[employeeIdx] = $"{indentation}employee={employeeSuccessorId}";
+                            currentEmployeeId = employeeSuccessorId; // update for the self-check
+                            Program.Logger.Debug($"Court Position {contractId}: Updated employee from slain {originalEmployeeId} to successor {employeeSuccessorId}.");
+                        }
+
+                        // Self-employment check
+                        if (currentEmployerId != null && currentEmployeeId != null && currentEmployerId == currentEmployeeId)
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            Program.Logger.Debug($"Court Position {contractId}: Set to none because employer and employee are the same character ({currentEmployerId}).");
+                            continue; // Skip writing the block
+                        }
+
+                        // Fallback: Original logic to remove if a character is slain and has no successor
+                        bool employerSlain = originalEmployerId != null && allArmies.Any(a => (a.Commander?.ID == originalEmployerId && a.Commander.IsSlain) || (a.Knights?.GetKnightsList().Any(k => k.GetID() == originalEmployerId && k.IsSlain) ?? false));
+                        bool employeeSlain = originalEmployeeId != null && allArmies.Any(a => (a.Commander?.ID == originalEmployeeId && a.Commander.IsSlain) || (a.Knights?.GetKnightsList().Any(k => k.GetID() == originalEmployeeId && k.IsSlain) ?? false));
+
+                        bool employerReplaced = currentEmployerId != originalEmployerId;
+                        bool employeeReplaced = currentEmployeeId != originalEmployeeId;
+
+                        if ((employerSlain && !employerReplaced) || (employeeSlain && !employeeReplaced))
+                        {
+                            sw.WriteLine($"\t{contractId}=none");
+                            Program.Logger.Debug($"Court Position {contractId}: Set to none because a participant was slain without a successor.");
+                            continue;
+                        }
+
+                        // If we get here, write the block (modified or original)
+                        foreach (var bLine in block)
+                        {
+                            sw.WriteLine(bLine);
+                        }
+                    }
+                    else
+                    {
+                        sw.WriteLine(line);
+                    }
+                }
+            }
         }
 
         public static void EditPlayerCharacterFiles(bool playerIsSlain, string? playerHeirId)
@@ -1260,7 +1540,7 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug($"Updated main character ID to heir ID {playerHeirId}.");
 
                 string newLegacyEntry = $"\t\t{{\n\t\t\tcharacter={playerHeirId}\n\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}\n\t\t\twars={{ 0 0 0 0 }}\n\t\t}}";
-                
+
                 // Corrected Regex: Use a lookahead to find the closing brace of the legacy block,
                 // which is followed by another property. This is more robust than assuming it's at the end of the file.
                 Regex legacyRegex = new Regex(@"(legacy\s*=\s*{[\s\S]*?)(?=\s*\}\s*\w+\s*=)", RegexOptions.Multiline);
@@ -1271,7 +1551,7 @@ namespace CrusaderWars.data.battle_results
                     // Check if the last non-whitespace character in the matched group is a closing brace.
                     // If so, we need to add a space. Otherwise, we add a newline and tab.
                     string separator = legacyMatch.Groups[1].Value.TrimEnd().EndsWith("}") ? " " : "\n\t\t";
-                    
+
                     // The lookahead in the regex ensures we don't consume the closing brace.
                     // We replace the matched part (everything up to the brace) with itself plus the new entry.
                     string replacement = $"{legacyMatch.Groups[1].Value}{separator}{newLegacyEntry}";
@@ -1295,11 +1575,147 @@ namespace CrusaderWars.data.battle_results
             }
         }
 
+        private static double CalculateWarScore(List<Army> attacker_armies, List<Army> defender_armies)
+        {
+            Program.Logger.Debug("Calculating dynamic war score with 'Battle Impact' algorithm...");
+
+            var winningArmies = IsAttackerVictorious ? attacker_armies : defender_armies;
+            var losingArmies = IsAttackerVictorious ? defender_armies : attacker_armies;
+
+            // --- STAGE 1: Calculate Battle Impact Score (0-100) ---
+
+            // 1.1: Calculate Casualty Rates
+            double totalLosingStart = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalLosingEnd = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double loserCasualtyRate = (totalLosingStart > 0) ? (totalLosingStart - totalLosingEnd) / totalLosingStart : 0;
+
+            double totalWinningStart = winningArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalWinningEnd = winningArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double winnerCasualtyRate = (totalWinningStart > 0) ? (totalWinningStart - totalWinningEnd) / totalWinningStart : 0;
+
+            // 1.2: Calculate Impact Components
+            double casualtyImpact = loserCasualtyRate * 40.0;
+            double victoryMarginImpact = Math.Max(0, loserCasualtyRate - winnerCasualtyRate) * 30.0;
+            double characterImpact = 0;
+
+            foreach (var army in losingArmies.Where(a => a != null))
+            {
+                if (army.Commander != null)
+                {
+                    if (army.Commander.IsMainCommander())
+                    {
+                        if (army.Commander.IsSlain) characterImpact += 15.0;
+                        else if (army.Commander.IsPrisoner) characterImpact += 10.0;
+                    }
+                    else // Other commanders
+                    {
+                        if (army.Commander.IsSlain) characterImpact += 1.5;
+                        else if (army.Commander.IsPrisoner) characterImpact += 0.75;
+                    }
+                }
+
+                if (army.Knights != null)
+                {
+                    foreach (var knight in army.Knights.GetKnightsList())
+                    {
+                        if (knight.IsSlain) characterImpact += 1.5;
+                        else if (knight.IsPrisoner) characterImpact += 0.75;
+                    }
+                }
+            }
+
+            double totalImpactScore = Math.Clamp(casualtyImpact + victoryMarginImpact + characterImpact, 0, 100);
+
+            Program.Logger.Debug($"Battle Impact Score: Casualty({casualtyImpact:F2}/40) + Margin({victoryMarginImpact:F2}/30) + Character({characterImpact:F2}) = {totalImpactScore:F2}");
+
+            // --- STAGE 2: Convert Impact Score to Final War Score ---
+            double normalizedImpact = totalImpactScore / 100.0;
+            double finalWarScore = Math.Pow(normalizedImpact, 1.5) * 75.0;
+
+            // Ensure a minimum score for any victory, but don't give points for a loss.
+            if (finalWarScore < 1.0 && totalImpactScore > 0) finalWarScore = 1.0;
+
+            finalWarScore = Math.Clamp(finalWarScore, 0, 75.0); // Clamp to a max of 75
+
+            Program.Logger.Debug($"Final Calculated War Score: {finalWarScore:F4}");
+
+            return Math.Round(finalWarScore, 4);
+        }
+
+        private static double CalculatePrestige(double warScore, List<Army> losingArmies)
+        {
+            // Calculate total size of losing armies from their starting casualties
+            double totalLosingArmySize = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>())
+                                                     .Sum(r => (double)r.GetStarting());
+
+            // Calculate prestige based on war score and size of defeated force
+            double prestige = (warScore * 5.0) + (totalLosingArmySize / 200.0);
+
+            // Clamp prestige to reasonable values
+            prestige = Math.Max(5.0, Math.Min(500.0, prestige));
+
+            Program.Logger.Debug($"Calculated prestige award: {prestige:F2} (War Score: {warScore:F2}, Losing Army Size: {totalLosingArmySize:F0})");
+            return prestige;
+        }
+
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
 
+            // Use pre-calculated war score if available, otherwise calculate it
+            double newWarScore;
+            if (WarScoreValue.HasValue)
+            {
+                newWarScore = WarScoreValue.Value;
+                Program.Logger.Debug($"Using pre-calculated war score: {newWarScore}");
+            }
+            else
+            {
+                // Fallback calculation if somehow WarScoreValue is null
+                newWarScore = CalculateWarScore(attacker_armies, defender_armies);
+                WarScoreValue = newWarScore;
+                Program.Logger.Debug($"Calculated war score (fallback): {newWarScore}");
+            }
+
+            // Determine winning side value (0 for attacker, 1 for defender)
+            string winningSideValue = IsAttackerVictorious ? "0" : "1";
+
+            // Determine the winning participant ID
+            string winningParticipantId = "";
+            var left_side_armies = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
+            if (IsAttackerVictorious)
+            {
+                // Attacker won - check if player was on attacker side
+                if (left_side_armies == attacker_armies)
+                {
+                    winningParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                }
+                else
+                {
+                    winningParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
+                }
+            }
+            else
+            {
+                // Defender won - check if player was on defender side
+                if (left_side_armies == defender_armies)
+                {
+                    winningParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                }
+                else
+                {
+                    winningParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
+                }
+            }
+
+            // Determine losing armies for prestige calculation
+            var losingArmies = IsAttackerVictorious ? defender_armies : attacker_armies;
+
+            // Calculate prestige to award
+            double prestigeAward = CalculatePrestige(newWarScore, losingArmies);
+
             bool inPlayerCombatResultBlock = false; // NEW: State flag to track if we are in the player's block
+            bool warScoreUpdated = false; // Track if war_score was updated
 
             // The original line-by-line logic is stateful and complex to convert to Regex.
             // We will keep it, but ensure it reads from the full, uncorrupted file and writes to the temp file.
@@ -1342,9 +1758,27 @@ namespace CrusaderWars.data.battle_results
                         // 2a. Check if we should STOP processing (end of block)
                         if (line == "\t\t}")
                         {
+                            // Inject new summary fields before closing the block
+                            if (!warScoreUpdated)
+                            {
+                                streamWriter.WriteLine($"\t\t\twar_score={newWarScore.ToString("F4", CultureInfo.InvariantCulture)}");
+                                Program.Logger.Debug($"Added war_score: {newWarScore:F4}");
+                            }
+
+                            streamWriter.WriteLine($"\t\t\twinning_side={winningSideValue}");
+                            streamWriter.WriteLine($"\t\t\tend_date={Date.Year}.{Date.Month}.{Date.Day}");
+
+                            // Write the prestige result block
+                            streamWriter.WriteLine("\t\t\tresult={");
+                            streamWriter.WriteLine($"\t\t\t\tprestige={prestigeAward:F2}");
+                            streamWriter.WriteLine("\t\t\t}");
+
+                            streamWriter.WriteLine($"\t\t\twin={winningParticipantId}");
+                            streamWriter.WriteLine($"\t\t\tleader={winningParticipantId}");
+
                             inPlayerCombatResultBlock = false;
                             Program.Logger.Debug($"Exiting player combat result block ID: {BattleResult.ResultID}");
-                            
+
                             // Reset all state variables to prevent them from affecting other parts of the file
                             isAttacker = false;
                             isDefender = false;
@@ -1354,11 +1788,39 @@ namespace CrusaderWars.data.battle_results
                             knightID = "";
                             currentParticipantId = null;
                             currentArmy = null;
+                            warScoreUpdated = false;
                         }
                         // 2b. If not the end of the block, run the original modification logic
                         else
                         {
-                            if (line == "\t\t\tattacker={")
+                            if (line.Trim().StartsWith("war_score="))
+                            {
+                                string edited_line = $"\t\t\twar_score={newWarScore.ToString("F4", CultureInfo.InvariantCulture)}";
+                                streamWriter.WriteLine(edited_line);
+                                Program.Logger.Debug($"Updated war_score to: {newWarScore:F4}");
+                                warScoreUpdated = true;
+                                continue;
+                            }
+                            // Skip writing old summary fields to prevent duplicates
+                            else if (line.Trim().StartsWith("end_date=") ||
+                                     line.Trim().StartsWith("winning_side=") ||
+                                     line.Trim().StartsWith("win=") ||
+                                     line.Trim().StartsWith("leader="))
+                            {
+                                continue; // Skip writing the old line
+                            }
+                            else if (line.Trim().StartsWith("result={"))
+                            {
+                                // This block skips a multi-line result block
+                                int braceCount = 1;
+                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                                {
+                                    braceCount += line.Count(c => c == '{');
+                                    braceCount -= line.Count(c => c == '}');
+                                }
+                                continue; // Skip to the line after the result block
+                            }
+                            else if (line == "\t\t\tattacker={")
                             {
                                 isAttacker = true;
                                 isDefender = false;
@@ -1408,7 +1870,7 @@ namespace CrusaderWars.data.battle_results
                                     {
                                         foreach (var mainArmy in targetArmies)
                                         {
-                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Commander?.ID == currentParticipantId))
+                                            if (mainArmy.MergedArmies != null && mainArmy.MergedArmies.Any(ma => ma.Commander?.GetID() == currentParticipantId))
                                             {
                                                 currentArmy = mainArmy; // The main army is the one we're interested in for reporting
                                                 break;
@@ -1468,13 +1930,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                            main_kills = results.GetKillsAmountOfMainPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1507,13 +1968,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                            pursuit_kills = results.GetKillsAmountOfPursuitPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -1524,13 +1984,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                            main_losses = results.GetDeathAmountOfMainPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -1541,13 +2000,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    foreach (Army army in attacker_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                            pursuit_losses = results.GetDeathAmountOfPursuitPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -1608,13 +2066,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_kills += results.GetKillsAmountOfMainPhase(regimentType);
+                                            main_kills = results.GetKillsAmountOfMainPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_kills=" + main_kills;
@@ -1647,13 +2104,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_kills += results.GetKillsAmountOfPursuitPhase(regimentType);
+                                            pursuit_kills = results.GetKillsAmountOfPursuitPhase(regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_kills=" + pursuit_kills;
@@ -1664,13 +2120,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            main_losses += results.GetDeathAmountOfMainPhase(army.CasualitiesReports, regimentType);
+                                            main_losses = results.GetDeathAmountOfMainPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tmain_losses=" + main_losses;
@@ -1681,13 +2136,12 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    foreach (Army army in defender_armies)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
-                                        if (army == null) continue;
-                                        var results = army.UnitsResults;
+                                        var results = currentArmy.UnitsResults;
                                         if (results != null)
                                         {
-                                            pursuit_losses += results.GetDeathAmountOfPursuitPhase(army.CasualitiesReports, regimentType);
+                                            pursuit_losses = results.GetDeathAmountOfPursuitPhase(currentArmy.CasualitiesReports, regimentType);
                                         }
                                     }
                                     string edited_line = "\t\t\t\t\t\tpursuit_losses_maa=" + pursuit_losses;
@@ -1743,8 +2197,8 @@ namespace CrusaderWars.data.battle_results
             SetWinner(winner); // This modifies Player_Combat in memory
 
             // 2. Isolate Attacker and Defender blocks to prevent regex cross-contamination
-            Match attackerMatch = Regex.Match(Player_Combat, @"(attacker={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
-            Match defenderMatch = Regex.Match(Player_Combat, @"(defender={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
+            Match attackerMatch = Regex.Match(Player_Combat!, @"(attacker={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
+            Match defenderMatch = Regex.Match(Player_Combat!, @"(defender={[\s\S]*?^\t\t\t})", RegexOptions.Multiline);
 
             if (!attackerMatch.Success || !defenderMatch.Success)
             {
@@ -1775,7 +2229,7 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
-                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals. Added support for top-level current= for Levies.
                     modifiedAttackerBlock = Regex.Replace(modifiedAttackerBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
@@ -1793,18 +2247,18 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (armyRegiment == null || armyRegiment.Type == RegimentType.Knight) continue;
                     string currentNum = armyRegiment.CurrentNum.ToString();
-                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals
+                    // BUG FIX: Changed `\d+` to `[\d\.]+` to handle decimals. Added support for top-level current= for Levies.
                     modifiedDefenderBlock = Regex.Replace(modifiedDefenderBlock, $@"(regiment={armyRegiment.ID}(?:(?!regiment=)[\s\S])*?current=)[\d\.]+", $"${{1}}{currentNum}");
                 }
             }
 
             // 4. Replace the original blocks in Player_Combat with the modified ones
-            Player_Combat = Player_Combat.Replace(originalAttackerBlock, modifiedAttackerBlock);
+            Player_Combat = Player_Combat!.Replace(originalAttackerBlock, modifiedAttackerBlock);
             Player_Combat = Player_Combat.Replace(originalDefenderBlock, modifiedDefenderBlock);
 
             // 5. Perform final block replacement into the full Combats.txt content
             string fullFileContent = File.ReadAllText(Writter.DataFilesPaths.Combats_Path());
-            string updatedFileContent = fullFileContent.Replace(Original_Player_Combat, Player_Combat);
+            string updatedFileContent = fullFileContent.Replace(Original_Player_Combat!, Player_Combat);
             File.WriteAllText(Writter.DataTEMPFilesPaths.Combats_Path(), updatedFileContent);
             Program.Logger.Debug("Finished editing Combat file.");
         }
@@ -1821,23 +2275,12 @@ namespace CrusaderWars.data.battle_results
 
         static int GetArmiesTotalLevyMen(List<Army> armies)
         {
-            int total = 0;
-            foreach (Army army in armies)
-            {
-                if (army.IsGarrison())
-                {
-                    // For garrisons, levies are part of the Units list
-                    total += army.Units.Where(u => u != null && u.GetRegimentType() == RegimentType.Levy).Sum(u => u.GetSoldiers());
-                }
-                else
-                {
-                    // For field armies, levies are part of ArmyRegiments
-                    if (army.ArmyRegiments == null) continue;
-                    total += army.ArmyRegiments.Where(y => y != null && y.Type == RegimentType.Levy).Sum(x => x.CurrentNum);
-                }
-            }
+            int total = armies.Where(army => army?.ArmyRegiments != null)
+                              .SelectMany(army => army.ArmyRegiments)
+                              .Where(ar => ar != null && ar.Type == RegimentType.Levy)
+                              .Sum(ar => ar.CurrentNum);
 
-            Program.Logger.Debug($"Calculated total levy men for armies: {total}");
+            Program.Logger.Debug($"Calculated total levy men for armies (from ArmyRegiments): {total}");
             return total;
         }
 
@@ -1969,135 +2412,35 @@ namespace CrusaderWars.data.battle_results
 
         }
 
-        static int ConvertMenToMachines(int men)
+        static string GetChunksText(string size, string owner, string current, string origin, bool isMercenary)
         {
-            if (men < 3) return 0;
-            return (int)Math.Round(men / 4.0, MidpointRounding.AwayFromZero);
-        }
+            StringBuilder sb = new StringBuilder();
 
-        public static void EditArmyRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
-        {
-            Program.Logger.Debug("Editing Army Regiments file...");
-            bool editStarted = false;
-            ArmyRegiment? editArmyRegiment = null;
-
-            using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.ArmyRegiments_Path()))
-            using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.ArmyRegiments_Path()))
+            if (!string.IsNullOrEmpty(origin))
             {
-                streamWriter.NewLine = "\n";
-
-                string? line;
-                while ((line = streamReader.ReadLine()) != null)
-                {
-
-                    //Regiment ID line
-                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
-                    {
-                        string army_regiment_id = Regex.Match(line, @"\d+").Value;
-
-
-                        var searchingData = SearchArmyRegimentsFile(attacker_armies, army_regiment_id);
-                        if (searchingData.editStarted)
-                        {
-                            editStarted = true;
-                            editArmyRegiment = searchingData.editArmyRegiment;
-                            Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id} for editing (Attacker).");
-                        }
-                        else
-                        {
-                            searchingData = SearchArmyRegimentsFile(defender_armies, army_regiment_id);
-                            if (searchingData.editStarted)
-                            {
-                                editStarted = true;
-                                editArmyRegiment = searchingData.editArmyRegiment;
-                                Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id} for editing (Defender).");
-                            }
-                        }
-
-                    }
-
-                    else if (editStarted == true && line.Contains("\t\t\t\tcurrent=") && editArmyRegiment != null)
-                    {
-                        string edited_line = "\t\t\t\tcurrent=" + editArmyRegiment.CurrentNum;
-                        streamWriter.WriteLine(edited_line);
-                        Program.Logger.Debug(
-                            $"Updated ArmyRegiment {editArmyRegiment.ID} current soldiers to {editArmyRegiment.CurrentNum}.");
-                        continue;
-                    }
-
-                    //End Line
-                    else if (editStarted && line == "\t\t}")
-                    {
-                        editStarted = false;
-                        editArmyRegiment = null;
-                    }
-
-                    streamWriter.WriteLine(line);
-                }
+                sb.Append($"\t\t\torigin={origin}\n");
             }
 
-            Program.Logger.Debug("Finished editing Army Regiments file.");
-        }
+            sb.Append($"\t\t\tmax={size}\n");
 
-        static (bool editStarted, ArmyRegiment? editArmyRegiment) SearchArmyRegimentsFile(List<Army> armies,
-            string army_regiment_id)
-        {
-            // Program.Logger.Debug($"Searching for ArmyRegiment ID: {army_regiment_id} in ArmyRegiments file.");
-            bool editStarted = false;
-            ArmyRegiment? editRegiment = null;
-
-            foreach (Army army in armies)
+            if (!string.IsNullOrEmpty(owner))
             {
-                if (army == null) continue;
-                if (army.ArmyRegiments != null)
-                {
-                    foreach (ArmyRegiment army_regiment in army.ArmyRegiments)
-                    {
-                        if (army_regiment == null) continue; // Added null check
-                        if (army_regiment.Type == RegimentType.Knight) continue;
-                        if (army_regiment.ID == army_regiment_id)
-                        {
-                            editStarted = true;
-                            editRegiment = army_regiment;
-                            Program.Logger.Debug($"Found ArmyRegiment {army_regiment_id}.");
-                            return (editStarted, editRegiment);
-                        }
-                    }
-                }
+                sb.Append($"\t\t\towner={owner}\n");
             }
 
-            // Program.Logger.Debug($"ArmyRegiment ID: {army_regiment_id} not found in ArmyRegiments file.");
-            return (false, null);
-        }
+            sb.Append("\t\t\tchunks={\n");
+            sb.Append("\t\t\t\t{\n");
+            sb.Append($"\t\t\t\t\tmax={size}\n");
+            sb.Append($"\t\t\t\t\tcurrent={current}\n");
+            sb.Append("\t\t\t\t}\n");
+            sb.Append("\t\t\t}\n");
 
-
-        static string GetChunksText(string size, string owner, string current)
-        {
-            string str;
-            if (string.IsNullOrEmpty(owner))
+            if (isMercenary)
             {
-                str = $"\t\t\tmax={size}\n" +
-                      $"\t\t\tchunks={{\n" +
-                      $"\t\t\t\t{{\n" +
-                      $"\t\t\t\t\tmax={size}\n" +
-                      $"\t\t\t\t\tcurrent={current}\n" +
-                      $"\t\t\t\t}}\n" +
-                      $"\t\t\t}}\n";
-            }
-            else
-            {
-                str = $"\t\t\tmax={size}\n" +
-                      $"\t\t\towner={owner}\n" +
-                      $"\t\t\tchunks={{\n" +
-                      $"\t\t\t\t{{\n" +
-                      $"\t\t\t\t\tmax={size}\n" +
-                      $"\t\t\t\t\tcurrent={current}\n" +
-                      $"\t\t\t\t}}\n" +
-                      $"\t\t\t}}\n";
+                sb.Append("\t\t\tsource=hired\n");
             }
 
-
-            return str;
+            return sb.ToString();
         }
 
         public static void EditRegimentsFile(List<Army> attacker_armies, List<Army> defender_armies)
@@ -2106,11 +2449,9 @@ namespace CrusaderWars.data.battle_results
             bool editStarted = false;
             bool editIndex = false;
             Regiment? editRegiment = null;
-            ArmyRegiment? parentArmyRegiment = null; // Declare new variable
+            ArmyRegiment? parentArmyRegiment = null;
 
             int index = -1;
-            bool isNewData = false;
-
 
             using (StreamReader streamReader = new StreamReader(Writter.DataFilesPaths.Regiments_Path()))
             using (StreamWriter streamWriter = new StreamWriter(Writter.DataTEMPFilesPaths.Regiments_Path()))
@@ -2120,127 +2461,113 @@ namespace CrusaderWars.data.battle_results
                 string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-
-                    //Regiment ID line
-                    if (!editStarted && line != null && Regex.IsMatch(line, @"\t\t\d+={"))
+                    // Regiment ID line
+                    if (!editStarted && Regex.IsMatch(line, @"\t\t\d+={"))
                     {
                         string regiment_id = Regex.Match(line, @"\d+").Value;
 
-
                         var searchingData = SearchRegimentsFile(attacker_armies, regiment_id);
+                        if (!searchingData.editStarted)
+                        {
+                            searchingData = SearchRegimentsFile(defender_armies, regiment_id);
+                        }
+
                         if (searchingData.editStarted)
                         {
                             editStarted = true;
-                            editRegiment = searchingData.editRegiment;
-                            parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
-                            Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Attacker).");
-                        }
-                        else
-                        {
-                            searchingData = SearchRegimentsFile(defender_armies, regiment_id);
-                            if (searchingData.editStarted)
+                            editRegiment = searchingData.foundRegiment;
+                            parentArmyRegiment = searchingData.parentArmyRegiment;
+                            Program.Logger.Debug($"Found Regiment {regiment_id} for editing.");
+
+                            // For Levy and Garrison, we always rewrite the block to ensure consistency
+                            if (parentArmyRegiment?.Type == RegimentType.Levy || parentArmyRegiment?.Type == RegimentType.Garrison)
                             {
-                                editStarted = true;
-                                editRegiment = searchingData.editRegiment;
-                                parentArmyRegiment = searchingData.parentArmyRegiment; // Store parent ArmyRegiment
-                                Program.Logger.Debug($"Found Regiment {regiment_id} for editing (Defender).");
+                                streamWriter.WriteLine(line); // Write the ID line
+                                string max = editRegiment?.Max ?? "0";
+                                string owner = editRegiment?.Owner ?? "";
+                                string current = editRegiment?.CurrentNum ?? "0";
+                                string origin = editRegiment?.Origin ?? "";
+                                bool isMerc = editRegiment?.isMercenary() ?? false;
+                                streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
+
+                                // Skip the original block until the closing brace
+                                int braceCount = 1;
+                                while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                                {
+                                    braceCount += line.Count(c => c == '{');
+                                    braceCount -= line.Count(c => c == '}');
+                                }
+                                streamWriter.WriteLine("\t\t}"); // Write the closing brace
+                                editStarted = false;
+                                continue;
                             }
                         }
-
                     }
-
                     else if (editStarted && line.Contains("\t\t\tsize="))
                     {
-                        if (parentArmyRegiment != null && parentArmyRegiment.Type == RegimentType.MenAtArms)
+                        if (editRegiment != null)
                         {
-                            if (editRegiment != null)
-                            {
-                                // For Men-at-Arms, only update the 'size' line and keep other properties.
-                                string currentNum = editRegiment.CurrentNum ?? "0";
-                                string edited_line = "\t\t\tsize=" + currentNum;
-                                streamWriter.WriteLine(edited_line);
-                                string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                                string logMessage = string.Format("Regiment {0}: Updating Men-at-Arms size to {1}.",
-                                    regId, currentNum);
-                                Program.Logger.Debug(logMessage);
-                            }
+                            string max = editRegiment.Max ?? "0";
+                            string owner = editRegiment.Owner ?? "";
+                            string current = editRegiment.CurrentNum ?? "0";
+                            string origin = editRegiment.Origin ?? "";
+                            bool isMerc = editRegiment.isMercenary();
+                            streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
 
-                            continue; // Continue to next line without setting isNewData
-                        }
-                        else if (editRegiment != null)
-                        {
-                            var reg = editRegiment; // New local variable
-                            // For other types (Levy), use the existing logic to rewrite the block.
-                            isNewData = true;
-                            string max = reg.Max ?? "0";
-                            string owner = reg.Owner ?? "";
-                            string current = reg.CurrentNum ?? "0";
-                            string newLine = GetChunksText(max, owner, current);
-                            streamWriter.WriteLine(newLine);
-                            string regId = reg.ID ?? "N/A"; // Extract ID for logging
-                            Program.Logger.Debug(
-                                $"Regiment {regId}: Writing new data format with current soldiers {reg.CurrentNum ?? "0"}.");
+                            // Skip the rest of the original block until the closing brace
+                            int braceCount = 1; // We are already inside the block
+                            while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
+                            {
+                                braceCount += line.Count(c => c == '{');
+                                braceCount -= line.Count(c => c == '}');
+                            }
+                            streamWriter.WriteLine("\t\t}");
+                            editStarted = false;
                             continue;
                         }
                     }
-
-                    //Index Counter
-                    else if (!isNewData && editStarted && line == "\t\t\t\t{")
+                    // Index Counter for old format
+                    else if (editStarted && line == "\t\t\t\t{")
                     {
                         index++;
-                        if (editRegiment != null && editRegiment.Index == "")
-                            editRegiment.ChangeIndex(0.ToString());
+                        if (editRegiment != null && string.IsNullOrEmpty(editRegiment.Index))
+                            editRegiment.ChangeIndex("0");
+
                         if (editRegiment != null && index.ToString() == editRegiment.Index)
                         {
                             editIndex = true;
                         }
                     }
-
-                    else if (!isNewData && (editStarted == true && editIndex == true) &&
-                             line.Contains("\t\t\t\t\tcurrent="))
+                    else if (editStarted && editIndex && line.Contains("\t\t\t\t\tcurrent="))
                     {
-                        if (editRegiment != null) // Added null check
+                        if (editRegiment != null)
                         {
                             string currentNum = editRegiment.CurrentNum ?? "0";
-                            string edited_line = "\t\t\t\t\tcurrent=" + currentNum;
-                            streamWriter.WriteLine(edited_line);
-                            string regId = editRegiment.ID ?? "N/A"; // Extract ID for logging
-                            string logMessage =
-                                string.Format("Regiment {0}: Updating old data format with current soldiers {1}.",
-                                    regId, currentNum);
-                            Program.Logger.Debug(logMessage);
+                            streamWriter.WriteLine("\t\t\t\t\tcurrent=" + currentNum);
                             continue;
                         }
                     }
-
-                    //End Line
+                    // End Line
                     else if (editStarted && line == "\t\t}")
                     {
                         editStarted = false;
                         editRegiment = null;
                         editIndex = false;
                         index = -1;
-                        isNewData = false;
-                        parentArmyRegiment = null; // Reset parent ArmyRegiment
+                        parentArmyRegiment = null;
                     }
 
-                    if (!isNewData)
-                    {
-                        streamWriter.WriteLine(line);
-                    }
-
+                    streamWriter.WriteLine(line);
                 }
             }
-
             Program.Logger.Debug("Finished editing Regiments file.");
         }
 
-        static (bool editStarted, Regiment? editRegiment, ArmyRegiment? parentArmyRegiment) SearchRegimentsFile(
-            List<Army> armies, string regiment_id)
+        static (bool editStarted, Regiment? foundRegiment, ArmyRegiment? parentArmyRegiment) SearchRegimentsFile(List<Army> armies, string regiment_id)
         {
             // Program.Logger.Debug($"Searching for Regiment ID: {regiment_id} in Regiments file.");
             bool editStarted = false;
-            Regiment? editRegiment = null;
+            Regiment? foundRegiment = null;
             ArmyRegiment? parentArmyRegiment = null;
 
             foreach (Army army in armies)
@@ -2257,173 +2584,16 @@ namespace CrusaderWars.data.battle_results
                         if (regiment.ID == regiment_id)
                         {
                             editStarted = true;
-                            editRegiment = regiment;
+                            foundRegiment = regiment;
                             parentArmyRegiment = armyRegiment;
-                            Program.Logger.Debug(
-                                $"Found Regiment {regiment_id} with parent ArmyRegiment {armyRegiment.ID}.");
-                            return (editStarted, editRegiment, parentArmyRegiment);
+                            Program.Logger.Debug($"Found Regiment {regiment_id} with parent ArmyRegiment {armyRegiment.ID}.");
+                            return (editStarted, foundRegiment, parentArmyRegiment);
                         }
                     }
                 }
             }
-
             // Program.Logger.Debug($"Regiment ID: {regiment_id} not found in Regiments file.");
             return (false, null, null);
-        }
-
-
-        public static bool HasBattleEnded(string path_attila_log)
-        {
-            Program.Logger.Debug($"Checking if battle has ended in log file: {path_attila_log}");
-            using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader reader = new StreamReader(logFile))
-            {
-                string str = reader.ReadToEnd();
-
-                // Normalize line endings for consistent searching
-                str = str.Replace("\r\n", "\n");
-
-                // Define the multi-line header for a battle report
-                const string battleHeader =
-                    "--------------------------------------------------------\n" +
-                    "--------------------------------------------------------\n" +
-                    "--\n" +
-                    "--\t                    CRUSADER CONFLICTS               \n" +
-                    "--\n" +
-                    "--------------------------------------------------------\n" +
-                    "--------------------------------------------------------";
-
-                
-                // The "Battle has finished" line indicates the user clicked "End Battle" or "Dismiss Results".
-                // The "-----PRINT ENDED-----!!" line indicates the results script has finished running.
-                // Both must be present for a valid, complete battle log.
-                if (str.Contains(battleHeader) && str.Contains("Battle has finished") && str.Contains("-----PRINT ENDED-----!!"))
-                {
-                    Program.Logger.Debug("Battle has finished and report is present in log (user action and script completion detected).");
-                    return true;
-                }
-
-                Program.Logger.Debug("Battle has not yet finished or report is incomplete.");
-                return false;
-            }
-        }
-        public static void ClearAttilaLog()
-        {
-            Program.Logger.Debug("Entering ClearAttilaLog method.");
-            string Attila_Path = Properties.Settings.Default.VAR_attila_path;
-            Properties.Settings.Default.VAR_log_attila = Attila_Path.Substring(0, Attila_Path.IndexOf("Attila.exe")) +
-                                                         "data\\BattleResults_log.txt";
-            Properties.Settings.Default.Save();
-            string path_attila_log = Properties.Settings.Default.VAR_log_attila;
-            Program.Logger.Debug($"Attila log file path to clear: {path_attila_log}");
-
-            bool isCreated = false;
-            if (isCreated == false)
-            {
-                using (FileStream logFile =
-                       File.Open(path_attila_log, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    isCreated = true;
-                    logFile.Close();
-                }
-            }
-
-            Program.Logger.Debug("Attila log file cleared successfully.");
-        }
-
-        public static void LogPostBattleReport(List<Army> armies, Dictionary<string, int> originalSizes, string side)
-        {
-            Program.Logger.Debug($"******************** POST-BATTLE CASUALTY REPORT: {side}S ********************");
-
-            foreach (var army in armies)
-            {
-                Program.Logger.Debug($"--- Army ID: {army.ID} ({army.CombatSide.ToUpper()}) ---");
-
-                // Regular Regiments (Levy, MenAtArms)
-                Program.Logger.Debug("  REGIMENTS:");
-                if (army.ArmyRegiments != null)
-                {
-                    foreach (var armyRegiment in army.ArmyRegiments)
-                    {
-                        if (armyRegiment == null || armyRegiment.Type == RegimentType.Commander ||
-                            armyRegiment.Type == RegimentType.Knight) continue;
-
-                        string regimentTypeName = armyRegiment.Type == RegimentType.Levy ? "Levy" : armyRegiment.MAA_Name;
-
-                        // Calculate aggregate casualties for this regiment group
-                        int totalOriginalSize = 0;
-                        int totalFinalSize = 0;
-                        if (armyRegiment.Regiments != null)
-                        {
-                            foreach (var regiment in armyRegiment.Regiments)
-                            {
-                                if (regiment == null || string.IsNullOrEmpty(regiment.CurrentNum)) continue;
-
-                                string key = $"{army.ID}_{regiment.ID}";
-                                totalOriginalSize += originalSizes.ContainsKey(key) ? originalSizes[key] : 0;
-                                totalFinalSize += Int32.Parse(regiment.CurrentNum);
-                            }
-                        }
-
-                        int totalCasualties = totalOriginalSize - totalFinalSize;
-
-                        // Log the high-level summary for the regiment group
-                        Program.Logger.Debug(
-                            $"    Type: {regimentTypeName}, Original: {totalOriginalSize}, Casualties: {totalCasualties}, Remaining: {totalFinalSize}");
-
-                        if (armyRegiment.Regiments != null)
-                        {
-                            foreach (var regiment in armyRegiment.Regiments)
-                            {
-                                if (regiment == null || string.IsNullOrEmpty(regiment.CurrentNum)) continue;
-
-                                string key = $"{army.ID}_{regiment.ID}";
-                                int originalSize = originalSizes.ContainsKey(key) ? originalSizes[key] : 0;
-                                int finalSize = Int32.Parse(regiment.CurrentNum);
-                                int casualties = originalSize - finalSize;
-
-                                Program.Logger.Debug(
-                                    $"      - ID: {regiment.ID}, Culture: {regiment.Culture?.ID ?? "N/A"}, Original: {originalSize}, Casualties: {casualties}, Remaining: {finalSize}");
-                            }
-                        }
-                    }
-                }
-
-                // Knights
-                if (army.Knights != null && army.Knights.HasKnights())
-                {
-                    Program.Logger.Debug("  KNIGHTS:");
-                    int originalKnightCount = army.Knights.GetKnightsList().Count;
-                    int fallenKnightCount = army.Knights.GetKnightsList().Count(k => k.HasFallen());
-                    int remainingKnightCount = originalKnightCount - fallenKnightCount;
-                    Program.Logger.Debug(
-                        $"    Total Knights: {originalKnightCount}, Fallen: {fallenKnightCount}, Remaining: {remainingKnightCount}");
-
-                    foreach (var knight in army.Knights.GetKnightsList())
-                    {
-                        if (knight.HasFallen())
-                        {
-                            Program.Logger.Debug($"      - Fallen Knight: {knight.GetName()} (ID: {knight.GetID()})");
-                        }
-                    }
-                }
-
-                // Commander
-                if (army.Commander != null)
-                {
-                    Program.Logger.Debug("  COMMANDER:");
-                    if (army.Commander.hasFallen)
-                    {
-                        Program.Logger.Debug($"    Commander {army.Commander.Name} (ID: {army.Commander.ID}) has fallen.");
-                    }
-                    else
-                    {
-                        Program.Logger.Debug($"    Commander {army.Commander.Name} (ID: {army.Commander.ID}) survived.");
-                    }
-                }
-            }
-
-            Program.Logger.Debug("************************************************************************************");
         }
 
         public static void EditSiegesFile(string path_log_attila, string attacker_side, string defender_side,
@@ -2459,7 +2629,7 @@ namespace CrusaderWars.data.battle_results
             if (File.Exists(path_log_attila))
             {
                 string attilaLogContent = File.ReadAllText(path_log_attila);
-                
+
                 // Normalize line endings for consistent searching
                 attilaLogContent = attilaLogContent.Replace("\r\n", "\n");
 
@@ -2473,7 +2643,7 @@ namespace CrusaderWars.data.battle_results
                     "--\n" +
                     "--------------------------------------------------------\n" +
                     "--------------------------------------------------------";
-                
+
                 int lastHeaderIndex = attilaLogContent.LastIndexOf(battleReportHeader);
 
                 if (lastHeaderIndex != -1)
@@ -2544,7 +2714,7 @@ namespace CrusaderWars.data.battle_results
                 }
                 else if (inTargetSiegeBlock && trimmedLine == "}")
                 {
-                    // NEW: Add missing breach= line before closing brace if applicable
+                    // NEW: Add missing breach line before closing brace if applicable
                     if (!breachLineHandled && breachIncrement > 0)
                     {
                         int newBreach = Math.Min(3, breachIncrement);
@@ -2604,10 +2774,13 @@ namespace CrusaderWars.data.battle_results
                             }
 
                             string outcomeLog = "";
-                            if (isPlayerBesieged) {
+                            if (isPlayerBesieged)
+                            {
                                 // In a sally-out, the garrison is the attacker. We know the player is the garrison.
                                 outcomeLog = IsAttackerVictorious ? "Player (garrison) won sally-out." : "Besieger won against player's sally-out.";
-                            } else {
+                            }
+                            else
+                            {
                                 outcomeLog = "Besieger lost assault.";
                             }
                             Program.Logger.Debug($"{outcomeLog} Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
@@ -2737,6 +2910,447 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug(
                     $"Sieges.txt for siege ID {SiegeID} was read, but the target siege block was not found.");
             }
+        }
+
+        public static (string outcome, string wall_damage) GetSiegeOutcome(string path_attila_log, string left_side_combat_side, string right_side_combat_side)
+        {
+            Program.Logger.Debug($"Entering GetSiegeOutcome for log file: {path_attila_log}");
+            string outcome = "Successfully Defended"; // Default for defender
+            string wall_damage = "No Damage";
+
+            try
+            {
+                if (!File.Exists(path_attila_log))
+                {
+                    Program.Logger.Debug($"Attila log file not found at: {path_attila_log}. Returning default siege outcome.");
+                    return (outcome, wall_damage);
+                }
+
+                string logContent;
+                using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader reader = new StreamReader(logFile))
+                {
+                    logContent = reader.ReadToEnd();
+                }
+
+                logContent = logContent.Replace("\r\n", "\n");
+
+                const string battleReportHeader =
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------\n" +
+                    "--\n" +
+                    "--\t                    CRUSADER CONFLICTS               \n" +
+                    "--\n" +
+                    "--------------------------------------------------------\n" +
+                    "--------------------------------------------------------";
+                string normalizedHeader = battleReportHeader.Replace("\r\n", "\n");
+
+                string relevantLogSection;
+                int lastHeaderIndex = logContent.LastIndexOf(normalizedHeader);
+
+                if (lastHeaderIndex != -1)
+                {
+                    relevantLogSection = logContent.Substring(lastHeaderIndex);
+                }
+                else
+                {
+                    relevantLogSection = logContent;
+                }
+
+                // Determine outcome
+                bool settlementCaptured = relevantLogSection.Contains("SETTLEMENT_CAPTURED");
+                if (settlementCaptured)
+                {
+                    outcome = "Settlement Captured";
+                }
+                else if (relevantLogSection.Contains("Victory")) // Fallback to "Victory" if SETTLEMENT_CAPTURED not found
+                {
+                    outcome = "Settlement Captured"; // Treat as captured if "Victory" is present in a siege context
+                }
+
+                // Determine wall damage using event counting logic from EditSiegesFile
+                int wallsAttackedCount = Regex.Matches(relevantLogSection, "WALLS_ATTACKED").Count;
+                int wallsDestroyedCount = Regex.Matches(relevantLogSection, "WALLS_DESTROYED").Count;
+
+                if (wallsDestroyedCount > 1)
+                {
+                    wall_damage = "Breached";
+                }
+                else if (wallsDestroyedCount == 1)
+                {
+                    wall_damage = "Breached"; // Changed from "Damaged" to "Breached" for consistency with EditSiegesFile
+                }
+                else if (wallsAttackedCount > 0)
+                {
+                    wall_damage = "Damaged"; // Changed from "No Damage" to "Damaged" for consistency with EditSiegesFile
+                }
+                else
+                {
+                    wall_damage = "No Damage";
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error determining siege outcome: {ex.Message}. Returning default values.");
+            }
+
+            Program.Logger.Debug($"Determined Siege Outcome: {outcome}, Wall Damage: {wall_damage}");
+            return (outcome, wall_damage);
+        }
+
+
+        public static bool HasBattleEnded(string path_attila_log)
+        {
+            Program.Logger.Debug($"Checking if battle has ended in log file: {path_attila_log}");
+            using (FileStream logFile = File.Open(path_attila_log, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (StreamReader reader = new StreamReader(logFile))
+            {
+                string str = reader.ReadToEnd();
+
+                if (str.Contains("Battle has finished"))
+                {
+                    reader.Close();
+                    logFile.Close();
+                    Program.Logger.Debug("Battle has finished marker found. Battle ended.");
+                    return true;
+                }
+                else
+                {
+                    Program.Logger.Debug("Battle has finished marker not found. Battle still in progress.");
+                    return false;
+                }
+
+            }
+        }
+
+
+        public static void ClearAttilaLog()
+        {
+            Program.Logger.Debug("Entering ClearAttilaLog method.");
+            string Attila_Path = Properties.Settings.Default.VAR_attila_path;
+            Properties.Settings.Default.VAR_log_attila = Attila_Path.Substring(0, Attila_Path.IndexOf("Attila.exe")) + "data\\BattleResults_log.txt";
+            Properties.Settings.Default.Save();
+            string path_attila_log = Properties.Settings.Default.VAR_log_attila;
+            Program.Logger.Debug($"Attila log file path to clear: {path_attila_log}");
+
+            bool isCreated = false;
+            if (isCreated == false)
+            {
+                using (FileStream logFile = File.Open(path_attila_log, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    isCreated = true;
+                    logFile.Close();
+                }
+            }
+            Program.Logger.Debug("Attila log file cleared successfully.");
+        }
+
+        public static void EditWarsFile(List<Army> attacker_armies, List<Army> defender_armies, double warScoreChange)
+        {
+            Program.Logger.Debug("Editing Wars file...");
+            if (string.IsNullOrEmpty(WarID))
+            {
+                Program.Logger.Debug("WarID is not set. Skipping Wars file edit and copying original to temp.");
+                if (File.Exists(Writter.DataFilesPaths.Wars_Path()))
+                {
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                }
+                return;
+            }
+
+            try
+            {
+                string warsContent = File.ReadAllText(Writter.DataFilesPaths.Wars_Path());
+
+                string warBlockPattern = $@"^\t\t{WarID}={{([\s\S]*?)^\t\t}}";
+                Match warBlockMatch = Regex.Match(warsContent, warBlockPattern, RegexOptions.Multiline);
+
+                if (!warBlockMatch.Success)
+                {
+                    Program.Logger.Debug($"Could not find war block for WarID: {WarID}. Skipping edit.");
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                    return;
+                }
+
+                string originalWarBlock = warBlockMatch.Value;
+                string warBlockContent = originalWarBlock;
+
+                // Determine if the battle winner is on the war attacker's side
+                // Improved regex to capture the full attacker block content
+                var warAttackersBlockMatch = Regex.Match(warBlockContent, @"attacker\s*=\s*({[\s\S]*?})\s*defender\s*=\s*{", RegexOptions.Multiline);
+                if (!warAttackersBlockMatch.Success)
+                {
+                    Program.Logger.Debug($"Could not find or parse the attacker block in war block for WarID: {WarID}. Skipping edit.");
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                    return;
+                }
+                string attackerBlockContent = warAttackersBlockMatch.Groups[1].Value;
+
+                // Extract character IDs from the attacker block content
+                var warAttackerIds = new HashSet<string>();
+                foreach (Match charMatch in Regex.Matches(attackerBlockContent, @"character=(\d+)"))
+                {
+                    warAttackerIds.Add(charMatch.Groups[1].Value);
+                }
+
+                // Check if any attackers were found
+                if (!warAttackerIds.Any())
+                {
+                    Program.Logger.Debug($"No attacker participants found in parsed attacker block for WarID: {WarID}. Skipping edit.");
+                    File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+                    return;
+                }
+
+                string leftSideParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
+                bool isLeftSideWarAttacker = warAttackerIds.Contains(leftSideParticipantId);
+
+                var left_side_armies = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
+                bool isBattleAttackerLeftSide = (left_side_armies == attacker_armies);
+
+                bool isWinnerLeftSide = (IsAttackerVictorious && isBattleAttackerLeftSide) || (!IsAttackerVictorious && !isBattleAttackerLeftSide);
+
+                bool winnerIsWarAttacker = (isWinnerLeftSide && isLeftSideWarAttacker) || (!isWinnerLeftSide && !isLeftSideWarAttacker);
+
+                // Gather participant information for the battle results entry
+                string warAttackerOwnerId = isLeftSideWarAttacker ? CK3LogData.LeftSide.GetMainParticipant().id : CK3LogData.RightSide.GetMainParticipant().id;
+                string warAttackerCommanderId = isLeftSideWarAttacker ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
+                string warDefenderOwnerId = !isLeftSideWarAttacker ? CK3LogData.LeftSide.GetMainParticipant().id : CK3LogData.RightSide.GetMainParticipant().id;
+                string warDefenderCommanderId = !isLeftSideWarAttacker ? CK3LogData.LeftSide.GetCommander().id : CK3LogData.RightSide.GetCommander().id;
+
+                // Construct the new battle result entry with proper formatting
+                string attackerWon = winnerIsWarAttacker ? "yes" : "no";
+                string attackerInitiated = isLeftSideWarAttacker ? "yes" : "no";
+
+                var newBattleResultEntry = new StringBuilder();
+                newBattleResultEntry.AppendLine("\t\t\t\t{");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker={{ commander={warAttackerCommanderId} owner={warAttackerOwnerId} size=0 }}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tdefender={{ commander={warDefenderCommanderId} owner={warDefenderOwnerId} size=0 }}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tprovince={ProvinceID}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\twar_score={warScoreChange:F4}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker_won={attackerWon}");
+                newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker_initiated={attackerInitiated}");
+                newBattleResultEntry.Append("\t\t\t\t}");
+
+                // Find and update the battle_results block using brace counting
+                int battleResultsStartIndex = warBlockContent.IndexOf("battle_results={");
+                if (battleResultsStartIndex != -1)
+                {
+                    int braceCount = 0;
+                    int currentIndex = battleResultsStartIndex;
+                    bool foundEnd = false;
+
+                    while (currentIndex < warBlockContent.Length)
+                    {
+                        if (warBlockContent[currentIndex] == '{')
+                        {
+                            braceCount++;
+                        }
+                        else if (warBlockContent[currentIndex] == '}')
+                        {
+                            braceCount--;
+                            if (braceCount == 0)
+                            {
+                                // Found the matching closing brace for battle_results={
+                                // Insert the new entry just before this closing brace
+                                string beforeInsert = warBlockContent.Substring(0, currentIndex);
+                                string afterInsert = warBlockContent.Substring(currentIndex);
+                                warBlockContent = beforeInsert + " " + newBattleResultEntry.ToString().Trim() + afterInsert;
+                                foundEnd = true;
+                                Program.Logger.Debug($"Appended new battle result entry to existing battle_results list for WarID {WarID} using brace counting.");
+                                break;
+                            }
+                        }
+                        currentIndex++;
+                    }
+
+                    if (!foundEnd)
+                    {
+                        Program.Logger.Debug($"Warning: Could not find end of battle_results block for WarID {WarID} using brace counting. Appending using fallback method.");
+                        // Fallback: try regex again if brace counting somehow failed
+                        var battleResultsMatch = Regex.Match(warBlockContent, @"(battle_results\s*=\s*{)([\s\S]*?)\s*}");
+                        if (battleResultsMatch.Success)
+                        {
+                            string openingPart = battleResultsMatch.Groups[1].Value;
+                            string existingContent = battleResultsMatch.Groups[2].Value;
+                            string newBattleResultsBlock = $"{openingPart}{existingContent.TrimEnd()} {newBattleResultEntry} }}";
+                            warBlockContent = warBlockContent.Replace(battleResultsMatch.Value, newBattleResultsBlock);
+                            Program.Logger.Debug($"Appended new battle result entry to existing battle_results list for WarID {WarID} using fallback regex.");
+                        }
+                        else
+                        {
+                            Program.Logger.Debug($"Fallback regex also failed for WarID {WarID}. Skipping battle_results update.");
+                        }
+                    }
+                }
+                else // battle_results block does not exist, create it
+                {
+                    // Find the attacker block to insert before it
+                    int attackerBlockIndex = warBlockContent.IndexOf("\t\t\tattacker={");
+                    if (attackerBlockIndex != -1)
+                    {
+                        var newBattleResultsBlock = new StringBuilder();
+                        newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
+                        newBattleResultsBlock.AppendLine(newBattleResultEntry.ToString()); // Use pre-formatted entry
+                        newBattleResultsBlock.Append("\t\t\t}");
+
+                        warBlockContent = warBlockContent.Insert(attackerBlockIndex, newBattleResultsBlock.ToString());
+                        Program.Logger.Debug($"Created new battle_results list and added entry for WarID {WarID}.");
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"Could not find attacker block to insert battle_results for WarID {WarID}. Appending to end of war block.");
+                        // As a fallback, insert before the closing brace of the war block
+                        var newBattleResultsBlock = new StringBuilder();
+                        newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
+                        newBattleResultsBlock.AppendLine(newBattleResultEntry.ToString()); // Use pre-formatted entry
+                        newBattleResultsBlock.Append("\t\t\t}");
+
+                        warBlockContent = warBlockContent.Insert(warBlockContent.LastIndexOf('}'), newBattleResultsBlock.ToString());
+                    }
+                }
+
+                string updatedWarsContent = warsContent.Replace(originalWarBlock, warBlockContent);
+                File.WriteAllText(Writter.DataTEMPFilesPaths.Wars_Path(), updatedWarsContent);
+                Program.Logger.Debug($"Successfully appended battle result entry for WarID {WarID}. Entry: {newBattleResultEntry}");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error editing Wars file: {ex.Message}. Copying original to temp.");
+                File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
+            }
+        }
+
+        public static void EditOpinionsFile(List<Army> allArmies)
+        {
+            Program.Logger.Debug("Editing Opinions file...");
+            string path = Writter.DataFilesPaths.Opinions_Path();
+            string tempPath = Writter.DataTEMPFilesPaths.Opinions_Path();
+
+            if (!File.Exists(path) || new FileInfo(path).Length == 0)
+            {
+                Program.Logger.Debug("Opinions.txt not found or is empty. Skipping.");
+                return;
+            }
+
+            var slainCharIds = allArmies
+                .SelectMany(a =>
+                    (a.Commander != null && a.Commander.IsSlain ? new[] { a.Commander.ID } : Enumerable.Empty<string>())
+                    .Concat(a.Knights?.GetKnightsList().Where(k => k.IsSlain).Select(k => k.GetID()) ?? Enumerable.Empty<string>())
+                    .Concat(a.MergedArmies?.SelectMany(ma =>
+                        (ma.Commander != null && ma.Commander.IsSlain ? new[] { ma.Commander.ID } : Enumerable.Empty<string>())
+                        .Concat(ma.Knights?.GetKnightsList().Where(k => k.IsSlain).Select(k => k.GetID()) ?? Enumerable.Empty<string>())
+                    ) ?? Enumerable.Empty<string>())
+                )
+                .ToHashSet();
+
+            if (!slainCharIds.Any())
+            {
+                Program.Logger.Debug("No slain characters to process for opinions. Copying original file.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            string content = File.ReadAllText(path);
+            int activeOpinionsStartIndex = content.IndexOf("active_opinions={");
+
+            if (activeOpinionsStartIndex == -1)
+            {
+                Program.Logger.Debug("Could not find active_opinions block. Skipping opinion edits.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            int bodyStartIndex = content.IndexOf('{', activeOpinionsStartIndex) + 1;
+            int braceCount = 1;
+            int bodyEndIndex = -1;
+
+            for (int i = bodyStartIndex; i < content.Length; i++)
+            {
+                if (content[i] == '{') braceCount++;
+                else if (content[i] == '}') braceCount--;
+
+                if (braceCount == 0)
+                {
+                    bodyEndIndex = i;
+                    break;
+                }
+            }
+
+            if (bodyEndIndex == -1)
+            {
+                Program.Logger.Debug("Warning: Could not find matching closing brace for active_opinions. Skipping opinion edits.");
+                File.Copy(path, tempPath, true);
+                return;
+            }
+
+            string opinionsBody = content.Substring(bodyStartIndex, bodyEndIndex - bodyStartIndex);
+
+            StringBuilder newOpinionsBody = new StringBuilder();
+            int cursor = 0;
+            while (cursor < opinionsBody.Length)
+            {
+                int blockStart = opinionsBody.IndexOf('{', cursor);
+                if (blockStart == -1)
+                {
+                    newOpinionsBody.Append(opinionsBody.Substring(cursor));
+                    break;
+                }
+                newOpinionsBody.Append(opinionsBody.Substring(cursor, blockStart - cursor));
+
+                int innerBraceCount = 0;
+                int blockEnd = -1;
+                for (int i = blockStart; i < opinionsBody.Length; i++)
+                {
+                    if (opinionsBody[i] == '{') innerBraceCount++;
+                    else if (opinionsBody[i] == '}') innerBraceCount--;
+                    if (innerBraceCount == 0)
+                    {
+                        blockEnd = i;
+                        break;
+                    }
+                }
+
+                if (blockEnd == -1)
+                {
+                    newOpinionsBody.Append(opinionsBody.Substring(blockStart));
+                    Program.Logger.Debug("Warning: Unmatched brace in an inner opinion block. Appending rest of content as is.");
+                    break;
+                }
+
+                string opinionBlock = opinionsBody.Substring(blockStart, blockEnd - blockStart + 1);
+
+                bool needsDeletion = slainCharIds.Any(id =>
+                    Regex.IsMatch(opinionBlock, $@"owner\s*=\s*{id}") ||
+                    Regex.IsMatch(opinionBlock, $@"target\s*=\s*{id}")
+                );
+
+                if (needsDeletion)
+                {
+                    int lastBraceIndex = opinionBlock.LastIndexOf('}');
+                    if (lastBraceIndex != -1)
+                    {
+                        int insertIndex = opinionBlock.LastIndexOf('\n', lastBraceIndex);
+                        if (insertIndex != -1)
+                        {
+                            // We are inserting before the newline of the last brace
+                            opinionBlock = opinionBlock.Insert(insertIndex, "\n\t\t\tdelete=yes\n");
+                            Program.Logger.Debug("Marked an opinion for deletion.");
+                        }
+                        else
+                        {
+                            // Fallback for single-line blocks
+                            opinionBlock = opinionBlock.Insert(lastBraceIndex, "\n\t\t\tdelete=yes\n\n\t\t");
+                        }
+                    }
+                }
+
+                newOpinionsBody.Append(opinionBlock);
+                cursor = blockEnd + 1;
+            }
+
+            string finalContent = content.Substring(0, bodyStartIndex) + newOpinionsBody.ToString() + content.Substring(bodyEndIndex);
+            File.WriteAllText(tempPath, finalContent);
+            Program.Logger.Debug("Finished editing Opinions file.");
         }
     }
 }

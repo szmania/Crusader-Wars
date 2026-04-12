@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using CrusaderWars.client;
 using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
 
@@ -14,7 +15,7 @@ namespace CrusaderWars.locs
 {
     static class UnitsCardsNames
     {
-        static List<string> default_text_files = new List<string>() 
+        static List<string> default_text_files = new List<string>()
         {
             "CW_special_ability_phases.loc",
             "random_localisation_strings.loc",
@@ -29,7 +30,7 @@ namespace CrusaderWars.locs
         {
 
             string path = @".\data\battle files\text\db";
-            foreach(var file in Directory.GetFiles(path))
+            foreach (var file in Directory.GetFiles(path))
             {
                 string fileName = Path.GetFileName(file);
                 if (default_text_files.Exists(x => x == fileName))
@@ -44,34 +45,33 @@ namespace CrusaderWars.locs
             SearchMAANamesInLocalizationFiles(attacker_armies);
             SearchMAANamesInLocalizationFiles(defender_armies);
 
-            var unitsCollection = new List<Unit>();
-            foreach(Army army in attacker_armies) { unitsCollection.AddRange(army.Units); }
-            foreach (Army army in defender_armies) { unitsCollection.AddRange(army.Units); }
+            var armiesCollection = attacker_armies.Concat(defender_armies).ToList();
 
             switch (Mapper_Name)
             {
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), armiesCollection);
                     break;
                 case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
                 case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
                 case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("mk1212"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("mk1212"), armiesCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_AgeOfJustinian":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
                     break;
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), unitsCollection);
-                    break;
-                case "OfficialCC_TheFallenEagle_FireforgedEmpires":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empires"), unitsCollection);
+                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), armiesCollection);
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), armiesCollection);
                     break;
                 case "OfficialCC_AGOT_SevenKingdoms":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), unitsCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), armiesCollection);
+                    break;
+                case "Custom":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), armiesCollection);
                     break;
             }
 
@@ -112,18 +112,37 @@ namespace CrusaderWars.locs
             return allLocFiles.ToArray();
         }
 
-        private static void EditUnitCardsFiles(string[] unit_cards_files, List<Unit> allUnits)
+        private static void EditUnitCardsFiles(string[] unit_cards_files, List<Army> allArmies)
         {
+            // Group armies by side and analyze commanders
+            var attackerCommanders = new Dictionary<string, string>();
+            var defenderCommanders = new Dictionary<string, string>();
+
+            foreach (var army in allArmies)
+            {
+                var sideDict = army.CombatSide == "attacker" ? attackerCommanders : defenderCommanders;
+                if (army.Commander != null && !string.IsNullOrEmpty(army.Commander.ID))
+                {
+                    string commanderName = GetCommanderDisplayName(army.Commander);
+                    sideDict[army.Commander.ID] = commanderName;
+                }
+            }
+
+            // Determine side commander status
+            string? attackerCommanderName = attackerCommanders.Count == 1 ? attackerCommanders.Values.First() : null;
+            string? defenderCommanderName = defenderCommanders.Count == 1 ? defenderCommanders.Values.First() : null;
+
+
             for (int i = 0; i < unit_cards_files.Length; i++)
             {
                 string loc_file_path = unit_cards_files[i];
                 string loc_file_name = Path.GetFileName(loc_file_path);
                 string file_to_edit_path = $@".\data\{loc_file_name}";
 
-                
-                if(File.Exists(file_to_edit_path)) 
+
+                if (File.Exists(file_to_edit_path))
                     File.Delete(file_to_edit_path);
-                
+
                 //Copy original loc file
                 File.Copy(loc_file_path, file_to_edit_path);
 
@@ -142,107 +161,129 @@ namespace CrusaderWars.locs
                             continue;
                         }
 
-                        
-                        Unit? unitToApply = null;
-                        // Find the last unit that matches this line's key. This prevents multiple appends
-                        // if several units map to the same Attila unit. The last one found is used.
-                        foreach (var unit in allUnits)
+                        Match keyMatch = Regex.Match(line, @"land_units_onscreen_name_([^\t]+)");
+                        if (keyMatch.Success)
                         {
-                            if (unit?.GetAttilaUnitKey() != null && line.Contains($"land_units_onscreen_name_{unit.GetAttilaUnitKey()}\t"))
-                            {
-                                unitToApply = unit;
-                            }
-                        }
+                            string currentAttilaKey = keyMatch.Groups[1].Value;
+                            var matchingUnitsFromAllArmies = allArmies
+                                .SelectMany(a => a.Units.Select(u => new { Unit = u, Army = a }))
+                                .Where(x => x.Unit.GetAttilaUnitKey() == currentAttilaKey)
+                                .ToList();
 
-                        if (unitToApply != null)
-                        {
-                            // A matching unit was found, now we generate the new name and replace it in the line.
-                            string ownerNameSuffix = "";
-                            if (unitToApply.GetOwner() != null && !string.IsNullOrEmpty(unitToApply.GetOwner().GetID()))
+                            if (matchingUnitsFromAllArmies.Any())
                             {
-                                string ownerId = unitToApply.GetOwner().GetID();
-                                string? displayName = null;
+                                bool isPresentInPlayerArmy = matchingUnitsFromAllArmies.Any(x => x.Army.IsPlayer());
+                                bool isPresentInEnemyArmy = matchingUnitsFromAllArmies.Any(x => !x.Army.IsPlayer());
 
-                                if (ownerId == DataSearch.Player_Character.GetID())
+                                if (!(isPresentInPlayerArmy && isPresentInEnemyArmy))
                                 {
-                                    displayName = Reader.GetMetaPlayerName();
-                                }
-                                else
-                                {
-                                    var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(ownerId);
-                                    if (!string.IsNullOrEmpty(firstName))
+                                    var representative = matchingUnitsFromAllArmies.First();
+                                    var army = representative.Army;
+                                    var unitToApply = representative.Unit;
+
+                                    string commanderNameSuffix = "";
+                                    string? sideCommander = army.CombatSide == "attacker" ? attackerCommanderName : defenderCommanderName;
+
+                                    if (!string.IsNullOrEmpty(sideCommander))
                                     {
-                                        if (!string.IsNullOrEmpty(nickname))
+                                        // Side has exactly one commander - use their name
+                                        commanderNameSuffix = $" [Cmdr. {sideCommander}]";
+                                    }
+                                    else if (army.Commander != null)
+                                    {
+                                        // Individual army has a commander (but side has multiple commanders)
+                                        string individualCommanderName = GetCommanderDisplayName(army.Commander);
+                                        commanderNameSuffix = $" [Cmdr. {individualCommanderName}]";
+                                    }
+                                    // If sideCommander is null and army.Commander is null, commanderNameSuffix remains empty
+
+
+                                    string newName = "";
+                                    bool shouldReplace = false;
+
+                                    //Commander
+                                    if (unitToApply.GetRegimentType() == RegimentType.Commander)
+                                    {
+                                        string rankInfo = unitToApply.CharacterRank > 1 ? $" (Rank {unitToApply.CharacterRank})" : "";
+                                        newName = $"Commander{rankInfo}{commanderNameSuffix}";
+                                        shouldReplace = true;
+                                    }
+                                    //Knights
+                                    else if (unitToApply.GetRegimentType() == RegimentType.Knight && unitToApply.GetSoldiers() > 0)
+                                    {
+                                        // Combined Unit
+                                        if (unitToApply.GetName() == "Knight")
                                         {
-                                            displayName = $"{firstName} \"{nickname}\"";
+                                            var knightsInUnit = army.Knights?.GetKnightsList()?.OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
+                                            var knightNames = knightsInUnit.Select(k => k.GetName()).Take(5).ToList();
+                                            if (knightsInUnit.Count > 5)
+                                            {
+                                                knightNames.Add("etc...");
+                                            }
+                                            string knightList = string.Join(" | ", knightNames);
+                                            newName = $"Knights ({knightList}){commanderNameSuffix}";
+                                        }
+                                        // Bodyguard Unit
+                                        else
+                                        {
+                                            newName = $"Knights ({unitToApply.GetName()}){commanderNameSuffix}";
+                                        }
+                                        shouldReplace = true;
+                                    }
+                                    //Men-At-Arms
+                                    else if (unitToApply.GetRegimentType() == RegimentType.MenAtArms)
+                                    {
+                                        string maaName = unitToApply.GetLocName();
+                                        if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
+
+                                        if (unitToApply.KnightCommander != null)
+                                        {
+                                            string knightName = unitToApply.KnightCommander.GetName();
+                                            newName = $"MAA {maaName} ({knightName}){commanderNameSuffix}";
                                         }
                                         else
                                         {
-                                            displayName = firstName;
+                                            newName = $"MAA {maaName}{commanderNameSuffix}";
+                                        }
+                                        shouldReplace = true;
+                                    }
+                                    //Levies
+                                    else if (unitToApply.GetRegimentType() == RegimentType.Levy)
+                                    {
+                                        var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                        if (match.Success)
+                                        {
+                                            string originalName = match.Groups["UnitName"].Value;
+                                            if (originalName.StartsWith("Levy "))
+                                            {
+                                                originalName = originalName.Substring("Levy ".Length);
+                                            }
+                                            newName = $"Levy {originalName}{commanderNameSuffix}";
+                                            shouldReplace = true;
                                         }
                                     }
-                                }
-                                if (!string.IsNullOrEmpty(displayName))
-                                    ownerNameSuffix = $" ({displayName})";
-                            }
-
-                            string newName = "";
-                            bool shouldReplace = false;
-
-                            //Commander
-                            if (unitToApply.GetRegimentType() == RegimentType.Commander)
-                            {
-                                newName = $"Commander{ownerNameSuffix}";
-                                shouldReplace = true;
-                            }
-                            //Knights
-                            else if (unitToApply.GetRegimentType() == RegimentType.Knight && unitToApply.GetSoldiers() > 0)
-                            {
-                                newName = $"Knights{ownerNameSuffix}";
-                                shouldReplace = true;
-                            }
-                            //Men-At-Arms
-                            else if (unitToApply.GetRegimentType() == RegimentType.MenAtArms)
-                            {
-                                string maaName = unitToApply.GetLocName();
-                                if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
-                                newName = $"MAA {maaName}{ownerNameSuffix}";
-                                shouldReplace = true;
-                            }
-                            //Levies
-                            else if (unitToApply.GetRegimentType() == RegimentType.Levy)
-                            {
-                                var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
-                                if (match.Success)
-                                {
-                                    string originalName = match.Groups["UnitName"].Value;
-                                    while (originalName.StartsWith("Levy "))
+                                    //Garrisons
+                                    else if (unitToApply.GetRegimentType() == RegimentType.Garrison)
                                     {
-                                        originalName = originalName.Substring("Levy ".Length);
+                                        var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
+                                        if (match.Success)
+                                        {
+                                            string originalName = match.Groups["UnitName"].Value;
+                                            if (originalName.StartsWith("Garrison "))
+                                            {
+                                                originalName = originalName.Substring("Garrison ".Length);
+                                            }
+                                            string levelInfo = unitToApply.GarrisonLevel > 1 ? $" (Level {unitToApply.GarrisonLevel})" : "";
+                                            newName = $"Garrison {originalName}{levelInfo}{commanderNameSuffix}";
+                                            shouldReplace = true;
+                                        }
                                     }
-                                    newName = $"Levy {originalName}{ownerNameSuffix}";
-                                    shouldReplace = true;
-                                }
-                            }
-                            //Garrisons
-                            else if (unitToApply.GetRegimentType() == RegimentType.Garrison)
-                            {
-                                var match = Regex.Match(line, @"\t(?<UnitName>.+)\t");
-                                if (match.Success)
-                                {
-                                    string originalName = match.Groups["UnitName"].Value;
-                                    while (originalName.StartsWith("Garrison "))
-                                    {
-                                        originalName = originalName.Substring("Garrison ".Length);
-                                    }
-                                    newName = $"Garrison {originalName}{ownerNameSuffix}";
-                                    shouldReplace = true;
-                                }
-                            }
 
-                            if (shouldReplace)
-                            {
-                                line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{newName}\t");
+                                    if (shouldReplace)
+                                    {
+                                        line = Regex.Replace(line, @"\t(?<UnitName>.+)\t", $"\t{newName}\t");
+                                    }
+                                }
                             }
                         }
 
@@ -256,7 +297,7 @@ namespace CrusaderWars.locs
                 string battle_files_path = $@".\data\battle files\text\db\{loc_file_name}";
 
                 File.WriteAllText(file_to_edit_path, edited_names);
-                if(File.Exists(battle_files_path))File.Delete(battle_files_path);
+                if (File.Exists(battle_files_path)) File.Delete(battle_files_path);
                 File.Move(file_to_edit_path, battle_files_path);
 
             }
@@ -270,7 +311,7 @@ namespace CrusaderWars.locs
             string defaultCK3DLCLocFilePath = Properties.Settings.Default.VAR_ck3_path.Replace(@"binaries\ck3.exe", @"game\localization\english\dlc\fp1\dlc_fp1_regiment_l_english.yml");
 
             var maaList = new List<Unit>();
-            foreach(Army army in armies)
+            foreach (Army army in armies)
             {
                 maaList.AddRange(army.Units.Where(x => x.GetRegimentType() == RegimentType.MenAtArms));
             }
@@ -281,13 +322,14 @@ namespace CrusaderWars.locs
                 defaultCK3DLCLocFilePath
 
             };
-            foreach(string modFolder in enabledCK3ModsPaths)
+            foreach (string modFolder in enabledCK3ModsPaths)
             {
                 if (Directory.Exists($@"{modFolder}\localization\english\"))
                 {
                     var files = Directory.GetFiles($@"{modFolder}\localization\english\").ToList();
                     bool doesRegimentLocFileExists = files.Exists(x => x.Contains("regiment_l_"));
-                    if (doesRegimentLocFileExists) { 
+                    if (doesRegimentLocFileExists)
+                    {
                         string? regimentLocFilePath = files.FirstOrDefault(x => x.Contains("regiment_l_"));
                         if (regimentLocFilePath != null)
                         {
@@ -297,7 +339,7 @@ namespace CrusaderWars.locs
                 }
             }
 
-            foreach(string path in allRegimentLocFilesPaths)
+            foreach (string path in allRegimentLocFilesPaths)
             {
                 if (!File.Exists(path)) continue;
                 using (StreamReader SR = new StreamReader(path))
@@ -305,7 +347,7 @@ namespace CrusaderWars.locs
                     string? line;
                     while ((line = SR.ReadLine()) != null && !SR.EndOfStream)
                     {
-                        if (line == " " || line == string.Empty || char.IsUpper(line[1]))
+                        if (string.IsNullOrWhiteSpace(line) || line.Length < 2 || char.IsUpper(line[1]))
                             continue;
 
                         foreach (Unit maa in maaList)
@@ -341,5 +383,164 @@ namespace CrusaderWars.locs
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
+        public static Dictionary<string, string> GetUnitScreenNames(string Mapper_Name)
+        {
+            var screenNames = new Dictionary<string, string>();
+            string[] locFiles;
+
+            switch (Mapper_Name)
+            {
+                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
+                    locFiles = GetLocFilesForPlaythrough("anno domini");
+                    break;
+                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
+                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
+                    locFiles = GetLocFilesForPlaythrough("mk1212");
+                    break;
+                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
+                    locFiles = GetLocFilesForPlaythrough("age of justinian");
+                    break;
+                case "OfficialCC_TheFallenEagle_FallofTheEagle":
+                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
+                    locFiles = GetLocFilesForPlaythrough("fall of the eagles");
+                    break;
+                case "OfficialCC_RealmsInExile_TheDawnlessDays":
+                    locFiles = GetLocFilesForPlaythrough("dawnless days");
+                    break;
+                case "OfficialCC_AGOT_SevenKingdoms":
+                    locFiles = GetLocFilesForPlaythrough("seven_kingdoms");
+                    break;
+                case "Custom":
+                    locFiles = GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper());
+                    break;
+                default:
+                    locFiles = new string[0];
+                    break;
+            }
+
+            foreach (var file in locFiles)
+            {
+                if (!File.Exists(file)) continue;
+                using (StreamReader reader = new StreamReader(file))
+                {
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        Match keyMatch = Regex.Match(line, @"land_units_onscreen_name_([^\t]+)");
+                        if (keyMatch.Success)
+                        {
+                            string key = keyMatch.Groups[1].Value;
+                            Match nameMatch = Regex.Match(line, @"\t(?<UnitName>[^\t]+)\t");
+                            if (nameMatch.Success)
+                            {
+                                string name = nameMatch.Groups["UnitName"].Value;
+                                screenNames[key] = name; // Add or overwrite
+                            }
+                        }
+                    }
+                }
+            }
+
+            return screenNames;
+        }
+
+        private static string GetCommanderDisplayName(CommanderSystem commander)
+        {
+            if (commander.ID == DataSearch.Player_Character.GetID())
+            {
+                return Reader.GetMetaPlayerName();
+            }
+            else
+            {
+                var (firstName, nickname) = CharacterDataManager.GetCharacterFirstNameAndNickname(commander.ID);
+                if (!string.IsNullOrEmpty(firstName))
+                {
+                    return !string.IsNullOrEmpty(nickname) ? $"{firstName} \"{nickname}\"" : firstName;
+                }
+            }
+            return commander?.Name ?? "Unknown Commander";
+        }
+
+        // NEW: Helper method to get formatted unit name for display in reports
+        public static string GetFormattedUnitName(Unit unit, Army army)
+        {
+            string commanderNameSuffix = "";
+
+            // Use actual commander name instead of "attacker"/"defender"
+            if (army.Commander != null)
+            {
+                string actualCommanderName = GetCommanderDisplayName(army.Commander);
+                commanderNameSuffix = $" [Cmdr. {actualCommanderName}]";
+            }
+            else
+            {
+                // Fallback to side name if no commander
+                string sideName = army.CombatSide == "attacker" ? "Attacker" : "Defender";
+                commanderNameSuffix = $" [Cmdr. {sideName}]";
+            }
+
+            switch (unit.GetRegimentType())
+            {
+                case RegimentType.Commander:
+                    return $"Commander ({army.Commander?.Name ?? "Unknown Commander"}){commanderNameSuffix}";
+                case RegimentType.Knight:
+                    if (ModOptions.CombineKnightsEnabled())
+                    {
+                        var knightsInUnit = army.Knights?.GetKnightsList()?.OrderByDescending(k => k.GetProwess()).ToList() ?? new List<Knight>();
+                        var knightNames = knightsInUnit.Select(k => k.GetName()).Take(5).ToList();
+                        if (knightsInUnit.Count > 5)
+                        {
+                            knightNames.Add("etc...");
+                        }
+                        string knightList = string.Join(" | ", knightNames);
+                        return $"Knights ({knightList}){commanderNameSuffix}";
+                    }
+                    else
+                    {
+                        // If not combined, it's a prominent knight's bodyguard unit
+                        return $"Knights ({unit.GetName()}){commanderNameSuffix}";
+                    }
+                case RegimentType.MenAtArms:
+                    string maaName = unit.GetLocName();
+                    if (string.IsNullOrEmpty(maaName)) maaName = "Men at Arms";
+                    if (unit.KnightCommander != null)
+                    {
+                        return $"MAA {maaName} ({unit.KnightCommander.GetName()}){commanderNameSuffix}";
+                    }
+                    return $"MAA {maaName}{commanderNameSuffix}";
+                case RegimentType.Levy:
+                    string levyOriginalName = unit.GetName(); // This is "Levy"
+                    // We need to get the specific levy type from the Attila unit key if possible
+                    string specificLevyName = unit.GetAttilaUnitKey(); // This is the Attila unit key, e.g., "att_unit_levy_spearmen"
+                    // Attempt to get a more user-friendly name from the unit screen names
+                    var screenNames = GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+                    if (screenNames.TryGetValue(specificLevyName, out string? friendlyName) && !string.IsNullOrEmpty(friendlyName))
+                    {
+                        // Remove "Levy " prefix if it exists in the friendly name
+                        if (friendlyName.StartsWith("Levy ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            friendlyName = friendlyName.Substring("Levy ".Length);
+                        }
+                        return $"Levy {friendlyName}{commanderNameSuffix}";
+                    }
+                    return $"Levy {levyOriginalName}{commanderNameSuffix}"; // Fallback
+                case RegimentType.Garrison:
+                    string garrisonOriginalName = unit.GetName(); // This is "Garrison"
+                    string specificGarrisonName = unit.GetAttilaUnitKey();
+                    var garrisonScreenNames = GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
+                    if (garrisonScreenNames.TryGetValue(specificGarrisonName, out string? friendlyGarrisonName) && !string.IsNullOrEmpty(friendlyGarrisonName))
+                    {
+                        if (friendlyGarrisonName.StartsWith("Garrison ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            friendlyGarrisonName = friendlyGarrisonName.Substring("Garrison ".Length);
+                        }
+                        return $"Garrison {friendlyGarrisonName}{commanderNameSuffix}";
+                    }
+                    return $"Garrison {garrisonOriginalName}{commanderNameSuffix}"; // Fallback
+                default:
+                    return unit.GetName();
+            }
+        }
     }
 }

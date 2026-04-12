@@ -1,4 +1,4 @@
-﻿using CrusaderWars.terrain;
+using CrusaderWars.terrain;
 using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
@@ -9,13 +9,17 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CrusaderWars.data.save_file;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using System.Xml;
+using System.IO;
 
 namespace CrusaderWars.client
 {
     public static class ModOptions
     {
         internal static Dictionary<string, string> optionsValuesCollection = new Dictionary<string, string>();
-        
+        internal static string SelectedCustomMapper { get; set; } = string.Empty;
+
+        public static string GetSelectedCustomMapper() { return SelectedCustomMapper; }
         public static int GetLevyMax()
         {
             return Int32.Parse(optionsValuesCollection["LeviesMax"]);
@@ -57,7 +61,7 @@ namespace CrusaderWars.client
         {
             return Int32.Parse(optionsValuesCollection["BattleScale"].Trim('%'));
         }
-        
+
         public static bool GetAutoScale()
         {
             switch (optionsValuesCollection["AutoScaleUnits"])
@@ -75,7 +79,7 @@ namespace CrusaderWars.client
 
         public static bool CloseCK3DuringBattle()
         {
-            switch(optionsValuesCollection["CloseCK3"])
+            switch (optionsValuesCollection["CloseCK3"])
             {
                 case "Disabled":
                     return false;
@@ -88,7 +92,7 @@ namespace CrusaderWars.client
 
         public static void CloseAttila()
         {
-            switch(optionsValuesCollection["CloseAttila"])
+            switch (optionsValuesCollection["CloseAttila"])
             {
                 case "Disabled":
                     return;
@@ -99,7 +103,7 @@ namespace CrusaderWars.client
                     return;
 
             }
-            
+
         }
 
         public enum ArmiesSetup
@@ -124,7 +128,7 @@ namespace CrusaderWars.client
 
             }
         }
-        
+
         public static string DeploymentsZones()
         {
             return optionsValuesCollection["BattleMapsSize"];
@@ -187,7 +191,7 @@ namespace CrusaderWars.client
 
         public static string TimeLimit()
         {
-            switch (optionsValuesCollection["TimeLimit"]) 
+            switch (optionsValuesCollection["TimeLimit"])
             {
                 case "Disabled":
                     return "";
@@ -222,6 +226,20 @@ namespace CrusaderWars.client
                 default:
                     return true;
             }
+        }
+
+        public static bool CombineKnightsEnabled()
+        {
+            if (optionsValuesCollection.TryGetValue("CombineKnights", out var value))
+            {
+                return value == "Enabled";
+            }
+            return false; // Default is Disabled
+        }
+
+        public static void SetCombineKnights(string value)
+        {
+            optionsValuesCollection["CombineKnights"] = value;
         }
 
         public static int CulturalPreciseness()
@@ -286,9 +304,27 @@ namespace CrusaderWars.client
         public static int GetCommanderPrisonerChance() => Int32.Parse(optionsValuesCollection["CommanderPrisonerChance"]);
         public static int GetKnightPrisonerChance() => Int32.Parse(optionsValuesCollection["KnightPrisonerChance"]);
 
+        public static string GetSelectedPlaythrough()
+        {
+            if (optionsValuesCollection.TryGetValue("Playthrough", out var playthrough))
+            {
+                return playthrough;
+            }
+            return string.Empty;
+        }
+
         public static bool GetOptInPreReleases()
         {
             return optionsValuesCollection.TryGetValue("OptInPreReleases", out var value) && bool.TryParse(value, out bool result) && result;
+        }
+
+        public static bool ShowPostBattleReport()
+        {
+            if (optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var value))
+            {
+                return value == "Enabled";
+            }
+            return true; // Default to enabled
         }
     }
 }

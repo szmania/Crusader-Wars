@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -12,6 +13,7 @@ namespace CrusaderWars.data.attila_settings
         static string preferences_file_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\The Creative Assembly\Attila\scripts\preferences.script.txt";
         static string user_script_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\The Creative Assembly\Attila\scripts\user.script.txt";
 
+        [SupportedOSPlatform("windows")]
         public static void ValidateOnStartup()
         {
             if (File.Exists(user_script_path))
@@ -29,6 +31,7 @@ namespace CrusaderWars.data.attila_settings
                 }
             }
         }
+        [SupportedOSPlatform("windows")]
         public static bool ValidateBeforeLaunch()
         {
             while (true) // Loop until the file is cleared or the user cancels
@@ -69,7 +72,7 @@ namespace CrusaderWars.data.attila_settings
         }
         public static void ChangeUnitSizes()
         {
-            if(!isUnitsSetToUltra())
+            if (!isUnitsSetToUltra())
             {
                 string new_data = "";
                 using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
@@ -104,7 +107,7 @@ namespace CrusaderWars.data.attila_settings
         {
 
             if (!File.Exists(preferences_file_path)) return true;
-            
+
             string unit_size_setting = "";
             using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(attila_settings_file))
@@ -124,13 +127,13 @@ namespace CrusaderWars.data.attila_settings
             }
 
             Match isCorrect = Regex.Match(unit_size_setting, @"gfx_unit_size 3");
-            if(isCorrect.Success) 
+            if (isCorrect.Success)
             {
                 return true;
             }
-            else 
-            { 
-                return false; 
+            else
+            {
+                return false;
             }
 
         }
