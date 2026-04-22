@@ -227,8 +227,10 @@ NCharacter = {
 
 	SKILL_MODIFIER_OFFSET = -8	# skill modifiers with offset add this from skill value (see common/modifiers/00_basic_modifiers.txt)
 
-	#Character window info
+	# Standard RelationTo number of relations to show
 	MAX_RELATIONS_TO_SHOW = 3
+	# Standard RelationToShort number of relations to show
+	MAX_RELATIONS_TO_SHOW_SHORT = 2
 
 	MARRIAGE_TIER_DIFF_PRESTIGE_MULT = 100
 
@@ -258,6 +260,8 @@ NCharacter = {
 	MAA_STARTING_TREASURY_EXPENSE_MAX = 0.35 # Rulers will never start out spending more than this treasury on men at arms. For treasury-poor rulers this can mean they end up under MAA_STARTING_TREASURY_EXPENSE_MIN if one more MaA would put them above the max
 	MAA_STARTING_BARTER_GOODS_EXPENSE_MIN = 0.1 # Rulers at game start will start out spending this much barter goods (or a bit more, as it'll overshoot) on men at arms
 	MAA_STARTING_BARTER_GOODS_EXPENSE_MAX = 0.2 # Rulers will never start out spending more than this much barter goods on men at arms. For barter goods-poor rulers this can mean they end up under MAA_STARTING_BARTER_GOODS_EXPENSE_MIN if one more MaA would put them above the max
+	MAA_STARTING_HERD_EXPENSE_MIN = 0.7 # Rulers at game start will start out spending this much herd (or a bit more, as it'll overshoot) on men at arms
+	MAA_STARTING_HERD_EXPENSE_MAX = 0.9 # Rulers will never start out spending more than this much herd on men at arms. For herd-poor rulers this can mean they end up under MAA_STARTING_HERD_EXPENSE_MIN if one more MaA would put them above the max
 
 	MAXIMUM_DIPLOMATIC_RANGE = 1000
 	MAXIMUM_DIPLOMATIC_RANGE_RESTRICTED = 750	# Used if a game rule with the restricted_diplomatic_range flag is used
@@ -296,7 +300,10 @@ NCharacter = {
 	}
 
 	COURT_GRANDEUR_MONTHLY_CHANGE = 0.2
-	GENDER_PREFERENCE_PROBABILITY = 0.75 # chance (0-1) of a character created from pool being from prefered gender of gender preference law
+
+	# chance (0-1) that a character created or picked from pool being of preferred gender for the
+	# relevant gender preference law
+	GENDER_PREFERENCE_PROBABILITY = 1.0
 
 	OBESE_WEIGHT_VALUE = 50 # Greater than or equal to this and a character is considered obese
 	MALNOURISHED_WEIGHT_VALUE = -50 # Less than or equal to this and a character is considered malnourished
@@ -620,8 +627,8 @@ NArmy = {
 	MOVEMENT_SPEED_RETREAT = 4.5					# Movement speed while retreating
 	MOVEMENT_SPEED = 3								# Normal movement speed
 	MOVEMENT_SPEED_BONUS_FRIENDLY_AREA = 0.2		# In friendly areas you get a 20% speed bonus
-	REGIMENT_MONTHLY_REINFORCE_SPEED = 0.017		# Monthly reinforcement percentage of unraised chunks [0-1] <---CW CHANGE HERE. DEFAULT 0.03
-	REGIMENT_MONTHLY_MAA_REINFORCE_SPEED = 0.05		# Monthly reinforcement percentage of unraised MAA chunks [0-1] <---CW CHANGE HERE. DEFAULT 0.1
+	REGIMENT_MONTHLY_REINFORCE_SPEED = 0.017		# Monthly reinforcement percentage of unraised chunks [0-1] <---CRUSADER CONFLICTS CHANGE HERE. DEFAULT 0.03
+	REGIMENT_MONTHLY_MAA_REINFORCE_SPEED = 0.05		# Monthly reinforcement percentage of unraised MAA chunks [0-1] <---CRUSADER CONFLICTS CHANGE HERE. DEFAULT 0.1
 	GOLD_COST_PER_SOLDIER = 0.003					# Gold maintenance cost per soldier
 	RAID_ARMY_COST_MULT = 0.5						# Maintenance of raid armies is multiplied by this
 	BARTER_ARMY_COST_MULT = 0.5 					# Maintenance of barter armies is multiplied by this
@@ -667,6 +674,8 @@ NArmy = {
 	MAA_PRESTIGE_BUY_COST_MULT = 2					# If using prestige as gold for MaA, multiply buy cost by this
 	MAA_PRESTIGE_LOW_COST_MULT = 0.7				# If using prestige as gold for MaA, multiply basic maintenance cost by this
 	MAA_PRESTIGE_HIGH_COST_MULT = 0.7				# If using prestige as gold for MaA, multiply raised/reinforce cost by this
+	MAA_HERD_LOW_COST_MULT = 0.7					# If using herd as gold for MaA, multiply basic maintenance cost by this
+	MAA_HERD_HIGH_COST_MULT = 0.7					# If using herd as gold for MaA, multiply raised/reinforce cost by this
 	MAA_TREASURY_BUY_COST_MULT = 2					# If using treasury as gold for MaA, multiply buy cost by this
 	MAA_TREASURY_LOW_COST_MULT = 0.7				# If using treasury as gold for MaA, multiply basic maintenance cost by this
 	MAA_TREASURY_HIGH_COST_MULT = 0.7				# If using treasury as gold for MaA, multiply raised/reinforce cost by this
@@ -776,9 +785,19 @@ NPowerfulVassal = {
 	VALUE_INCOME_MULT = 50				# Multiplier applied to the income of the vassal
 }
 
+NFaith = {
+	BASE_FERVOR = 50.0				# Default fervor
+	MAX_FERVOR = 100.0				# Max amount of fervor
+	YEARLY_FERVOR_GROWTH = 3.5		# Fervor yearly change, can be negative
+	MINIMUM_FAITH_SIZE_FERVOR_MODIFIER = 10 # Adjusts the size modifier for monthly fervor gain for a faith according to the following formula: 1/squareroot(max(define_value, faith_size)/define_value) where define value is the value of MINIMUM_FAITH_SIZE_FERVOR_MODIFIER and faith_size is the current amount of provinces that follows the faith.
+	FERVOR_CHANGELOG_DURATION = 10 # After how many years do fervor changelog entries get deleted?
+	FAITH_CREATION_FERVOR_DISCOUNT_PER_MISSING_FERVOR = 1 # How much cheaper does creating a faith get per fervor below 100%? 1 means 1% per point
+	FAITH_CREATION_FERVOR_DISCOUNT_MAX = 50 # What percentage does the discount cap out at? With these numbers, 0-50 fervor means a 50% discount. Above 50 means between 0% and 50% discount
+}
+
 NReligion = {
 	DEFAULT_FERVOR = 50				# Default fervor
-	TIME_AT_PEACE_FOR_PIETY = 730 # For faiths with a doctrine with piety_from_long_peace, how long do they need to be at peace (in days)
+    TIME_AT_PEACE_FOR_PIETY = 730	# For faiths with a doctrine with piety_from_long_peace, how long do they need to be at peace (in days)
 
 	# Hostility levels start at 0 (same faith or equivalent to same faith)
 	HOSTILITY_OPINION_EFFECTS = {	# The opinion effects of each hostility level
@@ -849,7 +868,7 @@ NTitle = {
 	DRIFT_ADJACENT_ACROSS_WATER_DISTANCE = 2
 	REVOKE_LAWS_COST_SCALE = { 0 0 0.1 0.25 0.5 1 2 }
 	DYNAMIC_TITLE_MAP_COLOR_S_V = { 0.8 1.0 } # What is the Saturation and Value of dynamic title map colors? (via HSV color - Hue is fully randomized)
-	CREATE_TITLE_PIETY_LEVEL = { 0 0 0 2 3 5 5 } # not a global requirement, it is used only for goverment with rule considers_piety_for_title_creation
+	CREATE_TITLE_PIETY_LEVEL = { 0 0 0 2 3 5 5 } # not a global requirement, it is used only for government with rule considers_piety_for_title_creation
 	CREATE_TITLE_PIETY_COST = { 0 0 0 500 2500 5000 10000 }
 
 	# Default desired titles to keep for AI - per current primary title tier. (-1 = keep all)
@@ -981,7 +1000,7 @@ NProvince = {
 	WINTER_SEVERITY_RANDOM_MIN = 0.5			# Sets the lower bound of the random value that is used when determining the next winter severity
 	WINTER_SEVERITY_RANDOM_MAX = 1.0			# Sets the upper bound of the random value that is used when determining the next winter severity
 	RAZE_HOLDING_COOLDOWN_YEARS = 5 			# Sets the cooldown perid in years for nomads razing holdings that they completely control
-	MAX_BUILDINGS = 6 							# Maximum number of building slots that a province can have
+	MAX_BUILDINGS = 7 							# Maximum number of building slots that a province can have
 }
 
 NText = {
@@ -1051,7 +1070,7 @@ NDomain = {
 	ABOVE_LIMIT_HERD_INCOME_PENALTY = 0.5		# How much herd income from domain is reduced per holding over the limit
 	ABOVE_LIMIT_MAX_HERD_INCOME_PENALTY = 1		# How much herd income from domain can be reduced at most
 	HOLDING_GRACE_PERIOD = 365					# How many days do newly gained holdings not count towards the domain size for the purposes of penalties (but also not produce any levies)
-	STEWARDSHIP_SKILL_FOR_DOMAIN_LIMIT_INCREASE = 6	# domain limit += floor( <stewardship skill> / STEWARDSHIP_SKILL_FOR_DOMAIN_LIMIT_INCREASE )
+	STEWARDSHIP_SKILL_FOR_DOMAIN_LIMIT_INCREASE = 200	# domain limit += floor( <stewardship skill> / STEWARDSHIP_SKILL_FOR_DOMAIN_LIMIT_INCREASE )
 	LEVIES_AT_ZERO_COUNTY_CONTROL = 0.5			# How many % levies do you get at 0 county control? Interpolated between this value and 100% when between 0 and 100
 	TAX_AT_ZERO_COUNTY_CONTROL = 0.0			# How much % tax do you get at 0 county control? Interpolated between this value and 100% when between 0 and 100
 	LEVIES_AT_MAX_COUNTY_DEVELOPMENT = 0.5		# How many % levies bonus do you get at 100 county development? Interpolated between this value and 0% when between 0 and 100
@@ -1072,7 +1091,11 @@ NFaction =
 	DEFAULT_POWER_THRESHOLD = 80					# The default power threshold if there no one defined.
 	MAX_DEMAND_DELAY_DAYS = 90						# The faction is guaranteed to send demands on the next update after this number of days has passed since it started being able to send demands.
 
-	POTENTIAL_FORCE_JOIN_HOOK_TYPE = "strong" # The type of hook that means the UI will show a member as potentially joining
+	POTENTIAL_FORCE_JOIN_HOOK_TYPE = "strong" 	# The type of hook that means the UI will show a member as potentially joining
+
+	# the minimum warscore a defender in a faction war must have to win the war when the faction is destroyed due to other reasons.
+	# If below this warscore the war will just be invalidated.
+	MIN_WARSCORE_FOR_VICTORY_ON_FACTION_INVALIDATION = 75
 }
 
 NPathFinding = {
@@ -1329,7 +1352,7 @@ NModifier = {
 	AVERAGE_PROWESS_VALUE = 10   # Used by character_opinion_from_high_prowess_add and character_opinion_from_low_prowess_add modifiers to determine what's high and low
 }
 NPortrait = {
-	GENE_DATABASE_VERSION = 4	# If the version saved in a file does not match this number, the portrait DNAs will get regenerated. Increase this number when making gene database changed that would break old portraits.
+	GENE_DATABASE_VERSION = 5	# If the version saved in a file does not match this number, the portrait DNAs will get regenerated. Increase this number when making gene database changed that would break old portraits.
 	GRACEFUL_AGING_START = 25	# After this age, added life expectancy will make a character look younger than they are; the effect grows the further past this point one goes
 	GRACEFUL_AGING_END = 70		# This is the apparent age at which life expectancy stops slowing down visual aging (each year onwards ages you visually 1 year)
 	MAX_AGE = 100.0				# At this age portraits will use the special age gene at full strength
@@ -1373,7 +1396,7 @@ NRaid = {
 	MIN_SOLDIERS_TO_RAID = 200				# How small can a raid army be and still be able to loot?
 	MONTHLY_ATTRITION = 0.01				# How much attrition do you take while looting a province? 0.01 = 1% per month
 	MONTHS_OF_RAID_LOOT = 12				# How many months of holding income (with owner effects discounted) does raiding provide?
-	LESS_MONTHS_OF_RAID_LOOT = 6 			# This is subtracted from MONTHS_OF_RAID_LOOT if you have the goverment 'barter = yes'
+	LESS_MONTHS_OF_RAID_LOOT = 6 			# This is subtracted from MONTHS_OF_RAID_LOOT if you have the government 'barter = yes'
 
 	# Progress cannot be lower than 1/day (except when interrupted by combat)
 	BASE_PROGRESS = 20						# How much base raid action progress do you get per day?
@@ -1637,6 +1660,24 @@ NAccolade = {
 		"badge_color8.dds"
 		"badge_color9.dds"
 	}
+
+	ACCOLADE_GLORY_LEVELS = {
+		100
+		300
+		600
+		1000
+		1500
+		2100
+	}
+
+	ACCOLADE_SQUIRE_LEVELS = {
+		20
+		40
+		60
+		80
+	}
+
+	ACCOLADE_MAX_TYPES = 3 # maximum number of accolade attributes (types) an acclaimed knight can have
 
 	STARTING_GLORY = 100	# how much glory does each created accolade start out with? 100 is default to unlock rank 1
 	POTENTIAL_ACCLAIMED_KNIGHT_UPDATE_TIME = 0.5 # Time between potential acclaimed knights window updates, in seconds

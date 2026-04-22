@@ -45,32 +45,6 @@ window = {
 		position_y = 10
 	}
 
-		############################################################
-		### START ALL CRUSADER CONFLICTS EDITS TO frontend_ingame.gui ###
-		############################################################
-		############################################################
-
-
-	state = {
-        name = create_readable_save_file
-		on_finish = "[PauseMenu.Save]"
-		on_finish = "[PdxGuiTriggerAllAnimations('confirm_save')]"	#save the game
-    }
-
-
-	state = {
-        name = resume_game
-		on_finish = "[PauseMenu.Resume]"
-		on_finish = "[ExecuteConsoleCommand(Concatenate('Keyword:', 'CRUSADERCONFLICTS'))]"   # Crusader Conflicts KEYWORD to start Attila
-		on_finish = "[PauseMenu.ExitGame( '(bool)yes' )]"
-		on_finish = "[PdxGuiTriggerAllAnimations('cc_exit_to_menu')]"	#exit to menu
-    }
-
-		############################################################
-		###   END ALL CRUSADER CONFLICTS EDITS TO frontend_ingame.gui ###
-		############################################################
-		############################################################		
-
 	widget = {
 		size = { 100% 100% }
 		scale = "[ScaleToFitElementOutside('(int32)1920', '(int32)1080')]"

@@ -296,7 +296,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetLeftCommanderTraits]"
 					visible = "[LessThanOrEqualTo_int32(GetDataModelSize(CombatWindow.GetLeftCommanderTraits), '(int32)3')]"
-					
+
 					parentanchor = bottom|left
 					position = { 25 -5 }
 					flipdirection = yes
@@ -315,7 +315,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetLeftCommanderTraits]"
 					visible = "[EqualTo_int32(GetDataModelSize(CombatWindow.GetLeftCommanderTraits), '(int32)4')]"
-					
+
 					parentanchor = bottom|left
 					position = { 25 -5 }
 					flipdirection = yes
@@ -333,7 +333,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetLeftCommanderTraits]"
 					visible = "[EqualTo_int32(GetDataModelSize(CombatWindow.GetLeftCommanderTraits), '(int32)5')]"
-					
+
 					parentanchor = bottom|left
 					position = { 25 -5 }
 					flipdirection = yes
@@ -351,7 +351,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetLeftCommanderTraits]"
 					visible = "[GreaterThanOrEqualTo_int32(GetDataModelSize(CombatWindow.GetLeftCommanderTraits), '(int32)6')]"
-					
+
 					parentanchor = bottom|left
 					position = { 25 -5 }
 					flipdirection = yes
@@ -505,7 +505,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetRightCommanderTraits]"
 					visible = "[LessThanOrEqualTo_int32(GetDataModelSize(CombatWindow.GetRightCommanderTraits), '(int32)3')]"
-					
+
 					parentanchor = bottom|right
 					position = { -25 -5 }
 					flipdirection = yes
@@ -524,7 +524,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetRightCommanderTraits]"
 					visible = "[EqualTo_int32(GetDataModelSize(CombatWindow.GetRightCommanderTraits), '(int32)4')]"
-					
+
 					parentanchor = bottom|right
 					position = { -25 -5 }
 					flipdirection = yes
@@ -542,7 +542,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetRightCommanderTraits]"
 					visible = "[EqualTo_int32(GetDataModelSize(CombatWindow.GetRightCommanderTraits), '(int32)5')]"
-					
+
 					parentanchor = bottom|right
 					position = { -25 -5 }
 					flipdirection = yes
@@ -560,7 +560,7 @@ window = {
 				dynamicgridbox = {
 					datamodel = "[CombatWindow.GetRightCommanderTraits]"
 					visible = "[GreaterThanOrEqualTo_int32(GetDataModelSize(CombatWindow.GetRightCommanderTraits), '(int32)6')]"
-					
+
 					parentanchor = bottom|right
 					position = { -25 -5 }
 					flipdirection = yes
@@ -2720,8 +2720,8 @@ window = {
 		}
 
 		background = {
-            texture ="gfx/interface/skinned/mask_pattern.dds"
-            texture_density = 3
+			texture ="gfx/interface/skinned/mask_pattern.dds"
+			texture_density = 3
 			spriteType = Corneredtiled
 			color = { 0.6 0.7 0.65 0.3 }
 			margin = { -10 0 }
@@ -2785,7 +2785,7 @@ window = {
 										alpha = 0.8
 									}
 
-									icon_advantage_progressbar = {
+									arrow_progressbar_icon = {
 										size = { 100% 100% }
 										visible = "[GreaterThan_CFixedPoint( CombatWindow.GetAdvantage, '(CFixedPoint)40')]"
 
@@ -2804,7 +2804,7 @@ window = {
 											layoutpolicy_horizontal = expanding
 										}
 
-										icon_advantage_progressbar  = {
+										arrow_progressbar_icon  = {
 											layoutstretchfactor_horizontal = "[GetProgressBarValueMaxScaled( FixedPointToFloat( CombatWindow.GetAdvantage ), '(float)40', '(int32)145' )]"
 											layoutpolicy_horizontal = expanding
 											layoutpolicy_vertical = expanding
@@ -2856,7 +2856,7 @@ window = {
 										alpha = 0.8
 									}
 
-									icon_advantage_progressbar = {
+									arrow_progressbar_icon = {
 										size = { 100% 100% }
 										visible = "[LessThan_CFixedPoint( CombatWindow.GetAdvantage, '(CFixedPoint)-40')]"
 
@@ -2864,18 +2864,13 @@ window = {
 										{
 											using = Color_Red
 										}
-
-										blockoverride "modify_texture"
-										{
-											# rotate_uv = 180
-										}
 									}
 
 
 									hbox = {
 										visible = "[And(GreaterThanOrEqualTo_CFixedPoint( CombatWindow.GetAdvantage, '(CFixedPoint)-40'), LessThan_CFixedPoint( CombatWindow.GetAdvantage, '(CFixedPoint)0'))]"
 
-										icon_advantage_progressbar  = {
+										arrow_progressbar_icon  = {
 											layoutstretchfactor_horizontal = "[GetProgressBarValueMaxScaled( Multiply_float( FixedPointToFloat( CombatWindow.GetAdvantage ), '(float)-1'), '(float)40', '(int32)145' )]"
 											layoutpolicy_horizontal = expanding
 											layoutpolicy_vertical = expanding
@@ -2883,11 +2878,6 @@ window = {
 											blockoverride "color"
 											{
 												using = Color_Red
-											}
-
-											blockoverride "modify_texture"
-											{
-												# rotate_uv = 180
 											}
 										}
 
@@ -3532,63 +3522,6 @@ window = {
 
 types CombatWindow
 {
-	type icon_advantage_progressbar = icon {
-		size = { 0 0 }
-		texture = "gfx/interface/colors/white.dds"
-		shaderfile = "gfx/FX/pdxgui_repeat_texture.shader"
-		alpha = 0.7
-
-		block "color" {}
-
-		modify_texture = {
-			name = "arrows"
-			texture = "gfx/interface/window_combat/combat_advantage_progressbar.dds"
-			blend_mode = alphamultiply
-			spritetype = corneredtiled
-			texture_density = 2
-			spriteborder = { 0 5 }
-
-			block "modify_texture" {}
-		}
-
-		modify_texture = {
-			texture = "gfx/interface/component_masks/mask_fade_horizontal_short.dds"
-			blend_mode = alphamultiply
-			spritetype = corneredtiled
-			spriteborder_right = 6
-		}
-
-
-		state = {
-			name = a
-			next = b
-			trigger_on_create = yes
-
-			duration = 0
-
-			modify_texture = {
-				name = "arrows"
-				translate_uv = { 0 0 }
-			}
-		}
-
-		state = {
-			name = b
-			next = a
-			trigger_on_create = yes
-
-			duration = 4
-
-			modify_texture = {
-				name = "arrows"
-				block "animation_uv"
-				{
-					translate_uv = { -1 0 }
-				}
-			}
-		}
-	}
-
 	type animation_soldier_loss = icon {
 		widgetanchor = center
 		size = { 15 15 }
@@ -3758,7 +3691,6 @@ types CombatWindow
 	}
 
 	type maa_tooltip_widget = widget {
-		direction = vertical
 		alwaystransparent = no
 
 		widget = {
@@ -3810,7 +3742,7 @@ types CombatWindow
 				{
 					tooltip = "COMBAT_REGIMENT_PURSUIT_TT"
 					# fade out if 0
-					alpha = "[Select_float(GreaterThan_CFixedPoint(CombatMaaItem.GetStat( 'pursuit' ),'(CFixedPoint)0'), '(float)1.0','(float)0.4'))]"
+					alpha = "[Select_float(GreaterThan_CFixedPoint(CombatMaaItem.GetStat( 'pursuit' ),'(CFixedPoint)0'), '(float)1.0','(float)0.4')]"
 				}
 				blockoverride "screen_stat"
 				{
@@ -3820,7 +3752,7 @@ types CombatWindow
 				{
 					tooltip = "COMBAT_REGIMENT_SCREEN_TT"
 					# fade out if 0
-					alpha = "[Select_float(GreaterThan_CFixedPoint(CombatMaaItem.GetStat( 'screen' ),'(CFixedPoint)0'), '(float)1.0','(float)0.4'))]"
+					alpha = "[Select_float(GreaterThan_CFixedPoint(CombatMaaItem.GetStat( 'screen' ),'(CFixedPoint)0'), '(float)1.0','(float)0.4')]"
 				}
 			}
 
@@ -3895,16 +3827,20 @@ types CombatWindow
 			}
 
 			text_single = {
+				visible = "[And( And( CombatWindow.IsCombatInPursuitPhase, GreaterThan_CFixedPoint( CombatMaaItem.GetStat( 'screen' ), '(CFixedPoint)0' ) ), Not( CombatSide.IsStillFighting ) )]"
+
 				margin = { 10 0 }
 				layoutpolicy_horizontal = expanding
-				visible = "[And(And(CombatWindow.IsCombatInPursuitPhase, GreaterThan_CFixedPoint(MenAtArmsType.GetStat(GetPlayer, 'screen'), '(CFixedPoint)0')), Not( CombatSide.IsStillFighting ) )]"
+
 				text = "COMBAT_WINDOW_MAA_TT_SCREEN"
 			}
 
 			text_single = {
+				visible = "[And( And(CombatWindow.IsCombatInPursuitPhase, GreaterThan_CFixedPoint( CombatMaaItem.GetStat( 'pursuit' ), '(CFixedPoint)0')), CombatSide.IsStillFighting )]"
+
 				margin = { 10 0 }
 				layoutpolicy_horizontal = expanding
-				visible = "[And( And(CombatWindow.IsCombatInPursuitPhase, GreaterThan_CFixedPoint(MenAtArmsType.GetStat(GetPlayer, 'pursuit'), '(CFixedPoint)0')), CombatSide.IsStillFighting )]"
+
 				text = "COMBAT_WINDOW_MAA_TT_PURSUIT"
 			}
 		}

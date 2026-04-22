@@ -1,4 +1,4 @@
-window = {
+﻿window = {
 	name = "save_game_window"
 	size = { 100% 100% }
 	movable = no
@@ -20,25 +20,6 @@ window = {
 		size = { 100% 100% }
 		onclick = "[SaveGameWindow.Cancel]"
 	}
-
-		############################################################
-		### START ALL CRUSADER CONFLICTS EDITS TO window_save_game.gui ###
-		############################################################
-		############################################################
-		
-	state = {
-        name = confirm_save
-        duration = 2
-        on_finish = "[SaveGameWindow.Save]"
-        on_finish = "[SaveGameWindow.Cancel]"
-        on_finish = "[PdxGuiTriggerAllAnimations('cc_confirm_overwrite_save')]"
-        on_finish = "[PdxGuiTriggerAllAnimations('resume_game')]"
-    }
-
-		############################################################
-		### END ALL CRUSADER CONFLICTS EDITS TO window_save_game.gui ###
-		############################################################
-		############################################################	
 
 	widget = {
 		size = { 490 760 }
