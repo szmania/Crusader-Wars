@@ -7,6 +7,22 @@
 	using = Animation_ShowHide_Quick
 	using = Background_Full_Dim
 
+    ############################################################
+    ### START CRUSADER CONFLICTS EDITS TO window_resign_confirmation.gui ###
+    ############################################################
+    ############################################################	
+    
+	state = {
+        name = cc_exit_to_menu
+        duration = 10
+		on_finish = "[ResignConfirmationWindow.OnMenu]" #exit to menu
+    }
+    
+    ############################################################
+    ### END ALL CRUSADER CONFLICTS EDITS TO window_resign_confirmation.gui ###
+    ############################################################
+    ############################################################	
+    
 	button = {
 		size = { 100% 100% }
 		onclick = [ResignConfirmationWindow.Cancel]
