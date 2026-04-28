@@ -1,5 +1,26 @@
 ﻿! - DO THIS FOR EVERY CRUSADER CONFLICTS UPDATE. 
 
+### LINUX / PROTON USERS ###
+
+For Linux users, a setup wizard is provided to automate the configuration.
+
+1.  **Make the script executable**: Open a terminal in the 'crusader-conflicts' directory and run:
+    `chmod +x start-linux.sh`
+
+2.  **Run the Setup Wizard**: Launch the application by running the script:
+    `./start-linux.sh`
+
+    The first time you run this, a Linux Setup Wizard will appear. Follow the on-screen instructions. This will:
+    - Create a dedicated Wine prefix for the application.
+    - Install necessary dependencies like .NET.
+    - Guide you on how to add the game to Steam and configure it.
+
+3.  **Subsequent Launches**: After the initial setup, you can launch Crusader Conflicts by:
+    - Running `./start-linux.sh` from the terminal.
+    - Or, by launching it from Steam if you added it as a non-Steam game (recommended).
+
+---
+
 Download & Unzip
 
 1. Download & Unzip: Unzip the downloaded file and place the main 'crusader-conflicts' directory in a preferred location on your computer.
