@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -50,7 +50,7 @@ function remaining_soldiers()
         {
             var left_side = DeclarationsFile.GetLeftSideArmies();
             var right_side = DeclarationsFile.GetRightSideArmies();
-            
+
             // Add null checks for the lists to prevent CS8602 warnings
             if (left_side == null) left_side = new List<Army>();
             if (right_side == null) right_side = new List<Army>();
@@ -63,8 +63,9 @@ function remaining_soldiers()
             scriptBuilder.AppendLine("function commander_system()");
 
 
-            for (int i = 1; i <= left_side.Count; i++) {
-                var army = left_side[i-1]; // Get army once
+            for (int i = 1; i <= left_side.Count; i++)
+            {
+                var army = left_side[i - 1]; // Get army once
                 if (army?.Commander != null) // Null-conditional check for army and Commander
                 {
                     Program.Logger.Debug($"Adding commander death check for left side army {army.ID?.ToString() ?? "unknown"}, commander {army.Commander.ID?.ToString() ?? "unknown"}");
@@ -77,7 +78,7 @@ function remaining_soldiers()
             }
             for (int i = 1; i <= right_side.Count; i++)
             {
-                var army = right_side[i-1]; // Get army once
+                var army = right_side[i - 1]; // Get army once
                 if (army?.Commander != null) // Null-conditional check for army and Commander
                 {
                     Program.Logger.Debug($"Adding commander death check for right side army {army.ID?.ToString() ?? "unknown"}, commander {army.Commander.ID?.ToString() ?? "unknown"}");

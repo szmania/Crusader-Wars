@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -439,7 +439,7 @@ namespace CrusaderWars.data.battle_results
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
-                            bool hasFallen = (searchData.isCommander && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight.HasFallen());
+                            bool hasFallen = (searchData.isCommander && searchData.commander != null && searchData.commander.hasFallen) || (searchData.isKnight && searchData.knight != null && searchData.knight.HasFallen());
                             if (hasFallen)
                             {
                                 string? traitsLine = charBlock.FirstOrDefault(l => l.Trim().StartsWith("traits={"));
@@ -449,14 +449,14 @@ namespace CrusaderWars.data.battle_results
                                     bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
                                                            (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
 
-                                    (bool isSlain, bool isCaptured, string newTraits) healthResult;
-                                    if (searchData.isCommander)
+                                    (bool isSlain, bool isCaptured, string newTraits) healthResult = (false, false, traitsLine);
+                                    if (searchData.isCommander && searchData.commander != null)
                                     {
                                         healthResult = searchData.commander.Health(traitsLine, wasOnLosingSide);
                                         searchData.commander.IsSlain = healthResult.isSlain;
                                         searchData.commander.IsPrisoner = healthResult.isCaptured;
                                     }
-                                    else // isKnight
+                                    else if (searchData.isKnight && searchData.knight != null) // isKnight
                                     {
                                         healthResult = searchData.knight.Health(traitsLine, wasOnLosingSide);
                                         searchData.knight.IsSlain = healthResult.isSlain;
@@ -549,7 +549,7 @@ namespace CrusaderWars.data.battle_results
                         int contractBraceCount = 0;
                         startIndex += "vassal_contracts={".Length;
                         var endIndex = startIndex;
-                        
+
                         // Use brace counting to find the matching closing brace
                         for (int i = startIndex; i < landedBlockStr.Length; i++)
                         {
@@ -565,7 +565,7 @@ namespace CrusaderWars.data.battle_results
                                 contractBraceCount--;
                             }
                         }
-                        
+
                         if (endIndex > startIndex)
                         {
                             var contractsContent = landedBlockStr.Substring(startIndex, endIndex - startIndex);
@@ -600,7 +600,8 @@ namespace CrusaderWars.data.battle_results
         {
             Program.Logger.Debug("Editing Living file...");
             var allArmies = attacker_armies.Concat(defender_armies).ToList();
-            string playerCharId = DataSearch.Player_Character.GetID();
+            string? playerCharId = DataSearch.Player_Character?.GetID();
+            if (playerCharId is null) { return; }
             string? playerHeirId = DataSearch.Player_Heir_ID;
 
             // --- Determine which combat side corresponds to the "left" side from CK3 log data ---
@@ -624,7 +625,7 @@ namespace CrusaderWars.data.battle_results
             {
                 playerIsSlain = allArmies.Any(a => a.Knights?.GetKnightsList().Any(k => k.GetID() == playerCharId && k.IsSlain) ?? false);
             }
-            if(playerIsSlain) Program.Logger.Debug($"Player character {playerCharId} was slain.");
+            if (playerIsSlain) Program.Logger.Debug($"Player character {playerCharId} was slain.");
 
             EditPlayerCharacterFiles(playerIsSlain, playerHeirId);
 
@@ -644,7 +645,7 @@ namespace CrusaderWars.data.battle_results
             {
                 streamWriter.NewLine = "\n";
                 string? line;
-                
+
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     if (Regex.IsMatch(line, @"^\d+={")) // Start of a character block
@@ -663,8 +664,8 @@ namespace CrusaderWars.data.battle_results
                         var searchData = SearchCharacters(char_id, allArmies);
                         if (searchData.searchStarted && searchData.army != null)
                         {
-                            bool isSlain = (searchData.isCommander && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight.HasFallen());
-                            bool isCaptured = (searchData.isCommander && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight.IsPrisoner);
+                            bool isSlain = (searchData.isCommander && searchData.commander != null && searchData.commander.IsSlain) || (searchData.isKnight && searchData.knight != null && searchData.knight.HasFallen());
+                            bool isCaptured = (searchData.isCommander && searchData.commander != null && searchData.commander.IsPrisoner) || (searchData.isKnight && searchData.knight != null && searchData.knight.IsPrisoner);
 
                             // Remove court_data if employer was slain
                             int courtDataIdx = charBlock.FindIndex(l => l.Trim() == "court_data={");
@@ -675,7 +676,7 @@ namespace CrusaderWars.data.battle_results
                                 {
                                     string employerId = Regex.Match(charBlock[employerLineIdx], @"employer=(\d+)").Groups[1].Value;
                                     var employerSearch = SearchCharacters(employerId, allArmies);
-                                    bool employerSlain = (employerSearch.isCommander && employerSearch.commander.IsSlain) || (employerSearch.isKnight && employerSearch.knight.HasFallen());
+                                    bool employerSlain = (employerSearch.isCommander && employerSearch.commander != null && employerSearch.commander.IsSlain) || (employerSearch.isKnight && employerSearch.knight != null && employerSearch.knight.HasFallen());
 
                                     if (employerSlain)
                                     {
@@ -769,7 +770,7 @@ namespace CrusaderWars.data.battle_results
                             if (isSlain)
                             {
                                 Program.Logger.Debug($"Character {char_id} was slain. Adding dead_data block and removing alive_data and landed_data blocks.");
-                                
+
                                 // Remove landed_data
                                 int landedIdx = charBlock.FindIndex(l => l.Trim() == "landed_data={");
                                 if (landedIdx != -1)
@@ -847,18 +848,18 @@ namespace CrusaderWars.data.battle_results
                             }
                             else // Not slain, but could be wounded and/or captured
                             {
-                                (bool _, bool __, string newTraits) healthResult;
                                 bool wasOnLosingSide = (searchData.army.CombatSide == "attacker" && !IsAttackerVictorious) ||
                                                        (searchData.army.CombatSide == "defender" && IsAttackerVictorious);
-                                
+
                                 int traitsLineIndex = charBlock.FindIndex(l => l.Trim().StartsWith("traits={"));
                                 if (traitsLineIndex != -1)
                                 {
-                                    if (searchData.isCommander)
+                                    (bool _, bool __, string newTraits) healthResult = (false, false, charBlock[traitsLineIndex]);
+                                    if (searchData.isCommander && searchData.commander != null)
                                     {
                                         healthResult = searchData.commander.Health(charBlock[traitsLineIndex], wasOnLosingSide);
                                     }
-                                    else // isKnight
+                                    else if (searchData.isKnight && searchData.knight != null) // isKnight
                                     {
                                         healthResult = searchData.knight.Health(charBlock[traitsLineIndex], wasOnLosingSide);
                                     }
@@ -1125,7 +1126,7 @@ namespace CrusaderWars.data.battle_results
                 if (dateIdx != -1) transferData.LandedDataBlock[dateIdx] = newDateLine;
                 else transferData.LandedDataBlock.Insert(1, newDateLine);
 
-                int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}") ;
+                int insertPos = charBlock.FindLastIndex(l => l.Trim() == "}");
                 if (insertPos != -1) charBlock.InsertRange(insertPos, transferData.LandedDataBlock);
             }
             else
@@ -1143,12 +1144,14 @@ namespace CrusaderWars.data.battle_results
                     if (bCount == 0) { endIdx = i; break; }
                 }
 
-                Func<List<string>, string, string> getField = (block, field) => {
+                Func<List<string>, string, string> getField = (block, field) =>
+                {
                     var line = block.FirstOrDefault(l => l.Trim().StartsWith(field + "={"));
                     return line != null ? Regex.Match(line, field + @"=\{\s*(.*?)\s*\}").Groups[1].Value : "";
                 };
 
-                Action<List<string>, string, string> setField = (block, field, val) => {
+                Action<List<string>, string, string> setField = (block, field, val) =>
+                {
                     int idx = block.FindIndex(l => l.Trim().StartsWith(field + "={"));
                     if (idx != -1) block[idx] = Regex.Replace(block[idx], field + @"=\{.*?\}", field + "={ " + val + " }");
                 };
@@ -1196,7 +1199,7 @@ namespace CrusaderWars.data.battle_results
                     string line = playableBlock[knightsIdx];
                     var ids = Regex.Match(line, @"knights=\{\s*(.*?)\s*\}").Groups[1].Value
                         .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    
+
                     if (ids.Remove(successorId))
                     {
                         string indentation = line.Substring(0, line.IndexOf("knights="));
@@ -1346,7 +1349,7 @@ namespace CrusaderWars.data.battle_results
                         }
 
                         bool isModified = false;
-                        
+
                         int vassalIdx = block.FindIndex(l => l.Trim().StartsWith("vassal="));
                         int liegeIdx = block.FindIndex(l => l.Trim().StartsWith("liege="));
 
@@ -1537,7 +1540,7 @@ namespace CrusaderWars.data.battle_results
                 Program.Logger.Debug($"Updated main character ID to heir ID {playerHeirId}.");
 
                 string newLegacyEntry = $"\t\t{{\n\t\t\tcharacter={playerHeirId}\n\t\t\tdate={Date.Year}.{Date.Month}.{Date.Day}\n\t\t\twars={{ 0 0 0 0 }}\n\t\t}}";
-                
+
                 // Corrected Regex: Use a lookahead to find the closing brace of the legacy block,
                 // which is followed by another property. This is more robust than assuming it's at the end of the file.
                 Regex legacyRegex = new Regex(@"(legacy\s*=\s*{[\s\S]*?)(?=\s*\}\s*\w+\s*=)", RegexOptions.Multiline);
@@ -1548,7 +1551,7 @@ namespace CrusaderWars.data.battle_results
                     // Check if the last non-whitespace character in the matched group is a closing brace.
                     // If so, we need to add a space. Otherwise, we add a newline and tab.
                     string separator = legacyMatch.Groups[1].Value.TrimEnd().EndsWith("}") ? " " : "\n\t\t";
-                    
+
                     // The lookahead in the regex ensures we don't consume the closing brace.
                     // We replace the matched part (everything up to the brace) with itself plus the new entry.
                     string replacement = $"{legacyMatch.Groups[1].Value}{separator}{newLegacyEntry}";
@@ -1582,12 +1585,12 @@ namespace CrusaderWars.data.battle_results
             // --- STAGE 1: Calculate Battle Impact Score (0-100) ---
 
             // 1.1: Calculate Casualty Rates
-            double totalLosingStart = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
-            double totalLosingEnd = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double totalLosingStart = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalLosingEnd = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
             double loserCasualtyRate = (totalLosingStart > 0) ? (totalLosingStart - totalLosingEnd) / totalLosingStart : 0;
 
-            double totalWinningStart = winningArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
-            double totalWinningEnd = winningArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
+            double totalWinningStart = winningArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetStarting());
+            double totalWinningEnd = winningArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>()).Sum(r => r.GetAliveAfterPursuit() != -1 ? r.GetAliveAfterPursuit() : r.GetAliveBeforePursuit());
             double winnerCasualtyRate = (totalWinningStart > 0) ? (totalWinningStart - totalWinningEnd) / totalWinningStart : 0;
 
             // 1.2: Calculate Impact Components
@@ -1595,7 +1598,7 @@ namespace CrusaderWars.data.battle_results
             double victoryMarginImpact = Math.Max(0, loserCasualtyRate - winnerCasualtyRate) * 30.0;
             double characterImpact = 0;
 
-            foreach (var army in losingArmies)
+            foreach (var army in losingArmies.Where(a => a != null))
             {
                 if (army.Commander != null)
                 {
@@ -1642,15 +1645,15 @@ namespace CrusaderWars.data.battle_results
         private static double CalculatePrestige(double warScore, List<Army> losingArmies)
         {
             // Calculate total size of losing armies from their starting casualties
-            double totalLosingArmySize = losingArmies.SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>())
+            double totalLosingArmySize = losingArmies.Where(a => a != null).SelectMany(a => a.CasualitiesReports ?? Enumerable.Empty<UnitCasualitiesReport>())
                                                      .Sum(r => (double)r.GetStarting());
 
             // Calculate prestige based on war score and size of defeated force
             double prestige = (warScore * 5.0) + (totalLosingArmySize / 200.0);
-            
+
             // Clamp prestige to reasonable values
             prestige = Math.Max(5.0, Math.Min(500.0, prestige));
-            
+
             Program.Logger.Debug($"Calculated prestige award: {prestige:F2} (War Score: {warScore:F2}, Losing Army Size: {totalLosingArmySize:F0})");
             return prestige;
         }
@@ -1658,7 +1661,7 @@ namespace CrusaderWars.data.battle_results
         public static void EditCombatResultsFile(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Editing Combat Results file...");
-            
+
             // Use pre-calculated war score if available, otherwise calculate it
             double newWarScore;
             if (WarScoreValue.HasValue)
@@ -1673,10 +1676,10 @@ namespace CrusaderWars.data.battle_results
                 WarScoreValue = newWarScore;
                 Program.Logger.Debug($"Calculated war score (fallback): {newWarScore}");
             }
-            
+
             // Determine winning side value (0 for attacker, 1 for defender)
             string winningSideValue = IsAttackerVictorious ? "0" : "1";
-            
+
             // Determine the winning participant ID
             string winningParticipantId = "";
             var left_side_armies = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
@@ -1704,10 +1707,10 @@ namespace CrusaderWars.data.battle_results
                     winningParticipantId = CK3LogData.RightSide.GetMainParticipant().id;
                 }
             }
-            
+
             // Determine losing armies for prestige calculation
             var losingArmies = IsAttackerVictorious ? defender_armies : attacker_armies;
-            
+
             // Calculate prestige to award
             double prestigeAward = CalculatePrestige(newWarScore, losingArmies);
 
@@ -1761,21 +1764,21 @@ namespace CrusaderWars.data.battle_results
                                 streamWriter.WriteLine($"\t\t\twar_score={newWarScore.ToString("F4", CultureInfo.InvariantCulture)}");
                                 Program.Logger.Debug($"Added war_score: {newWarScore:F4}");
                             }
-                            
+
                             streamWriter.WriteLine($"\t\t\twinning_side={winningSideValue}");
                             streamWriter.WriteLine($"\t\t\tend_date={Date.Year}.{Date.Month}.{Date.Day}");
-                            
+
                             // Write the prestige result block
                             streamWriter.WriteLine("\t\t\tresult={");
                             streamWriter.WriteLine($"\t\t\t\tprestige={prestigeAward:F2}");
                             streamWriter.WriteLine("\t\t\t}");
-                            
+
                             streamWriter.WriteLine($"\t\t\twin={winningParticipantId}");
                             streamWriter.WriteLine($"\t\t\tleader={winningParticipantId}");
-                            
+
                             inPlayerCombatResultBlock = false;
                             Program.Logger.Debug($"Exiting player combat result block ID: {BattleResult.ResultID}");
-                            
+
                             // Reset all state variables to prevent them from affecting other parts of the file
                             isAttacker = false;
                             isDefender = false;
@@ -1927,7 +1930,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -1965,7 +1968,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -1981,7 +1984,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -1997,7 +2000,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2063,7 +2066,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_kills="))
                                 {
                                     int main_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2101,7 +2104,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_kills="))
                                 {
                                     int pursuit_kills = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2117,7 +2120,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tmain_losses="))
                                 {
                                     int main_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2133,7 +2136,7 @@ namespace CrusaderWars.data.battle_results
                                 else if (!isKnight && line.Contains("\t\t\t\t\t\tpursuit_losses_maa="))
                                 {
                                     int pursuit_losses = 0;
-                                    if (currentArmy != null)
+                                    if (currentArmy != null && !string.IsNullOrEmpty(regimentType))
                                     {
                                         var results = currentArmy.UnitsResults;
                                         if (results != null)
@@ -2486,7 +2489,7 @@ namespace CrusaderWars.data.battle_results
                                 string origin = editRegiment?.Origin ?? "";
                                 bool isMerc = editRegiment?.isMercenary() ?? false;
                                 streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
-                                
+
                                 // Skip the original block until the closing brace
                                 int braceCount = 1;
                                 while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
@@ -2510,7 +2513,7 @@ namespace CrusaderWars.data.battle_results
                             string origin = editRegiment.Origin ?? "";
                             bool isMerc = editRegiment.isMercenary();
                             streamWriter.Write(GetChunksText(max, owner, current, origin, isMerc));
-                            
+
                             // Skip the rest of the original block until the closing brace
                             int braceCount = 1; // We are already inside the block
                             while (braceCount > 0 && (line = streamReader.ReadLine()) != null)
@@ -2529,7 +2532,7 @@ namespace CrusaderWars.data.battle_results
                         index++;
                         if (editRegiment != null && string.IsNullOrEmpty(editRegiment.Index))
                             editRegiment.ChangeIndex("0");
-                        
+
                         if (editRegiment != null && index.ToString() == editRegiment.Index)
                         {
                             editIndex = true;
@@ -2626,7 +2629,7 @@ namespace CrusaderWars.data.battle_results
             if (File.Exists(path_log_attila))
             {
                 string attilaLogContent = File.ReadAllText(path_log_attila);
-                
+
                 // Normalize line endings for consistent searching
                 attilaLogContent = attilaLogContent.Replace("\r\n", "\n");
 
@@ -2640,7 +2643,7 @@ namespace CrusaderWars.data.battle_results
                     "--\n" +
                     "--------------------------------------------------------\n" +
                     "--------------------------------------------------------";
-                
+
                 int lastHeaderIndex = attilaLogContent.LastIndexOf(battleReportHeader);
 
                 if (lastHeaderIndex != -1)
@@ -2771,10 +2774,13 @@ namespace CrusaderWars.data.battle_results
                             }
 
                             string outcomeLog = "";
-                            if (isPlayerBesieged) {
+                            if (isPlayerBesieged)
+                            {
                                 // In a sally-out, the garrison is the attacker. We know the player is the garrison.
                                 outcomeLog = IsAttackerVictorious ? "Player (garrison) won sally-out." : "Besieger won against player's sally-out.";
-                            } else {
+                            }
+                            else
+                            {
                                 outcomeLog = "Besieger lost assault.";
                             }
                             Program.Logger.Debug($"{outcomeLog} Garrison casualties: {initialGarrisonSize - finalGarrisonSize} ({casualtyPercentage:P2}). Calculating siege progress gain.");
@@ -2905,7 +2911,7 @@ namespace CrusaderWars.data.battle_results
                     $"Sieges.txt for siege ID {SiegeID} was read, but the target siege block was not found.");
             }
         }
-        
+
         public static (string outcome, string wall_damage) GetSiegeOutcome(string path_attila_log, string left_side_combat_side, string right_side_combat_side)
         {
             Program.Logger.Debug($"Entering GetSiegeOutcome for log file: {path_attila_log}");
@@ -3055,7 +3061,7 @@ namespace CrusaderWars.data.battle_results
             try
             {
                 string warsContent = File.ReadAllText(Writter.DataFilesPaths.Wars_Path());
-                
+
                 string warBlockPattern = $@"^\t\t{WarID}={{([\s\S]*?)^\t\t}}";
                 Match warBlockMatch = Regex.Match(warsContent, warBlockPattern, RegexOptions.Multiline);
 
@@ -3094,7 +3100,7 @@ namespace CrusaderWars.data.battle_results
                     File.Copy(Writter.DataFilesPaths.Wars_Path(), Writter.DataTEMPFilesPaths.Wars_Path(), true);
                     return;
                 }
-                
+
                 string leftSideParticipantId = CK3LogData.LeftSide.GetMainParticipant().id;
                 bool isLeftSideWarAttacker = warAttackerIds.Contains(leftSideParticipantId);
 
@@ -3114,7 +3120,7 @@ namespace CrusaderWars.data.battle_results
                 // Construct the new battle result entry with proper formatting
                 string attackerWon = winnerIsWarAttacker ? "yes" : "no";
                 string attackerInitiated = isLeftSideWarAttacker ? "yes" : "no";
-                
+
                 var newBattleResultEntry = new StringBuilder();
                 newBattleResultEntry.AppendLine("\t\t\t\t{");
                 newBattleResultEntry.AppendLine($"\t\t\t\t\tattacker={{ commander={warAttackerCommanderId} owner={warAttackerOwnerId} size=0 }}");
@@ -3186,7 +3192,7 @@ namespace CrusaderWars.data.battle_results
                         newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
                         newBattleResultsBlock.AppendLine(newBattleResultEntry.ToString()); // Use pre-formatted entry
                         newBattleResultsBlock.Append("\t\t\t}");
-                        
+
                         warBlockContent = warBlockContent.Insert(attackerBlockIndex, newBattleResultsBlock.ToString());
                         Program.Logger.Debug($"Created new battle_results list and added entry for WarID {WarID}.");
                     }
@@ -3198,7 +3204,7 @@ namespace CrusaderWars.data.battle_results
                         newBattleResultsBlock.AppendLine("\t\t\tbattle_results={");
                         newBattleResultsBlock.AppendLine(newBattleResultEntry.ToString()); // Use pre-formatted entry
                         newBattleResultsBlock.Append("\t\t\t}");
-                        
+
                         warBlockContent = warBlockContent.Insert(warBlockContent.LastIndexOf('}'), newBattleResultsBlock.ToString());
                     }
                 }
@@ -3278,13 +3284,14 @@ namespace CrusaderWars.data.battle_results
             }
 
             string opinionsBody = content.Substring(bodyStartIndex, bodyEndIndex - bodyStartIndex);
-            
+
             StringBuilder newOpinionsBody = new StringBuilder();
             int cursor = 0;
-            while(cursor < opinionsBody.Length)
+            while (cursor < opinionsBody.Length)
             {
                 int blockStart = opinionsBody.IndexOf('{', cursor);
-                if (blockStart == -1) {
+                if (blockStart == -1)
+                {
                     newOpinionsBody.Append(opinionsBody.Substring(cursor));
                     break;
                 }
@@ -3296,22 +3303,24 @@ namespace CrusaderWars.data.battle_results
                 {
                     if (opinionsBody[i] == '{') innerBraceCount++;
                     else if (opinionsBody[i] == '}') innerBraceCount--;
-                    if (innerBraceCount == 0) {
+                    if (innerBraceCount == 0)
+                    {
                         blockEnd = i;
                         break;
                     }
                 }
 
-                if (blockEnd == -1) {
+                if (blockEnd == -1)
+                {
                     newOpinionsBody.Append(opinionsBody.Substring(blockStart));
                     Program.Logger.Debug("Warning: Unmatched brace in an inner opinion block. Appending rest of content as is.");
                     break;
                 }
 
                 string opinionBlock = opinionsBody.Substring(blockStart, blockEnd - blockStart + 1);
-                
-                bool needsDeletion = slainCharIds.Any(id => 
-                    Regex.IsMatch(opinionBlock, $@"owner\s*=\s*{id}") || 
+
+                bool needsDeletion = slainCharIds.Any(id =>
+                    Regex.IsMatch(opinionBlock, $@"owner\s*=\s*{id}") ||
                     Regex.IsMatch(opinionBlock, $@"target\s*=\s*{id}")
                 );
 
@@ -3334,7 +3343,7 @@ namespace CrusaderWars.data.battle_results
                         }
                     }
                 }
-                
+
                 newOpinionsBody.Append(opinionBlock);
                 cursor = blockEnd + 1;
             }

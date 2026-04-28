@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +19,7 @@ namespace CrusaderWars
         public static void AutoSizeUnits(int total_soldiers)
         {
             Program.Logger.Debug($"AutoSizeUnits called with total_soldiers: {total_soldiers}");
-            if(ModOptions.GetBattleScale() == 0)
+            if (ModOptions.GetBattleScale() == 0)
             {
                 if (total_soldiers <= 10000)
                 {

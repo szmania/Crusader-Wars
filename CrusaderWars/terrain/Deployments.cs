@@ -131,7 +131,7 @@ namespace CrusaderWars.terrain
                 }
             }
         }
- 
+
         static string attacker_direction = "", defender_direction = "";
         static string? attacker_deployment, defender_deployment = "";
 
@@ -152,7 +152,7 @@ namespace CrusaderWars.terrain
             //Defined directions battle maps
             else
             {
-                if(useRotatedDeployment)
+                if (useRotatedDeployment)
                 {
                     int defender_index = _random.Next(0, battle_map.attacker_dir.Length);
                     defender_direction = battle_map.attacker_dir[defender_index];
@@ -222,7 +222,7 @@ namespace CrusaderWars.terrain
         public static string? beta_GetDeployment(string combat_side)
         {
 
-            switch(combat_side)
+            switch (combat_side)
             {
                 case "attacker":
                     return attacker_deployment;
@@ -267,7 +267,7 @@ namespace CrusaderWars.terrain
         public string Height { get; private set; }
 
         //MAP SIZE OPTION
-        string MapSize { get; set; }
+        string MapSize { get; set; } = string.Empty;
 
         public float MinX { get; private set; }
         public float MaxX { get; private set; }
@@ -438,7 +438,7 @@ namespace CrusaderWars.terrain
                 string width_str = BattleStateBridge.BesiegedDeploymentWidth ?? "1500";
                 float.TryParse(width_str, NumberStyles.Any, CultureInfo.InvariantCulture, out float width);
                 float defender_radius = width / 2f;
-                
+
                 float depth = playable_boundary - defender_radius - buffer;
                 return depth < 50f ? 50f : depth; // ensure minimum depth
             }
@@ -458,7 +458,7 @@ namespace CrusaderWars.terrain
     class UnitsDeploymentsPosition
     {
         //UNITS DEPLOYMENT AREA DEFAULT POSITION
-        public int X {  get; private set; }
+        public int X { get; private set; }
         public int Y { get; private set; }
 
         //DEPLOYMENT AREA DIRECTION
@@ -467,7 +467,7 @@ namespace CrusaderWars.terrain
         //MAP SIZE USER OPTION
         private string MapSize { get; set; }
 
-        private DeploymentArea _deploymentArea;
+        private DeploymentArea _deploymentArea = new DeploymentArea("N", "Medium", 0);
 
         /// <summary>
         /// Dynamic constructor for units positioning
@@ -475,7 +475,7 @@ namespace CrusaderWars.terrain
         /// <param name="direction"></param>
         /// <param name="option_map_size"></param>
         /// <param name="total_soldiers"></param>
-        public UnitsDeploymentsPosition(string direction, string option_map_size, int total_soldiers, bool isReinforcement = false) 
+        public UnitsDeploymentsPosition(string direction, string option_map_size, int total_soldiers, bool isReinforcement = false)
         {
             Direction = direction;
             MapSize = option_map_size;
@@ -529,6 +529,7 @@ namespace CrusaderWars.terrain
             Y = y;
             Direction = string.Empty; // Initialize Direction
             MapSize = string.Empty;   // Initialize MapSize
+            _deploymentArea = new DeploymentArea("N", "Medium", 0); // Initialize to default
             // _deploymentArea is not initialized here, as this constructor is for default values, not dynamic deployment.
             // If this constructor is used for units that need boundary checks, _deploymentArea would need to be passed or initialized differently.
             // For now, assuming this constructor is for fixed positions not requiring dynamic boundary checks.
@@ -592,7 +593,7 @@ namespace CrusaderWars.terrain
         private void BattleMap(string option_map_size, int total_soldiers)
         {
             string map_size_source = BattleState.AutofixDeploymentSizeOverride ?? option_map_size;
-            if(map_size_source == "Dynamic")
+            if (map_size_source == "Dynamic")
             {
                 if (BattleState.IsSiegeBattle)
                 {
@@ -635,7 +636,7 @@ namespace CrusaderWars.terrain
             }
             else if (Direction == "S")
             {
-                Direction= "N";
+                Direction = "N";
             }
             else if (Direction == "E")
             {

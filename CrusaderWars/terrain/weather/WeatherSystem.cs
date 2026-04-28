@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +9,8 @@ namespace CrusaderWars.terrain
 {
     public static class Weather
     {
-        public static string? Season { get;private set; }
-        public static bool HasWinter { get;private set; }
+        public static string? Season { get; private set; }
+        public static bool HasWinter { get; private set; }
         public static WinterSeverity Winter_Severity { get; private set; }
 
         struct MildWinter
@@ -25,7 +25,7 @@ namespace CrusaderWars.terrain
                                         "Weather\\default\\default\\land\\day\\snow\\spring_snow_3.environment"};
             }
         };
-       
+
         struct NormalWinter
         {
             public static List<string> GetWeathers()
@@ -122,7 +122,7 @@ namespace CrusaderWars.terrain
         }
 
 
-        public static void SetSeason(string season) 
+        public static void SetSeason(string season)
         {
             Reset();
             Season = season;
@@ -150,7 +150,7 @@ namespace CrusaderWars.terrain
             //! - chinese is missing here
 
             WinterSeverity severity;
-            switch(winterSeverity)
+            switch (winterSeverity)
             {
                 case "Mild":
                 case "suave":
@@ -176,19 +176,20 @@ namespace CrusaderWars.terrain
                 case "严酷的":
                     severity = WinterSeverity.Harsh;
                     break;
-                default: 
-                    severity = WinterSeverity.None; 
+                default:
+                    severity = WinterSeverity.None;
                     break;
             }
 
-            if (severity != WinterSeverity.None) 
+            if (severity != WinterSeverity.None)
             {
                 HasWinter = true;
-                Winter_Severity = severity; 
+                Winter_Severity = severity;
                 return;
-            
-            } else { HasWinter = false; }
-            
+
+            }
+            else { HasWinter = false; }
+
         }
 
         static void Reset()
@@ -218,7 +219,7 @@ namespace CrusaderWars.terrain
             Random random = new Random();
             if (HasWinter)
             {
-                switch(Winter_Severity)
+                switch (Winter_Severity)
                 {
                     case WinterSeverity.Mild:
                         List<string> list_mild_winter = MildWinter.GetWeathers();
@@ -240,7 +241,7 @@ namespace CrusaderWars.terrain
                 }
             }
 
-            if(Season != null) 
+            if (Season != null)
             {
                 switch (Season)
                 {

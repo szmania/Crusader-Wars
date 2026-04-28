@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -25,17 +25,17 @@ namespace CrusaderWars.data.save_file
 
         public static bool SearchCounty(string county_key, List<Army> armies)
         {
-            foreach(Army army in armies)
+            foreach (Army army in armies)
             {
-                foreach(ArmyRegiment armyRegiment in army.ArmyRegiments)
+                foreach (ArmyRegiment armyRegiment in army.ArmyRegiments)
                 {
                     if (armyRegiment.Regiments == null)
                         continue;
 
-                    foreach(Regiment regiment in armyRegiment.Regiments)
+                    foreach (Regiment regiment in armyRegiment.Regiments)
                     {
                         //if county key is empty, skip
-                        if (string.IsNullOrEmpty(regiment.GetCountyKey()))
+                        if (string.IsNullOrEmpty(regiment.GetCountyKey()) || regiment.GetCountyKey() is null)
                         {
                             continue;
                         }
@@ -68,7 +68,7 @@ namespace CrusaderWars.data.save_file
 
                     foreach (Regiment regiment in armyRegiment.Regiments)
                     {
-                        string owner_id = regiment.Owner;
+                        string? owner_id = regiment.Owner;
                         if (!string.IsNullOrEmpty(owner_id))
                         {
                             if (temp_characters_cultures.Exists(t => t.char_id == owner_id))
@@ -270,11 +270,11 @@ namespace CrusaderWars.data.save_file
                             }
 
                             Culture? new_culture = army.Knights.GetKnightsList()?.Find(x => x.GetCultureObj() != null)?.GetCultureObj() ?? mainParticipantCulture;
-                            
+
                             string newCultureID = new_culture?.ID ?? "no_culture_found";
                             Program.Logger.Debug($"Knight {knight.GetID()} in army {army.ID} has null culture. Assigning fallback culture. " +
                                 $"Assigning fallback culture ID: {newCultureID}");
-                            
+
                             if (new_culture != null)
                             {
                                 knight.ChangeCulture(new_culture);
@@ -314,11 +314,11 @@ namespace CrusaderWars.data.save_file
             // Add detailed start log
             Program.Logger.Debug("START SetCulturesToAll: Applying culture names");
             Program.Logger.Debug($"Found {foundCultures.Count} cultures to apply");
-            
+
             foreach (Army army in armies)
             {
                 Program.Logger.Debug($"Applying to ARMY: {army.ID}");
-                
+
                 // Owner culture log
                 if (army.Owner?.GetCulture() != null && foundCultures.Exists(c => c.culture_id == army.Owner.GetCulture().ID))
                 {
@@ -372,7 +372,7 @@ namespace CrusaderWars.data.save_file
                             Program.Logger.Debug($"    SKIPPING NULL CULTURE REGIMENT: {regiment.ID}");
                             continue;
                         }
-                        
+
                         string regimentCultureID = regiment.Culture.ID;
                         if (foundCultures.Exists(c => c.culture_id == regimentCultureID))
                         {
@@ -404,7 +404,7 @@ namespace CrusaderWars.data.save_file
             Program.Logger.Debug("END SetCulturesToAll");
         }
 
-        
+
         /*##############################################
          *####                  Unit                #### 
          *####--------------------------------------####
@@ -628,7 +628,8 @@ namespace CrusaderWars.data.save_file
             var organizedUnits = new List<Unit>();
 
             // Group units by Name and Culture
-            var groupedUnits = units.GroupBy(u => new {
+            var groupedUnits = units.GroupBy(u => new
+            {
                 Name = u.GetName(),
                 Culture = u.GetCulture(),
                 Type = u.GetRegimentType(),
@@ -645,7 +646,7 @@ namespace CrusaderWars.data.save_file
 
                 // Create a new Unit with the merged NumberOfSoldiers
                 Unit mergedUnit = new Unit(group.Key.Name, totalSoldiers, group.First().GetObjCulture(), group.Key.Type, isMerc, owner);
-                
+
                 organizedUnits.Add(mergedUnit);
             }
             Program.Logger.Debug($"Organized {units.Count} units into {organizedUnits.Count} merged units.");
@@ -777,7 +778,7 @@ namespace CrusaderWars.data.save_file
                     foreach (var component in composition)
                     {
                         int soldiersForComponent = (int)Math.Round(totalSoldiers * (component.percentage / 100.0));
-                        
+
                         if (soldiersForComponent > 0)
                         {
                             var newUnit = new Unit(component.name, soldiersForComponent, placeholder.GetObjCulture(), RegimentType.Levy, placeholder.IsMerc(), placeholder.GetOwner());
@@ -798,7 +799,7 @@ namespace CrusaderWars.data.save_file
                         var orderedUnits = distributedUnits.OrderByDescending(u => u.GetSoldiers()).ToList();
                         int soldiersToDistribute = soldierDifference;
                         int i = 0;
-                        while(soldiersToDistribute != 0)
+                        while (soldiersToDistribute != 0)
                         {
                             int soldiersToAdd = soldiersToDistribute > 0 ? 1 : -1;
                             orderedUnits[i].AddSoldiers(soldiersToAdd);
@@ -848,7 +849,7 @@ namespace CrusaderWars.data.save_file
                         }
                     }
                 }
-                
+
                 // Check Owner only (if not a commander or knight in this army)
                 if (isOwner)
                 {

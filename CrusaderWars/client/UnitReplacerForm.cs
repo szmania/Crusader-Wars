@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using CrusaderWars.twbattle;
 
 namespace CrusaderWars.client
 {
+    [SupportedOSPlatform("windows")]
     public partial class UnitReplacerForm : Form
     {
         private readonly List<Unit> _currentUnits;
@@ -30,10 +32,10 @@ namespace CrusaderWars.client
             InitializeComponent();
             _currentUnits = currentUnits;
             _allAvailableUnits = allAvailableUnits;
-            
+
             // Initialize the replacements dictionary
             Replacements = new Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)>();
-            
+
             // Initialize with existing replacements passed from BattleState
             if (existingReplacements != null)
             {
@@ -42,7 +44,7 @@ namespace CrusaderWars.client
                     Replacements[kvp.Key] = kvp.Value;
                 }
             }
-            
+
             _unitScreenNames = unitScreenNames ?? new Dictionary<string, string>();
             txtSearchCurrent.TextChanged += TxtSearchCurrent_TextChanged;
             txtSearchAvailable.TextChanged += TxtSearchAvailable_TextChanged;
@@ -54,6 +56,7 @@ namespace CrusaderWars.client
             tvAvailableUnits.BeforeSelect += TreeView_BeforeSelect;
         }
 
+        [SupportedOSPlatform("windows")]
         private void UnitReplacerForm_Load(object sender, EventArgs e)
         {
             PopulateCurrentUnitsTree();
@@ -88,7 +91,8 @@ namespace CrusaderWars.client
                     // --- Process Non-Levy Units ---
                     var nonLevyUnits = factionGroup.Where(u => u.GetRegimentType() != RegimentType.Levy);
                     var groupedForDisplay = nonLevyUnits
-                        .GroupBy(u => {
+                        .GroupBy(u =>
+                        {
                             var type = u.GetRegimentType();
                             string groupIdentifier = (type == RegimentType.MenAtArms) ? u.GetName() : type.ToString();
                             return new { RegimentType = type, Identifier = groupIdentifier };
@@ -286,16 +290,18 @@ namespace CrusaderWars.client
                 return;
             }
 
-            string replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
+            string? replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
+            if(replacementKey is null) { return; }
             bool isSiege = UnitMappers_BETA.IsUnitKeySiege(replacementKey);
 
             foreach (var selectedNode in _selectedCurrentNodes)
             {
                 bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
-                dynamic tagObject = selectedNode.Tag;
+                dynamic? tagObject = selectedNode.Tag;
+                if(tagObject is null) { continue; }
                 RegimentType regimentType = tagObject.RegimentType;
                 string typeIdentifier = tagObject.TypeIdentifier;
-                string faction = selectedNode.Parent.Text; // Get faction from parent node
+                string faction = selectedNode.Parent!.Text; // Get faction from parent node
                 bool isSplitLevyNode = tagObject.GetType().GetProperty("IsSplitLevyNode") != null && tagObject.IsSplitLevyNode;
 
                 if (isSplitLevyNode)
@@ -371,7 +377,7 @@ namespace CrusaderWars.client
                         RegimentType regimentType = tag.RegimentType;
                         string typeIdentifier = tag.TypeIdentifier;
                         bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
-                        string faction = node.Parent.Text; // Get faction from parent node
+                        string faction = node.Parent!.Text; // Get faction from parent node
                         bool isSplitLevyNode = tag.GetType().GetProperty("IsSplitLevyNode") != null && tag.IsSplitLevyNode;
 
                         int arrowIndex = node.Text.IndexOf(" ->");
@@ -444,7 +450,7 @@ namespace CrusaderWars.client
             return key;
         }
 
-        private void tvCurrentUnits_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        private void tvCurrentUnits_BeforeSelect(object? sender, TreeViewCancelEventArgs e)
         {
             // Allow programmatic selection for search navigation, but cancel manual user clicks
             // to preserve the custom multi-selection behavior.
@@ -454,7 +460,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void tvCurrentUnits_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void tvCurrentUnits_NodeMouseClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Node.Tag == null) return;
 
@@ -524,7 +530,8 @@ namespace CrusaderWars.client
         {
             List<TreeNode> allNodes = new List<TreeNode>();
             Action<TreeNodeCollection> collectNodes = null;
-            collectNodes = (nodes) => {
+            collectNodes = (nodes) =>
+            {
                 foreach (TreeNode node in nodes)
                 {
                     allNodes.Add(node);
@@ -552,7 +559,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private void btnOK_Click(object? sender, EventArgs e)
         {
             BattleState.ManualUnitReplacements = Replacements;
             BattleState.SavePersistentBattleSettings();
@@ -560,14 +567,14 @@ namespace CrusaderWars.client
             this.Close();
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void btnCancel_Click(object? sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
 
 
-        private void UnitReplacerForm_Resize(object sender, EventArgs e)
+        private void UnitReplacerForm_Resize(object? sender, EventArgs e)
         {
             // Calculate the center point between the two TreeViews
             int leftTreeViewRight = tvCurrentUnits.Left + tvCurrentUnits.Width;
@@ -586,26 +593,26 @@ namespace CrusaderWars.client
 
         // SEARCH =================================================================================================
 
-        private void btnNextCurrent_Click(object sender, EventArgs e)
+        private void btnNextCurrent_Click(object? sender, EventArgs e)
         {
             SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
             NavigateSearchResults(tvCurrentUnits, _currentSearchResults, ref _currentSearchResultIndex, true);
         }
 
-        private void btnPrevCurrent_Click(object sender, EventArgs e)
+        private void btnPrevCurrent_Click(object? sender, EventArgs e)
         {
             SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
             NavigateSearchResults(tvCurrentUnits, _currentSearchResults, ref _currentSearchResultIndex, false);
         }
 
 
-        private void btnNextAvailable_Click(object sender, EventArgs e)
+        private void btnNextAvailable_Click(object? sender, EventArgs e)
         {
             SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
             NavigateSearchResults(tvAvailableUnits, _availableSearchResults, ref _availableSearchResultIndex, true);
         }
 
-        private void btnPrevAvailable_Click(object sender, EventArgs e)
+        private void btnPrevAvailable_Click(object? sender, EventArgs e)
         {
             SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
             NavigateSearchResults(tvAvailableUnits, _availableSearchResults, ref _availableSearchResultIndex, false);
@@ -688,7 +695,7 @@ namespace CrusaderWars.client
             searchResults[searchResultIndex].EnsureVisible();
         }
 
-        private void TxtSearchCurrent_TextChanged(object sender, EventArgs e)
+        private void TxtSearchCurrent_TextChanged(object? sender, EventArgs e)
         {
             // When search text is cleared, remove highlights from previous search
             if (string.IsNullOrWhiteSpace(txtSearchCurrent.Text) && !string.IsNullOrEmpty(_lastCurrentSearch))
@@ -707,7 +714,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void TxtSearchAvailable_TextChanged(object sender, EventArgs e)
+        private void TxtSearchAvailable_TextChanged(object? sender, EventArgs e)
         {
             // When search text is cleared, remove highlights from previous search
             if (string.IsNullOrWhiteSpace(txtSearchAvailable.Text) && !string.IsNullOrEmpty(_lastAvailableSearch))
@@ -726,7 +733,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void btnSearchCurrent_Click(object sender, EventArgs e)
+        private void btnSearchCurrent_Click(object? sender, EventArgs e)
         {
             SearchInTreeView(tvCurrentUnits, txtSearchCurrent.Text, ref _currentSearchResults, ref _currentSearchResultIndex, ref _lastCurrentSearch);
             if (_currentSearchResults.Any())
@@ -741,7 +748,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void btnSearchAvailable_Click(object sender, EventArgs e)
+        private void btnSearchAvailable_Click(object? sender, EventArgs e)
         {
             SearchInTreeView(tvAvailableUnits, txtSearchAvailable.Text, ref _availableSearchResults, ref _availableSearchResultIndex, ref _lastAvailableSearch);
             if (_availableSearchResults.Any())
@@ -756,7 +763,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void TxtSearchCurrent_KeyDown(object sender, KeyEventArgs e)
+        private void TxtSearchCurrent_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -765,7 +772,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void TxtSearchAvailable_KeyDown(object sender, KeyEventArgs e)
+        private void TxtSearchAvailable_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -793,7 +800,7 @@ namespace CrusaderWars.client
             }
         }
 
-        private void TreeView_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        private void TreeView_BeforeSelect(object? sender, TreeViewCancelEventArgs e)
         {
             var tv = sender as TreeView;
             if (tv == null || tv.SelectedNode == null) return;

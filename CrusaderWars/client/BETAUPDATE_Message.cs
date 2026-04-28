@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Media;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,6 +9,7 @@ using CrusaderWars.client; // Added for Program.Logger
 
 namespace CrusaderWars.client.BETAUPDATE_Message
 {
+    [SupportedOSPlatform("windows")]
     public partial class BETAUPDATE_Message : Form
     {
         public BETAUPDATE_Message()
@@ -40,7 +42,7 @@ namespace CrusaderWars.client.BETAUPDATE_Message
                 this.Close();
             }
             //Offline
-            catch 
+            catch
             {
                 MessageBox.Show("No Internet connection. Your ck3 mod version is for the new beta release, if you don't download the new the CC launcher from the website it may cause crashes!", "Crusader Conflicts: Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);

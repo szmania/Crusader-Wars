@@ -1,4 +1,4 @@
-﻿using CrusaderWars.data.save_file;
+using CrusaderWars.data.save_file;
 using CrusaderWars.terrain;
 using Microsoft.SqlServer.Server;
 using System;
@@ -32,19 +32,20 @@ namespace CrusaderWars.armies.commander_traits
         int Index { get; set; }
 
         //  MAJOR SETUP
-        int XPBoost {  get; set; }
+        int XPBoost { get; set; }
         int DeployablesBoost { get; set; }
         TraitsAffectEnum Affect { get; set; }
-        bool DeploymentRotation {  get; set; }
+        bool DeploymentRotation { get; set; }
 
         //  CONDITIONS
         string? CombatSide { get; set; }
-        List<string>? Terrains {  get; set; }
+        List<string>? Terrains { get; set; }
         TraitsBoolCondition NeedsRiverCrossing { get; set; }
-        TraitsBoolCondition NeedsHostileFaith {  get; set; }
-        TraitsBoolCondition NeedsWinter { get;set; }
+        TraitsBoolCondition NeedsHostileFaith { get; set; }
+        TraitsBoolCondition NeedsWinter { get; set; }
 
-        public Trait(string key, int index) { 
+        public Trait(string key, int index)
+        {
             Key = key;
             Index = index;
         }
@@ -52,17 +53,17 @@ namespace CrusaderWars.armies.commander_traits
         public string GetKey() { return Key; }
         public int GetIndex() { return Index; }
 
-        public int GetXPBoost() {  return XPBoost; }
+        public int GetXPBoost() { return XPBoost; }
         public int GetDeployablesBoost() { return DeployablesBoost; }
         public TraitsAffectEnum GetWhoAffects() { return Affect; }
-        public bool IsDeploymentRotation() {  return DeploymentRotation; }
-        public string? IsRequiredCombatSide() {  return CombatSide; }
+        public bool IsDeploymentRotation() { return DeploymentRotation; }
+        public string? IsRequiredCombatSide() { return CombatSide; }
         public List<string>? IsRequiredTerrains() { return Terrains; }
-        public TraitsBoolCondition IsRequiredRiverCrossing() {  return NeedsRiverCrossing; }
+        public TraitsBoolCondition IsRequiredRiverCrossing() { return NeedsRiverCrossing; }
         public TraitsBoolCondition IsRequiredHostileFaith() { return NeedsHostileFaith; }
         public TraitsBoolCondition IsRequiredWinter() { return NeedsWinter; }
 
-        public void SetupTrait(int XPboost, int deployablesBoost,TraitsAffectEnum affectsWho, bool rotatesDeployment, 
+        public void SetupTrait(int XPboost, int deployablesBoost, TraitsAffectEnum affectsWho, bool rotatesDeployment,
                                string requiredCombatSide, List<string>? requiredTerrains, TraitsBoolCondition requiresRiverCrossing, TraitsBoolCondition requiresHostileFaith, TraitsBoolCondition requiresWinter)
         {
             XPBoost = XPboost;
@@ -84,7 +85,7 @@ namespace CrusaderWars.armies.commander_traits
         static string traits_folder_path = @".\data\traits\";
 
 
-        public CommanderTraits(List<(int, string)> main_commander_traits) 
+        public CommanderTraits(List<(int, string)> main_commander_traits)
         {
             SearchTraitsFiles(main_commander_traits);
         }
@@ -92,9 +93,9 @@ namespace CrusaderWars.armies.commander_traits
         public bool ShouldRotateDeployment(string combat_side, string terrain)
         {
             if (Traits == null) return false;
-            foreach(var trait in Traits) 
+            foreach (var trait in Traits)
             {
-                if(trait.IsDeploymentRotation() && combat_side == trait.IsRequiredCombatSide())
+                if (trait.IsDeploymentRotation() && combat_side == trait.IsRequiredCombatSide())
                 {
                     if (trait.IsRequiredTerrains() != null)
                     {
@@ -126,7 +127,7 @@ namespace CrusaderWars.armies.commander_traits
             if (Traits == null) return 0;
 
             int xp_boost = 0;
-            foreach(Trait trait in Traits)
+            foreach (Trait trait in Traits)
             {
 
                 //  COMBAT SIDE
@@ -134,15 +135,15 @@ namespace CrusaderWars.armies.commander_traits
                 {
                     //ok
                 }
-                else if(combatSide != trait.IsRequiredCombatSide())
+                else if (combatSide != trait.IsRequiredCombatSide())
                 {
                     continue;
                 }
 
                 //  TERRAINS
-                if(trait.IsRequiredTerrains() != null)
+                if (trait.IsRequiredTerrains() != null)
                 {
-                    if(!trait.IsRequiredTerrains()!.Exists(x => x == terrainType))
+                    if (!trait.IsRequiredTerrains()!.Exists(x => x == terrainType))
                     {
                         continue;
                     }
@@ -151,14 +152,14 @@ namespace CrusaderWars.armies.commander_traits
                 //  RIVER CROSSING
                 switch (trait.IsRequiredRiverCrossing())
                 {
-                    case TraitsBoolCondition.None: 
+                    case TraitsBoolCondition.None:
                         break;
                     case TraitsBoolCondition.No:
                         if (isRiverCrossing)
                             continue;
                         break;
-                    case TraitsBoolCondition.Yes: 
-                        if(!isRiverCrossing)
+                    case TraitsBoolCondition.Yes:
+                        if (!isRiverCrossing)
                         {
                             continue;
                         }

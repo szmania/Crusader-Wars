@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -26,7 +26,7 @@ namespace CWUpdater
         public AutoUpdater()
         {
             Logger.Log("Initializing AutoUpdater form.");
-            if(GetArguments())
+            if (GetArguments())
             {
                 // If CurrentVersion was not provided as an argument, try to read it from a local file
                 if (string.IsNullOrEmpty(CurrentVersion))
@@ -47,16 +47,27 @@ namespace CWUpdater
 
                 InitializeComponent();
                 this.TopMost = true;
-                
+
                 if (!string.IsNullOrEmpty(UpdateVersion))
                 {
+                    var displayUpdateVersion = UpdateVersion.Trim();
+                    if (!displayUpdateVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                    {
+                        displayUpdateVersion = "v" + displayUpdateVersion;
+                    }
+
                     if (!string.IsNullOrEmpty(CurrentVersion))
                     {
-                        VersionLabel.Text = $"v{CurrentVersion.Trim().TrimStart('v')} -> v{UpdateVersion.Trim().TrimStart('v')}";
+                        var displayCurrentVersion = CurrentVersion.Trim();
+                        if (!displayCurrentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                        {
+                            displayCurrentVersion = "v" + displayCurrentVersion;
+                        }
+                        VersionLabel.Text = $"{displayCurrentVersion} -> {displayUpdateVersion}";
                     }
                     else
                     {
-                        VersionLabel.Text = $"Updating to v{UpdateVersion.Trim().TrimStart('v')}";
+                        VersionLabel.Text = $"Updating to {displayUpdateVersion}";
                     }
                 }
                 else
@@ -64,13 +75,13 @@ namespace CWUpdater
                     VersionLabel.Visible = false;
                 }
 
-                if(IsUnitMappers)
+                if (IsUnitMappers)
                 {
                     TitleLabel.Text = "New Unit Mappers Update Available!";
                     WarningLabel.Hide();
                 }
                 this.TopMost = false;
-            }                
+            }
             else
             {
                 Logger.Log("Failed to get required arguments. Exiting.");
@@ -227,13 +238,13 @@ namespace CWUpdater
                 }
                 Environment.Exit(1);
             }
-            
+
         }
 
         public async Task DownloadUpdateAsync(string downloadUrl)
         {
             Logger.Log($"Starting download from: {downloadUrl}");
- 
+
             try
             {
                 string downloadPath = Path.Combine(Path.GetTempPath(), "update.zip");
@@ -250,7 +261,7 @@ namespace CWUpdater
                         var buffer = new byte[8192];
                         long totalBytesRead = 0;
                         int bytesRead;
-                        
+
                         while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                         {
                             await fileStream.WriteAsync(buffer, 0, bytesRead);
@@ -259,7 +270,8 @@ namespace CWUpdater
                             if (totalBytes.HasValue)
                             {
                                 int progressPercentage = (int)((double)totalBytesRead / totalBytes.Value * 100);
-                                this.Invoke((MethodInvoker)delegate {
+                                this.Invoke((MethodInvoker)delegate
+                                {
                                     label1.Text = progressPercentage.ToString() + "%";
                                 });
                             }
@@ -270,7 +282,8 @@ namespace CWUpdater
                 Console.WriteLine("Update downloaded successfully.");
                 Logger.Log("Update downloaded successfully.");
 
-                if(!IsUnitMappers) {
+                if (!IsUnitMappers)
+                {
                     Logger.Log("Applying application update.");
                     await ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", ""));
                 }
@@ -287,7 +300,7 @@ namespace CWUpdater
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                 this.Close();
             }
-            
+
         }
 
         private async Task RetryActionAsync(Action action, string actionName)
@@ -414,7 +427,7 @@ del ""%~f0""
                                         {
                                             string tag = File.ReadAllText(tagFile).Trim();
                                             bool isCustom = tag.StartsWith("Custom", StringComparison.OrdinalIgnoreCase);
-                                            if(isCustom)
+                                            if (isCustom)
                                             {
                                                 Logger.Log($"Found custom mapper to preserve: {Path.GetFileName(d)} with tag '{tag}'");
                                             }
@@ -463,7 +476,7 @@ del ""%~f0""
                             {
                                 string dirName = Path.GetFileName(dir);
                                 string destination = Path.Combine(applicationPath, dirName);
-                                
+
                                 // NEW: Check if a directory with the same name exists in the destination (from the update package)
                                 if (Directory.Exists(destination))
                                 {
@@ -589,22 +602,22 @@ del ""%~f0""
             }
             catch (IOException ioEx)
             {
-                    Logger.Log($"I/O Error during update after multiple retries: {ioEx.ToString()}");
-                    MessageBox.Show(
-                        "The updater could not access a file or directory because it is locked by another process.\n\n" +
-                        "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
-                        "Please try the following:\n" +
-                        "1. Temporarily pause your cloud sync client.\n" +
-                        "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
-                        "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
-                        $"Error details: {ioEx.Message}",
-                        "Crusader Conflicts: Update Failed (File Locked)",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
-                    Logger.Log("Rolling back to backup due to IOException.");
-                    RestoreBackup(backupPath, applicationPath);
-                    this.Close();
+                Logger.Log($"I/O Error during update after multiple retries: {ioEx.ToString()}");
+                MessageBox.Show(
+                    "The updater could not access a file or directory because it is locked by another process.\n\n" +
+                    "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
+                    "Please try the following:\n" +
+                    "1. Temporarily pause your cloud sync client.\n" +
+                    "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                    "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
+                    $"Error details: {ioEx.Message}",
+                    "Crusader Conflicts: Update Failed (File Locked)",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                Logger.Log("Rolling back to backup due to IOException.");
+                RestoreBackup(backupPath, applicationPath);
+                this.Close();
             }
             catch (Exception ex) // Existing general catch
             {
@@ -633,7 +646,7 @@ del ""%~f0""
             string updaterDir = Path.Combine(mainAppRoot, "data", "updater"); // This is the directory of the running updater
 
             // Delete obsolete files
-            if(IsUnitMappers)
+            if (IsUnitMappers)
             {
                 var existingFiles = Directory.GetFiles(applicationPath, "*", SearchOption.AllDirectories);
                 var newFiles = Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories);
@@ -828,7 +841,7 @@ del ""%~f0""
         {
             Logger.Log("Restarting application.");
 
-            if(!IsUnitMappers)
+            if (!IsUnitMappers)
             {
                 //Update application .txt file version
                 if (updateVersionFile)
@@ -845,7 +858,7 @@ del ""%~f0""
                     }
                 }
             }
-            else if(IsUnitMappers)
+            else if (IsUnitMappers)
             {
                 //Update unit mappers .txt file version
                 if (updateVersionFile)
@@ -917,7 +930,7 @@ del ""%~f0""
 
                 var newVersion = new Version(newVersionInfo.FileVersion);
                 var currentVersion = new Version(currentVersionInfo.FileVersion);
-                
+
                 Logger.Log($"Comparing updater versions. New: {newVersion}, Current: {currentVersion}");
 
                 return newVersion > currentVersion;

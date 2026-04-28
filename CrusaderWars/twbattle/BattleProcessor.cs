@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using CrusaderWars.armies;
 using CrusaderWars.client;
@@ -31,13 +32,13 @@ namespace CrusaderWars.twbattle
 
         public class AutofixState
         {
-            public List<string> ProblematicUnitKeys { get; set; }  = new List<string>();
+            public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
             public int NextUnitKeyIndexToReplace { get; set; } = 0;
             public int FailureCount { get; set; } = 0;
-            public string LastAppliedFixDescription { get; set; }  = "";
-            public int MapVariantOffset { get; set; }  = 0;
+            public string LastAppliedFixDescription { get; set; } = "";
+            public int MapVariantOffset { get; set; } = 0;
             public bool HasTriedSwitchingToGeneric { get; set; } = false;
-            public string OriginalMapDescription { get; set; }  = "";
+            public string OriginalMapDescription { get; set; } = "";
             public string OriginalFieldMapDescription { get; set; } = "";
 
             // New properties for strategy-based autofix
@@ -58,6 +59,7 @@ namespace CrusaderWars.twbattle
             public List<Army> OriginalDefenderArmies { get; set; } = new List<Army>();
         }
 
+        [SupportedOSPlatform("windows")]
         public static async Task<bool> ProcessBattle(HomePage form, List<Army> attacker_armies, List<Army> defender_armies, CancellationToken token, bool regenerateAndRestart = true, AutofixState? autofixState = null)
         {
             BattleResult.WarID = ArmiesReader.FindWarID();
@@ -203,7 +205,7 @@ namespace CrusaderWars.twbattle
                         var unmappedUnits = BattleLog.GetUnmappedUnits();
 
                         bool siegeEnginesInFieldBattles = !ModOptions.optionsValuesCollection.TryGetValue("SiegeEnginesInFieldBattles", out string? siegeEnginesOption) || siegeEnginesOption == "Enabled";
-                        
+
                         var displayableUnmappedUnits = unmappedUnits.Distinct().ToList();
 
                         if (!BattleState.IsSiegeBattle && !siegeEnginesInFieldBattles)
@@ -553,30 +555,30 @@ namespace CrusaderWars.twbattle
             }
             catch (Exception ex)
             {
-                        Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
-                        MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-                        await Games.CloseTotalWarAttilaProcess();
-                        if (ModOptions.CloseCK3DuringBattle())
-                        {
-                            Games.StartCrusaderKingsProcess();
-                        }
-                        else
-                        {
-                            ProcessCommands.ResumeProcess();
-                        }
-                        form.infoLabel.Text = "Waiting for CK3 battle...";
-                        form.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
+                Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
+                MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                await Games.CloseTotalWarAttilaProcess();
+                if (ModOptions.CloseCK3DuringBattle())
+                {
+                    Games.StartCrusaderKingsProcess();
+                }
+                else
+                {
+                    ProcessCommands.ResumeProcess();
+                }
+                form.infoLabel.Text = "Waiting for CK3 battle...";
+                form.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
-                        //Data Clear
-                        Data.Reset();
-                        return true; // Continue
+                //Data Clear
+                Data.Reset();
+                return true; // Continue
             }
 
 
             if (ModOptions.CloseCK3DuringBattle())
             {
-                        Games.CloseCrusaderKingsProcess();
+                Games.CloseCrusaderKingsProcess();
             }
 
             Program.Logger.Debug("TW:Attila battle created successfully");
@@ -669,7 +671,7 @@ namespace CrusaderWars.twbattle
                             {
                                 var garrison_porcentages = UnitMappers_BETA.GetFactionGarrison(faction, level);
                                 if (garrison_porcentages != null)
-                                    {
+                                {
                                     foreach (var garrisonData in garrison_porcentages)
                                     {
                                         allUnitKeys.Add(garrisonData.unit_key);
@@ -1081,7 +1083,7 @@ namespace CrusaderWars.twbattle
                     {
                         // Field Battle OR Siege with Relief Army: Edit files as normal
                         Program.Logger.Debug("Field battle or siege with relief army detected. Editing combat files...");
-                        
+
                         var mobile_attacker_armies = attacker_armies.Where(a => !a.IsGarrison()).ToList();
                         var mobile_defender_armies = defender_armies.Where(a => !a.IsGarrison()).ToList();
 
@@ -1278,13 +1280,13 @@ namespace CrusaderWars.twbattle
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 await Games.CloseTotalWarAttilaProcess();
                 if (ModOptions.CloseCK3DuringBattle())
-                    {
-                        Games.StartCrusaderKingsProcess();
-                    }
-                    else
-                    {
-                        ProcessCommands.ResumeProcess();
-                    }
+                {
+                    Games.StartCrusaderKingsProcess();
+                }
+                else
+                {
+                    ProcessCommands.ResumeProcess();
+                }
                 form.infoLabel.Text = "Waiting for CK3 battle...";
                 form.Text = "Crusader Conflicts (Waiting for CK3 battle...)";
 
@@ -1300,7 +1302,7 @@ namespace CrusaderWars.twbattle
         private static CharacterReport GetCharacterReport(dynamic character)
         {
             string characterName;
-            
+
             // Handle different character types
             try
             {
@@ -1319,22 +1321,24 @@ namespace CrusaderWars.twbattle
                     characterName = "Unknown Character";
                 }
             }
-            
+
             var report = new CharacterReport { Name = characterName, Status = "Unharmed", Details = "Survived the battle without any negative effects." };
 
-            if (character.IsPrisoner) { 
-                report.Status = "Captured"; 
-                report.Details = "Taken prisoner by the enemy."; 
+            if (character.IsPrisoner)
+            {
+                report.Status = "Captured";
+                report.Details = "Taken prisoner by the enemy.";
                 return report;
             }
-            if (character.IsSlain) { 
-                report.Status = "Slain"; 
+            if (character.IsSlain)
+            {
+                report.Status = "Slain";
                 report.Details = "Killed in action.";
                 return report;
             }
 
             // Check for wound traits
-            List<(int, string)> traits = character.GetTraits(); 
+            List<(int, string)> traits = character.GetTraits();
             if (traits.Any(t => t.Item1 == WoundedTraits.Brutally_Mauled())) { report.Status = "Wounded"; report.Details = "Brutally Mauled"; }
             else if (traits.Any(t => t.Item1 == WoundedTraits.Severely_Injured())) { report.Status = "Wounded"; report.Details = "Severely Injured"; }
             else if (traits.Any(t => t.Item1 == WoundedTraits.Wounded())) { report.Status = "Wounded"; report.Details = "Wounded"; }
@@ -1348,7 +1352,7 @@ namespace CrusaderWars.twbattle
 
             if (!string.IsNullOrEmpty(physicalTraits))
             {
-                if(report.Status == "Unharmed") // Only has a physical trait, not a fresh wound
+                if (report.Status == "Unharmed") // Only has a physical trait, not a fresh wound
                 {
                     report.Status = "Wounded";
                     report.Details = physicalTraits.TrimEnd(' ', ',');
@@ -1358,7 +1362,7 @@ namespace CrusaderWars.twbattle
                     report.Details += " and became " + physicalTraits.TrimEnd(' ', ',');
                 }
             }
-            
+
             return report;
         }
 
@@ -1366,20 +1370,20 @@ namespace CrusaderWars.twbattle
         private static void ProcessProminentKnights(List<Army> attacker_armies, List<Army> defender_armies)
         {
             Program.Logger.Debug("Processing prominent knights for MAA leadership...");
-            
+
             var allArmies = attacker_armies.Concat(defender_armies);
-            
+
             foreach (var army in allArmies)
             {
                 if (army.Units == null || !army.Units.Any()) continue;
-                
+
                 // Get all knights from this army
                 var armyKnights = new List<Knight>();
                 if (army.Knights != null && army.Knights.HasKnights())
                 {
                     armyKnights.AddRange(army.Knights.GetKnightsList());
                 }
-                
+
                 // Also check merged armies for knights
                 if (army.MergedArmies != null)
                 {
@@ -1391,15 +1395,15 @@ namespace CrusaderWars.twbattle
                         }
                     }
                 }
-                
+
                 if (!armyKnights.Any()) continue;
-                
+
                 // Sort knights by prowess (highest first) to assign best knights to MAA
                 var sortedKnights = armyKnights.OrderByDescending(k => k.GetProwess()).ToList();
-                
+
                 // Find MAA units that could be led by knights
                 var maaUnits = army.Units.Where(u => u.GetRegimentType() == RegimentType.MenAtArms).ToList();
-                
+
                 // Also check merged armies for MAA units
                 if (army.MergedArmies != null)
                 {
@@ -1411,17 +1415,17 @@ namespace CrusaderWars.twbattle
                         }
                     }
                 }
-                
+
                 // Assign knights to lead MAA units
                 int knightIndex = 0;
                 foreach (var maaUnit in maaUnits)
                 {
                     if (knightIndex >= sortedKnights.Count) break;
-                    
+
                     var knight = sortedKnights[knightIndex];
                     maaUnit.KnightCommander = knight;
                     knightIndex++;
-                        
+
                     Program.Logger.Debug($"Assigned knight {knight.GetName()} (Prowess: {knight.GetProwess()}) to lead MAA unit {maaUnit.GetName()}");
 
                     // Remove the knight from its original KnightSystem so it doesn't appear in the combined bodyguard unit.
@@ -1444,10 +1448,11 @@ namespace CrusaderWars.twbattle
                     }
                 }
             }
-            
+
             Program.Logger.Debug("Finished processing prominent knights.");
         }
 
+        [SupportedOSPlatform("windows")]
         private static void ShowClickableLinkMessageBox(Form parentForm, string messageText, string title, string linkText, string url, string reportContent)
         {
             // Create a custom form with clickable link
@@ -1460,26 +1465,27 @@ namespace CrusaderWars.twbattle
                 messageForm.FormBorderStyle = FormBorderStyle.FixedDialog;
                 messageForm.MaximizeBox = false;
                 messageForm.MinimizeBox = false;
-                
+
                 Panel panel = new Panel();
                 panel.Dock = DockStyle.Fill;
                 panel.Padding = new Padding(10);
                 panel.AutoScroll = true;
                 messageForm.Controls.Add(panel);
-                
+
                 Label messageLabel = new Label();
                 messageLabel.Text = messageText;
                 messageLabel.AutoSize = true;
                 messageLabel.MaximumSize = new Size(460, 0);
                 messageLabel.Location = new Point(10, 10);
                 panel.Controls.Add(messageLabel);
-                
+
                 LinkLabel linkLabel = new LinkLabel();
                 linkLabel.Text = linkText;
                 linkLabel.AutoSize = true;
                 linkLabel.Location = new Point(10, messageLabel.Bottom + 10);
-                linkLabel.LinkClicked += (sender, e) => {
-                    try 
+                linkLabel.LinkClicked += (sender, e) =>
+                {
+                    try
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
                     }
@@ -1489,7 +1495,7 @@ namespace CrusaderWars.twbattle
                     }
                 };
                 panel.Controls.Add(linkLabel);
-                
+
                 TextBox reportBox = new TextBox();
                 reportBox.Text = reportContent;
                 reportBox.Multiline = true;
@@ -1498,7 +1504,7 @@ namespace CrusaderWars.twbattle
                 reportBox.Size = new Size(460, 100);
                 reportBox.Location = new Point(10, linkLabel.Bottom + 10);
                 panel.Controls.Add(reportBox);
-                
+
                 Button okButton = new Button();
                 okButton.Text = "OK";
                 okButton.DialogResult = DialogResult.OK;
@@ -1506,19 +1512,20 @@ namespace CrusaderWars.twbattle
                 okButton.Location = new Point((messageForm.ClientSize.Width - 75) / 2, reportBox.Bottom + 10);
                 okButton.Anchor = AnchorStyles.Top;
                 panel.Controls.Add(okButton);
-                
+
                 messageForm.AcceptButton = okButton;
                 messageForm.ResumeLayout();
-                
+
                 messageForm.ShowDialog(parentForm);
             }
         }
 
-        private static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form parentForm, List<AutofixState.AutofixStrategy> availableStrategies)
+        [SupportedOSPlatform("windows")]
+        private static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form? parentForm, List<AutofixState.AutofixStrategy> availableStrategies)
         {
             AutofixState.AutofixStrategy? selectedStrategy = null;
             DialogResult result = DialogResult.None;
-            
+
             // Create a custom form for strategy selection
             using (Form strategyForm = new Form())
             {
@@ -1529,21 +1536,21 @@ namespace CrusaderWars.twbattle
                 strategyForm.FormBorderStyle = FormBorderStyle.FixedDialog;
                 strategyForm.MaximizeBox = false;
                 strategyForm.MinimizeBox = false;
-                
+
                 Panel panel = new Panel();
                 panel.Dock = DockStyle.Fill;
                 panel.Padding = new Padding(10);
                 strategyForm.Controls.Add(panel);
-                
+
                 Label headerLabel = new Label();
                 headerLabel.Text = "The battle crashed. Please select an autofix strategy:";
                 headerLabel.AutoSize = true;
                 headerLabel.Font = new Font(headerLabel.Font, FontStyle.Bold);
                 headerLabel.Location = new Point(10, 10);
                 panel.Controls.Add(headerLabel);
-                
+
                 var firstAvailable = availableStrategies.FirstOrDefault();
-                
+
                 RadioButton unitsButton = new RadioButton();
                 unitsButton.Text = "Change Units (Automatically replace problematic custom units)";
                 unitsButton.AutoSize = true;
@@ -1551,7 +1558,7 @@ namespace CrusaderWars.twbattle
                 unitsButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Units);
                 unitsButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Units;
                 panel.Controls.Add(unitsButton);
-                
+
                 RadioButton mapSizeButton = new RadioButton();
                 mapSizeButton.Text = "Change Map Size (Try a larger battlefield)";
                 mapSizeButton.AutoSize = true;
@@ -1559,7 +1566,7 @@ namespace CrusaderWars.twbattle
                 mapSizeButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapSize);
                 mapSizeButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapSize;
                 panel.Controls.Add(mapSizeButton);
-                
+
                 RadioButton deploymentButton = new RadioButton();
                 deploymentButton.Text = "Change Deployment (Rotate army positions)";
                 deploymentButton.AutoSize = true;
@@ -1567,7 +1574,7 @@ namespace CrusaderWars.twbattle
                 deploymentButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Deployment);
                 deploymentButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Deployment;
                 panel.Controls.Add(deploymentButton);
-                
+
                 RadioButton mapVariantButton = new RadioButton();
                 mapVariantButton.Text = "Change Map Variant (Try a different battlefield layout)";
                 mapVariantButton.AutoSize = true;
@@ -1575,7 +1582,7 @@ namespace CrusaderWars.twbattle
                 mapVariantButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapVariant);
                 mapVariantButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapVariant;
                 panel.Controls.Add(mapVariantButton);
-                
+
                 RadioButton manualUnitButton = new RadioButton();
                 manualUnitButton.Text = "Manual Unit Replacement (Choose specific units to replace)";
                 manualUnitButton.AutoSize = true;
@@ -1583,7 +1590,7 @@ namespace CrusaderWars.twbattle
                 manualUnitButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.ManualUnitReplacement);
                 manualUnitButton.Checked = firstAvailable == AutofixState.AutofixStrategy.ManualUnitReplacement;
                 panel.Controls.Add(manualUnitButton);
-                
+
                 RadioButton deploymentZoneButton = new RadioButton();
                 deploymentZoneButton.Text = "Deployment Zone Editor (Manually position armies)";
                 deploymentZoneButton.AutoSize = true;
@@ -1591,7 +1598,7 @@ namespace CrusaderWars.twbattle
                 deploymentZoneButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.DeploymentZoneEditor);
                 deploymentZoneButton.Checked = firstAvailable == AutofixState.AutofixStrategy.DeploymentZoneEditor;
                 panel.Controls.Add(deploymentZoneButton);
-                
+
                 Label warningLabel = new Label();
                 warningLabel.Text = "Note: Some strategies may take effect immediately, others will require manual configuration.";
                 warningLabel.AutoSize = true;
@@ -1599,20 +1606,21 @@ namespace CrusaderWars.twbattle
                 warningLabel.ForeColor = Color.Gray;
                 warningLabel.Location = new Point(10, deploymentZoneButton.Bottom + 15);
                 panel.Controls.Add(warningLabel);
-                
+
                 Button okButton = new Button();
                 okButton.Text = "Apply Fix";
                 okButton.Size = new Size(75, 25);
                 okButton.Location = new Point(strategyForm.ClientSize.Width - 170, warningLabel.Bottom + 10);
                 okButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                okButton.Click += (sender, e) => {
+                okButton.Click += (sender, e) =>
+                {
                     if (unitsButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
                     else if (mapSizeButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
                     else if (deploymentButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Deployment;
                     else if (mapVariantButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapVariant;
                     else if (manualUnitButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.ManualUnitReplacement;
                     else if (deploymentZoneButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.DeploymentZoneEditor;
-                    
+
                     if (selectedStrategy.HasValue)
                     {
                         result = DialogResult.OK;
@@ -1624,29 +1632,31 @@ namespace CrusaderWars.twbattle
                     }
                 };
                 panel.Controls.Add(okButton);
-                
+
                 Button cancelButton = new Button();
                 cancelButton.Text = "Cancel";
                 cancelButton.Size = new Size(75, 25);
                 cancelButton.Location = new Point(strategyForm.ClientSize.Width - 85, warningLabel.Bottom + 10);
                 cancelButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                cancelButton.Click += (sender, e) => {
+                cancelButton.Click += (sender, e) =>
+                {
                     result = DialogResult.Cancel;
                     strategyForm.Close();
                 };
                 panel.Controls.Add(cancelButton);
-                
+
                 strategyForm.ResumeLayout();
                 strategyForm.ShowDialog(parentForm);
             }
-            
+
             return (result, selectedStrategy);
         }
 
+        [SupportedOSPlatform("windows")]
         private static BattleReport GenerateBattleReportData(List<Army> attacker_armies, List<Army> defender_armies, string winner)
         {
             var report = new BattleReport();
-            
+
             // Basic battle info
             report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle";
             report.BattleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
@@ -1655,7 +1665,7 @@ namespace CrusaderWars.twbattle
             report.TimeOfDay = "Day"; // Default value
             report.Season = "Spring"; // Default value
             report.Weather = "Clear"; // Default value
-            
+
             // Battle result
             var left_side = ArmiesReader.GetSideArmies("left", attacker_armies, defender_armies);
             if (left_side != null && left_side.Any())
@@ -1670,13 +1680,13 @@ namespace CrusaderWars.twbattle
                 Program.Logger.Debug("WARNING: Could not determine player side in GenerateBattleReportData. BattleResult may be from attacker's perspective.");
             }
             report.WarScoreValue = BattleResult.WarScoreValue;
-            
+
             // Siege info
             if (BattleState.IsSiegeBattle)
             {
                 report.SiegeResult = "N/A";
                 report.WallDamage = "N/A";
-                
+
                 // Try to get actual siege results
                 string path_log_attila = Properties.Settings.Default.VAR_log_attila;
                 var (siegeOutcome, wallDamage) = BattleResultReader.GetSiegeOutcome(path_log_attila, "attacker", "defender");
@@ -1688,251 +1698,83 @@ namespace CrusaderWars.twbattle
                 report.SiegeResult = "N/A";
                 report.WallDamage = "N/A";
             }
-            
+
             // Attacker side
-            report.AttackerSide = new SideReport();
-            report.AttackerSide.SideName = "Attackers";
-            report.AttackerSide.Armies = new List<ArmyReport>();
-            
-            int totalAttackerDeployed = 0;
-            int totalAttackerLosses = 0;
-            int totalAttackerRemaining = 0;
-            int totalAttackerKills = 0;
-            
-            foreach (var army in attacker_armies)
-            {
-                var armyReport = new ArmyReport();
-                armyReport.ArmyName = $"Army {army.ID}";
-                armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
-                armyReport.Units = new List<UnitReport>();
-                armyReport.SiegeEngines = new List<SiegeEngineReport>();
-                
-                int armyTotalDeployed = 0;
-                int armyTotalLosses = 0;
-                int armyTotalRemaining = 0;
-                int armyTotalKills = 0;
-                
-                if (army.CasualitiesReports != null)
-                {
-                    foreach (var unitReport in army.CasualitiesReports)
-                    {
-                        var unit = new UnitReport();
-                        
-                        // Get the corresponding Unit object to access additional data
-                        var correspondingUnit = army.Units.FirstOrDefault(u =>
-                        {
-                            // For knight units, match only by type and culture since GetTypeName() returns "Knight"
-                            if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
-                            {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
-                            }
-                            // For levy and garrison units, match by Attila unit key instead of name
-                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
-                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
-                            {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.Type &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
-                            }
-                            else
-                            {
-                                // Original matching logic for other unit types
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetName() == unitReport.GetTypeName() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
-                            }
-                        });
-                        
-                        // Set basic casualty data
-                        unit.AttilaUnitName = unitReport.GetTypeName();
-                        unit.Deployed = unitReport.GetStarting();
-                        unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                        unit.Kills = unitReport.GetKills();
-                        unit.Losses = Math.Max(0, unit.Deployed - unit.Remaining); // Prevent negative losses
-                        
-                        // Set CK3 and Attila specific data
-                        if (correspondingUnit != null)
-                        {
-                            unit.Ck3UnitType = correspondingUnit.GetRegimentType().ToString();
-                            unit.AttilaUnitKey = correspondingUnit.GetAttilaUnitKey() ?? "N/A";
-                            unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
-                            unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
-                            unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
-                            unit.Script = unitReport.Script;
-                            
-                            // Get formatted unit name using the same logic as UnitsCardsNames
-                            string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
-                            unit.AttilaUnitName = formattedName; // Use the formatted name
-                            
-                            // Set rank for Commander and Knight units
-                            if (correspondingUnit.GetRegimentType() == RegimentType.Commander || 
-                                correspondingUnit.GetRegimentType() == RegimentType.Knight)
-                            {
-                                unit.Rank = correspondingUnit.CharacterRank;
-                            }
-                            
-                            // Set garrison level for Garrison units
-                            if (correspondingUnit.GetRegimentType() == RegimentType.Garrison)
-                            {
-                                unit.GarrisonLevel = correspondingUnit.GarrisonLevel;
-                            }
-                            
-                            // Set siege engine data
-                            if (correspondingUnit.IsSiege())
-                            {
-                                unit.IsSiegeUnit = true;
-                                unit.DeployedMachines = unitReport.GetStartingMachines();
-                                
-                                // Calculate remaining machines based on soldier survival rate
-                                double survivalRate = (unit.Deployed > 0) ? (double)unit.Remaining / unit.Deployed : 0;
-                                unit.RemainingMachines = (int)Math.Round(unit.DeployedMachines * survivalRate);
-                                unit.MachineLosses = unit.DeployedMachines - unit.RemainingMachines;
-                            }
-                            else
-                            {
-                                unit.IsSiegeUnit = false;
-                                unit.DeployedMachines = 0;
-                                unit.RemainingMachines = 0;
-                                unit.MachineLosses = 0;
-                            }
-                        }
-                        else
-                        {
-                            // Fallback if no corresponding unit found
-                            unit.Ck3UnitType = unitReport.GetUnitType().ToString();
-                            unit.AttilaUnitKey = "N/A";
-                            unit.Ck3Heritage = "N/A";
-                            unit.Ck3Culture = "N/A";
-                            unit.AttilaFaction = "N/A";
-                            unit.IsSiegeUnit = false;
-                            unit.DeployedMachines = 0;
-                            unit.RemainingMachines = 0;
-                            unit.MachineLosses = 0;
-                        }
-                        
-                        // Add character info if available
-                        unit.Characters = new List<CharacterReport>();
-                        
-                        // Add commander character info if this is a commander unit
-                        if (correspondingUnit?.GetRegimentType() == RegimentType.Commander && army.Commander != null)
-                        {
-                            var commanderReport = GetCharacterReport(army.Commander);
-                            unit.Characters.Add(commanderReport);
-                        }
-                        // Add knight commander info if this is an MAA unit with a knight commander
-                        else if (correspondingUnit?.GetRegimentType() == RegimentType.MenAtArms && correspondingUnit.KnightCommander != null)
-                        {
-                            var knightCommanderReport = GetCharacterReport(correspondingUnit.KnightCommander);
-                            unit.Characters.Add(knightCommanderReport);
-                        }
-                        // Add knight details if this is a knight unit
-                        else if (correspondingUnit?.GetRegimentType() == RegimentType.Knight && army.Knights != null)
-                        {
-                            var knightDetails = new List<KnightDetailReport>();
-                            foreach (var knight in army.Knights.GetKnightsList())
-                            {
-                                knightDetails.Add(new KnightDetailReport
-                                {
-                                    Name = knight.GetName(),
-                                    BodyguardSize = knight.GetSoldiers(),
-                                    Kills = knight.GetKills(),
-                                    Fallen = knight.HasFallen(),
-                                    Status = knight.HasFallen() ? "Slain" : "Unharmed"
-                                });
-                            }
-                            unit.KnightDetails = knightDetails;
-                        }
-                        
-                        armyReport.Units.Add(unit);
-                        
-                        armyTotalDeployed += unit.Deployed;
-                        armyTotalLosses += unit.Losses;
-                        armyTotalRemaining += unit.Remaining;
-                        armyTotalKills += unit.Kills;
-                    }
-                }
-                
-                armyReport.TotalDeployed = armyTotalDeployed;
-                armyReport.TotalLosses = armyTotalLosses;
-                armyReport.TotalRemaining = armyTotalRemaining;
-                armyReport.TotalKills = armyTotalKills;
-                
-                report.AttackerSide.Armies.Add(armyReport);
-                
-                totalAttackerDeployed += armyTotalDeployed;
-                totalAttackerLosses += armyTotalLosses;
-                totalAttackerRemaining += armyTotalRemaining;
-                totalAttackerKills += armyTotalKills;
-            }
-            
-            report.AttackerSide.TotalDeployed = totalAttackerDeployed;
-            report.AttackerSide.TotalLosses = totalAttackerLosses;
-            report.AttackerSide.TotalRemaining = totalAttackerRemaining;
-            report.AttackerSide.TotalKills = totalAttackerKills;
-            
+            report.AttackerSide = GenerateSideReport(attacker_armies, "Attackers");
+
             // Defender side
-            report.DefenderSide = new SideReport();
-            report.DefenderSide.SideName = "Defenders";
-            report.DefenderSide.Armies = new List<ArmyReport>();
-            
-            int totalDefenderDeployed = 0;
-            int totalDefenderLosses = 0;
-            int totalDefenderRemaining = 0;
-            int totalDefenderKills = 0;
-            
-            foreach (var army in defender_armies)
+            report.DefenderSide = GenerateSideReport(defender_armies, "Defenders");
+
+            return report;
+        }
+
+        private static SideReport GenerateSideReport(List<Army> armies, string sideName)
+        {
+            var sideReport = new SideReport
             {
-                var armyReport = new ArmyReport();
-                armyReport.ArmyName = $"Army {army.ID}";
-                armyReport.CommanderName = army.Commander?.Name ?? "Unknown Commander";
-                armyReport.Units = new List<UnitReport>();
-                armyReport.SiegeEngines = new List<SiegeEngineReport>();
-                
+                SideName = sideName,
+                Armies = new List<ArmyReport>()
+            };
+
+            int totalSideDeployed = 0;
+            int totalSideLosses = 0;
+            int totalSideRemaining = 0;
+            int totalSideKills = 0;
+
+            foreach (var army in armies)
+            {
+                var armyReport = new ArmyReport
+                {
+                    ArmyName = $"Army {army.ID}",
+                    CommanderName = army.Commander?.Name ?? "Unknown Commander",
+                    Units = new List<UnitReport>(),
+                    SiegeEngines = new List<SiegeEngineReport>()
+                };
+
                 int armyTotalDeployed = 0;
                 int armyTotalLosses = 0;
                 int armyTotalRemaining = 0;
                 int armyTotalKills = 0;
-                
+
                 if (army.CasualitiesReports != null)
                 {
-                    foreach (var unitReport in army.CasualitiesReports)
+                    foreach (var unitReportData in army.CasualitiesReports)
                     {
                         var unit = new UnitReport();
-                        
+
                         // Get the corresponding Unit object to access additional data
                         var correspondingUnit = army.Units.FirstOrDefault(u =>
                         {
                             // For knight units, match only by type and culture since GetTypeName() returns "Knight"
-                            if (u.GetRegimentType() == RegimentType.Knight && unitReport.GetUnitType() == RegimentType.Knight)
+                            if (u.GetRegimentType() == RegimentType.Knight && unitReportData.GetUnitType() == RegimentType.Knight)
                             {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                                return u.GetRegimentType() == unitReportData.GetUnitType() &&
+                                       u.GetObjCulture()?.ID == unitReportData.GetCulture()?.ID;
                             }
                             // For levy and garrison units, match by Attila unit key instead of name
-                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReport.GetUnitType() == RegimentType.Levy) ||
-                                     (u.GetRegimentType() == RegimentType.Garrison && unitReport.GetUnitType() == RegimentType.Garrison))
+                            else if ((u.GetRegimentType() == RegimentType.Levy && unitReportData.GetUnitType() == RegimentType.Levy) ||
+                                     (u.GetRegimentType() == RegimentType.Garrison && unitReportData.GetUnitType() == RegimentType.Garrison))
                             {
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetAttilaUnitKey() == unitReport.Type &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                                return u.GetRegimentType() == unitReportData.GetUnitType() &&
+                                       u.GetAttilaUnitKey() == unitReportData.Type &&
+                                       u.GetObjCulture()?.ID == unitReportData.GetCulture()?.ID;
                             }
                             else
                             {
                                 // Original matching logic for other unit types
-                                return u.GetRegimentType() == unitReport.GetUnitType() &&
-                                       u.GetName() == unitReport.GetTypeName() &&
-                                       u.GetObjCulture()?.ID == unitReport.GetCulture()?.ID;
+                                return u.GetRegimentType() == unitReportData.GetUnitType() &&
+                                       u.GetName() == unitReportData.GetTypeName() &&
+                                       u.GetObjCulture()?.ID == unitReportData.GetCulture()?.ID;
                             }
                         });
-                        
+
                         // Set basic casualty data
-                        unit.AttilaUnitName = unitReport.GetTypeName();
-                        unit.Deployed = unitReport.GetStarting();
-                        unit.Remaining = unitReport.GetAliveAfterPursuit() != -1 ? unitReport.GetAliveAfterPursuit() : unitReport.GetAliveBeforePursuit();
-                        unit.Kills = unitReport.GetKills();
+                        unit.AttilaUnitName = unitReportData.GetTypeName();
+                        unit.Deployed = unitReportData.GetStarting();
+                        unit.Remaining = unitReportData.GetAliveAfterPursuit() != -1 ? unitReportData.GetAliveAfterPursuit() : unitReportData.GetAliveBeforePursuit();
+                        unit.Kills = unitReportData.GetKills();
                         unit.Losses = Math.Max(0, unit.Deployed - unit.Remaining); // Prevent negative losses
-                        
+
                         // Set CK3 and Attila specific data
                         if (correspondingUnit != null)
                         {
@@ -1941,31 +1783,31 @@ namespace CrusaderWars.twbattle
                             unit.Ck3Heritage = correspondingUnit.GetHeritage() ?? "N/A";
                             unit.Ck3Culture = correspondingUnit.GetCulture() ?? "N/A";
                             unit.AttilaFaction = correspondingUnit.GetAttilaFaction() ?? "N/A";
-                            unit.Script = unitReport.Script;
-                            
+                            unit.Script = unitReportData.Script;
+
                             // Get formatted unit name using the same logic as UnitsCardsNames
                             string formattedName = UnitsCardsNames.GetFormattedUnitName(correspondingUnit, army);
                             unit.AttilaUnitName = formattedName; // Use the formatted name
-                            
+
                             // Set rank for Commander and Knight units
-                            if (correspondingUnit.GetRegimentType() == RegimentType.Commander || 
+                            if (correspondingUnit.GetRegimentType() == RegimentType.Commander ||
                                 correspondingUnit.GetRegimentType() == RegimentType.Knight)
                             {
                                 unit.Rank = correspondingUnit.CharacterRank;
                             }
-                            
+
                             // Set garrison level for Garrison units
                             if (correspondingUnit.GetRegimentType() == RegimentType.Garrison)
                             {
                                 unit.GarrisonLevel = correspondingUnit.GarrisonLevel;
                             }
-                            
+
                             // Set siege engine data
                             if (correspondingUnit.IsSiege())
                             {
                                 unit.IsSiegeUnit = true;
-                                unit.DeployedMachines = unitReport.GetStartingMachines();
-                                
+                                unit.DeployedMachines = unitReportData.GetStartingMachines();
+
                                 // Calculate remaining machines based on soldier survival rate
                                 double survivalRate = (unit.Deployed > 0) ? (double)unit.Remaining / unit.Deployed : 0;
                                 unit.RemainingMachines = (int)Math.Round(unit.DeployedMachines * survivalRate);
@@ -1982,7 +1824,7 @@ namespace CrusaderWars.twbattle
                         else
                         {
                             // Fallback if no corresponding unit found
-                            unit.Ck3UnitType = unitReport.GetUnitType().ToString();
+                            unit.Ck3UnitType = unitReportData.GetUnitType().ToString();
                             unit.AttilaUnitKey = "N/A";
                             unit.Ck3Heritage = "N/A";
                             unit.Ck3Culture = "N/A";
@@ -1992,10 +1834,10 @@ namespace CrusaderWars.twbattle
                             unit.RemainingMachines = 0;
                             unit.MachineLosses = 0;
                         }
-                        
+
                         // Add character info if available
                         unit.Characters = new List<CharacterReport>();
-                        
+
                         // Add commander character info if this is a commander unit
                         if (correspondingUnit?.GetRegimentType() == RegimentType.Commander && army.Commander != null)
                         {
@@ -2025,47 +1867,47 @@ namespace CrusaderWars.twbattle
                             }
                             unit.KnightDetails = knightDetails;
                         }
-                        
+
                         armyReport.Units.Add(unit);
-                        
+
                         armyTotalDeployed += unit.Deployed;
                         armyTotalLosses += unit.Losses;
                         armyTotalRemaining += unit.Remaining;
                         armyTotalKills += unit.Kills;
                     }
                 }
-                
+
                 armyReport.TotalDeployed = armyTotalDeployed;
                 armyReport.TotalLosses = armyTotalLosses;
                 armyReport.TotalRemaining = armyTotalRemaining;
                 armyReport.TotalKills = armyTotalKills;
-                
-                report.DefenderSide.Armies.Add(armyReport);
-                
-                totalDefenderDeployed += armyTotalDeployed;
-                totalDefenderLosses += armyTotalLosses;
-                totalDefenderRemaining += armyTotalRemaining;
-                totalDefenderKills += armyTotalKills;
+
+                sideReport.Armies.Add(armyReport);
+
+                totalSideDeployed += armyTotalDeployed;
+                totalSideLosses += armyTotalLosses;
+                totalSideRemaining += armyTotalRemaining;
+                totalSideKills += armyTotalKills;
             }
-            
-            report.DefenderSide.TotalDeployed = totalDefenderDeployed;
-            report.DefenderSide.TotalLosses = totalDefenderLosses;
-            report.DefenderSide.TotalRemaining = totalDefenderRemaining;
-            report.DefenderSide.TotalKills = totalDefenderKills;
-            
-            return report;
+
+            sideReport.TotalDeployed = totalSideDeployed;
+            sideReport.TotalLosses = totalSideLosses;
+            sideReport.TotalRemaining = totalSideRemaining;
+            sideReport.TotalKills = totalSideKills;
+
+            return sideReport;
         }
 
         // Autofix strategy implementations
         private static (bool, string) TryMapSizeFix(AutofixState autofixState, string originalMapSize)
         {
             autofixState.MapSizeFixAttempts++;
-            
+
             string nextMapSize;
             switch (autofixState.MapSizeFixAttempts)
             {
                 case 1:
-                    nextMapSize = originalMapSize == "Medium" ? "Big" : 
+                    nextMapSize = originalMapSize == "Medium" ? "Big" :
                                  originalMapSize == "Big" ? "Huge" : "Huge";
                     break;
                 case 2:
@@ -2074,10 +1916,10 @@ namespace CrusaderWars.twbattle
                 default:
                     return (false, ""); // No more map size options
             }
-            
+
             BattleState.AutofixDeploymentSizeOverride = nextMapSize;
             autofixState.OriginalMapDescription = $"Map Size: {originalMapSize}";
-            
+
             return (true, $"changing map size from {originalMapSize} to {nextMapSize}");
         }
 
@@ -2085,22 +1927,22 @@ namespace CrusaderWars.twbattle
         {
             if (autofixState.DeploymentRotationTried)
                 return (false, ""); // Already tried deployment rotation
-            
+
             BattleState.AutofixDeploymentRotationOverride = !(BattleState.AutofixDeploymentRotationOverride ?? false);
             autofixState.DeploymentRotationTried = true;
-            
+
             string rotationState = BattleState.AutofixDeploymentRotationOverride == true ? "enabled" : "disabled";
             return (true, $"changing deployment rotation to {rotationState}");
         }
 
-        private static (bool, string) TryUnitFix(AutofixState autofixState, Form form)
+        private static (bool, string) TryUnitFix(AutofixState autofixState, Form? form)
         {
             if (autofixState.NextUnitKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
                 return (false, ""); // No more units to try replacing
-            
+
             string unitKeyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
             autofixState.NextUnitKeyIndexToReplace++;
-            
+
             // For automatic unit fix, we'll just log that a unit was replaced
             // The actual replacement logic would be more complex and depend on the specific unit
             return (true, $"replacing problematic unit '{unitKeyToReplace}' with a generic alternative");
@@ -2110,30 +1952,30 @@ namespace CrusaderWars.twbattle
         {
             autofixState.MapVariantOffset++;
             BattleState.AutofixMapVariantOffset = autofixState.MapVariantOffset;
-            
+
             return (true, $"changing map variant (offset +{autofixState.MapVariantOffset})");
         }
 
-        
+
         private static int GetGarrisonLevelFromUnitKey(string unitKey)
         {
             if (string.IsNullOrEmpty(unitKey))
                 return 0;
-                
+
             // Try to extract level from unit key (e.g., "att_garrison_spearmen_level_3" -> level 3)
             var match = System.Text.RegularExpressions.Regex.Match(unitKey, @"level_(\d+)");
             if (match.Success && int.TryParse(match.Groups[1].Value, out int level))
             {
                 return level;
             }
-            
+
             // Alternative pattern for garrison units
             match = System.Text.RegularExpressions.Regex.Match(unitKey, @"garrison.*?(\d+)");
             if (match.Success && int.TryParse(match.Groups[1].Value, out level))
             {
                 return level;
             }
-            
+
             // Default to level 1 if no level can be determined
             return 1;
         }

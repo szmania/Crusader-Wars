@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +16,7 @@ namespace CrusaderWars.locs
         public static string Name { get; set; } = string.Empty;
         public static string? AttackerCommanderName { get; private set; }
         public static string? DefenderCommanderName { get; private set; }
-        
+
         public static void SetBattleName(string a)
         {
             Name = a;
@@ -51,7 +51,7 @@ namespace CrusaderWars.locs
             }
             // If parsing fails, 'version' remains "v1.0.0"
 
-            
+
             string original_buttonVersion_path = @".\data\battle files\text\db\tutorial_historical_battles_uied_component_texts.loc.tsv";
             string copy_path = @".\data\tutorial_historical_battles_uied_component_texts.loc.tsv";
             File.Copy(original_buttonVersion_path, copy_path);
@@ -138,7 +138,7 @@ namespace CrusaderWars.locs
             }
 
             File.WriteAllText(copy_path, new_data);
-            if(File.Exists(original_battle_details_path))File.Delete(original_battle_details_path);
+            if (File.Exists(original_battle_details_path)) File.Delete(original_battle_details_path);
             File.Move(copy_path, original_battle_details_path);
         }
 
@@ -164,7 +164,7 @@ namespace CrusaderWars.locs
                     }
 
                     //Player Side
-                    if(line.Contains("factions_screen_name_historical_house_stark"))
+                    if (line.Contains("factions_screen_name_historical_house_stark"))
                     {
                         line = Regex.Replace(line, @"\t()\t", $"\t{playerCombatSide}\t");
                         AttackerCommanderName = playerCombatSide; // Store for later use
@@ -178,7 +178,7 @@ namespace CrusaderWars.locs
             }
 
             File.WriteAllText(copy_path, new_data);
-            if(File.Exists(original_attila_file_path))File.Delete(original_attila_file_path);
+            if (File.Exists(original_attila_file_path)) File.Delete(original_attila_file_path);
             File.Move(copy_path, original_attila_file_path);
         }
 
@@ -201,17 +201,17 @@ namespace CrusaderWars.locs
              * null value = random
              */
 
-            
+
             string images_folder_path = @".\data\terrains_images\";
 
             string image_to_copy_path = "";
 
-            
+
             string terrain = TerrainGenerator.TerrainType ?? string.Empty;
             string weather = Weather.Season ?? string.Empty;
             Weather.WinterSeverity? snow = Weather.Winter_Severity; // Changed to nullable enum
             bool hasSnow = Weather.HasWinter;
-            
+
 
 
             //For each terrain folder
@@ -222,21 +222,21 @@ namespace CrusaderWars.locs
                 if (terrain == folder_name)
                 {
                     //For each image on folder
-                    foreach(var image_path in Directory.GetFiles(folder_path))
+                    foreach (var image_path in Directory.GetFiles(folder_path))
                     {
                         string image_name = Path.GetFileNameWithoutExtension(image_path);
                         terrain = FirstCharSubstring(terrain);
-                        
+
 
                         //Terrain Image
-                        if(weather == "random" && image_name == terrain)
+                        if (weather == "random" && image_name == terrain)
                         {
                             image_to_copy_path = image_path;
                             break;
                         }
 
                         //Terrain Image + Weather
-                        if(weather != "random" && !hasSnow && image_name == $"{terrain}_{weather}")
+                        if (weather != "random" && !hasSnow && image_name == $"{terrain}_{weather}")
                         {
                             image_to_copy_path = image_path;
                             break;
@@ -256,16 +256,16 @@ namespace CrusaderWars.locs
             }
 
             string default_image_path = @".\data\terrains_images\screenshot_small.png";
-            
+
             //Default Version Image
-            if(string.IsNullOrEmpty(image_to_copy_path))
+            if (string.IsNullOrEmpty(image_to_copy_path))
             {
                 image_to_copy_path = default_image_path;
             }
 
             string battle_files_image_path = @".\data\battle files\script\tut_tutorial_battle\screenshot_small.png";
 
-            if(File.Exists(battle_files_image_path)) File.Delete(battle_files_image_path);
+            if (File.Exists(battle_files_image_path)) File.Delete(battle_files_image_path);
             File.Copy(image_to_copy_path, battle_files_image_path);
 
 
@@ -287,7 +287,7 @@ namespace CrusaderWars.locs
 
         private static string GetSnow(Weather.WinterSeverity snow_severity)
         {
-            switch(snow_severity)
+            switch (snow_severity)
             {
                 case Weather.WinterSeverity.Mild:
                     return "mildsnow";

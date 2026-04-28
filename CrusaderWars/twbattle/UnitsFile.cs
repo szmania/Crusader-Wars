@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -107,9 +107,9 @@ namespace CrusaderWars
             return null;
         }
 
-        static int GetTraitsXP(bool isPlayer,string combatSide, string terrainType, bool isRiverCrossing, bool isHostileFaith, bool isWinter)
+        static int GetTraitsXP(bool isPlayer, string combatSide, string terrainType, bool isRiverCrossing, bool isHostileFaith, bool isWinter)
         {
-            var commander_traits =  GetCommanderTraitsObj(isPlayer);
+            var commander_traits = GetCommanderTraitsObj(isPlayer);
             if (commander_traits != null)
                 return commander_traits.GetBenefits(combatSide, terrainType, isRiverCrossing, isHostileFaith, isWinter);
 
@@ -120,7 +120,7 @@ namespace CrusaderWars
         static void BETA_AddArmyUnits(Army army)
         {
             Program.Logger.Debug($"BETA_AddArmyUnits: Processing army {army.ID} ({army.CombatSide}) with {army.Units.Count} units.");
-            
+
             if (army.Owner is null)
             {
                 Program.Logger.Debug($"  - WARNING: Army {army.ID} has no owner. Skipping unit processing.");
@@ -148,7 +148,7 @@ namespace CrusaderWars
                 commander_army_xp = commander.GetUnitsExperience();
                 int commander_xp = commander.GetCommanderExperience();
                 int commander_soldiers = commander.GetUnitSoldiers();
-                
+
                 Unit commander_unit = new Unit("General", commander_soldiers, commander.GetCultureObj(), RegimentType.Commander, false, army.Owner, commander.Rank);
                 commander_unit.SetCharacterID(commander.ID);
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(commander.GetCultureName(), commander.GetHeritageName()));
@@ -247,11 +247,13 @@ namespace CrusaderWars
             //##################
             //     ARMY XP     #
             //##################
-            if (army.IsPlayer()) { 
+            if (army.IsPlayer())
+            {
                 traits_xp = GetTraitsXP(true, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
                 modifiers_xp = CK3LogData.LeftSide.GetModifiers()?.GetXP() ?? 0;
             }
-            else { 
+            else
+            {
                 traits_xp = GetTraitsXP(false, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
                 modifiers_xp = CK3LogData.RightSide.GetModifiers()?.GetXP() ?? 0;
             }
@@ -310,55 +312,55 @@ namespace CrusaderWars
                 }
             }
 
-                //##################
-                //                 #
-                //      LEVIES     #
-                //                 #
-                //##################
-    
-                var newLevyUnits = new List<Unit>();
-                var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy).ToList();
-                if (levies_units.Any())
-                {
-                    // Group levies by their target Attila faction to prevent duplicate generation
-                    // if multiple cultures map to the same faction.
-                    var levies_by_faction = levies_units.GroupBy(u => u.GetAttilaFaction());
-    
-                    foreach (var faction_group in levies_by_faction)
-                    {
-                        string factionName = faction_group.Key;
-                        if (string.IsNullOrEmpty(factionName) || factionName == UnitMappers_BETA.NOT_FOUND_KEY)
-                        {
-                            int soldiers = faction_group.Sum(u => u.GetSoldiers());
-                            Program.Logger.Debug($"WARNING - {soldiers} LEVY SOLDIERS WITHOUT A FACTION FOUND. SKIPPING.");
-                            continue;
-                        }
-    
-                        // Sum up all soldiers for this faction
-                        int total_faction_levy_soldiers = faction_group.Sum(u => u.GetSoldiers());
-    
-                        // Create a representative levy unit for this faction group.
-                        // We use the culture of the largest contributing unit for logging/script naming.
-                        var representative_unit = faction_group.OrderByDescending(u => u.GetSoldiers()).First();
-                        
-                        // Determine the culture for the merged levy unit, falling back to the army owner's culture if needed.
-                        var levyCulture = representative_unit.GetObjCulture();
-                        if (levyCulture == null)
-                        {
-                            Program.Logger.Debug($"  - Levy representative unit for faction '{factionName}' has no culture. Falling back to owner's culture.");
-                            levyCulture = army.Owner.GetCulture();
-                        }
+            //##################
+            //                 #
+            //      LEVIES     #
+            //                 #
+            //##################
 
-                        Unit merged_levy_unit = new Unit("Levy", total_faction_levy_soldiers, levyCulture, RegimentType.Levy, faction_group.Any(u => u.IsMerc()), army.Owner, 0);
-                        merged_levy_unit.SetAttilaFaction(factionName);
-                        merged_levy_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
-    
-                        Program.Logger.Debug($"Processing levies for faction '{factionName}' with a total of {total_faction_levy_soldiers} soldiers.");
-    
-                        var (levy_percentages, factionUsed) = UnitMappers_BETA.GetFactionLevies(factionName);
-                        newLevyUnits.AddRange(BETA_LevyComposition(merged_levy_unit, army, levy_percentages, army_xp, factionUsed));
+            var newLevyUnits = new List<Unit>();
+            var levies_units = army.Units.Where(item => item.GetRegimentType() == data.save_file.RegimentType.Levy).ToList();
+            if (levies_units.Any())
+            {
+                // Group levies by their target Attila faction to prevent duplicate generation
+                // if multiple cultures map to the same faction.
+                var levies_by_faction = levies_units.GroupBy(u => u.GetAttilaFaction());
+
+                foreach (var faction_group in levies_by_faction)
+                {
+                    string factionName = faction_group.Key;
+                    if (string.IsNullOrEmpty(factionName) || factionName == UnitMappers_BETA.NOT_FOUND_KEY)
+                    {
+                        int soldiers = faction_group.Sum(u => u.GetSoldiers());
+                        Program.Logger.Debug($"WARNING - {soldiers} LEVY SOLDIERS WITHOUT A FACTION FOUND. SKIPPING.");
+                        continue;
                     }
+
+                    // Sum up all soldiers for this faction
+                    int total_faction_levy_soldiers = faction_group.Sum(u => u.GetSoldiers());
+
+                    // Create a representative levy unit for this faction group.
+                    // We use the culture of the largest contributing unit for logging/script naming.
+                    var representative_unit = faction_group.OrderByDescending(u => u.GetSoldiers()).First();
+
+                    // Determine the culture for the merged levy unit, falling back to the army owner's culture if needed.
+                    var levyCulture = representative_unit.GetObjCulture();
+                    if (levyCulture == null)
+                    {
+                        Program.Logger.Debug($"  - Levy representative unit for faction '{factionName}' has no culture. Falling back to owner's culture.");
+                        levyCulture = army.Owner.GetCulture();
+                    }
+
+                    Unit merged_levy_unit = new Unit("Levy", total_faction_levy_soldiers, levyCulture, RegimentType.Levy, faction_group.Any(u => u.IsMerc()), army.Owner, 0);
+                    merged_levy_unit.SetAttilaFaction(factionName);
+                    merged_levy_unit.SetMax(representative_unit.GetMax()); // Inherit max from representative
+
+                    Program.Logger.Debug($"Processing levies for faction '{factionName}' with a total of {total_faction_levy_soldiers} soldiers.");
+
+                    var (levy_percentages, factionUsed) = UnitMappers_BETA.GetFactionLevies(factionName);
+                    newLevyUnits.AddRange(BETA_LevyComposition(merged_levy_unit, army, levy_percentages, army_xp, factionUsed));
                 }
+            }
 
             // Remove old placeholder units and add new composed units for logging
             army.Units.RemoveAll(u => u.GetRegimentType() == RegimentType.Garrison || u.GetRegimentType() == RegimentType.Levy);
@@ -446,7 +448,7 @@ namespace CrusaderWars
                         int machinesForThisUnit = (j == unitsToCreate - 1)
                             ? totalCk3Machines - (numGunsPerUnit * (unitsToCreate - 1))
                             : numGunsPerUnit;
-                        
+
                         int soldiersForThisUnit = UnitMappers_BETA.ConvertMachinesToMen(machinesForThisUnit);
 
                         // Create a new Unit object for each split to ensure unique UniqueID
@@ -592,7 +594,7 @@ namespace CrusaderWars
             if (unit.GetSoldiers() <= unit.GetMax())
             {
                 var random = corrected_levy_percentages[_random.Next(corrected_levy_percentages.Count)];
-                
+
                 int soldiersInCk3 = unit.GetSoldiers();
                 int soldiersForAttila = soldiersInCk3;
                 if (random.isSiege)

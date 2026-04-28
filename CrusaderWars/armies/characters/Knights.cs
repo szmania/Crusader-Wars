@@ -10,18 +10,19 @@ namespace CrusaderWars
 {
     public class Accolade
     {
-        string ID {  get; set; }
-        string PrimaryAttribute { get; set;}
+        string ID { get; set; }
+        string PrimaryAttribute { get; set; }
         string SecundaryAttribute { get; set; }
         int Glory { get; set; }
-        public Accolade(string id, string primaryAtt, string secundaryAtt, string glory) { 
+        public Accolade(string id, string primaryAtt, string secundaryAtt, string glory)
+        {
             ID = id;
             PrimaryAttribute = primaryAtt;
             SecundaryAttribute = secundaryAtt;
             Glory = Int32.Parse(glory);
         }
 
-        public string GetPrimaryAttribute() { return PrimaryAttribute;}
+        public string GetPrimaryAttribute() { return PrimaryAttribute; }
         public string GetSecundaryAttribute() { return SecundaryAttribute; }
         public int GetGlory() { return Glory; }
     }
@@ -56,7 +57,7 @@ namespace CrusaderWars
 
         private KnightSystem? _knightSystem; // Added: Reference to parent KnightSystem
 
-        public string GetName() {  return Name; }
+        public string GetName() { return Name; }
         public string GetID() { return ID; }
         public string GetCultureName() { return CultureObj?.GetCultureName() ?? "unknown_culture"; }
         public string GetHeritageName() { return CultureObj?.GetHeritageName() ?? "unknown_heritage"; }
@@ -64,7 +65,7 @@ namespace CrusaderWars
         public int GetSoldiers() { return Soldiers; }
         public int GetProwess() { return Prowess; }
         public bool IsAccolade() { return isAccoladeKnight; }
-        public Accolade? GetAccolade() { return Accolade; } 
+        public Accolade? GetAccolade() { return Accolade; }
         public bool HasFallen() { return hasFallen; }
         public int GetKills() { return Kills; }
         public List<(int, string)> GetTraits() { return Traits ?? new List<(int, string)>(); }
@@ -74,11 +75,12 @@ namespace CrusaderWars
         public void ChangeCulture(Culture cul) { CultureObj = cul; }
         public void SetTraits(List<(int, string)> list_trait) { Traits = list_trait; }
         public void IsAccolade(bool yn, Accolade accolade) { isAccoladeKnight = yn; Accolade = accolade; Soldiers += 4; }
-        public void SetBaseSkills(BaseSkills t) { BaseSkills =  t; }
+        public void SetBaseSkills(BaseSkills t) { BaseSkills = t; }
         public void SetKnightSystem(KnightSystem ks) { _knightSystem = ks; } // Added: Setter for KnightSystem
 
 
-        internal Knight(string name, string id, Culture culture, int prowess, int soldiers) { 
+        internal Knight(string name, string id, Culture culture, int prowess, int soldiers)
+        {
             Name = name;
             ID = id;
             CultureObj = culture;
@@ -88,7 +90,7 @@ namespace CrusaderWars
             Soldiers = SetStrengh(soldiers);
             SetRank();
         }
-        
+
 
         private void SetRank()
         {
@@ -112,7 +114,7 @@ namespace CrusaderWars
             //Health soldiers debuff
             if (Traits != null)
             {
-                foreach(var trait in Traits)
+                foreach (var trait in Traits)
                 {
                     if (trait.Item1 == WoundedTraits.Wounded()) debuff += -1;
                     if (trait.Item1 == WoundedTraits.Severely_Injured()) debuff += -2;
@@ -174,7 +176,7 @@ namespace CrusaderWars
             if (Prowess >= 17) prowess_survival_bonus = 0.15;       // 15% bonus for Excellent
             else if (Prowess >= 13) prowess_survival_bonus = 0.10;  // 10% bonus for Good
             else if (Prowess >= 9) prowess_survival_bonus = 0.05;   // 5% bonus for Average
-            
+
             double final_chance_to_fall = casualty_percentage - prowess_survival_bonus;
 
             // Ensure chance is not negative
@@ -340,7 +342,7 @@ namespace CrusaderWars
                 Effectiveness = effectiveness;
                 hasKnights = true;
                 SetKnightsCount();
-                foreach(var knight in Knights) // Added: Set back-reference to KnightSystem
+                foreach (var knight in Knights) // Added: Set back-reference to KnightSystem
                 {
                     knight.SetKnightSystem(this);
                 }
@@ -367,24 +369,24 @@ namespace CrusaderWars
 
         public void SetMajorCulture()
         {
-              MajorCulture = Knights.GroupBy(knight => knight.GetCultureObj())
-                                    .OrderByDescending(group => group.Count())
-                                    .Select(group => group.Key)
-                                    .FirstOrDefault();
+            MajorCulture = Knights.GroupBy(knight => knight.GetCultureObj())
+                                  .OrderByDescending(group => group.Count())
+                                  .Select(group => group.Key)
+                                  .FirstOrDefault();
 
-              if(MajorCulture == null)
+            if (MajorCulture == null)
                 MajorCulture = Knights.FirstOrDefault(x => x.GetCultureObj() != null)?.GetCultureObj(); // ADDED NULL-CONDITIONAL OPERATOR
         }
 
 
         public void SetAccolades()
         {
-            if(Knights.Exists(x=> x.IsAccolade()))
+            if (Knights.Exists(x => x.IsAccolade()))
             {
                 Accolades = new List<Accolade>();
                 foreach (var knight in Knights)
                 {
-                    if(knight.IsAccolade())
+                    if (knight.IsAccolade())
                     {
                         if (knight.GetAccolade() != null)
                         {
@@ -418,7 +420,7 @@ namespace CrusaderWars
 
         public void GetKills(int kills)
         {
-            if(hasKnights)
+            if (hasKnights)
             {
                 Random random = new Random();
 
@@ -487,7 +489,7 @@ namespace CrusaderWars
                     var knight = tempKnightsList[random_index];
 
                     soldiers_lost -= knight.GetSoldiers();
-                    
+
                     knight.SetHasFallen(true);
                     tempKnightsList.Remove(knight);
 
@@ -514,7 +516,7 @@ namespace CrusaderWars
         public int GetKnightsSoldiers()
         {
             int num = 0;
-            foreach(Knight knight in Knights)
+            foreach (Knight knight in Knights)
             {
                 num += knight.GetSoldiers();
             }
@@ -592,7 +594,7 @@ namespace CrusaderWars
         {
             if (Knights != null && knightToRemove != null)
             {
-                if(Knights.Remove(knightToRemove))
+                if (Knights.Remove(knightToRemove))
                 {
                     Program.Logger.Debug($"Removed knight {knightToRemove.GetName()} ({knightToRemove.GetID()}) from KnightSystem.");
                 }

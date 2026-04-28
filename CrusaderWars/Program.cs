@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 
 namespace CrusaderWars
 {
@@ -15,21 +16,23 @@ namespace CrusaderWars
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
+        [SupportedOSPlatform("windows")]
         static void Main()
-       {
+        {
             Logger.Debug("Application starting...");
             Logger.Debug(AppDomain.CurrentDomain.BaseDirectory);
             System.IO.Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
+
             // Subscribe to global exception events
             Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            
+
             Application.Run(new HomePage());
         }
 
+        [SupportedOSPlatform("windows")]
         static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             // Handle the exception
@@ -39,6 +42,7 @@ namespace CrusaderWars
             Logger.Log(e.Exception);
         }
 
+        [SupportedOSPlatform("windows")]
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Handle the exception
@@ -106,7 +110,7 @@ namespace CrusaderWars
                 }
                 catch (Exception logEx)
                 {
-                     Console.WriteLine($"FATAL: Could not write to error log. {logEx.Message}");
+                    Console.WriteLine($"FATAL: Could not write to error log. {logEx.Message}");
                 }
             }
         }

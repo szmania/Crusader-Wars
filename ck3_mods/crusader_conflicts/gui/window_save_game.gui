@@ -6,11 +6,19 @@ window = {
 
 	using = Animation_ShowHide_Quick
 	using = Background_Full_Dim
+	
+	state = {
+		name = _show
+		on_finish = "[GetVariableSystem.Set('pause_submenu', 'save')]"
+	}
+	state = {
+		name = _hide
+		on_finish = "[GetVariableSystem.Clear('pause_submenu')]"
+	}
 
 	button_normal = {
 		size = { 100% 100% }
 		onclick = "[SaveGameWindow.Cancel]"
-		onclick = "[PdxGuiTriggerAllAnimations('bookmarks_reset')]"
 	}
 
 		############################################################
@@ -54,7 +62,6 @@ window = {
 
 				blockoverride "button_close" {
 					onclick = "[SaveGameWindow.Cancel]"
-					onclick = "[PdxGuiTriggerAllAnimations('bookmarks_reset')]"
 				}
 			}
 
@@ -73,6 +80,7 @@ window = {
 					blockoverride "editbox_properties" {
 		                name = "save_name"
 		                text = "[SaveGameWindow.GetDefaultSaveName]"
+		                focus_on_visible = yes
 		            	ontextedited = "[SaveGameWindow.UpdateSaveName]"
 						onreturnpressed = "[SaveGameWindow.Save]"
 		            }

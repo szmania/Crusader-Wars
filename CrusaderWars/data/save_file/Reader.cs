@@ -137,7 +137,7 @@ namespace CrusaderWars.data.save_file
             //Clear Units File
             File.WriteAllText(Writter.DataFilesPaths.Units_Path(), "");
 
-			//Clear Court Positions File
+            //Clear Court Positions File
             File.WriteAllText(Writter.DataFilesPaths.CourtPositions_Path(), "");
 
             //Clear Landed Titles File
@@ -195,7 +195,7 @@ namespace CrusaderWars.data.save_file
                     {
                         Program.Logger.Debug($"... Read {lineCount} lines from save file ...");
                     }
-                    
+
                     if (twbattle.BattleState.IsSiegeBattle && !string.IsNullOrEmpty(BattleResult.ProvinceID))
                     {
                         GetterKeys.ReadProvinceBuildings(line, BattleResult.ProvinceID);
@@ -203,7 +203,7 @@ namespace CrusaderWars.data.save_file
 
 
                     SearchKeys.TraitsList(line);
-                    
+
                     SearchKeys.BattleResults(line);
                     SearchKeys.Combats(line);
                     SearchKeys.Regiments(line);

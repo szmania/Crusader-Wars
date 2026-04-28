@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 
 namespace CrusaderWars.client.Options
 {
+    [SupportedOSPlatform("windows")]
     public partial class UC_CommandersAndKnightsOptions : UserControl
     {
         private List<NumericUpDown> commanderControls;
@@ -35,14 +37,14 @@ namespace CrusaderWars.client.Options
 
             // Initial subscription
             SubscribeEventHandlers();
-            
+
             // Set default values
             SetDefaults();
         }
 
         private bool _combineKnightsChanged = false;
 
-        private void comboCombineKnights_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboCombineKnights_SelectedIndexChanged(object? sender, EventArgs e)
         {
             _combineKnightsChanged = true;
         }
@@ -59,7 +61,7 @@ namespace CrusaderWars.client.Options
         [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public string CombineKnightsValue
         {
-            get { return comboCombineKnights.SelectedItem.ToString(); }
+            get { return comboCombineKnights.SelectedItem?.ToString() ?? "Disabled"; }
             set { comboCombineKnights.SelectedItem = value; }
         }
 
@@ -90,32 +92,32 @@ namespace CrusaderWars.client.Options
         private void Commander_ValueChanged(object? sender, EventArgs e)
         {
             if (sender is not NumericUpDown changedControl) return;
-            
+
             int total = commanderControls.Sum(c => (int)c.Value);
-            
+
             if (total > 100)
             {
                 // Prevent the change by reducing the value that was just increased
                 int excess = total - 100;
                 changedControl.Value -= excess;
             }
-            
+
             UpdateCommanderTotal();
         }
 
         private void Knight_ValueChanged(object? sender, EventArgs e)
         {
             if (sender is not NumericUpDown changedControl) return;
-            
+
             int total = knightControls.Sum(c => (int)c.Value);
-            
+
             if (total > 100)
             {
                 // Prevent the change by reducing the value that was just increased
                 int excess = total - 100;
                 changedControl.Value -= excess;
             }
-            
+
             UpdateKnightTotal();
         }
 
@@ -175,6 +177,7 @@ namespace CrusaderWars.client.Options
             UpdateKnightTotal();
         }
 
+        [SupportedOSPlatform("windows")]
         private void AdjustTableLayouts()
         {
             // Add tooltips to group boxes
@@ -189,7 +192,7 @@ namespace CrusaderWars.client.Options
             toolTip1.SetToolTip(lblCommanderOneLegged, "Chance for commander to lose a leg when fallen in battle");
             toolTip1.SetToolTip(lblCommanderOneEyed, "Chance for commander to lose an eye when fallen in battle");
             toolTip1.SetToolTip(lblCommanderDisfigured, "Chance for commander to be disfigured when fallen in battle");
-            
+
             toolTip1.SetToolTip(lblKnightWounded, "Chance for knight to be wounded when fallen in battle");
             toolTip1.SetToolTip(lblKnightSeverelyInjured, "Chance for knight to be severely injured when fallen in battle");
             toolTip1.SetToolTip(lblKnightBrutallyMauled, "Chance for knight to be brutally mauled when fallen in battle");
@@ -204,13 +207,13 @@ namespace CrusaderWars.client.Options
             toolTip1.SetToolTip(lblKnightPrisoner, "Chance for a character to be taken prisoner if they fall and survive the battle. This is a separate roll and is NOT part of the 100% total for wounds/death.\nCharacters on the losing side have the full chance shown here.\nCharacters on the winning side have a reduced chance (25% of this value).");
             toolTip1.SetToolTip(numKnightPrisoner, "Chance for a character to be taken prisoner if they fall and survive the battle. This is a separate roll and is NOT part of the 100% total for wounds/death.\nCharacters on the losing side have the full chance shown here.\nCharacters on the winning side have a reduced chance (25% of this value).");
             toolTip1.SetToolTip(lblCombineKnights, "Determines how knights are represented.\n- Disabled (Default): High-prowess knights lead their own units or MAA squads. Other knights are grouped.\n- Enabled: All knights are combined into a single unit (classic behavior).");
-            
+
             // Add tooltip to reset button
             toolTip1.SetToolTip(btnReset, "Reset all wound chance values to their default settings");
-            
+
             // Add padding for better vertical alignment
             tableCommanders.Padding = new Padding(0, 5, 0, 0);
-            
+
             // Ensure controls are properly anchored in the combined tableCommanders
             foreach (Control control in tableCommanders.Controls)
             {
@@ -233,29 +236,37 @@ namespace CrusaderWars.client.Options
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public bool IsCommanderTotalValid()
         {
             return commanderControls.Sum(c => (int)c.Value) == 100;
         }
 
+        [SupportedOSPlatform("windows")]
         public bool IsKnightTotalValid()
         {
             return knightControls.Sum(c => (int)c.Value) == 100;
         }
 
+        [SupportedOSPlatform("windows")]
         public int GetCommanderTotal()
         {
             return commanderControls.Sum(c => (int)c.Value);
         }
 
+        [SupportedOSPlatform("windows")]
         public int GetKnightTotal()
         {
             return knightControls.Sum(c => (int)c.Value);
         }
 
+        [SupportedOSPlatform("windows")]
         public int GetCommanderSlainChance() => (int)numCommanderSlain.Value;
+        [SupportedOSPlatform("windows")]
         public int GetKnightSlainChance() => (int)numKnightSlain.Value;
+        [SupportedOSPlatform("windows")]
         public int GetCommanderPrisonerChance() => (int)numCommanderPrisoner.Value;
+        [SupportedOSPlatform("windows")]
         public int GetKnightPrisonerChance() => (int)numKnightPrisoner.Value;
     }
 }

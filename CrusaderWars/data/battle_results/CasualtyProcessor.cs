@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -11,6 +11,8 @@ using System.Globalization; // Added for CultureInfo
 using CrusaderWars.armies; // Added for List<Army>
 using CrusaderWars.unit_mapper;
 using CrusaderWars.locs;
+using System.Runtime.Versioning;
+using System.Windows.Forms;
 
 
 namespace CrusaderWars.data.battle_results
@@ -23,6 +25,7 @@ namespace CrusaderWars.data.battle_results
             Kills
         }
 
+        [SupportedOSPlatform("windows")]
         public static void ReadAttilaResults(Army army, string path_attila_log)
         {
             Program.Logger.Debug($"Reading Attila results for army {army.ID} from log: {path_attila_log}");
@@ -162,7 +165,7 @@ namespace CrusaderWars.data.battle_results
             foreach (ArmyRegiment armyRegiment in nonLevyArmyRegiments)
             {
                 bool isSiegeType = false;
-                string unitIdentifier = armyRegiment.MAA_Name; 
+                string unitIdentifier = armyRegiment.MAA_Name;
 
                 var firstRegiment = armyRegiment.Regiments.FirstOrDefault();
                 string? cultureId = firstRegiment?.Culture?.ID;
@@ -198,7 +201,7 @@ namespace CrusaderWars.data.battle_results
                             if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate)) survivalRate = 0;
                             finalMachineCount = (int)Math.Round(originalMachines * survivalRate);
                         }
-                        
+
                         regiment.SetSoldiers(Math.Min(originalMachines, finalMachineCount).ToString());
                     }
                     else
@@ -213,7 +216,7 @@ namespace CrusaderWars.data.battle_results
                             if (double.IsNaN(survivalRate) || double.IsInfinity(survivalRate)) survivalRate = 0;
                             finalSoldierCount = (int)Math.Round(originalSoldiers * survivalRate);
                         }
-                        
+
                         regiment.SetSoldiers(Math.Min(originalSoldiers, finalSoldierCount).ToString());
                     }
                 }
@@ -223,18 +226,18 @@ namespace CrusaderWars.data.battle_results
             var levyRegimentsByCulture = levyArmyRegiments
                 .SelectMany(ar => ar.Regiments.Where(r => r.Culture?.ID != null))
                 .GroupBy(r => r.Culture.ID);
-                
+
             foreach (var cultureGroup in levyRegimentsByCulture)
             {
                 string cultureId = cultureGroup.Key;
-                
+
                 var levyReports = army.CasualitiesReports.Where(x =>
-                    x.GetUnitType() == RegimentType.Levy && 
-                    x.GetCulture() != null && 
+                    x.GetUnitType() == RegimentType.Levy &&
+                    x.GetCulture() != null &&
                     x.GetCulture().ID == cultureId);
-                    
+
                 int totalCasualtiesToApply = levyReports.Sum(r => r.GetCasualties());
-                
+
                 var regimentsInGroup = cultureGroup.ToList();
                 int totalOriginalSoldiers = regimentsInGroup.Sum(r => int.TryParse(r.CurrentNum, out int num) ? num : 0);
 
@@ -277,7 +280,7 @@ namespace CrusaderWars.data.battle_results
             {
                 if (armyRegiment.Type == data.save_file.RegimentType.Commander ||
                     armyRegiment.Type == data.save_file.RegimentType.Knight) continue;
-                    
+
                 int army_regiment_total = armyRegiment.Regiments.Where(reg => !string.IsNullOrEmpty(reg.CurrentNum))
                     .Sum(x => Int32.Parse(x.CurrentNum!));
                 armyRegiment.CurrentNum = army_regiment_total;
@@ -376,10 +379,10 @@ namespace CrusaderWars.data.battle_results
                 // Determine the display name for the report
                 // Use the screen name from the unit mapper if available to ensure 1:1 matching in the AAR
                 string attilaKey = matchingUnit.GetAttilaUnitKey();
-                var unitScreenNames = UnitMappers_BETA.GetLoadedUnitMapperName() != null 
-                    ? UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName()!) 
+                var unitScreenNames = UnitMappers_BETA.GetLoadedUnitMapperName() != null
+                    ? UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName()!)
                     : null;
-                
+
                 if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
                 {
                     string? screenName = null;
@@ -502,7 +505,7 @@ namespace CrusaderWars.data.battle_results
                     var report = army.CasualitiesReports.FirstOrDefault(r =>
                         r.GetUnitType() == unit.GetRegimentType() &&
                         r.GetTypeName() == unit.GetName() &&
-                        r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
+                        r.GetCulture()?.ID == unit.GetObjCulture()!.ID);
 
                     if (report != null && report.GetStarting() > 0)
                     {

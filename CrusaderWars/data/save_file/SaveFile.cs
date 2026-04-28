@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.IO;
 using System.Text;
@@ -26,7 +26,7 @@ namespace CrusaderWars.data.save_file
 
         internal static void Compress()
         {
-            
+
             string editedGamestatePath = @".\data\save_file_data\gamestate";
             string newSaveFilePath = @".\data\save_file_data\battle_results.zip";
             string metadataPath = @".\data\save_file_data\metadata.txt";
@@ -131,10 +131,10 @@ namespace CrusaderWars.data.save_file
             string gamestatePath = @".\data\save_file_data\gamestate_file\gamestate";
             string newSaveFilePath = @".\data\save_file_data\battle_results.zip";
 
-            string[] files_to_delete = new string[]{myLastSavePath, editedGamestatePath, gamestatePath, newSaveFilePath};
-            foreach(string file in files_to_delete)
+            string[] files_to_delete = new string[] { myLastSavePath, editedGamestatePath, gamestatePath, newSaveFilePath };
+            foreach (string file in files_to_delete)
             {
-                if(File.Exists(file))
+                if (File.Exists(file))
                 {
                     // If this is the original gamestate, create a backup before deleting
                     if (file == gamestatePath)
@@ -158,7 +158,7 @@ namespace CrusaderWars.data.save_file
                 File.Delete(@".\data\save_file_data\gamestate");
 
 
-                using (FileStream fs = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read))
+            using (FileStream fs = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read))
             {
                 long zipDataStart = FindStartOfZipData(fs);
 
@@ -172,7 +172,7 @@ namespace CrusaderWars.data.save_file
                         {
                             foreach (ZipEntry entry in zipFile)
                             {
-                                
+
                                 string entryFileName = Path.Combine(extractPath, entry.Name);
 
                                 using (Stream zipStreamEntry = zipFile.GetInputStream(entry))
