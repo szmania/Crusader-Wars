@@ -25,9 +25,9 @@ namespace CrusaderWars.client.LinuxSetup.Steps
             this.lblSteamConfigStatus.AutoSize = true;
             this.lblSteamConfigStatus.Location = new System.Drawing.Point(20, 20);
             this.lblSteamConfigStatus.Name = "lblSteamConfigStatus";
-            this.lblSteamConfigStatus.Size = new System.Drawing.Size(350, 13);
+            this.lblSteamConfigStatus.Size = new System.Drawing.Size(123, 13);
             this.lblSteamConfigStatus.TabIndex = 0;
-            this.lblSteamConfigStatus.Text = "Please set the following launch options for Attila in Steam:\n%command% used_mods_cw.txt";
+            this.lblSteamConfigStatus.Text = "Attila Configuration...";
             // 
             // SteamConfigStepControl
             // 

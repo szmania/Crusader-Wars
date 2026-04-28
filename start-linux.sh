@@ -3,7 +3,7 @@
 # It checks for dependencies, sets up the Wine environment, and then runs the application.
 
 # --- Configuration ---
-export WINEPREFIX=~/.crusader-conflicts-net-pfx
+export WINEPREFIX="$HOME/.crusader-conflicts-net-pfx"
 EXECUTABLE_NAME="CrusaderConflicts.exe"
 WINETRICKS_URL="https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks"
 LOCAL_WINETRICKS_PATH="./winetricks"

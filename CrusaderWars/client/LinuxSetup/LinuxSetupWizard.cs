@@ -150,12 +150,19 @@ namespace CrusaderWars.client.LinuxSetup
             _detectionStep.SetDetectionResult("Attila", attilaPath, attilaFound);
             progressBar.Value = 30;
 
-            lblStatus.Text = "Environment detection complete.";
-
-            if (!wineFound || !steamFound || !attilaFound)
+            if (!wineFound)
             {
-                lblStatus.Text = "Error: Some required components were not found. Cannot proceed.";
+                lblStatus.Text = "Error: Wine was not found. Cannot proceed.";
                 return false;
+            }
+
+            if (!steamFound || !attilaFound)
+            {
+                lblStatus.Text = "Warning: Steam/Attila not found. Manual path configuration will be required in the main launcher.";
+            }
+            else
+            {
+                lblStatus.Text = "Environment detection complete.";
             }
 
             return true;
@@ -229,9 +236,10 @@ namespace CrusaderWars.client.LinuxSetup
 
             if (string.IsNullOrEmpty(workshopPath) || string.IsNullOrEmpty(attilaDataPath))
             {
-                _modSymlinkStep.SetStatus("Could not find Attila workshop or data paths.", false);
-                lblStatus.Text = "Error: Mod path detection failed.";
-                btnNext.Enabled = false;
+                _modSymlinkStep.SetStatus("Skipping: Could not find Attila's Steam workshop or data paths.\nYou may need to configure mods manually if you use a non-Steam version.", true);
+                lblStatus.Text = "Mod symlinking skipped.";
+                progressBar.Value = 75;
+                await Task.Delay(2000); // Give user time to read
                 return;
             }
 
@@ -245,52 +253,44 @@ namespace CrusaderWars.client.LinuxSetup
 
         private async Task RunShortcutCreationStep()
         {
-            lblStatus.Text = "Step 5: Creating Launcher Shortcut...";
+            lblStatus.Text = "Step 5: Add to Steam";
             _modSymlinkStep.Visible = false;
             _shortcutCreationStep.Visible = true;
-            progressBar.Value = 80;
+            progressBar.Value = 85;
 
-            string? attilaPath = _steamManager.GetAttilaPath();
-            if (string.IsNullOrEmpty(attilaPath))
-            {
-                _shortcutCreationStep.SetStatus("Attila path not found.", false);
-                lblStatus.Text = "Error: Cannot create shortcut without Attila path.";
-                btnNext.Enabled = false;
-                return;
-            }
+            string scriptPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "start-linux.sh");
 
-            string crusaderConflictsDataPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "attila");
-            System.IO.Directory.CreateDirectory(crusaderConflictsDataPath);
-            string shortcutOutputPath = System.IO.Path.Combine(crusaderConflictsDataPath, "Attila CW.lnk");
+            string instructions = "Please add the game to Steam:\n\n" +
+                                  "1. In Steam: Games -> 'Add a Non-Steam Game to My Library...'\n" +
+                                  $"2. Click 'Browse...' and select:\n{scriptPath}\n" +
+                                  "3. Click 'Add Selected Programs'.\n" +
+                                  "4. Find 'start-linux.sh' in your library, right-click -> Properties.\n" +
+                                  "5. Optional: Rename it to 'Crusader Conflicts'.\n\n" +
+                                  "You do NOT need to enable Proton for this entry.";
 
-            _shortcutCreationStep.SetStatus("Creating launcher scripts and shortcut...", true);
-            bool success = await _shortcutManager.CreateAttilaLauncherShortcut(attilaPath, shortcutOutputPath);
+            _shortcutCreationStep.SetStatus(instructions, true);
+            
+            lblStatus.Text = "Awaiting user action...";
+            progressBar.Value = 90;
 
-            if (success)
-            {
-                _shortcutCreationStep.SetStatus("Launcher shortcut created successfully.", true);
-                progressBar.Value = 90;
-                lblStatus.Text = "Shortcut creation complete.";
-            }
-            else
-            {
-                _shortcutCreationStep.SetStatus("Failed to create launcher shortcut.", false);
-                lblStatus.Text = "Error: Shortcut creation failed.";
-                btnNext.Enabled = false;
-            }
+            // This step is now instructional, so we assume success and allow the user to proceed.
+            await Task.CompletedTask;
         }
 
         private async Task RunSteamConfigStep()
         {
-            lblStatus.Text = "Step 6: Steam Configuration...";
+            lblStatus.Text = "Step 6: Attila Configuration...";
             _shortcutCreationStep.Visible = false;
             _steamConfigStep.Visible = true;
             progressBar.Value = 95;
 
-            _steamConfigStep.SetStatus("Please set the following launch options for Total War: Attila in Steam under Properties -> General -> Launch Options:\n\n%command% used_mods_cw.txt\n\nThis allows Crusader Conflicts to manage which mods are active.");
+            _steamConfigStep.SetStatus("Final step! Please configure Total War: Attila in Steam.\n\n" +
+                                     "Under Properties -> General -> Launch Options, set the following:\n\n" +
+                                     "%command% used_mods_cw.txt\n\n" +
+                                     "This allows Crusader Conflicts to manage which mods are active for battles.");
             await _steamManager.SetLaunchOptions("325610", "%command% used_mods_cw.txt");
             
-            lblStatus.Text = "Steam configuration instructions provided.";
+            lblStatus.Text = "Attila configuration instructions provided.";
         }
 
         private void RunCompletionStep()

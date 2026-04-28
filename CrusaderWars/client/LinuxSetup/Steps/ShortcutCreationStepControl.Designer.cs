@@ -27,7 +27,7 @@ namespace CrusaderWars.client.LinuxSetup.Steps
             this.lblShortcutStatus.Name = "lblShortcutStatus";
             this.lblShortcutStatus.Size = new System.Drawing.Size(106, 13);
             this.lblShortcutStatus.TabIndex = 0;
-            this.lblShortcutStatus.Text = "Creating shortcuts...";
+            this.lblShortcutStatus.Text = "Steam Integration...";
             // 
             // ShortcutCreationStepControl
             // 
