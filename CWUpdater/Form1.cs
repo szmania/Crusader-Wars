@@ -805,16 +805,31 @@ del ""%~f0""
         private void MoveDirectoryCrossVolume(string sourceDir, string destDir)
         {
             Logger.Log($"Performing cross-volume move from '{sourceDir}' to '{destDir}'.");
-            // Create all of the subdirectories
-            foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
-            {
-                Directory.CreateDirectory(dirPath.Replace(sourceDir, destDir));
-            }
 
-            // Copy all the files and overwrite if they exist
-            foreach (string newPath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            // Ensure the root destination directory exists.
+            Directory.CreateDirectory(destDir);
+
+            // Normalize path to ensure it has a trailing slash for correct relative path calculation.
+            string normalizedSource = sourceDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+            // Copy all the files and create subdirectories as needed.
+            foreach (string sourceFile in Directory.GetFiles(normalizedSource, "*.*", SearchOption.AllDirectories))
             {
-                File.Copy(newPath, newPath.Replace(sourceDir, destDir), true);
+                // Get the relative path of the file.
+                string relativePath = sourceFile.Substring(normalizedSource.Length);
+
+                // Create the full destination path.
+                string destFile = Path.Combine(destDir, relativePath);
+
+                // Ensure the destination directory for the file exists.
+                string destSubDir = Path.GetDirectoryName(destFile);
+                if (destSubDir != null && !Directory.Exists(destSubDir))
+                {
+                    Directory.CreateDirectory(destSubDir);
+                }
+
+                // Copy the file.
+                File.Copy(sourceFile, destFile, true);
             }
 
             // Delete the source directory
