@@ -508,8 +508,8 @@ del ""%~f0""
                         {
                             // This part remains unchanged for the app updater
                             string relativePath = file.Substring(tempDirectory.Length + 1);
-                            string parentFolder = relativePath.Split('\\')[0];
-                            string finalRelativePath = relativePath.Replace($"{parentFolder}\\", "");
+                            string parentFolder = relativePath.Split(Path.DirectorySeparatorChar)[0];
+                            string finalRelativePath = relativePath.Replace($"{parentFolder}{Path.DirectorySeparatorChar}", "");
                             string destinationPath = Path.Combine(applicationPath, finalRelativePath);
 
                             if (destinationPath.StartsWith(updaterDirInMainApp, StringComparison.OrdinalIgnoreCase))
@@ -702,8 +702,8 @@ del ""%~f0""
                         continue;
 
                     string relativePath = file.Substring(applicationPath.Length + 1);
-                    string parentFolder = relativePath.Split('\\')[0];
-                    relativePath = relativePath.Replace($"{parentFolder}\\", "");
+                    string parentFolder = relativePath.Split(Path.DirectorySeparatorChar)[0];
+                    relativePath = relativePath.Replace($"{parentFolder}{Path.DirectorySeparatorChar}", "");
                     string correspondingNewFile = Path.Combine(tempDirectory, relativePath);
 
                     if (!File.Exists(correspondingNewFile))
@@ -727,8 +727,8 @@ del ""%~f0""
                         continue;
 
                     string relativeDirPath = dir.Substring(applicationPath.Length + 1);
-                    string parentFolder = relativeDirPath.Split('\\')[0];
-                    relativeDirPath = relativeDirPath.Replace($"{parentFolder}\\", "");
+                    string parentFolder = relativeDirPath.Split(Path.DirectorySeparatorChar)[0];
+                    relativeDirPath = relativeDirPath.Replace($"{parentFolder}{Path.DirectorySeparatorChar}", "");
 
                     if (!newDirs.Contains(relativeDirPath) && !Directory.GetFiles(dir).Any() && !Directory.GetDirectories(dir).Any())
                     {
