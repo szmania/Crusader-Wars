@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using System.Net;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Linq;
 using System.Net.Http; // Added this line
 using System.Collections.Generic; // Added for HashSet
@@ -846,7 +845,7 @@ del ""%~f0""
                 //Update application .txt file version
                 if (updateVersionFile)
                 {
-                    string version_path = Directory.GetCurrentDirectory() + "\\app_version.txt";
+                    string version_path = Path.Combine(Directory.GetCurrentDirectory(), "app_version.txt");
                     Logger.Log($"Updating app version file: {version_path} to version {UpdateVersion}");
                     if (UpdateVersion != null) // Added null check for UpdateVersion
                     {
@@ -863,7 +862,7 @@ del ""%~f0""
                 //Update unit mappers .txt file version
                 if (updateVersionFile)
                 {
-                    string version_path = Directory.GetCurrentDirectory() + "\\um_version.txt";
+                    string version_path = Path.Combine(Directory.GetCurrentDirectory(), "um_version.txt");
                     Logger.Log($"Updating unit mappers version file: {version_path} to version {UpdateVersion}");
                     if (UpdateVersion != null) // Added null check for UpdateVersion
                     {
