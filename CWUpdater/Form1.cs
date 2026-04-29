@@ -446,7 +446,7 @@ del ""%~f0""
                                 string dirName = Path.GetFileName(dir);
                                 string destination = Path.Combine(customMappersBackupPath, dirName);
                                 Logger.Log($"Backing up custom mapper: {dir} to {destination}");
-                                await RetryActionAsync(() => Directory.Move(dir, destination), $"Backup custom mapper {dirName}");
+                                await RetryActionAsync(() => MoveDirectoryCrossVolume(dir, destination), $"Backup custom mapper {dirName}");
                             }
                         }
 
@@ -461,12 +461,12 @@ del ""%~f0""
                         if (Directory.Exists(applicationPath))
                         {
                             Logger.Log($"Renaming '{applicationPath}' to '{oldDirectory}'.");
-                            await RetryActionAsync(() => Directory.Move(applicationPath, oldDirectory), "Rename current to _old");
+                            await RetryActionAsync(() => MoveDirectoryCrossVolume(applicationPath, oldDirectory), "Rename current to _old");
                         }
 
                         // 3. Move the new directory into place
                         Logger.Log($"Moving '{tempDirectory}' to '{applicationPath}'.");
-                        await RetryActionAsync(() => Directory.Move(tempDirectory, applicationPath), "Move new to current");
+                        await RetryActionAsync(() => MoveDirectoryCrossVolume(tempDirectory, applicationPath), "Move new to current");
 
                         // Restore Custom_ folders
                         if (Directory.Exists(customMappersBackupPath))
@@ -484,7 +484,7 @@ del ""%~f0""
                                 }
 
                                 Logger.Log($"Restoring custom mapper: {dir} to {destination}");
-                                await RetryActionAsync(() => Directory.Move(dir, destination), $"Restore custom mapper {dirName}");
+                                await RetryActionAsync(() => MoveDirectoryCrossVolume(dir, destination), $"Restore custom mapper {dirName}");
                             }
                             Directory.Delete(customMappersBackupPath, true);
                         }
@@ -784,6 +784,26 @@ del ""%~f0""
                 File.Copy(filePath, destinationPath, true);
             }
             Logger.Log("Backup complete.");
+        }
+
+        private void MoveDirectoryCrossVolume(string sourceDir, string destDir)
+        {
+            Logger.Log($"Performing cross-volume move from '{sourceDir}' to '{destDir}'.");
+            // Create all of the subdirectories
+            foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(sourceDir, destDir));
+            }
+
+            // Copy all the files and overwrite if they exist
+            foreach (string newPath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            {
+                File.Copy(newPath, newPath.Replace(sourceDir, destDir), true);
+            }
+
+            // Delete the source directory
+            Directory.Delete(sourceDir, true);
+            Logger.Log("Cross-volume move complete.");
         }
 
         private void RestoreBackup(string backupPath, string applicationPath)
