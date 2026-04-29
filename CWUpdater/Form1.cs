@@ -465,8 +465,16 @@ del ""%~f0""
                         }
 
                         // 3. Move the new directory into place
-                        Logger.Log($"Moving '{tempDirectory}' to '{applicationPath}'.");
-                        await RetryActionAsync(() => MoveDirectoryCrossVolume(tempDirectory, applicationPath), "Move new to current");
+                        // Handle GitHub's container folder in zips
+                        string sourceRoot = tempDirectory;
+                        var subdirectories = Directory.GetDirectories(tempDirectory);
+                        if (subdirectories.Length == 1 && !Directory.GetFiles(tempDirectory).Any())
+                        {
+                            sourceRoot = subdirectories[0];
+                            Logger.Log($"Update content found in sub-directory: {sourceRoot}");
+                        }
+                        Logger.Log($"Moving content from '{sourceRoot}' to '{applicationPath}'.");
+                        await RetryActionAsync(() => MoveDirectoryCrossVolume(sourceRoot, applicationPath), "Move new to current");
 
                         // Restore Custom_ folders
                         if (Directory.Exists(customMappersBackupPath))
@@ -492,8 +500,16 @@ del ""%~f0""
                         // 4. Delete the old directory
                         if (Directory.Exists(oldDirectory))
                         {
-                            Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
-                            await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
+                            try
+                            {
+                                Logger.Log($"Update successful, deleting old directory: {oldDirectory}");
+                                await RetryActionAsync(() => Directory.Delete(oldDirectory, true), "Delete _old directory");
+                            }
+                            catch (Exception ex)
+                            {
+                                // If cleanup fails, log it as a warning but don't fail the whole update.
+                                Logger.Log($"[WARNING] Could not delete old directory '{oldDirectory}' after update. It can be manually removed. Error: {ex.Message}");
+                            }
                         }
                     }
                     else // Existing logic for App Updater
