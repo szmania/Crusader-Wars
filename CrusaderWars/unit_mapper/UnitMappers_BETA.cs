@@ -375,6 +375,8 @@ namespace CrusaderWars.unit_mapper
         {
             switch (GetLoadedUnitMapperName())
             {
+                case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
+                    return  "POST ROMAN";
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     return "EARLY MEDIEVAL";
                 case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
@@ -384,7 +386,7 @@ namespace CrusaderWars.unit_mapper
                 case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
                     return "RENAISSANCE";
                 case "OfficialCC_TheFallenEagle_AgeOfJustinain":
-                    return "DARK AGES";
+                    return "POST ROMAN";
                 case "OfficialCC_TheFallenEagle_FallofTheEagle":
                 case "OfficialCC_TheFallenEagle_FireforgedEmpire":
                     return "LATE ANTIQUITY";

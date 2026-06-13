@@ -49,6 +49,9 @@ namespace CrusaderWars.locs
 
             switch (Mapper_Name)
             {
+                case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
+                    break;
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), armiesCollection);
                     break;
@@ -390,6 +393,9 @@ namespace CrusaderWars.locs
 
             switch (Mapper_Name)
             {
+                case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
+                    locFiles = GetLocFilesForPlaythrough("age of justinian");
+                    break;
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     locFiles = GetLocFilesForPlaythrough("anno domini");
                     break;
