@@ -439,7 +439,9 @@
             this.BottomRightFlowPanel.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
+
+            this.AutoScroll = true;
+            this.AutoScrollMinSize = new System.Drawing.Size(1280, 720);
 
         }
 

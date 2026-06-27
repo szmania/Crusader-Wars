@@ -457,6 +457,11 @@ namespace CrusaderWars.client
             this.ResumeLayout(false);
             this.PerformLayout();
 
+            this.AutoScroll = true;
+            this.AutoScrollMinSize = new System.Drawing.Size(800, 524);
+
+            this.AutoScroll = true;
+            this.AutoScrollMinSize = new System.Drawing.Size(800, 524);
         }
 
         #endregion
