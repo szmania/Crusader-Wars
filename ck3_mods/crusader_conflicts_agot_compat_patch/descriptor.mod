@@ -4,4 +4,4 @@ tags={
 	"Warfare"
 }
 name="Crusader Conflicts + A Game of Thrones - Compatibility Patch"
-supported_version="1.18.*"
+supported_version="1.19.*"
