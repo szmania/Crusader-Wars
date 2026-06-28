@@ -340,13 +340,8 @@ namespace CrusaderWars.client
             this.ResumeLayout(false);
             this.PerformLayout();
 
-            this.AutoScroll = true;
-            this.AutoScrollMinSize = new System.Drawing.Size(1084, 670);
 
-            this.AutoScroll = true;
-            this.AutoScrollMinSize = new System.Drawing.Size(1084, 670);
         }
-
         #endregion
 
         private System.Windows.Forms.TreeView tvCurrentUnits;
