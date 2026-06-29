@@ -1521,6 +1521,11 @@ namespace CrusaderWars
 
         private void PlaythroughToggle_Clicked(object? sender, EventArgs e)
         {
+            if (sender is UC_UnitMapper { Tag: string activePlaythroughTag } && !string.IsNullOrEmpty(activePlaythroughTag))
+            {
+                UnitMappers_BETA.SetActivePlaythrough(activePlaythroughTag);
+            }
+
             CheckPlaythroughSelection();
         }
 

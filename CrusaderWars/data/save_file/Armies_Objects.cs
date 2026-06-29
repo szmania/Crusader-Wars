@@ -76,6 +76,7 @@ namespace CrusaderWars.data.save_file
 
         string Name { get; set; }
         RegimentType Type { get; set; }
+        public string AttilaUnitKey { get; set; } = string.Empty;
         Culture? UnitCulture { get; set; }
         Owner? Owner { get; set; }
         bool IsMercenaryBool { get; set; }

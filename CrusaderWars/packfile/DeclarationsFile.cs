@@ -48,6 +48,29 @@ namespace CrusaderWars
 
         static void SetArmies(List<Army> attacker, List<Army> defender)
         {
+            foreach (var army in attacker.Concat(defender))
+            {
+                foreach (var unit in army.Units)
+                {
+                    string replacementKey = $"{unit.UniqueID}_{unit.GetRegimentType()}";
+                    if (twbattle.BattleState.ManualUnitReplacements != null && twbattle.BattleState.ManualUnitReplacements.ContainsKey(replacementKey))
+                    {
+                        unit.AttilaUnitKey = twbattle.BattleState.ManualUnitReplacements[replacementKey];
+                    }
+                    else
+                    {
+                        (string key, bool success) = unit_mapper.UnitMappers_BETA.GetUnitKey(unit);
+                        if (success)
+                        {
+                            unit.AttilaUnitKey = key;
+                        }
+                        else
+                        {
+                            unit.AttilaUnitKey = unit.GetAttilaKey();
+                        }
+                    }
+                }
+            }
             stark_armies.Clear();
             bolton_armies.Clear();
 
