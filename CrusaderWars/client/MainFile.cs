@@ -3647,19 +3647,7 @@ namespace CrusaderWars
                         if (replacements.Any())
                         {
                             Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements from UI.");
-                            BattleState.ManualUnitReplacements.Clear(); // Clear previous manual fixes
-
-                            foreach (var replacement in replacements)
-                            {
-                                BattleState.ManualUnitReplacements[replacement.Key] = replacement.Value;
-                                Program.Logger.Debug($"  - Storing replacement for '{replacement.Key.originalKey}' with '{replacement.Value.replacementKey}' for {(replacement.Key.isPlayerAlliance ? "Player" : "Enemy")}");
-                            }
-                            MessageBox.Show("Unit replacements have been saved. They will be applied when you click 'Continue Battle'.", "Replacements Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        else
-                        {
-                            BattleState.ManualUnitReplacements.Clear();
-                            Program.Logger.Debug("Manual unit replacement window was closed with OK, but no replacements were made. Clearing any existing replacements.");
+                            BattleState.ManualUnitReplacements = replacements;
                         }
                     }
                     else

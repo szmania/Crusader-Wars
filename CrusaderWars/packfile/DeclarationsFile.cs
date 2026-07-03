@@ -52,10 +52,10 @@ namespace CrusaderWars
             {
                 foreach (var unit in army.Units)
                 {
-                    string replacementKey = $"{unit.UniqueID}_{unit.GetRegimentType()}";
-                    if (twbattle.BattleState.ManualUnitReplacements != null && twbattle.BattleState.ManualUnitReplacements.ContainsKey(replacementKey))
+                    (string originalKey, bool isPlayerAlliance) lookupKey = (unit.GetAttilaUnitKey(), unit.IsPlayer());
+                    if (twbattle.BattleState.ManualUnitReplacements != null && twbattle.BattleState.ManualUnitReplacements.TryGetValue(lookupKey, out (string replacementKey, bool isSiege) replacementInfo))
                     {
-                        unit.AttilaUnitKey = twbattle.BattleState.ManualUnitReplacements[replacementKey];
+                        unit.SetUnitKey(replacementInfo.replacementKey);
                     }
                     else
                     {

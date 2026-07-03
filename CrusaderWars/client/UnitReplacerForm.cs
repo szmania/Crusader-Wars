@@ -108,20 +108,23 @@ namespace CrusaderWars.client
 
                         string attilaKeyDisplay = "";
                         if (regimentType == RegimentType.MenAtArms || regimentType == RegimentType.Commander || regimentType == RegimentType.Knight)
-                        {
-                            string key = unitGroup.First().GetAttilaUnitKey();
-                            if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
+                            string originalAttilaKey = unitGroup.First().GetAttilaUnitKey();
+                            (string replacementKey, bool isSiege) replacementInfo = default;
+                            bool isReplaced = Replacements.TryGetValue((originalAttilaKey, unitGroup.First().IsPlayer()), out replacementInfo);
+
+                            string keyToDisplay = isReplaced ? replacementInfo.replacementKey : originalAttilaKey;
+
+                            if (!string.IsNullOrEmpty(keyToDisplay) && keyToDisplay != UnitMappers_BETA.NOT_FOUND_KEY)
                             {
-                                if (_unitScreenNames.TryGetValue(key, out var screenName))
+                                if (_unitScreenNames.TryGetValue(keyToDisplay, out var screenName))
                                 {
                                     attilaKeyDisplay = $" [{screenName}]";
                                 }
                                 else
                                 {
-                                    attilaKeyDisplay = $" [{key}]";
+                                    attilaKeyDisplay = $" [{keyToDisplay}]";
                                 }
                             }
-                        }
                         else if (regimentType == RegimentType.Garrison)
                         {
                             var distinctKeys = new List<string>();
@@ -561,10 +564,6 @@ namespace CrusaderWars.client
 
         private void btnOK_Click(object? sender, EventArgs e)
         {
-            BattleState.ManualUnitReplacements = Replacements;
-            BattleState.SavePersistentBattleSettings();
-            this.DialogResult = DialogResult.OK;
-            this.Close();
         }
 
         private void btnCancel_Click(object? sender, EventArgs e)
