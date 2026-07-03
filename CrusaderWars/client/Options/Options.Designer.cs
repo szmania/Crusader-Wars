@@ -785,6 +785,7 @@
 
             this.AutoScroll = true;
             this.AutoScrollMinSize = new System.Drawing.Size(1300, 928);
+
         }
 
         #endregion
