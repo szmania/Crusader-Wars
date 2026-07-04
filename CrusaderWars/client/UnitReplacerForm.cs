@@ -348,6 +348,7 @@ namespace CrusaderWars.client
         private void btnUndo_Click(object sender, EventArgs e)
         {
             Replacements.Clear();
+            BattleState.ClearManualUnitReplacements();
             ClearNodeSelection();
             UpdateCurrentUnitsTreeVisuals();
         }
@@ -564,6 +565,8 @@ namespace CrusaderWars.client
 
         private void btnOK_Click(object? sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
 
         private void btnCancel_Click(object? sender, EventArgs e)

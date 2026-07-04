@@ -3648,10 +3648,13 @@ namespace CrusaderWars
                         {
                             Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements from UI.");
                             BattleState.ManualUnitReplacements = replacements;
-                        }
+                            BattleState.SavePersistentBattleSettings();
+                            Program.Logger.Debug($"Saved {replacements.Count} manual unit replacements to persistent settings.");
                     }
                     else
                     {
+                        Program.Logger.Debug("Manual unit replacement was cancelled.");
+                    }
                         Program.Logger.Debug("Manual unit replacement was cancelled.");
                     }
                 }
