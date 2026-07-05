@@ -108,6 +108,7 @@ namespace CrusaderWars.client
 
                         string attilaKeyDisplay = "";
                         if (regimentType == RegimentType.MenAtArms || regimentType == RegimentType.Commander || regimentType == RegimentType.Knight)
+                        {
                             string originalAttilaKey = unitGroup.First().GetAttilaUnitKey();
                             (string replacementKey, bool isSiege) replacementInfo = default;
                             bool isReplaced = Replacements.TryGetValue((originalAttilaKey, unitGroup.First().IsPlayer()), out replacementInfo);
@@ -125,6 +126,7 @@ namespace CrusaderWars.client
                                     attilaKeyDisplay = $" [{keyToDisplay}]";
                                 }
                             }
+                        }
                         else if (regimentType == RegimentType.Garrison)
                         {
                             var distinctKeys = new List<string>();

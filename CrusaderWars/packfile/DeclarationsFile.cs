@@ -66,7 +66,7 @@ namespace CrusaderWars
                         }
                         else
                         {
-                            unit.AttilaUnitKey = unit.GetAttilaKey();
+                            unit.AttilaUnitKey = unit.GetAttilaUnitKey();
                         }
                     }
                 }
