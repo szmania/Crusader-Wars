@@ -402,8 +402,28 @@ del ""%~f0""
                     if (IsUnitMappers)
                     {
                         // For Unit Mappers, use a more robust rename-and-replace strategy with retries
-                        string cleanApplicationPath = applicationPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                        string oldDirectory = cleanApplicationPath + "_old";
+                        // Determine the game type from a 'game.txt' file in the extracted update
+                        string gameType = "attila"; // Default to attila
+                        string sourceRootForGameFile = tempDirectory;
+                        var subdirsForGameFile = Directory.GetDirectories(tempDirectory);
+                        if (subdirsForGameFile.Length == 1 && !Directory.GetFiles(tempDirectory).Any())
+                        {
+                            sourceRootForGameFile = subdirsForGameFile[0];
+                        }
+                        string gameFilePath = Path.Combine(sourceRootForGameFile, "game.txt");
+                        if (File.Exists(gameFilePath))
+                        {
+                            string content = File.ReadAllText(gameFilePath).Trim();
+                            if (content.Equals("rome_2", StringComparison.OrdinalIgnoreCase))
+                            {
+                                gameType = "rome_2";
+                            }
+                        }
+                        Logger.Log($"Determined game type for unit mapper update: {gameType}");
+
+                        // Construct the final application path based on the game type
+                        string finalApplicationPath = Path.Combine(applicationPath, gameType);
+                        string cleanApplicationPath = finalApplicationPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                         Logger.Log("Starting unit mapper update using rename-and-replace strategy.");
 
                         // Preserve Custom folders by moving them to a temporary location
@@ -482,7 +502,7 @@ del ""%~f0""
                             foreach (var dir in Directory.GetDirectories(customMappersBackupPath))
                             {
                                 string dirName = Path.GetFileName(dir);
-                                string destination = Path.Combine(applicationPath, dirName);
+                                string destination = Path.Combine(cleanApplicationPath, dirName);
 
                                 // NEW: Check if a directory with the same name exists in the destination (from the update package)
                                 if (Directory.Exists(destination))

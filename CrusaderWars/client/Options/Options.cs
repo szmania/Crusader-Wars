@@ -1401,7 +1401,7 @@ namespace CrusaderWars
             var tfeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "TheFallenEagle");
             var lotrToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "RealmsInExile");
             var agotToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "AGOT");
-            var customToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "Custom");
+            var bronzeAgeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "BronzeAgeReborn");
 
             if (_unitMappersXmlChanged)
             {
@@ -1413,33 +1413,37 @@ namespace CrusaderWars
             if (ck3ToggleStateStr == "True") ck3ToggleState = true; else ck3ToggleState = false;
             if (tfeToggleStateStr == "True") tfeToggleState = true; else tfeToggleState = false;
             if (lotrToggleStateStr == "True") lotrToggleState = true; else lotrToggleState = false;
-            if (agotToggleStateStr == "True") agotToggleState = true; else agotToggleState = false; // Added AGOT tab
-            if (customToggleStateStr == "True") customToggleState = true; else customToggleState = false;
+            if (agotToggleStateStr == "True") agotToggleState = true; else agotToggleState = false;
+            bool bronzeAgeToggleState = bronzeAgeToggleStateStr == "True";
 
             // NOTE: The constructor for UC_UnitMapper will need to be updated to accept the list of submods.
             // This change is commented out because the UC_UnitMapper.cs file was not provided.
             // You will need to modify its constructor to accept `List<Submod> submods` as a new parameter.
-            var ck3Mods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3");
-            var tfeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle");
-            var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
-            var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements", tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            var ck3Mods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3", "attila");
+            var tfeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle", "attila");
+            var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile", "attila");
+            var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT", "attila");
+            var bronzeAgeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BronzeAgeReborn", "rome_2");
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), "attila");
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements", tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), "attila");
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, "https://crusader-conflicts-website.vercel.app/playthroughs/a-game-of-thrones#mod-requirements", agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList()); // Changed to use playthrough_agot
-            Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), string.Empty, new List<(string, string, string?, string?)>(), customToggleState, "Custom", new List<Submod>());
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), "attila");
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, "https://crusader-conflicts-website.vercel.app/playthroughs/a-game-of-thrones#mod-requirements", agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), "attila"); // Changed to use playthrough_agot
+            BronzeAge_Tab = new UC_UnitMapper(Properties.Resources.playthrough_bronze_age, "https://crusader-conflicts-website.vercel.app/playthroughs/bronze-age-reborn#mod-requirements", bronzeAgeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), bronzeAgeToggleState, "BronzeAgeReborn", bronzeAgeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), "rome_2");
+            Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), string.Empty, new List<(string, string, string?, string?)>(), customToggleState, "Custom", new List<Submod>(), "attila"); // Default to Attila for custom, can be changed dynamically
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             RealmsInExile_Tab.ToggleClicked += PlaythroughToggle_Clicked;
-            AGOT_Tab.ToggleClicked += PlaythroughToggle_Clicked; // Added AGOT tab
+            AGOT_Tab.ToggleClicked += PlaythroughToggle_Clicked;
+            BronzeAge_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             Custom_Tab.ToggleClicked += PlaythroughToggle_Clicked;
 
             CrusaderKings_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             RealmsInExile_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, AGOT_Tab, Custom_Tab });
-            AGOT_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, Custom_Tab });
+            AGOT_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, BronzeAge_Tab, Custom_Tab });
+            BronzeAge_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
 
             var activePlaythrough = GetActivePlaythrough();

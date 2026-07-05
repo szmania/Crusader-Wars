@@ -17,6 +17,7 @@ using System.Xml;
 using CrusaderWars.client;
 using CrusaderWars.data.attila_settings;
 using CrusaderWars.data.battle_results; // Added for BattleResult class
+using CrusaderWars.data; // Added for MigrationService
 using CrusaderWars.data.save_file;
 using CrusaderWars.locs;
 using CrusaderWars.mod_manager;
@@ -73,6 +74,8 @@ namespace CrusaderWars
                 Directory.CreateDirectory(@".\settings");
                 Directory.CreateDirectory(@".\unit mappers");
                 Directory.CreateDirectory(@".\unit mappers\schemas");
+                Directory.CreateDirectory(@".\unit mappers\attila");
+                Directory.CreateDirectory(@".\unit mappers\rome_2");
                 Program.Logger.Debug("Required directories created/verified.");
             }
             catch (Exception ex)
@@ -86,7 +89,8 @@ namespace CrusaderWars
         {
             Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
-            CreateRequiredDirectories();
+CreateRequiredDirectories();
+            data.MigrationService.MigrateUnitMappersDirectory();
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);

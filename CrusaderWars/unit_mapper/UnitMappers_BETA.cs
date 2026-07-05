@@ -269,7 +269,7 @@ namespace CrusaderWars.unit_mapper
             return (requiredMods, submods);
         }
         [SupportedOSPlatform("windows")]
-        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag)
+        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag, string gameType)
         {
             var allRequiredMods = new List<ModFile>();
             var allSubmods = new List<Submod>();
@@ -371,7 +371,7 @@ namespace CrusaderWars.unit_mapper
 
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
-        public static string? GetLoadedUnitMapperString()
+        public static string? GetLoadedUnitMapperString(string gameType)
         {
             switch (GetLoadedUnitMapperName())
             {
@@ -826,7 +826,7 @@ namespace CrusaderWars.unit_mapper
         }
 
         [SupportedOSPlatform("windows")]
-        public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods)
+        public static List<string> GetUnitMapperModFromTagAndTimePeriod(string tag, List<string> activeSubmods, string gameType)
         {
             ActivePlaythroughTag = tag;
             AvailableSubmods.Clear();

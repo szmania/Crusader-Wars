@@ -29,10 +29,11 @@ namespace CrusaderWars.mod_manager
         private ToolTip toolTip2; // Added ToolTip field
         private List<Submod> _availableSubmods = new List<Submod>();
         private readonly string _playthroughTag;
+        private readonly string _gameType; // Add this
 
         public string GetPlaythroughTag() { return _playthroughTag; }
 
-        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string? ScreenName, string? Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods)
+        public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string? ScreenName, string? Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods, string gameType) // Add gameType
         {
             InitializeComponent();
 
@@ -48,6 +49,7 @@ namespace CrusaderWars.mod_manager
             uC_Toggle1.SetState(state);
             RequiredModsList = requiredMods;
             _playthroughTag = playthroughTag;
+            _gameType = gameType; // Store it
             _availableSubmods = submods;
 
             BtnSubmods.Visible = _availableSubmods != null && _availableSubmods.Any();
@@ -160,7 +162,7 @@ namespace CrusaderWars.mod_manager
             }
 
             // 3. Update this control's instance with the new mod/submod data
-            var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(selectedMapper);
+            var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(selectedMapper, _gameType); // Pass _gameType
             this.RequiredModsList = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
 
             this._availableSubmods.Clear();
