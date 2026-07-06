@@ -84,6 +84,7 @@ namespace CrusaderWars.data.save_file
         private int OriginalSoldiers { get; set; }
         string AttilaKey { get; set; }
         public string OriginalAttilaKey { get; set; } = string.Empty; // The natural mapped key before any manual replacement
+        public void SetOriginalAttilaKey(string unit_key) { OriginalAttilaKey = unit_key; }
         string AttilaFaction { get; set; }
         int Max { get; set; }
         string LocName { get; set; }
