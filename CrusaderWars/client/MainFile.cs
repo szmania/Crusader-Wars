@@ -59,6 +59,7 @@ namespace CrusaderWars
 
 
         private int _myVariable = 0;
+        private string _gameType = "attila"; // Default to Attila; resolved from active playthrough
 
         private void CreateRequiredDirectories()
         {
@@ -2022,7 +2023,7 @@ CreateRequiredDirectories();
                                 AttilaModManager.ReadInstalledMods();
                                 Program.Logger.Debug("Setting playthrough...");
                                 SetPlaythrough();
-                                UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString());
+                                UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString(_gameType));
                                 Program.Logger.Debug("Creating user mods file for Attila...");
                                 AttilaModManager.CreateUserModsFile();
                             }
@@ -2640,12 +2641,15 @@ CreateRequiredDirectories();
                     {
                         tagName = node.Attributes?["name"]?.Value ?? "";
                         Program.Logger.Debug($"Playthrough tag found: {tagName}");
+                        // Resolve and set the game type for this playthrough
+                        _gameType = games.GameServiceFactory.ResolveGameTypeFromPlaythrough(tagName);
+                        Program.Logger.Debug($"Game type resolved: {_gameType}");
                         break;
                     }
                 }
             }
             var activeSubmods = mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(tagName);
-            AttilaModManager.SetLoadingRequiredMods(UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(tagName, activeSubmods));
+            AttilaModManager.SetLoadingRequiredMods(UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(tagName, activeSubmods, _gameType));
         }
 
 
@@ -3721,7 +3725,7 @@ CreateRequiredDirectories();
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
                 var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(selectedPlaythrough);
-                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods);
+                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods, _gameType);
 
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
