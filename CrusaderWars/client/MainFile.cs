@@ -811,7 +811,7 @@ CreateRequiredDirectories();
                     allErrors.AddRange(XmlValidator.ValidateUnitMapper(playthroughFolderPath));
 
                     // 2. Mod Validation
-                    var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag);
+                    var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag, _gameType);
                     var modsToVerify = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
 
                     // Create and show a simple status form for mod verification
@@ -1130,7 +1130,7 @@ CreateRequiredDirectories();
                 var activeSubmodTags = mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(activePlaythroughTag);
                 if (activeSubmodTags.Any())
                 {
-                    var allAvailableSubmods = unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag).submods;
+                    var allAvailableSubmods = unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag, _gameType).submods;
                     var activeSubmodScreenNames = allAvailableSubmods
                         .Where(s => activeSubmodTags.Contains(s.Tag))
                         .GroupBy(s => s.Tag) // Group by tag to handle duplicates

@@ -274,7 +274,7 @@ namespace CrusaderWars.unit_mapper
             var allRequiredMods = new List<ModFile>();
             var allSubmods = new List<Submod>();
 
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            var unit_mappers_folder = Directory.GetDirectories(Path.Combine(@".\unit mappers", gameType));
             if (tag == "Custom")
             {
                 string selectedMapperTag = ModOptions.GetSelectedCustomMapper();
@@ -373,31 +373,26 @@ namespace CrusaderWars.unit_mapper
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
         public static string? GetLoadedUnitMapperString(string gameType)
         {
-            switch (GetLoadedUnitMapperName())
-            {
-                case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
-                    return  "POST ROMAN";
-                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    return "EARLY MEDIEVAL";
-                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
-                    return "HIGH MEDIEVAL";
-                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
-                    return "LATE MEDIEVAL";
-                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    return "RENAISSANCE";
-                case "OfficialCC_TheFallenEagle_AgeOfJustinain":
-                    return "POST ROMAN";
-                case "OfficialCC_TheFallenEagle_FallofTheEagle":
-                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    return "LATE ANTIQUITY";
-                case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    return "SECOND AGE";
-                case "OfficialCC_AGOT_SevenKingdoms":
-                    return "AGE OF THE TARGARYENS";
-                default:
-                    return null;
-            }
+            var mapperName = GetLoadedUnitMapperName();
+            if (mapperName == null) return null;
 
+            string eraName = mapperName switch
+            {
+                "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian" => "POST ROMAN",
+                "OfficialCC_DefaultCK3_EarlyMedieval_919Mod" => "EARLY MEDIEVAL",
+                "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod" => "HIGH MEDIEVAL",
+                "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod" => "LATE MEDIEVAL",
+                "OfficialCC_DefaultCK3_Renaissance_MK1212Mod" => "RENAISSANCE",
+                "OfficialCC_TheFallenEagle_AgeOfJustinain" => "POST ROMAN",
+                "OfficialCC_TheFallenEagle_FallofTheEagle" => "LATE ANTIQUITY",
+                "OfficialCC_TheFallenEagle_FireforgedEmpire" => "LATE ANTIQUITY",
+                "OfficialCC_RealmsInExile_TheDawnlessDays" => "SECOND AGE",
+                "OfficialCC_AGOT_SevenKingdoms" => "AGE OF THE TARGARYENS",
+                _ => null
+            };
+
+            if (eraName == null) return null;
+            return $"({gameType}) {eraName}";
         }
 
         public static void ClearProvinceMapCache()
@@ -832,7 +827,7 @@ namespace CrusaderWars.unit_mapper
             AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
 
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            var unit_mappers_folder = Directory.GetDirectories(Path.Combine(@".\unit mappers", gameType));
             if (tag == "Custom")
             {
                 string customMapperTag = ModOptions.GetSelectedCustomMapper();

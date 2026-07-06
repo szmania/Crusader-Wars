@@ -69,7 +69,7 @@ namespace CrusaderWars.mod_manager
         private void PopulateCustomMappers()
         {
             customMapperComboBox.Items.Clear();
-            string unitMappersDir = @".\unit mappers";
+            string unitMappersDir = Path.Combine(@".\unit mappers", _gameType);
             if (Directory.Exists(unitMappersDir))
             {
                 var customTags = Directory.GetDirectories(unitMappersDir)
