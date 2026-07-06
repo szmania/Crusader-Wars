@@ -1576,10 +1576,33 @@ namespace CrusaderWars
                                      Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
                                  }
                              }
+                             else if (activePlaythrough == "BookmarksPlus")
+                             {
+                                 requiredPatch = "crusader_conflicts_bookmarksplus_compat_patch.mod";
+                                 playthroughName = "Bookmarks+ (pre-768)";
+                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
+                                 {
+                                     Program.Logger.Debug($"Required Bookmarks+ compatibility patch (local or steam) not found in dlc_load.json.");
+                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                  "Compatibility Patch Not Enabled",
+                                                                  MessageBoxButtons.YesNo,
+                                                                  MessageBoxIcon.Warning);
+                                     if (result == DialogResult.No)
+                                     {
+                                         Program.Logger.Debug("User cancelled execution because Bookmarks+ compatibility patch is not enabled.");
+                                         return; // Stop execution
+                                     }
+                                 }
+                                 else
+                                 {
+                                     Program.Logger.Debug($"Required Bookmarks+ compatibility patch is enabled.");
+                                 }
+                             }
 
                              // Check for incorrectly enabled compatibility patches
                              string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
                              string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                             string bookmarksPlusPatch = "crusader_conflicts_bookmarksplus_compat_patch.mod";
 
                              if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
                              {
@@ -1598,10 +1621,30 @@ namespace CrusaderWars
                                                  "Incorrect Compatibility Patch Enabled",
                                                  MessageBoxButtons.OK,
                                                  MessageBoxIcon.Warning);
-                                 return;
-                             }
+                                return;
+                            }
+                            
+                            if (activePlaythrough == "BookmarksPlus" && enabledMods.Contains(agotPatch))
+                            {
+                                Program.Logger.Debug("Bookmarks+ playthrough is active, but AGOT patch is also enabled.");
+                                MessageBox.Show("You have the 'Bookmarks+ (pre-768)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
 
-                             if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
+                            if (activePlaythrough == "BookmarksPlus" && enabledMods.Contains(lotrPatch))
+                            {
+                                Program.Logger.Debug("Bookmarks+ playthrough is active, but Realms in Exile patch is also enabled.");
+                                MessageBox.Show("You have the 'Bookmarks+ (pre-768)' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile" && activePlaythrough != "BookmarksPlus")
                              {
                                  if (enabledMods.Contains(agotPatch))
                                  {
@@ -1685,9 +1728,24 @@ namespace CrusaderWars
                                              loadOrderCorrect = false;
                                              expectedOrderMessage =
                                                  "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
-                                         }
-                                     }
-                                     else // Default case
+                                        }
+                                    }
+                                    else if (activePlaythrough == "BookmarksPlus")
+                                    {
+                                        string bookmarksPlusPatchLocal = "crusader_conflicts_bookmarksplus_compat_patch.mod";
+                                        string bookmarksPlusPatchSteam = "ugc_3612526842.mod";
+                                        int bookmarksPlusPatchIndex = enabledModsList.FindLastIndex(m =>
+                                            m.Equals(bookmarksPlusPatchLocal, StringComparison.OrdinalIgnoreCase) ||
+                                            m.Equals(bookmarksPlusPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                        if (mainModIndex == -1 || bookmarksPlusPatchIndex != enabledModsList.Count - 1 ||
+                                            mainModIndex > bookmarksPlusPatchIndex)
+                                        {
+                                            loadOrderCorrect = false;
+                                            expectedOrderMessage =
+                                                "For the Bookmarks+ (pre-768) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Bookmarks+ Compatibility Patch', and the patch should be last in your playset.";
+                                        }
+                                    }
+                                    else // Default case
                                      {
                                          if (mainModIndex != enabledModsList.Count - 1)
                                          {
@@ -2047,7 +2105,6 @@ namespace CrusaderWars
                         logFile.Close();
 
                     }
-
                 }
 
                 if (token.IsCancellationRequested)
@@ -2614,6 +2671,8 @@ namespace CrusaderWars
                     return "Realms in Exile (LOTR)";
                 case "AGOT":
                     return "A Game of Thrones (AGOT)";
+                case "BookmarksPlus":
+                    return "Bookmarks+ (pre-768)";
                 case "Custom":
                     return "Custom";
                 default:
@@ -2753,7 +2812,6 @@ namespace CrusaderWars
         /*---------------------------------------------
          * :::::::::::LOADING SCREEN FUNCS:::::::::::::
          ---------------------------------------------*/
-
         void ChangeLoadingScreenImage()
         {
             Program.Logger.Debug("Changing loading screen image based on playthrough.");
@@ -2765,12 +2823,14 @@ namespace CrusaderWars
             var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")!.InnerText;
             var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")!.InnerText;
             var agotToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']")!.InnerText; // Added AGOT tab
+            var bookmarksPlusToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']")!.InnerText;
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";
             if (tfeToggleStateStr == "True") playthrough = "LateAntiquity";
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
             if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
+            if (bookmarksPlusToggleStateStr == "True") playthrough = "BookmarksPlus";
 
             Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
             switch (playthrough)
@@ -2786,6 +2846,9 @@ namespace CrusaderWars
                     break;
                 case "AGOT": // Added AGOT tab
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_agot;
+                    break;
+                case "BookmarksPlus":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_bookmarksplus;
                     break;
                 default:
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
