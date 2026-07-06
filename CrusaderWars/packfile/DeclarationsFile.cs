@@ -52,22 +52,22 @@ namespace CrusaderWars
             {
                 foreach (var unit in army.Units)
                 {
-                    (string originalKey, bool isPlayerAlliance) lookupKey = (unit.GetAttilaUnitKey(), unit.IsPlayer());
+                    (string key, bool success) = unit_mapper.UnitMappers_BETA.GetUnitKey(unit);
+                    if(success) {
+                        unit.SetOriginalAttilaKey(key);
+                    }
+                    else {
+                        unit.SetOriginalAttilaKey(unit.GetAttilaUnitKey());
+                    }
+
+                    (string originalKey, bool isPlayerAlliance) lookupKey = (unit.OriginalAttilaKey, unit.IsPlayer());
                     if (twbattle.BattleState.ManualUnitReplacements != null && twbattle.BattleState.ManualUnitReplacements.TryGetValue(lookupKey, out (string replacementKey, bool isSiege) replacementInfo))
                     {
                         unit.SetUnitKey(replacementInfo.replacementKey);
                     }
                     else
                     {
-                        (string key, bool success) = unit_mapper.UnitMappers_BETA.GetUnitKey(unit);
-                        if (success)
-                        {
-                            unit.AttilaUnitKey = key;
-                        }
-                        else
-                        {
-                            unit.AttilaUnitKey = unit.GetAttilaUnitKey();
-                        }
+                        unit.AttilaUnitKey = unit.OriginalAttilaKey;
                     }
                 }
             }

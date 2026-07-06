@@ -1739,6 +1739,10 @@ namespace CrusaderWars.unit_mapper
 
         private static (string, bool) ProcessUnitKeyResult(Unit unit, string key, bool isSiege)
         {
+            // Store the natural mapped key as the original key before any replacements are applied.
+            // This preserves the key that matches localization file entries for unit card naming.
+            unit.OriginalAttilaKey = key;
+
             // Check for manual replacements first.
             if (key != NOT_FOUND_KEY && key is not null && BattleState.ManualUnitReplacements.TryGetValue((key, unit.IsPlayer()), out var manualReplacement))
             {
@@ -1772,6 +1776,9 @@ namespace CrusaderWars.unit_mapper
             // For garrison units, the AttilaUnitKey is set directly in GarrisonGenerator.
             if (unit.GetRegimentType() == RegimentType.Garrison && !string.IsNullOrEmpty(initial_key) && initial_key != NOT_FOUND_KEY)
             {
+                // Store the pre-set garrison key as the original key for unit card naming.
+                unit.OriginalAttilaKey = initial_key;
+
                 if (BattleState.ManualUnitReplacements.TryGetValue((initial_key, unit.IsPlayer()), out var manualReplacement))
                 {
                     Program.Logger.Debug($"Manual Replace (Pre-check): Applying replacement for pre-set garrison unit key '{initial_key}' with '{manualReplacement.replacementKey}'.");
