@@ -3498,44 +3498,35 @@ namespace CrusaderWars
             }
             DataSearch.Search(logSnippet);
 
-            using (var form = new Form())
+            var availableStrategies = new List<BattleProcessor.AutofixState.AutofixStrategy>
             {
-                form.Text = "Select a Battle Tool";
-                form.Size = new System.Drawing.Size(300, 150);
-                form.StartPosition = FormStartPosition.CenterParent;
-                form.FormBorderStyle = FormBorderStyle.FixedDialog;
-                form.MaximizeBox = false;
-                form.MinimizeBox = false;
+                BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement,
+                BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor
+            };
 
-                var btnUnitReplacer = new Button() { Text = "Unit Replacer", Left = 50, Top = 20, Width = 200, Height = 30 };
-                var btnDeploymentEditor = new Button() { Text = "Deployment Zone Editor", Left = 50, Top = 60, Width = 200, Height = 30 };
+            var (result, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, availableStrategies, isCrash: false);
 
-                btnUnitReplacer.Click += (s, ev) => { form.DialogResult = DialogResult.Yes; form.Close(); };
-                btnDeploymentEditor.Click += (s, ev) => { form.DialogResult = DialogResult.No; form.Close(); };
-
-                form.Controls.Add(btnUnitReplacer);
-                form.Controls.Add(btnDeploymentEditor);
-                form.AcceptButton = btnUnitReplacer;
-
-                var result = form.ShowDialog();
-                bool changesMade = false;
-                if (result == DialogResult.Yes)
+            bool changesMade = false;
+            if (result == DialogResult.OK && chosenStrategy.HasValue)
+            {
+                if (chosenStrategy.Value == BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement)
                 {
                     changesMade = LaunchUnitReplacerTool();
                 }
-                else if (result == DialogResult.No)
+                else if (chosenStrategy.Value == BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor)
                 {
                     changesMade = LaunchDeploymentZoneEditor();
                 }
+            }
 
-                if (changesMade)
-                {
-                    infoLabel.Text = "Battle settings saved. Click 'Continue Battle' to apply them.";
-                }
-                else
-                {
-                    infoLabel.Text = originalInfoText;
-                }
+
+            if (changesMade)
+            {
+                infoLabel.Text = "Battle settings saved. Click 'Continue Battle' to apply them.";
+            }
+            else
+            {
+                infoLabel.Text = originalInfoText;
             }
         }
 
