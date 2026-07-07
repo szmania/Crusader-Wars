@@ -472,8 +472,6 @@ namespace CrusaderWars
 
                 if (!gamePaths || !unitMappers)
                 {
-                    infoLabel.AutoSize = false;
-                    infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
                     if (!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
                     else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Mod Settings screen.";
                     ExecuteButton.Enabled = false;
@@ -488,7 +486,6 @@ namespace CrusaderWars
                 }
                 else if (gamePaths && unitMappers)
                 {
-                    infoLabel.AutoSize = true;
                     ExecuteButton.Enabled = true;
                     infoLabel.Text = "Ready to Start!";
                     infoLabel.ForeColor = Original_Color;
@@ -3521,21 +3518,29 @@ namespace CrusaderWars
                 form.AcceptButton = btnUnitReplacer;
 
                 var result = form.ShowDialog();
+                bool changesMade = false;
                 if (result == DialogResult.Yes)
                 {
-                    LaunchUnitReplacerTool();
+                    changesMade = LaunchUnitReplacerTool();
                 }
                 else if (result == DialogResult.No)
                 {
-                    LaunchDeploymentZoneEditor();
+                    changesMade = LaunchDeploymentZoneEditor();
+                }
+
+                if (changesMade)
+                {
+                    infoLabel.Text = "Battle settings saved. Click 'Continue Battle' to apply them.";
+                }
+                else
+                {
+                    infoLabel.Text = originalInfoText;
                 }
             }
-
-            infoLabel.Text = originalInfoText;
         }
 
         [SupportedOSPlatform("windows")]
-        public void LaunchUnitReplacerTool()
+        public bool LaunchUnitReplacerTool()
         {
             Program.Logger.Debug("LaunchUnitReplacerTool called.");
             try
@@ -3650,11 +3655,15 @@ namespace CrusaderWars
                             BattleState.ManualUnitReplacements = replacements;
                             BattleState.SavePersistentBattleSettings();
                             Program.Logger.Debug($"Saved {replacements.Count} manual unit replacements to persistent settings.");
+                            return true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug("Unit Replacer was closed with OK, but no replacements were made.");
+                        }
                     }
                     else
                     {
-                        Program.Logger.Debug("Manual unit replacement was cancelled.");
-                    }
                         Program.Logger.Debug("Manual unit replacement was cancelled.");
                     }
                 }
@@ -3664,10 +3673,11 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Error in LaunchUnitReplacerTool: {ex.Message}\n{ex.StackTrace}");
                 MessageBox.Show($"An unexpected error occurred while launching the Unit Replacer: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            return false;
         }
 
         [SupportedOSPlatform("windows")]
-        public void LaunchDeploymentZoneEditor()
+        public bool LaunchDeploymentZoneEditor()
         {
             Program.Logger.Debug("LaunchDeploymentZoneEditor called.");
             try
@@ -3782,6 +3792,7 @@ namespace CrusaderWars
                         {
                             BattleState.ClearDeploymentZoneOverrides();
                             MessageBox.Show("Default deployment zones have been restored and saved.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return true;
                         }
                         else
                         {
@@ -3805,6 +3816,7 @@ namespace CrusaderWars
 
                             BattleState.SavePersistentBattleSettings();
                             MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return true;
                         }
                     }
                 }
@@ -3814,6 +3826,7 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Error in LaunchDeploymentZoneEditor: {ex.Message}");
                 MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            return false;
         }
         #endregion
     }
