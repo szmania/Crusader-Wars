@@ -257,7 +257,7 @@ namespace CrusaderWars.data.save_file
                     Program.Logger.Debug($"Failed to create garrison placeholder army: {ex.Message}");
                 }
             }
-            else if (BattleResult.Player_Combat is not null)
+if (BattleResult.Player_Combat is not null)
             {
                 Program.Logger.Debug("Field battle detected. Reading armies from combat data.");
                 ReadCombatArmies(BattleResult.Player_Combat);

@@ -78,6 +78,7 @@
             this.Btn_TFETab = new System.Windows.Forms.Button();
             this.Btn_LOTRTab = new System.Windows.Forms.Button();
             this.Btn_AGOTTab = new System.Windows.Forms.Button();
+            this.Btn_BookmarksPlusTab = new System.Windows.Forms.Button();
             this.TableLayoutGamePaths = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
@@ -454,6 +455,7 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -539,7 +541,26 @@
             this.Btn_AGOTTab.Text = "AGOT";
             this.Btn_AGOTTab.UseVisualStyleBackColor = false;
             this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
+this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
+            // 
+            // Btn_BookmarksPlusTab
+            // 
+            this.Btn_BookmarksPlusTab.AutoSize = true;
+            this.Btn_BookmarksPlusTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_BookmarksPlusTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
+            this.Btn_BookmarksPlusTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_BookmarksPlusTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_BookmarksPlusTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_BookmarksPlusTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_BookmarksPlusTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_BookmarksPlusTab.Location = new System.Drawing.Point(451, 3);
+            this.Btn_BookmarksPlusTab.Name = "Btn_BookmarksPlusTab";
+            this.Btn_BookmarksPlusTab.Size = new System.Drawing.Size(112, 28);
+            this.Btn_BookmarksPlusTab.TabIndex = 4;
+            this.Btn_BookmarksPlusTab.Text = "Bookmarks+";
+            this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
+            this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
             // 
             // Btn_CustomTab
             // 
@@ -551,10 +572,10 @@
             this.Btn_CustomTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CustomTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_CustomTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_CustomTab.Location = new System.Drawing.Point(457, 3);
+this.Btn_CustomTab.Location = new System.Drawing.Point(566, 3);
             this.Btn_CustomTab.Name = "Btn_CustomTab";
             this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
-            this.Btn_CustomTab.TabIndex = 4;
+            this.Btn_CustomTab.TabIndex = 5;
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_CustomTab, "Custom playthrough with a custom unit mapper.");
             this.Btn_CustomTab.Text = "Custom";
             this.Btn_CustomTab.UseVisualStyleBackColor = false;
@@ -812,6 +833,7 @@
         private System.Windows.Forms.Button Btn_TFETab;
         private System.Windows.Forms.Button Btn_LOTRTab;
         private System.Windows.Forms.Button Btn_AGOTTab;
+        private System.Windows.Forms.Button Btn_BookmarksPlusTab;
         private System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
         private System.Windows.Forms.DataGridViewImageColumn ImageColumn;

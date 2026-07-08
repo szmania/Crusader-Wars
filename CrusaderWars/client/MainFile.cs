@@ -1602,7 +1602,6 @@ namespace CrusaderWars
                              // Check for incorrectly enabled compatibility patches
                              string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
                              string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
-                             string bookmarksPlusPatch = "crusader_conflicts_bookmarksplus_compat_patch.mod";
 
                              if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
                              {

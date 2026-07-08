@@ -392,8 +392,12 @@ namespace CrusaderWars.unit_mapper
                     return "LATE ANTIQUITY";
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     return "SECOND AGE";
-                case "OfficialCC_AGOT_SevenKingdoms":
+case "OfficialCC_AGOT_SevenKingdoms":
                     return "AGE OF THE TARGARYENS";
+                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+                    return "FIRE FORGED EMPIRE";
+                default:
+                    return null;
                 default:
                     return null;
             }
@@ -1451,10 +1455,10 @@ namespace CrusaderWars.unit_mapper
             var files_paths = GetSortedFilePaths(titles_folder_path, priorityFilePattern);
 
             var owner = unit.GetOwner();
-            if (owner == null || owner.GetPrimaryTitleKey() == string.Empty)
+            if (owner == null || owner.GetPrimaryTitleKey() == string.Empty) 
                 return (NOT_FOUND_KEY, false);
-
-            //LEVIES skip
+ 
+             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false);
             //Garrison units also skip this, as their keys are set directly
             if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"

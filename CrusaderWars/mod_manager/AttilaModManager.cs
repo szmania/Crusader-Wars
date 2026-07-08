@@ -366,7 +366,12 @@ namespace CrusaderWars.mod_manager
                 foreach (var mod in ModsPaths)
                 {
                     // Line 82 - Add null check
-                    if (mod != null && !mod.IsRequiredMod())
+                        object[] rowData = new object[] {
+                            mod.IsEnabled(),
+                            mod.GetThumbnail() ?? new Bitmap(1,1),
+                            mod.GetName(),
+                            mod.GetLocalization() == ModLocalization.Steam ? steamImg : dataImg
+                        };
                     {
                         object[] rowData = new object[] { // Changed from object?[] to object[]
                             mod.IsEnabled(),
