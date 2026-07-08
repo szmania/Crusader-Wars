@@ -737,9 +737,13 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    // Graceful degradation: Linux detected but kill/pgrep not available
-                    Program.Logger.Debug("Linux detected but kill/pgrep commands not available. CK3 will not be suspended during battles.");
-                    controller = new WindowsProcessController(); // Fallback — won't work on Linux, but won't crash either
+                    // Graceful degradation: Linux detected but kill/pgrep not available.
+                    // Use LinuxProcessController anyway — its IsSupported=false will cause
+                    // ProcessCommands to skip suspend/resume and log warnings.
+                    // Also force CloseCK3DuringBattle mode so CK3 is closed instead of suspended.
+                    controller = linuxController;
+                    ModOptions.optionsValuesCollection["CloseCK3"] = "Enabled";
+                    Program.Logger.Debug("WARNING: Linux detected but kill/pgrep commands not available. Process suspend/resume is NOT supported on this system. CK3 will be closed during battles instead of suspended. Please install 'procps' or 'procps-ng' package (provides kill/pgrep) for full functionality.");
                 }
             }
             else
