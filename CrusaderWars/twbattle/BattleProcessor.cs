@@ -1064,7 +1064,7 @@ namespace CrusaderWars.twbattle
                     //  Note: This is now called internally by EditLivingFile to ensure correct sequence
 
                     // SHOW POST-BATTLE REPORT
-                    if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
+                    if (client.ModOptions.optionsValuesCollection != null && client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
                     {
                         var report = GenerateBattleReportData(attacker_armies, defender_armies, winner); // Removed deployedCounts
                         if (form != null && !form.IsDisposed)

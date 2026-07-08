@@ -3544,7 +3544,7 @@ namespace CrusaderWars
                 if (logSnippet == null)
                 {
                     MessageBox.Show("Could not find the saved battle information (log snippet). The AutoFixer cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 DataSearch.Search(logSnippet);
 
@@ -3568,7 +3568,7 @@ namespace CrusaderWars
                 if (string.IsNullOrEmpty(selectedPlaythrough))
                 {
                     MessageBox.Show("No playthrough is selected. The AutoFixer cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
@@ -3578,7 +3578,7 @@ namespace CrusaderWars
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
                     MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 Program.Logger.Debug($"LaunchAutoFixer: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
 
@@ -3594,7 +3594,7 @@ namespace CrusaderWars
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
                     MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 Program.Logger.Debug($"LaunchAutoFixer: Read {attackerArmies.Count} attacker and {defenderArmies.Count} defender armies.");
 
@@ -3615,13 +3615,13 @@ namespace CrusaderWars
                 {
                     Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
                     MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 if (allAvailableUnits is null)
                 {
                     Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
                     MessageBox.Show(this, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
 
                 // Filter units to only those that have a screen name to prevent crashes inside the form.
@@ -3681,7 +3681,7 @@ namespace CrusaderWars
                 if (logSnippet == null)
                 {
                     MessageBox.Show("Could not find the saved battle information (log snippet). The tool cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 DataSearch.Search(logSnippet);
 
@@ -3704,7 +3704,7 @@ namespace CrusaderWars
                 if (string.IsNullOrEmpty(selectedPlaythrough))
                 {
                     MessageBox.Show("No playthrough is selected. The tool cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
@@ -3714,7 +3714,7 @@ namespace CrusaderWars
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
                     MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 Program.Logger.Debug($"LaunchDeploymentZoneEditor: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
 
@@ -3731,7 +3731,7 @@ namespace CrusaderWars
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
                     MessageBox.Show("Could not read army data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 int total_soldiers = attackerArmies.Sum(a => a.GetTotalSoldiers()) + defenderArmies.Sum(a => a.GetTotalSoldiers());
                 string option_map_size = ModOptions.DeploymentsZones();
