@@ -167,7 +167,7 @@ namespace CrusaderWars.locs
                             string currentAttilaKey = keyMatch.Groups[1].Value;
                             var matchingUnitsFromAllArmies = allArmies
                                 .SelectMany(a => a.Units.Select(u => new { Unit = u, Army = a }))
-                                .Where(x => x.Unit.OriginalAttilaKey == currentAttilaKey)
+                                .Where(x => x.Unit.GetAttilaUnitKey() == currentAttilaKey)
                                 .ToList();
 
                             if (matchingUnitsFromAllArmies.Any())
