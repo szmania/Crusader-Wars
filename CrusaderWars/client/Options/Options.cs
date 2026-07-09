@@ -153,9 +153,9 @@ namespace CrusaderWars
         {
             ChangeSystemTab(TableLayoutGamePaths);
         }
-
         private void Btn_OS_Click(object sender, EventArgs e)
         {
+            if (OSPanel is null) return;
             ChangeSystemTab(OSPanel);
         }
 
@@ -246,7 +246,7 @@ namespace CrusaderWars
          */
         UC_GeneralOptions General_Tab = null!;
         UC_UnitsOptions Units_Tab = null!;
-        UC_CommandersAndKnightsOptions CandK_Tab = null!; // Changed type to UC_CommandersAndKnightsOptions
+        UC_CommandersAndKnightsOptions CandK_Tab = null!;
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != General_Tab)
@@ -258,7 +258,6 @@ namespace CrusaderWars
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != Units_Tab)
                 ChangeOptionsTab(Units_Tab);
         }
-
         private void Btn_CandKTab_Click(object sender, EventArgs e)
         {
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != CandK_Tab)
@@ -307,7 +306,7 @@ namespace CrusaderWars
 
         private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
         {
-            XmlNode? node = doc.SelectSingleNode($"//Option [@name='{optionName}']");
+if (doc.DocumentElement is null) return defaultValue;
             if (node != null)
             {
                 return node.InnerText;
@@ -1260,23 +1259,23 @@ namespace CrusaderWars
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != RealmsInExile_Tab)
                 ChangeUnitMappersTab(RealmsInExile_Tab);
         }
+        private void Btn_BookmarksPlusTab_Click(object sender, EventArgs e)
+        {
+            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BookmarksPlus_Tab)
+                ChangeUnitMappersTab(BookmarksPlus_Tab);
+        }
 
+        private void Btn_CustomTab_Click(object sender, EventArgs e)
+        {
+            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != Custom_Tab)
+                ChangeUnitMappersTab(Custom_Tab);
+        }
         private void Btn_AGOTTab_Click(object sender, EventArgs e)
         {
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != AGOT_Tab)
                 ChangeUnitMappersTab(AGOT_Tab);
         }
 
-        private void Btn_BookmarksPlusTab_Click(object sender, EventArgs e)
-        {
-            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BookmarksPlus_Tab)
-                ChangeUnitMappersTab(BookmarksPlus_Tab);
-        }
-        private void Btn_CustomTab_Click(object sender, EventArgs e)
-        {
-            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != Custom_Tab)
-                ChangeUnitMappersTab(Custom_Tab);
-        }
 
 
         void ChangeUnitMappersTab(Control control)
@@ -1369,9 +1368,7 @@ namespace CrusaderWars
                 // Fallback to default image if file doesn't exist
                 return Properties.Resources._default;
             }
-        }
-        void ReadUnitMappersOptions()
-        {
+if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab is null || AGOT_Tab is null || BookmarksPlus_Tab is null || Custom_Tab is null) return;
             string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
 
@@ -1467,10 +1464,6 @@ namespace CrusaderWars
                 ChangeUnitMappersTab(CrusaderKings_Tab);
             }
             CheckPlaythroughSelection();
-        }
-
-        void WriteUnitMappersOptions()
-        {
             string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
