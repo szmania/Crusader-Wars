@@ -415,6 +415,18 @@ namespace CrusaderWars.locs
                     locFiles = GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper());
                     break;
                 default:
+                    // Fallback: if mapper name is unknown, try to find loc files in a generic way
+                    Program.Logger.Debug($"Unknown mapper name '{Mapper_Name}'. Attempting to find localization files generically.");
+                    string genericLocPath = @".\data\units_cards_names";
+                    if (Directory.Exists(genericLocPath))
+                    {
+                        locFiles = Directory.GetFiles(genericLocPath, "*.loc", SearchOption.AllDirectories);
+                    }
+                    else
+                    {
+                        locFiles = new string[0];
+                    }
+                    break;
                     locFiles = new string[0];
                     break;
             }

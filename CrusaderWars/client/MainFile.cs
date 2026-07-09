@@ -3605,8 +3605,13 @@ namespace CrusaderWars
                 var allArmies = attackerArmies.Concat(defenderArmies).ToList();
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {allArmies.Count} total armies.");
 
+                // Ensure levies are expanded before filtering for the Unit Replacer Form
+                Armies_Functions.ExpandLevyArmies(allArmies);
                 var currentUnits = allArmies.Where(a => a.Units != null).SelectMany(a => a.Units)
-                                            .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            .Where(u => u != null && (
+                                                u.GetRegimentType() == RegimentType.Levy ||
+                                                (!string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            ))
                                             .ToList();
                 var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
                 var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
@@ -3624,8 +3629,8 @@ namespace CrusaderWars
                     return false;
                 }
 
-                // Filter units to only those that have a screen name to prevent crashes inside the form.
-                var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey) && unitScreenNames.ContainsKey(u.AttilaUnitKey)).ToList();
+                // Do not filter available units by screen name here. The UnitReplacerForm will handle fallbacks.
+                var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey)).ToList();
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {allAvailableUnits.Count} total available units, filtered down to {availableUnits.Count} with screen names.");
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {unitScreenNames.Count} unit screen names.");

@@ -166,7 +166,16 @@ namespace CrusaderWars.client
                     if (levyUnitsInFaction.Any())
                     {
                         int totalLevySoldiers = levyUnitsInFaction.Sum(u => u.GetSoldiers());
-                        var (levyComposition, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
+List<UnitMappers_BETA.LevyComposition>? levyComposition = null;
+                        try
+                        {
+                            (levyComposition, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error getting levy composition for faction '{factionGroup.Key}': {ex.Message}");
+                            // Continue without adding levy nodes for this faction
+                        }
 
                         if (levyComposition != null && levyComposition.Any())
                         {
