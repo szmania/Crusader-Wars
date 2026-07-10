@@ -158,7 +158,7 @@ namespace CrusaderWars.client
                         }
                         else
                         {
-                            displayName = $"{nameToShow}: {attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
+displayName = $"{nameToShow}:{attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
                         }
 
                         var groupNode = new TreeNode(displayName)
@@ -215,7 +215,7 @@ namespace CrusaderWars.client
                                     string levyKey = kvp.Key;
                                     int soldierCount = kvp.Value;
                                     string screenNameDisplay = _unitScreenNames.TryGetValue(levyKey, out var sn) ? sn : levyKey;
-string displayName = $"Levy: [{screenNameDisplay}] (1 units, {kvp.Value} men)";
+string displayName = $"Levy: [{screenNameDisplay}] ({kvp.Value} men)";
                                     var levyNode = new TreeNode(displayName)
                                     {
                                         Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true }
