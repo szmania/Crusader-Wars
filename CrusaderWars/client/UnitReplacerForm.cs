@@ -147,11 +147,13 @@ namespace CrusaderWars.client
                         if (regimentType == RegimentType.MenAtArms)
                         {
                             string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(nameToShow) ?? "Unit";
-                            displayName = $"MAA: {nameToShow} {attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
+displayName = $"MAA-{nameToShow}: {attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
                         }
                         else
                         {
-                            displayName = $"{nameToShow}{attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
+                            string unitKey = unitGroup.First().GetAttilaUnitKey();
+                            string screenName = _unitScreenNames.TryGetValue(unitKey, out var sn) ? sn : unitKey;
+                            displayName = $"{nameToShow}: {screenName} [{unitKey}] ({unitCount} units, {totalSoldiers} men)";
                         }
 
                         var groupNode = new TreeNode(displayName)
@@ -208,7 +210,7 @@ namespace CrusaderWars.client
                                     string levyKey = kvp.Key;
                                     int soldierCount = kvp.Value;
                                     string screenNameDisplay = _unitScreenNames.TryGetValue(levyKey, out var sn) ? sn : levyKey;
-                                    string displayName = $"Levy: [{screenNameDisplay}] ({soldierCount} men)";
+string displayName = $"Levy: {screenNameDisplay} [{levyKey}] (1 units, {kvp.Value} men)";
                                     var levyNode = new TreeNode(displayName)
                                     {
                                         Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true }
