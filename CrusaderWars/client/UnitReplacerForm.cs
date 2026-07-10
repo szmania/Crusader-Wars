@@ -166,7 +166,19 @@ namespace CrusaderWars.client
                     if (levyUnitsInFaction.Any())
                     {
                         int totalLevySoldiers = levyUnitsInFaction.Sum(u => u.GetSoldiers());
-List<(int percentage, string unit_key, string name, string max)>? levyComposition = null;
+                        List<(int percentage, string unit_key, string name, string max)>? levyComposition = null;
+                        try
+                        {
+                            var (composition, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
+                            levyComposition = composition;
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error getting faction levies for {factionGroup.Key}: {ex.Message}");
+                            levyComposition = null;
+                        }
+
+                        if (levyComposition != null && levyComposition.Any())
                         {
                             int totalPercentage = levyComposition.Sum(l => l.percentage);
                             if (totalPercentage > 0)
@@ -206,6 +218,7 @@ List<(int percentage, string unit_key, string name, string max)>? levyCompositio
                             }
                         }
                     }
+                    
                 }
             }
             tvCurrentUnits.ExpandAll();

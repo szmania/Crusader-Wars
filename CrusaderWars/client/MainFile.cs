@@ -3622,16 +3622,22 @@ namespace CrusaderWars
                     MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                if (allAvailableUnits is null)
+                if (unitScreenNames is null || !unitScreenNames.Any())
                 {
-                    Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
+                    Program.Logger.Debug("ERROR: unitScreenNames is null or empty, cannot launch UnitReplacerForm.");
+                    MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                if (allAvailableUnits is null || !allAvailableUnits.Any())
+                {
+                    Program.Logger.Debug("ERROR: allAvailableUnits is null or empty, cannot launch UnitReplacerForm.");
                     MessageBox.Show(this, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
 
                 // Do not filter available units by screen name here. The UnitReplacerForm will handle fallbacks.
                 var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey)).ToList();
-                Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
+
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {allAvailableUnits.Count} total available units, filtered down to {availableUnits.Count} with screen names.");
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {unitScreenNames.Count} unit screen names.");
 
