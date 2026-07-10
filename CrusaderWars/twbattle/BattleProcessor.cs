@@ -1571,7 +1571,10 @@ namespace CrusaderWars.twbattle
                     unitsButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Units);
                     unitsButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Units;
                     panel.Controls.Add(unitsButton);
-                    lastControl = unitsButton;
+
+                    unitsButton.CheckedChanged += (s, ev) => {
+                        if (unitsButton.Checked) okButton.Text = "Apply Fix";
+                    };
 
                     RadioButton mapSizeButton = new RadioButton();
                     mapSizeButton.Text = "Change Map Size (Try a larger battlefield)";
@@ -1580,7 +1583,10 @@ namespace CrusaderWars.twbattle
                     mapSizeButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapSize);
                     mapSizeButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapSize;
                     panel.Controls.Add(mapSizeButton);
-                    lastControl = mapSizeButton;
+
+                    mapSizeButton.CheckedChanged += (s, ev) => {
+                        if (mapSizeButton.Checked) okButton.Text = "Apply Fix";
+                    };
 
                     RadioButton deploymentButton = new RadioButton();
                     deploymentButton.Text = "Change Deployment (Rotate army positions)";
@@ -1589,7 +1595,10 @@ namespace CrusaderWars.twbattle
                     deploymentButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Deployment);
                     deploymentButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Deployment;
                     panel.Controls.Add(deploymentButton);
-                    lastControl = deploymentButton;
+
+                    deploymentButton.CheckedChanged += (s, ev) => {
+                        if (deploymentButton.Checked) okButton.Text = "Apply Fix";
+                    };
 
                     RadioButton mapVariantButton = new RadioButton();
                     mapVariantButton.Text = "Change Map Variant (Try a different battlefield layout)";
@@ -1598,7 +1607,10 @@ namespace CrusaderWars.twbattle
                     mapVariantButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapVariant);
                     mapVariantButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapVariant;
                     panel.Controls.Add(mapVariantButton);
-                    lastControl = mapVariantButton;
+
+                    mapVariantButton.CheckedChanged += (s, ev) => {
+                        if (mapVariantButton.Checked) okButton.Text = "Apply Fix";
+                    };
                 }
 
                 // Manual Tools
@@ -1620,7 +1632,11 @@ namespace CrusaderWars.twbattle
                     manualUnitButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.ManualUnitReplacement);
                     manualUnitButton.Checked = firstAvailable == AutofixState.AutofixStrategy.ManualUnitReplacement;
                     panel.Controls.Add(manualUnitButton);
-                    lastControl = manualUnitButton;
+
+                    manualUnitButton.CheckedChanged += (s, ev) => {
+                        if (manualUnitButton.Checked) okButton.Text = "Next";
+                        else okButton.Text = "Apply Fix";
+                    };
 
                     RadioButton deploymentZoneButton = new RadioButton();
                     deploymentZoneButton.Text = "Deployment Zone Editor (Manually position armies)";
@@ -1629,7 +1645,11 @@ namespace CrusaderWars.twbattle
                     deploymentZoneButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.DeploymentZoneEditor);
                     deploymentZoneButton.Checked = firstAvailable == AutofixState.AutofixStrategy.DeploymentZoneEditor;
                     panel.Controls.Add(deploymentZoneButton);
-                    lastControl = deploymentZoneButton;
+
+                    deploymentZoneButton.CheckedChanged += (s, ev) => {
+                        if (deploymentZoneButton.Checked) okButton.Text = "Next";
+                        else okButton.Text = "Apply Fix";
+                    };
                 }
 
 
