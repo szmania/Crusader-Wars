@@ -193,6 +193,26 @@ namespace CrusaderWars
             }
         }
 
+        private void WriteUnitMappersOptions()
+        {
+            string file = @".\\settings\\UnitMappers.xml";
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(file);
+
+            var CrusaderKings_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']");
+            if (CrusaderKings_Node != null) CrusaderKings_Node.InnerText = CrusaderKings_Tab.GetState().ToString();
+            var TheFallenEagle_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']");
+            if (TheFallenEagle_Node != null) TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
+            var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
+            if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
+            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']"); // Added AGOT tab
+            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString(); // Added AGOT tab
+            var BookmarksPlus_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']");
+            if (BookmarksPlus_Node != null && BookmarksPlus_Tab != null) BookmarksPlus_Node.InnerText = BookmarksPlus_Tab.GetState().ToString();
+            var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
+            if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
+            xmlDoc.Save(file);
+        }
         private void Options_Load(object sender, EventArgs e)
         {
             if (new LinuxEnvironmentDetector().IsRunningOnLinux())
@@ -209,7 +229,8 @@ namespace CrusaderWars
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
             Units_Tab = new UC_UnitsOptions();
-            CandK_Tab = new UC_CommandersAndKnightsOptions();
+
+            Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), "https://crusader-conflicts-website.vercel.app/playthroughs/custom-playthrough", new List<(string, string, string, string)>(), false, "Custom", new List<Submod>());
 
             SubmodManager.LoadActiveSubmods();
             ReadUnitMappersOptions();

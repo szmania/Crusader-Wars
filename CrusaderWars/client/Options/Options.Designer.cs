@@ -28,56 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+this.Btn_AGOTTab = new System.Windows.Forms.Button();
+            this.Btn_BookmarksPlusTab = new System.Windows.Forms.Button();
             this.Btn_CustomTab = new System.Windows.Forms.Button();
-            this.components = new System.ComponentModel.Container();
-            this.TableLayoutSystem = new System.Windows.Forms.TableLayoutPanel();
-            this.flowLayoutPanelSystem = new System.Windows.Forms.FlowLayoutPanel();
-            this.Btn_GamePaths = new System.Windows.Forms.Button();
-            this.Btn_OS = new System.Windows.Forms.Button();
-            this.SystemContentPanel = new System.Windows.Forms.Panel();
-            this.OSPanel = new System.Windows.Forms.Panel();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Options));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.ck3Btn = new System.Windows.Forms.Button();
-            this.Status_Ck3_Icon = new System.Windows.Forms.PictureBox();
-            this.CloseBtn = new System.Windows.Forms.Button();
-            this.Status_Attila_Icon = new System.Windows.Forms.PictureBox();
-            this.AttilaBtn = new System.Windows.Forms.Button();
-            this.btnLinuxSetup = new System.Windows.Forms.Button();
-            this.TableLayoutSystem = new System.Windows.Forms.TableLayoutPanel();
-            this.flowLayoutPanelSystem = new System.Windows.Forms.FlowLayoutPanel();
-            this.Btn_GamePaths = new System.Windows.Forms.Button();
-            this.Btn_OS = new System.Windows.Forms.Button();
-            this.SystemContentPanel = new System.Windows.Forms.Panel();
-            this.OSPanel = new System.Windows.Forms.Panel();
-            this.ToolTip_Attila = new System.Windows.Forms.ToolTip(this.components);
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.ToolTip_UnitMappers = new System.Windows.Forms.ToolTip(this.components);
-            this.label3 = new System.Windows.Forms.Label();
-            this.ToolTip_Options = new System.Windows.Forms.ToolTip(this.components);
-            this.OptionsPanel = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.Btn_GeneralTab = new System.Windows.Forms.Button();
-            this.Btn_UnitsTab = new System.Windows.Forms.Button();
-            this.Btn_CandKTab = new System.Windows.Forms.Button();
-            this.toggleModManagerButton = new System.Windows.Forms.Button();
-            this.ModManager = new System.Windows.Forms.DataGridView();
-            this.ActiveBoxes = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.ImageColumn = new System.Windows.Forms.DataGridViewImageColumn();
-            this.ModName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StatusColumn = new System.Windows.Forms.DataGridViewImageColumn();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.UMpanel = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.Btn_CK3Tab = new System.Windows.Forms.Button();
-            this.Btn_TFETab = new System.Windows.Forms.Button();
-            this.Btn_LOTRTab = new System.Windows.Forms.Button();
-            this.Btn_AGOTTab = new System.Windows.Forms.Button();
             this.Btn_BookmarksPlusTab = new System.Windows.Forms.Button();
             this.TableLayoutGamePaths = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
@@ -541,7 +494,8 @@
             this.Btn_AGOTTab.Text = "AGOT";
             this.Btn_AGOTTab.UseVisualStyleBackColor = false;
             this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
-this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
+
+this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
             // 
             // Btn_BookmarksPlusTab
             // 
@@ -832,7 +786,9 @@ this.Btn_CustomTab.Location = new System.Drawing.Point(566, 3);
         private System.Windows.Forms.Button Btn_CK3Tab;
         private System.Windows.Forms.Button Btn_TFETab;
         private System.Windows.Forms.Button Btn_LOTRTab;
-        private System.Windows.Forms.Button Btn_AGOTTab;
+private System.Windows.Forms.Button Btn_AGOTTab;
+        private System.Windows.Forms.Button Btn_BookmarksPlusTab;
+        private System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.Button Btn_BookmarksPlusTab;
         private System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
