@@ -1552,6 +1552,8 @@ namespace CrusaderWars.twbattle
                 var firstAvailable = availableStrategies.FirstOrDefault();
                 Control lastControl = headerLabel;
 
+                Button okButton = new Button();
+
                 // Autofixer Tools
                 var autoFixerStrategies = new[] { AutofixState.AutofixStrategy.Units, AutofixState.AutofixStrategy.MapSize, AutofixState.AutofixStrategy.Deployment, AutofixState.AutofixStrategy.MapVariant };
                 if (isCrash && availableStrategies.Any(s => autoFixerStrategies.Contains(s)))
@@ -1661,7 +1663,6 @@ namespace CrusaderWars.twbattle
                 warningLabel.Location = new Point(10, lastControl.Bottom + 15);
                 panel.Controls.Add(warningLabel);
 
-                Button okButton = new Button();
                 okButton.Text = "Apply Fix";
                 okButton.Size = new Size(75, 25);
                 okButton.Location = new Point(strategyForm.ClientSize.Width - 170, warningLabel.Bottom + 10);
