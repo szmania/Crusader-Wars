@@ -407,6 +407,9 @@
             // HomePage
             // 
             resources.ApplyResources(this, "$this");
+
+            this.AutoScroll = true;
+            this.AutoScrollMinSize = new System.Drawing.Size(1280, 720);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.IndianRed;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.main_beta1;
@@ -439,7 +442,7 @@
             this.BottomRightFlowPanel.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
+
 
         }
 
