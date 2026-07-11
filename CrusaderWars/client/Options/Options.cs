@@ -51,15 +51,17 @@ namespace CrusaderWars
             Btn_TFETab.FlatAppearance.BorderSize = 1;
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
             Btn_AGOTTab.FlatAppearance.BorderSize = 1;
-            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
+if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderSize = 1;
+if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
             Btn_CK3Tab.FlatAppearance.BorderColor = Color.Black;
             Btn_TFETab.FlatAppearance.BorderColor = Color.Black;
             Btn_LOTRTab.FlatAppearance.BorderColor = Color.Black;
             Btn_AGOTTab.FlatAppearance.BorderColor = Color.Black;
-            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderColor = Color.Black;
+if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderColor = Color.Black;
+if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderColor = Color.Black;
 
             // Reset submod button borders on all playthrough tabs
-            foreach (var playthrough in new[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab })
+foreach (var playthrough in new[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, BookmarksPlus_Tab, Custom_Tab })
             {
                 if (playthrough != null)
                 {
@@ -78,8 +80,10 @@ namespace CrusaderWars
                 if (activePlaythrough == CrusaderKings_Tab) activeButton = Btn_CK3Tab;
                 else if (activePlaythrough == TheFallenEagle_Tab) activeButton = Btn_TFETab;
                 else if (activePlaythrough == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
-                else if (activePlaythrough == AGOT_Tab) activeButton = Btn_AGOTTab; // Added AGOT tab
-                else if (activePlaythrough == BookmarksPlus_Tab) activeButton = Btn_BookmarksPlusTab;
+
+else if (activePlaythrough == AGOT_Tab) activeButton = Btn_AGOTTab;
+else if (activePlaythrough == BookmarksPlus_Tab) activeButton = Btn_BookmarksPlusTab;
+else if (activePlaythrough == Custom_Tab) activeButton = Btn_CustomTab;
 
                 if (activeButton != null)
                 {
@@ -1314,31 +1318,36 @@ if (doc.DocumentElement is null) return defaultValue;
             Btn_CK3Tab.BackgroundImage = null;
             Btn_TFETab.BackgroundImage = null;
             Btn_LOTRTab.BackgroundImage = null;
-            Btn_AGOTTab.BackgroundImage = null; // Added AGOT tab
-            if(Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.BackgroundImage = null;
+Btn_AGOTTab.BackgroundImage = null;
+if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.BackgroundImage = null;
+if (Btn_CustomTab != null) Btn_CustomTab.BackgroundImage = null;
             Btn_CK3Tab.BackColor = inactiveColor;
             Btn_TFETab.BackColor = inactiveColor;
             Btn_LOTRTab.BackColor = inactiveColor;
-            Btn_AGOTTab.BackColor = inactiveColor; // Added AGOT tab
-            if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.BackColor = inactiveColor;
+Btn_AGOTTab.BackColor = inactiveColor;
+if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.BackColor = inactiveColor;
+if (Btn_CustomTab != null) Btn_CustomTab.BackColor = inactiveColor;
             Btn_CK3Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black; // Added AGOT tab
-            if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_CK3Tab.FlatAppearance.BorderSize = 1;
             Btn_TFETab.FlatAppearance.BorderSize = 1;
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
-            Btn_AGOTTab.FlatAppearance.BorderSize = 1; // Added AGOT tab
-            if(Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderSize = 1;
+Btn_AGOTTab.FlatAppearance.BorderSize = 1;
+if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderSize = 1;
+if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
             Button? activeButton = null;
             if (control == CrusaderKings_Tab) activeButton = Btn_CK3Tab;
             else if (control == TheFallenEagle_Tab) activeButton = Btn_TFETab;
             else if (control == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
-            else if (control == AGOT_Tab) activeButton = Btn_AGOTTab; // Added AGOT tab
-            else if (control == BookmarksPlus_Tab) activeButton = Btn_BookmarksPlusTab;
+else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
+else if (control == BookmarksPlus_Tab) activeButton = Btn_BookmarksPlusTab;
+else if (control == Custom_Tab) activeButton = Btn_CustomTab;
 
             if (activeButton != null)
             {
@@ -1429,8 +1438,9 @@ if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab
             var ck3ToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "DefaultCK3");
             var tfeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "TheFallenEagle");
             var lotrToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "RealmsInExile");
-            var agotToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "AGOT");
+
             var bookmarksPlusToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "BookmarksPlus");
+
 
             if (_unitMappersXmlChanged)
             {
@@ -1442,9 +1452,9 @@ if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab
             if (ck3ToggleStateStr == "True") ck3ToggleState = true; else ck3ToggleState = false;
             if (tfeToggleStateStr == "True") tfeToggleState = true; else tfeToggleState = false;
             if (lotrToggleStateStr == "True") lotrToggleState = true; else lotrToggleState = false;
-            if (agotToggleStateStr == "True") agotToggleState = true; else agotToggleState = false; // Added AGOT tab
-            bool bookmarksPlusToggleState = false;
+
             if (bookmarksPlusToggleStateStr == "True") bookmarksPlusToggleState = true; else bookmarksPlusToggleState = false;
+
 
             // NOTE: The constructor for UC_UnitMapper will need to be updated to accept the list of submods.
             // This change is commented out because the UC_UnitMapper.cs file was not provided.
@@ -1452,19 +1462,20 @@ if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab
             var ck3Mods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3");
             var tfeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle");
             var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
-            var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
+var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
+var customMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
             var bookmarksPlusMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
             CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements", tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
             RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, "https://crusader-conflicts-website.vercel.app/playthroughs/a-game-of-thrones#mod-requirements", agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList()); // Changed to use playthrough_agot
+
             BookmarksPlus_Tab = new UC_UnitMapper(Properties.Resources.playthrough_bookmarksplus, "https://crusader-conflicts-website.vercel.app/playthroughs/bookmarks-plus", bookmarksPlusMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), bookmarksPlusToggleState, "BookmarksPlus", bookmarksPlusMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             RealmsInExile_Tab.ToggleClicked += PlaythroughToggle_Clicked;
-            AGOT_Tab.ToggleClicked += PlaythroughToggle_Clicked; // Added AGOT tab
+
             BookmarksPlus_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             Custom_Tab.ToggleClicked += PlaythroughToggle_Clicked;
 
@@ -1472,8 +1483,9 @@ if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab
             BookmarksPlus_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             RealmsInExile_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, AGOT_Tab, Custom_Tab });
-            AGOT_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, Custom_Tab });
-            Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
+
+            BookmarksPlus_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
+Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
 
             var activePlaythrough = GetActivePlaythrough();
             if (activePlaythrough != null)

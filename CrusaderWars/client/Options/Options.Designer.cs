@@ -29,9 +29,6 @@
         private void InitializeComponent()
         {
 this.Btn_AGOTTab = new System.Windows.Forms.Button();
-            this.Btn_BookmarksPlusTab = new System.Windows.Forms.Button();
-            this.Btn_CustomTab = new System.Windows.Forms.Button();
-            this.Btn_BookmarksPlusTab = new System.Windows.Forms.Button();
             this.TableLayoutGamePaths = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
@@ -407,8 +404,8 @@ this.Btn_AGOTTab = new System.Windows.Forms.Button();
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
+this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -489,11 +486,19 @@ this.Btn_AGOTTab = new System.Windows.Forms.Button();
             this.Btn_AGOTTab.Location = new System.Drawing.Point(371, 3);
             this.Btn_AGOTTab.Name = "Btn_AGOTTab";
             this.Btn_AGOTTab.Size = new System.Drawing.Size(80, 28);
-            this.Btn_AGOTTab.TabIndex = 3;
+this.Btn_AGOTTab.TabIndex = 3;
+this.Btn_BookmarksPlusTab.TabIndex = 4;
+this.Btn_CustomTab.TabIndex = 5;
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_AGOTTab, "A Game of Thrones playthrough with AGOT ck3 mod and Seven Kingdoms TW:Attila mod");
-            this.Btn_AGOTTab.Text = "AGOT";
-            this.Btn_AGOTTab.UseVisualStyleBackColor = false;
-            this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
+this.Btn_AGOTTab.Text = "AGOT";
+this.Btn_BookmarksPlusTab.Text = "Bookmarks+";
+this.Btn_CustomTab.Text = "Custom";
+this.Btn_AGOTTab.UseVisualStyleBackColor = false;
+this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
+this.Btn_CustomTab.UseVisualStyleBackColor = false;
+this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
+this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
+this.Btn_CustomTab.Cursor = System.Windows.Forms.Cursors.Hand;
 
 this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
             // 
@@ -787,10 +792,8 @@ this.Btn_CustomTab.Location = new System.Drawing.Point(566, 3);
         private System.Windows.Forms.Button Btn_TFETab;
         private System.Windows.Forms.Button Btn_LOTRTab;
 private System.Windows.Forms.Button Btn_AGOTTab;
-        private System.Windows.Forms.Button Btn_BookmarksPlusTab;
-        private System.Windows.Forms.Button Btn_CustomTab;
-        private System.Windows.Forms.Button Btn_BookmarksPlusTab;
-        private System.Windows.Forms.Button Btn_CustomTab;
+private System.Windows.Forms.Button Btn_BookmarksPlusTab;
+private System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
         private System.Windows.Forms.DataGridViewImageColumn ImageColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn ModName;
