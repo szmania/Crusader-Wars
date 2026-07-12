@@ -394,14 +394,11 @@ namespace CrusaderWars.unit_mapper
                     return "SECOND AGE";
 case "OfficialCC_AGOT_SevenKingdoms":
                     return "AGE OF THE TARGARYENS";
-                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+case "OfficialCC_BookmarksPlus_FireforgedEmpire":
                     return "FIRE FORGED EMPIRE";
                 default:
                     return null;
-                default:
-                    return null;
             }
-
         }
 
         public static void ClearProvinceMapCache()

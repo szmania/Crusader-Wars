@@ -1731,12 +1731,11 @@ namespace CrusaderWars
                                     }
                                     else if (activePlaythrough == "BookmarksPlus")
                                     {
-                                        string bookmarksPlusPatchLocal = "crusader_conflicts_bookmarksplus_compat_patch.mod";
-                                        string bookmarksPlusPatchSteam = "ugc_3612526842.mod";
-                                        int bookmarksPlusPatchIndex = enabledModsList.FindLastIndex(m =>
-                                            m.Equals(bookmarksPlusPatchLocal, StringComparison.OrdinalIgnoreCase) ||
-                                            m.Equals(bookmarksPlusPatchSteam, StringComparison.OrdinalIgnoreCase));
-                                        if (mainModIndex == -1 || bookmarksPlusPatchIndex != enabledModsList.Count - 1 ||
+
+                                     int bookmarksPlusPatchIndex = enabledModsList.FindLastIndex(m =>
+                                         m.Equals("crusader_conflicts_bookmarksplus_compat_patch.mod", StringComparison.OrdinalIgnoreCase) ||
+                                         m.Equals("ugc_3612526842.mod", StringComparison.OrdinalIgnoreCase));
+                                     if (mainModIndex == -1 || bookmarksPlusPatchIndex != enabledModsList.Count - 1 ||
                                             mainModIndex > bookmarksPlusPatchIndex)
                                         {
                                             loadOrderCorrect = false;

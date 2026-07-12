@@ -278,6 +278,7 @@ namespace CrusaderWars.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+
         
         internal static System.Drawing.Bitmap LS_lotr {
             get {
@@ -418,7 +419,14 @@ namespace CrusaderWars.Properties {
         
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
+
+        internal static System.Drawing.Bitmap playthrough_bookmarksplus {
+            get {
+                object obj = ResourceManager.GetObject("playthrough_bookmarksplus", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap playthrough_agot {
             get {
                 object obj = ResourceManager.GetObject("playthrough_agot", resourceCulture);
