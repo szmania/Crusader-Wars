@@ -172,7 +172,38 @@
             this.ToolTip_Attila.SetToolTip(this.AttilaBtn, "AAttila");
             this.AttilaBtn.UseVisualStyleBackColor = false;
             this.AttilaBtn.Click += new System.EventHandler(this.AttilaBtn_Click);
-            this.AttilaBtn.MouseHover += new System.EventHandler(this.AttilaBtn_MouseHover);
+this.AttilaBtn.MouseHover += new System.EventHandler(this.AttilaBtn_MouseHover);
+            // 
+            // Rome2Btn
+            // 
+            this.Rome2Btn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.Rome2Btn.BackColor = System.Drawing.Color.Transparent;
+            this.Rome2Btn.BackgroundImage = global::CrusaderWars.Properties.Resources.rome2_icon;
+            this.Rome2Btn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Rome2Btn.FlatAppearance.BorderSize = 0;
+            this.Rome2Btn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.Rome2Btn.Font = new System.Drawing.Font("Yu Gothic UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Rome2Btn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.Rome2Btn.Location = new System.Drawing.Point(541, 50);
+            this.Rome2Btn.Name = "Rome2Btn";
+            this.Rome2Btn.Size = new System.Drawing.Size(130, 122);
+            this.Rome2Btn.TabIndex = 15;
+            this.ToolTip_Attila.SetToolTip(this.Rome2Btn, "Select Rome2.exe from your Total War: Rome 2 installation folder");
+            this.Rome2Btn.UseVisualStyleBackColor = false;
+            this.Rome2Btn.Click += new System.EventHandler(this.Rome2Btn_Click);
+            this.Rome2Btn.MouseHover += new System.EventHandler(this.Rome2Btn_MouseHover);
+            // 
+            // Status_Rome2_Icon
+            // 
+            this.Status_Rome2_Icon.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.Status_Rome2_Icon.BackColor = System.Drawing.Color.Transparent;
+            this.Status_Rome2_Icon.BackgroundImage = global::CrusaderWars.Properties.Resources.correct;
+            this.Status_Rome2_Icon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.Status_Rome2_Icon.Location = new System.Drawing.Point(541, 203);
+            this.Status_Rome2_Icon.Name = "Status_Rome2_Icon";
+            this.Status_Rome2_Icon.Size = new System.Drawing.Size(64, 31);
+            this.Status_Rome2_Icon.TabIndex = 11;
+            this.Status_Rome2_Icon.TabStop = false;
             // 
             // ToolTip_Attila
             // 
@@ -454,6 +485,7 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_Rome2Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -539,7 +571,7 @@
             this.Btn_AGOTTab.Text = "AGOT";
             this.Btn_AGOTTab.UseVisualStyleBackColor = false;
             this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
+this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
             // 
             // Btn_CustomTab
             // 
@@ -551,7 +583,7 @@
             this.Btn_CustomTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CustomTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_CustomTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_CustomTab.Location = new System.Drawing.Point(457, 3);
+this.Btn_CustomTab.Location = new System.Drawing.Point(543, 3);
             this.Btn_CustomTab.Name = "Btn_CustomTab";
             this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
             this.Btn_CustomTab.TabIndex = 4;
@@ -564,14 +596,17 @@
             // TableLayoutGamePaths
             // 
             this.TableLayoutGamePaths.BackColor = System.Drawing.Color.Transparent;
-            this.TableLayoutGamePaths.ColumnCount = 2;
-            this.TableLayoutGamePaths.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.TableLayoutGamePaths.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+this.TableLayoutGamePaths.ColumnCount = 3;
+            this.TableLayoutGamePaths.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.TableLayoutGamePaths.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.TableLayoutGamePaths.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.TableLayoutGamePaths.Controls.Add(this.Status_Ck3_Icon, 0, 2);
             this.TableLayoutGamePaths.Controls.Add(this.Status_Attila_Icon, 1, 2);
             this.TableLayoutGamePaths.Controls.Add(this.ck3Btn, 0, 1);
             this.TableLayoutGamePaths.Controls.Add(this.AttilaBtn, 1, 1);
             this.TableLayoutGamePaths.Controls.Add(this.label2, 0, 0);
+            this.TableLayoutGamePaths.Controls.Add(this.Rome2Btn, 2, 1);
+            this.TableLayoutGamePaths.Controls.Add(this.Status_Rome2_Icon, 2, 2);
             this.TableLayoutGamePaths.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TableLayoutGamePaths.Location = new System.Drawing.Point(0, 0);
             this.TableLayoutGamePaths.Name = "TableLayoutGamePaths";
@@ -792,6 +827,7 @@
         private System.Windows.Forms.Button CloseBtn;
         private System.Windows.Forms.PictureBox Status_Attila_Icon;
         private System.Windows.Forms.Button AttilaBtn;
+        private System.Windows.Forms.Button Btn_Rome2Tab;
         private System.Windows.Forms.ToolTip ToolTip_Attila;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
@@ -811,7 +847,7 @@
         private System.Windows.Forms.Button Btn_CK3Tab;
         private System.Windows.Forms.Button Btn_TFETab;
         private System.Windows.Forms.Button Btn_LOTRTab;
-        private System.Windows.Forms.Button Btn_AGOTTab;
+private System.Windows.Forms.Button Btn_AGOTTab;
         private System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
         private System.Windows.Forms.DataGridViewImageColumn ImageColumn;

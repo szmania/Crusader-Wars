@@ -298,4 +298,11 @@
   <data name="LS_medieval" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\LS_medieval.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+
+  <data name="rome2_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\\Resources\\rome2_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="playthrough_bronze_age" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\\Resources\\playthrough_bronze_age.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

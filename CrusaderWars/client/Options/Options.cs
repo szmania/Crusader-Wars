@@ -118,7 +118,14 @@ namespace CrusaderWars
             {
                 return RealmsInExile_Tab;
             }
-            if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
+if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
+            {
+                return AGOT_Tab;
+            }
+            if (BronzeAge_Tab != null && BronzeAge_Tab.GetState())
+            {
+                return BronzeAge_Tab;
+            }
             {
                 return AGOT_Tab;
             }
@@ -781,6 +788,34 @@ namespace CrusaderWars
          *##############################################
          */
 
+private void Rome2Btn_Click(object sender, EventArgs e)
+        {
+            string game_node = "TotalWarRome2";
+
+            // Open the file explorer dialog
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Title = "Select 'Rome2.exe' from the installation folder";
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string Rome2_Path = openFileDialog1.FileName; // Get the selected file path
+                Properties.Settings.Default.VAR_rome2_path = Rome2_Path;
+                if (Rome2_Path.Contains("Rome2.exe"))
+                {
+                    Properties.Settings.Default.VAR_log_rome2 = Rome2_Path.Substring(0, Rome2_Path.IndexOf("Rome2.exe")) + "data\\\\BattleResults_log.txt";
+                }
+                ChangePathSettings(game_node, Rome2_Path);
+                Properties.Settings.Default.Save();
+            }
+
+            Status_Refresh();
+        }
+
+        private void Rome2Btn_MouseHover(object sender, EventArgs e)
+        {
+            ToolTip_Attila.ToolTipTitle = "Rome 2 Path";
+            ToolTip_Attila.SetToolTip(Rome2Btn, Properties.Settings.Default.VAR_rome2_path);
+        }
+
         private void AttilaBtn_MouseHover(object sender, EventArgs e)
         {
             ToolTip_Attila.ToolTipTitle = "Attila Path";
@@ -817,7 +852,17 @@ namespace CrusaderWars
             }
             else
             {
-                Status_Attila_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__1_;
+Status_Attila_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__1_;
+            }
+
+            //Rome2
+            if (Properties.Settings.Default.VAR_rome2_path.Contains("Rome2.exe"))
+            {
+                Status_Rome2_Icon.BackgroundImage = CrusaderWars.Properties.Resources.correct;
+            }
+            else
+            {
+                Status_Rome2_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__1_;
             }
         }
 
@@ -1012,7 +1057,21 @@ namespace CrusaderWars
                 if (ck3_node.Attributes?["path"] == null)
                 {
                     Program.Logger.Debug("'path' attribute not found for CrusaderKings. Creating.");
-                    ((XmlElement)ck3_node).SetAttribute("path", "");
+((XmlElement)ck3_node).SetAttribute("path", "");
+                    fileModified = true;
+                }
+
+                if (rome2_node == null)
+                {
+                    Program.Logger.Debug("TotalWarRome2 node not found. Creating.");
+                    rome2_node = xmlDoc.CreateElement("TotalWarRome2");
+                    root.AppendChild(rome2_node);
+                    fileModified = true;
+                }
+                if (rome2_node.Attributes?["path"] == null)
+                {
+                    Program.Logger.Debug("'path' attribute not found for TotalWarRome2. Creating.");
+                    ((XmlElement)rome2_node).SetAttribute("path", "");
                     fileModified = true;
                 }
 
@@ -1025,7 +1084,8 @@ namespace CrusaderWars
 
                 // 4. Load values into application settings
                 Properties.Settings.Default.VAR_attila_path = attila_node.Attributes?["path"]?.Value ?? string.Empty;
-                Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?? string.Empty;
+Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?? string.Empty;
+                Properties.Settings.Default.VAR_rome2_path = rome2_node.Attributes?["path"]?.Value ?? string.Empty;
                 Properties.Settings.Default.Save();
                 Program.Logger.Debug("Game paths loaded successfully.");
             }
@@ -1255,6 +1315,12 @@ namespace CrusaderWars
                 ChangeUnitMappersTab(RealmsInExile_Tab);
         }
 
+private void Btn_Rome2Tab_Click(object sender, EventArgs e)
+        {
+            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BronzeAge_Tab)
+                ChangeUnitMappersTab(BronzeAge_Tab);
+        }
+
         private void Btn_AGOTTab_Click(object sender, EventArgs e)
         {
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != AGOT_Tab)
@@ -1289,17 +1355,23 @@ namespace CrusaderWars
             Btn_TFETab.BackColor = inactiveColor;
             Btn_LOTRTab.BackColor = inactiveColor;
             Btn_AGOTTab.BackColor = inactiveColor; // Added AGOT tab
-            if (Btn_CustomTab != null) Btn_CustomTab.BackColor = inactiveColor;
+if (Btn_CustomTab != null) Btn_CustomTab.BackColor = inactiveColor;
+            Btn_Rome2Tab.BackColor = inactiveColor;
             Btn_CK3Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black; // Added AGOT tab
-            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            Btn_Rome2Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             Btn_CK3Tab.FlatAppearance.BorderSize = 1;
             Btn_TFETab.FlatAppearance.BorderSize = 1;
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
             Btn_AGOTTab.FlatAppearance.BorderSize = 1; // Added AGOT tab
             if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
+
+
+            Btn_Rome2Tab.FlatAppearance.BorderSize = 1;
+            Btn_Rome2Tab.FlatAppearance.BorderColor = Color.Black;
 
             // Highlight active button
             Button? activeButton = null;
@@ -1307,7 +1379,8 @@ namespace CrusaderWars
             else if (control == TheFallenEagle_Tab) activeButton = Btn_TFETab;
             else if (control == RealmsInExile_Tab) activeButton = Btn_LOTRTab;
             else if (control == AGOT_Tab) activeButton = Btn_AGOTTab; // Added AGOT tab
-            else if (control == Custom_Tab) activeButton = Btn_CustomTab;
+else if (control == Custom_Tab) activeButton = Btn_CustomTab;
+            else if (control == BronzeAge_Tab) activeButton = Btn_Rome2Tab;
 
             if (activeButton != null)
             {
@@ -1498,7 +1571,8 @@ namespace CrusaderWars
             CrusaderKings_Tab?.SetPulsing(false);
             TheFallenEagle_Tab?.SetPulsing(false);
             RealmsInExile_Tab?.SetPulsing(false);
-            AGOT_Tab?.SetPulsing(false); // Added AGOT tab
+AGOT_Tab?.SetPulsing(false); // Added AGOT tab
+            BronzeAge_Tab?.SetPulsing(false);
             Custom_Tab?.SetPulsing(false);
 
             if (activePlaythrough == null)

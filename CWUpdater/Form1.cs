@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Linq;
 using System.Net.Http; // Added this line
+using System.Security.Cryptography;
 using System.Collections.Generic; // Added for HashSet
+using System.Security.Cryptography;
 
 namespace CWUpdater
 {
@@ -93,46 +95,19 @@ namespace CWUpdater
             string[] args = Environment.GetCommandLineArgs();
             Logger.Log($"Arguments received: {string.Join(" ", args)}");
 
-            if (args.Length == 3) // App update (older format: CWUpdater.exe <DownloadUrl> <NewVersion>)
-            {
-                DownloadUrl = args[1];
-                UpdateVersion = args[2];
-                CurrentVersion = null; // Current version not supplied in this format
-                IsUnitMappers = false;
-                Logger.Log($"App update (older format) detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: null");
-                return true;
-            }
-            else if (args.Length == 4) // Could be App update: CWUpdater.exe <DownloadUrl> <CurrentVersion> <NewVersion> OR Unit Mappers update (older format): CWUpdater.exe <DownloadUrl> <NewVersion> <"unit_mapper">
-            {
-                if (args[3].Equals("unit_mapper", StringComparison.OrdinalIgnoreCase))
-                {
-                    DownloadUrl = args[1];
-                    UpdateVersion = args[2];
-                    CurrentVersion = null; // Current version not supplied in this older format
-                    IsUnitMappers = true;
-                    Logger.Log($"Unit Mappers update (older format) detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: null");
-                    return true;
-                }
-                else
-                {
-                    DownloadUrl = args[1];
-                    CurrentVersion = args[2]; // Swapped
-                    UpdateVersion = args[3]; // Swapped
-                    IsUnitMappers = false;
-                    Logger.Log($"App update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}");
-                    return true;
-                }
-            }
-            else if (args.Length == 5) // Unit Mappers update: CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion> <"unit_mappers_flag">
+            // CWUpdater.exe <DownloadUrl> <NewVersion> <CurrentVersion> <isUnitMappers>
+            // All arguments are now required for clarity.
+            if (args.Length == 5)
             {
                 DownloadUrl = args[1];
                 UpdateVersion = args[2];
                 CurrentVersion = args[3];
-                IsUnitMappers = true;
-                Logger.Log($"Unit Mappers update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}");
+                IsUnitMappers = bool.Parse(args[4]);
+                Logger.Log($"Update detected. URL: {DownloadUrl}, New Version: {UpdateVersion}, Current Version: {CurrentVersion}, Is Unit Mappers: {IsUnitMappers}");
                 return true;
             }
-            Logger.Log("Invalid number of arguments.");
+
+            Logger.Log("Invalid number of arguments. Expected: <DownloadUrl> <NewVersion> <CurrentVersion> <isUnitMappers>");
             return false;
         }
 
@@ -278,7 +253,19 @@ namespace CWUpdater
                     }
                 }
 
+                // Verify the downloaded file hash
+                if (!await VerifyUpdatePackage(downloadPath, downloadUrl))
+                {
+                    Logger.Log("Update verification failed. The downloaded file may be corrupt. Aborting update.");
+                    MessageBox.Show("Update verification failed. The downloaded file may be corrupt or tampered with. Please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.Close();
+                    return;
+                }
+                Logger.Log("Update package verified successfully.");
+
+
                 Console.WriteLine("Update downloaded successfully.");
+
                 Logger.Log("Update downloaded successfully.");
 
                 if (!IsUnitMappers)
@@ -346,7 +333,31 @@ namespace CWUpdater
                 try // NEW: Specific try block for ZipException
                 {
                     Logger.Log("Extracting update file.");
-                    ZipFile.ExtractToDirectory(updateFilePath, tempDirectory);
+                // Secure extraction to prevent path traversal (Zip Slip)
+                using (ZipArchive archive = ZipFile.OpenRead(updateFilePath))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        string fullPath = Path.GetFullPath(Path.Combine(tempDirectory, entry.FullName));
+
+                        if (!fullPath.StartsWith(tempDirectory, StringComparison.OrdinalIgnoreCase))
+                        {
+                            throw new IOException("Detected attempt to extract file outside of the destination directory.");
+                        }
+
+                        if (Path.GetFileName(fullPath).Length == 0)
+                        {
+                            // It's a directory, create it
+                            Directory.CreateDirectory(fullPath);
+                        }
+                        else
+                        {
+                            // It's a file, create parent directory if needed
+                            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+                            entry.ExtractToFile(fullPath, true);
+                        }
+                    }
+                }
 
                     // Safeguard: Check if the extracted directory is empty
                     if (!Directory.EnumerateFileSystemEntries(tempDirectory).Any())
@@ -420,6 +431,18 @@ del ""%~f0""
                             }
                         }
                         Logger.Log($"Determined game type for unit mapper update: {gameType}");
+
+                        // Validate game.txt content
+                        if (gameType != "attila" && gameType != "rome_2")
+                        {
+                            throw new System.IO.InvalidDataException($"Invalid game type '{gameType}' specified in game.txt. Only 'attila' or 'rome_2' are supported.");
+                        }
+
+                        // Validate game.txt content
+                        if (gameType != "attila" && gameType != "rome_2")
+                        {
+                            throw new System.IO.InvalidDataException($"Invalid game type '{gameType}' specified in game.txt. Only 'attila' or 'rome_2' are supported.");
+                        }
 
                         // Construct the final application path based on the game type
                         string finalApplicationPath = Path.Combine(applicationPath, gameType);
@@ -933,7 +956,18 @@ del ""%~f0""
                 //Update unit mappers .txt file version
                 if (updateVersionFile)
                 {
-                    string version_path = Path.Combine(Directory.GetCurrentDirectory(), "um_version.txt");
+                    string gameType = "attila"; 
+                    string tempDirectory = Path.Combine(Path.GetTempPath(), "update");
+                    string gameFilePath = Path.Combine(tempDirectory, "game.txt");
+                    if (File.Exists(gameFilePath))
+                    {
+                        string content = File.ReadAllText(gameFilePath).Trim();
+                        if (content.Equals("rome_2", StringComparison.OrdinalIgnoreCase))
+                        {
+                            gameType = "rome_2";
+                        }
+                    }
+                    string version_path = Path.Combine(Directory.GetCurrentDirectory(), $"um_version_{gameType}.txt");
                     Logger.Log($"Updating unit mappers version file: {version_path} to version {UpdateVersion}");
                     if (UpdateVersion != null) // Added null check for UpdateVersion
                     {
@@ -982,6 +1016,63 @@ del ""%~f0""
                 }
             }
             RestartApplication(false);
+        }
+
+
+        private async Task<bool> VerifyUpdatePackage(string filePath, string downloadUrl)
+        {
+            string hashUrl = downloadUrl + ".sha256";
+            try
+            {
+                Logger.Log($"Downloading expected hash from: {hashUrl}");
+                string expectedHash = await httpClient.GetStringAsync(hashUrl).ConfigureAwait(false);
+                expectedHash = expectedHash.Trim();
+
+                using (var sha256 = SHA256.Create())
+                {
+                    using (var stream = File.OpenRead(filePath))
+                    {
+                        var hash = await Task.Run(() => sha256.ComputeHash(stream));
+                        string actualHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+
+                        Logger.Log($"Comparing Hashes. Expected: {expectedHash}, Actual: {actualHash}");
+                        return expectedHash == actualHash;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error during update verification: {ex.Message}");
+                return false; // Fail safe
+            }
+        }
+
+        private async Task<bool> VerifyUpdatePackage(string filePath, string downloadUrl)
+        {
+            string hashUrl = downloadUrl + ".sha256";
+            try
+            {
+                Logger.Log($"Downloading expected hash from: {hashUrl}");
+                string expectedHash = await httpClient.GetStringAsync(hashUrl).ConfigureAwait(false);
+                expectedHash = expectedHash.Trim();
+
+                using (var sha256 = SHA256.Create())
+                {
+                    using (var stream = File.OpenRead(filePath))
+                    {
+                        var hash = await Task.Run(() => sha256.ComputeHash(stream));
+                        string actualHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+
+                        Logger.Log($"Comparing Hashes. Expected: {expectedHash}, Actual: {actualHash}");
+                        return expectedHash == actualHash;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error during update verification: {ex.Message}");
+                return false; // Fail safe
+            }
         }
 
         private bool IsNewerUpdater(string newUpdaterPath, string currentUpdaterPath)
