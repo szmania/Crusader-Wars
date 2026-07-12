@@ -692,7 +692,7 @@ namespace CrusaderWars
             // NEW TOOLTIPS
             InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
-            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
+infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 60);
 
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
@@ -3504,7 +3504,8 @@ namespace CrusaderWars
                 BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor
             };
 
-var (result, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, availableStrategies, isCrash: true);
+infoLabel.Text = "Select a tool to fix the battle...";
+            var (result, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, availableStrategies, isCrash: true);
 
             bool changesMade = false;
             if (result == DialogResult.OK && chosenStrategy.HasValue)

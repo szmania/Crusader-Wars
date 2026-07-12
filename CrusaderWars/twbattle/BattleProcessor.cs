@@ -1673,6 +1673,26 @@ namespace CrusaderWars.twbattle
                 okButton.Size = new Size(75, 25);
                 okButton.Location = new Point(strategyForm.ClientSize.Width - 170, warningLabel.Bottom + 10);
                 okButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+okButton.Click += (s, ev) =>
+                {
+                    if (parentForm is HomePage homePage)
+                    {
+                        var unitsButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Units"));
+                        var mapSizeButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Size"));
+                        var deploymentButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Deployment"));
+                        var mapVariantButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Variant"));
+                        var manualUnitButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Manual Unit Replacement"));
+                        var deploymentZoneButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Deployment Zone Editor"));
+
+                        if (unitsButton != null && unitsButton.Checked) homePage.UpdateInfoLabel("Processing: Analyzing units for replacement...");
+                        else if (mapSizeButton != null && mapSizeButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map size...");
+                        else if (deploymentButton != null && deploymentButton.Checked) homePage.UpdateInfoLabel("Processing: Changing deployment...");
+                        else if (mapVariantButton != null && mapVariantButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map variant...");
+                        else if (manualUnitButton != null && manualUnitButton.Checked) homePage.UpdateInfoLabel("Loading manual unit replacer...");
+                        else if (deploymentZoneButton != null && deploymentZoneButton.Checked) homePage.UpdateInfoLabel("Loading deployment zone editor...");
+                    }
+                };
+
                 okButton.Click += (sender, e) =>
                 {
                     // This is a bit ugly, but it's how the original code was structured.

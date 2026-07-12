@@ -233,7 +233,8 @@ string displayName = $"Levy: [{screenNameDisplay}] ({kvp.Value} men)";
 
         private void PopulateAvailableUnitsTree()
         {
-            tvAvailableUnits.Nodes.Clear();
+tvAvailableUnits.Nodes.Clear();
+            ClearAvailableReplacementHighlights();
 
             var unitsByFaction = _allAvailableUnits
                 .GroupBy(u => u.FactionName)
@@ -472,6 +473,60 @@ string displayName = $"Levy: [{screenNameDisplay}] ({kvp.Value} men)";
                 }
             }
             return key;
+        }
+
+private void HighlightAvailableReplacementNode(string replacementKey)
+        {
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        if (unitNode.Tag as string == replacementKey)
+                        {
+                            unitNode.ForeColor = Color.MediumSeaGreen;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+private void HighlightAvailableReplacementNode(string replacementKey)
+        {
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        if (unitNode.Tag as string == replacementKey)
+                        {
+                            unitNode.ForeColor = Color.MediumSeaGreen;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+private void HighlightAvailableReplacementNode(string replacementKey)
+        {
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        if (unitNode.Tag as string == replacementKey)
+                        {
+                            unitNode.ForeColor = Color.MediumSeaGreen;
+                            return;
+                        }
+                    }
+                }
+            }
         }
 
         private void tvCurrentUnits_BeforeSelect(object? sender, TreeViewCancelEventArgs e)
