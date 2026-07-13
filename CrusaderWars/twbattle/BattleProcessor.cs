@@ -1669,7 +1669,9 @@ namespace CrusaderWars.twbattle
                 warningLabel.Location = new Point(10, lastControl.Bottom + 15);
                 panel.Controls.Add(warningLabel);
 
-                okButton.Text = "Apply Fix";
+// Set initial button text based on whether the first available strategy is a manual tool
+                bool isManualToolFirst = manualStrategies.Contains(firstAvailable);
+                okButton.Text = isManualToolFirst ? "Next" : "Apply Fix";
                 okButton.Size = new Size(75, 25);
                 okButton.Location = new Point(strategyForm.ClientSize.Width - 170, warningLabel.Bottom + 10);
                 okButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
