@@ -14,7 +14,7 @@ public class WindowsProcessController : IProcessController
     /// Always true on Windows — pssuspend64.exe is bundled with the application.
     /// </summary>
     public bool IsSupported => true;
-    
+
     /// <summary>
     /// Executes pssuspend64.exe with the given command-line arguments.
     /// </summary>
@@ -32,50 +32,64 @@ public class WindowsProcessController : IProcessController
                 "pssuspend64.exe not found in .\\data\\runtime. " +
                 "This tool is required for process suspend/resume on Windows.");
         }
-        
+
         string filePath = files[0];
-        
-        ProcessStartInfo procStartInfo = new ProcessStartInfo(filePath, command)
+
+        // Automatically accept the EULA on first run
+        string finalCommand = $"-accepteula {command}";
+
+        ProcessStartInfo procStartInfo = new ProcessStartInfo(filePath, finalCommand)
         {
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
-        
+
         using (Process proc = new Process())
         {
             proc.StartInfo = procStartInfo;
             proc.Start();
             string output = proc.StandardOutput.ReadToEnd();
             proc.WaitForExit();
-            
+
             if (proc.ExitCode != 0)
             {
                 throw new InvalidOperationException(
                     $"pssuspend64.exe failed with exit code {proc.ExitCode}. Output: {output}");
             }
-            
+
             return output;
         }
     }
-    
+
     /// <inheritdoc/>
     public void SuspendProcess(string processName)
     {
         if (string.IsNullOrEmpty(processName))
             throw new ArgumentException("Process name cannot be null or empty.", nameof(processName));
-        
+
         Program.Logger.Debug($"Suspending {processName} via pssuspend64.exe.");
         ProcessRuntime(processName);
+        Program.Logger.Debug($"Successfully suspended {processName}.");
     }
-    
+
     /// <inheritdoc/>
     public void ResumeProcess(string processName)
     {
         if (string.IsNullOrEmpty(processName))
             throw new ArgumentException("Process name cannot be null or empty.", nameof(processName));
-        
-        Program.Logger.Debug($"Resuming {processName} via pssuspend64.exe.");
-        ProcessRuntime($"/r {processName}");
+
+        Program.Logger.Debug($"Attempting to resume {processName} via pssuspend64.exe (will be ignored if not suspended).");
+        try
+        {
+            ProcessRuntime($"/r {processName}");
+            Program.Logger.Debug($"Successfully resumed {processName}.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            // This error is expected if the process is not suspended.
+            // We log it for debugging but don't throw, allowing the program to continue.
+            Program.Logger.Debug($"Could not resume '{processName}', it was likely not suspended. Error: {ex.Message}");
+        }
     }
 }
