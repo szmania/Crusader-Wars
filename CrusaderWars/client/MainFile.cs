@@ -692,7 +692,8 @@ namespace CrusaderWars
             // NEW TOOLTIPS
             InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
-infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 60);
+infoLabel.ForeColor = Color.WhiteSmoke;
+            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 80);
 
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
