@@ -66,7 +66,7 @@ namespace CrusaderWars.client
             UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
         }
 
-        private void PopulateCurrentUnitsTree()
+private void PopulateCurrentUnitsTree()
         {
             tvCurrentUnits.Nodes.Clear();
 
@@ -88,8 +88,8 @@ namespace CrusaderWars.client
                     var factionNode = new TreeNode(factionGroup.Key);
                     sideNode.Nodes.Add(factionNode);
 
-                    // --- Process Non-Levy Units ---
-                    var nonLevyUnits = factionGroup.Where(u => u.GetRegimentType() != RegimentType.Levy);
+                    // --- Process Non-Levy, Non-Garrison Units ---
+                    var nonLevyUnits = factionGroup.Where(u => u.GetRegimentType() != RegimentType.Levy && u.GetRegimentType() != RegimentType.Garrison);
                     var groupedForDisplay = nonLevyUnits
                         .GroupBy(u =>
                         {
@@ -125,7 +125,7 @@ namespace CrusaderWars.client
                                     }
                                     else
                                     {
-attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
+                                        attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
                                     }
                                 }
                                 else
@@ -134,22 +134,7 @@ attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
                                 }
                             }
                         }
-                        else if (regimentType == RegimentType.Garrison)
-                        {
-                            var distinctKeys = new List<string>();
-                            for (int level = 1; level <= 20; level++)
-                            {
-                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(factionGroup.Key, level);
-                                distinctKeys.AddRange(garrisonTuples.Select(g => g.unit_key));
-                            }
-                            distinctKeys = distinctKeys.Distinct().ToList();
-                            if (distinctKeys.Any())
-                            {
-var screenNames = distinctKeys.Select(k => $"{(_unitScreenNames.TryGetValue(k, out var sn) ? sn : k)} [{k}]");
-                                attilaKeyDisplay = $" [{string.Join(", ", screenNames)}]";
-                            }
-                        }
-
+                        
                         string displayName;
                         if (regimentType == RegimentType.MenAtArms)
                         {
@@ -158,7 +143,7 @@ var screenNames = distinctKeys.Select(k => $"{(_unitScreenNames.TryGetValue(k, o
                         }
                         else
                         {
-displayName = $"{nameToShow}:{attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
+                            displayName = $"{nameToShow}:{attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
                         }
 
                         var groupNode = new TreeNode(displayName)
@@ -215,7 +200,7 @@ displayName = $"{nameToShow}:{attilaKeyDisplay} ({unitCount} units, {totalSoldie
                                     string levyKey = kvp.Key;
                                     int soldierCount = kvp.Value;
                                     string screenNameDisplay = _unitScreenNames.TryGetValue(levyKey, out var sn) ? sn : levyKey;
-string displayName = $"Levy: [{screenNameDisplay}] [{levyKey}] ({kvp.Value} men)";
+                                    string displayName = $"Levy: [{screenNameDisplay}] [{levyKey}] ({kvp.Value} men)";
                                     var levyNode = new TreeNode(displayName)
                                     {
                                         Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true }
@@ -226,6 +211,66 @@ string displayName = $"Levy: [{screenNameDisplay}] [{levyKey}] ({kvp.Value} men)
                         }
                     }
 
+                    // --- Process Garrison Units Separately ---
+                    var garrisonUnitsInFaction = factionGroup.Where(u => u.GetRegimentType() == RegimentType.Garrison).ToList();
+                    if (garrisonUnitsInFaction.Any())
+                    {
+                        int totalGarrisonSoldiers = garrisonUnitsInFaction.Sum(u => u.GetSoldiers());
+                        var garrisonComposition = new List<(string unit_key, string name)>();
+                        try
+                        {
+                            for (int level = 1; level <= 20; level++)
+                            {
+                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(factionGroup.Key, level);
+                                garrisonComposition.AddRange(garrisonTuples.Select(g => (g.unit_key, g.name)));
+                            }
+                            garrisonComposition = garrisonComposition.Distinct().ToList();
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error getting faction garrisons for {factionGroup.Key}: {ex.Message}");
+                            garrisonComposition = null;
+                        }
+
+                        if (garrisonComposition != null && garrisonComposition.Any())
+                        {
+                            var soldiersPerKey = new Dictionary<string, int>();
+                            int assignedSoldiers = 0;
+
+                            // Distribute soldiers evenly among available garrison unit types
+                            if (garrisonComposition.Count > 0)
+                            {
+                                int soldiersPerUnitType = totalGarrisonSoldiers / garrisonComposition.Count;
+                                foreach (var garrison in garrisonComposition)
+                                {
+                                    soldiersPerKey[garrison.unit_key] = soldiersPerUnitType;
+                                    assignedSoldiers += soldiersPerUnitType;
+                                }
+
+                                // Adjust for rounding errors
+                                int remainder = totalGarrisonSoldiers - assignedSoldiers;
+                                if (remainder != 0 && soldiersPerKey.Any())
+                                {
+                                    var firstKey = soldiersPerKey.Keys.First();
+                                    soldiersPerKey[firstKey] += remainder;
+                                }
+                            }
+
+                            // Create a node for each garrison type
+                            foreach (var kvp in soldiersPerKey.Where(kvp => kvp.Value > 0).OrderBy(kvp => kvp.Key))
+                            {
+                                string garrisonKey = kvp.Key;
+                                int soldierCount = kvp.Value;
+                                string screenNameDisplay = _unitScreenNames.TryGetValue(garrisonKey, out var sn) ? sn : garrisonKey;
+                                string displayName = $"Garrison: [{screenNameDisplay}] [{garrisonKey}] ({kvp.Value} men)";
+                                var garrisonNode = new TreeNode(displayName)
+                                {
+                                    Tag = new { RegimentType = RegimentType.Garrison, TypeIdentifier = garrisonKey, IsSplitLevyNode = true } // Re-using IsSplitLevyNode for similar behavior
+                                };
+                                factionNode.Nodes.Add(garrisonNode);
+                            }
+                        }
+                    }
                 }
             }
             tvCurrentUnits.ExpandAll();
