@@ -225,7 +225,7 @@ string displayName = $"Levy: [{screenNameDisplay}] ({kvp.Value} men)";
                             }
                         }
                     }
-                    
+
                 }
             }
             tvCurrentUnits.ExpandAll();
@@ -233,7 +233,7 @@ string displayName = $"Levy: [{screenNameDisplay}] ({kvp.Value} men)";
 
         private void PopulateAvailableUnitsTree()
         {
-tvAvailableUnits.Nodes.Clear();
+            tvAvailableUnits.Nodes.Clear();
             ClearAvailableReplacementHighlights();
 
             var unitsByFaction = _allAvailableUnits
@@ -389,8 +389,9 @@ tvAvailableUnits.Nodes.Clear();
             }
         }
 
-        private void UpdateCurrentUnitsTreeVisuals()
+private void UpdateCurrentUnitsTreeVisuals()
         {
+            ClearAvailableReplacementHighlights();
             Action<TreeNodeCollection> TraverseNodes = null;
             TraverseNodes = (nodes) =>
             {
@@ -443,9 +444,10 @@ tvAvailableUnits.Nodes.Clear();
 
                         if (isReplaced)
                         {
-                            string replacementName = FindAvailableUnitNodeText(replacementInfo.replacementKey);
-                            node.Text += $" -> {replacementName}";
+                            var (replacementFaction, replacementName) = FindAvailableUnitNodeText(replacementInfo.replacementKey);
+                            node.Text += $" -> [{replacementFaction}] {replacementName}";
                             node.ForeColor = Color.MediumSeaGreen;
+                            HighlightAvailableUnitNode(replacementInfo.replacementKey);
                         }
                     }
                     if (node.Nodes != null && node.Nodes.Count > 0)
@@ -457,7 +459,7 @@ tvAvailableUnits.Nodes.Clear();
             TraverseNodes(tvCurrentUnits.Nodes);
         }
 
-        private string FindAvailableUnitNodeText(string key)
+private (string faction, string unitText) FindAvailableUnitNodeText(string key)
         {
             foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
             {
@@ -467,15 +469,15 @@ tvAvailableUnits.Nodes.Clear();
                     {
                         if (unitNode.Tag as string == key)
                         {
-                            return unitNode.Text;
+                            return (factionNode.Text, unitNode.Text);
                         }
                     }
                 }
             }
-            return key;
+            return ("Unknown Faction", key);
         }
 
-private void HighlightAvailableReplacementNode(string replacementKey)
+        private void HighlightAvailableUnitNode(string key)
         {
             foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
             {
@@ -483,9 +485,9 @@ private void HighlightAvailableReplacementNode(string replacementKey)
                 {
                     foreach (TreeNode unitNode in typeNode.Nodes)
                     {
-                        if (unitNode.Tag as string == replacementKey)
+                        if (unitNode.Tag as string == key)
                         {
-                            unitNode.ForeColor = Color.MediumSeaGreen;
+unitNode.ForeColor = Color.MediumSeaGreen;
                             return;
                         }
                     }
@@ -493,41 +495,7 @@ private void HighlightAvailableReplacementNode(string replacementKey)
             }
         }
 
-private void HighlightAvailableReplacementNode(string replacementKey)
-        {
-            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
-            {
-                foreach (TreeNode typeNode in factionNode.Nodes)
-                {
-                    foreach (TreeNode unitNode in typeNode.Nodes)
-                    {
-                        if (unitNode.Tag as string == replacementKey)
-                        {
-                            unitNode.ForeColor = Color.MediumSeaGreen;
-                            return;
-                        }
-                    }
-                }
-            }
-        }
 
-private void HighlightAvailableReplacementNode(string replacementKey)
-        {
-            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
-            {
-                foreach (TreeNode typeNode in factionNode.Nodes)
-                {
-                    foreach (TreeNode unitNode in typeNode.Nodes)
-                    {
-                        if (unitNode.Tag as string == replacementKey)
-                        {
-                            unitNode.ForeColor = Color.MediumSeaGreen;
-                            return;
-                        }
-                    }
-                }
-            }
-        }
 
         private void tvCurrentUnits_BeforeSelect(object? sender, TreeViewCancelEventArgs e)
         {
@@ -574,6 +542,21 @@ private void HighlightAvailableReplacementNode(string replacementKey)
                 else
                 {
                     AddNodeToSelection(e.Node);
+                }
+            }
+        }
+
+private void ClearAvailableReplacementHighlights()
+        {
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        unitNode.BackColor = tvAvailableUnits.BackColor;
+                        unitNode.ForeColor = tvAvailableUnits.ForeColor;
+                    }
                 }
             }
         }
