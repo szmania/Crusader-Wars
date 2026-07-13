@@ -3505,6 +3505,8 @@ infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 60);
             };
 
 infoLabel.Text = "Select a tool to fix the battle...";
+            infoLabel.ForeColor = Original_Color;
+            infoLabel.BackColor = _originalInfoLabelBackColor;
             var (result, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, availableStrategies, isCrash: true);
 
             bool changesMade = false;
