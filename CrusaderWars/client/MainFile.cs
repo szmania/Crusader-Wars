@@ -25,6 +25,7 @@ using CrusaderWars.sieges; // Added for SiegeEngineGenerator
 using CrusaderWars.terrain;
 using CrusaderWars.twbattle; // Added for BattleProcessor
 using CrusaderWars.unit_mapper;
+using CrusaderWars.process;
 
 namespace CrusaderWars
 {
@@ -525,6 +526,9 @@ namespace CrusaderWars
                 }
             }
 
+            // Initialize cross-platform process controller
+            InitializeProcessController();
+
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
             Options.ReadGamePaths();
@@ -706,6 +710,47 @@ infoLabel.ForeColor = Color.WhiteSmoke;
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
+
+        /// <summary>
+        /// Initializes the cross-platform process controller (ProcessCommands) based on the detected
+        /// operating environment. On Linux/Proton, uses LinuxProcessController (kill/pgrep).
+        /// On Windows, uses WindowsProcessController (pssuspend64.exe).
+        /// If Linux is detected but kill/pgrep are unavailable, falls back gracefully.
+        /// </summary>
+        private void InitializeProcessController()
+        {
+            Program.Logger.Debug("Initializing process controller...");
+            
+            var detector = new client.LinuxSetup.Services.LinuxEnvironmentDetector();
+            IProcessController controller;
+            
+            if (detector.IsRunningOnLinux())
+            {
+                var linuxController = new LinuxProcessController();
+                if (linuxController.IsSupported)
+                {
+                    controller = linuxController;
+                    Program.Logger.Debug("Using LinuxProcessController (kill/pgrep) for process suspend/resume.");
+                }
+                else
+                {
+                    // Graceful degradation: Linux detected but kill/pgrep not available.
+                    // Use LinuxProcessController anyway — its IsSupported=false will cause
+                    // ProcessCommands to skip suspend/resume and log warnings.
+                    // Also force CloseCK3DuringBattle mode so CK3 is closed instead of suspended.
+                    controller = linuxController;
+                    ModOptions.optionsValuesCollection["CloseCK3"] = "Enabled";
+                    Program.Logger.Debug("WARNING: Linux detected but kill/pgrep commands not available. Process suspend/resume is NOT supported on this system. CK3 will be closed during battles instead of suspended. Please install 'procps' or 'procps-ng' package (provides kill/pgrep) for full functionality.");
+                }
+            }
+            else
+            {
+                controller = new WindowsProcessController();
+                Program.Logger.Debug("Using WindowsProcessController (pssuspend64.exe) for process suspend/resume.");
+            }
+            
+            ProcessCommands.Initialize(controller);
         }
 
         private void ApplyEnvironmentVariableOverrides()
@@ -2530,42 +2575,68 @@ infoLabel.ForeColor = Color.WhiteSmoke;
          * :::::::::::::PROCESS COMMANDS:::::::::::::::
          ---------------------------------------------*/
 
-        public struct ProcessCommands // Changed to public for BattleProcessor access
+        /// <summary>
+        /// Cross-platform process control commands. Delegates to an IProcessController implementation
+        /// that is initialized at application startup based on the detected platform.
+        /// The static API is preserved for backward compatibility with BattleProcessor.cs.
+        /// </summary>
+        public static class ProcessCommands
         {
-            private static string ProcessRuntime(string command)
+            private static IProcessController? _controller;
+            
+            /// <summary>
+            /// Initializes the ProcessCommands with a platform-specific controller.
+            /// Must be called once at application startup before any Suspend/Resume operations.
+            /// </summary>
+            /// <param name="controller">The platform-specific process controller implementation.</param>
+            /// <exception cref="ArgumentNullException">Thrown if controller is null.</exception>
+            public static void Initialize(IProcessController controller)
             {
-                //Get User Path
-                string filePath = Directory.GetFiles(@".\data\runtime", "pssuspend64.exe", SearchOption.AllDirectories)[0];
-                ProcessStartInfo procStartInfo = new ProcessStartInfo(filePath, command)
-                {
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-
-                };
-
-                using (Process proc = new Process())
-                {
-                    proc.StartInfo = procStartInfo;
-                    proc.Start();
-                    return proc.StandardOutput.ReadToEnd();
-                }
-
+                _controller = controller ?? throw new ArgumentNullException(nameof(controller));
+                Program.Logger.Debug($"ProcessCommands initialized with {controller.GetType().Name}. IsSupported: {controller.IsSupported}");
             }
+            
+            /// <summary>
+            /// Suspends the ck3.exe process using the platform-specific controller.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">Thrown if ProcessCommands has not been initialized.</exception>
             public static void SuspendProcess()
             {
-                Program.Logger.Debug("Suspending ck3.exe process.");
-                ProcessRuntime("ck3.exe");
-
+                if (_controller == null)
+                {
+                    throw new InvalidOperationException(
+                        "ProcessCommands has not been initialized. Call Initialize() at application startup.");
+                }
+                
+                if (!_controller.IsSupported)
+                {
+                    Program.Logger.Debug("ProcessCommands.SuspendProcess: Controller does not support suspend on this platform. Skipping.");
+                    return;
+                }
+                
+                _controller.SuspendProcess("ck3.exe");
             }
-
+            
+            /// <summary>
+            /// Resumes the ck3.exe process using the platform-specific controller.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">Thrown if ProcessCommands has not been initialized.</exception>
             public static void ResumeProcess()
             {
-                Program.Logger.Debug("Resuming ck3.exe process.");
-                ProcessRuntime("/r ck3.exe");
+                if (_controller == null)
+                {
+                    throw new InvalidOperationException(
+                        "ProcessCommands has not been initialized. Call Initialize() at application startup.");
+                }
+                
+                if (!_controller.IsSupported)
+                {
+                    Program.Logger.Debug("ProcessCommands.ResumeProcess: Controller does not support resume on this platform. Skipping.");
+                    return;
+                }
+                
+                _controller.ResumeProcess("ck3.exe");
             }
-
-
         }
 
         /*---------------------------------------------
