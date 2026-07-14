@@ -107,7 +107,7 @@ namespace CrusaderWars.mod_manager
                 {
                     customMapperComboBox.SelectedIndex = 0;
                 }
-                if(customMapperComboBox.SelectedItem != null)
+                if (customMapperComboBox.SelectedItem != null)
                     UpdateCustomMapperSelection(customMapperComboBox.SelectedItem.ToString()!);
             }
             else
