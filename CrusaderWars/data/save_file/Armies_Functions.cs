@@ -782,8 +782,9 @@ namespace CrusaderWars.data.save_file
                         if (soldiersForComponent > 0)
                         {
                             var newUnit = new Unit(component.name, soldiersForComponent, placeholder.GetObjCulture(), RegimentType.Levy, placeholder.IsMerc(), placeholder.GetOwner());
-                            newUnit.SetAttilaFaction(faction);
-                            newUnit.SetUnitKey(component.unit_key);
+newUnit.SetAttilaFaction(faction);
+newUnit.SetIsPlayer(placeholder.IsPlayer());
+newUnit.SetUnitKey(component.unit_key);
                             newUnit.SetMax(UnitMappers_BETA.GetMax(newUnit)); // Set max for the new unit
                             distributedUnits.Add(newUnit);
                         }
