@@ -73,6 +73,9 @@ namespace CrusaderWars.locs
                 case "OfficialCC_AGOT_SevenKingdoms":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), armiesCollection);
                     break;
+                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), armiesCollection);
+                    break;
                 case "Custom":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), armiesCollection);
                     break;
@@ -416,6 +419,9 @@ namespace CrusaderWars.locs
                     break;
                 case "OfficialCC_AGOT_SevenKingdoms":
                     locFiles = GetLocFilesForPlaythrough("seven_kingdoms");
+                    break;
+                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+                    locFiles = GetLocFilesForPlaythrough("fireforged empire");
                     break;
                 case "Custom":
                     locFiles = GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper());
