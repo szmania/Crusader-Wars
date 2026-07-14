@@ -400,10 +400,10 @@ this.infoLabel.AutoSize = false;
             // 
             // HomePage
             // 
-            resources.ApplyResources(this, "$this");
+this.ClientSize = new System.Drawing.Size(1280, 720);
+resources.ApplyResources(this, "$this");
 
-            this.AutoScroll = true;
-            this.AutoScrollMinSize = new System.Drawing.Size(1280, 720);
+this.AutoScroll = false;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.IndianRed;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.main_beta1;
