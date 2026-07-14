@@ -76,12 +76,14 @@ namespace CrusaderWars.data.save_file
 
         string Name { get; set; }
         RegimentType Type { get; set; }
+        public string AttilaUnitKey { get; set; } = string.Empty;
         Culture? UnitCulture { get; set; }
         Owner? Owner { get; set; }
         bool IsMercenaryBool { get; set; }
         int Soldiers { get; set; }
         private int OriginalSoldiers { get; set; }
         string AttilaKey { get; set; }
+        public string OriginalAttilaKey { get; set; } = string.Empty; // The natural mapped key before any manual replacement
         string AttilaFaction { get; set; }
         int Max { get; set; }
         string LocName { get; set; }
@@ -105,6 +107,7 @@ namespace CrusaderWars.data.save_file
             OriginalSoldiers = soldiers;
             Type = type;
             AttilaKey = string.Empty; // Initialize
+            OriginalAttilaKey = string.Empty; // Initialize - the natural mapped key before any manual replacement
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
@@ -126,6 +129,7 @@ namespace CrusaderWars.data.save_file
             Type = type;
             IsMercenaryBool = is_merc;
             AttilaKey = string.Empty; // Initialize
+            OriginalAttilaKey = string.Empty; // Initialize - the natural mapped key before any manual replacement
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
@@ -147,6 +151,7 @@ namespace CrusaderWars.data.save_file
             IsMercenaryBool = is_merc;
             Owner = owner;
             AttilaKey = string.Empty; // Initialize
+            OriginalAttilaKey = string.Empty; // Initialize - the natural mapped key before any manual replacement
             AttilaFaction = string.Empty; // Initialize
             LocName = string.Empty; // Initialize
             CharacterRank = 0;
@@ -164,6 +169,7 @@ namespace CrusaderWars.data.save_file
 
         public void SetAttilaFaction(string a) { AttilaFaction = a; }
         public void SetUnitKey(string unit_key) { AttilaKey = unit_key; }
+        public void SetOriginalAttilaKey(string unit_key) { OriginalAttilaKey = unit_key; }
         public void ChangeName(string y) { Name = y; }
         public void ChangeSoldiers(int y) { Soldiers = y; }
         public void AddSoldiers(int soldiers) { Soldiers += soldiers; }

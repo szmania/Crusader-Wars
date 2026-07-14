@@ -651,6 +651,9 @@ this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.ResumeLayout(false);
             this.PerformLayout();
 
+            this.AutoScroll = true;
+            this.AutoScrollMinSize = new System.Drawing.Size(1300, 928);
+
         }
 
         #endregion

@@ -22,6 +22,7 @@ namespace CrusaderWars.client.LinuxSetup.Steps
             this.lblSteamCheck = new System.Windows.Forms.Label();
             this.lblAttilaCheck = new System.Windows.Forms.Label();
             this.lblDesktopEnvCheck = new System.Windows.Forms.Label();
+            this.lblProtonCheck = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // lblLinuxCheck
@@ -69,10 +70,20 @@ namespace CrusaderWars.client.LinuxSetup.Steps
             this.lblDesktopEnvCheck.TabIndex = 4;
             this.lblDesktopEnvCheck.Text = "Detecting Desktop Environment...";
             // 
+            // lblProtonCheck
+            // 
+            this.lblProtonCheck.AutoSize = true;
+            this.lblProtonCheck.Location = new System.Drawing.Point(20, 170);
+            this.lblProtonCheck.Name = "lblProtonCheck";
+            this.lblProtonCheck.Size = new System.Drawing.Size(150, 13);
+            this.lblProtonCheck.TabIndex = 5;
+            this.lblProtonCheck.Text = "Detecting Proton...";
+            // 
             // DetectionStepControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lblProtonCheck);
             this.Controls.Add(this.lblDesktopEnvCheck);
             this.Controls.Add(this.lblAttilaCheck);
             this.Controls.Add(this.lblSteamCheck);
@@ -92,5 +103,6 @@ namespace CrusaderWars.client.LinuxSetup.Steps
         private System.Windows.Forms.Label lblSteamCheck;
         private System.Windows.Forms.Label lblAttilaCheck;
         private System.Windows.Forms.Label lblDesktopEnvCheck;
+        private System.Windows.Forms.Label lblProtonCheck;
     }
-}
+    }

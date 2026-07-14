@@ -1064,7 +1064,7 @@ namespace CrusaderWars.twbattle
                     //  Note: This is now called internally by EditLivingFile to ensure correct sequence
 
                     // SHOW POST-BATTLE REPORT
-                    if (client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
+                    if (client.ModOptions.optionsValuesCollection != null && client.ModOptions.optionsValuesCollection.TryGetValue("ShowPostBattleReport", out var showReport) && showReport == "Enabled")
                     {
                         var report = GenerateBattleReportData(attacker_armies, defender_armies, winner); // Removed deployedCounts
                         if (form != null && !form.IsDisposed)
@@ -1521,7 +1521,7 @@ namespace CrusaderWars.twbattle
         }
 
         [SupportedOSPlatform("windows")]
-        private static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form? parentForm, List<AutofixState.AutofixStrategy> availableStrategies)
+        internal static (DialogResult, AutofixState.AutofixStrategy?) ShowPostCrashAutofixPrompt(Form? parentForm, List<AutofixState.AutofixStrategy> availableStrategies, bool isCrash = true)
         {
             AutofixState.AutofixStrategy? selectedStrategy = null;
             DialogResult result = DialogResult.None;
@@ -1529,7 +1529,7 @@ namespace CrusaderWars.twbattle
             // Create a custom form for strategy selection
             using (Form strategyForm = new Form())
             {
-                strategyForm.Text = "Crusader Conflicts: Autofix Options";
+                strategyForm.Text = isCrash ? "Crusader Conflicts: Autofix Options" : "Crusader Conflicts: Battle Tools";
                 strategyForm.Width = 500;
                 strategyForm.Height = 400;
                 strategyForm.StartPosition = FormStartPosition.CenterParent;
@@ -1543,83 +1543,174 @@ namespace CrusaderWars.twbattle
                 strategyForm.Controls.Add(panel);
 
                 Label headerLabel = new Label();
-                headerLabel.Text = "The battle crashed. Please select an autofix strategy:";
+                headerLabel.Text = isCrash ? "The battle crashed. Please select an autofix strategy:" : "Please select a tool:";
                 headerLabel.AutoSize = true;
                 headerLabel.Font = new Font(headerLabel.Font, FontStyle.Bold);
                 headerLabel.Location = new Point(10, 10);
                 panel.Controls.Add(headerLabel);
 
                 var firstAvailable = availableStrategies.FirstOrDefault();
+                Control lastControl = headerLabel;
 
-                RadioButton unitsButton = new RadioButton();
-                unitsButton.Text = "Change Units (Automatically replace problematic custom units)";
-                unitsButton.AutoSize = true;
-                unitsButton.Location = new Point(10, headerLabel.Bottom + 15);
-                unitsButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Units);
-                unitsButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Units;
-                panel.Controls.Add(unitsButton);
+                Button okButton = new Button();
 
-                RadioButton mapSizeButton = new RadioButton();
-                mapSizeButton.Text = "Change Map Size (Try a larger battlefield)";
-                mapSizeButton.AutoSize = true;
-                mapSizeButton.Location = new Point(10, unitsButton.Bottom + 5);
-                mapSizeButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapSize);
-                mapSizeButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapSize;
-                panel.Controls.Add(mapSizeButton);
+                // Autofixer Tools
+                var autoFixerStrategies = new[] { AutofixState.AutofixStrategy.Units, AutofixState.AutofixStrategy.MapSize, AutofixState.AutofixStrategy.Deployment, AutofixState.AutofixStrategy.MapVariant };
+                if (isCrash && availableStrategies.Any(s => autoFixerStrategies.Contains(s)))
+                {
+                    Label autoFixerToolsLabel = new Label();
+                    autoFixerToolsLabel.Text = "Autofixer Tools";
+                    autoFixerToolsLabel.AutoSize = true;
+                    autoFixerToolsLabel.Font = new Font(autoFixerToolsLabel.Font, FontStyle.Bold | FontStyle.Underline);
+                    autoFixerToolsLabel.Location = new Point(10, lastControl.Bottom + 10);
+                    panel.Controls.Add(autoFixerToolsLabel);
+                    lastControl = autoFixerToolsLabel;
 
-                RadioButton deploymentButton = new RadioButton();
-                deploymentButton.Text = "Change Deployment (Rotate army positions)";
-                deploymentButton.AutoSize = true;
-                deploymentButton.Location = new Point(10, mapSizeButton.Bottom + 5);
-                deploymentButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Deployment);
-                deploymentButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Deployment;
-                panel.Controls.Add(deploymentButton);
+                    RadioButton unitsButton = new RadioButton();
+                    unitsButton.Text = "Change Units (Automatically replace problematic custom units)";
+                    unitsButton.AutoSize = true;
+                    unitsButton.Location = new Point(10, lastControl.Bottom + 5);
+                    unitsButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Units);
+                    unitsButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Units;
+                    panel.Controls.Add(unitsButton);
+                    lastControl = unitsButton;
 
-                RadioButton mapVariantButton = new RadioButton();
-                mapVariantButton.Text = "Change Map Variant (Try a different battlefield layout)";
-                mapVariantButton.AutoSize = true;
-                mapVariantButton.Location = new Point(10, deploymentButton.Bottom + 5);
-                mapVariantButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapVariant);
-                mapVariantButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapVariant;
-                panel.Controls.Add(mapVariantButton);
+                    unitsButton.CheckedChanged += (s, ev) => {
+                        if (unitsButton.Checked) okButton.Text = "Apply Fix";
+                    };
 
-                RadioButton manualUnitButton = new RadioButton();
-                manualUnitButton.Text = "Manual Unit Replacement (Choose specific units to replace)";
-                manualUnitButton.AutoSize = true;
-                manualUnitButton.Location = new Point(10, mapVariantButton.Bottom + 5);
-                manualUnitButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.ManualUnitReplacement);
-                manualUnitButton.Checked = firstAvailable == AutofixState.AutofixStrategy.ManualUnitReplacement;
-                panel.Controls.Add(manualUnitButton);
+                    RadioButton mapSizeButton = new RadioButton();
+                    mapSizeButton.Text = "Change Map Size (Try a larger battlefield)";
+                    mapSizeButton.AutoSize = true;
+                    mapSizeButton.Location = new Point(10, lastControl.Bottom + 5);
+                    mapSizeButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapSize);
+                    mapSizeButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapSize;
+                    panel.Controls.Add(mapSizeButton);
+                    lastControl = mapSizeButton;
 
-                RadioButton deploymentZoneButton = new RadioButton();
-                deploymentZoneButton.Text = "Deployment Zone Editor (Manually position armies)";
-                deploymentZoneButton.AutoSize = true;
-                deploymentZoneButton.Location = new Point(10, manualUnitButton.Bottom + 5);
-                deploymentZoneButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.DeploymentZoneEditor);
-                deploymentZoneButton.Checked = firstAvailable == AutofixState.AutofixStrategy.DeploymentZoneEditor;
-                panel.Controls.Add(deploymentZoneButton);
+                    mapSizeButton.CheckedChanged += (s, ev) => {
+                        if (mapSizeButton.Checked) okButton.Text = "Apply Fix";
+                    };
+
+                    RadioButton deploymentButton = new RadioButton();
+                    deploymentButton.Text = "Change Deployment (Rotate army positions)";
+                    deploymentButton.AutoSize = true;
+                    deploymentButton.Location = new Point(10, lastControl.Bottom + 5);
+                    deploymentButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.Deployment);
+                    deploymentButton.Checked = firstAvailable == AutofixState.AutofixStrategy.Deployment;
+                    panel.Controls.Add(deploymentButton);
+                    lastControl = deploymentButton;
+
+                    deploymentButton.CheckedChanged += (s, ev) => {
+                        if (deploymentButton.Checked) okButton.Text = "Apply Fix";
+                    };
+
+                    RadioButton mapVariantButton = new RadioButton();
+                    mapVariantButton.Text = "Change Map Variant (Try a different battlefield layout)";
+                    mapVariantButton.AutoSize = true;
+                    mapVariantButton.Location = new Point(10, lastControl.Bottom + 5);
+                    mapVariantButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.MapVariant);
+                    mapVariantButton.Checked = firstAvailable == AutofixState.AutofixStrategy.MapVariant;
+                    panel.Controls.Add(mapVariantButton);
+                    lastControl = mapVariantButton;
+
+                    mapVariantButton.CheckedChanged += (s, ev) => {
+                        if (mapVariantButton.Checked) okButton.Text = "Apply Fix";
+                    };
+                }
+
+                // Manual Tools
+                var manualStrategies = new[] { AutofixState.AutofixStrategy.ManualUnitReplacement, AutofixState.AutofixStrategy.DeploymentZoneEditor };
+                if (availableStrategies.Any(s => manualStrategies.Contains(s)))
+                {
+                    Label manualToolsLabel = new Label();
+                    manualToolsLabel.Text = "Manual Tools";
+                    manualToolsLabel.AutoSize = true;
+                    manualToolsLabel.Font = new Font(manualToolsLabel.Font, FontStyle.Bold | FontStyle.Underline);
+                    manualToolsLabel.Location = new Point(10, lastControl.Bottom + 15);
+                    panel.Controls.Add(manualToolsLabel);
+                    lastControl = manualToolsLabel;
+
+                    RadioButton manualUnitButton = new RadioButton();
+                    manualUnitButton.Text = "Manual Unit Replacement (Choose specific units to replace)";
+                    manualUnitButton.AutoSize = true;
+                    manualUnitButton.Location = new Point(10, lastControl.Bottom + 5);
+                    manualUnitButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.ManualUnitReplacement);
+                    manualUnitButton.Checked = firstAvailable == AutofixState.AutofixStrategy.ManualUnitReplacement;
+                    panel.Controls.Add(manualUnitButton);
+                    lastControl = manualUnitButton;
+
+                    manualUnitButton.CheckedChanged += (s, ev) => {
+                        if (manualUnitButton.Checked) okButton.Text = "Next";
+                        else okButton.Text = "Apply Fix";
+                    };
+
+                    RadioButton deploymentZoneButton = new RadioButton();
+                    deploymentZoneButton.Text = "Deployment Zone Editor (Manually position armies)";
+                    deploymentZoneButton.AutoSize = true;
+                    deploymentZoneButton.Location = new Point(10, lastControl.Bottom + 5);
+                    deploymentZoneButton.Enabled = availableStrategies.Contains(AutofixState.AutofixStrategy.DeploymentZoneEditor);
+                    deploymentZoneButton.Checked = firstAvailable == AutofixState.AutofixStrategy.DeploymentZoneEditor;
+                    panel.Controls.Add(deploymentZoneButton);
+                    lastControl = deploymentZoneButton;
+
+                    deploymentZoneButton.CheckedChanged += (s, ev) => {
+                        if (deploymentZoneButton.Checked) okButton.Text = "Next";
+                        else okButton.Text = "Apply Fix";
+                    };
+                }
+
 
                 Label warningLabel = new Label();
                 warningLabel.Text = "Note: Some strategies may take effect immediately, others will require manual configuration.";
                 warningLabel.AutoSize = true;
                 warningLabel.MaximumSize = new Size(460, 0);
                 warningLabel.ForeColor = Color.Gray;
-                warningLabel.Location = new Point(10, deploymentZoneButton.Bottom + 15);
+                warningLabel.Location = new Point(10, lastControl.Bottom + 15);
                 panel.Controls.Add(warningLabel);
 
-                Button okButton = new Button();
-                okButton.Text = "Apply Fix";
+// Set initial button text based on whether the first available strategy is a manual tool
+                bool isManualToolFirst = manualStrategies.Contains(firstAvailable);
+                okButton.Text = isManualToolFirst ? "Next" : "Apply Fix";
                 okButton.Size = new Size(75, 25);
                 okButton.Location = new Point(strategyForm.ClientSize.Width - 170, warningLabel.Bottom + 10);
                 okButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+okButton.Click += (s, ev) =>
+                {
+                    if (parentForm is HomePage homePage)
+                    {
+                        var unitsButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Units"));
+                        var mapSizeButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Size"));
+                        var deploymentButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Deployment"));
+                        var mapVariantButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Variant"));
+                        var manualUnitButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Manual Unit Replacement"));
+                        var deploymentZoneButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Deployment Zone Editor"));
+
+                        if (unitsButton != null && unitsButton.Checked) homePage.UpdateInfoLabel("Processing: Analyzing units for replacement...");
+                        else if (mapSizeButton != null && mapSizeButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map size...");
+                        else if (deploymentButton != null && deploymentButton.Checked) homePage.UpdateInfoLabel("Processing: Changing deployment...");
+                        else if (mapVariantButton != null && mapVariantButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map variant...");
+                        else if (manualUnitButton != null && manualUnitButton.Checked) homePage.UpdateInfoLabel("Loading manual unit replacer...");
+                        else if (deploymentZoneButton != null && deploymentZoneButton.Checked) homePage.UpdateInfoLabel("Loading deployment zone editor...");
+                    }
+                };
+
                 okButton.Click += (sender, e) =>
                 {
-                    if (unitsButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
-                    else if (mapSizeButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
-                    else if (deploymentButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Deployment;
-                    else if (mapVariantButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapVariant;
-                    else if (manualUnitButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.ManualUnitReplacement;
-                    else if (deploymentZoneButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.DeploymentZoneEditor;
+                    // This is a bit ugly, but it's how the original code was structured.
+                    var unitsButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Units"));
+                    var mapSizeButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Size"));
+                    var deploymentButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Deployment"));
+                    var mapVariantButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Variant"));
+                    var manualUnitButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Manual Unit Replacement"));
+                    var deploymentZoneButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Deployment Zone Editor"));
+
+                    if (unitsButton != null && unitsButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Units;
+                    else if (mapSizeButton != null && mapSizeButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapSize;
+                    else if (deploymentButton != null && deploymentButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.Deployment;
+                    else if (mapVariantButton != null && mapVariantButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.MapVariant;
+                    else if (manualUnitButton != null && manualUnitButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.ManualUnitReplacement;
+                    else if (deploymentZoneButton != null && deploymentZoneButton.Checked) selectedStrategy = AutofixState.AutofixStrategy.DeploymentZoneEditor;
 
                     if (selectedStrategy.HasValue)
                     {
