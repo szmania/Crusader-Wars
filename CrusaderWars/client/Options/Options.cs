@@ -199,23 +199,6 @@ else if (activePlaythrough == BookmarksPlus_Tab) activeButton = Btn_BookmarksPlu
 
         private void WriteUnitMappersOptions()
         {
-            string file = @".\\settings\\UnitMappers.xml";
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(file);
-
-            var CrusaderKings_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']");
-            if (CrusaderKings_Node != null) CrusaderKings_Node.InnerText = CrusaderKings_Tab.GetState().ToString();
-            var TheFallenEagle_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']");
-            if (TheFallenEagle_Node != null) TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
-            var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
-            if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
-            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']"); // Added AGOT tab
-            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString(); // Added AGOT tab
-            var BookmarksPlus_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']");
-            if (BookmarksPlus_Node != null && BookmarksPlus_Tab != null) BookmarksPlus_Node.InnerText = BookmarksPlus_Tab.GetState().ToString();
-            var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
-            if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
-            xmlDoc.Save(file);
         }
         private void Options_Load(object sender, EventArgs e)
         {
@@ -331,7 +314,8 @@ else if (activePlaythrough == BookmarksPlus_Tab) activeButton = Btn_BookmarksPlu
 
         private static string GetOptionValue(XmlDocument doc, string optionName, string defaultValue)
         {
-if (doc.DocumentElement is null) return defaultValue;
+            if (doc.DocumentElement is null) return defaultValue;
+            XmlNode? node = doc.SelectSingleNode($"//Option[@name='{optionName}']");
             if (node != null)
             {
                 return node.InnerText;
@@ -1388,21 +1372,21 @@ else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
                 catch (Exception ex)
                 {
                     Program.Logger.Log(ex);
-                    // Fallback to default image if loading fails
                     return Properties.Resources._default;
                 }
             }
             else
             {
                 Program.Logger.Debug($"Custom playthrough image not found at {imagePath}. Using default image.");
-                // Fallback to default image if file doesn't exist
                 return Properties.Resources._default;
             }
-if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab is null || AGOT_Tab is null || BookmarksPlus_Tab is null || Custom_Tab is null) return;
+        }
+        private void ReadUnitMappersOptions()
+        {
+            if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab is null || AGOT_Tab is null || BookmarksPlus_Tab is null || Custom_Tab is null) return;
             string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
 
-            // Check if the file exists. If not, create it with default values.
             if (!File.Exists(file))
             {
                 Program.Logger.Debug("UnitMappers.xml not found. Creating with default values.");
@@ -1412,7 +1396,6 @@ if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab
                 XmlElement rootElement = xmlDoc.CreateElement("UMOptions");
                 xmlDoc.AppendChild(rootElement);
 
-                // Helper to create elements
                 void createMapper(string name)
                 {
                     XmlElement mapperElement = xmlDoc.CreateElement("UnitMappers");
@@ -1433,15 +1416,13 @@ if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab
 
             xmlDoc.Load(file);
 
-            _unitMappersXmlChanged = false; // Reset the flag at the beginning of the method
+            _unitMappersXmlChanged = false;
 
             var ck3ToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "DefaultCK3");
             var tfeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "TheFallenEagle");
             var lotrToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "RealmsInExile");
-
-var bookmarksPlusToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "BookmarksPlus");
+            var bookmarksPlusToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "BookmarksPlus");
             var customToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "Custom");
-
 
             if (_unitMappersXmlChanged)
             {
@@ -1452,34 +1433,25 @@ var bookmarksPlusToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "Bookmarks
             bool ck3ToggleState = ck3ToggleStateStr == "True";
             bool tfeToggleState = tfeToggleStateStr == "True";
             bool lotrToggleState = lotrToggleStateStr == "True";
+            bool bookmarksPlusToggleState = bookmarksPlusToggleStateStr == "True";
 
-bool bookmarksPlusToggleState = bookmarksPlusToggleStateStr == "True";
-            bool customToggleState = customToggleStateStr == "True";
-
-
-            // NOTE: The constructor for UC_UnitMapper will need to be updated to accept the list of submods.
-            // This change is commented out because the UC_UnitMapper.cs file was not provided.
-            // You will need to modify its constructor to accept `List<Submod> submods` as a new parameter.
             var ck3Mods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3");
             var tfeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle");
             var lotrMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
             var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
             var customMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
             var bookmarksPlusMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+
             CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements", ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements", tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
             RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-
             BookmarksPlus_Tab = new UC_UnitMapper(Properties.Resources.playthrough_bookmarksplus, "https://crusader-conflicts-website.vercel.app/playthroughs/bookmarks-plus", bookmarksPlusMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), bookmarksPlusToggleState, "BookmarksPlus", bookmarksPlusMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             RealmsInExile_Tab.ToggleClicked += PlaythroughToggle_Clicked;
-
-AGOT_Tab.ToggleClicked += PlaythroughToggle_Clicked;
-            BookmarksPlus_Tab.ToggleClicked += PlaythroughToggle_Clicked;
-            Custom_Tab.ToggleClicked += PlaythroughToggle_Clicked;
+            AGOT_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             BookmarksPlus_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             Custom_Tab.ToggleClicked += PlaythroughToggle_Clicked;
 
@@ -1487,9 +1459,7 @@ AGOT_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             BookmarksPlus_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             RealmsInExile_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, AGOT_Tab, Custom_Tab });
-
-            BookmarksPlus_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
-Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
+            Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
 
             var activePlaythrough = GetActivePlaythrough();
             if (activePlaythrough != null)
@@ -1501,23 +1471,6 @@ Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, B
                 ChangeUnitMappersTab(CrusaderKings_Tab);
             }
             CheckPlaythroughSelection();
-            string file = @".\settings\UnitMappers.xml";
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(file);
-
-            var CrusaderKings_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']");
-            if (CrusaderKings_Node != null) CrusaderKings_Node.InnerText = CrusaderKings_Tab.GetState().ToString();
-            var TheFallenEagle_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']");
-            if (TheFallenEagle_Node != null) TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
-            var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
-            if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
-            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']"); // Added AGOT tab
-            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString(); // Added AGOT tab
-            var BookmarksPlus_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']");
-            if (BookmarksPlus_Node != null && BookmarksPlus_Tab != null) BookmarksPlus_Node.InnerText = BookmarksPlus_Tab.GetState().ToString();
-            var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
-            if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
-            xmlDoc.Save(file);
         }
 
         private void TableLayoutPlaythroughs_Paint(object sender, PaintEventArgs e)
