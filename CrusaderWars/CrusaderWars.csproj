@@ -332,6 +332,7 @@
     </None>
     <None Update="settings\schemas\Options.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>settings\schemas\Options.xsd</Link>
     </None>
   </ItemGroup>
 
