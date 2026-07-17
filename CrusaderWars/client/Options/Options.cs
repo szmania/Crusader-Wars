@@ -1422,7 +1422,6 @@ else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
             var tfeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "TheFallenEagle");
             var lotrToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "RealmsInExile");
             var bookmarksPlusToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "BookmarksPlus");
-            var customToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "Custom");
 
             if (_unitMappersXmlChanged)
             {
