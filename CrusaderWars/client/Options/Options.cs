@@ -1,4 +1,4 @@
-using CrusaderWars.client;
+﻿using CrusaderWars.client;
 using CrusaderWars.client.Options;
 using CrusaderWars.client.WarningMessage;
 using System;
@@ -323,6 +323,38 @@ namespace CrusaderWars
             try
             {
                 string file = @".\settings\Options.xml";
+                string xsdPath = @".\settings\schemas\Options.xsd";
+
+                if (!File.Exists(file))
+                {
+                    Program.Logger.Debug("Options.xml not found. Creating default.");
+                    CreateDefaultOptionsFile();
+                }
+
+                var validationErrors = ValidateOptionsFile(file, xsdPath);
+                if (validationErrors.Count > 0)
+                {
+                    Program.Logger.Debug("Options.xml validation failed:");
+                    foreach (var error in validationErrors)
+                        Program.Logger.Debug($"  {error}");
+
+                    var dialogResult = MessageBox.Show(
+                        "Your options file (Options.xml) appears to be corrupted or invalid. Click Yes to reset to defaults, No to exit.",
+                        "Crusader Conflicts: Corrupted Options",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        try { File.Copy(file, file + ".corrupted_backup", true); } catch { }
+                        CreateDefaultOptionsFile();
+                    }
+                    else
+                    {
+                        Application.Exit();
+                        return;
+                    }
+                }
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
                 Program.Logger.Debug("XML options file loaded.");
@@ -428,6 +460,86 @@ namespace CrusaderWars
             }
         }
 
+        private static List<string> ValidateOptionsFile(string filePath, string xsdPath)
+        {
+            return mod_manager.XmlValidator.Validate(filePath, xsdPath);
+        }
+
+        private static void CreateDefaultOptionsFile()
+        {
+            Program.Logger.Debug("Creating default Options.xml file...");
+            try
+            {
+                string file = @".\settings\Options.xml";
+                string dir = Path.GetDirectoryName(file)!;
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlElement root = xmlDoc.CreateElement("Options");
+                xmlDoc.AppendChild(root);
+
+                AddDefaultOption(xmlDoc, root, "CloseCK3", "Enabled");
+                AddDefaultOption(xmlDoc, root, "CloseAttila", "Enabled");
+                AddDefaultOption(xmlDoc, root, "FullArmies", "Disabled");
+                AddDefaultOption(xmlDoc, root, "TimeLimit", "Enabled");
+                AddDefaultOption(xmlDoc, root, "BattleMapsSize", "Dynamic");
+                AddDefaultOption(xmlDoc, root, "DefensiveDeployables", "Enabled");
+                AddDefaultOption(xmlDoc, root, "UnitCards", "Enabled");
+                AddDefaultOption(xmlDoc, root, "LeviesMax", "10");
+                AddDefaultOption(xmlDoc, root, "RangedMax", "4");
+                AddDefaultOption(xmlDoc, root, "InfantryMax", "8");
+                AddDefaultOption(xmlDoc, root, "CavalryMax", "4");
+                AddDefaultOption(xmlDoc, root, "BattleScale", "100%");
+                AddDefaultOption(xmlDoc, root, "AutoScaleUnits", "Enabled");
+                AddDefaultOption(xmlDoc, root, "SeparateArmies", "Friendly Only");
+                AddDefaultOption(xmlDoc, root, "SiegeEnginesInFieldBattles", "Enabled");
+                AddDefaultOption(xmlDoc, root, "ShowPostBattleReport", "Enabled");
+                AddDefaultOption(xmlDoc, root, "CommanderWoundedChance", "65");
+                AddDefaultOption(xmlDoc, root, "CommanderSeverelyInjuredChance", "10");
+                AddDefaultOption(xmlDoc, root, "CommanderBrutallyMauledChance", "5");
+                AddDefaultOption(xmlDoc, root, "CommanderMaimedChance", "5");
+                AddDefaultOption(xmlDoc, root, "CommanderOneLeggedChance", "2");
+                AddDefaultOption(xmlDoc, root, "CommanderOneEyedChance", "3");
+                AddDefaultOption(xmlDoc, root, "CommanderDisfiguredChance", "2");
+                AddDefaultOption(xmlDoc, root, "CommanderSlainChance", "8");
+                AddDefaultOption(xmlDoc, root, "CommanderPrisonerChance", "60");
+                AddDefaultOption(xmlDoc, root, "KnightWoundedChance", "65");
+                AddDefaultOption(xmlDoc, root, "KnightSeverelyInjuredChance", "10");
+                AddDefaultOption(xmlDoc, root, "KnightBrutallyMauledChance", "5");
+                AddDefaultOption(xmlDoc, root, "KnightMaimedChance", "5");
+                AddDefaultOption(xmlDoc, root, "KnightOneLeggedChance", "2");
+                AddDefaultOption(xmlDoc, root, "KnightOneEyedChance", "3");
+                AddDefaultOption(xmlDoc, root, "KnightDisfiguredChance", "2");
+                AddDefaultOption(xmlDoc, root, "KnightSlainChance", "8");
+                AddDefaultOption(xmlDoc, root, "KnightPrisonerChance", "60");
+                AddDefaultOption(xmlDoc, root, "OptInPreReleases", "False");
+                AddDefaultOption(xmlDoc, root, "SelectedCustomMapper", string.Empty);
+                AddDefaultOption(xmlDoc, root, "CombineKnights", "Disabled");
+                AddDefaultOption(xmlDoc, root, "LinuxSetupCompleted", "False");
+
+                xmlDoc.Save(file);
+                Program.Logger.Debug("Default Options.xml file created successfully.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Log(ex);
+                MessageBox.Show("Error creating default options file. The application may not function correctly.",
+                    "Crusader Conflicts: File Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private static void AddDefaultOption(XmlDocument doc, XmlElement root,
+            string name, string defaultValue)
+        {
+            XmlElement option = doc.CreateElement("Option");
+            option.SetAttribute("name", name);
+            option.InnerText = defaultValue;
+            root.AppendChild(option);
+        }
         void SetOptionsUIData()
         {
             Program.Logger.Debug("Setting options UI data...");
@@ -765,6 +877,18 @@ namespace CrusaderWars
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("Options saved to file.");
+
+                // Post-save validation
+                var validationErrors = ValidateOptionsFile(file, @".\settings\schemas\Options.xsd");
+                if (validationErrors.Count > 0)
+                {
+                    Program.Logger.Debug("Post-save validation failed for Options.xml:");
+                    foreach (var error in validationErrors)
+                        Program.Logger.Debug($"  {error}");
+                    MessageBox.Show("Warning: The options file failed validation after saving. It may be corrupted.",
+                        "Crusader Conflicts: Save Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
             }
             catch (Exception ex)
             {
