@@ -28,19 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-this.Btn_AGOTTab = new System.Windows.Forms.Button();
-            this.TableLayoutGamePaths = new System.Windows.Forms.TableLayoutPanel();
-            this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
-            this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
-            this.TableLayoutModManager = new System.Windows.Forms.TableLayoutPanel();
-            ((System.ComponentModel.ISupportInitialize)(this.Status_Ck3_Icon)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Status_Attila_Icon)).BeginInit();
-            this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ModManager)).BeginInit();
-            this.panel1.SuspendLayout();
-            this.flowLayoutPanel2.SuspendLayout();
-            this.TableLayoutGamePaths.SuspendLayout();
-            this.TableLayoutSettings.SuspendLayout();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Options));
             this.TableLayoutPlaythroughs.SuspendLayout();
             this.TableLayoutModManager.SuspendLayout();
             this.TableLayoutSystem.SuspendLayout();
@@ -405,10 +398,29 @@ this.Btn_AGOTTab = new System.Windows.Forms.Button();
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
-this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
-this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
-            this.Btn_CustomTab.Click += new System.EventHandler(this.Btn_CustomTab_Click);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
+            // 
+            // Btn_BookmarksPlusTab
+            // 
+            this.Btn_BookmarksPlusTab.AutoSize = true;
+            this.Btn_BookmarksPlusTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_BookmarksPlusTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_BookmarksPlusTab.BackgroundImage")));
+            this.Btn_BookmarksPlusTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_BookmarksPlusTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_BookmarksPlusTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_BookmarksPlusTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_BookmarksPlusTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_BookmarksPlusTab.Location = new System.Drawing.Point(486, 3);
+            this.Btn_BookmarksPlusTab.Name = "Btn_BookmarksPlusTab";
+            this.Btn_BookmarksPlusTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_BookmarksPlusTab.TabIndex = 4;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_BookmarksPlusTab, "Bookmarks+ (pre-768) playthrough.");
+            this.Btn_BookmarksPlusTab.Text = "Bookmarks+";
+            this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
+            this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
+            // 
             // Btn_CustomTab
             // 
             this.Btn_CustomTab.AutoSize = true;
@@ -423,11 +435,8 @@ this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.Btn_CustomTab.Name = "Btn_CustomTab";
             this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
             this.Btn_CustomTab.TabIndex = 5;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CustomTab, "Custom playthrough with a custom unit mapper.");
-            this.Btn_CustomTab.Text = "Custom";
             this.Btn_CustomTab.UseVisualStyleBackColor = false;
             this.Btn_CustomTab.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Btn_CustomTab.Click += new System.EventHandler(this.Btn_CustomTab_Click);
             // 
             // TableLayoutGamePaths
             // 
@@ -447,7 +456,6 @@ this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 75F));
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 15F));
-            this.TableLayoutGamePaths.Size = new System.Drawing.Size(486, 237);
             this.TableLayoutGamePaths.TabIndex = 36;
             // 
             // TableLayoutSettings
@@ -635,20 +643,13 @@ this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.panel1.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
-            this.TableLayoutGamePaths.ResumeLayout(false);
-            this.TableLayoutGamePaths.PerformLayout();
-            this.TableLayoutSettings.ResumeLayout(false);
-            this.TableLayoutSettings.PerformLayout();
-            this.TableLayoutPlaythroughs.ResumeLayout(false);
-            this.TableLayoutPlaythroughs.PerformLayout();
-            this.TableLayoutModManager.ResumeLayout(false);
-            this.TableLayoutModManager.PerformLayout();
             this.TableLayoutSystem.ResumeLayout(false);
             this.flowLayoutPanelSystem.ResumeLayout(false);
             this.flowLayoutPanelSystem.PerformLayout();
             this.SystemContentPanel.ResumeLayout(false);
             this.OSPanel.ResumeLayout(false);
-            this.ResumeLayout(false);
+            this.OSPanel.PerformLayout();
+            this.TableLayoutGamePaths.ResumeLayout(false);
             this.PerformLayout();
 
             this.AutoScroll = true;
@@ -658,32 +659,47 @@ this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
 
         #endregion
 
-        private System.Windows.Forms.Button ck3Btn;
+        internal System.Windows.Forms.Button Btn_CK3Tab;
+        internal System.Windows.Forms.Button Btn_TFETab;
+        internal System.Windows.Forms.Button Btn_LOTRTab;
+        internal System.Windows.Forms.TableLayoutPanel TableLayoutGamePaths;
+        internal System.Windows.Forms.TableLayoutPanel TableLayoutSettings;
+        internal System.Windows.Forms.TableLayoutPanel TableLayoutPlaythroughs;
+        internal System.Windows.Forms.TableLayoutPanel TableLayoutModManager;
+        internal System.Windows.Forms.TableLayoutPanel TableLayoutSystem;
+        internal System.Windows.Forms.Panel SystemContentPanel;
+        internal System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSystem;
+        internal System.Windows.Forms.Button Btn_GamePaths;
+        internal System.Windows.Forms.Button Btn_OS;
+        internal System.Windows.Forms.Panel OSPanel;
+        internal System.Windows.Forms.Button btnLinuxSetup;
+        internal System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
+        internal System.Windows.Forms.DataGridViewImageColumn ImageColumn;
+        internal System.Windows.Forms.DataGridViewTextBoxColumn ModName;
+        internal System.Windows.Forms.DataGridViewImageColumn StatusColumn;
+        internal System.Windows.Forms.Button Btn_AGOTTab;
+        internal System.Windows.Forms.Button Btn_BookmarksPlusTab;
+        internal System.Windows.Forms.Button Btn_CustomTab;
         private System.Windows.Forms.PictureBox Status_Ck3_Icon;
-        private System.Windows.Forms.Button CloseBtn;
         private System.Windows.Forms.PictureBox Status_Attila_Icon;
+        private System.Windows.Forms.Button CloseBtn;
+        private System.Windows.Forms.Button ck3Btn;
         private System.Windows.Forms.Button AttilaBtn;
-        private System.Windows.Forms.ToolTip ToolTip_Attila;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ToolTip ToolTip_UnitMappers;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ToolTip ToolTip_Options;
-        private System.Windows.Forms.Panel OptionsPanel;
+        public System.Windows.Forms.ToolTip ToolTip_UnitMappers;
+        public System.Windows.Forms.ToolTip ToolTip_Options;
+        public System.Windows.Forms.ToolTip ToolTip_Attila;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button Btn_GeneralTab;
         private System.Windows.Forms.Button Btn_UnitsTab;
         private System.Windows.Forms.Button Btn_CandKTab;
-        private System.Windows.Forms.Button toggleModManagerButton;
-        private System.Windows.Forms.DataGridView ModManager;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel OptionsPanel;
         private System.Windows.Forms.Panel UMpanel;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
-        private System.Windows.Forms.Button Btn_CK3Tab;
-        private System.Windows.Forms.Button Btn_TFETab;
-        private System.Windows.Forms.Button Btn_LOTRTab;
-private System.Windows.Forms.Button Btn_AGOTTab;
-        private System.Windows.Forms.Button Btn_CustomTab;
-        private System.Windows.Forms.Button Btn_BookmarksPlusTab;
+        private System.Windows.Forms.Button toggleModManagerButton;
+        internal System.Windows.Forms.DataGridView ModManager;
+        public System.Windows.Forms.Panel panel1;
     }
-}
+    }
