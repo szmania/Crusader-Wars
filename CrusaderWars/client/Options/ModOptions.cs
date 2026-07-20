@@ -331,5 +331,70 @@ namespace CrusaderWars.client
         {
             return optionsValuesCollection.TryGetValue("LinuxSetupCompleted", out var value) && bool.TryParse(value, out bool result) && result;
         }
+        // Game-agnostic accessors (Phase 1)
+        public static string GetGamePath(string gameType)
+        {
+            return gameType switch
+            {
+                "Attila" => Properties.Settings.Default.VAR_attila_path,
+                "Rome2" => Properties.Settings.Default.VAR_rome2_path,
+                _ => string.Empty
+            };
+        }
+
+        public static string GetLogPath(string gameType)
+        {
+            return gameType switch
+            {
+                "Attila" => Properties.Settings.Default.VAR_log_attila,
+                "Rome2" => Properties.Settings.Default.VAR_log_rome2,
+                _ => string.Empty
+            };
+        }
+
+        public static void SetGamePath(string gameType, string path)
+        {
+            switch (gameType)
+            {
+                case "Attila":
+                    Properties.Settings.Default.VAR_attila_path = path;
+                    break;
+                case "Rome2":
+                    Properties.Settings.Default.VAR_rome2_path = path;
+                    break;
+            }
+        }
+
+        public static string GetActiveGameType()
+        {
+            string activeGameType = Properties.Settings.Default.ActiveGameType;
+            if (string.IsNullOrEmpty(activeGameType))
+                return "Attila"; // Default
+            return activeGameType;
+        }
+
+        public static void SetActiveGameType(string gameType)
+        {
+            Properties.Settings.Default.ActiveGameType = gameType;
+            Properties.Settings.Default.Save();
+        }
+
+        public static string GetSelectedPlaythroughForGame(string gameType)
+        {
+            string selectedPlaythrough = GetSelectedPlaythrough();
+            if (string.IsNullOrEmpty(selectedPlaythrough))
+                return string.Empty;
+
+            // Resolve game type from playthrough
+            string playthroughGameType = games.GameServiceFactory.ResolveGameTypeFromPlaythrough(selectedPlaythrough);
+            if (playthroughGameType == gameType)
+                return selectedPlaythrough;
+
+            return string.Empty;
+        }
+
+        // Backward-compatible accessors
+        public static string GetAttilaPath() => GetGamePath("Attila");
+        public static string GetRome2Path() => GetGamePath("Rome2");
     }
 }

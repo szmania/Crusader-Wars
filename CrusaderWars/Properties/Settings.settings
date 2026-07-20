@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CrusaderWars.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
@@ -16,6 +16,15 @@
     </Setting>
     <Setting Name="VAR_dir_save" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="VAR_rome2_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="VAR_log_rome2" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ActiveGameType" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Attila</Value>
     </Setting>
   </Settings>
 </SettingsFile>

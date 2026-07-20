@@ -174,36 +174,7 @@
             this.AttilaBtn.Click += new System.EventHandler(this.AttilaBtn_Click);
 this.AttilaBtn.MouseHover += new System.EventHandler(this.AttilaBtn_MouseHover);
             // 
-            // Rome2Btn
             // 
-            this.Rome2Btn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.Rome2Btn.BackColor = System.Drawing.Color.Transparent;
-            this.Rome2Btn.BackgroundImage = global::CrusaderWars.Properties.Resources.rome2_icon;
-            this.Rome2Btn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Rome2Btn.FlatAppearance.BorderSize = 0;
-            this.Rome2Btn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.Rome2Btn.Font = new System.Drawing.Font("Yu Gothic UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Rome2Btn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.Rome2Btn.Location = new System.Drawing.Point(541, 50);
-            this.Rome2Btn.Name = "Rome2Btn";
-            this.Rome2Btn.Size = new System.Drawing.Size(130, 122);
-            this.Rome2Btn.TabIndex = 15;
-            this.ToolTip_Attila.SetToolTip(this.Rome2Btn, "Select Rome2.exe from your Total War: Rome 2 installation folder");
-            this.Rome2Btn.UseVisualStyleBackColor = false;
-            this.Rome2Btn.Click += new System.EventHandler(this.Rome2Btn_Click);
-            this.Rome2Btn.MouseHover += new System.EventHandler(this.Rome2Btn_MouseHover);
-            // 
-            // Status_Rome2_Icon
-            // 
-            this.Status_Rome2_Icon.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.Status_Rome2_Icon.BackColor = System.Drawing.Color.Transparent;
-            this.Status_Rome2_Icon.BackgroundImage = global::CrusaderWars.Properties.Resources.correct;
-            this.Status_Rome2_Icon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.Status_Rome2_Icon.Location = new System.Drawing.Point(541, 203);
-            this.Status_Rome2_Icon.Name = "Status_Rome2_Icon";
-            this.Status_Rome2_Icon.Size = new System.Drawing.Size(64, 31);
-            this.Status_Rome2_Icon.TabIndex = 11;
-            this.Status_Rome2_Icon.TabStop = false;
             // 
             // ToolTip_Attila
             // 
@@ -573,6 +544,26 @@ this.AttilaBtn.MouseHover += new System.EventHandler(this.AttilaBtn_MouseHover);
             this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
 this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
             // 
+            // Btn_Rome2Tab
+            // 
+            this.Btn_Rome2Tab.AutoSize = true;
+            this.Btn_Rome2Tab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_Rome2Tab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_Rome2Tab.BackgroundImage")));
+            this.Btn_Rome2Tab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_Rome2Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_Rome2Tab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_Rome2Tab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_Rome2Tab.ForeColor = System.Drawing.Color.White;
+            this.Btn_Rome2Tab.Location = new System.Drawing.Point(457, 3);
+            this.Btn_Rome2Tab.Name = "Btn_Rome2Tab";
+            this.Btn_Rome2Tab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_Rome2Tab.TabIndex = 4;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_Rome2Tab, "Total War: Rome 2 playthroughs. Requires Rome2.exe.");
+            this.Btn_Rome2Tab.Text = "Rome 2";
+            this.Btn_Rome2Tab.UseVisualStyleBackColor = false;
+            this.Btn_Rome2Tab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_Rome2Tab.Click += new System.EventHandler(this.Btn_Rome2Tab_Click);
+            // 
             // Btn_CustomTab
             // 
             this.Btn_CustomTab.AutoSize = true;
@@ -586,7 +577,7 @@ this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
 this.Btn_CustomTab.Location = new System.Drawing.Point(543, 3);
             this.Btn_CustomTab.Name = "Btn_CustomTab";
             this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
-            this.Btn_CustomTab.TabIndex = 4;
+            this.Btn_CustomTab.TabIndex = 5;
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_CustomTab, "Custom playthrough with a custom unit mapper.");
             this.Btn_CustomTab.Text = "Custom";
             this.Btn_CustomTab.UseVisualStyleBackColor = false;
@@ -822,47 +813,5 @@ this.TableLayoutGamePaths.ColumnCount = 3;
 
         #endregion
 
-        private System.Windows.Forms.Button ck3Btn;
-        private System.Windows.Forms.PictureBox Status_Ck3_Icon;
-        private System.Windows.Forms.Button CloseBtn;
-        private System.Windows.Forms.PictureBox Status_Attila_Icon;
-        private System.Windows.Forms.Button AttilaBtn;
-        private System.Windows.Forms.Button Btn_Rome2Tab;
-        private System.Windows.Forms.ToolTip ToolTip_Attila;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ToolTip ToolTip_UnitMappers;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ToolTip ToolTip_Options;
-        private System.Windows.Forms.Panel OptionsPanel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.Button Btn_GeneralTab;
-        private System.Windows.Forms.Button Btn_UnitsTab;
-        private System.Windows.Forms.Button Btn_CandKTab;
-        private System.Windows.Forms.Button toggleModManagerButton;
-        private System.Windows.Forms.DataGridView ModManager;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel UMpanel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
-        private System.Windows.Forms.Button Btn_CK3Tab;
-        private System.Windows.Forms.Button Btn_TFETab;
-        private System.Windows.Forms.Button Btn_LOTRTab;
-private System.Windows.Forms.Button Btn_AGOTTab;
-        private System.Windows.Forms.Button Btn_CustomTab;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn ActiveBoxes;
-        private System.Windows.Forms.DataGridViewImageColumn ImageColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ModName;
-        private System.Windows.Forms.DataGridViewImageColumn StatusColumn;
-        private System.Windows.Forms.TableLayoutPanel TableLayoutGamePaths;
-        private System.Windows.Forms.TableLayoutPanel TableLayoutSettings;
-        private System.Windows.Forms.TableLayoutPanel TableLayoutPlaythroughs;
-        private System.Windows.Forms.TableLayoutPanel TableLayoutModManager;
-        private System.Windows.Forms.Button btnLinuxSetup;
-        private System.Windows.Forms.TableLayoutPanel TableLayoutSystem;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSystem;
-        private System.Windows.Forms.Button Btn_GamePaths;
-        private System.Windows.Forms.Button Btn_OS;
-        private System.Windows.Forms.Panel SystemContentPanel;
-        private System.Windows.Forms.Panel OSPanel;
     }
 }

@@ -513,7 +513,7 @@ namespace CrusaderWars.twbattle
 
                     //Open Total War Attila
                     Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
-                    Games.StartTotalWArAttilaProcess();
+HomePage.Games.StartTotalWarProcess();
                 }
                 catch (Exception ex)
                 {

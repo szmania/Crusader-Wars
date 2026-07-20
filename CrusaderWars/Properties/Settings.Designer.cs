@@ -94,5 +94,41 @@ namespace CrusaderWars.Properties {
                 this["LastNotifiedVersion"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VAR_rome2_path {
+            get {
+                return ((string)(this["VAR_rome2_path"]));
+            }
+            set {
+                this["VAR_rome2_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VAR_log_rome2 {
+            get {
+                return ((string)(this["VAR_log_rome2"]));
+            }
+            set {
+                this["VAR_log_rome2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Attila")]
+        public string ActiveGameType {
+            get {
+                return ((string)(this["ActiveGameType"]));
+            }
+            set {
+                this["ActiveGameType"] = value;
+            }
+        }
     }
 }

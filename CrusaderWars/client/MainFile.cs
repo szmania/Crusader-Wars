@@ -289,7 +289,13 @@ CreateRequiredDirectories();
             string attilaExecutable = Path.GetFileName(Properties.Settings.Default.VAR_attila_path).ToLower();
 
             // Strict matching to make sure the executable is given.
-            if ((ck3Executable == "ck3" || ck3Executable == "ck3.exe") && (attilaExecutable == "attila" || attilaExecutable == "attila.exe"))
+string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_path).ToLower();
+
+            bool ck3Valid = ck3Executable == "ck3" || ck3Executable == "ck3.exe";
+            bool attilaValid = attilaExecutable == "attila" || attilaExecutable == "attila.exe";
+            bool rome2Valid = rome2Executable == "rome2" || rome2Executable == "rome2.exe";
+
+            if (ck3Valid && (attilaValid || rome2Valid))
             {
                 return true;
             }
@@ -812,7 +818,7 @@ CreateRequiredDirectories();
                     allErrors.AddRange(XmlValidator.ValidateUnitMapper(playthroughFolderPath));
 
                     // 2. Mod Validation
-                    var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag, _gameType);
+var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag, _gameType);
                     var modsToVerify = modsCollection.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList();
 
                     // Create and show a simple status form for mod verification
@@ -1094,7 +1100,7 @@ CreateRequiredDirectories();
                     // Format name and update label
                     if (activePlaythroughTag == "Custom")
                     {
-                        userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
+userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                     }
                     else
                     {
@@ -1351,7 +1357,7 @@ CreateRequiredDirectories();
         }
 
         // This method creates a shortcut for Attila
-        private void CreateAttilaShortcut()
+private void CreateGameShortcut()
         {
             string shortcutPath = @".\CW.lnk";
             string targetPath = Properties.Settings.Default.VAR_attila_path;
@@ -2705,7 +2711,7 @@ CreateRequiredDirectories();
                 }
             }
 
-            public static void StartTotalWArAttilaProcess()
+public static void StartTotalWarProcess()
             {
                 Program.Logger.Debug("Starting Total War: Attila process...");
                 string shortcutPath;
@@ -2742,7 +2748,7 @@ CreateRequiredDirectories();
                 Process.Start(new ProcessStartInfo(shortcutPath) { UseShellExecute = true });
             }
 
-            public async static Task CloseTotalWarAttilaProcess()
+public async static Task CloseTotalWarProcess()
             {
                 Program.Logger.Debug("Closing Total War: Attila process...");
                 Process[] process_attila = Process.GetProcessesByName("Attila");
