@@ -34,6 +34,48 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Options));
+this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
+            this.TableLayoutModManager = new System.Windows.Forms.TableLayoutPanel();
+            this.TableLayoutSystem = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelSystem = new System.Windows.Forms.FlowLayoutPanel();
+            this.SystemContentPanel = new System.Windows.Forms.Panel();
+            this.OSPanel = new System.Windows.Forms.Panel();
+            this.ck3Btn = new System.Windows.Forms.Button();
+            this.Status_Ck3_Icon = new System.Windows.Forms.PictureBox();
+            this.CloseBtn = new System.Windows.Forms.Button();
+            this.Status_Attila_Icon = new System.Windows.Forms.PictureBox();
+            this.AttilaBtn = new System.Windows.Forms.Button();
+            this.ToolTip_Attila = new System.Windows.Forms.ToolTip(this.components);
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.ToolTip_UnitMappers = new System.Windows.Forms.ToolTip(this.components);
+            this.label3 = new System.Windows.Forms.Label();
+            this.ToolTip_Options = new System.Windows.Forms.ToolTip(this.components);
+            this.OptionsPanel = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.Btn_GeneralTab = new System.Windows.Forms.Button();
+            this.Btn_UnitsTab = new System.Windows.Forms.Button();
+            this.Btn_CandKTab = new System.Windows.Forms.Button();
+            this.toggleModManagerButton = new System.Windows.Forms.Button();
+            this.ModManager = new System.Windows.Forms.DataGridView();
+            this.ActiveBoxes = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.ImageColumn = new System.Windows.Forms.DataGridViewImageColumn();
+            this.ModName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StatusColumn = new System.Windows.Forms.DataGridViewImageColumn();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.UMpanel = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+this.Btn_CK3Tab = new System.Windows.Forms.Button();
+            this.Btn_TFETab = new System.Windows.Forms.Button();
+            this.Btn_LOTRTab = new System.Windows.Forms.Button();
+            this.Btn_AGOTTab = new System.Windows.Forms.Button();
+            this.Btn_BookmarksPlusTab = new System.Windows.Forms.Button();
+            this.Btn_CustomTab = new System.Windows.Forms.Button();
+            this.TableLayoutGamePaths = new System.Windows.Forms.TableLayoutPanel();
+            this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
+            this.Btn_GamePaths = new System.Windows.Forms.Button();
+            this.Btn_OS = new System.Windows.Forms.Button();
+            this.btnLinuxSetup = new System.Windows.Forms.Button();
             this.TableLayoutPlaythroughs.SuspendLayout();
             this.TableLayoutModManager.SuspendLayout();
             this.TableLayoutSystem.SuspendLayout();
@@ -41,9 +83,9 @@
             this.SystemContentPanel.SuspendLayout();
             this.OSPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // ck3Btn
-            // 
+            //
             this.ck3Btn.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.ck3Btn.BackColor = System.Drawing.Color.Transparent;
             this.ck3Btn.BackgroundImage = global::CrusaderWars.Properties.Resources._120px_Icon_CK3;
@@ -58,9 +100,9 @@
             this.ck3Btn.UseVisualStyleBackColor = false;
             this.ck3Btn.Click += new System.EventHandler(this.ck3Btn_Click);
             this.ck3Btn.MouseHover += new System.EventHandler(this.ck3Btn_MouseHover);
-            // 
+            //
             // Status_Ck3_Icon
-            // 
+            //
             this.Status_Ck3_Icon.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Status_Ck3_Icon.BackColor = System.Drawing.Color.Transparent;
             this.Status_Ck3_Icon.BackgroundImage = global::CrusaderWars.Properties.Resources.correct;
@@ -70,9 +112,9 @@
             this.Status_Ck3_Icon.Size = new System.Drawing.Size(64, 31);
             this.Status_Ck3_Icon.TabIndex = 4;
             this.Status_Ck3_Icon.TabStop = false;
-            // 
+            //
             // CloseBtn
-            // 
+            //
             this.CloseBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.CloseBtn.BackColor = System.Drawing.Color.Transparent;
             this.CloseBtn.BackgroundImage = global::CrusaderWars.Properties.Resources.cancel__1_;
@@ -86,9 +128,9 @@
             this.CloseBtn.UseVisualStyleBackColor = false;
             this.CloseBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.CloseBtn.Click += new System.EventHandler(this.CloseBtn_Click);
-            // 
+            //
             // Status_Attila_Icon
-            // 
+            //
             this.Status_Attila_Icon.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.Status_Attila_Icon.BackColor = System.Drawing.Color.Transparent;
             this.Status_Attila_Icon.BackgroundImage = global::CrusaderWars.Properties.Resources.correct;
@@ -98,9 +140,9 @@
             this.Status_Attila_Icon.Size = new System.Drawing.Size(64, 31);
             this.Status_Attila_Icon.TabIndex = 10;
             this.Status_Attila_Icon.TabStop = false;
-            // 
+            //
             // AttilaBtn
-            // 
+            //
             this.AttilaBtn.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.AttilaBtn.BackColor = System.Drawing.Color.Transparent;
             this.AttilaBtn.BackgroundImage = global::CrusaderWars.Properties.Resources.attilaicon__1_;
@@ -117,13 +159,13 @@
             this.AttilaBtn.UseVisualStyleBackColor = false;
             this.AttilaBtn.Click += new System.EventHandler(this.AttilaBtn_Click);
             this.AttilaBtn.MouseHover += new System.EventHandler(this.AttilaBtn_MouseHover);
-            // 
+            //
             // ToolTip_Attila
-            // 
+            //
             this.ToolTip_Attila.ToolTipTitle = "Attila Path";
-            // 
+            //
             // label1
-            // 
+            //
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.SystemColors.Control;
             this.label1.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -132,9 +174,9 @@
             this.label1.Size = new System.Drawing.Size(107, 21);
             this.label1.TabIndex = 16;
             this.label1.Text = "Playthroughs";
-            // 
+            //
             // label2
-            // 
+            //
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.SystemColors.Control;
             this.label2.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -143,17 +185,17 @@
             this.label2.Size = new System.Drawing.Size(110, 21);
             this.label2.TabIndex = 17;
             this.label2.Text = "Game Paths";
-            // 
+            //
             // ToolTip_UnitMappers
-            // 
+            //
             this.ToolTip_UnitMappers.AutomaticDelay = 0;
             this.ToolTip_UnitMappers.AutoPopDelay = 20000;
             this.ToolTip_UnitMappers.InitialDelay = 100;
             this.ToolTip_UnitMappers.IsBalloon = true;
             this.ToolTip_UnitMappers.ReshowDelay = 0;
-            // 
+            //
             // label3
-            // 
+            //
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.SystemColors.Control;
             this.label3.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -162,16 +204,16 @@
             this.label3.Size = new System.Drawing.Size(105, 21);
             this.label3.TabIndex = 26;
             this.label3.Text = "Mod Options";
-            // 
+            //
             // ToolTip_Options
-            // 
+            //
             this.ToolTip_Options.AutoPopDelay = 5000;
             this.ToolTip_Options.InitialDelay = 500;
             this.ToolTip_Options.ReshowDelay = 100;
             this.ToolTip_Options.ToolTipTitle = "Option";
-            // 
+            //
             // OptionsPanel
-            // 
+            //
             this.OptionsPanel.BackColor = System.Drawing.Color.Transparent;
             this.OptionsPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.OptionsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -179,9 +221,9 @@
             this.OptionsPanel.Name = "OptionsPanel";
             this.OptionsPanel.Size = new System.Drawing.Size(559, 437);
             this.OptionsPanel.TabIndex = 28;
-            // 
+            //
             // flowLayoutPanel1
-            // 
+            //
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel1.Controls.Add(this.Btn_GeneralTab);
             this.flowLayoutPanel1.Controls.Add(this.Btn_UnitsTab);
@@ -191,9 +233,9 @@
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(559, 34);
             this.flowLayoutPanel1.TabIndex = 28;
-            // 
+            //
             // Btn_GeneralTab
-            // 
+            //
             this.Btn_GeneralTab.AutoSize = true;
             this.Btn_GeneralTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_GeneralTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_GeneralTab.BackgroundImage")));
@@ -211,9 +253,9 @@
             this.Btn_GeneralTab.UseVisualStyleBackColor = false;
             this.Btn_GeneralTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_GeneralTab.Click += new System.EventHandler(this.Btn_GeneralTab_Click);
-            // 
+            //
             // Btn_UnitsTab
-            // 
+            //
             this.Btn_UnitsTab.AutoSize = true;
             this.Btn_UnitsTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_UnitsTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_UnitsTab.BackgroundImage")));
@@ -231,9 +273,9 @@
             this.Btn_UnitsTab.UseVisualStyleBackColor = false;
             this.Btn_UnitsTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_UnitsTab.Click += new System.EventHandler(this.Btn_UnitsTab_Click);
-            // 
+            //
             // Btn_CandKTab
-            // 
+            //
             this.Btn_CandKTab.AutoSize = true;
             this.Btn_CandKTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CandKTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_AGOTTab.BackgroundImage")));
@@ -251,9 +293,9 @@
             this.Btn_CandKTab.UseVisualStyleBackColor = false;
             this.Btn_CandKTab.Click += new System.EventHandler(this.Btn_CandKTab_Click);
             this.Btn_CandKTab.Cursor = System.Windows.Forms.Cursors.Hand;
-            // 
+            //
             // toggleModManagerButton
-            // 
+            //
             this.toggleModManagerButton.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.toggleModManagerButton.AutoSize = true;
             this.toggleModManagerButton.BackColor = System.Drawing.Color.Transparent;
@@ -272,9 +314,9 @@
             this.toggleModManagerButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.toggleModManagerButton.UseVisualStyleBackColor = false;
             this.toggleModManagerButton.Click += new System.EventHandler(this.toggleModManagerButton_Click);
-            // 
+            //
             // ModManager
-            // 
+            //
             this.ModManager.AllowUserToAddRows = false;
             this.ModManager.AllowUserToDeleteRows = false;
             this.ModManager.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(37)))), ((int)(((byte)(37)))));
@@ -317,9 +359,9 @@
             this.ModManager.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ModManager_CellMouseDoubleClick);
             this.ModManager.CellMouseUp += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ModManager_CellMouseUp);
             this.ModManager.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ModManager_CellValueChanged);
-            // 
+            //
             // ActiveBoxes
-            // 
+            //
             this.ActiveBoxes.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(37)))), ((int)(((byte)(37)))));
@@ -335,9 +377,9 @@
             this.ActiveBoxes.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.ActiveBoxes.TrueValue = "Active";
             this.ActiveBoxes.Width = 75;
-            // 
+            //
             // ImageColumn
-            // 
+            //
             this.ImageColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle3.NullValue = "System.Drawing.Bitmap";
@@ -348,9 +390,9 @@
             this.ImageColumn.ReadOnly = true;
             this.ImageColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.ImageColumn.Width = 70;
-            // 
+            //
             // ModName
-            // 
+            //
             this.ModName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(37)))), ((int)(((byte)(37)))));
             dataGridViewCellStyle4.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -361,9 +403,9 @@
             this.ModName.HeaderText = "Mod Name";
             this.ModName.Name = "ModName";
             this.ModName.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
+            //
             // StatusColumn
-            // 
+            //
             this.StatusColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.StatusColumn.HeaderText = "Status";
             this.StatusColumn.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
@@ -371,9 +413,9 @@
             this.StatusColumn.ReadOnly = true;
             this.StatusColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.StatusColumn.Width = 50;
-            // 
+            //
             // panel1
-            // 
+            //
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.Controls.Add(this.ModManager);
             this.panel1.Location = new System.Drawing.Point(3, 24);
@@ -381,28 +423,100 @@
             this.panel1.Padding = new System.Windows.Forms.Padding(20, 0, 20, 5);
             this.panel1.Size = new System.Drawing.Size(871, 261);
             this.panel1.TabIndex = 31;
-            // 
+            //
             // UMpanel
-            // 
+            //
             this.UMpanel.BackColor = System.Drawing.Color.Transparent;
             this.UMpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.UMpanel.Location = new System.Drawing.Point(3, 64);
             this.UMpanel.Name = "UMpanel";
             this.UMpanel.Size = new System.Drawing.Size(580, 185);
             this.UMpanel.TabIndex = 32;
-            // 
+            //
             // flowLayoutPanel2
-            // 
+            //
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+            // Btn_CK3Tab
+            this.Btn_CK3Tab.AutoSize = true;
+            this.Btn_CK3Tab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_CK3Tab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
+            this.Btn_CK3Tab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_CK3Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_CK3Tab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_CK3Tab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_CK3Tab.ForeColor = System.Drawing.Color.White;
+            this.Btn_CK3Tab.Location = new System.Drawing.Point(3, 3);
+            this.Btn_CK3Tab.Name = "Btn_CK3Tab";
+            this.Btn_CK3Tab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_CK3Tab.TabIndex = 0;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CK3Tab, "Crusader Kings 3 playthrough.");
+            this.Btn_CK3Tab.Text = "DefaultCK3";
+            this.Btn_CK3Tab.UseVisualStyleBackColor = false;
+            this.Btn_CK3Tab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_CK3Tab.Click += new System.EventHandler(this.Btn_CK3Tab_Click);
+            // Btn_TFETab
+            this.Btn_TFETab.AutoSize = true;
+            this.Btn_TFETab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_TFETab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_TFETab.BackgroundImage")));
+            this.Btn_TFETab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_TFETab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_TFETab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_TFETab.ForeColor = System.Drawing.Color.White;
+            this.Btn_TFETab.Location = new System.Drawing.Point(83, 3);
+            this.Btn_TFETab.Name = "Btn_TFETab";
+            this.Btn_TFETab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_TFETab.TabIndex = 1;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_TFETab, "The Fallen Eagle playthrough.");
+            this.Btn_TFETab.Text = "TheFallenEagle";
+            this.Btn_TFETab.UseVisualStyleBackColor = false;
+            this.Btn_TFETab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_TFETab.Click += new System.EventHandler(this.Btn_TFETab_Click);
+            // Btn_LOTRTab
+            this.Btn_LOTRTab.AutoSize = true;
+            this.Btn_LOTRTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_LOTRTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
+            this.Btn_LOTRTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_LOTRTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_LOTRTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_LOTRTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_LOTRTab.Location = new System.Drawing.Point(163, 3);
+            this.Btn_LOTRTab.Name = "Btn_LOTRTab";
+            this.Btn_LOTRTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_LOTRTab.TabIndex = 2;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Realms in Exile (LOTR) playthrough.");
+            this.Btn_LOTRTab.Text = "RealmsInExile";
+            this.Btn_LOTRTab.UseVisualStyleBackColor = false;
+            this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
+            // Btn_AGOTTab
+            this.Btn_AGOTTab.AutoSize = true;
+            this.Btn_AGOTTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_AGOTTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_AGOTTab.BackgroundImage")));
+            this.Btn_AGOTTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_AGOTTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_AGOTTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_AGOTTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_AGOTTab.Location = new System.Drawing.Point(243, 3);
+            this.Btn_AGOTTab.Name = "Btn_AGOTTab";
+            this.Btn_AGOTTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_AGOTTab.TabIndex = 3;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_AGOTTab, "A Game of Thrones (AGOT) playthrough.");
+            this.Btn_AGOTTab.Text = "AGOT";
+            this.Btn_AGOTTab.UseVisualStyleBackColor = false;
+            this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
-            // 
+            //
             // Btn_BookmarksPlusTab
-            // 
+            //
             this.Btn_BookmarksPlusTab.AutoSize = true;
             this.Btn_BookmarksPlusTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_BookmarksPlusTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_BookmarksPlusTab.BackgroundImage")));
@@ -420,9 +534,9 @@
             this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
             this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
-            // 
+            //
             // Btn_CustomTab
-            // 
+            //
             this.Btn_CustomTab.AutoSize = true;
             this.Btn_CustomTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CustomTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
@@ -437,9 +551,9 @@
             this.Btn_CustomTab.TabIndex = 5;
             this.Btn_CustomTab.UseVisualStyleBackColor = false;
             this.Btn_CustomTab.Cursor = System.Windows.Forms.Cursors.Hand;
-            // 
+            //
             // TableLayoutGamePaths
-            // 
+            //
             this.TableLayoutGamePaths.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutGamePaths.ColumnCount = 2;
             this.TableLayoutGamePaths.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -457,9 +571,9 @@
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 75F));
             this.TableLayoutGamePaths.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 15F));
             this.TableLayoutGamePaths.TabIndex = 36;
-            // 
+            //
             // TableLayoutSettings
-            // 
+            //
             this.TableLayoutSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TableLayoutSettings.AutoSize = true;
             this.TableLayoutSettings.BackColor = System.Drawing.Color.Transparent;
@@ -476,9 +590,9 @@
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.Size = new System.Drawing.Size(565, 504);
             this.TableLayoutSettings.TabIndex = 37;
-            // 
+            //
             // TableLayoutPlaythroughs
-            // 
+            //
             this.TableLayoutPlaythroughs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.TableLayoutPlaythroughs.AutoSize = true;
             this.TableLayoutPlaythroughs.BackColor = System.Drawing.Color.Transparent;
@@ -496,10 +610,10 @@
             this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(600, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
-            // 
+            //
             // TableLayoutModManager
-            // 
-            this.TableLayoutModManager.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.TableLayoutModManager.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TableLayoutModManager.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutModManager.ColumnCount = 1;
@@ -513,9 +627,9 @@
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutModManager.Size = new System.Drawing.Size(1077, 279);
             this.TableLayoutModManager.TabIndex = 0;
-            // 
+            //
             // TableLayoutSystem
-            // 
+            //
             this.TableLayoutSystem.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutSystem.ColumnCount = 1;
             this.TableLayoutSystem.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -528,9 +642,9 @@
             this.TableLayoutSystem.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutSystem.Size = new System.Drawing.Size(510, 280);
             this.TableLayoutSystem.TabIndex = 40;
-            // 
+            //
             // flowLayoutPanelSystem
-            // 
+            //
             this.flowLayoutPanelSystem.Controls.Add(this.Btn_GamePaths);
             this.flowLayoutPanelSystem.Controls.Add(this.Btn_OS);
             this.flowLayoutPanelSystem.Location = new System.Drawing.Point(3, 24);
@@ -538,9 +652,9 @@
             this.flowLayoutPanelSystem.Size = new System.Drawing.Size(504, 34);
             this.flowLayoutPanelSystem.TabIndex = 33;
             this.flowLayoutPanelSystem.WrapContents = false;
-            // 
+            //
             // Btn_GamePaths
-            // 
+            //
             this.Btn_GamePaths.AutoSize = true;
             this.Btn_GamePaths.BackColor = System.Drawing.Color.LightGray;
             this.Btn_GamePaths.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
@@ -554,9 +668,9 @@
             this.Btn_GamePaths.Text = "Game Paths";
             this.Btn_GamePaths.UseVisualStyleBackColor = false;
             this.Btn_GamePaths.Click += new System.EventHandler(this.Btn_GamePaths_Click);
-            // 
+            //
             // Btn_OS
-            // 
+            //
             this.Btn_OS.AutoSize = true;
             this.Btn_OS.BackColor = System.Drawing.Color.LightGray;
             this.Btn_OS.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
@@ -570,9 +684,9 @@
             this.Btn_OS.Text = "Operating System";
             this.Btn_OS.UseVisualStyleBackColor = false;
             this.Btn_OS.Click += new System.EventHandler(this.Btn_OS_Click);
-            // 
+            //
             // SystemContentPanel
-            // 
+            //
             this.SystemContentPanel.Controls.Add(this.TableLayoutGamePaths);
             this.SystemContentPanel.Controls.Add(this.OSPanel);
             this.SystemContentPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -580,19 +694,19 @@
             this.SystemContentPanel.Name = "SystemContentPanel";
             this.SystemContentPanel.Size = new System.Drawing.Size(504, 213);
             this.SystemContentPanel.TabIndex = 34;
-            // 
+            //
             // OSPanel
-            // 
+            //
             this.OSPanel.Controls.Add(this.btnLinuxSetup);
             this.OSPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.OSPanel.Location = new System.Drawing.Point(0, 0);
             this.OSPanel.Name = "OSPanel";
             this.OSPanel.Size = new System.Drawing.Size(504, 213);
             this.OSPanel.TabIndex = 37;
-            // 
-            // 
+            //
+            //
             // btnLinuxSetup
-            // 
+            //
             this.btnLinuxSetup.AutoSize = true;
             this.btnLinuxSetup.BackColor = System.Drawing.Color.LightGray;
             this.btnLinuxSetup.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
@@ -609,9 +723,9 @@
             this.btnLinuxSetup.Visible = false;
             this.ToolTip_Options.SetToolTip(this.btnLinuxSetup, "Run the setup wizard to configure the game for Linux/Proton.");
             this.btnLinuxSetup.Click += new System.EventHandler(this.btnLinuxSetup_Click);
-            // 
+            //
             // Options
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = false;
