@@ -66,7 +66,7 @@ namespace CrusaderWars.client
             UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
         }
 
-private void PopulateCurrentUnitsTree()
+        private void PopulateCurrentUnitsTree()
         {
             tvCurrentUnits.Nodes.Clear();
 
@@ -134,7 +134,7 @@ private void PopulateCurrentUnitsTree()
                                 }
                             }
                         }
-                        
+
                         string displayName;
                         if (regimentType == RegimentType.MenAtArms)
                         {
@@ -360,17 +360,17 @@ private void PopulateCurrentUnitsTree()
             }
 
             string? replacementKey = tvAvailableUnits.SelectedNode.Tag.ToString();
-            if(replacementKey is null) { return; }
+            if (replacementKey is null) { return; }
             bool isSiege = UnitMappers_BETA.IsUnitKeySiege(replacementKey);
 
             foreach (var selectedNode in _selectedCurrentNodes)
             {
                 bool isPlayerAlliance = selectedNode.Parent.Parent.Text == "Player's Alliance";
                 dynamic? tagObject = selectedNode.Tag;
-                if(tagObject is null) { continue; }
+                if (tagObject is null) { continue; }
                 RegimentType regimentType = tagObject.RegimentType;
                 string typeIdentifier = tagObject.TypeIdentifier;
-                string faction = selectedNode.Parent!.Text; // Get faction from parent node
+                string faction = selectedNode.Parent?.Text ?? ""; // Get faction from parent node
                 bool isSplitLevyNode = tagObject.GetType().GetProperty("IsSplitLevyNode") != null && tagObject.IsSplitLevyNode;
 
                 if (isSplitLevyNode)
@@ -434,7 +434,7 @@ private void PopulateCurrentUnitsTree()
             }
         }
 
-private void UpdateCurrentUnitsTreeVisuals()
+        private void UpdateCurrentUnitsTreeVisuals()
         {
             ClearAvailableReplacementHighlights();
             Action<TreeNodeCollection> TraverseNodes = null;
@@ -448,7 +448,7 @@ private void UpdateCurrentUnitsTreeVisuals()
                         RegimentType regimentType = tag.RegimentType;
                         string typeIdentifier = tag.TypeIdentifier;
                         bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
-                        string faction = node.Parent!.Text; // Get faction from parent node
+                        string faction = node.Parent?.Text ?? ""; // Get faction from parent node
                         bool isSplitLevyNode = tag.GetType().GetProperty("IsSplitLevyNode") != null && tag.IsSplitLevyNode;
 
                         int arrowIndex = node.Text.IndexOf(" ->");
@@ -504,7 +504,7 @@ private void UpdateCurrentUnitsTreeVisuals()
             TraverseNodes(tvCurrentUnits.Nodes);
         }
 
-private (string faction, string unitText) FindAvailableUnitNodeText(string key)
+        private (string faction, string unitText) FindAvailableUnitNodeText(string key)
         {
             foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
             {
@@ -532,7 +532,7 @@ private (string faction, string unitText) FindAvailableUnitNodeText(string key)
                     {
                         if (unitNode.Tag as string == key)
                         {
-unitNode.ForeColor = Color.MediumSeaGreen;
+                            unitNode.ForeColor = Color.MediumSeaGreen;
                             return;
                         }
                     }
@@ -591,7 +591,7 @@ unitNode.ForeColor = Color.MediumSeaGreen;
             }
         }
 
-private void ClearAvailableReplacementHighlights()
+        private void ClearAvailableReplacementHighlights()
         {
             foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
             {

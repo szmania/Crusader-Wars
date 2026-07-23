@@ -539,8 +539,7 @@ namespace CrusaderWars.data.save_file
 
         public static string GetTraitKey(int trait_index)
         {
-            string key;
-            key = save_file_traits.FirstOrDefault(x => x.index == trait_index).name;
+            string key = save_file_traits.FirstOrDefault(x => x.index == trait_index).name ?? "";
             Program.Logger.Debug($"GetTraitKey for index '{trait_index}': found key '{key}'");
             return key;
 
