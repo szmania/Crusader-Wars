@@ -295,13 +295,139 @@ namespace CrusaderWars
             }
         }
 
+        private static readonly string UnitMappersXsdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas", "UnitMappers.xsd");
+
+        private static List<string> ValidateUnitMapper(string unitMapperDirectory)
+        {
+            var allErrors = new List<string>();
+            string schemasDir = @".\\unit mappers\\schemas";
+
+            // Validate Mods.xml
+            string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
+            if (File.Exists(modsXml))
+                allErrors.AddRange(mod_manager.XmlValidator.Validate(modsXml, Path.Combine(schemasDir, "mods.xsd")));
+
+            // Validate Time Period.xml
+            string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
+            if (!File.Exists(timePeriodXml))
+            {
+                timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
+            }
+            if (File.Exists(timePeriodXml))
+                allErrors.AddRange(mod_manager.XmlValidator.Validate(timePeriodXml, Path.Combine(schemasDir, "timeperiod.xsd")));
+
+            // Validate Cultures
+            string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
+            if (Directory.Exists(culturesDir))
+            {
+                foreach (var file in Directory.GetFiles(culturesDir, "*.xml"))
+                {
+                    allErrors.AddRange(mod_manager.XmlValidator.Validate(file, Path.Combine(schemasDir, "cultures.xsd")));
+                }
+            }
+
+            // Validate Factions
+            string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
+            if (Directory.Exists(factionsDir))
+            {
+                string factionsSchema = Path.Combine(schemasDir, "factions.xsd");
+                string factionsAddonSchema = Path.Combine(schemasDir, "factions_addons.xsd");
+                bool factionsAddonSchemaExists = File.Exists(factionsAddonSchema);
+
+                foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
+                {
+                    string schemaToUse = factionsSchema; // Default schema
+
+                    if (factionsAddonSchemaExists)
+                    {
+                        bool useAddonSchema = false;
+                        string fileName = Path.GetFileName(file);
+
+                        // Condition 1: check for submod_addon_tag attribute
+                        try
+                        {
+                            using (var reader = XmlReader.Create(file))
+                            {
+                                reader.MoveToContent();
+                                if (reader.GetAttribute("submod_addon_tag") != null)
+                                {
+                                    useAddonSchema = true;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            allErrors.Add($"File: {file}, Error: Could not read XML to check for addon tag. {ex.Message}");
+                        }
+
+                        // Condition 2: check filename (if not already decided)
+                        if (!useAddonSchema)
+                        {
+                            if (!fileName.StartsWith("OfficialCC_", StringComparison.OrdinalIgnoreCase) &&
+                                !fileName.StartsWith("Submod_", StringComparison.OrdinalIgnoreCase))
+                            {
+                                useAddonSchema = true;
+                            }
+                        }
+
+                        if (useAddonSchema)
+                        {
+                            schemaToUse = factionsAddonSchema;
+                        }
+                    }
+
+                    allErrors.AddRange(mod_manager.XmlValidator.Validate(file, schemaToUse));
+                }
+            }
+
+            // Validate Titles
+            string titlesDir = Path.Combine(unitMapperDirectory, "Titles");
+            if (Directory.Exists(titlesDir))
+            {
+                foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
+                {
+                    allErrors.AddRange(mod_manager.XmlValidator.Validate(file, Path.Combine(schemasDir, "titles.xsd")));
+                }
+            }
+            return allErrors;
+        }
+
         bool VerifyEnabledUnitMappers()
         {
             string filePath = @".\settings\UnitMappers.xml";
             if (!File.Exists(filePath))
             {
-                return false; // If file doesn't exist, no mappers are enabled.
+                // This case is handled by ReadUnitMappersOptions creating a default file.
+                // If it still doesn't exist, something is wrong, but we can assume no mappers are enabled.
+                return false; 
             }
+
+            // Validation is now handled in Options.cs within ReadUnitMappersOptions.
+            // This method now only checks if any mapper is set to "True".
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load(filePath);
+                var root = xmlDoc.DocumentElement;
+                if (root != null)
+                {
+                    foreach (XmlNode node in root.ChildNodes)
+                    {
+                        if (node is XmlComment) continue;
+                        if (node.Attributes["value"]?.Value == "True")
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading UnitMappers.xml in VerifyEnabledUnitMappers: {ex.Message}");
+                return false; // Treat errors as no mappers enabled
+            }
+
+            return false;
 
             try
             {
@@ -411,7 +537,7 @@ namespace CrusaderWars
                     {
                         foreach (var dir in unitMapperDirectories)
                         {
-                            errors.AddRange(XmlValidator.ValidateUnitMapper(dir));
+                            errors.AddRange(ValidateUnitMapper(dir));
                         }
                     }
                     else
@@ -848,7 +974,7 @@ this.infoLabel.AutoSize = false;
                 else
                 {
                     // 1. Schema Validation
-                    allErrors.AddRange(XmlValidator.ValidateUnitMapper(playthroughFolderPath));
+                    allErrors.AddRange(ValidateUnitMapper(playthroughFolderPath));
 
                     // 2. Mod Validation
                     var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythroughTag);
