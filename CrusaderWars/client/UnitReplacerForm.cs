@@ -66,7 +66,7 @@ namespace CrusaderWars.client
             UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
         }
 
-        private void PopulateCurrentUnitsTree()
+private void PopulateCurrentUnitsTree()
         {
             tvCurrentUnits.Nodes.Clear();
 
@@ -88,8 +88,8 @@ namespace CrusaderWars.client
                     var factionNode = new TreeNode(factionGroup.Key);
                     sideNode.Nodes.Add(factionNode);
 
-                    // --- Process Non-Levy Units ---
-                    var nonLevyUnits = factionGroup.Where(u => u.GetRegimentType() != RegimentType.Levy);
+                    // --- Process Non-Levy, Non-Garrison Units ---
+                    var nonLevyUnits = factionGroup.Where(u => u.GetRegimentType() != RegimentType.Levy && u.GetRegimentType() != RegimentType.Garrison);
                     var groupedForDisplay = nonLevyUnits
                         .GroupBy(u =>
                         {
@@ -109,44 +109,41 @@ namespace CrusaderWars.client
                         string attilaKeyDisplay = "";
                         if (regimentType == RegimentType.MenAtArms || regimentType == RegimentType.Commander || regimentType == RegimentType.Knight)
                         {
-                            string key = unitGroup.First().GetAttilaUnitKey();
-                            if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
+                            string originalAttilaKey = unitGroup.First().GetAttilaUnitKey();
+                            (string replacementKey, bool isSiege) replacementInfo = default;
+                            bool isReplaced = Replacements.TryGetValue((originalAttilaKey, unitGroup.First().IsPlayer()), out replacementInfo);
+
+                            string keyToDisplay = isReplaced ? replacementInfo.replacementKey : originalAttilaKey;
+
+                            if (!string.IsNullOrEmpty(keyToDisplay) && keyToDisplay != UnitMappers_BETA.NOT_FOUND_KEY)
                             {
-                                if (_unitScreenNames.TryGetValue(key, out var screenName))
+                                if (_unitScreenNames.TryGetValue(keyToDisplay, out var screenName))
                                 {
-                                    attilaKeyDisplay = $" [{screenName}]";
+                                    if (regimentType == RegimentType.MenAtArms)
+                                    {
+                                        attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
+                                    }
+                                    else
+                                    {
+                                        attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
+                                    }
                                 }
                                 else
                                 {
-                                    attilaKeyDisplay = $" [{key}]";
+                                    attilaKeyDisplay = $" [{keyToDisplay}]";
                                 }
                             }
                         }
-                        else if (regimentType == RegimentType.Garrison)
-                        {
-                            var distinctKeys = new List<string>();
-                            for (int level = 1; level <= 20; level++)
-                            {
-                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(factionGroup.Key, level);
-                                distinctKeys.AddRange(garrisonTuples.Select(g => g.unit_key));
-                            }
-                            distinctKeys = distinctKeys.Distinct().ToList();
-                            if (distinctKeys.Any())
-                            {
-                                var screenNames = distinctKeys.Select(k => _unitScreenNames.TryGetValue(k, out var sn) ? sn : k);
-                                attilaKeyDisplay = $" [{string.Join(", ", screenNames)}]";
-                            }
-                        }
-
+                        
                         string displayName;
                         if (regimentType == RegimentType.MenAtArms)
                         {
                             string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(nameToShow) ?? "Unit";
-                            displayName = $"MAA: {nameToShow} {attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
+                            displayName = $"MAA-{nameToShow}: {attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
                         }
                         else
                         {
-                            displayName = $"{nameToShow}{attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
+                            displayName = $"{nameToShow}:{attilaKeyDisplay} ({unitCount} units, {totalSoldiers} men)";
                         }
 
                         var groupNode = new TreeNode(displayName)
@@ -161,7 +158,17 @@ namespace CrusaderWars.client
                     if (levyUnitsInFaction.Any())
                     {
                         int totalLevySoldiers = levyUnitsInFaction.Sum(u => u.GetSoldiers());
-                        var (levyComposition, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
+                        List<(int percentage, string unit_key, string name, string max)>? levyComposition = null;
+                        try
+                        {
+                            var (composition, _) = UnitMappers_BETA.GetFactionLevies(factionGroup.Key);
+                            levyComposition = composition;
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error getting faction levies for {factionGroup.Key}: {ex.Message}");
+                            levyComposition = null;
+                        }
 
                         if (levyComposition != null && levyComposition.Any())
                         {
@@ -193,13 +200,74 @@ namespace CrusaderWars.client
                                     string levyKey = kvp.Key;
                                     int soldierCount = kvp.Value;
                                     string screenNameDisplay = _unitScreenNames.TryGetValue(levyKey, out var sn) ? sn : levyKey;
-                                    string displayName = $"Levy: [{screenNameDisplay}] ({soldierCount} men)";
+                                    string displayName = $"Levy: [{screenNameDisplay}] [{levyKey}] ({kvp.Value} men)";
                                     var levyNode = new TreeNode(displayName)
                                     {
                                         Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true }
                                     };
                                     factionNode.Nodes.Add(levyNode);
                                 }
+                            }
+                        }
+                    }
+
+                    // --- Process Garrison Units Separately ---
+                    var garrisonUnitsInFaction = factionGroup.Where(u => u.GetRegimentType() == RegimentType.Garrison).ToList();
+                    if (garrisonUnitsInFaction.Any())
+                    {
+                        int totalGarrisonSoldiers = garrisonUnitsInFaction.Sum(u => u.GetSoldiers());
+                        var garrisonComposition = new List<(string unit_key, string name)>();
+                        try
+                        {
+                            for (int level = 1; level <= 20; level++)
+                            {
+                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(factionGroup.Key, level);
+                                garrisonComposition.AddRange(garrisonTuples.Select(g => (g.unit_key, g.name)));
+                            }
+                            garrisonComposition = garrisonComposition.Distinct().ToList();
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error getting faction garrisons for {factionGroup.Key}: {ex.Message}");
+                            garrisonComposition = null;
+                        }
+
+                        if (garrisonComposition != null && garrisonComposition.Any())
+                        {
+                            var soldiersPerKey = new Dictionary<string, int>();
+                            int assignedSoldiers = 0;
+
+                            // Distribute soldiers evenly among available garrison unit types
+                            if (garrisonComposition.Count > 0)
+                            {
+                                int soldiersPerUnitType = totalGarrisonSoldiers / garrisonComposition.Count;
+                                foreach (var garrison in garrisonComposition)
+                                {
+                                    soldiersPerKey[garrison.unit_key] = soldiersPerUnitType;
+                                    assignedSoldiers += soldiersPerUnitType;
+                                }
+
+                                // Adjust for rounding errors
+                                int remainder = totalGarrisonSoldiers - assignedSoldiers;
+                                if (remainder != 0 && soldiersPerKey.Any())
+                                {
+                                    var firstKey = soldiersPerKey.Keys.First();
+                                    soldiersPerKey[firstKey] += remainder;
+                                }
+                            }
+
+                            // Create a node for each garrison type
+                            foreach (var kvp in soldiersPerKey.Where(kvp => kvp.Value > 0).OrderBy(kvp => kvp.Key))
+                            {
+                                string garrisonKey = kvp.Key;
+                                int soldierCount = kvp.Value;
+                                string screenNameDisplay = _unitScreenNames.TryGetValue(garrisonKey, out var sn) ? sn : garrisonKey;
+                                string displayName = $"Garrison: [{screenNameDisplay}] [{garrisonKey}] ({kvp.Value} men)";
+                                var garrisonNode = new TreeNode(displayName)
+                                {
+                                    Tag = new { RegimentType = RegimentType.Garrison, TypeIdentifier = garrisonKey, IsSplitLevyNode = true } // Re-using IsSplitLevyNode for similar behavior
+                                };
+                                factionNode.Nodes.Add(garrisonNode);
                             }
                         }
                     }
@@ -211,6 +279,7 @@ namespace CrusaderWars.client
         private void PopulateAvailableUnitsTree()
         {
             tvAvailableUnits.Nodes.Clear();
+            ClearAvailableReplacementHighlights();
 
             var unitsByFaction = _allAvailableUnits
                 .GroupBy(u => u.FactionName)
@@ -345,6 +414,7 @@ namespace CrusaderWars.client
         private void btnUndo_Click(object sender, EventArgs e)
         {
             Replacements.Clear();
+            BattleState.ClearManualUnitReplacements();
             ClearNodeSelection();
             UpdateCurrentUnitsTreeVisuals();
         }
@@ -364,8 +434,9 @@ namespace CrusaderWars.client
             }
         }
 
-        private void UpdateCurrentUnitsTreeVisuals()
+private void UpdateCurrentUnitsTreeVisuals()
         {
+            ClearAvailableReplacementHighlights();
             Action<TreeNodeCollection> TraverseNodes = null;
             TraverseNodes = (nodes) =>
             {
@@ -418,9 +489,10 @@ namespace CrusaderWars.client
 
                         if (isReplaced)
                         {
-                            string replacementName = FindAvailableUnitNodeText(replacementInfo.replacementKey);
-                            node.Text += $" -> {replacementName}";
+                            var (replacementFaction, replacementName) = FindAvailableUnitNodeText(replacementInfo.replacementKey);
+                            node.Text += $" -> [{replacementFaction}] {replacementName}";
                             node.ForeColor = Color.MediumSeaGreen;
+                            HighlightAvailableUnitNode(replacementInfo.replacementKey);
                         }
                     }
                     if (node.Nodes != null && node.Nodes.Count > 0)
@@ -432,7 +504,7 @@ namespace CrusaderWars.client
             TraverseNodes(tvCurrentUnits.Nodes);
         }
 
-        private string FindAvailableUnitNodeText(string key)
+private (string faction, string unitText) FindAvailableUnitNodeText(string key)
         {
             foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
             {
@@ -442,13 +514,33 @@ namespace CrusaderWars.client
                     {
                         if (unitNode.Tag as string == key)
                         {
-                            return unitNode.Text;
+                            return (factionNode.Text, unitNode.Text);
                         }
                     }
                 }
             }
-            return key;
+            return ("Unknown Faction", key);
         }
+
+        private void HighlightAvailableUnitNode(string key)
+        {
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        if (unitNode.Tag as string == key)
+                        {
+unitNode.ForeColor = Color.MediumSeaGreen;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+
 
         private void tvCurrentUnits_BeforeSelect(object? sender, TreeViewCancelEventArgs e)
         {
@@ -495,6 +587,21 @@ namespace CrusaderWars.client
                 else
                 {
                     AddNodeToSelection(e.Node);
+                }
+            }
+        }
+
+private void ClearAvailableReplacementHighlights()
+        {
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        unitNode.BackColor = tvAvailableUnits.BackColor;
+                        unitNode.ForeColor = tvAvailableUnits.ForeColor;
+                    }
                 }
             }
         }
@@ -561,8 +668,6 @@ namespace CrusaderWars.client
 
         private void btnOK_Click(object? sender, EventArgs e)
         {
-            BattleState.ManualUnitReplacements = Replacements;
-            BattleState.SavePersistentBattleSettings();
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

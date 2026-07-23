@@ -809,6 +809,9 @@ this.TableLayoutGamePaths.ColumnCount = 3;
             this.ResumeLayout(false);
             this.PerformLayout();
 
+            this.AutoScroll = true;
+            this.AutoScrollMinSize = new System.Drawing.Size(1300, 928);
+
         }
 
         #endregion

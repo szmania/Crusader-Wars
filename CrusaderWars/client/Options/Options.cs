@@ -263,7 +263,7 @@ if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
 
         private void Btn_CandKTab_Click(object sender, EventArgs e)
         {
-            if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != CandK_Tab)
+            if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != CandK_Tab && CandK_Tab != null)
                 ChangeOptionsTab(CandK_Tab);
         }
 
@@ -1599,6 +1599,11 @@ AGOT_Tab?.SetPulsing(false); // Added AGOT tab
 
         private void PlaythroughToggle_Clicked(object? sender, EventArgs e)
         {
+            if (sender is UC_UnitMapper { Tag: string activePlaythroughTag } && !string.IsNullOrEmpty(activePlaythroughTag))
+            {
+                WriteUnitMappersOptions();
+            }
+
             CheckPlaythroughSelection();
         }
 

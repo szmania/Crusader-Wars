@@ -76,6 +76,19 @@ namespace CrusaderWars.locs
                 case "Custom":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), armiesCollection);
                     break;
+                default:
+                    // Fallback: if mapper name is unknown, try to find loc files in a generic way
+                    Program.Logger.Debug($"Unknown mapper name '{Mapper_Name}' in ChangeUnitsCardsNames. Attempting to find localization files generically.");
+                    string genericLocPath = @".\data\units_cards_names";
+                    if (Directory.Exists(genericLocPath))
+                    {
+                        var genericLocFiles = Directory.GetFiles(genericLocPath, "*.loc", SearchOption.AllDirectories);
+                        if (genericLocFiles.Any())
+                        {
+                            EditUnitCardsFiles(genericLocFiles, armiesCollection);
+                        }
+                    }
+                    break;
             }
 
         }
@@ -421,7 +434,17 @@ namespace CrusaderWars.locs
                     locFiles = GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper());
                     break;
                 default:
-                    locFiles = new string[0];
+                    // Fallback: if mapper name is unknown, try to find loc files in a generic way
+                    Program.Logger.Debug($"Unknown mapper name '{Mapper_Name}'. Attempting to find localization files generically.");
+                    string genericLocPath = @".\data\units_cards_names";
+                    if (Directory.Exists(genericLocPath))
+                    {
+                        locFiles = Directory.GetFiles(genericLocPath, "*.loc", SearchOption.AllDirectories);
+                    }
+                    else
+                    {
+                        locFiles = new string[0];
+                    }
                     break;
             }
 

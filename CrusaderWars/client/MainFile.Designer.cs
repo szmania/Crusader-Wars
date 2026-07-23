@@ -96,13 +96,7 @@
             // infoLabel
             // 
             resources.ApplyResources(this.infoLabel, "infoLabel");
-            this.infoLabel.AutoSize = true;
-            this.infoLabel.MaximumSize = new System.Drawing.Size(450, 0);
-            this.infoLabel.Margin = new System.Windows.Forms.Padding(3, -25, 3, 0);
-            this.infoLabel.BackColor = System.Drawing.Color.Transparent;
-            this.infoLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.infoLabel.Name = "infoLabel";
-            this.infoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+this.infoLabel.AutoSize = false;
             // 
             // SettingsBtn
             // 
@@ -406,7 +400,10 @@
             // 
             // HomePage
             // 
-            resources.ApplyResources(this, "$this");
+this.ClientSize = new System.Drawing.Size(1280, 720);
+resources.ApplyResources(this, "$this");
+
+this.AutoScroll = false;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.IndianRed;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.main_beta1;
@@ -439,7 +436,7 @@
             this.BottomRightFlowPanel.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
+
 
         }
 

@@ -48,6 +48,21 @@ namespace CrusaderWars
 
         static void SetArmies(List<Army> attacker, List<Army> defender)
         {
+            foreach (var army in attacker.Concat(defender))
+                foreach (var unit in army.Units)
+                {
+                    // Use the original (natural) key stored during initial unit mapping.
+                    // This preserves the key that matches localization file entries for unit card naming.
+                    (string originalKey, bool isPlayerAlliance) lookupKey = (unit.OriginalAttilaKey, unit.IsPlayer());
+                    if (twbattle.BattleState.ManualUnitReplacements != null && twbattle.BattleState.ManualUnitReplacements.TryGetValue(lookupKey, out (string replacementKey, bool isSiege) replacementInfo))
+                    {
+                        unit.SetUnitKey(replacementInfo.replacementKey);
+                    }
+                    else
+                    {
+                        unit.AttilaUnitKey = unit.OriginalAttilaKey;
+                    }
+                }
             stark_armies.Clear();
             bolton_armies.Clear();
 

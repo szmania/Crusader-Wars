@@ -30,6 +30,9 @@ namespace CrusaderWars.client.LinuxSetup.Steps
                 case "Desktop":
                     lblToUpdate = lblDesktopEnvCheck;
                     break;
+                case "Proton":
+                    lblToUpdate = lblProtonCheck;
+                    break;
             }
 
             if (lblToUpdate != null)

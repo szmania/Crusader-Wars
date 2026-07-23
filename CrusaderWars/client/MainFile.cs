@@ -26,6 +26,7 @@ using CrusaderWars.sieges; // Added for SiegeEngineGenerator
 using CrusaderWars.terrain;
 using CrusaderWars.twbattle; // Added for BattleProcessor
 using CrusaderWars.unit_mapper;
+using CrusaderWars.process;
 
 namespace CrusaderWars
 {
@@ -483,8 +484,6 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
 
                 if (!gamePaths || !unitMappers)
                 {
-                    infoLabel.AutoSize = false;
-                    infoLabel.Size = new Size(MainPanelLayout.Width - 10, 80);
                     if (!gamePaths) infoLabel.Text = "Games Paths Missing! Select your game paths on the Mod Settings screen.";
                     else infoLabel.Text = "No Unit Mappers Enabled! Select a Playthrough on the Mod Settings screen.";
                     ExecuteButton.Enabled = false;
@@ -499,7 +498,6 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
                 }
                 else if (gamePaths && unitMappers)
                 {
-                    infoLabel.AutoSize = true;
                     ExecuteButton.Enabled = true;
                     infoLabel.Text = "Ready to Start!";
                     infoLabel.ForeColor = Original_Color;
@@ -538,6 +536,9 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
                     }
                 }
             }
+
+            // Initialize cross-platform process controller
+            InitializeProcessController();
 
             Program.Logger.Debug("Form1_Load event triggered.");
             //Load Game Paths
@@ -706,7 +707,9 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
             // NEW TOOLTIPS
             InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
-            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 0);
+infoLabel.ForeColor = Color.WhiteSmoke;
+infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 80);
+this.infoLabel.AutoSize = false;
 
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
@@ -719,6 +722,47 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
             Program.Logger.Debug("Form1_Load complete.");
 
             ShowOneTimeNotifications();
+        }
+
+        /// <summary>
+        /// Initializes the cross-platform process controller (ProcessCommands) based on the detected
+        /// operating environment. On Linux/Proton, uses LinuxProcessController (kill/pgrep).
+        /// On Windows, uses WindowsProcessController (pssuspend64.exe).
+        /// If Linux is detected but kill/pgrep are unavailable, falls back gracefully.
+        /// </summary>
+        private void InitializeProcessController()
+        {
+            Program.Logger.Debug("Initializing process controller...");
+            
+            var detector = new client.LinuxSetup.Services.LinuxEnvironmentDetector();
+            IProcessController controller;
+            
+            if (detector.IsRunningOnLinux())
+            {
+                var linuxController = new LinuxProcessController();
+                if (linuxController.IsSupported)
+                {
+                    controller = linuxController;
+                    Program.Logger.Debug("Using LinuxProcessController (kill/pgrep) for process suspend/resume.");
+                }
+                else
+                {
+                    // Graceful degradation: Linux detected but kill/pgrep not available.
+                    // Use LinuxProcessController anyway — its IsSupported=false will cause
+                    // ProcessCommands to skip suspend/resume and log warnings.
+                    // Also force CloseCK3DuringBattle mode so CK3 is closed instead of suspended.
+                    controller = linuxController;
+                    ModOptions.optionsValuesCollection["CloseCK3"] = "Enabled";
+                    Program.Logger.Debug("WARNING: Linux detected but kill/pgrep commands not available. Process suspend/resume is NOT supported on this system. CK3 will be closed during battles instead of suspended. Please install 'procps' or 'procps-ng' package (provides kill/pgrep) for full functionality.");
+                }
+            }
+            else
+            {
+                controller = new WindowsProcessController();
+                Program.Logger.Debug("Using WindowsProcessController (pssuspend64.exe) for process suspend/resume.");
+            }
+            
+            ProcessCommands.Initialize(controller);
         }
 
         private void ApplyEnvironmentVariableOverrides()
@@ -2543,42 +2587,68 @@ private void CreateGameShortcut()
          * :::::::::::::PROCESS COMMANDS:::::::::::::::
          ---------------------------------------------*/
 
-        public struct ProcessCommands // Changed to public for BattleProcessor access
+        /// <summary>
+        /// Cross-platform process control commands. Delegates to an IProcessController implementation
+        /// that is initialized at application startup based on the detected platform.
+        /// The static API is preserved for backward compatibility with BattleProcessor.cs.
+        /// </summary>
+        public static class ProcessCommands
         {
-            private static string ProcessRuntime(string command)
+            private static IProcessController? _controller;
+            
+            /// <summary>
+            /// Initializes the ProcessCommands with a platform-specific controller.
+            /// Must be called once at application startup before any Suspend/Resume operations.
+            /// </summary>
+            /// <param name="controller">The platform-specific process controller implementation.</param>
+            /// <exception cref="ArgumentNullException">Thrown if controller is null.</exception>
+            public static void Initialize(IProcessController controller)
             {
-                //Get User Path
-                string filePath = Directory.GetFiles(@".\data\runtime", "pssuspend64.exe", SearchOption.AllDirectories)[0];
-                ProcessStartInfo procStartInfo = new ProcessStartInfo(filePath, command)
-                {
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-
-                };
-
-                using (Process proc = new Process())
-                {
-                    proc.StartInfo = procStartInfo;
-                    proc.Start();
-                    return proc.StandardOutput.ReadToEnd();
-                }
-
+                _controller = controller ?? throw new ArgumentNullException(nameof(controller));
+                Program.Logger.Debug($"ProcessCommands initialized with {controller.GetType().Name}. IsSupported: {controller.IsSupported}");
             }
+            
+            /// <summary>
+            /// Suspends the ck3.exe process using the platform-specific controller.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">Thrown if ProcessCommands has not been initialized.</exception>
             public static void SuspendProcess()
             {
-                Program.Logger.Debug("Suspending ck3.exe process.");
-                ProcessRuntime("ck3.exe");
-
+                if (_controller == null)
+                {
+                    throw new InvalidOperationException(
+                        "ProcessCommands has not been initialized. Call Initialize() at application startup.");
+                }
+                
+                if (!_controller.IsSupported)
+                {
+                    Program.Logger.Debug("ProcessCommands.SuspendProcess: Controller does not support suspend on this platform. Skipping.");
+                    return;
+                }
+                
+                _controller.SuspendProcess("ck3.exe");
             }
-
+            
+            /// <summary>
+            /// Resumes the ck3.exe process using the platform-specific controller.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">Thrown if ProcessCommands has not been initialized.</exception>
             public static void ResumeProcess()
             {
-                Program.Logger.Debug("Resuming ck3.exe process.");
-                ProcessRuntime("/r ck3.exe");
+                if (_controller == null)
+                {
+                    throw new InvalidOperationException(
+                        "ProcessCommands has not been initialized. Call Initialize() at application startup.");
+                }
+                
+                if (!_controller.IsSupported)
+                {
+                    Program.Logger.Debug("ProcessCommands.ResumeProcess: Controller does not support resume on this platform. Skipping.");
+                    return;
+                }
+                
+                _controller.ResumeProcess("ck3.exe");
             }
-
-
         }
 
         /*---------------------------------------------
@@ -3515,41 +3585,43 @@ public async static Task CloseTotalWarProcess()
             }
             DataSearch.Search(logSnippet);
 
-            using (var form = new Form())
+            var availableStrategies = new List<BattleProcessor.AutofixState.AutofixStrategy>
             {
-                form.Text = "Select a Battle Tool";
-                form.Size = new System.Drawing.Size(300, 150);
-                form.StartPosition = FormStartPosition.CenterParent;
-                form.FormBorderStyle = FormBorderStyle.FixedDialog;
-                form.MaximizeBox = false;
-                form.MinimizeBox = false;
+                BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement,
+                BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor
+            };
 
-                var btnUnitReplacer = new Button() { Text = "Unit Replacer", Left = 50, Top = 20, Width = 200, Height = 30 };
-                var btnDeploymentEditor = new Button() { Text = "Deployment Zone Editor", Left = 50, Top = 60, Width = 200, Height = 30 };
+infoLabel.Text = "Select a tool to fix the battle...";
+            infoLabel.ForeColor = Original_Color;
+            infoLabel.BackColor = _originalInfoLabelBackColor;
+            var (result, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, availableStrategies, isCrash: true);
 
-                btnUnitReplacer.Click += (s, ev) => { form.DialogResult = DialogResult.Yes; form.Close(); };
-                btnDeploymentEditor.Click += (s, ev) => { form.DialogResult = DialogResult.No; form.Close(); };
-
-                form.Controls.Add(btnUnitReplacer);
-                form.Controls.Add(btnDeploymentEditor);
-                form.AcceptButton = btnUnitReplacer;
-
-                var result = form.ShowDialog();
-                if (result == DialogResult.Yes)
+            bool changesMade = false;
+            if (result == DialogResult.OK && chosenStrategy.HasValue)
+            {
+                if (chosenStrategy.Value == BattleProcessor.AutofixState.AutofixStrategy.ManualUnitReplacement)
                 {
-                    LaunchUnitReplacerTool();
+                    changesMade = LaunchUnitReplacerTool();
                 }
-                else if (result == DialogResult.No)
+                else if (chosenStrategy.Value == BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor)
                 {
-                    LaunchDeploymentZoneEditor();
+                    changesMade = LaunchDeploymentZoneEditor();
                 }
             }
 
-            infoLabel.Text = originalInfoText;
+
+            if (changesMade)
+            {
+                infoLabel.Text = "Battle settings saved. Click 'Continue Battle' to apply them.";
+            }
+            else
+            {
+                infoLabel.Text = originalInfoText;
+            }
         }
 
         [SupportedOSPlatform("windows")]
-        public void LaunchUnitReplacerTool()
+        public bool LaunchUnitReplacerTool()
         {
             Program.Logger.Debug("LaunchUnitReplacerTool called.");
             try
@@ -3562,7 +3634,7 @@ public async static Task CloseTotalWarProcess()
                 if (logSnippet == null)
                 {
                     MessageBox.Show("Could not find the saved battle information (log snippet). The AutoFixer cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 DataSearch.Search(logSnippet);
 
@@ -3586,7 +3658,7 @@ public async static Task CloseTotalWarProcess()
                 if (string.IsNullOrEmpty(selectedPlaythrough))
                 {
                     MessageBox.Show("No playthrough is selected. The AutoFixer cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
@@ -3596,7 +3668,7 @@ public async static Task CloseTotalWarProcess()
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
                     MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 Program.Logger.Debug($"LaunchAutoFixer: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
 
@@ -3612,7 +3684,7 @@ public async static Task CloseTotalWarProcess()
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
                     MessageBox.Show("Could not read army data. Ensure a battle is properly saved and ready to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 Program.Logger.Debug($"LaunchAutoFixer: Read {attackerArmies.Count} attacker and {defenderArmies.Count} defender armies.");
 
@@ -3623,8 +3695,13 @@ public async static Task CloseTotalWarProcess()
                 var allArmies = attackerArmies.Concat(defenderArmies).ToList();
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {allArmies.Count} total armies.");
 
+                // Ensure levies are expanded before filtering for the Unit Replacer Form
+                Armies_Functions.ExpandLevyArmies(allArmies);
                 var currentUnits = allArmies.Where(a => a.Units != null).SelectMany(a => a.Units)
-                                            .Where(u => u != null && !string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            .Where(u => u != null && (
+                                                u.GetRegimentType() == RegimentType.Levy ||
+                                                (!string.IsNullOrEmpty(u.GetAttilaUnitKey()) && u.GetAttilaUnitKey() != UnitMappers_BETA.NOT_FOUND_KEY)
+                                            ))
                                             .ToList();
                 var allAvailableUnits = UnitMappers_BETA.GetAllAvailableUnits();
                 var unitScreenNames = UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName() ?? "");
@@ -3633,18 +3710,24 @@ public async static Task CloseTotalWarProcess()
                 {
                     Program.Logger.Debug("ERROR: unitScreenNames is null, cannot launch UnitReplacerForm.");
                     MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
-                if (allAvailableUnits is null)
+                if (unitScreenNames is null || !unitScreenNames.Any())
                 {
-                    Program.Logger.Debug("ERROR: allAvailableUnits is null, cannot launch UnitReplacerForm.");
+                    Program.Logger.Debug("ERROR: unitScreenNames is null or empty, cannot launch UnitReplacerForm.");
+                    MessageBox.Show(this, "Could not load unit names required for the manual replacer. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                if (allAvailableUnits is null || !allAvailableUnits.Any())
+                {
+                    Program.Logger.Debug("ERROR: allAvailableUnits is null or empty, cannot launch UnitReplacerForm.");
                     MessageBox.Show(this, "Could not load the list of available units. The process cannot continue.", "Crusader Conflicts: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
 
-                // Filter units to only those that have a screen name to prevent crashes inside the form.
-                var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey) && unitScreenNames.ContainsKey(u.AttilaUnitKey)).ToList();
-                Program.Logger.Debug($"LaunchAutoFixer: Collected {currentUnits.Count} current units with valid keys.");
+                // Do not filter available units by screen name here. The UnitReplacerForm will handle fallbacks.
+                var availableUnits = allAvailableUnits.Where(u => u != null && !string.IsNullOrEmpty(u.AttilaUnitKey)).ToList();
+
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {allAvailableUnits.Count} total available units, filtered down to {availableUnits.Count} with screen names.");
                 Program.Logger.Debug($"LaunchAutoFixer: Collected {unitScreenNames.Count} unit screen names.");
 
@@ -3661,19 +3744,14 @@ public async static Task CloseTotalWarProcess()
                         if (replacements.Any())
                         {
                             Program.Logger.Debug($"Applying {replacements.Count} manual unit replacements from UI.");
-                            BattleState.ManualUnitReplacements.Clear(); // Clear previous manual fixes
-
-                            foreach (var replacement in replacements)
-                            {
-                                BattleState.ManualUnitReplacements[replacement.Key] = replacement.Value;
-                                Program.Logger.Debug($"  - Storing replacement for '{replacement.Key.originalKey}' with '{replacement.Value.replacementKey}' for {(replacement.Key.isPlayerAlliance ? "Player" : "Enemy")}");
-                            }
-                            MessageBox.Show("Unit replacements have been saved. They will be applied when you click 'Continue Battle'.", "Replacements Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            BattleState.ManualUnitReplacements = replacements;
+                            BattleState.SavePersistentBattleSettings();
+                            Program.Logger.Debug($"Saved {replacements.Count} manual unit replacements to persistent settings.");
+                            return true;
                         }
                         else
                         {
-                            BattleState.ManualUnitReplacements.Clear();
-                            Program.Logger.Debug("Manual unit replacement window was closed with OK, but no replacements were made. Clearing any existing replacements.");
+                            Program.Logger.Debug("Unit Replacer was closed with OK, but no replacements were made.");
                         }
                     }
                     else
@@ -3687,10 +3765,11 @@ public async static Task CloseTotalWarProcess()
                 Program.Logger.Debug($"Error in LaunchUnitReplacerTool: {ex.Message}\n{ex.StackTrace}");
                 MessageBox.Show($"An unexpected error occurred while launching the Unit Replacer: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            return false;
         }
 
         [SupportedOSPlatform("windows")]
-        public void LaunchDeploymentZoneEditor()
+        public bool LaunchDeploymentZoneEditor()
         {
             Program.Logger.Debug("LaunchDeploymentZoneEditor called.");
             try
@@ -3703,7 +3782,7 @@ public async static Task CloseTotalWarProcess()
                 if (logSnippet == null)
                 {
                     MessageBox.Show("Could not find the saved battle information (log snippet). The tool cannot run without it.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 DataSearch.Search(logSnippet);
 
@@ -3726,7 +3805,7 @@ public async static Task CloseTotalWarProcess()
                 if (string.IsNullOrEmpty(selectedPlaythrough))
                 {
                     MessageBox.Show("No playthrough is selected. The tool cannot run without knowing which unit mapper to use.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
@@ -3736,7 +3815,7 @@ public async static Task CloseTotalWarProcess()
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
                     MessageBox.Show($"Could not load the unit mapper for the selected playthrough '{selectedPlaythrough}'. It might not be compatible with the current game year.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 Program.Logger.Debug($"LaunchDeploymentZoneEditor: Loaded unit mapper '{UnitMappers_BETA.GetLoadedUnitMapperName()}' for playthrough '{selectedPlaythrough}'.");
 
@@ -3753,7 +3832,7 @@ public async static Task CloseTotalWarProcess()
                 if (attackerArmies == null || defenderArmies == null || !attackerArmies.Any() || !defenderArmies.Any())
                 {
                     MessageBox.Show("Could not read army data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    return false;
                 }
                 int total_soldiers = attackerArmies.Sum(a => a.GetTotalSoldiers()) + defenderArmies.Sum(a => a.GetTotalSoldiers());
                 string option_map_size = ModOptions.DeploymentsZones();
@@ -3805,6 +3884,7 @@ public async static Task CloseTotalWarProcess()
                         {
                             BattleState.ClearDeploymentZoneOverrides();
                             MessageBox.Show("Default deployment zones have been restored and saved.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return true;
                         }
                         else
                         {
@@ -3828,6 +3908,7 @@ public async static Task CloseTotalWarProcess()
 
                             BattleState.SavePersistentBattleSettings();
                             MessageBox.Show("Deployment zones have been saved. They will be applied when you click 'Continue Battle'.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return true;
                         }
                     }
                 }
@@ -3837,6 +3918,7 @@ public async static Task CloseTotalWarProcess()
                 Program.Logger.Debug($"Error in LaunchDeploymentZoneEditor: {ex.Message}");
                 MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            return false;
         }
         #endregion
     }
