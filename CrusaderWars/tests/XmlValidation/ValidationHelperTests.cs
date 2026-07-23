@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using CrusaderWars.client;
 using Xunit;
 
 namespace CrusaderWars.tests.XmlValidation
