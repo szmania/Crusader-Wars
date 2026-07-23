@@ -792,18 +792,34 @@ this.infoLabel.AutoSize = false;
         private async Task CheckForUnitMapperUpdateAndRevalidate()
         {
             Program.Logger.Debug("Checking for unit mapper update and revalidating if necessary...");
-            string versionFilePath = @".\settings\last_um_version.txt";
+            string versionFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "settings", "last_um_version.txt");
             string lastKnownVersion = "0.0.0";
 
-            if (File.Exists(versionFilePath))
+            try
             {
-                lastKnownVersion = File.ReadAllText(versionFilePath).Trim();
+                if (File.Exists(versionFilePath))
+                {
+                    lastKnownVersion = File.ReadAllText(versionFilePath).Trim();
+                }
+                else
+                {
+                    Program.Logger.Debug("last_um_version.txt not found. This is likely the first run with this feature. Creating file.");
+                    Directory.CreateDirectory(Path.GetDirectoryName(versionFilePath));
+                    File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
+                    return true; // Nothing to compare against, so exit.
+                }
             }
-            else
+            catch (IOException ex)
             {
-                Program.Logger.Debug("last_um_version.txt not found. This is likely the first run with this feature. Creating file.");
-                File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
-                return; // Nothing to compare against, so exit.
+                Program.Logger.Debug($"Error accessing last_um_version.txt: {ex.Message}. Cannot check for unit mapper updates.");
+                MessageBox.Show($"Error accessing unit mapper version file. Please ensure the application has write permissions to the settings folder.\n\nError: {ex.Message}", "File Access Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return true; // Allow execution to continue, but skip update check
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"An unexpected error occurred while checking for unit mapper updates: {ex.Message}");
+                MessageBox.Show($"An unexpected error occurred while checking for unit mapper updates: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return true; // Allow execution to continue, but skip update check
             }
 
             if (_updater.IsNewerVersion(lastKnownVersion, _umVersion ?? "0.0.0"))
