@@ -68,7 +68,7 @@ namespace CrusaderWars.tests.XmlValidation
 
             // Act & Assert - loading a non-existent file should throw, not crash silently
             Assert.False(File.Exists(filePath));
-            Assert.Throws<XmlException>(() =>
+            Assert.Throws<FileNotFoundException>(() =>
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(filePath); // This simulates what SaveValuesToOptionsFile does
@@ -154,7 +154,7 @@ namespace CrusaderWars.tests.XmlValidation
             loadedDoc.Load(filePath);
             var savedNode = loadedDoc.SelectSingleNode("//CrusaderKings");
             Assert.NotNull(savedNode);
-           Assert.Equal("C:\\NewPath\\ck3.exe", savedNode!.Attributes!["path"]!.Value);
+            Assert.Equal("C:\\NewPath\\ck3.exe", savedNode!.Attributes!["path"]!.Value);
         }
 
         [Fact]
@@ -211,7 +211,7 @@ namespace CrusaderWars.tests.XmlValidation
             loadedDoc.Load(filePath);
             var savedNode = loadedDoc.SelectSingleNode("//UnitMappers[@name='DefaultCK3']");
             Assert.NotNull(savedNode);
-           Assert.Equal("True", savedNode!.InnerText);
+            Assert.Equal("True", savedNode!.InnerText);
         }
 
         [Fact]

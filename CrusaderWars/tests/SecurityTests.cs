@@ -32,7 +32,7 @@ namespace CrusaderWars.tests
             }
             catch (Exception ex)
             {
-                Assert.True(false, $"XML parsing with a secure resolver should not fail. Details: {ex.Message}");
+                Assert.Fail($"XML parsing with a secure resolver should not fail. Details: {ex.Message}");
             }
             finally
             {
@@ -93,7 +93,11 @@ namespace CrusaderWars.tests
         public void TestXmlDocumentLoadingUsesSecureResolver()
         {
             // Arrange - create malicious XML that references a Windows system file
-            string maliciousXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+            string maliciousXml = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM ""file:///c:/windows/win.ini"">
+]>
+" +
                 "<root>&xxe;</root>";
 
             string testXmlPath = Path.Combine(TestConfiguration.GetTestDirectory(), "secure_resolver_test.xml");

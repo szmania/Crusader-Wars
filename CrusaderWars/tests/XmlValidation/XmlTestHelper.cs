@@ -30,7 +30,24 @@ public static string GetSchemaDirectory()
             string tempDir = Path.Combine(Path.GetTempPath(), "CrusaderWars_Test_Schemas", Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempDir);
 
-            string sourceDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "tests", "XmlValidation", "Schemas");
+            string currentDir = AppDomain.CurrentDomain.BaseDirectory;
+            string solutionDir = currentDir;
+            while (solutionDir != null && !Directory.GetFiles(solutionDir, "*.sln").Any())
+            {
+                solutionDir = Directory.GetParent(solutionDir)?.FullName;
+            }
+
+            if (solutionDir == null)
+            {
+                throw new DirectoryNotFoundException("Could not find the solution directory. The test environment is not set up correctly.");
+            }
+            
+            string sourceDir = Path.Combine(solutionDir, "CrusaderWars", "tests", "XmlValidation", "Schemas");
+
+            if (!Directory.Exists(sourceDir))
+            {
+                throw new DirectoryNotFoundException($"Schema source directory not found at the expected path: {sourceDir}");
+            }
             foreach (string file in Directory.GetFiles(sourceDir, "*.xsd"))
             {
                 string dest = Path.Combine(tempDir, Path.GetFileName(file));
