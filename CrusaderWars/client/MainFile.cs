@@ -394,8 +394,6 @@ namespace CrusaderWars
 
         bool VerifyEnabledUnitMappers()
         {
-        bool VerifyEnabledUnitMappers()
-        {
             // Validation is now handled in Options.cs within ReadUnitMappersOptions.
             // This method now only checks if any mapper is set to "True".
             try
@@ -406,34 +404,6 @@ namespace CrusaderWars
                     return false;
                 }
 
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.Load(filePath);
-                var root = xmlDoc.DocumentElement;
-                if (root != null)
-                {
-                    foreach (XmlNode node in root.ChildNodes)
-                    {
-                        if (node is XmlComment) continue;
-                        if (node.Attributes["value"]?.Value == "True")
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Program.Logger.Debug($"Error reading UnitMappers.xml in VerifyEnabledUnitMappers: {ex.Message}");
-                return false; // Treat errors as no mappers enabled
-            }
-
-            return false;
-        }
-
-            return false;
-
-            try
-            {
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(filePath);
                 var root = xmlDoc.DocumentElement;
@@ -454,7 +424,6 @@ namespace CrusaderWars
                 Program.Logger.Debug($"Error reading UnitMappers.xml in VerifyEnabledUnitMappers: {ex.Message}");
                 return false; // Treat errors as no mappers enabled
             }
-
 
             return false;
         }
