@@ -25,13 +25,25 @@ namespace CrusaderWars.tests.XmlValidation
             return tempDir;
         }
 
-        public static string GetSchemaDirectory()
+public static string GetSchemaDirectory()
         {
-            string schemaDir = Path.Combine(GetTestDirectory(), "Schemas");
+            string schemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas");
             if (!Directory.Exists(schemaDir))
             {
                 Directory.CreateDirectory(schemaDir);
             }
+
+            string sourceSchemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "tests", "XmlValidation", "Schemas");
+            if (Directory.Exists(sourceSchemaDir))
+            {
+                foreach (string xsdFile in Directory.GetFiles(sourceSchemaDir, "*.xsd"))
+                {
+                    string fileName = Path.GetFileName(xsdFile);
+                    string destFile = Path.Combine(schemaDir, fileName);
+                    File.Copy(xsdFile, destFile, true);
+                }
+            }
+
             return schemaDir;
         }
 
