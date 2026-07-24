@@ -806,20 +806,20 @@ this.infoLabel.AutoSize = false;
                     Program.Logger.Debug("last_um_version.txt not found. This is likely the first run with this feature. Creating file.");
                     Directory.CreateDirectory(Path.GetDirectoryName(versionFilePath));
                     File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
-                    return true; // Nothing to compare against, so exit.
+                    return; // Nothing to compare against, so exit.
                 }
             }
             catch (IOException ex)
             {
                 Program.Logger.Debug($"Error accessing last_um_version.txt: {ex.Message}. Cannot check for unit mapper updates.");
                 MessageBox.Show($"Error accessing unit mapper version file. Please ensure the application has write permissions to the settings folder.\n\nError: {ex.Message}", "File Access Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return true; // Allow execution to continue, but skip update check
+            return;
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"An unexpected error occurred while checking for unit mapper updates: {ex.Message}");
                 MessageBox.Show($"An unexpected error occurred while checking for unit mapper updates: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return true; // Allow execution to continue, but skip update check
+            return;
             }
 
             if (_updater.IsNewerVersion(lastKnownVersion, _umVersion ?? "0.0.0"))
