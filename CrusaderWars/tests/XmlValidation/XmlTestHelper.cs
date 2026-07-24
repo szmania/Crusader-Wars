@@ -27,24 +27,17 @@ namespace CrusaderWars.tests.XmlValidation
 
 public static string GetSchemaDirectory()
         {
-            string schemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas");
-            if (!Directory.Exists(schemaDir))
+            string tempDir = Path.Combine(Path.GetTempPath(), "CrusaderWars_Test_Schemas", Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempDir);
+
+            string sourceDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "tests", "XmlValidation", "Schemas");
+            foreach (string file in Directory.GetFiles(sourceDir, "*.xsd"))
             {
-                Directory.CreateDirectory(schemaDir);
+                string dest = Path.Combine(tempDir, Path.GetFileName(file));
+                File.Copy(file, dest, true);
             }
 
-            string sourceSchemaDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "tests", "XmlValidation", "Schemas");
-            if (Directory.Exists(sourceSchemaDir))
-            {
-                foreach (string xsdFile in Directory.GetFiles(sourceSchemaDir, "*.xsd"))
-                {
-                    string fileName = Path.GetFileName(xsdFile);
-                    string destFile = Path.Combine(schemaDir, fileName);
-                    File.Copy(xsdFile, destFile, true);
-                }
-            }
-
-            return schemaDir;
+            return tempDir;
         }
 
         public static string CopySettingsFilesToTestDirectory(string settingsSourceDir, string testSettingsDir)

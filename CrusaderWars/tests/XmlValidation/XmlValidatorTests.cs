@@ -84,7 +84,7 @@ namespace CrusaderWars.tests.XmlValidation
             var errors = XmlTestHelper.ValidateXml(xmlPath, xsdPath);
 
             Assert.Single(errors);
-            Assert.Contains("Schema file not found", errors[0]);
+            Assert.Contains("XSD schema file not found", errors[0]);
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace CrusaderWars.tests.XmlValidation
         public void Validate_MalformedXml_ReturnsValidationErrors()
         {
             string xmlPath = Path.Combine(XmlTestHelper.GetTempSettingsDirectory(), "Malformed.xml");
-            File.WriteAllText(xmlPath, "<?xml version=""1.0""?><Options><Option name=""Test"">Value</Options>");
+            File.WriteAllText(xmlPath, "<?xml version=\\\"1.0\\\"?><Options><Option name=\\\"Test\\\">Value</Option></Options>");
             string xsdPath = Path.Combine(_schemaDir, "Options.xsd");
 
             var errors = XmlTestHelper.ValidateXml(xmlPath, xsdPath);
@@ -137,7 +137,7 @@ namespace CrusaderWars.tests.XmlValidation
         public void Validate_WrongRootElement_ReturnsValidationErrors()
         {
             string xmlPath = Path.Combine(XmlTestHelper.GetTempSettingsDirectory(), "WrongRoot.xml");
-            File.WriteAllText(xmlPath, "<?xml version=""1.0""?><WrongRoot><Option name=""Test"">Value</Option></WrongRoot>");
+            File.WriteAllText(xmlPath, "<?xml version=\\\"1.0\\\"?><WrongRoot><Option name=\\\"Test\\\">Value</Option></WrongRoot>");
             string xsdPath = Path.Combine(_schemaDir, "Options.xsd");
 
             var errors = XmlTestHelper.ValidateXml(xmlPath, xsdPath);
@@ -150,7 +150,7 @@ namespace CrusaderWars.tests.XmlValidation
         public void Validate_MissingRequiredAttribute_ReturnsValidationErrors()
         {
             string xmlPath = Path.Combine(XmlTestHelper.GetTempSettingsDirectory(), "MissingAttr.xml");
-            File.WriteAllText(xmlPath, "<?xml version=""1.0""?><Options><Option>Value</Option></Options>");
+            File.WriteAllText(xmlPath, "<?xml version=\\\"1.0\\\"?><Options><Option>Value</Option></Options>");
             string xsdPath = Path.Combine(_schemaDir, "Options.xsd");
 
             var errors = XmlTestHelper.ValidateXml(xmlPath, xsdPath);
@@ -163,7 +163,7 @@ namespace CrusaderWars.tests.XmlValidation
         public void Validate_InvalidElementContent_ReturnsValidationErrors()
         {
             string xmlPath = Path.Combine(XmlTestHelper.GetTempSettingsDirectory(), "InvalidContent.xml");
-            File.WriteAllText(xmlPath, "<?xml version=""1.0""?><UMOptions><UnitMappers name=""DefaultCK3"">Maybe</UnitMappers></UMOptions>");
+            File.WriteAllText(xmlPath, "<?xml version=\\\"1.0\\\"?><UMOptions><UnitMappers name=\\\"DefaultCK3\\\" value=\\\"Maybe\\\"/></UMOptions>");
             string xsdPath = Path.Combine(_schemaDir, "UnitMappers.xsd");
 
             var errors = XmlTestHelper.ValidateXml(xmlPath, xsdPath);
@@ -204,8 +204,8 @@ namespace CrusaderWars.tests.XmlValidation
         public void Validate_XmlWithBom_ReturnsNoErrors()
         {
             string xmlPath = Path.Combine(XmlTestHelper.GetTempSettingsDirectory(), "Bom.xml");
-            string xmlContent = "<?xml version=""1.0"" encoding=""UTF-8""?><Options><Option name=""Test"">Value</Option></Options>";
-            File.WriteAllText(xmlPath, xmlContent);
+            string xmlContent = "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?><Options><Option name=\\\"Test\\\">Value</Option></Options>";
+            File.WriteAllText(xmlPath, xmlContent, new System.Text.UTF8Encoding(true));
             string xsdPath = Path.Combine(_schemaDir, "Options.xsd");
 
             var errors = XmlTestHelper.ValidateXml(xmlPath, xsdPath);
