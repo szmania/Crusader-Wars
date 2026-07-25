@@ -1383,7 +1383,6 @@ else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
         }
         private void ReadUnitMappersOptions()
         {
-            if (CrusaderKings_Tab is null || TheFallenEagle_Tab is null || RealmsInExile_Tab is null || AGOT_Tab is null || BookmarksPlus_Tab is null || Custom_Tab is null) return;
             string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
 
@@ -1403,25 +1402,27 @@ else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
                     mapperElement.InnerText = "False";
                     rootElement.AppendChild(mapperElement);
                 }
-                ;
 
                 createMapper("DefaultCK3");
                 createMapper("TheFallenEagle");
                 createMapper("RealmsInExile");
                 createMapper("AGOT");
+                createMapper("BookmarksPlus");
+                createMapper("Custom");
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("UnitMappers.xml created successfully.");
             }
 
             xmlDoc.Load(file);
-
             _unitMappersXmlChanged = false;
 
             var ck3ToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "DefaultCK3");
             var tfeToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "TheFallenEagle");
             var lotrToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "RealmsInExile");
             var bookmarksPlusToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "BookmarksPlus");
+            var agotToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "AGOT");
+            var customToggleStateStr = GetOrCreateUnitMapperOption(xmlDoc, "Custom");
 
             if (_unitMappersXmlChanged)
             {
@@ -1433,6 +1434,8 @@ else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
             bool tfeToggleState = tfeToggleStateStr == "True";
             bool lotrToggleState = lotrToggleStateStr == "True";
             bool bookmarksPlusToggleState = bookmarksPlusToggleStateStr == "True";
+            bool agotToggleState = agotToggleStateStr == "True";
+            bool customToggleState = customToggleStateStr == "True";
 
             var ck3Mods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3");
             var tfeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle");
@@ -1445,7 +1448,9 @@ else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
             TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements", tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), tfeToggleState, "TheFallenEagle", tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
             RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements", lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), lotrToggleState, "RealmsInExile", lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot, "https://crusader-conflicts-website.vercel.app/playthroughs/agot#mod-requirements", agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
             BookmarksPlus_Tab = new UC_UnitMapper(Properties.Resources.playthrough_bookmarksplus, "https://crusader-conflicts-website.vercel.app/playthroughs/bookmarks-plus", bookmarksPlusMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), bookmarksPlusToggleState, "BookmarksPlus", bookmarksPlusMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+            Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), "https://crusader-conflicts-website.vercel.app/playthroughs/custom-playthrough", customMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(), customToggleState, "Custom", customMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
 
             CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
             TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
@@ -1458,6 +1463,7 @@ else if (control == AGOT_Tab) activeButton = Btn_AGOTTab;
             BookmarksPlus_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, RealmsInExile_Tab, AGOT_Tab, Custom_Tab });
             RealmsInExile_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, AGOT_Tab, Custom_Tab });
+            AGOT_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, Custom_Tab });
             Custom_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, BookmarksPlus_Tab, TheFallenEagle_Tab, RealmsInExile_Tab, AGOT_Tab });
 
             var activePlaythrough = GetActivePlaythrough();
