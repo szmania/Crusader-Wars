@@ -34,7 +34,7 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Options));
-this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
+            this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutModManager = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutSystem = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelSystem = new System.Windows.Forms.FlowLayoutPanel();
@@ -65,7 +65,7 @@ this.TableLayoutPlaythroughs = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.UMpanel = new System.Windows.Forms.Panel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-this.Btn_CK3Tab = new System.Windows.Forms.Button();
+            this.Btn_CK3Tab = new System.Windows.Forms.Button();
             this.Btn_TFETab = new System.Windows.Forms.Button();
             this.Btn_LOTRTab = new System.Windows.Forms.Button();
             this.Btn_AGOTTab = new System.Windows.Forms.Button();
