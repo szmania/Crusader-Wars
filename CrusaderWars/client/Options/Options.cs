@@ -223,7 +223,7 @@ namespace CrusaderWars
             // Set initial state for Mod Manager (expanded by default)
             _isModManagerExpanded = true; // Explicitly set to true for default expanded state
             panel1.Visible = _isModManagerExpanded;
-            toggleModManagerButton.Text = "Mod Manager [▲]";
+            toggleModManagerButton.Text = "Mod Manager [?]";
             ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
 
             // Set default system tab
@@ -317,15 +317,56 @@ namespace CrusaderWars
                 return defaultValue;
             }
         }
+        private static readonly string OptionsFilePath = @".\\settings\\Options.xml";
+        private static readonly string PathsFilePath = @".\\settings\\Paths.xml";
+        private static readonly string UnitMappersFilePath = @".\\settings\\UnitMappers.xml";
+        private static readonly string OptionsXsdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas", "Options.xsd");
+        private static readonly string PathsXsdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas", "Paths.xsd");
+        private static readonly string UnitMappersXsdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas", "UnitMappers.xsd");
+        private static bool _isRetryingOptionsLoad = false;
+        private static bool _isRetryingPathsLoad = false;
+        private static bool _isRetryingUnitMappersLoad = false;
+
         public static void ReadOptionsFile()
         {
             Program.Logger.Debug("Reading options file...");
             try
             {
-                string file = @".\settings\Options.xml";
+                string file = OptionsFilePath;
+
+                if (!File.Exists(file))
+                {
+                    Program.Logger.Debug("Options.xml not found. Creating default.");
+                    CreateDefaultOptionsFile();
+                    // No validation needed for a freshly created file, so we can return.
+                    // The file will be read on the next application start.
+                }
+                else
+                {
+                    var validationErrors = XmlValidator.Validate(file, OptionsXsdPath);
+                    if (validationErrors.Count > 0)
+                    {
+                        if (_isRetryingOptionsLoad)
+                        {
+                            MessageBox.Show("The default Options.xml file is also invalid. The application will now exit.", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Application.Exit();
+                            return;
+                        }
+
+                        bool reset = ValidationHelper.HandleValidationFailure(file, "Options.xml", validationErrors, CreateDefaultOptionsFile);
+                        if (reset)
+                        {
+                            _isRetryingOptionsLoad = true;
+                            ReadOptionsFile(); // Re-run to load the new default file
+                        }
+                        return; // Exit the current execution path
+                    }
+                }
+
+
+
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.Load(file);
-                Program.Logger.Debug("XML options file loaded.");
 
                 ModOptions.optionsValuesCollection.Clear();
                 var CloseCK3_Value = GetOptionValue(xmlDoc, "CloseCK3", "Enabled");
@@ -428,6 +469,112 @@ namespace CrusaderWars
             }
         }
 
+        private static List<string> ValidateOptionsFile(string filePath, string xsdPath)
+        {
+            return XmlValidator.Validate(filePath, xsdPath);
+        }
+
+        public static void CreateDefaultOptionsFile()
+        {
+            Program.Logger.Debug("Creating default Options.xml file...");
+            try
+            {
+                string file = @".\settings\Options.xml";
+                string dir = Path.GetDirectoryName(file)!;
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlElement root = xmlDoc.CreateElement("Options");
+                xmlDoc.AppendChild(root);
+
+                AddDefaultOption(xmlDoc, root, "CloseCK3", "Enabled");
+                AddDefaultOption(xmlDoc, root, "CloseAttila", "Enabled");
+                AddDefaultOption(xmlDoc, root, "FullArmies", "Disabled");
+                AddDefaultOption(xmlDoc, root, "TimeLimit", "Enabled");
+                AddDefaultOption(xmlDoc, root, "BattleMapsSize", "Dynamic");
+                AddDefaultOption(xmlDoc, root, "DefensiveDeployables", "Enabled");
+                AddDefaultOption(xmlDoc, root, "UnitCards", "Enabled");
+                AddDefaultOption(xmlDoc, root, "LeviesMax", "10");
+                AddDefaultOption(xmlDoc, root, "RangedMax", "4");
+                AddDefaultOption(xmlDoc, root, "InfantryMax", "8");
+                AddDefaultOption(xmlDoc, root, "CavalryMax", "4");
+                AddDefaultOption(xmlDoc, root, "BattleScale", "100%");
+                AddDefaultOption(xmlDoc, root, "AutoScaleUnits", "Enabled");
+                AddDefaultOption(xmlDoc, root, "SeparateArmies", "Friendly Only");
+                AddDefaultOption(xmlDoc, root, "SiegeEnginesInFieldBattles", "Enabled");
+                AddDefaultOption(xmlDoc, root, "ShowPostBattleReport", "Enabled");
+                AddDefaultOption(xmlDoc, root, "CommanderWoundedChance", "65");
+                AddDefaultOption(xmlDoc, root, "CommanderSeverelyInjuredChance", "10");
+                AddDefaultOption(xmlDoc, root, "CommanderBrutallyMauledChance", "5");
+                AddDefaultOption(xmlDoc, root, "CommanderMaimedChance", "5");
+                AddDefaultOption(xmlDoc, root, "CommanderOneLeggedChance", "2");
+                AddDefaultOption(xmlDoc, root, "CommanderOneEyedChance", "3");
+                AddDefaultOption(xmlDoc, root, "CommanderDisfiguredChance", "2");
+                AddDefaultOption(xmlDoc, root, "CommanderSlainChance", "8");
+                AddDefaultOption(xmlDoc, root, "CommanderPrisonerChance", "60");
+                AddDefaultOption(xmlDoc, root, "KnightWoundedChance", "65");
+                AddDefaultOption(xmlDoc, root, "KnightSeverelyInjuredChance", "10");
+                AddDefaultOption(xmlDoc, root, "KnightBrutallyMauledChance", "5");
+                AddDefaultOption(xmlDoc, root, "KnightMaimedChance", "5");
+                AddDefaultOption(xmlDoc, root, "KnightOneLeggedChance", "2");
+                AddDefaultOption(xmlDoc, root, "KnightOneEyedChance", "3");
+                AddDefaultOption(xmlDoc, root, "KnightDisfiguredChance", "2");
+                AddDefaultOption(xmlDoc, root, "KnightSlainChance", "8");
+                AddDefaultOption(xmlDoc, root, "KnightPrisonerChance", "60");
+                AddDefaultOption(xmlDoc, root, "OptInPreReleases", "False");
+                AddDefaultOption(xmlDoc, root, "SelectedCustomMapper", string.Empty);
+                AddDefaultOption(xmlDoc, root, "CombineKnights", "Disabled");
+                AddDefaultOption(xmlDoc, root, "LinuxSetupCompleted", "False");
+
+                xmlDoc.Save(file);
+                Program.Logger.Debug("Default Options.xml file created successfully.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Log(ex);
+                MessageBox.Show("Error creating default options file. The application may not function correctly.",
+                    "Crusader Conflicts: File Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        public static void CreateDefaultPathsFile()
+        {
+            Program.Logger.Debug("Creating default Paths.xml file...");
+            try
+            {
+                string file = @".\settings\Paths.xml";
+                string dir = Path.GetDirectoryName(file)!;
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                string defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Paths>\n    <TotalWarAttila path=\"\" />\n    <CrusaderKings path=\"\" />\n</Paths>";
+
+                File.WriteAllText(file, defaultContent);
+                Program.Logger.Debug("Default Paths.xml file created successfully.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Log(ex);
+                MessageBox.Show("Error creating default paths file. The application may not function correctly.",
+                    "Crusader Conflicts: File Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private static void AddDefaultOption(XmlDocument doc, XmlElement root,
+            string name, string defaultValue)
+        {
+            XmlElement option = doc.CreateElement("Option");
+            option.SetAttribute("name", name);
+            option.InnerText = defaultValue;
+            root.AppendChild(option);
+        }
         void SetOptionsUIData()
         {
             Program.Logger.Debug("Setting options UI data...");
@@ -765,6 +912,18 @@ namespace CrusaderWars
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("Options saved to file.");
+
+                // Post-save validation
+                var validationErrors = ValidateOptionsFile(file, @".\settings\schemas\Options.xsd");
+                if (validationErrors.Count > 0)
+                {
+                    Program.Logger.Debug("Post-save validation failed for Options.xml:");
+                    foreach (var error in validationErrors)
+                        Program.Logger.Debug($"  {error}");
+                    MessageBox.Show("Warning: The options file failed validation after saving. It may be corrupted.",
+                        "Crusader Conflicts: Save Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
             }
             catch (Exception ex)
             {
@@ -949,31 +1108,37 @@ namespace CrusaderWars
             Program.Logger.Debug("Reading game paths from Paths.xml...");
             try
             {
-                string file = @".\settings\Paths.xml";
+                string file = PathsFilePath;
                 XmlDocument xmlDoc = new XmlDocument();
                 bool fileModified = false;
 
-                // 1. Handle missing file: Create default structure if file doesn't exist
                 if (!File.Exists(file))
                 {
-                    Program.Logger.Debug("Paths.xml not found. Creating default structure.");
-                    XmlElement rootElement = xmlDoc.CreateElement("Paths");
-                    xmlDoc.AppendChild(rootElement);
-
-                    XmlElement attilaElement = xmlDoc.CreateElement("TotalWarAttila");
-                    attilaElement.SetAttribute("path", "");
-                    rootElement.AppendChild(attilaElement);
-
-                    XmlElement ck3Element = xmlDoc.CreateElement("CrusaderKings");
-                    ck3Element.SetAttribute("path", "");
-                    rootElement.AppendChild(ck3Element);
-
-                    fileModified = true;
+                    Program.Logger.Debug("Paths.xml not found. Creating default.");
+                    CreateDefaultPathsFile();
                 }
                 else
                 {
-                    xmlDoc.Load(file);
+                    var validationErrors = XmlValidator.Validate(file, PathsXsdPath);
+                    if (validationErrors.Count > 0)
+                    {
+                        if (_isRetryingPathsLoad)
+                        {
+                            MessageBox.Show("The default Paths.xml file is also invalid. The application will now exit.", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Application.Exit();
+                            return;
+                        }
+
+                        bool reset = ValidationHelper.HandleValidationFailure(file, "Paths.xml", validationErrors, CreateDefaultPathsFile);
+                        if (reset)
+                        {
+                            _isRetryingPathsLoad = true;
+                            ReadGamePaths(); // Re-run to load the new default file
+                        }
+                        return; // Exit the current execution path
+                    }
                 }
+                xmlDoc.Load(file);
 
                 XmlNode? root = xmlDoc.DocumentElement;
                 if (root == null)
@@ -1207,7 +1372,7 @@ namespace CrusaderWars
                 // Expanding
                 this.Height += panelHeight;
                 this.TableLayoutModManager.Height += panelHeight;
-                toggleModManagerButton.Text = "Mod Manager [▲]";
+                toggleModManagerButton.Text = "Mod Manager [?]";
                 ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
             }
             else
@@ -1215,7 +1380,7 @@ namespace CrusaderWars
                 // Collapsing
                 this.Height -= panelHeight;
                 this.TableLayoutModManager.Height -= panelHeight;
-                toggleModManagerButton.Text = "Mod Manager [▼]";
+                toggleModManagerButton.Text = "Mod Manager [?]";
                 ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to expand the Mod Manager. This section shows optional mods.");
             }
 
@@ -1361,36 +1526,34 @@ namespace CrusaderWars
         }
         void ReadUnitMappersOptions()
         {
-            string file = @".\settings\UnitMappers.xml";
+            string file = UnitMappersFilePath;
             XmlDocument xmlDoc = new XmlDocument();
 
             // Check if the file exists. If not, create it with default values.
             if (!File.Exists(file))
             {
-                Program.Logger.Debug("UnitMappers.xml not found. Creating with default values.");
-                XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
-                xmlDoc.AppendChild(xmlDeclaration);
-
-                XmlElement rootElement = xmlDoc.CreateElement("UMOptions");
-                xmlDoc.AppendChild(rootElement);
-
-                // Helper to create elements
-                void createMapper(string name)
+                CreateDefaultUnitMappersFile();
+            }
+            else
+            {
+                var validationErrors = XmlValidator.Validate(file, UnitMappersXsdPath);
+                if (validationErrors.Count > 0)
                 {
-                    XmlElement mapperElement = xmlDoc.CreateElement("UnitMappers");
-                    mapperElement.SetAttribute("name", name);
-                    mapperElement.InnerText = "False";
-                    rootElement.AppendChild(mapperElement);
+                    if (_isRetryingUnitMappersLoad)
+                    {
+                        MessageBox.Show("The default UnitMappers.xml file is also invalid. The application will now exit.", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Application.Exit();
+                        return;
+                    }
+
+                    bool reset = ValidationHelper.HandleValidationFailure(file, "UnitMappers.xml", validationErrors, CreateDefaultUnitMappersFile);
+                    if (reset)
+                    {
+                        _isRetryingUnitMappersLoad = true;
+                        ReadUnitMappersOptions(); // Re-run to load the new default file
+                    }
+                    return; // Exit the current execution path
                 }
-                ;
-
-                createMapper("DefaultCK3");
-                createMapper("TheFallenEagle");
-                createMapper("RealmsInExile");
-                createMapper("AGOT");
-
-                xmlDoc.Save(file);
-                Program.Logger.Debug("UnitMappers.xml created successfully.");
             }
 
             xmlDoc.Load(file);
@@ -1454,6 +1617,49 @@ namespace CrusaderWars
             CheckPlaythroughSelection();
         }
 
+        private static void CreateDefaultUnitMappersFile()
+        {
+            Program.Logger.Debug("Creating default UnitMappers.xml file...");
+            try
+            {
+                string file = UnitMappersFilePath;
+                string dir = Path.GetDirectoryName(file)!;
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                xmlDoc.AppendChild(xmlDeclaration);
+
+                XmlElement rootElement = xmlDoc.CreateElement("UMOptions");
+                xmlDoc.AppendChild(rootElement);
+
+                void createMapper(string name)
+                {
+                    XmlElement mapperElement = xmlDoc.CreateElement("UnitMappers");
+                    mapperElement.SetAttribute("name", name);
+                    mapperElement.InnerText = "False";
+                    rootElement.AppendChild(mapperElement);
+                }
+
+                createMapper("DefaultCK3");
+                createMapper("TheFallenEagle");
+                createMapper("RealmsInExile");
+                createMapper("AGOT");
+                createMapper("Custom");
+
+                xmlDoc.Save(file);
+                Program.Logger.Debug("Default UnitMappers.xml file created successfully.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Log(ex);
+                MessageBox.Show("Error creating default unit mappers file (UnitMappers.xml).", "File Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         void WriteUnitMappersOptions()
         {
             string file = @".\settings\UnitMappers.xml";
@@ -1466,10 +1672,11 @@ namespace CrusaderWars
             if (TheFallenEagle_Node != null) TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
             var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
             if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
-            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']"); // Added AGOT tab
-            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString(); // Added AGOT tab
+            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']");
+            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString();
             var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
             if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
+
             xmlDoc.Save(file);
         }
 

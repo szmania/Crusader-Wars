@@ -5,6 +5,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <AssemblyName>CrusaderConflicts</AssemblyName>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Resources.Extensions" Version="4.7.1" />
@@ -14,14 +15,10 @@
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="settings\\schemas\\*.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CrusaderWars\data\save_file\Armies Reader.cs" />
-    <Compile Include="CrusaderWars\data\twbattle\ArmiesControl.cs" />
-    <Compile Include="CrusaderWars\data\twbattle\Reinforcements.cs" />
-    <Compile Include="CrusaderWars\data\attila settings\AttilaPreferences.cs" />
-    <Compile Include="CrusaderWars\data\twbattle\BattleFile.cs" />
-    <Compile Include="CrusaderWars\data\twbattle\UnitsFile.cs" />
-    <Compile Include="CrusaderWars\data\twbattle\BattleState.cs" />
   </ItemGroup>
 </Project>

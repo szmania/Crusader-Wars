@@ -379,8 +379,9 @@ namespace CrusaderWars.data.battle_results
                 // Determine the display name for the report
                 // Use the screen name from the unit mapper if available to ensure 1:1 matching in the AAR
                 string attilaKey = matchingUnit.GetAttilaUnitKey();
-                var unitScreenNames = UnitMappers_BETA.GetLoadedUnitMapperName() != null
-                    ? UnitsCardsNames.GetUnitScreenNames(UnitMappers_BETA.GetLoadedUnitMapperName()!)
+                var mapperName = UnitMappers_BETA.GetLoadedUnitMapperName();
+                var unitScreenNames = mapperName != null
+                    ? UnitsCardsNames.GetUnitScreenNames(mapperName)
                     : null;
 
                 if (unitType == RegimentType.Levy || unitType == RegimentType.Garrison || unitType == RegimentType.Knight)
@@ -505,7 +506,7 @@ namespace CrusaderWars.data.battle_results
                     var report = army.CasualitiesReports.FirstOrDefault(r =>
                         r.GetUnitType() == unit.GetRegimentType() &&
                         r.GetTypeName() == unit.GetName() &&
-                        r.GetCulture()?.ID == unit.GetObjCulture()!.ID);
+                        r.GetCulture()?.ID == unit.GetObjCulture()?.ID);
 
                     if (report != null && report.GetStarting() > 0)
                     {
@@ -561,11 +562,11 @@ namespace CrusaderWars.data.battle_results
             Program.Logger.Debug($"Checking knight kills for army {army.ID}");
             if (army.Knights != null && army.Knights.HasKnights())
             {
-                var knightKillsReport = army.UnitsResults!.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
+                var knightKillsReport = army.UnitsResults?.Kills_MainPhase.FirstOrDefault(x => x.Type == "knights");
                 int kills = 0;
-                if (knightKillsReport.Item4 != null)
+                if (knightKillsReport.HasValue && knightKillsReport.Value.Item4 != null)
                 {
-                    Int32.TryParse(knightKillsReport.Item4, out kills);
+                    Int32.TryParse(knightKillsReport.Value.Item4, out kills);
                 }
 
                 army.Knights.GetKills(kills);
