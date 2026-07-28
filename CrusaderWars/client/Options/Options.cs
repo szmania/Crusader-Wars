@@ -1642,7 +1642,7 @@ namespace CrusaderWars
                 {
                     XmlElement mapperElement = xmlDoc.CreateElement("UnitMappers");
                     mapperElement.SetAttribute("name", name);
-                    mapperElement.SetAttribute("value", "False"); // Use attribute instead of InnerText
+                    mapperElement.InnerText = "False";
                     rootElement.AppendChild(mapperElement);
                 }
 
@@ -1669,16 +1669,15 @@ namespace CrusaderWars
             xmlDoc.Load(file);
 
             var CrusaderKings_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']");
-            if (CrusaderKings_Node != null) CrusaderKings_Node.Attributes["value"].Value = CrusaderKings_Tab.GetState().ToString();
+            if (CrusaderKings_Node != null) CrusaderKings_Node.InnerText = CrusaderKings_Tab.GetState().ToString();
             var TheFallenEagle_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']");
-            if (TheFallenEagle_Node != null) TheFallenEagle_Node.Attributes["value"].Value = TheFallenEagle_Tab.GetState().ToString();
+            if (TheFallenEagle_Node != null) TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
             var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
-            if (RealmsInExile_Node != null) RealmsInExile_Node.Attributes["value"].Value = RealmsInExile_Tab.GetState().ToString();
-            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']"); // Added AGOT tab
-            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.Attributes["value"].Value = AGOT_Tab.GetState().ToString(); // Added AGOT tab
+            if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
+            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']");
+            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString();
             var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
             if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
-            if (Custom_Node != null && Custom_Tab != null) Custom_Node.Attributes["value"].Value = Custom_Tab.GetState().ToString();
 
             xmlDoc.Save(file);
         }
