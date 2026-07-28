@@ -13,7 +13,7 @@ namespace CrusaderWars.process;
 public class LinuxProcessController : IProcessController
 {
     private readonly bool _isSupported;
-    
+
     /// <summary>
     /// Initializes the controller and checks whether kill and pgrep commands are available.
     /// </summary>
@@ -25,12 +25,12 @@ public class LinuxProcessController : IProcessController
             Program.Logger.Debug("LinuxProcessController: kill and/or pgrep commands not available. Process suspend/resume will not be supported.");
         }
     }
-    
+
     /// <summary>
     /// Returns true if both kill and pgrep commands are available on the system.
     /// </summary>
     public bool IsSupported => _isSupported;
-    
+
     /// <summary>
     /// Verifies that kill and pgrep commands are available by attempting to execute them.
     /// </summary>
@@ -56,7 +56,7 @@ public class LinuxProcessController : IProcessController
                     return false;
                 }
             }
-            
+
             // Check kill availability (signal 0 = dry run, doesn't actually send a signal)
             using (var proc = new Process())
             {
@@ -74,7 +74,7 @@ public class LinuxProcessController : IProcessController
                     return false;
                 }
             }
-            
+
             return true;
         }
         catch (Exception ex)
@@ -83,7 +83,7 @@ public class LinuxProcessController : IProcessController
             return false;
         }
     }
-    
+
     /// <summary>
     /// Finds the PID of a process by name using pgrep with a fallback chain:
     /// 1. pgrep -f &lt;processName&gt; (full command-line match)
@@ -103,9 +103,9 @@ public class LinuxProcessController : IProcessController
                 "Process suspend/resume is not supported on this system. " +
                 "The 'kill' and 'pgrep' commands are required but not available.");
         }
-        
+
         int? pid = null;
-        
+
         // Strategy 1: pgrep -f (full command-line match — best for Proton where ck3.exe is in the wine command line)
         try
         {
@@ -120,7 +120,7 @@ public class LinuxProcessController : IProcessController
         {
             Program.Logger.Debug($"LinuxProcessController: pgrep -f failed: {ex.Message}. Trying pgrep without -f.");
         }
-        
+
         // Strategy 2: pgrep (process name match only)
         try
         {
@@ -135,7 +135,7 @@ public class LinuxProcessController : IProcessController
         {
             Program.Logger.Debug($"LinuxProcessController: pgrep failed: {ex.Message}. Trying managed fallback.");
         }
-        
+
         // Strategy 3: Managed fallback using System.Diagnostics.Process
         try
         {
@@ -143,19 +143,19 @@ public class LinuxProcessController : IProcessController
             string nameWithoutExt = processName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
                 ? processName.Substring(0, processName.Length - 4)
                 : processName;
-            
+
             var processes = Process.GetProcessesByName(nameWithoutExt);
             if (processes.Length > 0)
             {
                 // Select lowest PID (oldest process)
                 int lowestPid = processes.Min(p => p.Id);
                 Program.Logger.Debug($"LinuxProcessController: Found PID {lowestPid} for '{processName}' via managed fallback (found {processes.Length} process(es)).");
-                
+
                 if (processes.Length > 1)
                 {
                     Program.Logger.Debug($"LinuxProcessController: Warning — multiple '{processName}' processes found. Targeting lowest PID {lowestPid}.");
                 }
-                
+
                 return lowestPid;
             }
         }
@@ -163,10 +163,10 @@ public class LinuxProcessController : IProcessController
         {
             Program.Logger.Debug($"LinuxProcessController: Managed fallback failed: {ex.Message}.");
         }
-        
+
         throw new InvalidOperationException($"Process '{processName}' not found. Ensure the process is running before attempting to suspend/resume it.");
     }
-    
+
     /// <summary>
     /// Executes pgrep with the given arguments and returns the first PID found, or null if none.
     /// </summary>
@@ -181,22 +181,22 @@ public class LinuxProcessController : IProcessController
             proc.StartInfo.RedirectStandardError = true;
             proc.StartInfo.CreateNoWindow = true;
             proc.Start();
-            
+
             string output = proc.StandardOutput.ReadToEnd().Trim();
             proc.WaitForExit(3000);
-            
+
             if (proc.ExitCode != 0 || string.IsNullOrEmpty(output))
                 return null;
-            
+
             // pgrep may return multiple PIDs, one per line. Take the first (lowest PID).
             string firstLine = output.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)[0];
             if (int.TryParse(firstLine, out int pid))
                 return pid;
-            
+
             return null;
         }
     }
-    
+
     /// <summary>
     /// Sends a signal to a process by PID.
     /// </summary>
@@ -214,10 +214,10 @@ public class LinuxProcessController : IProcessController
             proc.StartInfo.RedirectStandardError = true;
             proc.StartInfo.CreateNoWindow = true;
             proc.Start();
-            
+
             string stderr = proc.StandardError.ReadToEnd();
             proc.WaitForExit(3000);
-            
+
             if (proc.ExitCode != 0)
             {
                 string errorDetail = !string.IsNullOrEmpty(stderr) ? stderr.Trim() : "Unknown error";
@@ -226,22 +226,22 @@ public class LinuxProcessController : IProcessController
             }
         }
     }
-    
+
     /// <inheritdoc/>
     public void SuspendProcess(string processName)
     {
         if (string.IsNullOrEmpty(processName))
             throw new ArgumentException("Process name cannot be null or empty.", nameof(processName));
-        
+
         if (!_isSupported)
         {
             throw new PlatformNotSupportedException(
                 "Process suspend is not supported on this system. " +
                 "The 'kill' and 'pgrep' commands are required but not available.");
         }
-        
+
         Program.Logger.Debug($"Suspending {processName} via kill -STOP.");
-        
+
         try
         {
             int pid = FindPid(processName);
@@ -255,22 +255,22 @@ public class LinuxProcessController : IProcessController
                 "Ensure you have permission to signal the process. Error: {ex.Message}", ex);
         }
     }
-    
+
     /// <inheritdoc/>
     public void ResumeProcess(string processName)
     {
         if (string.IsNullOrEmpty(processName))
             throw new ArgumentException("Process name cannot be null or empty.", nameof(processName));
-        
+
         if (!_isSupported)
         {
             throw new PlatformNotSupportedException(
                 "Process resume is not supported on this system. " +
                 "The 'kill' and 'pgrep' commands are required but not available.");
         }
-        
+
         Program.Logger.Debug($"Resuming {processName} via kill -CONT.");
-        
+
         try
         {
             int pid = FindPid(processName);

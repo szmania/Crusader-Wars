@@ -15,19 +15,19 @@ namespace CrusaderWars.client.LinuxSetup.Services
             {
                 return true;
             }
-            
+
             // Priority 2: Native Linux detection via .NET runtime
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return true;
             }
-            
+
             // Priority 3: Proton detection via Steam environment variables
             if (HasProtonEnvironmentVariables())
             {
                 return true;
             }
-            
+
             // Priority 4: Wine fallback — check if wine is available on a real Linux system (not WSL)
             try
             {
@@ -40,7 +40,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
                 process.StartInfo.CreateNoWindow = true;
                 process.Start();
                 process.WaitForExit(3000);
-                
+
                 if (process.ExitCode == 0 && IsRealLinux())
                 {
                     return true;
@@ -50,10 +50,10 @@ namespace CrusaderWars.client.LinuxSetup.Services
             {
                 // wine not available — not Linux
             }
-            
+
             return false;
         }
-        
+
         /// <summary>
         /// Checks for the presence of Steam Proton environment variables.
         /// STEAM_COMPAT_CLIENT_INSTALL_PATH and STEAM_COMPAT_DATA_PATH are set by Steam
@@ -64,7 +64,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
             return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STEAM_COMPAT_CLIENT_INSTALL_PATH")) ||
                    !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STEAM_COMPAT_DATA_PATH"));
         }
-        
+
         /// <summary>
         /// Returns true if the application is running under Steam Proton.
         /// This is true when Proton environment variables are detected, regardless of
@@ -74,7 +74,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
         {
             return HasProtonEnvironmentVariables();
         }
-        
+
         /// <summary>
         /// Returns true if the application is running on native Linux (not under Proton or Wine emulation).
         /// This requires RuntimeInformation.IsOSPlatform(OSPlatform.Linux) to be true AND
@@ -84,7 +84,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
         {
             return RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !HasProtonEnvironmentVariables();
         }
-        
+
         /// <summary>
         /// Returns the Proton wine prefix path if running under Proton, otherwise null.
         /// The prefix path is read from the STEAM_COMPAT_DATA_PATH environment variable.
@@ -94,7 +94,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
             if (!IsRunningUnderProton()) return null;
             return Environment.GetEnvironmentVariable("STEAM_COMPAT_DATA_PATH");
         }
-        
+
         /// <summary>
         /// Checks /proc/version to determine if this is a real Linux kernel (not WSL).
         /// WSL's /proc/version contains "Microsoft", which we use to distinguish.
@@ -157,7 +157,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
             {
                 return steamPath;
             }
-            
+
             // Another common path (e.g., for Flatpak installs)
             steamPath = Path.Combine(home, ".var", "app", "com.valvesoftware.Steam", ".steam", "steam");
             if (Directory.Exists(steamPath))

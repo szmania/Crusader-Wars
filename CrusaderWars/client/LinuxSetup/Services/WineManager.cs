@@ -69,7 +69,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
         {
             Program.Logger.Debug($"Removing mono from {prefixPath}...");
             if (!_linuxEnv.IsRunningOnLinux()) return false;
-            
+
             string? home = _linuxEnv.GetHomeDirectory();
             if (string.IsNullOrEmpty(home)) return false;
             string fullPrefixPath = prefixPath.Replace("~", home);

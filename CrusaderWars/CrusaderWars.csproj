@@ -315,24 +315,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="unit mappers\schemas\cultures.xsd">
+    <None Update="settings\\schemas\\ActiveSubmods.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\factions.xsd">
+    <None Update="settings\\schemas\\Options.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\mods.xsd">
+    <None Update="settings\\schemas\\Paths.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\timeperiod.xsd">
+    <None Update="settings\\schemas\\UnitMappers.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\titles.xsd">
+    <None Update="unit mappers\\schemas\\cultures.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="settings\schemas\Options.xsd">
+    <None Update="unit mappers\\schemas\\factions.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>settings\schemas\Options.xsd</Link>
+    </None>
+    <None Update="unit mappers\\schemas\\mods.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\timeperiod.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\titles.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
