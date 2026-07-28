@@ -16,7 +16,7 @@ public interface IProcessController
     /// <exception cref="ArgumentException">Thrown if processName is null or empty.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the process cannot be found or suspended.</exception>
     void SuspendProcess(string processName);
-    
+
     /// <summary>
     /// Resumes a previously suspended process by name.
     /// On Windows: uses pssuspend64.exe /r.
@@ -26,7 +26,7 @@ public interface IProcessController
     /// <exception cref="ArgumentException">Thrown if processName is null or empty.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the process cannot be found or resumed.</exception>
     void ResumeProcess(string processName);
-    
+
     /// <summary>
     /// Returns true if this controller's mechanism is supported on the current platform.
     /// When false, the application should fall back to alternative behavior

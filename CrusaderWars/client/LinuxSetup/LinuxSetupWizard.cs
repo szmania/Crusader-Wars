@@ -470,7 +470,7 @@ namespace CrusaderWars.client.LinuxSetup
                                   "You do NOT need to enable Proton for this entry.";
 
             _shortcutCreationStep.SetStatus(instructions, true);
-            
+
             lblStatus.Text = "Awaiting user action...";
             progressBar.Value = 90;
 
@@ -490,7 +490,7 @@ namespace CrusaderWars.client.LinuxSetup
                                      "%command% used_mods_cw.txt\n\n" +
                                      "This allows Crusader Conflicts to manage which mods are active for battles.");
             await _steamManager.SetLaunchOptions("325610", "%command% used_mods_cw.txt");
-            
+
             lblStatus.Text = "Attila configuration instructions provided.";
         }
 
@@ -535,10 +535,10 @@ namespace CrusaderWars.client.LinuxSetup
                 }
                 xmlDoc.Save(file);
 
-                if(ModOptions.optionsValuesCollection.ContainsKey("LinuxSetupCompleted"))
+                if (ModOptions.optionsValuesCollection.ContainsKey("LinuxSetupCompleted"))
                 {
                     ModOptions.optionsValuesCollection["LinuxSetupCompleted"] = completed.ToString();
-                } 
+                }
                 else
                 {
                     ModOptions.optionsValuesCollection.Add("LinuxSetupCompleted", completed.ToString());

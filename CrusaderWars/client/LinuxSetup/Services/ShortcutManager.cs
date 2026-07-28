@@ -30,7 +30,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
             Program.Logger.Debug("Skipping legacy shortcut creation. The new method uses start-linux.sh with Steam.");
             return await Task.FromResult(true);
         }
-        
+
         private async Task<bool> ExecuteBashCommand(string command)
         {
             var process = new Process

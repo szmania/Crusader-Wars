@@ -41,7 +41,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
         public string? GetWorkshopModsPath()
         {
             string? attilaPath = GetAttilaPath();
-            if(string.IsNullOrEmpty(attilaPath)) return null;
+            if (string.IsNullOrEmpty(attilaPath)) return null;
 
             // Workshop mods are usually in a steamapps/workshop/content/{appid} folder in one of the library folders.
             var libraryFolders = GetSteamLibraryFolders();
@@ -53,7 +53,7 @@ namespace CrusaderWars.client.LinuxSetup.Services
                     return workshopPath;
                 }
             }
-            
+
             return null;
         }
 

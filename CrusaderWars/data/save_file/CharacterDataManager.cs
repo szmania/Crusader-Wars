@@ -35,7 +35,7 @@ namespace CrusaderWars.data.save_file
             }
 
             string? playerCharId = DataSearch.Player_Character.GetID();
-            if(playerCharId is null) { return ""; }
+            if (playerCharId is null) { return ""; }
             string playerRealmName = "";
 
             // Determine if player is on LeftSide or RightSide from CK3LogData

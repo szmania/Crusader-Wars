@@ -14,7 +14,8 @@ namespace CrusaderWars.client.LinuxSetup.Steps
         {
             if (lblShortcutStatus.InvokeRequired)
             {
-                lblShortcutStatus.Invoke(new MethodInvoker(() => {
+                lblShortcutStatus.Invoke(new MethodInvoker(() =>
+                {
                     lblShortcutStatus.Text = message;
                     lblShortcutStatus.ForeColor = success ? Color.Green : Color.Red;
                 }));

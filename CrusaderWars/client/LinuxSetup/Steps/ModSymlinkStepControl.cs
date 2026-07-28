@@ -14,7 +14,8 @@ namespace CrusaderWars.client.LinuxSetup.Steps
         {
             if (lblModSymlinkStatus.InvokeRequired)
             {
-                lblModSymlinkStatus.Invoke(new MethodInvoker(() => {
+                lblModSymlinkStatus.Invoke(new MethodInvoker(() =>
+                {
                     lblModSymlinkStatus.Text = message;
                     lblModSymlinkStatus.ForeColor = success ? Color.Green : Color.Red;
                 }));

@@ -164,11 +164,11 @@ if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
         void ChangeSystemTab(Control control)
         {
             // Hide all controls in the content panel
-            if(SystemContentPanel != null)
+            if (SystemContentPanel != null)
             {
                 SystemContentPanel.Controls.OfType<Control>().ToList().ForEach(c => c.Visible = false);
             }
-            
+
             // Show the selected control
             control.Visible = true;
             control.Dock = DockStyle.Fill;
@@ -206,7 +206,7 @@ if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
             {
                 // Make visible for easier testing on non-Linux systems
                 if (Btn_OS != null) Btn_OS.Visible = true;
-                btnLinuxSetup.Visible = true; 
+                btnLinuxSetup.Visible = true;
             }
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
@@ -234,7 +234,7 @@ if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
             ToolTip_Options.SetToolTip(toggleModManagerButton, "Click to collapse the Mod Manager. This section shows optional mods.");
 
             // Set default system tab
-            if(TableLayoutGamePaths != null)
+            if (TableLayoutGamePaths != null)
             {
                 ChangeSystemTab(TableLayoutGamePaths);
             }
