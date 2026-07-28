@@ -216,6 +216,7 @@ else if (activePlaythrough == BookmarksPlus_Tab) activeButton = Btn_BookmarksPlu
             Program.Logger.Debug("Options form loading...");
             General_Tab = new UC_GeneralOptions();
             Units_Tab = new UC_UnitsOptions();
+            CandK_Tab = new UC_CommandersAndKnightsOptions();
 
             Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), "https://crusader-conflicts-website.vercel.app/playthroughs/custom-playthrough", new List<(string, string, string, string)>(), false, "Custom", new List<Submod>());
 
