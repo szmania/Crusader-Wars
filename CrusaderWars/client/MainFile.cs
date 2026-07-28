@@ -696,9 +696,9 @@ namespace CrusaderWars
             // NEW TOOLTIPS
             InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
-infoLabel.ForeColor = Color.WhiteSmoke;
-infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 80);
-this.infoLabel.AutoSize = false;
+            infoLabel.ForeColor = Color.WhiteSmoke;
+            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 80);
+            this.infoLabel.AutoSize = false;
 
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
@@ -722,10 +722,10 @@ this.infoLabel.AutoSize = false;
         private void InitializeProcessController()
         {
             Program.Logger.Debug("Initializing process controller...");
-            
+
             var detector = new client.LinuxSetup.Services.LinuxEnvironmentDetector();
             IProcessController controller;
-            
+
             if (detector.IsRunningOnLinux())
             {
                 var linuxController = new LinuxProcessController();
@@ -750,7 +750,7 @@ this.infoLabel.AutoSize = false;
                 controller = new WindowsProcessController();
                 Program.Logger.Debug("Using WindowsProcessController (pssuspend64.exe) for process suspend/resume.");
             }
-            
+
             ProcessCommands.Initialize(controller);
         }
 
@@ -1567,30 +1567,30 @@ this.infoLabel.AutoSize = false;
                                 return; // Stop execution
                             }
 
-                             // Check for base mod
-                             bool isBaseModEnabled = enabledMods.Contains("crusader_conflicts.mod") || enabledMods.Contains("ugc_3612451961.mod");
-                             if (!isBaseModEnabled)
-                             {
-                                 Program.Logger.Debug("Crusader Conflicts mod (local or steam) not found in enabled_mods in dlc_load.json.");
-                                 var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
-                                                              "Crusader Conflicts Mod Not Enabled",
-                                                              MessageBoxButtons.YesNo,
-                                                              MessageBoxIcon.Warning);
-                                 if (result == DialogResult.No)
-                                 {
-                                     Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
-                                     return; // Stop execution
-                                 }
-                             }
-                             else
-                             {
-                                 Program.Logger.Debug("Crusader Conflicts mod is enabled in the current Paradox Launcher playset.");
-                             }
+                            // Check for base mod
+                            bool isBaseModEnabled = enabledMods.Contains("crusader_conflicts.mod") || enabledMods.Contains("ugc_3612451961.mod");
+                            if (!isBaseModEnabled)
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod (local or steam) not found in enabled_mods in dlc_load.json.");
+                                var result = MessageBox.Show("It appears the Crusader Conflicts CK3 mod is not enabled in your Paradox Launcher playset. Be sure to enable the mod and run the playset at least once in CK3 before starting Crusader Conflicts. Do you still want to continue?",
+                                                             "Crusader Conflicts Mod Not Enabled",
+                                                             MessageBoxButtons.YesNo,
+                                                             MessageBoxIcon.Warning);
+                                if (result == DialogResult.No)
+                                {
+                                    Program.Logger.Debug("User cancelled execution because mod is not enabled in current Paradox Launcher playset.");
+                                    return; // Stop execution
+                                }
+                            }
+                            else
+                            {
+                                Program.Logger.Debug("Crusader Conflicts mod is enabled in the current Paradox Launcher playset.");
+                            }
 
-                             // Check for compatibility patches based on playthrough
-                             string activePlaythrough = GetActivePlaythroughTag();
-                             string requiredPatch = "";
-                             string playthroughName = "";
+                            // Check for compatibility patches based on playthrough
+                            string activePlaythrough = GetActivePlaythroughTag();
+                            string requiredPatch = "";
+                            string playthroughName = "";
 
                              if (activePlaythrough == "AGOT")
                              {
@@ -1659,19 +1659,19 @@ this.infoLabel.AutoSize = false;
                                  }
                              }
 
-                             // Check for incorrectly enabled compatibility patches
-                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
-                             string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                            // Check for incorrectly enabled compatibility patches
+                            string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
+                            string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
 
-                             if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
-                             {
-                                 Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
-                                 MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
-                                                 "Incorrect Compatibility Patch Enabled",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
-                                 return;
-                             }
+                            if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
+                            {
+                                Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
+                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
 
                              if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
                              {
@@ -1682,7 +1682,7 @@ this.infoLabel.AutoSize = false;
                                                  MessageBoxIcon.Warning);
                                 return;
                             }
-                            
+
                             if (activePlaythrough == "BookmarksPlus" && enabledMods.Contains(agotPatch))
                             {
                                 Program.Logger.Debug("Bookmarks+ playthrough is active, but AGOT patch is also enabled.");
@@ -1725,43 +1725,43 @@ this.infoLabel.AutoSize = false;
                                  }
                              }
 
-                             // Check for recommended load order
-                             if (isBaseModEnabled)
-                             {
-                                 var enabledModsList = new List<string>();
-                                 using (JsonDocument doc = JsonDocument.Parse(jsonContent))
-                                 {
-                                     JsonElement root = doc.RootElement;
-                                     if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) &&
-                                         enabledModsElement.ValueKind == JsonValueKind.Array)
-                                     {
-                                         foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
-                                         {
-                                             string? modPath = modEntry.GetString();
-                                             if (modPath != null)
-                                             {
-                                                 enabledModsList.Add(Path.GetFileName(modPath));
-                                             }
-                                         }
-                                     }
-                                 }
+                            // Check for recommended load order
+                            if (isBaseModEnabled)
+                            {
+                                var enabledModsList = new List<string>();
+                                using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                                {
+                                    JsonElement root = doc.RootElement;
+                                    if (root.TryGetProperty("enabled_mods", out JsonElement enabledModsElement) &&
+                                        enabledModsElement.ValueKind == JsonValueKind.Array)
+                                    {
+                                        foreach (JsonElement modEntry in enabledModsElement.EnumerateArray())
+                                        {
+                                            string? modPath = modEntry.GetString();
+                                            if (modPath != null)
+                                            {
+                                                enabledModsList.Add(Path.GetFileName(modPath));
+                                            }
+                                        }
+                                    }
+                                }
 
 
-                                 if (enabledModsList.Any())
-                                 {
-                                     string mainModLocal = "crusader_conflicts.mod";
-                                     string mainModSteam = "ugc_3612451961.mod";
-                                     string agotPatchLocal = "crusader_conflicts_agot_compat_patch.mod";
-                                     string agotPatchSteam = "ugc_3612526842.mod";
-                                     string lotrPatchLocal = "crusader_conflicts_realms_in_exile_compat_patch.mod";
-                                     string lotrPatchSteam = "ugc_3612526762.mod";
+                                if (enabledModsList.Any())
+                                {
+                                    string mainModLocal = "crusader_conflicts.mod";
+                                    string mainModSteam = "ugc_3612451961.mod";
+                                    string agotPatchLocal = "crusader_conflicts_agot_compat_patch.mod";
+                                    string agotPatchSteam = "ugc_3612526842.mod";
+                                    string lotrPatchLocal = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                    string lotrPatchSteam = "ugc_3612526762.mod";
 
-                                     int mainModIndex = enabledModsList.FindLastIndex(m =>
-                                         m.Equals(mainModLocal, StringComparison.OrdinalIgnoreCase) ||
-                                         m.Equals(mainModSteam, StringComparison.OrdinalIgnoreCase));
+                                    int mainModIndex = enabledModsList.FindLastIndex(m =>
+                                        m.Equals(mainModLocal, StringComparison.OrdinalIgnoreCase) ||
+                                        m.Equals(mainModSteam, StringComparison.OrdinalIgnoreCase));
 
-                                     bool loadOrderCorrect = true;
-                                     string expectedOrderMessage = "";
+                                    bool loadOrderCorrect = true;
+                                    string expectedOrderMessage = "";
 
                                      if (activePlaythrough == "AGOT")
                                      {
@@ -1813,34 +1813,34 @@ this.infoLabel.AutoSize = false;
                                          }
                                      }
 
-                                     if (!loadOrderCorrect)
-                                     {
-                                         Program.Logger.Debug("Incorrect mod load order detected.");
-                                         var result = MessageBox.Show(
-                                             $"{expectedOrderMessage}\n\nYour current load order might cause issues.\n\nDo you still want to continue?",
-                                             "Mod Load Order Warning",
-                                             MessageBoxButtons.YesNo,
-                                             MessageBoxIcon.Warning);
-                                         if (result == DialogResult.No)
-                                         {
-                                             Program.Logger.Debug(
-                                                 "User cancelled execution due to incorrect mod load order.");
-                                             return; // Stop execution
-                                         }
-                                     }
-                                 }
-                             }
+                                    if (!loadOrderCorrect)
+                                    {
+                                        Program.Logger.Debug("Incorrect mod load order detected.");
+                                        var result = MessageBox.Show(
+                                            $"{expectedOrderMessage}\n\nYour current load order might cause issues.\n\nDo you still want to continue?",
+                                            "Mod Load Order Warning",
+                                            MessageBoxButtons.YesNo,
+                                            MessageBoxIcon.Warning);
+                                        if (result == DialogResult.No)
+                                        {
+                                            Program.Logger.Debug(
+                                                "User cancelled execution due to incorrect mod load order.");
+                                            return; // Stop execution
+                                        }
+                                    }
+                                }
+                            }
                         }
-                         catch (Exception ex)
-                         {
-                             Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
-                         }
-                     }
-                     else
-                     {
-                         Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
-                     }
-                 }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.Debug($"Error checking dlc_load.json: {ex.Message}. Proceeding without check.");
+                        }
+                    }
+                    else
+                    {
+                        Program.Logger.Debug($"dlc_load.json not found at '{dlcLoadPath}'. Skipping playset check.");
+                    }
+                }
             }
 
 
@@ -2655,7 +2655,7 @@ this.infoLabel.AutoSize = false;
         public static class ProcessCommands
         {
             private static IProcessController? _controller;
-            
+
             /// <summary>
             /// Initializes the ProcessCommands with a platform-specific controller.
             /// Must be called once at application startup before any Suspend/Resume operations.
@@ -2667,7 +2667,7 @@ this.infoLabel.AutoSize = false;
                 _controller = controller ?? throw new ArgumentNullException(nameof(controller));
                 Program.Logger.Debug($"ProcessCommands initialized with {controller.GetType().Name}. IsSupported: {controller.IsSupported}");
             }
-            
+
             /// <summary>
             /// Suspends the ck3.exe process using the platform-specific controller.
             /// </summary>
@@ -2679,16 +2679,16 @@ this.infoLabel.AutoSize = false;
                     throw new InvalidOperationException(
                         "ProcessCommands has not been initialized. Call Initialize() at application startup.");
                 }
-                
+
                 if (!_controller.IsSupported)
                 {
                     Program.Logger.Debug("ProcessCommands.SuspendProcess: Controller does not support suspend on this platform. Skipping.");
                     return;
                 }
-                
+
                 _controller.SuspendProcess("ck3.exe");
             }
-            
+
             /// <summary>
             /// Resumes the ck3.exe process using the platform-specific controller.
             /// </summary>
@@ -2700,13 +2700,13 @@ this.infoLabel.AutoSize = false;
                     throw new InvalidOperationException(
                         "ProcessCommands has not been initialized. Call Initialize() at application startup.");
                 }
-                
+
                 if (!_controller.IsSupported)
                 {
                     Program.Logger.Debug("ProcessCommands.ResumeProcess: Controller does not support resume on this platform. Skipping.");
                     return;
                 }
-                
+
                 _controller.ResumeProcess("ck3.exe");
             }
         }
@@ -3654,7 +3654,7 @@ this.infoLabel.AutoSize = false;
                 BattleProcessor.AutofixState.AutofixStrategy.DeploymentZoneEditor
             };
 
-infoLabel.Text = "Select a tool to fix the battle...";
+            infoLabel.Text = "Select a tool to fix the battle...";
             infoLabel.ForeColor = Original_Color;
             infoLabel.BackColor = _originalInfoLabelBackColor;
             var (result, chosenStrategy) = BattleProcessor.ShowPostCrashAutofixPrompt(this, availableStrategies, isCrash: true);

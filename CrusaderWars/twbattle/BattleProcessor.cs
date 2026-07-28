@@ -1575,7 +1575,8 @@ namespace CrusaderWars.twbattle
                     panel.Controls.Add(unitsButton);
                     lastControl = unitsButton;
 
-                    unitsButton.CheckedChanged += (s, ev) => {
+                    unitsButton.CheckedChanged += (s, ev) =>
+                    {
                         if (unitsButton.Checked) okButton.Text = "Apply Fix";
                     };
 
@@ -1588,7 +1589,8 @@ namespace CrusaderWars.twbattle
                     panel.Controls.Add(mapSizeButton);
                     lastControl = mapSizeButton;
 
-                    mapSizeButton.CheckedChanged += (s, ev) => {
+                    mapSizeButton.CheckedChanged += (s, ev) =>
+                    {
                         if (mapSizeButton.Checked) okButton.Text = "Apply Fix";
                     };
 
@@ -1601,7 +1603,8 @@ namespace CrusaderWars.twbattle
                     panel.Controls.Add(deploymentButton);
                     lastControl = deploymentButton;
 
-                    deploymentButton.CheckedChanged += (s, ev) => {
+                    deploymentButton.CheckedChanged += (s, ev) =>
+                    {
                         if (deploymentButton.Checked) okButton.Text = "Apply Fix";
                     };
 
@@ -1614,7 +1617,8 @@ namespace CrusaderWars.twbattle
                     panel.Controls.Add(mapVariantButton);
                     lastControl = mapVariantButton;
 
-                    mapVariantButton.CheckedChanged += (s, ev) => {
+                    mapVariantButton.CheckedChanged += (s, ev) =>
+                    {
                         if (mapVariantButton.Checked) okButton.Text = "Apply Fix";
                     };
                 }
@@ -1640,7 +1644,8 @@ namespace CrusaderWars.twbattle
                     panel.Controls.Add(manualUnitButton);
                     lastControl = manualUnitButton;
 
-                    manualUnitButton.CheckedChanged += (s, ev) => {
+                    manualUnitButton.CheckedChanged += (s, ev) =>
+                    {
                         if (manualUnitButton.Checked) okButton.Text = "Next";
                         else okButton.Text = "Apply Fix";
                     };
@@ -1654,7 +1659,8 @@ namespace CrusaderWars.twbattle
                     panel.Controls.Add(deploymentZoneButton);
                     lastControl = deploymentZoneButton;
 
-                    deploymentZoneButton.CheckedChanged += (s, ev) => {
+                    deploymentZoneButton.CheckedChanged += (s, ev) =>
+                    {
                         if (deploymentZoneButton.Checked) okButton.Text = "Next";
                         else okButton.Text = "Apply Fix";
                     };
@@ -1669,31 +1675,31 @@ namespace CrusaderWars.twbattle
                 warningLabel.Location = new Point(10, lastControl.Bottom + 15);
                 panel.Controls.Add(warningLabel);
 
-// Set initial button text based on whether the first available strategy is a manual tool
+                // Set initial button text based on whether the first available strategy is a manual tool
                 bool isManualToolFirst = manualStrategies.Contains(firstAvailable);
                 okButton.Text = isManualToolFirst ? "Next" : "Apply Fix";
                 okButton.Size = new Size(75, 25);
                 okButton.Location = new Point(strategyForm.ClientSize.Width - 170, warningLabel.Bottom + 10);
                 okButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-okButton.Click += (s, ev) =>
-                {
-                    if (parentForm is HomePage homePage)
-                    {
-                        var unitsButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Units"));
-                        var mapSizeButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Size"));
-                        var deploymentButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Deployment"));
-                        var mapVariantButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Variant"));
-                        var manualUnitButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Manual Unit Replacement"));
-                        var deploymentZoneButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Deployment Zone Editor"));
+                okButton.Click += (s, ev) =>
+                                {
+                                    if (parentForm is HomePage homePage)
+                                    {
+                                        var unitsButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Units"));
+                                        var mapSizeButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Size"));
+                                        var deploymentButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Deployment"));
+                                        var mapVariantButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Change Map Variant"));
+                                        var manualUnitButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Manual Unit Replacement"));
+                                        var deploymentZoneButton = panel.Controls.OfType<RadioButton>().FirstOrDefault(rb => rb.Text.StartsWith("Deployment Zone Editor"));
 
-                        if (unitsButton != null && unitsButton.Checked) homePage.UpdateInfoLabel("Processing: Analyzing units for replacement...");
-                        else if (mapSizeButton != null && mapSizeButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map size...");
-                        else if (deploymentButton != null && deploymentButton.Checked) homePage.UpdateInfoLabel("Processing: Changing deployment...");
-                        else if (mapVariantButton != null && mapVariantButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map variant...");
-                        else if (manualUnitButton != null && manualUnitButton.Checked) homePage.UpdateInfoLabel("Loading manual unit replacer...");
-                        else if (deploymentZoneButton != null && deploymentZoneButton.Checked) homePage.UpdateInfoLabel("Loading deployment zone editor...");
-                    }
-                };
+                                        if (unitsButton != null && unitsButton.Checked) homePage.UpdateInfoLabel("Processing: Analyzing units for replacement...");
+                                        else if (mapSizeButton != null && mapSizeButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map size...");
+                                        else if (deploymentButton != null && deploymentButton.Checked) homePage.UpdateInfoLabel("Processing: Changing deployment...");
+                                        else if (mapVariantButton != null && mapVariantButton.Checked) homePage.UpdateInfoLabel("Processing: Changing map variant...");
+                                        else if (manualUnitButton != null && manualUnitButton.Checked) homePage.UpdateInfoLabel("Loading manual unit replacer...");
+                                        else if (deploymentZoneButton != null && deploymentZoneButton.Checked) homePage.UpdateInfoLabel("Loading deployment zone editor...");
+                                    }
+                                };
 
                 okButton.Click += (sender, e) =>
                 {

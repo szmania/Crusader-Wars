@@ -376,7 +376,7 @@ namespace CrusaderWars.unit_mapper
             switch (GetLoadedUnitMapperName())
             {
                 case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
-                    return  "POST ROMAN";
+                    return "POST ROMAN";
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     return "EARLY MEDIEVAL";
                 case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
