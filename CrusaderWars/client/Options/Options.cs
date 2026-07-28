@@ -1138,9 +1138,7 @@ namespace CrusaderWars
                         return; // Exit the current execution path
                     }
                 }
-                if (!File.Exists(file))
-                {
-                }
+                xmlDoc.Load(file);
 
                 XmlNode? root = xmlDoc.DocumentElement;
                 if (root == null)

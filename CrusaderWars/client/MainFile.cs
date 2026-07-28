@@ -586,7 +586,10 @@ namespace CrusaderWars
                 else if (gamePaths && unitMappers)
                 {
                     ExecuteButton.Enabled = true;
-                    infoLabel.Text = "Ready to Start!";
+infoLabel.Text = "Ready to Start!";
+infoLabel.ForeColor = Color.WhiteSmoke;
+infoLabel.BackColor = _originalInfoLabelBackColor;
+infoLabel.AutoSize = true;
                     infoLabel.ForeColor = Original_Color;
                     infoLabel.BackColor = _originalInfoLabelBackColor;
                     if (_isPulsing)
@@ -795,8 +798,6 @@ namespace CrusaderWars
             InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
             infoLabel.ForeColor = Color.WhiteSmoke;
-            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 80);
-            this.infoLabel.AutoSize = false;
 
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
@@ -3300,7 +3301,10 @@ namespace CrusaderWars
                 {
                     linkOptInPreReleases.Enabled = true;
                     await Task.Delay(2000);
-                    infoLabel.Text = "Ready to Start!";
+infoLabel.Text = "Ready to Start!";
+infoLabel.ForeColor = Color.WhiteSmoke;
+infoLabel.BackColor = _originalInfoLabelBackColor;
+infoLabel.AutoSize = true;
                 }
             }
         }
