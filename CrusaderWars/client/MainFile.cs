@@ -792,7 +792,7 @@ namespace CrusaderWars
         private async Task CheckForUnitMapperUpdateAndRevalidate()
         {
             Program.Logger.Debug("Checking for unit mapper update and revalidating if necessary...");
-            string versionFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "settings", "last_um_version.txt");
+            string versionFilePath = @".\settings\last_um_version.txt";
             string lastKnownVersion = "0.0.0";
 
             try
