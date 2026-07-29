@@ -610,9 +610,7 @@
             this.TableLayoutPlaythroughs.Location = new System.Drawing.Point(20, 394);
             this.TableLayoutPlaythroughs.Name = "TableLayoutPlaythroughs";
             this.TableLayoutPlaythroughs.RowCount = 3;
-            this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(600, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
