@@ -439,8 +439,7 @@
             //
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.flowLayoutPanel2.WrapContents = true;
-            this.flowLayoutPanel2.AutoSize = true;
+            this.flowLayoutPanel2.AutoSize = false;
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
@@ -600,7 +599,7 @@
             // TableLayoutPlaythroughs
             //
             this.TableLayoutPlaythroughs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
-            this.TableLayoutPlaythroughs.AutoSize = true;
+            this.TableLayoutPlaythroughs.AutoSize = false;
             this.TableLayoutPlaythroughs.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutPlaythroughs.ColumnCount = 1;
             this.TableLayoutPlaythroughs.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
