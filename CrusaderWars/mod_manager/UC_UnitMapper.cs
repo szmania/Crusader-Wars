@@ -263,6 +263,101 @@ namespace CrusaderWars.mod_manager
             return uC_Toggle1.State;
         }
 
+        private static List<string> ValidateUnitMapper(string unitMapperDirectory)
+        {
+            var allErrors = new List<string>();
+            string schemasDir = @".\\unit mappers\\schemas";
+
+            // Validate Mods.xml
+            string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
+            if (File.Exists(modsXml))
+                allErrors.AddRange(XmlValidator.Validate(modsXml, Path.Combine(schemasDir, "mods.xsd")));
+
+            // Validate Time Period.xml
+            string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
+            if (!File.Exists(timePeriodXml))
+            {
+                timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
+            }
+            if (File.Exists(timePeriodXml))
+                allErrors.AddRange(XmlValidator.Validate(timePeriodXml, Path.Combine(schemasDir, "timeperiod.xsd")));
+
+            // Validate Cultures
+            string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
+            if (Directory.Exists(culturesDir))
+            {
+                foreach (var file in Directory.GetFiles(culturesDir, "*.xml"))
+                {
+                    allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "cultures.xsd")));
+                }
+            }
+
+            // Validate Factions
+            string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
+            if (Directory.Exists(factionsDir))
+            {
+                string factionsSchema = Path.Combine(schemasDir, "factions.xsd");
+                string factionsAddonSchema = Path.Combine(schemasDir, "factions_addons.xsd");
+                bool factionsAddonSchemaExists = File.Exists(factionsAddonSchema);
+
+                foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
+                {
+                    string schemaToUse = factionsSchema; // Default schema
+
+                    if (factionsAddonSchemaExists)
+                    {
+                        bool useAddonSchema = false;
+                        string fileName = Path.GetFileName(file);
+
+                        // Condition 1: check for submod_addon_tag attribute
+                        try
+                        {
+                            using (var reader = XmlReader.Create(file))
+                            {
+                                reader.MoveToContent();
+                                if (reader.GetAttribute("submod_addon_tag") != null)
+                                {
+                                    useAddonSchema = true;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            allErrors.Add($"File: {file}, Error: Could not read XML to check for addon tag. {ex.Message}");
+                        }
+
+                        // Condition 2: check filename (if not already decided)
+                        if (!useAddonSchema)
+                        {
+                            if (!fileName.StartsWith("OfficialCC_", StringComparison.OrdinalIgnoreCase) &&
+                                !fileName.StartsWith("Submod_", StringComparison.OrdinalIgnoreCase))
+                            {
+                                useAddonSchema = true;
+                            }
+                        }
+
+                        if (useAddonSchema)
+                        {
+                            schemaToUse = factionsAddonSchema;
+                        }
+                    }
+
+                    allErrors.AddRange(XmlValidator.Validate(file, schemaToUse));
+                }
+            }
+
+            // Validate Titles
+            string titlesDir = Path.Combine(unitMapperDirectory, "Titles");
+            if (Directory.Exists(titlesDir))
+            {
+                foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
+                {
+                    allErrors.AddRange(XmlValidator.Validate(file, Path.Combine(schemasDir, "titles.xsd")));
+                }
+            }
+            return allErrors;
+        }
+
         [SupportedOSPlatform("windows")]
         private async void uC_Toggle1_Click(object sender, EventArgs e)
         {
@@ -348,7 +443,7 @@ namespace CrusaderWars.mod_manager
                 {
                     foreach (var dir in unitMapperDirectories)
                     {
-                        allErrors.AddRange(XmlValidator.ValidateUnitMapper(dir));
+                        allErrors.AddRange(ValidateUnitMapper(dir));
                     }
 
                     if (allErrors.Any())
@@ -844,160 +939,4 @@ namespace CrusaderWars.mod_manager
         }
     }
 
-    public static class XmlValidator
-    {
-        [SupportedOSPlatform("windows")]
-        public static List<string> ValidateUnitMapper(string unitMapperDirectory)
-        {
-            var allErrors = new List<string>();
-            string schemasDir = @".\unit mappers\schemas";
-
-            // Validate Mods.xml
-            string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
-            if (File.Exists(modsXml))
-                allErrors.AddRange(Validate(modsXml, Path.Combine(schemasDir, "mods.xsd")));
-
-            // Validate Time Period.xml
-            string timePeriodXml = Path.Combine(unitMapperDirectory, "Time Period.xml");
-            if (!File.Exists(timePeriodXml))
-            {
-                timePeriodXml = Path.Combine(unitMapperDirectory, "TimePeriod.xml");
-            }
-            if (File.Exists(timePeriodXml))
-                allErrors.AddRange(Validate(timePeriodXml, Path.Combine(schemasDir, "timeperiod.xsd")));
-
-            // Validate Cultures
-            string culturesDir = Path.Combine(unitMapperDirectory, "Cultures");
-            if (Directory.Exists(culturesDir))
-            {
-                foreach (var file in Directory.GetFiles(culturesDir, "*.xml"))
-                {
-                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "cultures.xsd")));
-                }
-            }
-
-            // Validate Factions
-            string factionsDir = Path.Combine(unitMapperDirectory, "Factions");
-            if (Directory.Exists(factionsDir))
-            {
-                string factionsSchema = Path.Combine(schemasDir, "factions.xsd");
-                string factionsAddonSchema = Path.Combine(schemasDir, "factions_addons.xsd");
-                bool factionsAddonSchemaExists = File.Exists(factionsAddonSchema);
-
-                foreach (var file in Directory.GetFiles(factionsDir, "*.xml"))
-                {
-                    string schemaToUse = factionsSchema; // Default schema
-
-                    if (factionsAddonSchemaExists)
-                    {
-                        bool useAddonSchema = false;
-                        string fileName = Path.GetFileName(file);
-
-                        // Condition 1: check for submod_addon_tag attribute
-                        try
-                        {
-                            using (var reader = XmlReader.Create(file))
-                            {
-                                reader.MoveToContent();
-                                if (reader.GetAttribute("submod_addon_tag") != null)
-                                {
-                                    useAddonSchema = true;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            allErrors.Add($"File: {file}, Error: Could not read XML to check for addon tag. {ex.Message}");
-                        }
-
-                        // Condition 2: check filename (if not already decided)
-                        if (!useAddonSchema)
-                        {
-                            if (!fileName.StartsWith("OfficialCC_", StringComparison.OrdinalIgnoreCase) &&
-                                !fileName.StartsWith("Submod_", StringComparison.OrdinalIgnoreCase))
-                            {
-                                useAddonSchema = true;
-                            }
-                        }
-
-                        if (useAddonSchema)
-                        {
-                            schemaToUse = factionsAddonSchema;
-                        }
-                    }
-
-                    allErrors.AddRange(Validate(file, schemaToUse));
-                }
-            }
-
-            // Validate Titles
-            string titlesDir = Path.Combine(unitMapperDirectory, "Titles");
-            if (Directory.Exists(titlesDir))
-            {
-                foreach (var file in Directory.GetFiles(titlesDir, "*.xml"))
-                {
-                    allErrors.AddRange(Validate(file, Path.Combine(schemasDir, "titles.xsd")));
-                }
-            }
-            return allErrors;
-        }
-        [SupportedOSPlatform("windows")]
-        public static List<string> Validate(string xmlPath, string xsdPath)
-        {
-            var errors = new List<string>();
-            string fullXmlPath = Path.GetFullPath(xmlPath);
-
-            if (!File.Exists(fullXmlPath))
-            {
-                errors.Add($"File: {fullXmlPath}, Error: XML file not found.");
-                return errors;
-            }
-
-            if (!File.Exists(xsdPath))
-            {
-                errors.Add($"Schema file not found: {xsdPath}. Please contact the developers.");
-                return errors;
-            }
-
-            try
-            {
-                var settings = new XmlReaderSettings
-                {
-                    ValidationType = ValidationType.Schema,
-                    ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings | XmlSchemaValidationFlags.ProcessInlineSchema | XmlSchemaValidationFlags.ProcessSchemaLocation
-                };
-                settings.Schemas.Add(null, xsdPath);
-
-                settings.ValidationEventHandler += (sender, args) =>
-                {
-                    // Ignore missing sha256 attribute errors
-                    if (args.Message.Contains("'sha256'"))
-                    {
-                        return;
-                    }
-                    string message;
-                    if (args.Exception != null)
-                    {
-                        message = $"File: {fullXmlPath}, Error: Line {args.Exception.LineNumber}, Position {args.Exception.LinePosition} - {args.Message}";
-                    }
-                    else
-                    {
-                        message = $"File: {fullXmlPath}, Error: {args.Message}";
-                    }
-                    if (!errors.Contains(message)) errors.Add(message);
-                };
-
-                using (var reader = XmlReader.Create(fullXmlPath, settings))
-                {
-                    while (reader.Read()) { }
-                }
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"An error occurred during validation of {Path.GetFileName(fullXmlPath)}: {ex.Message}");
-            }
-
-            return errors;
-        }
-    }
 }
