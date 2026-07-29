@@ -440,12 +440,14 @@
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.flowLayoutPanel2.WrapContents = true;
-            this.flowLayoutPanel2.MaximumSize = new System.Drawing.Size(400, 0);
             this.flowLayoutPanel2.AutoSize = true;
+            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
-this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             // Btn_CK3Tab
             this.Btn_CK3Tab.AutoSize = true;
             this.Btn_CK3Tab.BackColor = System.Drawing.Color.LightGray;
@@ -518,8 +520,6 @@ this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
             this.Btn_AGOTTab.UseVisualStyleBackColor = false;
             this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             //
             // Btn_BookmarksPlusTab
             //
