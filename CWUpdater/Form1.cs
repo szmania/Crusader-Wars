@@ -1047,33 +1047,6 @@ del ""%~f0""
             }
         }
 
-        private async Task<bool> VerifyUpdatePackage(string filePath, string downloadUrl)
-        {
-            string hashUrl = downloadUrl + ".sha256";
-            try
-            {
-                Logger.Log($"Downloading expected hash from: {hashUrl}");
-                string expectedHash = await httpClient.GetStringAsync(hashUrl).ConfigureAwait(false);
-                expectedHash = expectedHash.Trim();
-
-                using (var sha256 = SHA256.Create())
-                {
-                    using (var stream = File.OpenRead(filePath))
-                    {
-                        var hash = await Task.Run(() => sha256.ComputeHash(stream));
-                        string actualHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-
-                        Logger.Log($"Comparing Hashes. Expected: {expectedHash}, Actual: {actualHash}");
-                        return expectedHash == actualHash;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"Error during update verification: {ex.Message}");
-                return false; // Fail safe
-            }
-        }
 
         private bool IsNewerUpdater(string newUpdaterPath, string currentUpdaterPath)
         {

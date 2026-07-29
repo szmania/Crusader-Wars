@@ -126,9 +126,6 @@ if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
             {
                 return BronzeAge_Tab;
             }
-            {
-                return AGOT_Tab;
-            }
             if (Custom_Tab != null && Custom_Tab.GetState())
             {
                 return Custom_Tab;
@@ -1061,6 +1058,8 @@ Status_Attila_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__
                     fileModified = true;
                 }
 
+                XmlNode? rome2_node = root.SelectSingleNode("TotalWarRome2");
+
                 if (rome2_node == null)
                 {
                     Program.Logger.Debug("TotalWarRome2 node not found. Creating.");
@@ -1296,6 +1295,7 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
         UC_UnitMapper RealmsInExile_Tab = null!;
         UC_UnitMapper AGOT_Tab = null!; // Added AGOT tab
         UC_UnitMapper Custom_Tab = null!;
+        UC_UnitMapper BronzeAge_Tab = null!;
 
         private void Btn_CK3Tab_Click(object sender, EventArgs e)
         {

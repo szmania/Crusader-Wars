@@ -95,10 +95,6 @@ namespace CrusaderWars.games
         }
 
         // Protected helper method to get the game path from ModOptions
-        protected string GetGamePath()
-        {
-            // This will be implemented in ModOptions.cs
-            throw new NotImplementedException("GetGamePath needs to be implemented in ModOptions");
-        }
+        protected abstract string GetGamePath();
     }
 }
