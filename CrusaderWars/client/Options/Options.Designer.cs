@@ -452,7 +452,7 @@
             this.Btn_CK3Tab.AutoSize = true;
             this.Btn_CK3Tab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CK3Tab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
-            this.Btn_CK3Tab.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Btn_CK3Tab.Dock removed - let FlowLayoutPanel handle layout
             this.Btn_CK3Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_CK3Tab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CK3Tab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -470,7 +470,7 @@
             this.Btn_TFETab.AutoSize = true;
             this.Btn_TFETab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_TFETab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_TFETab.BackgroundImage")));
-            this.Btn_TFETab.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Btn_TFETab.Dock removed - let FlowLayoutPanel handle layout
             this.Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_TFETab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_TFETab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -488,7 +488,7 @@
             this.Btn_LOTRTab.AutoSize = true;
             this.Btn_LOTRTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_LOTRTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
-            this.Btn_LOTRTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Btn_LOTRTab.Dock removed - let FlowLayoutPanel handle layout
             this.Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_LOTRTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_LOTRTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -506,7 +506,7 @@
             this.Btn_AGOTTab.AutoSize = true;
             this.Btn_AGOTTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_AGOTTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_AGOTTab.BackgroundImage")));
-            this.Btn_AGOTTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Btn_AGOTTab.Dock removed - let FlowLayoutPanel handle layout
             this.Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_AGOTTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_AGOTTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -526,7 +526,7 @@
             this.Btn_BookmarksPlusTab.AutoSize = true;
             this.Btn_BookmarksPlusTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_BookmarksPlusTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_BookmarksPlusTab.BackgroundImage")));
-            this.Btn_BookmarksPlusTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Btn_BookmarksPlusTab.Dock removed - let FlowLayoutPanel handle layout
             this.Btn_BookmarksPlusTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_BookmarksPlusTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_BookmarksPlusTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -546,7 +546,7 @@
             this.Btn_CustomTab.AutoSize = true;
             this.Btn_CustomTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CustomTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
-            this.Btn_CustomTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            // Btn_CustomTab.Dock removed - let FlowLayoutPanel handle layout
             this.Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_CustomTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CustomTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -611,7 +611,7 @@
             this.TableLayoutPlaythroughs.Name = "TableLayoutPlaythroughs";
             this.TableLayoutPlaythroughs.RowCount = 3;
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(600, 252);
+            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(650, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             //
