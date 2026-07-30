@@ -96,7 +96,8 @@
             // infoLabel
             // 
             resources.ApplyResources(this.infoLabel, "infoLabel");
-this.infoLabel.AutoSize = false;
+this.infoLabel.AutoSize = true;
+this.infoLabel.MaximumSize = new System.Drawing.Size(600, 0);
 this.infoLabel.ForeColor = System.Drawing.Color.White;
             // 
             // SettingsBtn
