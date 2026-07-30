@@ -61,6 +61,8 @@ namespace CrusaderWars.games
 
         public override string GetModActivationFileName() => "used_mods_cc.txt";
 
+        public override string GetShortcutArguments() => "used_mods_cc.txt";
+
         protected override string GetGamePath() => client.ModOptions.GetGamePath("Rome2");
     
     }
