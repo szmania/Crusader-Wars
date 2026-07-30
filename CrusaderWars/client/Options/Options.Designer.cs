@@ -441,7 +441,7 @@
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.flowLayoutPanel2.WrapContents = true;
             this.flowLayoutPanel2.AutoSize = false;
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(350, 70);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(380, 70);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
@@ -611,7 +611,7 @@
             this.TableLayoutPlaythroughs.Name = "TableLayoutPlaythroughs";
             this.TableLayoutPlaythroughs.RowCount = 3;
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(700, 252);
+            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(750, 280);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             //
