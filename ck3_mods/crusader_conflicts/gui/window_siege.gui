@@ -1036,8 +1036,9 @@ window = {
                     ############################################################
     
                     button = { name = Siege_Button_control2
- tooltip = cc_siege_fight_button
+                        tooltip = cc_siege_fight_button
                         enabled = "[Siege.EnableAssaultButton]"
+                        parentanchor = left
                         position = { 0 0 }
                         texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
                         size = { 50 50 }
@@ -2268,7 +2269,7 @@ window = {
 
 						hbox = {
 							widget = {
-启н는—								layoutpolicy_horizontal = expanding
+								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMax( Siege.GetSiegeMenBalance, '(float)100' )]"
 
@@ -2318,7 +2319,7 @@ window = {
 							}
 
 							widget = {
-启с2—								layoutpolicy_horizontal = expanding
+								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMaxOther( Siege.GetSiegeMenBalance, '(float)100' )]"
 
