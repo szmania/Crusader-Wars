@@ -17,6 +17,14 @@ namespace CrusaderWars.client.Options
         {
             InitializeComponent();
 
+            // Set Prisoner Chance labels/controls to a distinct color since they are
+            // a separate roll (not part of the 100% wound/death total)
+            var prisonerColor = Color.DarkCyan;
+            lblCommanderPrisoner.ForeColor = prisonerColor;
+            numCommanderPrisoner.ForeColor = prisonerColor;
+            lblKnightPrisoner.ForeColor = prisonerColor;
+            numKnightPrisoner.ForeColor = prisonerColor;
+
             // Adjust table layouts for better alignment and add tooltips
             AdjustTableLayouts();
 

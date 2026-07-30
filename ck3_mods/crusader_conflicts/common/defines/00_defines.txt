@@ -214,6 +214,7 @@ NCharacter = {
 		16 #exc
 		68 #nice
 		69 #exc
+		99 #godlike
 	}
 	SKILL_LEVELS_TEXTS = {
 		"SKILL_TERRIBLE"
@@ -223,6 +224,7 @@ NCharacter = {
 		"SKILL_EXCELLENT"
 		"SKILL_NICE"
 		"SKILL_EXCELLENT"
+		"SKILL_GODLIKE"
 	}
 
 	SKILL_MODIFIER_OFFSET = -8	# skill modifiers with offset add this from skill value (see common/modifiers/00_basic_modifiers.txt)
@@ -796,7 +798,6 @@ NFaith = {
 }
 
 NReligion = {
-	DEFAULT_FERVOR = 50				# Default fervor
     TIME_AT_PEACE_FOR_PIETY = 730	# For faiths with a doctrine with piety_from_long_peace, how long do they need to be at peace (in days)
 
 	# Hostility levels start at 0 (same faith or equivalent to same faith)
@@ -830,17 +831,12 @@ NReligion = {
 	PIETY_LOSS_PER_MISSING_SPOUSE = 0.5 # If you have fewer spouses than expected in a polygamous faith, you'll lose this much piety for each spouse you fall short.
 	DESIRED_SPOUSES_PER_TIER = { 0 1 1 2 3 4 4 }  # Number of spouses you are expected to have per tier, starging with unlanded, then baron and ending with hegemon
 	FAITH_CONVERSION_PIETY_MINIMUM = 250 # The minimum amount of piety converting faith costs
-	FAITH_CREATION_FERVOR_DISCOUNT_PER_MISSING_FERVOR = 1 # How much cheaper does creating a faith get per fervor below 100%? 1 means 1% per point
-	FAITH_CREATION_FERVOR_DISCOUNT_MAX = 50 # What percentage does the discount cap out at? With these numbers, 0-50 fervor means a 50% discount. Above 50 means between 0% and 50% discount
 	PART_OF_GHW_POT_DESIGNATED_FOR_KINGDOM_RECIPIENT = 10 # How many percent of the pot will be reserved for the person receiving the kingdom?
 	GHW_HOSTILITY_MIN_LEVEL = 2 # Any independent ruler within the target kingdom at least this hostile to the caller faith will be a forced defender
 	PREFERRED_GENDER_CHANCE = 3 # When deciding if clergy characters should be male or female a 3 here means that the preferred gender will be three times as likely
 	GHW_DAYS_LIMIT_CAN_CHANGE_TARGET = 30  # is GHW starts sooner than this number, you can no longer change target
 	GHW_COST_PIETY_CHANGE_TARGET = 250  # cost to chagne GHW target. Grows linearly with each change
-	MAX_FERVOR = 100 # Max amount of fervor
 	HEAD_OF_FAITH_PIETY_GAIN = 1.0 # Monthly piety gain for heads of faith
-	MINIMUM_FAITH_SIZE_FERVOR_MODIFIER = 10 # Adjusts the size modifier for monthly fervor gain for a faith according to the following formula: 1/squareroot(max(define_value, faith_size)/define_value) where define value is the value of MINIMUM_FAITH_SIZE_FERVOR_MODIFIER and faith_size is the current amount of provinces that follows the faith.
-	FERVOR_CHANGELOG_DURATION = 10 # After how many years do fervor changelog entries get deleted?
 
 	FAITH_COLOR_DEVIATION = { 0.25 0.35 } # How much should generated colors differ from the faith they're based on? Distance within the HSV colorspace
 }

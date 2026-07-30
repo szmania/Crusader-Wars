@@ -4,11 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
+using CrusaderWars.client;
+
 namespace CrusaderWars.mod_manager
 {
     public static class SubmodManager
     {
-        private static readonly string ActiveSubmodsFilePath = @".\settings\ActiveSubmods.xml";
+        private static readonly string ActiveSubmodsFilePath = @".\\settings\\ActiveSubmods.xml";
+        private static readonly string ActiveSubmodsXsdPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings", "schemas", "ActiveSubmods.xsd");
+        private static bool _isRetryingSubmodsLoad = false;
         private static Dictionary<string, List<string>> ActiveSubmodsByPlaythrough { get; set; } = new Dictionary<string, List<string>>();
 
         public static void LoadActiveSubmods()
@@ -18,8 +22,30 @@ namespace CrusaderWars.mod_manager
 
             if (!File.Exists(ActiveSubmodsFilePath))
             {
-                Program.Logger.Debug("ActiveSubmods.xml not found. No submods will be active.");
+                Program.Logger.Debug("ActiveSubmods.xml not found. Creating default file.");
+                CreateDefaultActiveSubmodsFile();
                 return;
+            }
+            else
+            {
+                var validationErrors = mod_manager.XmlValidator.Validate(ActiveSubmodsFilePath, ActiveSubmodsXsdPath);
+                if (validationErrors.Count > 0)
+                {
+                    if (_isRetryingSubmodsLoad)
+                    {
+                        MessageBox.Show("The default ActiveSubmods.xml file is also invalid. The application will now exit.", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Application.Exit();
+                        return;
+                    }
+
+                    bool reset = ValidationHelper.HandleValidationFailure(ActiveSubmodsFilePath, "ActiveSubmods.xml", validationErrors, CreateDefaultActiveSubmodsFile);
+                    if (reset)
+                    {
+                        _isRetryingSubmodsLoad = true;
+                        LoadActiveSubmods(); // Re-run to load the new default file
+                    }
+                    return; // Exit the current execution path
+                }
             }
 
             try
@@ -106,6 +132,28 @@ namespace CrusaderWars.mod_manager
             else
             {
                 ActiveSubmodsByPlaythrough[playthroughTag] = activeSubmodTags;
+            }
+        }
+
+        private static void CreateDefaultActiveSubmodsFile()
+        {
+            try
+            {
+                Program.Logger.Debug("Creating default ActiveSubmods.xml file...");
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                xmlDoc.AppendChild(xmlDeclaration);
+
+                XmlElement root = xmlDoc.CreateElement("ActiveSubmods");
+                xmlDoc.AppendChild(root);
+
+                xmlDoc.Save(ActiveSubmodsFilePath);
+                Program.Logger.Debug("Default ActiveSubmods.xml file created successfully.");
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error creating default ActiveSubmods.xml: {ex.Message}");
+                MessageBox.Show($"Error creating default ActiveSubmods.xml: {ex.Message}", "File Creation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

@@ -370,7 +370,7 @@ namespace CrusaderWars.client
                 if (tagObject is null) { continue; }
                 RegimentType regimentType = tagObject.RegimentType;
                 string typeIdentifier = tagObject.TypeIdentifier;
-                string faction = selectedNode.Parent!.Text; // Get faction from parent node
+                string faction = selectedNode.Parent?.Text ?? ""; // Get faction from parent node
                 bool isSplitLevyNode = tagObject.GetType().GetProperty("IsSplitLevyNode") != null && tagObject.IsSplitLevyNode;
 
                 if (isSplitLevyNode)
@@ -448,7 +448,7 @@ namespace CrusaderWars.client
                         RegimentType regimentType = tag.RegimentType;
                         string typeIdentifier = tag.TypeIdentifier;
                         bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
-                        string faction = node.Parent!.Text; // Get faction from parent node
+                        string faction = node.Parent?.Text ?? ""; // Get faction from parent node
                         bool isSplitLevyNode = tag.GetType().GetProperty("IsSplitLevyNode") != null && tag.IsSplitLevyNode;
 
                         int arrowIndex = node.Text.IndexOf(" ->");

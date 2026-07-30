@@ -19,6 +19,12 @@
       <PackageReference Include="SharpZipLib" Version="1.4.2" />
       <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
       <PackageReference Include="System.Text.Json" Version="8.0.5" />
+      <PackageReference Include="xunit" Version="2.9.3" />
+      <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -309,19 +315,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="unit mappers\schemas\cultures.xsd">
+    <None Update="settings\\schemas\\ActiveSubmods.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\factions.xsd">
+    <None Update="settings\\schemas\\Options.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\mods.xsd">
+    <None Update="settings\\schemas\\Paths.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\timeperiod.xsd">
+    <None Update="settings\\schemas\\UnitMappers.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\schemas\titles.xsd">
+    <None Update="unit mappers\\schemas\\cultures.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\factions.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\mods.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\timeperiod.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\titles.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
