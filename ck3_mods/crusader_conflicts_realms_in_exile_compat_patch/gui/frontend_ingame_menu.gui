@@ -12,7 +12,7 @@ window = {
 	}
 
 	background = {
-		texture = "gfx/interface/illustrations/frontend/pause_bg.dds"
+        texture = "gfx/interface/illustrations/frontend/pause_bg.dds" #LotR
 
 		modify_texture = {
 			texture = "gfx/interface/frontend/fade_bg_ingame_menu.dds"
