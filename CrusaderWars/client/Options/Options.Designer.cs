@@ -438,131 +438,136 @@
             // flowLayoutPanel2
             //
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
-            this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.flowLayoutPanel2.WrapContents = false;
-            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
+            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(580, 34);
+            this.flowLayoutPanel2.TabIndex = 33;
+            this.flowLayoutPanel2.WrapContents = false;
+            // 
             // Btn_CK3Tab
+            // 
             this.Btn_CK3Tab.AutoSize = true;
             this.Btn_CK3Tab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CK3Tab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
-            // Btn_CK3Tab.Dock removed - let FlowLayoutPanel handle layout
+            this.Btn_CK3Tab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Btn_CK3Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_CK3Tab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CK3Tab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_CK3Tab.ForeColor = System.Drawing.Color.White;
             this.Btn_CK3Tab.Location = new System.Drawing.Point(3, 3);
             this.Btn_CK3Tab.Name = "Btn_CK3Tab";
-            this.Btn_CK3Tab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_CK3Tab.Size = new System.Drawing.Size(113, 28);
             this.Btn_CK3Tab.TabIndex = 0;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CK3Tab, "Crusader Kings 3 playthrough.");
-            this.Btn_CK3Tab.Text = "DefaultCK3";
+            this.Btn_CK3Tab.Text = "Crusader Kings";
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CK3Tab, "Standard Crusader Kings time frame with the Age of Justinian 555, Anno Domini 919, and Medieval Kingdoms 1212 AD mods for Attila.");
             this.Btn_CK3Tab.UseVisualStyleBackColor = false;
             this.Btn_CK3Tab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_CK3Tab.Click += new System.EventHandler(this.Btn_CK3Tab_Click);
-
+            // 
+            // Btn_TFETab
+            // 
+            this.Btn_TFETab.AutoSize = true;
+            this.Btn_TFETab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_TFETab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_TFETab.BackgroundImage")));
+            this.Btn_TFETab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_TFETab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_TFETab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_TFETab.ForeColor = System.Drawing.Color.White;
+            this.Btn_TFETab.Location = new System.Drawing.Point(122, 3);
+            this.Btn_TFETab.Name = "Btn_TFETab";
+            this.Btn_TFETab.Size = new System.Drawing.Size(123, 28);
+            this.Btn_TFETab.TabIndex = 1;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_TFETab, "Uses The Fallen Eagle Mod for CK3, with the FireForged Empire mod for Attila.");
+            this.Btn_TFETab.Text = "The Fallen Eagle";
+            this.Btn_TFETab.UseVisualStyleBackColor = false;
+            this.Btn_TFETab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_TFETab.Click += new System.EventHandler(this.Btn_TFETab_Click);
+            // 
+            // Btn_LOTRTab
+            // 
+            this.Btn_LOTRTab.AutoSize = true;
+            this.Btn_LOTRTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_LOTRTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
+            this.Btn_LOTRTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_LOTRTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_LOTRTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_LOTRTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_LOTRTab.Location = new System.Drawing.Point(251, 3);
+            this.Btn_LOTRTab.Name = "Btn_LOTRTab";
+            this.Btn_LOTRTab.Size = new System.Drawing.Size(114, 28);
+            this.Btn_LOTRTab.TabIndex = 2;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Lord of the Rings playthrough. Uses the CK3 mod LOTR: Realms in Exile and the Attila mod \"Dawnless Days\".");
+            this.Btn_LOTRTab.Text = "Realms in Exile";
+            this.Btn_LOTRTab.UseVisualStyleBackColor = false;
+            this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
+            // 
+            // Btn_AGOTTab
+            // 
+            this.Btn_AGOTTab.AutoSize = true;
+            this.Btn_AGOTTab.BackColor = System.Drawing.Color.LightGray;
+            this.Btn_AGOTTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
+            this.Btn_AGOTTab.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.Btn_AGOTTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_AGOTTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Btn_AGOTTab.ForeColor = System.Drawing.Color.White;
+            this.Btn_AGOTTab.Location = new System.Drawing.Point(371, 3);
+            this.Btn_AGOTTab.Name = "Btn_AGOTTab";
+            this.Btn_AGOTTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_AGOTTab.TabIndex = 3;
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_AGOTTab, "A Game of Thrones playthrough with AGOT ck3 mod and Seven Kingdoms TW:Attila mod");
+            this.Btn_AGOTTab.Text = "AGOT";
+            this.Btn_AGOTTab.UseVisualStyleBackColor = false;
+            this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
             //
             // Btn_BookmarksPlusTab
             //
             this.Btn_BookmarksPlusTab.AutoSize = true;
             this.Btn_BookmarksPlusTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_BookmarksPlusTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_BookmarksPlusTab.BackgroundImage")));
-            // Btn_BookmarksPlusTab.Dock removed - let FlowLayoutPanel handle layout
+            this.Btn_BookmarksPlusTab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Btn_BookmarksPlusTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_BookmarksPlusTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_BookmarksPlusTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_BookmarksPlusTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_BookmarksPlusTab.Location = new System.Drawing.Point(486, 3);
+            this.Btn_BookmarksPlusTab.Location = new System.Drawing.Point(457, 3);
             this.Btn_BookmarksPlusTab.Name = "Btn_BookmarksPlusTab";
-            this.Btn_BookmarksPlusTab.Size = new System.Drawing.Size(80, 28);
+            this.Btn_BookmarksPlusTab.Size = new System.Drawing.Size(100, 28);
             this.Btn_BookmarksPlusTab.TabIndex = 4;
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_BookmarksPlusTab, "Bookmarks+ (pre-768) playthrough.");
             this.Btn_BookmarksPlusTab.Text = "Bookmarks+";
             this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
             this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
-
-            // Btn_TFETab
-            this.Btn_TFETab.AutoSize = true;
-            this.Btn_TFETab.BackColor = System.Drawing.Color.LightGray;
-            this.Btn_TFETab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_TFETab.BackgroundImage")));
-            // Btn_TFETab.Dock removed - let FlowLayoutPanel handle layout
-            this.Btn_TFETab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.Btn_TFETab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Btn_TFETab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Btn_TFETab.ForeColor = System.Drawing.Color.White;
-            this.Btn_TFETab.Location = new System.Drawing.Point(83, 3);
-            this.Btn_TFETab.Name = "Btn_TFETab";
-            this.Btn_TFETab.Size = new System.Drawing.Size(80, 28);
-            this.Btn_TFETab.TabIndex = 1;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_TFETab, "The Fallen Eagle playthrough.");
-            this.Btn_TFETab.Text = "TheFallenEagle";
-            this.Btn_TFETab.UseVisualStyleBackColor = false;
-            this.Btn_TFETab.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Btn_TFETab.Click += new System.EventHandler(this.Btn_TFETab_Click);
-
-            // Btn_LOTRTab
-            this.Btn_LOTRTab.AutoSize = true;
-            this.Btn_LOTRTab.BackColor = System.Drawing.Color.LightGray;
-            this.Btn_LOTRTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
-            // Btn_LOTRTab.Dock removed - let FlowLayoutPanel handle layout
-            this.Btn_LOTRTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.Btn_LOTRTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Btn_LOTRTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Btn_LOTRTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_LOTRTab.Location = new System.Drawing.Point(163, 3);
-            this.Btn_LOTRTab.Name = "Btn_LOTRTab";
-            this.Btn_LOTRTab.Size = new System.Drawing.Size(80, 28);
-            this.Btn_LOTRTab.TabIndex = 2;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_LOTRTab, "Realms in Exile (LOTR) playthrough.");
-            this.Btn_LOTRTab.Text = "RealmsInExile";
-            this.Btn_LOTRTab.UseVisualStyleBackColor = false;
-            this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
-
-            // Btn_AGOTTab
-            this.Btn_AGOTTab.AutoSize = true;
-            this.Btn_AGOTTab.BackColor = System.Drawing.Color.LightGray;
-            this.Btn_AGOTTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_AGOTTab.BackgroundImage")));
-            // Btn_AGOTTab.Dock removed - let FlowLayoutPanel handle layout
-            this.Btn_AGOTTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.Btn_AGOTTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Btn_AGOTTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Btn_AGOTTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_AGOTTab.Location = new System.Drawing.Point(243, 3);
-            this.Btn_AGOTTab.Name = "Btn_AGOTTab";
-            this.Btn_AGOTTab.Size = new System.Drawing.Size(80, 28);
-            this.Btn_AGOTTab.TabIndex = 3;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_AGOTTab, "A Game of Thrones (AGOT) playthrough.");
-            this.Btn_AGOTTab.Text = "AGOT";
-            this.Btn_AGOTTab.UseVisualStyleBackColor = false;
-            this.Btn_AGOTTab.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
-            //
+            // 
             // Btn_CustomTab
-            //
+            // 
             this.Btn_CustomTab.AutoSize = true;
             this.Btn_CustomTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CustomTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
-            // Btn_CustomTab.Dock removed - let FlowLayoutPanel handle layout
+            this.Btn_CustomTab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Btn_CustomTab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_CustomTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CustomTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_CustomTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_CustomTab.Location = new System.Drawing.Point(566, 3);
+            this.Btn_CustomTab.Location = new System.Drawing.Point(563, 3);
             this.Btn_CustomTab.Name = "Btn_CustomTab";
             this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
             this.Btn_CustomTab.TabIndex = 5;
             this.ToolTip_UnitMappers.SetToolTip(this.Btn_CustomTab, "Custom playthrough with a custom unit mapper.");
             this.Btn_CustomTab.Text = "Custom";
-
-            this.Btn_CustomTab.Click += new System.EventHandler(this.Btn_CustomTab_Click);
-
+            this.Btn_CustomTab.UseVisualStyleBackColor = false;
+            this.Btn_CustomTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_CustomTab.Click += new System.EventHandler(this.Btn_CustomTab_Click);
             //
             // TableLayoutGamePaths
