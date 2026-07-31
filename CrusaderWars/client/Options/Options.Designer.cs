@@ -439,9 +439,9 @@
             //
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.flowLayoutPanel2.WrapContents = true;
-            this.flowLayoutPanel2.AutoSize = false;
-            this.flowLayoutPanel2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.flowLayoutPanel2.WrapContents = false;
+            this.flowLayoutPanel2.AutoSize = true;
+            this.flowLayoutPanel2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
