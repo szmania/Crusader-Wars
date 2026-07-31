@@ -1879,7 +1879,6 @@ this.infoLabel.AutoSize = true;
                                     else if (activePlaythrough == "TheFallenEagle")
                                     {
                                         string tfePatchLocal = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
-                                        string tfePatchSteam = "ugc_3774783030.mod";
                                         int tfePatchIndex = enabledModsList.FindLastIndex(m =>
                                             m.Equals(tfePatchLocal, StringComparison.OrdinalIgnoreCase) ||
                                             m.Equals(tfePatchSteam, StringComparison.OrdinalIgnoreCase));
