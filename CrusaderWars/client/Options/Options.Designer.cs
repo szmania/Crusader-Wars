@@ -432,7 +432,7 @@
             this.UMpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.UMpanel.Location = new System.Drawing.Point(3, 64);
             this.UMpanel.Name = "UMpanel";
-            this.UMpanel.Size = new System.Drawing.Size(580, 185);
+            this.UMpanel.Size = new System.Drawing.Size(650, 185);
             this.UMpanel.TabIndex = 32;
             //
             // flowLayoutPanel2
@@ -446,7 +446,7 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(580, 34);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(650, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             this.flowLayoutPanel2.WrapContents = false;
             // 
@@ -612,7 +612,7 @@
             // TableLayoutPlaythroughs
             //
             this.TableLayoutPlaythroughs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
-            this.TableLayoutPlaythroughs.AutoSize = false;
+            this.TableLayoutPlaythroughs.AutoSize = true;
             this.TableLayoutPlaythroughs.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutPlaythroughs.ColumnCount = 1;
             this.TableLayoutPlaythroughs.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -622,8 +622,10 @@
             this.TableLayoutPlaythroughs.Location = new System.Drawing.Point(20, 394);
             this.TableLayoutPlaythroughs.Name = "TableLayoutPlaythroughs";
             this.TableLayoutPlaythroughs.RowCount = 3;
-            this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(700, 980);
+            this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(656, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             //
