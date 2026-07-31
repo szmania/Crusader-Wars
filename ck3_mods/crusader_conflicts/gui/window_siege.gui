@@ -1961,7 +1961,7 @@ window = {
 						hbox = {
 							widget = {
 								启н요—
-								layoutpolicy_horizontal = expanding
+启Т球—								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMax( Siege.GetSiegeMenBalance, '(float)100' )]"
 								icon = {
@@ -2003,7 +2003,7 @@ window = {
 							}
 							widget = {
 								启с«—
-								layoutpolicy_horizontal = expanding
+启Цれ—								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMaxOther( Siege.GetSiegeMenBalance, '(float)100' )]"
 								icon = {
@@ -2390,7 +2390,7 @@ window = {
 						hbox = {
 							layoutpolicy_horizontal = expanding
 							widget = {
-								layoutpolicy_horizontal = expanding
+启х场—								layoutpolicy_horizontal = expanding
 								size = { 0 110 }
 								tooltip = "[SiegeWindow.GetStarvationStateTooltip]"
 								using = tooltip_ne
@@ -2451,7 +2451,7 @@ window = {
 								}
 							}
 							widget = {
-								layoutpolicy_horizontal = expanding
+启щわ—								layoutpolicy_horizontal = expanding
 								size = { 0 110 }
 								tooltip = "[SiegeWindow.GetDiseaseStateTooltip]"
 								using = tooltip_ne
@@ -2586,7 +2586,7 @@ window = {
 								onclick = "[SiegeWindow.StartStopAssault]"
 								shortcut = siege_assault
 								using = Animation_ShowHide_Standard
-								enabled = "[And(Siege.EnableAssaultButton, SiegeWindow.GetSiege.MakeScope.ScriptedTrigger('cc_can_assault_siege_with_troops'))]"
+							enabled = "[And(Siege.EnableAssaultButton, SiegeWindow.GetSiege.MakeScope.ScriptedTrigger('cc_can_assault_siege_with_troops'))]"
 								name = _mouse_enter
 								on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_enter')]"
 							}
