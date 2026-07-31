@@ -1720,32 +1720,68 @@ this.infoLabel.AutoSize = true;
                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
                                 }
                             }
+                            else if (activePlaythrough == "TheFallenEagle")
+                            {
+                                requiredPatch = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                                playthroughName = "The Fallen Eagle";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3774783030.mod"))
+                                {
+                                    Program.Logger.Debug($"Required The Fallen Eagle compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because The Fallen Eagle compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required The Fallen Eagle compatibility patch is enabled.");
+                                }
+                            }
 
                             // Check for incorrectly enabled compatibility patches
                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
                             string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                            string tfePatch = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                            string tfePatchSteam = "ugc_3774783030.mod";
 
-                            if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
+
+                            if (activePlaythrough == "AGOT" && (enabledMods.Contains(lotrPatch) || enabledMods.Contains(tfePatch) || enabledMods.Contains(tfePatchSteam)))
                             {
-                                Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
-                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                Program.Logger.Debug("AGOT playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but a compatibility patch for another major mod (like Realms in Exile or The Fallen Eagle) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
                                                 "Incorrect Compatibility Patch Enabled",
                                                 MessageBoxButtons.OK,
                                                 MessageBoxIcon.Warning);
                                 return;
                             }
 
-                            if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
+                            if (activePlaythrough == "RealmsInExile" && (enabledMods.Contains(agotPatch) || enabledMods.Contains(tfePatch) || enabledMods.Contains(tfePatchSteam)))
                             {
-                                Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
-                                MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                Program.Logger.Debug("Realms in Exile playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but a compatibility patch for another major mod (like AGOT or The Fallen Eagle) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
                                                 "Incorrect Compatibility Patch Enabled",
                                                 MessageBoxButtons.OK,
                                                 MessageBoxIcon.Warning);
                                 return;
                             }
 
-                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
+                            if (activePlaythrough == "TheFallenEagle" && (enabledMods.Contains(agotPatch) || enabledMods.Contains(lotrPatch)))
+                            {
+                                Program.Logger.Debug("The Fallen Eagle playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show("You have 'The Fallen Eagle' playthrough selected, but a compatibility patch for another major mod (like AGOT or Realms in Exile) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
+                                                "Incorrect Compatibility Patch Enabled",
+                                                MessageBoxButtons.OK,
+                                                MessageBoxIcon.Warning);
+                                return;
+                            }
+
+
+                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile" && activePlaythrough != "TheFallenEagle")
                             {
                                 if (enabledMods.Contains(agotPatch))
                                 {
@@ -1760,6 +1796,15 @@ this.infoLabel.AutoSize = true;
                                 {
                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                                if (enabledMods.Contains(tfePatch) || enabledMods.Contains(tfePatchSteam))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but The Fallen Eagle patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'The Fallen Eagle' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'The Fallen Eagle' patch before continuing.",
                                                     "Incorrect Compatibility Patch Enabled",
                                                     MessageBoxButtons.OK,
                                                     MessageBoxIcon.Warning);
@@ -1829,6 +1874,21 @@ this.infoLabel.AutoSize = true;
                                             loadOrderCorrect = false;
                                             expectedOrderMessage =
                                                 "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
+                                        }
+                                    }
+                                    else if (activePlaythrough == "TheFallenEagle")
+                                    {
+                                        string tfePatchLocal = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                                        string tfePatchSteam = "ugc_3774783030.mod";
+                                        int tfePatchIndex = enabledModsList.FindLastIndex(m =>
+                                            m.Equals(tfePatchLocal, StringComparison.OrdinalIgnoreCase) ||
+                                            m.Equals(tfePatchSteam, StringComparison.OrdinalIgnoreCase));
+                                        if (mainModIndex == -1 || tfePatchIndex != enabledModsList.Count - 1 ||
+                                            mainModIndex > tfePatchIndex)
+                                        {
+                                            loadOrderCorrect = false;
+                                            expectedOrderMessage =
+                                                "For The Fallen Eagle playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'The Fallen Eagle Compatibility Patch', and the patch should be last in your playset.";
                                         }
                                     }
                                     else // Default case
@@ -2938,7 +2998,7 @@ this.infoLabel.AutoSize = true;
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";
-            if (tfeToggleStateStr == "True") playthrough = "LateAntiquity";
+            if (tfeToggleStateStr == "True") playthrough = "TheFallenEagle";
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
             if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
 
@@ -2949,6 +3009,9 @@ this.infoLabel.AutoSize = true;
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
                     break;
                 case "LateAntiquity":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
+                    break;
+                case "TheFallenEagle":
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
                     break;
                 case "Lotr":
