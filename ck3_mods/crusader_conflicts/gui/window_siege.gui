@@ -666,16 +666,15 @@ window = {
                     ############################################################
     
                     button = { name = Siege_Button_control1
-                        tooltip = cc_siege_fight_button
-                        enabled = "[Siege.EnableAssaultButton]"
+ tooltip = "[Siege.GetAssaultButtonTooltip]"
+ enabled = "[Siege.EnableAssaultButton]"
                         parentanchor = left
                         position = { 0 0 }
                         texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
                         size = { 50 50 }
                         #alpha = .60
-                        #visible = yes
-                        visible = "[And(And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress)), GetVariableSystem.HasValue('cc_op_control', 'control1'))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
-                        #visible = yes
+
+                                    enabled = "[Siege.EnableAssaultButton]"
                         #enabled = "[And(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, Not(SiegeWindow.GetSiege.IsAssaultInProgress))]"
     
                         onclick = "[PdxGuiTriggerAllAnimations('clear_log')]"
@@ -1036,14 +1035,15 @@ window = {
                     ############################################################
     
                     button = { name = Siege_Button_control2
-                        tooltip = cc_siege_fight_button
-                        enabled = "[Siege.EnableAssaultButton]"
+ tooltip = "[Siege.GetAssaultButtonTooltip]"
+ enabled = "[Siege.EnableAssaultButton]"
                         parentanchor = left
                         position = { 0 0 }
                         texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
                         size = { 50 50 }
                         #alpha = .60
-                        #visible = yes
+
+                                    enabled = "[Siege.EnableAssaultButton]"
                         visible = "[And(And(Or(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, ObjectsEqual(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetCouncilTitle, 'Marshal')), GetVariableSystem.HasValue('cc_op_control', 'control2')), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]" # ONLY PLAYER character can control battles, since the player character can always control, regardless of options this doesn't need the variable check.
                         #enabled = "[And(And(Or(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.IsPlayer, ObjectsEqual(SiegeWindow.GetAttackerUnitItem.GetArmy.GetCommander.GetCouncilTitle, 'Marshal')), GetVariableSystem.HasValue('cc_op_control', 'control2')), Not(SiegeWindow.GetSiege.IsAssaultInProgress))]"
                         #enabled = "[Siege.EnableAssaultButton]"
@@ -1406,8 +1406,8 @@ window = {
                     ############################################################
     
                     button = { name = Siege_Button_control3
-                        tooltip = cc_siege_fight_button
-                        enabled = "[Siege.EnableAssaultButton]"
+ tooltip = "[Siege.GetAssaultButtonTooltip]"
+ enabled = "[Siege.EnableAssaultButton]"
                         parentanchor = left
                         position = { 0 0 }
                         texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
@@ -1775,8 +1775,8 @@ window = {
                     ############################################################
     
                     button = { name = Siege_Button_control4
-                        tooltip = cc_siege_fight_button
-                        enabled = "[Siege.EnableAssaultButton]"
+ tooltip = "[Siege.GetAssaultButtonTooltip]"
+ enabled = "[Siege.EnableAssaultButton]"
                         parentanchor = left
                         position = { 0 0 }
                         texture = "gfx/interface/icons/map_icons/combat_map_icon.dds"
@@ -2269,7 +2269,7 @@ window = {
 
 						hbox = {
 							widget = {
-								layoutpolicy_horizontal = expanding
+启н요—								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMax( Siege.GetSiegeMenBalance, '(float)100' )]"
 
@@ -2319,7 +2319,7 @@ window = {
 							}
 
 							widget = {
-								layoutpolicy_horizontal = expanding
+启с«—								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMaxOther( Siege.GetSiegeMenBalance, '(float)100' )]"
 

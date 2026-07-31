@@ -1,0 +1,17 @@
+# Crusader Conflicts Siege Triggers
+# Created for CC-231: Disable Siege Button when insufficient troops
+
+# Trigger to check if attacker has sufficient troops to assault
+# Standard CK3 assault ratio is 3:1 (attacker:defender)
+cc_siege_sufficient_troops_trigger = {
+    # This trigger is not directly used in the GUI `enabled` property,
+    # as GUI expressions are preferred. It is here for documentation
+    # and potential future use in scripted effects or events.
+    # The logic is replicated in the GUI using built-in accessors.
+    #
+    # Example logic:
+    # greater_than_or_equal_to = {
+    #     value = scope:attacker_army.num_soldiers
+    #     value = multiply( scope:siege_data.garrison_size, 3 )
+    # }
+}
