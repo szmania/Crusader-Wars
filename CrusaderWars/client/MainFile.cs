@@ -586,10 +586,9 @@ namespace CrusaderWars
                 else if (gamePaths && unitMappers)
                 {
                     ExecuteButton.Enabled = true;
-infoLabel.Text = "Ready to Start!";
-infoLabel.ForeColor = Color.WhiteSmoke;
-infoLabel.BackColor = _originalInfoLabelBackColor;
-infoLabel.AutoSize = true;
+                    infoLabel.Text = "Ready to Start!";
+                    infoLabel.ForeColor = Color.WhiteSmoke;
+                    infoLabel.BackColor = _originalInfoLabelBackColor;
                     infoLabel.ForeColor = Original_Color;
                     infoLabel.BackColor = _originalInfoLabelBackColor;
                     if (_isPulsing)
@@ -659,7 +658,7 @@ infoLabel.AutoSize = true;
             SettingsBtn.Size = new Size(248, 158);
             pictureBox1.Size = new Size(295, 300);
             discordLink.Size = new Size(32, 32);
-            MainPanelLayout.Size = new Size(299, 705); // Programmatically set MainPanelLayout size
+            MainPanelLayout.Size = new Size(350, 705); // Programmatically set MainPanelLayout size
             tableLayoutPanel1.Size = new Size(256, 668); // Programmatically set tableLayoutPanel1 size
             this.ClientSize = new Size(1219, 705); // Programmatically set form ClientSize
 
@@ -798,8 +797,8 @@ infoLabel.AutoSize = true;
             InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
             infoLabel.ForeColor = Color.WhiteSmoke;
-            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 20, 120);
-            this.infoLabel.AutoSize = false;
+            infoLabel.MaximumSize = new Size(1000, 0);
+            this.infoLabel.AutoSize = true;
 
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
@@ -1693,138 +1692,176 @@ infoLabel.AutoSize = true;
                             string requiredPatch = "";
                             string playthroughName = "";
 
-                             if (activePlaythrough == "AGOT")
-                             {
-                                 requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
-                                 playthroughName = "A Game of Thrones (AGOT)";
-                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
-                                 {
-                                     Program.Logger.Debug($"Required AGOT compatibility patch (local or steam) not found in dlc_load.json.");
-                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
-                                                                  "Compatibility Patch Not Enabled",
-                                                                  MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
-                                     if (result == DialogResult.No)
-                                     {
-                                         Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
-                                         return; // Stop execution
-                                     }
-                                 }
-                                 else
-                                 {
-                                     Program.Logger.Debug($"Required AGOT compatibility patch is enabled.");
-                                 }
-                             }
-                             else if (activePlaythrough == "RealmsInExile")
-                             {
-                                 requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
-                                 playthroughName = "Realms in Exile (LOTR)";
-                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526762.mod"))
-                                 {
-                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch (local or steam) not found in dlc_load.json.");
-                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
-                                                                  "Compatibility Patch Not Enabled",
-                                                                  MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
-                                     if (result == DialogResult.No)
-                                     {
-                                         Program.Logger.Debug("User cancelled execution because Realms in Exile compatibility patch is not enabled.");
-                                         return; // Stop execution
-                                     }
-                                 }
-                                 else
-                                 {
-                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
-                                 }
-                             }
-                             else if (activePlaythrough == "BookmarksPlus")
-                             {
-                                 requiredPatch = "crusader_conflicts_bookmarksplus_compat_patch.mod";
-                                 playthroughName = "Bookmarks+ (pre-768)";
-                                 if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
-                                 {
-                                     Program.Logger.Debug($"Required Bookmarks+ compatibility patch (local or steam) not found in dlc_load.json.");
-                                     var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
-                                                                  "Compatibility Patch Not Enabled",
-                                                                  MessageBoxButtons.YesNo,
-                                                                  MessageBoxIcon.Warning);
-                                     if (result == DialogResult.No)
-                                     {
-                                         Program.Logger.Debug("User cancelled execution because Bookmarks+ compatibility patch is not enabled.");
-                                         return; // Stop execution
-                                     }
-                                 }
-                                 else
-                                 {
-                                     Program.Logger.Debug($"Required Bookmarks+ compatibility patch is enabled.");
-                                 }
-                             }
+                            if (activePlaythrough == "AGOT")
+                            {
+                                requiredPatch = "crusader_conflicts_agot_compat_patch.mod";
+                                playthroughName = "A Game of Thrones (AGOT)";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
+                                {
+                                    Program.Logger.Debug($"Required AGOT compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because AGOT compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required AGOT compatibility patch is enabled.");
+                                }
+                            }
+                            else if (activePlaythrough == "RealmsInExile")
+                            {
+                                requiredPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                                playthroughName = "Realms in Exile (LOTR)";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526762.mod"))
+                                {
+                                    Program.Logger.Debug($"Required Realms in Exile compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because Realms in Exile compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
+                                }
+                            }
+                            else if (activePlaythrough == "TheFallenEagle")
+                            {
+                                requiredPatch = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                                playthroughName = "The Fallen Eagle";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3774783030.mod"))
+                                {
+                                    Program.Logger.Debug($"Required The Fallen Eagle compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because The Fallen Eagle compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required The Fallen Eagle compatibility patch is enabled.");
+                                }
+                            }
+                            else if (activePlaythrough == "BookmarksPlus")
+                            {
+                                requiredPatch = "crusader_conflicts_bookmarksplus_compat_patch.mod";
+                                playthroughName = "Bookmarks+ (pre-768)";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
+                                {
+                                    Program.Logger.Debug($"Required Bookmarks+ compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                        "Compatibility Patch Not Enabled",
+                                        MessageBoxButtons.YesNo,
+                                        MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because Bookmarks+ compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required Bookmarks+ compatibility patch is enabled.");
+                                }
+                            }
 
                             // Check for incorrectly enabled compatibility patches
                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
                             string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                            string tfePatch = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                            string tfePatchSteam = "ugc_3774783030.mod";
 
-                            if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
+
+                            if (activePlaythrough == "AGOT" && (enabledMods.Contains(lotrPatch) || enabledMods.Contains(tfePatch) || enabledMods.Contains(tfePatchSteam)))
                             {
-                                Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
-                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                Program.Logger.Debug("AGOT playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but a compatibility patch for another major mod (like Realms in Exile or The Fallen Eagle) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
                                                 "Incorrect Compatibility Patch Enabled",
                                                 MessageBoxButtons.OK,
                                                 MessageBoxIcon.Warning);
                                 return;
                             }
 
-                             if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
-                             {
-                                 Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
-                                 MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                 "Incorrect Compatibility Patch Enabled",
-                                                 MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Warning);
+                            if (activePlaythrough == "RealmsInExile" && (enabledMods.Contains(agotPatch) ||
+                                                                         enabledMods.Contains(tfePatch) ||
+                                                                         enabledMods.Contains(tfePatchSteam)))
+                            {
+                                Program.Logger.Debug(
+                                    "Realms in Exile playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show(
+                                    "You have the 'Realms in Exile (LOTR)' playthrough selected, but a compatibility patch for another major mod (like AGOT or The Fallen Eagle) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
+                                    "Incorrect Compatibility Patch Enabled",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
                                 return;
                             }
 
-                            if (activePlaythrough == "BookmarksPlus" && enabledMods.Contains(agotPatch))
+                            if (activePlaythrough == "TheFallenEagle" && (enabledMods.Contains(agotPatch) || enabledMods.Contains(lotrPatch)))
+                            {
+                                Program.Logger.Debug("The Fallen Eagle playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show("You have 'The Fallen Eagle' playthrough selected, but a compatibility patch for another major mod (like AGOT or Realms in Exile) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
+                                    "Incorrect Compatibility Patch Enabled",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile" && activePlaythrough != "TheFallenEagle")
+                            {
+                                if (enabledMods.Contains(agotPatch))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but AGOT patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                                if (enabledMods.Contains(lotrPatch))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                                if (enabledMods.Contains(tfePatch) || enabledMods.Contains(tfePatchSteam))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but The Fallen Eagle patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'The Fallen Eagle' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'The Fallen Eagle' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                            }
+
+                            if (activePlaythrough == "BookmarksPlus" && enabledMods.Contains(agotPatch) || enabledMods.Contains(lotrPatch))
                             {
                                 Program.Logger.Debug("Bookmarks+ playthrough is active, but AGOT patch is also enabled.");
                                 MessageBox.Show("You have the 'Bookmarks+ (pre-768)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                "Incorrect Compatibility Patch Enabled",
-                                                MessageBoxButtons.OK,
-                                                MessageBoxIcon.Warning);
+                                    "Incorrect Compatibility Patch Enabled",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
                                 return;
                             }
-
-                            if (activePlaythrough == "BookmarksPlus" && enabledMods.Contains(lotrPatch))
-                            {
-                                Program.Logger.Debug("Bookmarks+ playthrough is active, but Realms in Exile patch is also enabled.");
-                                MessageBox.Show("You have the 'Bookmarks+ (pre-768)' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
-                                                "Incorrect Compatibility Patch Enabled",
-                                                MessageBoxButtons.OK,
-                                                MessageBoxIcon.Warning);
-                                return;
-                            }
-
-                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile" && activePlaythrough != "BookmarksPlus")
-                             {
-                                 if (enabledMods.Contains(agotPatch))
-                                 {
-                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but AGOT patch is also enabled.");
-                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'A Game of Thrones' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                     "Incorrect Compatibility Patch Enabled",
-                                                     MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
-                                     return;
-                                 }
-                                 if (enabledMods.Contains(lotrPatch))
-                                 {
-                                     Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but Realms in Exile patch is also enabled.");
-                                     MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
-                                                     "Incorrect Compatibility Patch Enabled",
-                                                     MessageBoxButtons.OK,
-                                                     MessageBoxIcon.Warning);
-                                     return;
-                                 }
-                             }
 
                             // Check for recommended load order
                             if (isBaseModEnabled)
@@ -1888,6 +1925,20 @@ infoLabel.AutoSize = true;
                                              loadOrderCorrect = false;
                                              expectedOrderMessage =
                                                  "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
+                                        }
+                                    }
+                                    else if (activePlaythrough == "TheFallenEagle")
+                                    {
+                                        string tfePatchLocal = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                                        int tfePatchIndex = enabledModsList.FindLastIndex(m =>
+                                            m.Equals(tfePatchLocal, StringComparison.OrdinalIgnoreCase) ||
+                                            m.Equals(tfePatchSteam, StringComparison.OrdinalIgnoreCase));
+                                        if (mainModIndex == -1 || tfePatchIndex != enabledModsList.Count - 1 ||
+                                            mainModIndex > tfePatchIndex)
+                                        {
+                                            loadOrderCorrect = false;
+                                            expectedOrderMessage =
+                                                "For The Fallen Eagle playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'The Fallen Eagle Compatibility Patch', and the patch should be last in your playset.";
                                         }
                                     }
                                     else if (activePlaythrough == "BookmarksPlus")
@@ -3012,7 +3063,7 @@ infoLabel.AutoSize = true;
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";
-            if (tfeToggleStateStr == "True") playthrough = "LateAntiquity";
+            if (tfeToggleStateStr == "True") playthrough = "TheFallenEagle";
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
             if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
             if (bookmarksPlusToggleStateStr == "True") playthrough = "BookmarksPlus";
@@ -3024,6 +3075,9 @@ infoLabel.AutoSize = true;
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
                     break;
                 case "LateAntiquity":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
+                    break;
+                case "TheFallenEagle":
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
                     break;
                 case "Lotr":
@@ -3380,10 +3434,9 @@ infoLabel.AutoSize = true;
                 {
                     linkOptInPreReleases.Enabled = true;
                     await Task.Delay(2000);
-infoLabel.Text = "Ready to Start!";
-infoLabel.ForeColor = Color.WhiteSmoke;
-infoLabel.BackColor = _originalInfoLabelBackColor;
-infoLabel.AutoSize = true;
+                    infoLabel.Text = "Ready to Start!";
+                    infoLabel.ForeColor = Color.WhiteSmoke;
+                    infoLabel.BackColor = _originalInfoLabelBackColor;
                 }
             }
         }
