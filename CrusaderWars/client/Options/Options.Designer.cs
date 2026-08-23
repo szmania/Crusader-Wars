@@ -440,18 +440,18 @@
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(650, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             this.flowLayoutPanel2.WrapContents = false;
-            // 
+            //
             // Btn_CK3Tab
-            // 
+            //
             this.Btn_CK3Tab.AutoSize = true;
             this.Btn_CK3Tab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CK3Tab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_CK3Tab.BackgroundImage")));
@@ -469,9 +469,9 @@
             this.Btn_CK3Tab.UseVisualStyleBackColor = false;
             this.Btn_CK3Tab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_CK3Tab.Click += new System.EventHandler(this.Btn_CK3Tab_Click);
-            // 
+            //
             // Btn_TFETab
-            // 
+            //
             this.Btn_TFETab.AutoSize = true;
             this.Btn_TFETab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_TFETab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_TFETab.BackgroundImage")));
@@ -489,9 +489,9 @@
             this.Btn_TFETab.UseVisualStyleBackColor = false;
             this.Btn_TFETab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_TFETab.Click += new System.EventHandler(this.Btn_TFETab_Click);
-            // 
+            //
             // Btn_LOTRTab
-            // 
+            //
             this.Btn_LOTRTab.AutoSize = true;
             this.Btn_LOTRTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_LOTRTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
@@ -509,9 +509,9 @@
             this.Btn_LOTRTab.UseVisualStyleBackColor = false;
             this.Btn_LOTRTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_LOTRTab.Click += new System.EventHandler(this.Btn_LOTRTab_Click);
-            // 
+            //
             // Btn_AGOTTab
-            // 
+            //
             this.Btn_AGOTTab.AutoSize = true;
             this.Btn_AGOTTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_AGOTTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));
@@ -549,9 +549,9 @@
             this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
             this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
-            // 
+            //
             // Btn_CustomTab
-            // 
+            //
             this.Btn_CustomTab.AutoSize = true;
             this.Btn_CustomTab.BackColor = System.Drawing.Color.LightGray;
             this.Btn_CustomTab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_LOTRTab.BackgroundImage")));

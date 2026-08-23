@@ -1482,9 +1482,9 @@ namespace CrusaderWars
             Btn_CK3Tab.FlatAppearance.BorderSize = 1;
             Btn_TFETab.FlatAppearance.BorderSize = 1;
             Btn_LOTRTab.FlatAppearance.BorderSize = 1;
-                Btn_AGOTTab.FlatAppearance.BorderSize = 1;
-                if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderSize = 1;
-                if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
+            Btn_AGOTTab.FlatAppearance.BorderSize = 1;
+            if (Btn_BookmarksPlusTab != null) Btn_BookmarksPlusTab.FlatAppearance.BorderSize = 1;
+            if (Btn_CustomTab != null) Btn_CustomTab.FlatAppearance.BorderSize = 1;
 
             // Highlight active button
             Button? activeButton = null;
@@ -1735,6 +1735,8 @@ namespace CrusaderWars
             if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
             var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']");
             if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString();
+            var BookmarksPlus_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']");
+            if (BookmarksPlus_Node != null && BookmarksPlus_Tab != null) BookmarksPlus_Node.InnerText = BookmarksPlus_Tab.GetState().ToString();
             var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
             if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
 
@@ -1764,6 +1766,7 @@ namespace CrusaderWars
             RealmsInExile_Tab?.SetPulsing(false);
             AGOT_Tab?.SetPulsing(false); // Added AGOT tab
             BookmarksPlus_Tab?.SetPulsing(false);
+            Custom_Tab.SetPulsing(false);
 
             if (activePlaythrough == null)
             {
