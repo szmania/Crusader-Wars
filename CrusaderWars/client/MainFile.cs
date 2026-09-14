@@ -1758,28 +1758,6 @@ namespace CrusaderWars
                                     Program.Logger.Debug($"Required The Fallen Eagle compatibility patch is enabled.");
                                 }
                             }
-                            else if (activePlaythrough == "BookmarksPlus")
-                            {
-                                requiredPatch = "crusader_conflicts_bookmarksplus_compat_patch.mod";
-                                playthroughName = "Bookmarks+ (pre-768)";
-                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3612526842.mod"))
-                                {
-                                    Program.Logger.Debug($"Required Bookmarks+ compatibility patch (local or steam) not found in dlc_load.json.");
-                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
-                                        "Compatibility Patch Not Enabled",
-                                        MessageBoxButtons.YesNo,
-                                        MessageBoxIcon.Warning);
-                                    if (result == DialogResult.No)
-                                    {
-                                        Program.Logger.Debug("User cancelled execution because Bookmarks+ compatibility patch is not enabled.");
-                                        return; // Stop execution
-                                    }
-                                }
-                                else
-                                {
-                                    Program.Logger.Debug($"Required Bookmarks+ compatibility patch is enabled.");
-                                }
-                            }
 
                             // Check for incorrectly enabled compatibility patches
                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
@@ -1939,20 +1917,6 @@ namespace CrusaderWars
                                             loadOrderCorrect = false;
                                             expectedOrderMessage =
                                                 "For The Fallen Eagle playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'The Fallen Eagle Compatibility Patch', and the patch should be last in your playset.";
-                                        }
-                                    }
-                                    else if (activePlaythrough == "BookmarksPlus")
-                                    {
-
-                                     int bookmarksPlusPatchIndex = enabledModsList.FindLastIndex(m =>
-                                         m.Equals("crusader_conflicts_bookmarksplus_compat_patch.mod", StringComparison.OrdinalIgnoreCase) ||
-                                         m.Equals("ugc_3612526842.mod", StringComparison.OrdinalIgnoreCase));
-                                     if (mainModIndex == -1 || bookmarksPlusPatchIndex != enabledModsList.Count - 1 ||
-                                            mainModIndex > bookmarksPlusPatchIndex)
-                                        {
-                                            loadOrderCorrect = false;
-                                            expectedOrderMessage =
-                                                "For the Bookmarks+ (pre-768) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Bookmarks+ Compatibility Patch', and the patch should be last in your playset.";
                                         }
                                     }
                                     else // Default case
