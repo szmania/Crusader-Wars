@@ -1608,10 +1608,10 @@ namespace CrusaderWars
                 var lotrMods =
                     CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
                 var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
-                var customMods =
-                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
                 var bookmarksPlusMods =
                     CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+                var customMods =
+                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
 
                 CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default,
                     "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements",
@@ -1709,6 +1709,7 @@ namespace CrusaderWars
                 createMapper("TheFallenEagle");
                 createMapper("RealmsInExile");
                 createMapper("AGOT");
+                createMapper("BookmarksPlus");
                 createMapper("Custom");
 
                 xmlDoc.Save(file);
