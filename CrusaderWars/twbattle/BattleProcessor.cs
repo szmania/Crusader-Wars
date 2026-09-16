@@ -630,6 +630,13 @@ namespace CrusaderWars.twbattle
 
                     Program.Logger.Debug("Attila process terminated without a complete battle log. Presumed crash.");
 
+                    // Resume CK3 if it was suspended (i.e., not closed) so the user can interact while deciding next steps.
+                    if (!ModOptions.CloseCK3DuringBattle())
+                    {
+                        ProcessCommands.ResumeProcess();
+                        Program.Logger.Debug("CK3 process resumed after Attila crash.");
+                    }
+
                     // --- Autofix Logic ---
                     if (autofixState == null) // First crash
                     {
