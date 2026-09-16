@@ -511,6 +511,13 @@ namespace CrusaderWars.twbattle
                         return true; // Continue
                     }
 
+                    // Suspend CK3 (when "keep CK3 running" is enabled) only now,
+                    // right before Attila launches, so CK3 stays responsive through
+                    // save processing and .pack generation.
+                    if (!ModOptions.CloseCK3DuringBattle())
+                    {
+                        ProcessCommands.SuspendProcess();
+                    }
                     //Open Total War Attila
                     Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
                     Games.StartTotalWArAttilaProcess();

@@ -2312,10 +2312,6 @@ namespace CrusaderWars
                     {
                         Games.CloseCrusaderKingsProcess();
                     }
-                    else
-                    {
-                        ProcessCommands.SuspendProcess();
-                    }
 
                     //path_editedSave = Properties.Settings.Default.VAR_dir_save + @"\CrusaderWars_Battle.ck3";
                     path_editedSave = @".\data\save_file_data\gamestate_file\gamestate";
