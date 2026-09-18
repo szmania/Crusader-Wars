@@ -551,10 +551,28 @@ namespace CrusaderWars.twbattle
 
             try
             {
-                DataSearch.ClearLogFile();
-                DeclarationsFile.Erase();
-                BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
-                BattleResultReader.ClearAttilaLog();
+                // Wait and retry clearing files in case they are locked by another process (e.g. CK3 still writing).
+                int maxRetries = 5;
+                for (int attempt = 0; attempt < maxRetries; attempt++)
+                {
+                    try
+                    {
+                        DataSearch.ClearLogFile();
+                        DeclarationsFile.Erase();
+                        BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
+                        BattleResultReader.ClearAttilaLog();
+                        break; // Success
+                    }
+                    catch (IOException ex)
+                    {
+                        Program.Logger.Debug($"Attempt {attempt + 1}/{maxRetries} to clear battle files failed due to file lock: {ex.Message}. Retrying in 500ms...");
+                        if (attempt == maxRetries - 1)
+                        {
+                            throw; // Give up after all retries
+                        }
+                        await Task.Delay(500);
+                    }
+                }
 
                 form.CloseLoadingScreen();
                 form.Show();
