@@ -49,9 +49,6 @@ namespace CrusaderWars.locs
 
             switch (Mapper_Name)
             {
-                case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
-                    break;
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("anno domini"), armiesCollection);
                     break;
@@ -63,15 +60,23 @@ namespace CrusaderWars.locs
                 case "OfficialCC_TheFallenEagle_AgeOfJustinian":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
                     break;
-                case "OfficialCC_TheFallenEagle_FallofTheEagle":
                 case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fall of the eagles"), armiesCollection);
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), armiesCollection);
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("dawnless days"), armiesCollection);
                     break;
                 case "OfficialCC_AGOT_SevenKingdoms":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough("seven_kingdoms"), armiesCollection);
+                    break;
+                case "OfficialCC_BookmarksPlus_AncientEmpires":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("ancient_empires"), armiesCollection);
+                    break;
+                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("fireforged empire"), armiesCollection);
+                    break;
+                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
+                    EditUnitCardsFiles(GetLocFilesForPlaythrough("age of justinian"), armiesCollection);
                     break;
                 case "Custom":
                     EditUnitCardsFiles(GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper()), armiesCollection);
@@ -406,9 +411,6 @@ namespace CrusaderWars.locs
 
             switch (Mapper_Name)
             {
-                case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
-                    locFiles = GetLocFilesForPlaythrough("age of justinian");
-                    break;
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     locFiles = GetLocFilesForPlaythrough("anno domini");
                     break;
@@ -420,15 +422,23 @@ namespace CrusaderWars.locs
                 case "OfficialCC_TheFallenEagle_AgeOfJustinian":
                     locFiles = GetLocFilesForPlaythrough("age of justinian");
                     break;
-                case "OfficialCC_TheFallenEagle_FallofTheEagle":
                 case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    locFiles = GetLocFilesForPlaythrough("fall of the eagles");
+                    locFiles = GetLocFilesForPlaythrough("fireforged empire");
                     break;
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     locFiles = GetLocFilesForPlaythrough("dawnless days");
                     break;
                 case "OfficialCC_AGOT_SevenKingdoms":
                     locFiles = GetLocFilesForPlaythrough("seven_kingdoms");
+                    break;
+                case "OfficialCC_BookmarksPlus_AncientEmpires":
+                    locFiles = GetLocFilesForPlaythrough("ancient_empires");
+                    break;
+                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+                    locFiles = GetLocFilesForPlaythrough("fireforged empire");
+                    break;
+                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
+                    locFiles = GetLocFilesForPlaythrough("age of justinian");
                     break;
                 case "Custom":
                     locFiles = GetLocFilesForPlaythrough(ModOptions.GetSelectedCustomMapper());

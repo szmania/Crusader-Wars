@@ -511,6 +511,13 @@ namespace CrusaderWars.twbattle
                         return true; // Continue
                     }
 
+                    // Suspend CK3 (when "keep CK3 running" is enabled) only now,
+                    // right before Attila launches, so CK3 stays responsive through
+                    // save processing and .pack generation.
+                    if (!ModOptions.CloseCK3DuringBattle())
+                    {
+                        ProcessCommands.SuspendProcess();
+                    }
                     //Open Total War Attila
                     Program.Logger.Debug("Starting Total War: Attila process via shortcut...");
                     Games.StartTotalWArAttilaProcess();
@@ -544,10 +551,28 @@ namespace CrusaderWars.twbattle
 
             try
             {
-                DataSearch.ClearLogFile();
-                DeclarationsFile.Erase();
-                BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
-                BattleResultReader.ClearAttilaLog();
+                // Wait and retry clearing files in case they are locked by another process (e.g. CK3 still writing).
+                int maxRetries = 5;
+                for (int attempt = 0; attempt < maxRetries; attempt++)
+                {
+                    try
+                    {
+                        DataSearch.ClearLogFile();
+                        DeclarationsFile.Erase();
+                        BattleScript.EraseScript(twbattle.BattleState.IsSiegeBattle);
+                        BattleResultReader.ClearAttilaLog();
+                        break; // Success
+                    }
+                    catch (IOException ex)
+                    {
+                        Program.Logger.Debug($"Attempt {attempt + 1}/{maxRetries} to clear battle files failed due to file lock: {ex.Message}. Retrying in 500ms...");
+                        if (attempt == maxRetries - 1)
+                        {
+                            throw; // Give up after all retries
+                        }
+                        await Task.Delay(500);
+                    }
+                }
 
                 form.CloseLoadingScreen();
                 form.Show();
@@ -622,6 +647,13 @@ namespace CrusaderWars.twbattle
                     }
 
                     Program.Logger.Debug("Attila process terminated without a complete battle log. Presumed crash.");
+
+                    // Resume CK3 if it was suspended (i.e., not closed) so the user can interact while deciding next steps.
+                    if (!ModOptions.CloseCK3DuringBattle())
+                    {
+                        ProcessCommands.ResumeProcess();
+                        Program.Logger.Debug("CK3 process resumed after Attila crash.");
+                    }
 
                     // --- Autofix Logic ---
                     if (autofixState == null) // First crash

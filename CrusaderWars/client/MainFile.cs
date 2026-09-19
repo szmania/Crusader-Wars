@@ -586,10 +586,9 @@ namespace CrusaderWars
                 else if (gamePaths && unitMappers)
                 {
                     ExecuteButton.Enabled = true;
-infoLabel.Text = "Ready to Start!";
-infoLabel.ForeColor = Color.WhiteSmoke;
-infoLabel.BackColor = _originalInfoLabelBackColor;
-infoLabel.AutoSize = true;
+                    infoLabel.Text = "Ready to Start!";
+                    infoLabel.ForeColor = Color.WhiteSmoke;
+                    infoLabel.BackColor = _originalInfoLabelBackColor;
                     infoLabel.ForeColor = Original_Color;
                     infoLabel.BackColor = _originalInfoLabelBackColor;
                     if (_isPulsing)
@@ -659,7 +658,7 @@ infoLabel.AutoSize = true;
             SettingsBtn.Size = new Size(248, 158);
             pictureBox1.Size = new Size(295, 300);
             discordLink.Size = new Size(32, 32);
-            MainPanelLayout.Size = new Size(299, 705); // Programmatically set MainPanelLayout size
+            MainPanelLayout.Size = new Size(350, 705); // Programmatically set MainPanelLayout size
             tableLayoutPanel1.Size = new Size(256, 668); // Programmatically set tableLayoutPanel1 size
             this.ClientSize = new Size(1219, 705); // Programmatically set form ClientSize
 
@@ -798,8 +797,8 @@ infoLabel.AutoSize = true;
             InformationToolTip.SetToolTip(linkOptInPreReleases, "Click to get early access to new features via pre-release updates."); // Updated tooltip
 
             infoLabel.ForeColor = Color.WhiteSmoke;
-            infoLabel.MaximumSize = new Size(MainPanelLayout.Width - 10, 80);
-            this.infoLabel.AutoSize = false;
+            infoLabel.MaximumSize = new Size(1000, 0);
+            this.infoLabel.AutoSize = true;
 
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
@@ -896,15 +895,31 @@ infoLabel.AutoSize = true;
             string versionFilePath = @".\settings\last_um_version.txt";
             string lastKnownVersion = "0.0.0";
 
-            if (File.Exists(versionFilePath))
+            try
             {
-                lastKnownVersion = File.ReadAllText(versionFilePath).Trim();
+                if (File.Exists(versionFilePath))
+                {
+                    lastKnownVersion = File.ReadAllText(versionFilePath).Trim();
+                }
+                else
+                {
+                    Program.Logger.Debug("last_um_version.txt not found. This is likely the first run with this feature. Creating file.");
+                    Directory.CreateDirectory(Path.GetDirectoryName(versionFilePath));
+                    File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
+                    return; // Nothing to compare against, so exit.
+                }
             }
-            else
+            catch (IOException ex)
             {
-                Program.Logger.Debug("last_um_version.txt not found. This is likely the first run with this feature. Creating file.");
-                File.WriteAllText(versionFilePath, _umVersion ?? "0.0.0");
-                return; // Nothing to compare against, so exit.
+                Program.Logger.Debug($"Error accessing last_um_version.txt: {ex.Message}. Cannot check for unit mapper updates.");
+                MessageBox.Show($"Error accessing unit mapper version file. Please ensure the application has write permissions to the settings folder.\n\nError: {ex.Message}", "File Access Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"An unexpected error occurred while checking for unit mapper updates: {ex.Message}");
+                MessageBox.Show($"An unexpected error occurred while checking for unit mapper updates: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
             }
 
             if (_updater.IsNewerVersion(lastKnownVersion, _umVersion ?? "0.0.0"))
@@ -1721,32 +1736,71 @@ infoLabel.AutoSize = true;
                                     Program.Logger.Debug($"Required Realms in Exile compatibility patch is enabled.");
                                 }
                             }
+                            else if (activePlaythrough == "TheFallenEagle")
+                            {
+                                requiredPatch = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                                playthroughName = "The Fallen Eagle";
+                                if (!enabledMods.Contains(requiredPatch) && !enabledMods.Contains("ugc_3774783030.mod"))
+                                {
+                                    Program.Logger.Debug($"Required The Fallen Eagle compatibility patch (local or steam) not found in dlc_load.json.");
+                                    var result = MessageBox.Show($"You have the '{playthroughName}' playthrough selected, but the required compatibility patch is not enabled in your Paradox Launcher playset.\n\nRequired patch: {requiredPatch} (or its Steam Workshop version)\n\nDo you still want to continue?",
+                                                                 "Compatibility Patch Not Enabled",
+                                                                 MessageBoxButtons.YesNo,
+                                                                 MessageBoxIcon.Warning);
+                                    if (result == DialogResult.No)
+                                    {
+                                        Program.Logger.Debug("User cancelled execution because The Fallen Eagle compatibility patch is not enabled.");
+                                        return; // Stop execution
+                                    }
+                                }
+                                else
+                                {
+                                    Program.Logger.Debug($"Required The Fallen Eagle compatibility patch is enabled.");
+                                }
+                            }
 
                             // Check for incorrectly enabled compatibility patches
                             string agotPatch = "crusader_conflicts_agot_compat_patch.mod";
                             string lotrPatch = "crusader_conflicts_realms_in_exile_compat_patch.mod";
+                            string tfePatch = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                            string tfePatchSteam = "ugc_3774783030.mod";
 
-                            if (activePlaythrough == "AGOT" && enabledMods.Contains(lotrPatch))
+
+                            if (activePlaythrough == "AGOT" && (enabledMods.Contains(lotrPatch) || enabledMods.Contains(tfePatch) || enabledMods.Contains(tfePatchSteam)))
                             {
-                                Program.Logger.Debug("AGOT playthrough is active, but Realms in Exile patch is also enabled.");
-                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but the compatibility patch for 'Realms in Exile (LOTR)' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'Realms in Exile' patch before continuing.",
+                                Program.Logger.Debug("AGOT playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show("You have the 'A Game of Thrones' playthrough selected, but a compatibility patch for another major mod (like Realms in Exile or The Fallen Eagle) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
                                                 "Incorrect Compatibility Patch Enabled",
                                                 MessageBoxButtons.OK,
                                                 MessageBoxIcon.Warning);
                                 return;
                             }
 
-                            if (activePlaythrough == "RealmsInExile" && enabledMods.Contains(agotPatch))
+                            if (activePlaythrough == "RealmsInExile" && (enabledMods.Contains(agotPatch) ||
+                                                                         enabledMods.Contains(tfePatch) ||
+                                                                         enabledMods.Contains(tfePatchSteam)))
                             {
-                                Program.Logger.Debug("Realms in Exile playthrough is active, but AGOT patch is also enabled.");
-                                MessageBox.Show("You have the 'Realms in Exile (LOTR)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
-                                                "Incorrect Compatibility Patch Enabled",
-                                                MessageBoxButtons.OK,
-                                                MessageBoxIcon.Warning);
+                                Program.Logger.Debug(
+                                    "Realms in Exile playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show(
+                                    "You have the 'Realms in Exile (LOTR)' playthrough selected, but a compatibility patch for another major mod (like AGOT or The Fallen Eagle) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
+                                    "Incorrect Compatibility Patch Enabled",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
                                 return;
                             }
 
-                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile")
+                            if (activePlaythrough == "TheFallenEagle" && (enabledMods.Contains(agotPatch) || enabledMods.Contains(lotrPatch)))
+                            {
+                                Program.Logger.Debug("The Fallen Eagle playthrough is active, but another compatibility patch is also enabled.");
+                                MessageBox.Show("You have 'The Fallen Eagle' playthrough selected, but a compatibility patch for another major mod (like AGOT or Realms in Exile) is also enabled.\n\nThis can cause issues. Please disable the other compatibility patches before continuing.",
+                                    "Incorrect Compatibility Patch Enabled",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            if (activePlaythrough != "AGOT" && activePlaythrough != "RealmsInExile" && activePlaythrough != "TheFallenEagle")
                             {
                                 if (enabledMods.Contains(agotPatch))
                                 {
@@ -1766,6 +1820,25 @@ infoLabel.AutoSize = true;
                                                     MessageBoxIcon.Warning);
                                     return;
                                 }
+                                if (enabledMods.Contains(tfePatch) || enabledMods.Contains(tfePatchSteam))
+                                {
+                                    Program.Logger.Debug($"'{activePlaythrough}' playthrough is active, but The Fallen Eagle patch is also enabled.");
+                                    MessageBox.Show($"You have the '{GetFriendlyPlaythroughName(activePlaythrough)}' playthrough selected, but the compatibility patch for 'The Fallen Eagle' is enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'The Fallen Eagle' patch before continuing.",
+                                                    "Incorrect Compatibility Patch Enabled",
+                                                    MessageBoxButtons.OK,
+                                                    MessageBoxIcon.Warning);
+                                    return;
+                                }
+                            }
+
+                            if (activePlaythrough == "BookmarksPlus" && enabledMods.Contains(agotPatch) || enabledMods.Contains(lotrPatch))
+                            {
+                                Program.Logger.Debug("Bookmarks+ playthrough is active, but AGOT patch is also enabled.");
+                                MessageBox.Show("You have the 'Bookmarks+ (pre-768)' playthrough selected, but the compatibility patch for 'A Game of Thrones' is also enabled in your Paradox Launcher playset.\n\nThis can cause issues. Please disable the 'A Game of Thrones' patch before continuing.",
+                                    "Incorrect Compatibility Patch Enabled",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                                return;
                             }
 
                             // Check for recommended load order
@@ -1806,41 +1879,55 @@ infoLabel.AutoSize = true;
                                     bool loadOrderCorrect = true;
                                     string expectedOrderMessage = "";
 
-                                    if (activePlaythrough == "AGOT")
-                                    {
-                                        int agotPatchIndex = enabledModsList.FindLastIndex(m =>
-                                            m.Equals(agotPatchLocal, StringComparison.OrdinalIgnoreCase) ||
-                                            m.Equals(agotPatchSteam, StringComparison.OrdinalIgnoreCase));
-                                        if (mainModIndex == -1 || agotPatchIndex != enabledModsList.Count - 1 ||
-                                            mainModIndex > agotPatchIndex)
-                                        {
-                                            loadOrderCorrect = false;
-                                            expectedOrderMessage =
-                                                "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
+                                     if (activePlaythrough == "AGOT")
+                                     {
+                                         int agotPatchIndex = enabledModsList.FindLastIndex(m =>
+                                             m.Equals(agotPatchLocal, StringComparison.OrdinalIgnoreCase) ||
+                                             m.Equals(agotPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                         if (mainModIndex == -1 || agotPatchIndex != enabledModsList.Count - 1 ||
+                                             mainModIndex > agotPatchIndex)
+                                         {
+                                             loadOrderCorrect = false;
+                                             expectedOrderMessage =
+                                                 "For the AGOT playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'AGOT Compatibility Patch', and the patch should be last in your playset.";
+                                         }
+                                     }
+                                     else if (activePlaythrough == "RealmsInExile")
+                                     {
+                                         int lotrPatchIndex = enabledModsList.FindLastIndex(m =>
+                                             m.Equals(lotrPatchLocal, StringComparison.OrdinalIgnoreCase) ||
+                                             m.Equals(lotrPatchSteam, StringComparison.OrdinalIgnoreCase));
+                                         if (mainModIndex == -1 || lotrPatchIndex != enabledModsList.Count - 1 ||
+                                             mainModIndex > lotrPatchIndex)
+                                         {
+                                             loadOrderCorrect = false;
+                                             expectedOrderMessage =
+                                                 "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
                                         }
                                     }
-                                    else if (activePlaythrough == "RealmsInExile")
+                                    else if (activePlaythrough == "TheFallenEagle")
                                     {
-                                        int lotrPatchIndex = enabledModsList.FindLastIndex(m =>
-                                            m.Equals(lotrPatchLocal, StringComparison.OrdinalIgnoreCase) ||
-                                            m.Equals(lotrPatchSteam, StringComparison.OrdinalIgnoreCase));
-                                        if (mainModIndex == -1 || lotrPatchIndex != enabledModsList.Count - 1 ||
-                                            mainModIndex > lotrPatchIndex)
+                                        string tfePatchLocal = "crusader_conflicts_the_fallen_eagle_compat_patch.mod";
+                                        int tfePatchIndex = enabledModsList.FindLastIndex(m =>
+                                            m.Equals(tfePatchLocal, StringComparison.OrdinalIgnoreCase) ||
+                                            m.Equals(tfePatchSteam, StringComparison.OrdinalIgnoreCase));
+                                        if (mainModIndex == -1 || tfePatchIndex != enabledModsList.Count - 1 ||
+                                            mainModIndex > tfePatchIndex)
                                         {
                                             loadOrderCorrect = false;
                                             expectedOrderMessage =
-                                                "For the Realms in Exile (LOTR) playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'Realms in Exile Compatibility Patch', and the patch should be last in your playset.";
+                                                "For The Fallen Eagle playthrough, it is recommended to have the 'Crusader Conflicts' mod loaded before the 'The Fallen Eagle Compatibility Patch', and the patch should be last in your playset.";
                                         }
                                     }
                                     else // Default case
-                                    {
-                                        if (mainModIndex != enabledModsList.Count - 1)
-                                        {
-                                            loadOrderCorrect = false;
-                                            expectedOrderMessage =
-                                                "For maximum compatibility, it is recommended to place the 'Crusader Conflicts' mod at the very end of your playset's load order.";
-                                        }
-                                    }
+                                     {
+                                         if (mainModIndex != enabledModsList.Count - 1)
+                                         {
+                                             loadOrderCorrect = false;
+                                             expectedOrderMessage =
+                                                 "For maximum compatibility, it is recommended to place the 'Crusader Conflicts' mod at the very end of your playset's load order.";
+                                         }
+                                     }
 
                                     if (!loadOrderCorrect)
                                     {
@@ -2192,7 +2279,6 @@ infoLabel.AutoSize = true;
                         logFile.Close();
 
                     }
-
                 }
 
                 if (token.IsCancellationRequested)
@@ -2225,10 +2311,6 @@ infoLabel.AutoSize = true;
                     if (ModOptions.CloseCK3DuringBattle())
                     {
                         Games.CloseCrusaderKingsProcess();
-                    }
-                    else
-                    {
-                        ProcessCommands.SuspendProcess();
                     }
 
                     //path_editedSave = Properties.Settings.Default.VAR_dir_save + @"\CrusaderWars_Battle.ck3";
@@ -2785,6 +2867,8 @@ infoLabel.AutoSize = true;
                     return "Realms in Exile (LOTR)";
                 case "AGOT":
                     return "A Game of Thrones (AGOT)";
+                case "BookmarksPlus":
+                    return "Bookmarks+ (pre-768)";
                 case "Custom":
                     return "Custom";
                 default:
@@ -2924,7 +3008,6 @@ infoLabel.AutoSize = true;
         /*---------------------------------------------
          * :::::::::::LOADING SCREEN FUNCS:::::::::::::
          ---------------------------------------------*/
-
         void ChangeLoadingScreenImage()
         {
             Program.Logger.Debug("Changing loading screen image based on playthrough.");
@@ -2936,12 +3019,14 @@ infoLabel.AutoSize = true;
             var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")!.InnerText;
             var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")!.InnerText;
             var agotToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']")!.InnerText; // Added AGOT tab
+            var bookmarksPlusToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']")!.InnerText;
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";
-            if (tfeToggleStateStr == "True") playthrough = "LateAntiquity";
+            if (tfeToggleStateStr == "True") playthrough = "TheFallenEagle";
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
             if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
+            if (bookmarksPlusToggleStateStr == "True") playthrough = "BookmarksPlus";
 
             Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
             switch (playthrough)
@@ -2952,11 +3037,17 @@ infoLabel.AutoSize = true;
                 case "LateAntiquity":
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
                     break;
+                case "TheFallenEagle":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_late_antiquity;
+                    break;
                 case "Lotr":
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_lotr;
                     break;
                 case "AGOT": // Added AGOT tab
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_agot;
+                    break;
+                case "BookmarksPlus":
+                    loadingScreen!.BackgroundImage = Properties.Resources.LS_bookmarksplus;
                     break;
                 default:
                     loadingScreen!.BackgroundImage = Properties.Resources.LS_medieval;
@@ -3303,10 +3394,9 @@ infoLabel.AutoSize = true;
                 {
                     linkOptInPreReleases.Enabled = true;
                     await Task.Delay(2000);
-infoLabel.Text = "Ready to Start!";
-infoLabel.ForeColor = Color.WhiteSmoke;
-infoLabel.BackColor = _originalInfoLabelBackColor;
-infoLabel.AutoSize = true;
+                    infoLabel.Text = "Ready to Start!";
+                    infoLabel.ForeColor = Color.WhiteSmoke;
+                    infoLabel.BackColor = _originalInfoLabelBackColor;
                 }
             }
         }

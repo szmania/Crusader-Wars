@@ -47,6 +47,8 @@
             this.OptionSelection_BattleSizeScale = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.OptionSelection_AutoScale = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.OptionSelection_LevyMinSize = new System.Windows.Forms.TextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -60,22 +62,24 @@
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.label4, 1, 6);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 6);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox2, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_InfantryMax, 0, 7);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_CavalryMax, 1, 7);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox3, 0, 5);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox4, 1, 5);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_RangedMax, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_LeviesMax, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox2, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_InfantryMax, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_CavalryMax, 1, 8);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox3, 0, 6);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox4, 1, 6);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_RangedMax, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_LeviesMax, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 4);
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_BattleSizeScale, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label6, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_AutoScale, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label7, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_LevyMinSize, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label6, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_AutoScale, 1, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -310,6 +314,33 @@
             this.toolTip1.SetToolTip(this.OptionSelection_BattleSizeScale, "Scales the Attila battles to lower numbers to improve performance.\r\nThe battle re" +
         "sults from Attila will be scaled 100% to CK3.");
             // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.ForeColor = System.Drawing.Color.White;
+            this.label7.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.label7.Location = new System.Drawing.Point(3, 38);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(261, 38);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "Minimum Levy Size:";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // OptionSelection_LevyMinSize
+            // 
+            this.OptionSelection_LevyMinSize.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.OptionSelection_LevyMinSize.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_LevyMinSize.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_LevyMinSize.Location = new System.Drawing.Point(340, 44);
+            this.OptionSelection_LevyMinSize.Name = "OptionSelection_LevyMinSize";
+            this.OptionSelection_LevyMinSize.Size = new System.Drawing.Size(121, 26);
+            this.OptionSelection_LevyMinSize.TabIndex = 17;
+            this.toolTip1.SetToolTip(this.OptionSelection_LevyMinSize, "Sets the minimum number of soldiers for a single levy unit in Attila. Default is 10. Range: 1-10000.");
+            // 
             // label6
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -346,7 +377,7 @@
             // 
             // toolTip1
             // 
-            this.toolTip1.AutomaticDelay = 100000;
+            this.toolTip1.AutomaticDelay = 500;
             this.toolTip1.IsBalloon = true;
             // 
             // UC_UnitsOptions
@@ -388,5 +419,7 @@
         private System.Windows.Forms.ComboBox OptionSelection_BattleSizeScale;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox OptionSelection_AutoScale;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox OptionSelection_LevyMinSize;
     }
 }

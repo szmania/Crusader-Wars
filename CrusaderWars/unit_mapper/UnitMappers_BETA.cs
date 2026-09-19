@@ -375,8 +375,6 @@ namespace CrusaderWars.unit_mapper
         {
             switch (GetLoadedUnitMapperName())
             {
-                case "OfficialCC_DefaultCK3_PostRoman_AgeOfJustinian":
-                    return "POST ROMAN";
                 case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
                     return "EARLY MEDIEVAL";
                 case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
@@ -385,19 +383,25 @@ namespace CrusaderWars.unit_mapper
                     return "LATE MEDIEVAL";
                 case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
                     return "RENAISSANCE";
-                case "OfficialCC_TheFallenEagle_AgeOfJustinain":
-                    return "POST ROMAN";
-                case "OfficialCC_TheFallenEagle_FallofTheEagle":
+                case "OfficialCC_TheFallenEagle_FallOfTheEagles":
                 case "OfficialCC_TheFallenEagle_FireforgedEmpire":
                     return "LATE ANTIQUITY";
+                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
+                    return "POST ROMAN";
                 case "OfficialCC_RealmsInExile_TheDawnlessDays":
                     return "SECOND AGE";
                 case "OfficialCC_AGOT_SevenKingdoms":
                     return "AGE OF THE TARGARYENS";
+                case "OfficialCC_BookmarksPlus_AncientEmpires":
+                    return "PAX ROMANA";
+                case "OfficialCC_BookmarksPlus_FallOfTheEagles":
+                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+                    return "LATE ANTIQUITY";
+                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
+                    return "POST ROMAN";
                 default:
                     return null;
             }
-
         }
 
         public static void ClearProvinceMapCache()
@@ -1454,7 +1458,7 @@ namespace CrusaderWars.unit_mapper
             if (owner == null || owner.GetPrimaryTitleKey() == string.Empty)
                 return (NOT_FOUND_KEY, false);
 
-            //LEVIES skip
+             //LEVIES skip
             if (unit.GetRegimentType() == RegimentType.Levy) return (NOT_FOUND_KEY, false);
             //Garrison units also skip this, as their keys are set directly
             if (unit.GetRegimentType() == RegimentType.Garrison) return (NOT_FOUND_KEY, false); // Changed from unit.GetName() == "Garrison"
