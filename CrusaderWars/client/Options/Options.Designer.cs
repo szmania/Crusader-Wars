@@ -637,7 +637,7 @@
             this.TableLayoutModManager.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutModManager.Controls.Add(this.panel1, 0, 1);
             this.TableLayoutModManager.Controls.Add(this.toggleModManagerButton, 0, 0);
-            this.TableLayoutModManager.Location = new System.Drawing.Point(0, 649);
+            this.TableLayoutModManager.Location = new System.Drawing.Point(0, 700);
             this.TableLayoutModManager.Name = "TableLayoutModManager";
             this.TableLayoutModManager.RowCount = 2;
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
@@ -748,7 +748,7 @@
             this.AutoSize = false;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.options_bk;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1300, 928);
+            this.ClientSize = new System.Drawing.Size(1300, 1000);
             this.Controls.Add(this.TableLayoutModManager);
             this.Controls.Add(this.TableLayoutPlaythroughs);
             this.Controls.Add(this.TableLayoutSettings);
@@ -784,7 +784,7 @@
             this.PerformLayout();
 
             this.AutoScroll = true;
-            this.AutoScrollMinSize = new System.Drawing.Size(1300, 928);
+            this.AutoScrollMinSize = new System.Drawing.Size(1300, 1000);
 
         }
 
