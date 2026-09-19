@@ -377,7 +377,7 @@
             // 
             // toolTip1
             // 
-            this.toolTip1.AutomaticDelay = 100000;
+            this.toolTip1.AutomaticDelay = 500;
             this.toolTip1.IsBalloon = true;
             // 
             // UC_UnitsOptions
