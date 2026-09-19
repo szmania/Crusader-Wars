@@ -6,4 +6,3 @@ tags={
 name="Crusader Conflicts + The Fallen Eagle - Compatibility Patch"
 supported_version="1.19.*"
 path="mod/crusader_conflicts_the_fallen_eagle_compat_patch"
-steam_workshop_id="3774783030"

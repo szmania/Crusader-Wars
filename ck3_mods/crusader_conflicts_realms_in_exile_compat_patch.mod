@@ -6,4 +6,3 @@ tags={
 name="Crusader Conflicts + Realms In Exile - Compatibility Patch"
 supported_version="1.19.*"
 path="mod/crusader_conflicts_realms_in_exile_compat_patch"
-steam_workshop_id="3612526762"

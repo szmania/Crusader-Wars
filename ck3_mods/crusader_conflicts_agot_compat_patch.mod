@@ -6,4 +6,3 @@ tags={
 name="Crusader Conflicts + A Game of Thrones - Compatibility Patch"
 supported_version="1.19.*"
 path="mod/crusader_conflicts_agot_compat_patch"
-steam_workshop_id="3612526842"
