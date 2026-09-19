@@ -423,7 +423,7 @@
             this.panel1.Location = new System.Drawing.Point(3, 24);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(20, 0, 20, 5);
-            this.panel1.Size = new System.Drawing.Size(871, 261);
+            this.panel1.Size = new System.Drawing.Size(715, 261);
             this.panel1.TabIndex = 31;
             //
             // UMpanel
@@ -606,7 +606,7 @@
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutSettings.Size = new System.Drawing.Size(565, 504);
+            this.TableLayoutSettings.Size = new System.Drawing.Size(565, 783);
             this.TableLayoutSettings.TabIndex = 37;
             //
             // TableLayoutPlaythroughs
@@ -631,8 +631,7 @@
             //
             // TableLayoutModManager
             //
-            this.TableLayoutModManager.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TableLayoutModManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.TableLayoutModManager.BackColor = System.Drawing.Color.Transparent;
             this.TableLayoutModManager.ColumnCount = 1;
             this.TableLayoutModManager.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -643,7 +642,7 @@
             this.TableLayoutModManager.RowCount = 2;
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.TableLayoutModManager.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutModManager.Size = new System.Drawing.Size(1077, 279);
+            this.TableLayoutModManager.Size = new System.Drawing.Size(715, 279);
             this.TableLayoutModManager.TabIndex = 0;
             //
             // TableLayoutSystem
