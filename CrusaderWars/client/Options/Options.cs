@@ -422,6 +422,7 @@ namespace CrusaderWars
                 var SelectedCustomMapper_Value = GetOptionValue(xmlDoc, "SelectedCustomMapper", "");
                 var CombineKnights_Value = GetOptionValue(xmlDoc, "CombineKnights", "Disabled");
                 var LinuxSetupCompleted_Value = GetOptionValue(xmlDoc, "LinuxSetupCompleted", "False");
+                var LevyMinSize_Value = GetOptionValue(xmlDoc, "LevyMinSize", "10");
 
 
                 xmlDoc.Save(file);
@@ -465,6 +466,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("SelectedCustomMapper", SelectedCustomMapper_Value);
                 ModOptions.optionsValuesCollection.Add("CombineKnights", CombineKnights_Value);
                 ModOptions.optionsValuesCollection.Add("LinuxSetupCompleted", LinuxSetupCompleted_Value);
+                ModOptions.optionsValuesCollection.Add("LevyMinSize", LevyMinSize_Value);
                 ModOptions.SelectedCustomMapper = SelectedCustomMapper_Value;
                 Program.Logger.Debug("Options collection populated.");
 
@@ -538,6 +540,7 @@ namespace CrusaderWars
                 AddDefaultOption(xmlDoc, root, "SelectedCustomMapper", string.Empty);
                 AddDefaultOption(xmlDoc, root, "CombineKnights", "Disabled");
                 AddDefaultOption(xmlDoc, root, "LinuxSetupCompleted", "False");
+                AddDefaultOption(xmlDoc, root, "LevyMinSize", "10");
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("Default Options.xml file created successfully.");
@@ -642,8 +645,10 @@ namespace CrusaderWars
                 if (InfantryMax_ComboBox != null) InfantryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
                 if (CavalryMax_ComboBox != null) CavalryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
 
+                var LevyMinSize_TextBox = Units_Tab.Controls.Find("OptionSelection_LevyMinSize", true).FirstOrDefault() as TextBox;
                 if (BattleScale_ComboBox != null) BattleScale_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
                 if (AutoScaleUnits_ComboBox != null) AutoScaleUnits_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["AutoScaleUnits"];
+                if (LevyMinSize_TextBox != null) LevyMinSize_TextBox.Text = ModOptions.optionsValuesCollection["LevyMinSize"];
 
                 // Temporarily disable event handlers in CandK_Tab to prevent validation logic from firing
                 if (CandK_Tab is UC_CommandersAndKnightsOptions candKOptionsForEvents)
@@ -859,6 +864,9 @@ namespace CrusaderWars
                 if (BattleScale_Node != null && BattleScale_ComboBox != null) BattleScale_Node.InnerText = BattleScale_ComboBox.Text;
                 var AutoScaleUnits_Node = xmlDoc.SelectSingleNode("//Option [@name='AutoScaleUnits']");
                 if (AutoScaleUnits_Node != null && AutoScaleUnits_ComboBox != null) AutoScaleUnits_Node.InnerText = AutoScaleUnits_ComboBox.Text;
+                var LevyMinSize_TextBox = Units_Tab.Controls.Find("OptionSelection_LevyMinSize", true).FirstOrDefault() as TextBox;
+                var LevyMinSize_Node = xmlDoc.SelectSingleNode("//Option [@name='LevyMinSize']");
+                if (LevyMinSize_Node != null && LevyMinSize_TextBox != null) LevyMinSize_Node.InnerText = LevyMinSize_TextBox.Text;
 
                 // Save Commander NumericUpDown values
                 var CommanderWoundedChance_Node = xmlDoc.SelectSingleNode("//Option [@name='CommanderWoundedChance']");

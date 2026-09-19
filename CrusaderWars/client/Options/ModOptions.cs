@@ -264,8 +264,16 @@ if (optionsValuesCollection.TryGetValue("BattleScale", out var value) && int.Try
 
         public static int CulturalPreciseness()
         {
-            int minumum = 5;
-            return minumum;
+            return GetLevyMinSize();
+        }
+
+        public static int GetLevyMinSize()
+        {
+            if (optionsValuesCollection.TryGetValue("LevyMinSize", out var value) && int.TryParse(value, out int result))
+            {
+                return Math.Clamp(result, 1, 10000);
+            }
+            return 10; // Default
         }
 
         private static void ShutdownAttila()

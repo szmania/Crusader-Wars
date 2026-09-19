@@ -66,7 +66,9 @@ namespace CrusaderWars.mod_manager
                     {
                         foreach (XmlNode submodNode in submodNodes)
                         {
-                            activeSubmods.Add(submodNode.InnerText);
+                            string submodTag = submodNode.InnerText;
+                            activeSubmods.Add(submodTag);
+                            Program.Logger.Debug($"  Loading submod '{submodTag}' for playthrough '{playthroughTag}'.");
                         }
                     }
                     ActiveSubmodsByPlaythrough[playthroughTag] = activeSubmods;
@@ -95,12 +97,14 @@ namespace CrusaderWars.mod_manager
                 {
                     XmlElement playthroughElement = xmlDoc.CreateElement("Playthrough");
                     playthroughElement.SetAttribute("tag", entry.Key);
+                    Program.Logger.Debug($"Saving {entry.Value.Count} active submods for playthrough '{entry.Key}'.");
 
                     foreach (var submodTag in entry.Value)
                     {
                         XmlElement submodElement = xmlDoc.CreateElement("Submod");
                         submodElement.InnerText = submodTag;
                         playthroughElement.AppendChild(submodElement);
+                        Program.Logger.Debug($"  Saving submod '{submodTag}' for playthrough '{entry.Key}'.");
                     }
                     root.AppendChild(playthroughElement);
                 }
