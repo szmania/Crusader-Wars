@@ -1,8 +1,8 @@
-version="1.4.0"
+version="1.4.1"
 tags={
 	"Gameplay"
 	"Warfare"
 }
-name="Crusader Conflicts"
+name="Crusader Conflicts [Win/Linux]"
 supported_version="1.19.*"
 path="mod/crusader_conflicts"

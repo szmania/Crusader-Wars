@@ -22,20 +22,36 @@ namespace CrusaderWars.client
         public static string GetSelectedCustomMapper() { return SelectedCustomMapper; }
         public static int GetLevyMax()
         {
-            return Int32.Parse(optionsValuesCollection["LeviesMax"]);
+if (optionsValuesCollection.TryGetValue("LeviesMax", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 10;
         }
         public static int GetInfantryMax()
         {
-            return Int32.Parse(optionsValuesCollection["InfantryMax"]);
+if (optionsValuesCollection.TryGetValue("InfantryMax", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 8;
         }
 
         public static int GetRangedMax()
         {
-            return Int32.Parse(optionsValuesCollection["RangedMax"]);
+if (optionsValuesCollection.TryGetValue("RangedMax", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 4;
         }
         public static int GetCavalryMax()
         {
-            return Int32.Parse(optionsValuesCollection["CavalryMax"]);
+if (optionsValuesCollection.TryGetValue("CavalryMax", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 4;
         }
 
         public static void SetLevyMax(int value)
@@ -59,7 +75,11 @@ namespace CrusaderWars.client
 
         public static int GetBattleScale()
         {
-            return Int32.Parse(optionsValuesCollection["BattleScale"].Trim('%'));
+if (optionsValuesCollection.TryGetValue("BattleScale", out var value) && int.TryParse(value.Trim('%'), out int result))
+            {
+                return result;
+            }
+            return 100;
         }
 
         public static bool GetAutoScale()
@@ -244,8 +264,16 @@ namespace CrusaderWars.client
 
         public static int CulturalPreciseness()
         {
-            int minumum = 5;
-            return minumum;
+            return GetLevyMinSize();
+        }
+
+        public static int GetLevyMinSize()
+        {
+            if (optionsValuesCollection.TryGetValue("LevyMinSize", out var value) && int.TryParse(value, out int result))
+            {
+                return Math.Clamp(result, 1, 10000);
+            }
+            return 10; // Default
         }
 
         private static void ShutdownAttila()
@@ -259,13 +287,62 @@ namespace CrusaderWars.client
             }
         }
 
-        public static int GetCommanderWoundedChance() => Int32.Parse(optionsValuesCollection["CommanderWoundedChance"]);
-        public static int GetCommanderSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection["CommanderSeverelyInjuredChance"]);
-        public static int GetCommanderBrutallyMauledChance() => Int32.Parse(optionsValuesCollection["CommanderBrutallyMauledChance"]);
-        public static int GetCommanderMaimedChance() => Int32.Parse(optionsValuesCollection["CommanderMaimedChance"]);
-        public static int GetCommanderOneLeggedChance() => Int32.Parse(optionsValuesCollection["CommanderOneLeggedChance"]);
-        public static int GetCommanderOneEyedChance() => Int32.Parse(optionsValuesCollection["CommanderOneEyedChance"]);
-        public static int GetCommanderDisfiguredChance() => Int32.Parse(optionsValuesCollection["CommanderDisfiguredChance"]);
+public static int GetCommanderWoundedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderWoundedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 65;
+        }
+public static int GetCommanderSeverelyInjuredChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderSeverelyInjuredChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 10;
+        }
+public static int GetCommanderBrutallyMauledChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderBrutallyMauledChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 5;
+        }
+public static int GetCommanderMaimedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderMaimedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 5;
+        }
+public static int GetCommanderOneLeggedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderOneLeggedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 2;
+        }
+public static int GetCommanderOneEyedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderOneEyedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 3;
+        }
+public static int GetCommanderDisfiguredChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderDisfiguredChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 2;
+        }
         public static int GetCommanderSlainChance()
         {
             if (optionsValuesCollection.TryGetValue("CommanderSlainChance", out var value) && int.TryParse(value, out int result))
@@ -293,16 +370,79 @@ namespace CrusaderWars.client
             return 15; // Default value
         }
 
-        public static int GetKnightWoundedChance() => Int32.Parse(optionsValuesCollection["KnightWoundedChance"]);
-        public static int GetKnightSeverelyInjuredChance() => Int32.Parse(optionsValuesCollection["KnightSeverelyInjuredChance"]);
-        public static int GetKnightBrutallyMauledChance() => Int32.Parse(optionsValuesCollection["KnightBrutallyMauledChance"]);
-        public static int GetKnightMaimedChance() => Int32.Parse(optionsValuesCollection["KnightMaimedChance"]);
-        public static int GetKnightOneLeggedChance() => Int32.Parse(optionsValuesCollection["KnightOneLeggedChance"]);
-        public static int GetKnightOneEyedChance() => Int32.Parse(optionsValuesCollection["KnightOneEyedChance"]);
-        public static int GetKnightDisfiguredChance() => Int32.Parse(optionsValuesCollection["KnightDisfiguredChance"]);
+public static int GetKnightWoundedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightWoundedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 65;
+        }
+public static int GetKnightSeverelyInjuredChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightSeverelyInjuredChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 10;
+        }
+public static int GetKnightBrutallyMauledChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightBrutallyMauledChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 5;
+        }
+public static int GetKnightMaimedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightMaimedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 5;
+        }
+public static int GetKnightOneLeggedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightOneLeggedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 2;
+        }
+public static int GetKnightOneEyedChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightOneEyedChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 3;
+        }
+public static int GetKnightDisfiguredChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightDisfiguredChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 2;
+        }
 
-        public static int GetCommanderPrisonerChance() => Int32.Parse(optionsValuesCollection["CommanderPrisonerChance"]);
-        public static int GetKnightPrisonerChance() => Int32.Parse(optionsValuesCollection["KnightPrisonerChance"]);
+public static int GetCommanderPrisonerChance()
+        {
+            if (optionsValuesCollection.TryGetValue("CommanderPrisonerChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 60;
+        }
+public static int GetKnightPrisonerChance()
+        {
+            if (optionsValuesCollection.TryGetValue("KnightPrisonerChance", out var value) && int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 60;
+        }
 
         public static string GetSelectedPlaythrough()
         {

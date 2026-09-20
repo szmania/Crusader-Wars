@@ -74,27 +74,24 @@ namespace CrusaderWars.data.attila_settings
         {
             if (!isUnitsSetToUltra())
             {
+
                 string new_data = "";
                 using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 using (StreamReader reader = new StreamReader(attila_settings_file))
                 {
-                    string? line;
-                    while ((line = reader.ReadLine()) != null)
+string line;
+while ((line = reader.ReadLine()!) != null)
                     {
                         if (line.Contains("gfx_unit_size"))
                         {
-                            line = Regex.Replace(line, @"gfx_unit_size (\d)", @"gfx_unit_size 3");
                         }
 
-                        new_data += line + "\n";
                     }
 
                     reader.Close();
                     attila_settings_file.Close();
                 }
 
-                File.Create(preferences_file_path).Close();
-                File.WriteAllText(preferences_file_path, new_data);
             }
             else
             {
@@ -112,8 +109,8 @@ namespace CrusaderWars.data.attila_settings
             using (FileStream attila_settings_file = File.Open(preferences_file_path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
             using (StreamReader reader = new StreamReader(attila_settings_file))
             {
-                string? line;
-                while ((line = reader.ReadLine()) != null)
+string line;
+while ((line = reader.ReadLine()!) != null)
                 {
                     if (line.Contains("gfx_unit_size"))
                     {
