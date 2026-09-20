@@ -46,6 +46,8 @@
             this.CloseBtn = new System.Windows.Forms.Button();
             this.Status_Attila_Icon = new System.Windows.Forms.PictureBox();
             this.AttilaBtn = new System.Windows.Forms.Button();
+            this.Rome2Btn = new System.Windows.Forms.Button();
+            this.Status_Rome2_Icon = new System.Windows.Forms.PictureBox();
             this.btnLinuxSetup = new System.Windows.Forms.Button();
             this.ToolTip_Attila = new System.Windows.Forms.ToolTip(this.components);
             this.label1 = new System.Windows.Forms.Label();
