@@ -3008,6 +3008,14 @@ namespace CrusaderWars
         /*---------------------------------------------
          * :::::::::::LOADING SCREEN FUNCS:::::::::::::
          ---------------------------------------------*/
+        // Returns the InnerText of the named UnitMappers node, or "False" if the node is missing.
+        // This prevents a NullReferenceException when UnitMappers.xml is out of date or lacks a node
+        // (e.g. a playthrough added in a newer version). Mirrors GetOrCreateUnitMapperOption's safe default.
+        private static string GetUnitMapperState(XmlDocument doc, string name)
+        {
+            return doc.SelectSingleNode($"//UnitMappers [@name='{name}']")?.InnerText ?? "False";
+        }
+
         void ChangeLoadingScreenImage()
         {
             Program.Logger.Debug("Changing loading screen image based on playthrough.");
@@ -3015,11 +3023,11 @@ namespace CrusaderWars
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
-            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']")!.InnerText;
-            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")!.InnerText;
-            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")!.InnerText;
-            var agotToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']")!.InnerText; // Added AGOT tab
-            var bookmarksPlusToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']")!.InnerText;
+            var ck3ToggleStateStr = GetUnitMapperState(xmlDoc, "DefaultCK3");
+            var tfeToggleStateStr = GetUnitMapperState(xmlDoc, "TheFallenEagle");
+            var lotrToggleStateStr = GetUnitMapperState(xmlDoc, "RealmsInExile");
+            var agotToggleStateStr = GetUnitMapperState(xmlDoc, "AGOT");
+            var bookmarksPlusToggleStateStr = GetUnitMapperState(xmlDoc, "BookmarksPlus");
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";
