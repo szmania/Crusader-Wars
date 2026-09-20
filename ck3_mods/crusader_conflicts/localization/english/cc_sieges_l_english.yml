@@ -40,3 +40,11 @@ holding_level_loc:
 cc_siege_assault_insufficient_troops_tooltip:
 
 "You do not have enough soldiers to assault this siege. Your army must outnumber the garrison."
+
+cc_siege_fight_button:
+
+"Fight the siege yourself!"
+
+cc_siege_fight_button_disabled:
+
+"Fight the siege yourself!\n#N The walls must be breached or you must have siege weapons in order to fight the siege yourself.#!"
