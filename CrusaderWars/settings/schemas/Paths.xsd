@@ -13,6 +13,11 @@
             <xs:attribute name="path" type="xs:string" use="required" />
           </xs:complexType>
         </xs:element>
+        <xs:element name="TotalWarRome2">
+          <xs:complexType>
+            <xs:attribute name="path" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
