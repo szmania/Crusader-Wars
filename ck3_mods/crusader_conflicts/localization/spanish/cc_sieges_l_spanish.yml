@@ -17,5 +17,6 @@
       
     cc_siege_fight_button: "¡Lucha este asedio tú mismo!"
     cc_siege_fight_button_disabled: "No tienes suficientes soldados para sitiar este asentamiento o este personaje no puede dirigir batallas de sitio.\nConsulta Opciones del mod: Preferencias"
+    cc_siege_assault_insufficient_troops_tooltip: "No tienes suficientes soldados para asaltar este asedio. Tu ejército debe superar en número a la guarnición."
     cc_siege_options_button: "Opciones del mod Crusader Conflicts"
     cc_siege_wait_button: "Espera unos días más para luchar este asedio..."

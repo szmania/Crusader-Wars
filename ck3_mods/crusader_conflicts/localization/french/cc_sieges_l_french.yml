@@ -16,6 +16,7 @@
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
     cc_siege_fight_button: "Combattez ce siège vous-même !"
-    cc_siege_fight_button_disabled: "Vous n'avez pas assez de soldats pour beléger cette colonie ou ce personnage ne peut pas commander de batailles de siège.\nVoir Options du mod : Préférences"    cc_siege_options_button: "Options du mod Crusader Conflicts"
+    cc_siege_fight_button_disabled: "Vous n'avez pas assez de soldats pour beléger cette colonie ou ce personnage ne peut pas commander de batailles de siège.\nVoir Options du mod : Préférences"
+    cc_siege_assault_insufficient_troops_tooltip: "Vous n'avez pas assez de soldats pour donner l'assaut à ce siège. Votre armée doit être plus nombreuse que la garnison."
     cc_siege_options_button: "Options du mod Crusader Conflicts"
     cc_siege_wait_button: "Attendez encore quelques jours pour combattre ce siège..."

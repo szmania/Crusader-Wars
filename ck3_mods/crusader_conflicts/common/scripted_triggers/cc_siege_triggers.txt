@@ -1,27 +1,23 @@
 
-cc_can_assault_siege_with_troops = {
-	# Check if the attacker army exists and has enough troops compared to the garrison
-	# Assuming attacker_army and siege_var (for garrison) are set in the datacontext
-	# A simple ratio of 3:1 attacker to garrison is used as a placeholder
-	exists = scope:attacker_army
-	exists = scope:siege_var
-	scope:attacker_army = {
-		army_size >= { value = scope:siege_var.garrison_size multiply = 3 }
-	}
-}
-
-# Created for CC-231: Disable Siege Button when insufficient troops
-# Trigger to check if attacker has sufficient troops to assault
-# Standard CK3 assault ratio is 3:1 (attacker:defender)
-cc_siege_sufficient_troops_trigger = {
-	# This trigger is not directly used in the GUI `enabled` property,
-	# as GUI expressions are preferred. It is here for documentation
-	# and potential future use in scripted effects or events.
-	# The logic is replicated in the GUI using built-in accessors.
-	#
-	# Example logic:
-	# greater_than_or_equal_to = {
-	#     value = scope:attacker_army.num_soldiers
-	#     value = multiply( scope:siege_data.garrison_size, 3 )
-	# }
-}
+# CC-231: Disable Siege Button when insufficient troops
+#
+# NOTE: The gate for the siege assault button is implemented directly in
+# window_siege.gui using engine-native Siege-scope accessors, NOT via a
+# scripted trigger. The previous scripted-trigger approach
+# (cc_can_assault_siege_with_troops) was removed because it relied on
+# non-existent accessors (army_size, garrison_size) and on
+# SiegeWindow.GetSiege.MakeScope, which does not exist on the Siege type.
+#
+# The correct gate (see window_siege.gui, button_tertiary) is:
+#   enabled = "[And(Siege.EnableAssaultButton, Not(Siege.IsBlockedByGarrison))]"
+#   tooltip = "[SelectLocalization( Not(Siege.IsBlockedByGarrison), Siege.GetAssaultButtonTooltip, 'cc_siege_assault_insufficient_troops_tooltip')]"
+#
+# Vanilla rule: a siege only starts when the attacking army's soldiers exceed
+# the holding garrison. The relevant Siege-scope GUI accessors are:
+#   Siege.GetAttackerMen (int32) - attacking soldiers
+#   Siege.GetDefenderMen (int32) - defending garrison
+#   Siege.IsBlockedByGarrison (bool) - true when the attacker lacks enough men
+#   Siege.EnableAssaultButton (bool) - whether an assault is currently allowed
+#
+# This file is intentionally left as documentation only. No scripted trigger
+# is wired to the GUI for this mechanic.

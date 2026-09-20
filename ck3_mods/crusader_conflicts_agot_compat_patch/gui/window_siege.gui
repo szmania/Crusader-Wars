@@ -3101,8 +3101,8 @@ window = {
                                 position = { 0 -5 }
                                 size = { 150 40 }
 
-                                enabled = "[Siege.EnableAssaultButton]"
-                                tooltip = "[Siege.GetAssaultButtonTooltip]"
+                                enabled = "[And(Siege.EnableAssaultButton, Not(Siege.IsBlockedByGarrison))]"
+                                tooltip = "[SelectLocalization( Not(Siege.IsBlockedByGarrison), Siege.GetAssaultButtonTooltip, 'cc_siege_assault_insufficient_troops_tooltip')]"
                                 onclick = "[SiegeWindow.StartStopAssault]"
                                 shortcut = siege_assault
 

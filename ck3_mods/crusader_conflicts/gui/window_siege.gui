@@ -1961,7 +1961,7 @@ window = {
 						hbox = {
 							widget = {
 								启н요—
-启Т球—								layoutpolicy_horizontal = expanding
+								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMax( Siege.GetSiegeMenBalance, '(float)100' )]"
 								icon = {
@@ -2003,7 +2003,7 @@ window = {
 							}
 							widget = {
 								启с«—
-启Цれ—								layoutpolicy_horizontal = expanding
+								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 								layoutstretchfactor_horizontal = "[GetProgressBarValueMaxOther( Siege.GetSiegeMenBalance, '(float)100' )]"
 								icon = {
@@ -2390,7 +2390,7 @@ window = {
 						hbox = {
 							layoutpolicy_horizontal = expanding
 							widget = {
-启х场—								layoutpolicy_horizontal = expanding
+								layoutpolicy_horizontal = expanding
 								size = { 0 110 }
 								tooltip = "[SiegeWindow.GetStarvationStateTooltip]"
 								using = tooltip_ne
@@ -2451,7 +2451,7 @@ window = {
 								}
 							}
 							widget = {
-启щわ—								layoutpolicy_horizontal = expanding
+								layoutpolicy_horizontal = expanding
 								size = { 0 110 }
 								tooltip = "[SiegeWindow.GetDiseaseStateTooltip]"
 								using = tooltip_ne
@@ -2581,23 +2581,23 @@ window = {
 								parentanchor = bottom|hcenter
 								position = { 0 -5 }
 								size = { 150 40 }
-								enabled = "[Siege.EnableAssaultButton]"
-								tooltip = "[Siege.GetAssaultButtonTooltip]"
+								enabled = "[And(Siege.EnableAssaultButton, Not(Siege.IsBlockedByGarrison))]"
+								tooltip = "[SelectLocalization( Not(Siege.IsBlockedByGarrison), Siege.GetAssaultButtonTooltip, 'cc_siege_assault_insufficient_troops_tooltip')]"
 								onclick = "[SiegeWindow.StartStopAssault]"
 								shortcut = siege_assault
 								using = Animation_ShowHide_Standard
-							enabled = "[And(Siege.EnableAssaultButton, SiegeWindow.GetSiege.MakeScope.ScriptedTrigger('cc_can_assault_siege_with_troops'))]"
-								name = _mouse_enter
-								on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_enter')]"
-							}
-							tooltip = "[SelectLocalizationIf(SiegeWindow.GetSiege.MakeScope.ScriptedTrigger('cc_can_assault_siege_with_troops'), Siege.GetAssaultButtonTooltip, 'cc_siege_assault_insufficient_troops_tooltip')]"
-							name = _mouse_leave
-							on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_leave')]"
-						}
-						state = {
-							name = _mouse_press
-							on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_press')]"
-						}
+								state = {
+									name = _mouse_enter
+									on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_enter')]"
+								}
+								state = {
+									name = _mouse_leave
+									on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_leave')]"
+								}
+								state = {
+									name = _mouse_press
+									on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_press')]"
+								}
 						# state = {
 						# 	name = _mouse_release
 						# 	on_start = "[PdxGuiTriggerAllAnimations('siege_assault_button_release')]"
