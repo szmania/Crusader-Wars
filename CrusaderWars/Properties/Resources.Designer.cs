@@ -434,9 +434,13 @@ namespace CrusaderWars.Properties {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
+        internal static System.Drawing.Bitmap playthrough_bronze_age {
+            get {
+                object obj = ResourceManager.GetObject("playthrough_bronze_age", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap progress_orange {
             get {
                 object obj = ResourceManager.GetObject("progress_orange", resourceCulture);

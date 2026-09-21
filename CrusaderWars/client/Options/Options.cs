@@ -1,4 +1,4 @@
-using CrusaderWars.client;
+﻿using CrusaderWars.client;
 using CrusaderWars.client.Options;
 using CrusaderWars.client.WarningMessage;
 using System;
@@ -218,7 +218,7 @@ if (AGOT_Tab != null && AGOT_Tab.GetState()) // Added AGOT tab
             Units_Tab = new UC_UnitsOptions();
             CandK_Tab = new UC_CommandersAndKnightsOptions();
 
-            Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), "https://crusader-conflicts-website.vercel.app/playthroughs/custom-playthrough", new List<(string, string, string, string)>(), false, "Custom", new List<Submod>());
+            Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(), "https://crusader-conflicts-website.vercel.app/playthroughs/custom-playthrough", new List<(string, string, string, string)>(), false, "Custom", new List<Submod>(), games.GameServiceFactory.ResolveGameTypeFromPlaythrough("Custom").ToLowerInvariant());
 
             SubmodManager.LoadActiveSubmods();
             ReadUnitMappersOptions();
@@ -1510,12 +1510,6 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                 ChangeUnitMappersTab(BronzeAge_Tab);
         }
 
-        private void Btn_AGOTTab_Click(object sender, EventArgs e)
-        {
-            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BookmarksPlus_Tab)
-                ChangeUnitMappersTab(BookmarksPlus_Tab);
-        }
-
         private void Btn_CustomTab_Click(object sender, EventArgs e)
         {
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != Custom_Tab)
@@ -1696,48 +1690,53 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                 bool customToggleState = customToggleStateStr == "True";
 
                 var ck3Mods =
-                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3");
+                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("DefaultCK3", "attila");
                 var tfeMods =
-                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle");
+                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("TheFallenEagle", "attila");
                 var lotrMods =
-                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile");
-                var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT");
+                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("RealmsInExile", "attila");
+                var agotMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("AGOT", "attila");
                 var bookmarksPlusMods =
-                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus", "attila");
                 var bronzeAgeMods = CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BronzeAgeReborn", "rome_2");
                 var customMods =
-                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
+                    CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom", "");
 
                 CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default,
                     "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements",
                     ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
-                    ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+                    ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), games.GameServiceFactory.ResolveGameTypeFromPlaythrough("DefaultCK3").ToLowerInvariant());
                 TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe,
                     "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements",
                     tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     tfeToggleState, "TheFallenEagle",
-                    tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+                    tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), games.GameServiceFactory.ResolveGameTypeFromPlaythrough("TheFallenEagle").ToLowerInvariant());
                 TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
                 RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR,
                     "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements",
                     lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     lotrToggleState, "RealmsInExile",
-                    lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+                    lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), games.GameServiceFactory.ResolveGameTypeFromPlaythrough("RealmsInExile").ToLowerInvariant());
                 AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot,
                     "https://crusader-conflicts-website.vercel.app/playthroughs/agot#mod-requirements",
                     agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
-                    agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+                    agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), games.GameServiceFactory.ResolveGameTypeFromPlaythrough("AGOT").ToLowerInvariant());
                 BookmarksPlus_Tab = new UC_UnitMapper(Properties.Resources.playthrough_bookmarksplus,
                     "https://crusader-conflicts-website.vercel.app/playthroughs/bookmarks-plus",
                     bookmarksPlusMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     bookmarksPlusToggleState, "BookmarksPlus",
-                    bookmarksPlusMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+                    bookmarksPlusMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), games.GameServiceFactory.ResolveGameTypeFromPlaythrough("BookmarksPlus").ToLowerInvariant());
+                BronzeAge_Tab = new UC_UnitMapper(Properties.Resources.playthrough_bronze_age,
+                    "https://crusader-conflicts-website.vercel.app/playthroughs/bronze-age-reborn#mod-requirements",
+                    bronzeAgeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
+                    bronzeAgeToggleState, "BronzeAgeReborn",
+                    bronzeAgeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), "rome_2");
                 BronzeAge_Tab.ToggleClicked += PlaythroughToggle_Clicked;
                 Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(),
                     "https://crusader-conflicts-website.vercel.app/playthroughs/custom-playthrough",
                     customMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     customToggleState, "Custom",
-                    customMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+                    customMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), games.GameServiceFactory.ResolveGameTypeFromPlaythrough("Custom").ToLowerInvariant());
 
                 CrusaderKings_Tab.ToggleClicked += PlaythroughToggle_Clicked;
                 TheFallenEagle_Tab.ToggleClicked += PlaythroughToggle_Clicked;
