@@ -1945,6 +1945,30 @@ namespace CrusaderWars
                                         }
                                     }
                                 }
+
+                                // NEW: Validate mapper-declared CK3 mod file names against the enabled playset
+                                if (!string.IsNullOrEmpty(activePlaythrough))
+                                {
+                                    var ck3ModFileNames = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythrough).ck3ModFileNames;
+                                    if (ck3ModFileNames.Any())
+                                    {
+                                        var missingCk3Mods = ck3ModFileNames.Where(pair => !enabledMods.Contains(pair.fileName)).ToList();
+                                        if (missingCk3Mods.Any())
+                                        {
+                                            Program.Logger.Debug("Missing mapper-declared CK3 mods: " + string.Join(", ", missingCk3Mods.Select(p => p.fileName)));
+                                            string missingList = string.Join(Environment.NewLine, missingCk3Mods.Select(p => p.displayName != null ? $"{p.displayName} ({p.fileName})" : p.fileName));
+                                            var result = MessageBox.Show("The following CK3 mods required by the active playthrough are not enabled in your Paradox Launcher playset:" + Environment.NewLine + Environment.NewLine + missingList + Environment.NewLine + Environment.NewLine + "Do you still want to continue?",
+                                                                         "CK3 Mods Not Enabled",
+                                                                         MessageBoxButtons.YesNo,
+                                                                         MessageBoxIcon.Warning);
+                                            if (result == DialogResult.No)
+                                            {
+                                                Program.Logger.Debug("User cancelled execution because required CK3 mods are not enabled.");
+                                                return; // Stop execution
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                         catch (Exception ex)
