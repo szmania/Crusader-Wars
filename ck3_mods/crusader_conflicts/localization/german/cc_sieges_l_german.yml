@@ -15,8 +15,9 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
      
-    cc_siege_fight_button: "Kämpfe diese Belagerung selbst!"
-    cc_siege_fight_button_disabled: "Kämpfe diese Belagerung selbst!\n#N Die Mauern müssen durchbrochen sein oder ihr müsst Belagerungswaffen besitzen, um diese Belagerung selbst zu kämpfen.#!"
+    cc_siege_fight_button: "Kämpfe diese Belagerung selbst!\nBelagerungsmaschinen werden im Verlauf der Belagerung gebaut (25 % / 50 % / 75 %)."
+    cc_siege_engines_built_tooltip: "Belagerungsmaschinen gebaut: Rammen, Türme und Leitern werden im Verlauf der Belagerung gebaut (1 bei 25 % Fortschritt, 2 bei 50 %, 3 bei 75 %)."
+    cc_siege_fight_button_disabled: "Kämpfe diese Belagerung selbst!\n#N Die Mauern müssen durchbrochen sein, ihr müsst Belagerungswaffen besitzen, oder die Belagerung muss weit genug fortgeschritten sein, um Maschinen zu bauen (25 %), um diese Belagerung selbst zu kämpfen.#!"
     cc_siege_assault_insufficient_troops_tooltip: "Ihr habt nicht genügend Soldaten, um diese Belagerung zu stürmen. Eure Armee muss die Garnison zahlenmäßig übertreffen."
     cc_siege_options_button: "Crusader-Conflicts-Mod-Optionen"
     cc_siege_wait_button: "Warte noch ein paar Tage, um diese Belagerung zu kämpfen..."

@@ -15,8 +15,9 @@
     
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
 
-    cc_siege_fight_button: "이 공성을 직접 싸우십시오!"
-    cc_siege_fight_button_disabled: "이 공성을 직접 싸우십시오!\n#N 이 공성을 직접 싸우려면 성벽이 무너져야 하거나 공성 무기가 있어야 합니다.#!"
+    cc_siege_fight_button: "이 공성을 직접 싸우십시오!\n공성 기계는 공성 진행에 따라 건설됩니다 (25% / 50% / 75%)."
+    cc_siege_engines_built_tooltip: "공성 기계 건설: 공성추, 탑, 사다리는 공성 진행에 따라 건설됩니다 (진행 25%에서 1개, 50%에서 2개, 75%에서 3개)."
+    cc_siege_fight_button_disabled: "이 공성을 직접 싸우십시오!\n#N 이 공성을 직접 싸우려면 성벽이 무너졌거나, 공성 무기가 있거나, 공성이 충분히 진행되어 공성 기계가 건설되어야 합니다 (25%).#!"
     cc_siege_assault_insufficient_troops_tooltip: "이 공성을 돌격할 병력이 부족합니다. 군대가 수비대보다 많아야 합니다."
     cc_siege_options_button: "크루세이더 분쟁 모드 옵션"
     cc_siege_wait_button: "이 공성을 싸우려면 며칠만 더 기다리십시오..."

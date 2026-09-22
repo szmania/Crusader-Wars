@@ -15,8 +15,9 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
-    cc_siege_fight_button: "亲自参与这场围攻战吧！"
-    cc_siege_fight_button_disabled: "亲自参与这场围攻战吧！\n#N 要亲自参与这场围攻战，城墙必须被攻破，或者您必须拥有攻城武器。#!"
+    cc_siege_fight_button: "亲自参与这场围攻战吧！\n攻城器械会随围攻进度建造（25% / 50% / 75%）。"
+    cc_siege_engines_built_tooltip: "已建造攻城器械：冲车、塔楼和云梯会随围攻进度建造（进度25%时1台，50%时2台，75%时3台）。"
+    cc_siege_fight_button_disabled: "亲自参与这场围攻战吧！\n#N 要亲自参与这场围攻战，城墙必须被攻破，或者您必须拥有攻城武器，或者围攻进度达到25%以建造攻城器械。#!"
     cc_siege_assault_insufficient_troops_tooltip: "您没有足够的士兵来强攻这场围攻。您的军队必须多于守军。"
     cc_siege_options_button: "十字军冲突模组选项"
     cc_siege_wait_button: "再等几天再参与这场围攻战..."

@@ -15,8 +15,9 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
-    cc_siege_fight_button: "¡Lucha este asedio tú mismo!"
-    cc_siege_fight_button_disabled: "¡Lucha este asedio tú mismo!\n#N Las murallas deben estar derribadas o debes tener armas de asedio para luchar este asedio tú mismo.#!"
+    cc_siege_fight_button: "¡Lucha este asedio tú mismo!\nLas máquinas de asedio se construyen a medida que avanza el asedio (25 % / 50 % / 75 %)."
+    cc_siege_engines_built_tooltip: "Máquinas de asedio construidas: arietes, torres y escalas se construyen a medida que avanza el asedio (1 al 25 % de progreso, 2 al 50 %, 3 al 75 %)."
+    cc_siege_fight_button_disabled: "¡Lucha este asedio tú mismo!\n#N Las murallas deben estar derribadas, debes tener armas de asedio, o el asedio debe haber avanzado lo suficiente para construir máquinas (25 %) para luchar este asedio tú mismo.#!"
     cc_siege_assault_insufficient_troops_tooltip: "No tienes suficientes soldados para asaltar este asedio. Tu ejército debe superar en número a la guarnición."
     cc_siege_options_button: "Opciones del mod Crusader Conflicts"
     cc_siege_wait_button: "Espera unos días más para luchar este asedio..."
