@@ -1146,16 +1146,17 @@ namespace CrusaderWars.unit_mapper
                                     else
                                         continue;
                                 }
-
                                 if (node.Attributes?["type"]?.Value == unit.GetName())
                                 {
-                                    // Original code: max = MaxType.GetMax(node.Attributes["type"].Value);
-                                    // This line is potentially problematic as "type" attribute is unit name, not a max category or number.
-                                    // Logging the input and result as per instruction to not alter logic.
-                                    if (node.Attributes?["type"]?.Value is string inputToMaxType)
+                                    if (node.Attributes?["max"]?.Value is string maxAttrValue)
                                     {
-                                        max = MaxType.GetMax(inputToMaxType);
-                                        Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (input to MaxType.GetMax: '{inputToMaxType}'): {max}");
+                                        max = MaxType.GetMax(maxAttrValue);
+                                        Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (from attribute '{maxAttrValue}'): {max}");
+                                    }
+                                    else
+                                    {
+                                        Program.Logger.Debug($"WARNING: Unit '{unit.GetName()}' in 'Default' faction found, but 'max' attribute is missing. Keeping previous max value: {max}");
+                                        break;
                                     }
                                 }
                             }
