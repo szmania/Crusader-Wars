@@ -15,9 +15,9 @@
     
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
 
-    cc_siege_fight_button: "이 공성을 직접 싸우십시오!\n건설된 공성 기계 — 공성추: $cc_ram_count$ (다음: $cc_engine_build_pct$% 건설됨), 탑: $cc_tower_count$ (다음: $cc_engine_build_pct$% 건설됨), 사다리: $cc_ladder_count$ (다음: $cc_engine_build_pct$% 건설됨)\n공성 진행: $cc_engines_total_pct$% — $cc_next_engine_info$"
+    cc_siege_fight_button: "#S 이 공성을 직접 싸우십시오!#!\n건설된 공성 기계 — 공성추: $cc_ram_count$ (다음: $cc_engine_build_pct$% 건설됨), 탑: $cc_tower_count$ (다음: $cc_engine_build_pct$% 건설됨), 사다리: $cc_ladder_count$ (다음: $cc_engine_build_pct$% 건설됨)\n공성 진행: $cc_engines_total_pct$% — $cc_next_engine_info$"
     cc_siege_engines_built_tooltip: "공성 기계 건설: 공성추, 탑, 사다리는 공성 진행에 따라 건설됩니다 (진행 25%에서 1개, 50%에서 2개, 75%에서 3개)."
-    cc_siege_fight_button_disabled: "이 공성을 직접 싸우십시오!\n#N 이 공성을 직접 싸우려면 성벽이 무너졌거나, 공성 무기가 있거나, 공성이 충분히 진행되어 공성 기계가 건설되어야 합니다. 공성 진행: $cc_engines_total_pct$% — 첫 공성 기계 $cc_engine_build_pct$% 건설됨 (25% 공성 진행 시 완공).#!"
+    cc_siege_fight_button_disabled: "#S 이 공성을 직접 싸우십시오!#!\n#N 이 공성을 직접 싸우려면 성벽이 무너졌거나, 공성 무기가 있거나, 공성이 충분히 진행되어 공성 기계가 건설되어야 합니다. 공성 진행: $cc_engines_total_pct$% — 첫 공성 기계 $cc_engine_build_pct$% 건설됨 (25% 공성 진행 시 완공).#!"
     cc_engines_total_pct: "[Siege.GetProgress|0]"
     cc_ram_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
     cc_tower_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"

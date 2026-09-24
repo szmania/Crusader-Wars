@@ -16,9 +16,9 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
   
-    cc_siege_fight_button: "Сразитесь в этой осаде сами!\nПостроено осадных орудий — Тараны: $cc_ram_count$ (следующее: $cc_engine_build_pct$% построено), Башни: $cc_tower_count$ (следующее: $cc_engine_build_pct$% построено), Лестницы: $cc_ladder_count$ (следующее: $cc_engine_build_pct$% построено)\nПрогресс осады: $cc_engines_total_pct$% — $cc_next_engine_info$"
+    cc_siege_fight_button: "#S Сразитесь в этой осаде сами!#!\nПостроено осадных орудий — Тараны: $cc_ram_count$ (следующее: $cc_engine_build_pct$% построено), Башни: $cc_tower_count$ (следующее: $cc_engine_build_pct$% построено), Лестницы: $cc_ladder_count$ (следующее: $cc_engine_build_pct$% построено)\nПрогресс осады: $cc_engines_total_pct$% — $cc_next_engine_info$"
     cc_siege_engines_built_tooltip: "Построено осадных орудий: тараны, башни и лестницы строятся по мере осады (1 при 25% прогресса, 2 при 50%, 3 при 75%)."
-    cc_siege_fight_button_disabled: "Сразитесь в этой осаде сами!\n#N Стены должны быть пробиты, у вас должны быть осадные орудия, или осада должна продвинуться достаточно для их постройки, чтобы сразиться в этой осаде самим. Прогресс осады: $cc_engines_total_pct$% — первое осадное орудие построено на $cc_engine_build_pct$% (завершено при 25% прогресса осады).#!"
+    cc_siege_fight_button_disabled: "#S Сразитесь в этой осаде сами!#!\n#N Стены должны быть пробиты, у вас должны быть осадные орудия, или осада должна продвинуться достаточно для их постройки, чтобы сразиться в этой осаде самим. Прогресс осады: $cc_engines_total_pct$% — первое осадное орудие построено на $cc_engine_build_pct$% (завершено при 25% прогресса осады).#!"
     cc_engines_total_pct: "[Siege.GetProgress|0]"
     cc_ram_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
     cc_tower_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
