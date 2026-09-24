@@ -126,7 +126,7 @@
             this.CloseBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.CloseBtn.FlatAppearance.BorderSize = 0;
             this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CloseBtn.Location = new System.Drawing.Point(1237, 35);
+            this.CloseBtn.Location = new System.Drawing.Point(1467, 35);
             this.CloseBtn.Name = "CloseBtn";
             this.CloseBtn.Size = new System.Drawing.Size(53, 54);
             this.CloseBtn.TabIndex = 9;
@@ -164,6 +164,38 @@
             this.AttilaBtn.UseVisualStyleBackColor = false;
             this.AttilaBtn.Click += new System.EventHandler(this.AttilaBtn_Click);
             this.AttilaBtn.MouseHover += new System.EventHandler(this.AttilaBtn_MouseHover);
+            //
+            // Status_Rome2_Icon
+            //
+            this.Status_Rome2_Icon.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.Status_Rome2_Icon.BackColor = System.Drawing.Color.Transparent;
+            this.Status_Rome2_Icon.BackgroundImage = global::CrusaderWars.Properties.Resources.warning__1_;
+            this.Status_Rome2_Icon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.Status_Rome2_Icon.Location = new System.Drawing.Point(570, 203);
+            this.Status_Rome2_Icon.Name = "Status_Rome2_Icon";
+            this.Status_Rome2_Icon.Size = new System.Drawing.Size(64, 31);
+            this.Status_Rome2_Icon.TabIndex = 15;
+            this.Status_Rome2_Icon.TabStop = false;
+            //
+            // Rome2Btn
+            //
+            this.Rome2Btn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.Rome2Btn.BackColor = System.Drawing.Color.Transparent;
+            this.Rome2Btn.BackgroundImage = global::CrusaderWars.Properties.Resources.rome2_icon;
+            this.Rome2Btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.Rome2Btn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Rome2Btn.FlatAppearance.BorderSize = 0;
+            this.Rome2Btn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.Rome2Btn.Font = new System.Drawing.Font("Yu Gothic UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Rome2Btn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.Rome2Btn.Location = new System.Drawing.Point(537, 50);
+            this.Rome2Btn.Name = "Rome2Btn";
+            this.Rome2Btn.Size = new System.Drawing.Size(130, 122);
+            this.Rome2Btn.TabIndex = 16;
+            this.ToolTip_Attila.SetToolTip(this.Rome2Btn, "Select Rome2.exe from your Total War: Rome 2 installation folder");
+            this.Rome2Btn.UseVisualStyleBackColor = false;
+            this.Rome2Btn.Click += new System.EventHandler(this.Rome2Btn_Click);
+            this.Rome2Btn.MouseHover += new System.EventHandler(this.Rome2Btn_MouseHover);
             //
             // ToolTip_Attila
             //
@@ -435,22 +467,22 @@
             this.UMpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.UMpanel.Location = new System.Drawing.Point(3, 64);
             this.UMpanel.Name = "UMpanel";
-            this.UMpanel.Size = new System.Drawing.Size(650, 185);
+            this.UMpanel.Size = new System.Drawing.Size(890, 185);
             this.UMpanel.TabIndex = 32;
             //
             // flowLayoutPanel2
             //
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_Rome2Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_Rome2Tab);
+            this.flowLayoutPanel2.Controls.Add(this.Btn_BookmarksPlusTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(650, 34);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(890, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             this.flowLayoutPanel2.WrapContents = false;
             //
@@ -484,7 +516,7 @@
             this.Btn_TFETab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_TFETab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_TFETab.ForeColor = System.Drawing.Color.White;
-            this.Btn_TFETab.Location = new System.Drawing.Point(122, 3);
+            this.Btn_TFETab.Location = new System.Drawing.Point(241, 3);
             this.Btn_TFETab.Name = "Btn_TFETab";
             this.Btn_TFETab.Size = new System.Drawing.Size(123, 28);
             this.Btn_TFETab.TabIndex = 1;
@@ -504,7 +536,7 @@
             this.Btn_LOTRTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_LOTRTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_LOTRTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_LOTRTab.Location = new System.Drawing.Point(251, 3);
+            this.Btn_LOTRTab.Location = new System.Drawing.Point(370, 3);
             this.Btn_LOTRTab.Name = "Btn_LOTRTab";
             this.Btn_LOTRTab.Size = new System.Drawing.Size(114, 28);
             this.Btn_LOTRTab.TabIndex = 2;
@@ -524,7 +556,7 @@
             this.Btn_AGOTTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_AGOTTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_AGOTTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_AGOTTab.Location = new System.Drawing.Point(371, 3);
+            this.Btn_AGOTTab.Location = new System.Drawing.Point(490, 3);
             this.Btn_AGOTTab.Name = "Btn_AGOTTab";
             this.Btn_AGOTTab.Size = new System.Drawing.Size(80, 28);
             this.Btn_AGOTTab.TabIndex = 3;
@@ -544,7 +576,7 @@
             this.Btn_BookmarksPlusTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_BookmarksPlusTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_BookmarksPlusTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_BookmarksPlusTab.Location = new System.Drawing.Point(457, 3);
+            this.Btn_BookmarksPlusTab.Location = new System.Drawing.Point(596, 3);
             this.Btn_BookmarksPlusTab.Name = "Btn_BookmarksPlusTab";
             this.Btn_BookmarksPlusTab.Size = new System.Drawing.Size(100, 28);
             this.Btn_BookmarksPlusTab.TabIndex = 4;
@@ -553,9 +585,6 @@
             this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
             this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
-            //
-            this.Btn_AGOTTab.Click += new System.EventHandler(this.Btn_AGOTTab_Click);
-            //
             // Btn_Rome2Tab
             //
             this.Btn_Rome2Tab.AutoSize = true;
@@ -566,12 +595,12 @@
             this.Btn_Rome2Tab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_Rome2Tab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_Rome2Tab.ForeColor = System.Drawing.Color.White;
-            this.Btn_Rome2Tab.Location = new System.Drawing.Point(457, 3);
+            this.Btn_Rome2Tab.Location = new System.Drawing.Point(122, 3);
             this.Btn_Rome2Tab.Name = "Btn_Rome2Tab";
             this.Btn_Rome2Tab.Size = new System.Drawing.Size(80, 28);
             this.Btn_Rome2Tab.TabIndex = 4;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_Rome2Tab, "Total War: Rome 2 playthroughs. Requires Rome2.exe.");
-            this.Btn_Rome2Tab.Text = "Rome 2";
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_Rome2Tab, "Bronze Age Reborn playthrough. Requires Rome2.exe.");
+            this.Btn_Rome2Tab.Text = "Bronze Age";
             this.Btn_Rome2Tab.UseVisualStyleBackColor = false;
             this.Btn_Rome2Tab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_Rome2Tab.Click += new System.EventHandler(this.Btn_Rome2Tab_Click);
@@ -586,7 +615,7 @@
             this.Btn_CustomTab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Btn_CustomTab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Btn_CustomTab.ForeColor = System.Drawing.Color.White;
-            this.Btn_CustomTab.Location = new System.Drawing.Point(563, 3);
+            this.Btn_CustomTab.Location = new System.Drawing.Point(702, 3);
             this.Btn_CustomTab.Name = "Btn_CustomTab";
             this.Btn_CustomTab.Size = new System.Drawing.Size(80, 28);
             this.Btn_CustomTab.TabIndex = 5;
@@ -629,7 +658,7 @@ this.TableLayoutGamePaths.ColumnCount = 3;
             this.TableLayoutSettings.Controls.Add(this.label3, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.flowLayoutPanel1, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.OptionsPanel, 0, 2);
-            this.TableLayoutSettings.Location = new System.Drawing.Point(715, 145);
+            this.TableLayoutSettings.Location = new System.Drawing.Point(950, 145);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 3;
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -654,7 +683,7 @@ this.TableLayoutGamePaths.ColumnCount = 3;
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(656, 252);
+            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(896, 252);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             //
@@ -777,7 +806,7 @@ this.TableLayoutGamePaths.ColumnCount = 3;
             this.AutoSize = false;
             this.BackgroundImage = global::CrusaderWars.Properties.Resources.options_bk;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1300, 1000);
+            this.ClientSize = new System.Drawing.Size(1530, 1000);
             this.Controls.Add(this.TableLayoutModManager);
             this.Controls.Add(this.TableLayoutPlaythroughs);
             this.Controls.Add(this.TableLayoutSettings);
@@ -813,7 +842,7 @@ this.TableLayoutGamePaths.ColumnCount = 3;
             this.PerformLayout();
 
             this.AutoScroll = true;
-            this.AutoScrollMinSize = new System.Drawing.Size(1300, 1000);
+            this.AutoScrollMinSize = new System.Drawing.Size(1530, 1000);
 
         }
 
