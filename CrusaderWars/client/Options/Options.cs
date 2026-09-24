@@ -1038,6 +1038,11 @@ Status_Attila_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__
             {
                 Status_Rome2_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__1_;
             }
+
+            // Bronze Age (Rome 2) playthrough tab is only usable with a valid Rome2.exe path
+            bool rome2Configured = IsRome2PathConfigured();
+            Btn_Rome2Tab.Enabled = rome2Configured;
+            Btn_Rome2Tab.ForeColor = rome2Configured ? Color.White : Color.Gray;
         }
 
 
@@ -1503,9 +1508,11 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BookmarksPlus_Tab)
                 ChangeUnitMappersTab(BookmarksPlus_Tab);
         }
+        private bool IsRome2PathConfigured() => Path.GetFileName(Properties.Settings.Default.VAR_rome2_path ?? string.Empty).Equals("Rome2.exe", StringComparison.OrdinalIgnoreCase) && File.Exists(Properties.Settings.Default.VAR_rome2_path);
 
         private void Btn_Rome2Tab_Click(object sender, EventArgs e)
         {
+            if (!IsRome2PathConfigured()) return;
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BronzeAge_Tab)
                 ChangeUnitMappersTab(BronzeAge_Tab);
         }
