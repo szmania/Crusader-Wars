@@ -68,7 +68,7 @@ namespace CrusaderWars.Tests.UnitMappers
             var mapperDir = _env.CreateBookmarksPlusMapperDir();
 
             // Act
-            var (requiredMods, submods) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+                var (requiredMods, submods, ck3ModFileNames) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
 
             // Assert
             Assert.Single(requiredMods);
@@ -83,7 +83,7 @@ namespace CrusaderWars.Tests.UnitMappers
             _env.CreateUnitMappersXml(); // All false
 
             // Act
-            var (requiredMods, submods) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+                var (requiredMods, submods, ck3ModFileNames) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
 
             // Assert
             Assert.Empty(requiredMods);
@@ -103,11 +103,89 @@ namespace CrusaderWars.Tests.UnitMappers
                 "<?xml version=\"1.0\"?><Mods><Mod>custom_mod.mod</Mod></Mods>");
 
             // Act
-            var (requiredMods, submods) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
+                var (requiredMods, submods, ck3ModFileNames) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
 
             // Assert
             Assert.Single(requiredMods);
             Assert.Equal("custom_mod.mod", requiredMods[0].FileName);
+        }
+
+        [Fact]
+        public void GetUnitMappersModsCollectionFromTag_ParsesCk3ModFileNames_WhenAttributePresent()
+        {
+            // Arrange
+            _env.CreateUnitMappersXml(bookmarksPlus: true);
+            var mapperDir = Path.Combine(_env.UnitMappersPath, "OfficialCC_BookmarksPlus_Test");
+            Directory.CreateDirectory(mapperDir);
+            File.WriteAllText(Path.Combine(mapperDir, "tag.txt"), "BookmarksPlus");
+            File.WriteAllText(Path.Combine(mapperDir, "Mods.xml"),
+                "<?xml version=\"1.0\"?><Mods ck3_mod_file_names=\"ugc_12345.mod, ck3_awesomemod.mod\"><Mod>ufc_2933252806.mod</Mod></Mods>");
+
+            // Act
+            var (requiredMods, submods, ck3ModFileNames) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+
+            // Assert
+            Assert.Equal(2, ck3ModFileNames.Count);
+            Assert.Contains("ugc_12345.mod", ck3ModFileNames);
+            Assert.Contains("ck3_awesomemod.mod", ck3ModFileNames);
+        }
+
+        [Fact]
+        public void GetUnitMappersModsCollectionFromTag_ReturnsEmptyCk3ModFileNames_WhenAttributeAbsent()
+        {
+            // Arrange
+            _env.CreateUnitMappersXml(bookmarksPlus: true);
+            _env.CreateBookmarksPlusMapperDir();
+
+            // Act
+            var (requiredMods, submods, ck3ModFileNames) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+
+            // Assert
+            Assert.Empty(ck3ModFileNames);
+        }
+
+        [Fact]
+        public void GetUnitMappersModsCollectionFromTag_ReturnsEmptyCk3ModFileNames_WhenAttributeEmpty()
+        {
+            // Arrange
+            _env.CreateUnitMappersXml(bookmarksPlus: true);
+            var mapperDir = Path.Combine(_env.UnitMappersPath, "OfficialCC_BookmarksPlus_Test");
+            Directory.CreateDirectory(mapperDir);
+            File.WriteAllText(Path.Combine(mapperDir, "tag.txt"), "BookmarksPlus");
+            File.WriteAllText(Path.Combine(mapperDir, "Mods.xml"),
+                "<?xml version=\"1.0\"?><Mods ck3_mod_file_names=\"\"><Mod>ufc_2933252806.mod</Mod></Mods>");
+
+            // Act
+            var (requiredMods, submods, ck3ModFileNames) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+
+            // Assert
+            Assert.Empty(ck3ModFileNames);
+        }
+
+        [Fact]
+        public void GetUnitMappersModsCollectionFromTag_DedupesCk3ModFileNames_CaseInsensitive()
+        {
+            // Arrange
+            _env.CreateUnitMappersXml(bookmarksPlus: true);
+            var mapperDir1 = Path.Combine(_env.UnitMappersPath, "OfficialCC_BookmarksPlus_A");
+            Directory.CreateDirectory(mapperDir1);
+            File.WriteAllText(Path.Combine(mapperDir1, "tag.txt"), "BookmarksPlus");
+            File.WriteAllText(Path.Combine(mapperDir1, "Mods.xml"),
+                "<?xml version=\"1.0\"?><Mods ck3_mod_file_names=\"ugc_12345.mod\"><Mod>a.mod</Mod></Mods>");
+
+            var mapperDir2 = Path.Combine(_env.UnitMappersPath, "OfficialCC_BookmarksPlus_B");
+            Directory.CreateDirectory(mapperDir2);
+            File.WriteAllText(Path.Combine(mapperDir2, "tag.txt"), "BookmarksPlus");
+            File.WriteAllText(Path.Combine(mapperDir2, "Mods.xml"),
+                "<?xml version=\"1.0\"?><Mods ck3_mod_file_names=\"UGC_12345.MOD,ck3_other.mod\"><Mod>b.mod</Mod></Mods>");
+
+            // Act
+            var (requiredMods, submods, ck3ModFileNames) = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("BookmarksPlus");
+
+            // Assert
+            Assert.Equal(2, ck3ModFileNames.Count);
+            Assert.Contains("ugc_12345.mod", ck3ModFileNames);
+            Assert.Contains("ck3_other.mod", ck3ModFileNames);
         }
 
         public void Dispose()
