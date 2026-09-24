@@ -22,36 +22,26 @@ namespace CrusaderWars.client
         public static string GetSelectedCustomMapper() { return SelectedCustomMapper; }
         public static int GetLevyMax()
         {
-if (optionsValuesCollection.TryGetValue("LeviesMax", out var value) && int.TryParse(value, out int result))
-            {
-                return result;
-            }
-            return 10;
+            if (optionsValuesCollection.TryGetValue("LeviesMax", out var value) && int.TryParse(value, out int result)) { return result >= 100 ? result : 300; }
+            return 300;
         }
+
         public static int GetInfantryMax()
         {
-if (optionsValuesCollection.TryGetValue("InfantryMax", out var value) && int.TryParse(value, out int result))
-            {
-                return result;
-            }
-            return 8;
+            if (optionsValuesCollection.TryGetValue("InfantryMax", out var value) && int.TryParse(value, out int result)) { return result >= 100 ? result : 200; }
+            return 200;
         }
 
         public static int GetRangedMax()
         {
-if (optionsValuesCollection.TryGetValue("RangedMax", out var value) && int.TryParse(value, out int result))
-            {
-                return result;
-            }
-            return 4;
+            if (optionsValuesCollection.TryGetValue("RangedMax", out var value) && int.TryParse(value, out int result)) { return result >= 100 ? result : 200; }
+            return 200;
         }
+
         public static int GetCavalryMax()
         {
-if (optionsValuesCollection.TryGetValue("CavalryMax", out var value) && int.TryParse(value, out int result))
-            {
-                return result;
-            }
-            return 4;
+            if (optionsValuesCollection.TryGetValue("CavalryMax", out var value) && int.TryParse(value, out int result)) { return result >= 50 ? result : 100; }
+            return 100;
         }
 
         public static void SetLevyMax(int value)

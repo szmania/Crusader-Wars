@@ -315,7 +315,15 @@ namespace CrusaderWars
             XmlNode? node = doc.SelectSingleNode($"//Option[@name='{optionName}']");
             if (node != null)
             {
-                return node.InnerText;
+                var text = node.InnerText?.Trim();
+                if (!string.IsNullOrEmpty(text))
+                {
+                    return text;
+                }
+                // Self-heal empty/whitespace-only values so they cannot wipe the UI dropdowns on save
+                Program.Logger.Debug($"Option '{optionName}' is empty in Options.xml. Resetting to default value '{defaultValue}'.");
+                node.InnerText = defaultValue;
+                return defaultValue;
             }
             else
             {
@@ -386,10 +394,10 @@ namespace CrusaderWars
                 var BattleMapsSize_Value = GetOptionValue(xmlDoc, "BattleMapsSize", "Dynamic");
                 var DefensiveDeployables_Value = GetOptionValue(xmlDoc, "DefensiveDeployables", "Enabled");
                 var UnitCards_Value = GetOptionValue(xmlDoc, "UnitCards", "Enabled");
-                var LeviesMax_Value = GetOptionValue(xmlDoc, "LeviesMax", "10");
-                var RangedMax_Value = GetOptionValue(xmlDoc, "RangedMax", "4");
-                var InfantryMax_Value = GetOptionValue(xmlDoc, "InfantryMax", "8");
-                var CavalryMax_Value = GetOptionValue(xmlDoc, "CavalryMax", "4");
+                var LeviesMax_Value = GetOptionValue(xmlDoc, "LeviesMax", "300");
+                var RangedMax_Value = GetOptionValue(xmlDoc, "RangedMax", "200");
+                var InfantryMax_Value = GetOptionValue(xmlDoc, "InfantryMax", "200");
+                var CavalryMax_Value = GetOptionValue(xmlDoc, "CavalryMax", "100");
                 var BattleScale_Value = GetOptionValue(xmlDoc, "BattleScale", "100%");
                 var AutoScaleUnits_Value = GetOptionValue(xmlDoc, "AutoScaleUnits", "Enabled");
                 var SeparateArmies_Value = GetOptionValue(xmlDoc, "SeparateArmies", "Friendly Only");
@@ -509,10 +517,10 @@ namespace CrusaderWars
                 AddDefaultOption(xmlDoc, root, "BattleMapsSize", "Dynamic");
                 AddDefaultOption(xmlDoc, root, "DefensiveDeployables", "Enabled");
                 AddDefaultOption(xmlDoc, root, "UnitCards", "Enabled");
-                AddDefaultOption(xmlDoc, root, "LeviesMax", "10");
-                AddDefaultOption(xmlDoc, root, "RangedMax", "4");
-                AddDefaultOption(xmlDoc, root, "InfantryMax", "8");
-                AddDefaultOption(xmlDoc, root, "CavalryMax", "4");
+                AddDefaultOption(xmlDoc, root, "LeviesMax", "300");
+                AddDefaultOption(xmlDoc, root, "RangedMax", "200");
+                AddDefaultOption(xmlDoc, root, "InfantryMax", "200");
+                AddDefaultOption(xmlDoc, root, "CavalryMax", "100");
                 AddDefaultOption(xmlDoc, root, "BattleScale", "100%");
                 AddDefaultOption(xmlDoc, root, "AutoScaleUnits", "Enabled");
                 AddDefaultOption(xmlDoc, root, "SeparateArmies", "Friendly Only");
@@ -640,10 +648,10 @@ namespace CrusaderWars
                 var numKnightPrisoner = CandK_Tab.numKnightPrisoner;
 
 
-                if (LeviesMax_ComboBox != null) LeviesMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["LeviesMax"];
-                if (RangedMax_ComboBox != null) RangedMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["RangedMax"];
-                if (InfantryMax_ComboBox != null) InfantryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["InfantryMax"];
-                if (CavalryMax_ComboBox != null) CavalryMax_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["CavalryMax"];
+                if (LeviesMax_ComboBox != null) LeviesMax_ComboBox.SelectedItem = LeviesMax_ComboBox.Items.Contains(ModOptions.optionsValuesCollection["LeviesMax"]) ? ModOptions.optionsValuesCollection["LeviesMax"] : "300";
+                if (RangedMax_ComboBox != null) RangedMax_ComboBox.SelectedItem = RangedMax_ComboBox.Items.Contains(ModOptions.optionsValuesCollection["RangedMax"]) ? ModOptions.optionsValuesCollection["RangedMax"] : "200";
+                if (InfantryMax_ComboBox != null) InfantryMax_ComboBox.SelectedItem = InfantryMax_ComboBox.Items.Contains(ModOptions.optionsValuesCollection["InfantryMax"]) ? ModOptions.optionsValuesCollection["InfantryMax"] : "200";
+                if (CavalryMax_ComboBox != null) CavalryMax_ComboBox.SelectedItem = CavalryMax_ComboBox.Items.Contains(ModOptions.optionsValuesCollection["CavalryMax"]) ? ModOptions.optionsValuesCollection["CavalryMax"] : "100";
 
                 var LevyMinSize_TextBox = Units_Tab.Controls.Find("OptionSelection_LevyMinSize", true).FirstOrDefault() as TextBox;
                 if (BattleScale_ComboBox != null) BattleScale_ComboBox.SelectedItem = ModOptions.optionsValuesCollection["BattleScale"];
@@ -852,18 +860,18 @@ namespace CrusaderWars
 
 
                 var LeviesMax_Node = xmlDoc.SelectSingleNode("//Option [@name='LeviesMax']");
-                if (LeviesMax_Node != null && LeviesMax_ComboBox != null) LeviesMax_Node.InnerText = LeviesMax_ComboBox.Text;
+                if (LeviesMax_Node != null && LeviesMax_ComboBox != null) LeviesMax_Node.InnerText = LeviesMax_ComboBox.SelectedItem?.ToString() ?? ModOptions.optionsValuesCollection["LeviesMax"];
                 var RangedMax_Node = xmlDoc.SelectSingleNode("//Option [@name='RangedMax']");
-                if (RangedMax_Node != null && RangedMax_ComboBox != null) RangedMax_Node.InnerText = RangedMax_ComboBox.Text;
+                if (RangedMax_Node != null && RangedMax_ComboBox != null) RangedMax_Node.InnerText = RangedMax_ComboBox.SelectedItem?.ToString() ?? ModOptions.optionsValuesCollection["RangedMax"];
                 var InfantryMax_Node = xmlDoc.SelectSingleNode("//Option [@name='InfantryMax']");
-                if (InfantryMax_Node != null && InfantryMax_ComboBox != null) InfantryMax_Node.InnerText = InfantryMax_ComboBox.Text;
+                if (InfantryMax_Node != null && InfantryMax_ComboBox != null) InfantryMax_Node.InnerText = InfantryMax_ComboBox.SelectedItem?.ToString() ?? ModOptions.optionsValuesCollection["InfantryMax"];
                 var CavalryMax_Node = xmlDoc.SelectSingleNode("//Option [@name='CavalryMax']");
-                if (CavalryMax_Node != null && CavalryMax_ComboBox != null) CavalryMax_Node.InnerText = CavalryMax_ComboBox.Text;
+                if (CavalryMax_Node != null && CavalryMax_ComboBox != null) CavalryMax_Node.InnerText = CavalryMax_ComboBox.SelectedItem?.ToString() ?? ModOptions.optionsValuesCollection["CavalryMax"];
 
                 var BattleScale_Node = xmlDoc.SelectSingleNode("//Option [@name='BattleScale']");
-                if (BattleScale_Node != null && BattleScale_ComboBox != null) BattleScale_Node.InnerText = BattleScale_ComboBox.Text;
+                if (BattleScale_Node != null && BattleScale_ComboBox != null) BattleScale_Node.InnerText = BattleScale_ComboBox.SelectedItem?.ToString() ?? ModOptions.optionsValuesCollection["BattleScale"];
                 var AutoScaleUnits_Node = xmlDoc.SelectSingleNode("//Option [@name='AutoScaleUnits']");
-                if (AutoScaleUnits_Node != null && AutoScaleUnits_ComboBox != null) AutoScaleUnits_Node.InnerText = AutoScaleUnits_ComboBox.Text;
+                if (AutoScaleUnits_Node != null && AutoScaleUnits_ComboBox != null) AutoScaleUnits_Node.InnerText = AutoScaleUnits_ComboBox.SelectedItem?.ToString() ?? ModOptions.optionsValuesCollection["AutoScaleUnits"];
                 var LevyMinSize_TextBox = Units_Tab.Controls.Find("OptionSelection_LevyMinSize", true).FirstOrDefault() as TextBox;
                 var LevyMinSize_Node = xmlDoc.SelectSingleNode("//Option [@name='LevyMinSize']");
                 if (LevyMinSize_Node != null && LevyMinSize_TextBox != null) LevyMinSize_Node.InnerText = LevyMinSize_TextBox.Text;
