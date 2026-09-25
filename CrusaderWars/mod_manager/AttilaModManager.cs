@@ -427,8 +427,10 @@ namespace CrusaderWars.mod_manager
         [SupportedOSPlatform("windows")]
         public static void SaveActiveMods()
         {
+            string activeModsPath = @".\data\mod manager\active_mods.txt";
+            Directory.CreateDirectory(Path.GetDirectoryName(activeModsPath)!); // Ensure the folder exists before writing
             var activeMods = ModsPaths.Where(mod => mod.IsEnabled()).Select(x => x.GetName()).ToArray();
-            File.WriteAllLines(@".\data\mod manager\active_mods.txt", activeMods);
+            File.WriteAllLines(activeModsPath, activeMods);
             DisposeImages();
         }
 
@@ -449,7 +451,14 @@ namespace CrusaderWars.mod_manager
         [SupportedOSPlatform("windows")]
         static void SetActiveMods()
         {
-            var activeMods = File.ReadAllLines(@".\data\mod manager\active_mods.txt").ToList();
+            string activeModsPath = @".\data\mod manager\active_mods.txt";
+            if (!File.Exists(activeModsPath))
+            {
+                // First run or fresh install: no saved active mods yet, so leave all mods disabled.
+                Program.Logger.Debug($"Active mods file not found at '{activeModsPath}'. No mods will be marked active.");
+                return;
+            }
+            var activeMods = File.ReadAllLines(activeModsPath).ToList();
             foreach (Mod mod in ModsPaths)
             {
                 string name = mod.GetName();
