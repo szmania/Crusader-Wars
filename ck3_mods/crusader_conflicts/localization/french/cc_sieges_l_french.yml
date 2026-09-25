@@ -15,7 +15,15 @@
     
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
-    cc_siege_fight_button: "Combattez ce siège vous-même !"
-    cc_siege_fight_button_disabled: "Ce personnage ne peut pas contrôler les batailles de siège.\nVoir Options du Mod : Préférences"
+    cc_siege_fight_button: "#S Combattez ce siège vous-même !#!\nEngins de siège construits — Béliers : $cc_ram_count$ (prochain : $cc_engine_build_pct$ % construit), Tours : $cc_tower_count$ (prochain : $cc_engine_build_pct$ % construit), Échelles : $cc_ladder_count$ (prochain : $cc_engine_build_pct$ % construit)\nProgression du siège : $cc_engines_total_pct$ % — $cc_next_engine_info$"
+    cc_siege_engines_built_tooltip: "Engins de siège construits : béliers, tours et échelles sont construits au fur et à mesure du siège (1 à 25 % de progression, 2 à 50 %, 3 à 75 %)."
+    cc_siege_fight_button_disabled: "#S Combattez ce siège vous-même !#!\n#N Les murs doivent être percés, vous devez avoir des armes de siège, ou le siège doit avoir assez progressé pour construire des engins pour combattre ce siège vous-même. Progression du siège : $cc_engines_total_pct$ % — premier engin de siège construit à $cc_engine_build_pct$ % (terminé à 25 % de progression du siège).#!"
+    cc_engines_total_pct: "[Siege.GetProgress|0]"
+    cc_ram_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_tower_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_ladder_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_next_engine_info: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), 'tous les engins de siège sont construits', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), 'prochain engin à 75 % de progression du siège', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), 'prochain engin à 50 % de progression du siège', 'premier engin à 25 % de progression du siège' ) ) )]"
+    cc_engine_build_pct: "[Select_float( GreaterThan_float( Siege.GetProgress, '(float)75' ), '(float)100', Select_float( GreaterThan_float( Siege.GetProgress, '(float)50' ), Multiply_float( Subtract_float( Siege.GetProgress, '(float)50' ), '(float)4' ), Select_float( GreaterThan_float( Siege.GetProgress, '(float)25' ), Multiply_float( Subtract_float( Siege.GetProgress, '(float)25' ), '(float)4' ), Multiply_float( Siege.GetProgress, '(float)4' ) ) ) )|0]"
+    cc_siege_assault_insufficient_troops_tooltip: "Vous n'avez pas assez de soldats pour donner l'assaut à ce siège. Votre armée doit être plus nombreuse que la garnison."
     cc_siege_options_button: "Options du mod Crusader Conflicts"
     cc_siege_wait_button: "Attendez encore quelques jours pour combattre ce siège..."

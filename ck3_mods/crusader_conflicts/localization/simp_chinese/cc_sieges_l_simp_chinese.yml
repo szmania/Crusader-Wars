@@ -15,7 +15,15 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
-    cc_siege_fight_button: "亲自参与这场围攻战吧！"
-    cc_siege_fight_button_disabled: "该角色无法指挥围城战。\n请查看模组选项：偏好设置"
+    cc_siege_fight_button: "#S 亲自参与这场围攻战吧！#!\n已建造攻城器械 — 冲车：$cc_ram_count$（下一台：$cc_engine_build_pct$% 建成），塔楼：$cc_tower_count$（下一台：$cc_engine_build_pct$% 建成），云梯：$cc_ladder_count$（下一台：$cc_engine_build_pct$% 建成）\n围攻进度：$cc_engines_total_pct$% — $cc_next_engine_info$"
+    cc_siege_engines_built_tooltip: "已建造攻城器械：冲车、塔楼和云梯会随围攻进度建造（进度25%时1台，50%时2台，75%时3台）。"
+    cc_siege_fight_button_disabled: "#S 亲自参与这场围攻战吧！#!\n#N 要亲自参与这场围攻战，城墙必须被攻破，或者您必须拥有攻城武器，或者围攻进度足够以建造攻城器械。围攻进度：$cc_engines_total_pct$% — 首台攻城器械已建成 $cc_engine_build_pct$%（围攻进度 25% 时完工）。#!"
+    cc_engines_total_pct: "[Siege.GetProgress|0]"
+    cc_ram_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_tower_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_ladder_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_next_engine_info: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '所有攻城器械均已建成', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '下一台器械在围攻进度 75% 时建成', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '下一台器械在围攻进度 50% 时建成', '首台器械在围攻进度 25% 时建成' ) ) )]"
+    cc_engine_build_pct: "[Select_float( GreaterThan_float( Siege.GetProgress, '(float)75' ), '(float)100', Select_float( GreaterThan_float( Siege.GetProgress, '(float)50' ), Multiply_float( Subtract_float( Siege.GetProgress, '(float)50' ), '(float)4' ), Select_float( GreaterThan_float( Siege.GetProgress, '(float)25' ), Multiply_float( Subtract_float( Siege.GetProgress, '(float)25' ), '(float)4' ), Multiply_float( Siege.GetProgress, '(float)4' ) ) ) )|0]"
+    cc_siege_assault_insufficient_troops_tooltip: "您没有足够的士兵来强攻这场围攻。您的军队必须多于守军。"
     cc_siege_options_button: "十字军冲突模组选项"
     cc_siege_wait_button: "再等几天再参与这场围攻战..."

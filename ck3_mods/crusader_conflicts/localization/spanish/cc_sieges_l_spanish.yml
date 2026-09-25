@@ -15,7 +15,15 @@
       
     holding_level_loc: "[GetPlayer.MakeScope.Var('siege_var').GetProvince.GetHolding.GetPrimaryBuildingType.GetKey]"
       
-    cc_siege_fight_button: "¡Lucha este asedio tú mismo!"
-    cc_siege_fight_button_disabled: "Este personaje no puede controlar batallas de asedio.\nVer Opciones del Mod: Preferencias"
+    cc_siege_fight_button: "#S ¡Lucha este asedio tú mismo!#!\nMáquinas de asedio construidas — Arietes: $cc_ram_count$ (siguiente: $cc_engine_build_pct$ % construido), Torres: $cc_tower_count$ (siguiente: $cc_engine_build_pct$ % construido), Escalas: $cc_ladder_count$ (siguiente: $cc_engine_build_pct$ % construido)\nProgreso del asedio: $cc_engines_total_pct$ % — $cc_next_engine_info$"
+    cc_siege_engines_built_tooltip: "Máquinas de asedio construidas: arietes, torres y escalas se construyen a medida que avanza el asedio (1 al 25 % de progreso, 2 al 50 %, 3 al 75 %)."
+    cc_siege_fight_button_disabled: "#S ¡Lucha este asedio tú mismo!#!\n#N Las murallas deben estar derribadas, debes tener armas de asedio, o el asedio debe haber avanzado lo suficiente para construir máquinas para luchar este asedio tú mismo. Progreso del asedio: $cc_engines_total_pct$ % — primera máquina de asedio construida al $cc_engine_build_pct$ % (completada al 25 % de progreso del asedio).#!"
+    cc_engines_total_pct: "[Siege.GetProgress|0]"
+    cc_ram_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_tower_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_ladder_count: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), '3', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), '2', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), '1', '0' ) ) )]"
+    cc_next_engine_info: "[Select_CString( GreaterThan_float( Siege.GetProgress, '(float)75' ), 'todas las máquinas de asedio están construidas', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)50' ), 'siguiente máquina al 75 % de progreso del asedio', Select_CString( GreaterThan_float( Siege.GetProgress, '(float)25' ), 'siguiente máquina al 50 % de progreso del asedio', 'primera máquina al 25 % de progreso del asedio' ) ) )]"
+    cc_engine_build_pct: "[Select_float( GreaterThan_float( Siege.GetProgress, '(float)75' ), '(float)100', Select_float( GreaterThan_float( Siege.GetProgress, '(float)50' ), Multiply_float( Subtract_float( Siege.GetProgress, '(float)50' ), '(float)4' ), Select_float( GreaterThan_float( Siege.GetProgress, '(float)25' ), Multiply_float( Subtract_float( Siege.GetProgress, '(float)25' ), '(float)4' ), Multiply_float( Siege.GetProgress, '(float)4' ) ) ) )|0]"
+    cc_siege_assault_insufficient_troops_tooltip: "No tienes suficientes soldados para asaltar este asedio. Tu ejército debe superar en número a la guarnición."
     cc_siege_options_button: "Opciones del mod Crusader Conflicts"
     cc_siege_wait_button: "Espera unos días más para luchar este asedio..."
