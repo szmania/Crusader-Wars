@@ -2342,7 +2342,7 @@ namespace CrusaderWars.unit_mapper
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, uniqueMap, provinceName));
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'.");
