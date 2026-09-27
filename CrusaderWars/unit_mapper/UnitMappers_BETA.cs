@@ -2262,23 +2262,14 @@ namespace CrusaderWars.unit_mapper
             return faction;
         }
 
-        private static bool MatchesVariantKey(SettlementVariant variant, UniqueSettlementMap parentMap, string provinceName)
+        private static bool MatchesVariantKey(SettlementVariant variant, string provinceName)
         {
-            if (!string.IsNullOrEmpty(variant.Key))
-            {
-                // Legacy: province name contains the key. Also: key contains the province name,
-                // so custom keys like "custom_edessa" still match the CK3 province "Edessa".
-                return provinceName.IndexOf(variant.Key, StringComparison.OrdinalIgnoreCase) >= 0
-                    || variant.Key.IndexOf(provinceName, StringComparison.OrdinalIgnoreCase) >= 0;
-            }
+            if (string.IsNullOrEmpty(variant.Key)) return false;
 
-            // Keyless variant: fall back to the parent's province_names attribute.
-            if (parentMap.ProvinceNames.Any(p => provinceName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0))
-            {
-                Program.Logger.Debug($"Keyless Settlement_Unique variant matched via parent province_names for province '{provinceName}'.");
-                return true;
-            }
-            return false;
+            // Legacy: province name contains the key. Also: key contains the province name,
+            // so custom keys like "custom_edessa" still match the CK3 province "Edessa".
+            return provinceName.IndexOf(variant.Key, StringComparison.OrdinalIgnoreCase) >= 0
+                || variant.Key.IndexOf(provinceName, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         public static (string X, string Y, List<string>? orientations)? GetSettlementMap(string faction, string battleType, string provinceName)
@@ -2342,7 +2333,7 @@ namespace CrusaderWars.unit_mapper
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, uniqueMap, provinceName));
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, provinceName));
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'.");
@@ -2462,7 +2453,7 @@ namespace CrusaderWars.unit_mapper
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, uniqueMap, provinceName));
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, provinceName));
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found siege battle type '{uniqueMap.BattleType}' from unique map by variant key '{uniqueMatch.Key}'.");
@@ -2560,7 +2551,7 @@ namespace CrusaderWars.unit_mapper
                                      .ToList();
             foreach (var uniqueMap in matchingUniqueMaps)
             {
-                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, uniqueMap, provinceName));
+                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, provinceName));
                 if (uniqueMatch != null)
                 {
                     return $"Unique Map ('{uniqueMatch.Key}')";
