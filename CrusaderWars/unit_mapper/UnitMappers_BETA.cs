@@ -371,41 +371,30 @@ namespace CrusaderWars.unit_mapper
 
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
-        public static string? GetLoadedUnitMapperString(string gameType)
+                public static string? GetLoadedUnitMapperString(string gameType)
         {
             var mapperName = GetLoadedUnitMapperName();
             if (mapperName == null) return null;
 
-            string eraName = mapperName switch
+            return mapperName switch
             {
-                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    return "EARLY MEDIEVAL";
-                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
-                    return "HIGH MEDIEVAL";
-                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
-                    return "LATE MEDIEVAL";
-                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    return "RENAISSANCE";
-                case "OfficialCC_TheFallenEagle_FallOfTheEagles":
-                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    return "LATE ANTIQUITY";
-                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
-                    return "POST ROMAN";
-                case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    return "SECOND AGE";
-                case "OfficialCC_AGOT_SevenKingdoms":
-                    return "AGE OF THE TARGARYENS";
-                case "OfficialCC_BookmarksPlus_AncientEmpires":
-                    return "PAX ROMANA";
-                case "OfficialCC_BookmarksPlus_FallOfTheEagles":
-                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
-                    return "LATE ANTIQUITY";
-                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
-                    return "POST ROMAN";
-                default:
-                    return null;
-            }
+                "OfficialCC_DefaultCK3_EarlyMedieval_919Mod" => "EARLY MEDIEVAL",
+                "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod" => "HIGH MEDIEVAL",
+                "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod" => "LATE MEDIEVAL",
+                "OfficialCC_DefaultCK3_Renaissance_MK1212Mod" => "RENAISSANCE",
+                "OfficialCC_TheFallenEagle_FallOfTheEagles" => "LATE ANTIQUITY",
+                "OfficialCC_TheFallenEagle_FireforgedEmpire" => "LATE ANTIQUITY",
+                "OfficialCC_TheFallenEagle_AgeOfJustinian" => "POST ROMAN",
+                "OfficialCC_RealmsInExile_TheDawnlessDays" => "SECOND AGE",
+                "OfficialCC_AGOT_SevenKingdoms" => "AGE OF THE TARGARYENS",
+                "OfficialCC_BookmarksPlus_AncientEmpires" => "PAX ROMANA",
+                "OfficialCC_BookmarksPlus_FallOfTheEagles" => "LATE ANTIQUITY",
+                "OfficialCC_BookmarksPlus_FireforgedEmpire" => "LATE ANTIQUITY",
+                "OfficialCC_BookmarksPlus_AgeOfJustinian" => "POST ROMAN",
+                _ => null
+            };
         }
+
 
         public static void ClearProvinceMapCache()
         {

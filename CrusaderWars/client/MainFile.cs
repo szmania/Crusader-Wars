@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -2099,7 +2099,7 @@ private void CreateGameShortcut()
                 {
                     try
                     {
-                        CreateAttilaShortcut();
+                        CreateGameShortcut();
                         Program.Logger.Debug("Attila shortcut created/verified for Windows.");
                     }
                     catch (Exception ex)
@@ -2597,7 +2597,7 @@ private void CreateGameShortcut()
             await Task.Delay(50); // Allow UI to update
 
             // Ensure Attila shortcut exists
-            CreateAttilaShortcut();
+            CreateGameShortcut();
 
             // Restore battle context from saved log snippet
             Program.Logger.Debug("Restoring battle context from log snippet...");
@@ -3857,7 +3857,7 @@ public async static Task CloseTotalWarProcess()
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
                 var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(selectedPlaythrough);
-                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods);
+                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods, _gameType);
 
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {

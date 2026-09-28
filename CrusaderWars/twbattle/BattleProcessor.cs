@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -148,7 +148,7 @@ namespace CrusaderWars.twbattle
                     Program.Logger.Debug("Creating TW:Attila battle files.");
                     BattleDetails.ChangeBattleDetails(left_side_total, right_side_total, left_side_combat_side, right_side[0].CombatSide);
 
-                    await Games.CloseTotalWarAttilaProcess();
+                    await Games.CloseTotalWarProcess();
                     form.UpdateLoadingScreenMessage("Creating battle in Total War: Attila...");
 
                     //Create Remaining Soldiers Script
@@ -583,7 +583,7 @@ HomePage.Games.StartTotalWarProcess();
                 Program.Logger.Debug($"Error during cleanup before battle: {ex.Message}");
                 MessageBox.Show(form, $"Error: {ex.Message}", "Crusader Conflicts: Application Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-                await Games.CloseTotalWarAttilaProcess();
+                await Games.CloseTotalWarProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                 {
                     Games.StartCrusaderKingsProcess();
@@ -1310,7 +1310,7 @@ HomePage.Games.StartTotalWarProcess();
                 Program.Logger.Debug($"Error retrieving TW:Attila battle results: {ex.Message}");
                 MessageBox.Show(form, $"Error retrieving TW:Attila battle results: {ex.Message}", "Crusader Conflicts: TW:Attila Battle Results Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-                await Games.CloseTotalWarAttilaProcess();
+                await Games.CloseTotalWarProcess();
                 if (ModOptions.CloseCK3DuringBattle())
                 {
                     Games.StartCrusaderKingsProcess();

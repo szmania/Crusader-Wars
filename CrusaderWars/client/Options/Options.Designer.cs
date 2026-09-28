@@ -580,7 +580,7 @@
             this.Btn_BookmarksPlusTab.Name = "Btn_BookmarksPlusTab";
             this.Btn_BookmarksPlusTab.Size = new System.Drawing.Size(100, 28);
             this.Btn_BookmarksPlusTab.TabIndex = 4;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_BookmarksPlusTab, "Bookmarks+ (pre-768) playthrough.");
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_BookmarksPlusTab, "Bookmarks+ (pre-768) playthrough for Attila.");
             this.Btn_BookmarksPlusTab.Text = "Bookmarks+";
             this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
             this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;

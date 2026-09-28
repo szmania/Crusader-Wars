@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -493,6 +493,7 @@ del ""%~f0""
                             }
                         }
 
+                        string oldDirectory = cleanApplicationPath + "_old";
                         // 1. Clean up any leftover old directory from a previous failed update
                         if (Directory.Exists(oldDirectory))
                         {
