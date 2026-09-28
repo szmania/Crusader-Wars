@@ -43,14 +43,14 @@ namespace CrusaderWars.armies
         void ReadModifiers(string modifiers_text_side)
         {
 
-            if (modifiers_text_side.Contains("cw_advantage_strait")) { IsDefendingStrait = true; TerrainGenerator.isStraitBattle(true); }
-            if (modifiers_text_side.Contains("cw_advantage_river")) { IsDefendingRiver = true; TerrainGenerator.isRiverBattle(true); }
-            if (modifiers_text_side.Contains("cw_advantage_big_river")) { IsDefendingRiver = true; TerrainGenerator.isRiverBattle(true); }
-            if (modifiers_text_side.Contains("cw_advantage_leading")) { isLiegeLeadingArmy = true; }
+            if (modifiers_text_side.Contains("cc_advantage_strait")) { IsDefendingStrait = true; TerrainGenerator.isStraitBattle(true); }
+            if (modifiers_text_side.Contains("cc_advantage_river")) { IsDefendingRiver = true; TerrainGenerator.isRiverBattle(true); }
+            if (modifiers_text_side.Contains("cc_advantage_big_river")) { IsDefendingRiver = true; TerrainGenerator.isRiverBattle(true); }
+            if (modifiers_text_side.Contains("cc_advantage_leading")) { isLiegeLeadingArmy = true; }
             if (modifiers_text_side.Contains("debt")) { isRealmInDebt = true; }
-            if (modifiers_text_side.Contains("cw_advantage_gathering")) { isArmyGathering = true; }
-            if (modifiers_text_side.Contains("cw_advantage_lowsupplies")) { isArmyLowOnSupplies = true; }
-            if (modifiers_text_side.Contains("cw_advantage_nosupplies")) { isArmyOutOfSupplies = true; }
+            if (modifiers_text_side.Contains("cc_advantage_gathering")) { isArmyGathering = true; }
+            if (modifiers_text_side.Contains("cc_advantage_lowsupplies")) { isArmyLowOnSupplies = true; }
+            if (modifiers_text_side.Contains("cc_advantage_nosupplies")) { isArmyOutOfSupplies = true; }
             if (modifiers_text_side.Contains("faith_hostility")) { isFightingHostileFaith = true; }
             if (modifiers_text_side.Contains("recently_disembarked")) { isArmyRecentlyDisembarked = true; }
         }
