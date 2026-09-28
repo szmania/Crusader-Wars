@@ -1956,6 +1956,30 @@ private void CreateGameShortcut()
                                         }
                                     }
                                 }
+
+                                // NEW: Validate mapper-declared CK3 mod file names against the enabled playset
+                                if (!string.IsNullOrEmpty(activePlaythrough))
+                                {
+                                    var ck3ModFileNames = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythrough).ck3ModFileNames;
+                                    if (ck3ModFileNames.Any())
+                                    {
+                                        var missingCk3Mods = ck3ModFileNames.Where(pair => !enabledMods.Contains(pair.fileName)).ToList();
+                                        if (missingCk3Mods.Any())
+                                        {
+                                            Program.Logger.Debug("Missing mapper-declared CK3 mods: " + string.Join(", ", missingCk3Mods.Select(p => p.fileName)));
+                                            string missingList = string.Join(Environment.NewLine, missingCk3Mods.Select(p => p.displayName != null ? $"{p.displayName} ({p.fileName})" : p.fileName));
+                                            var result = MessageBox.Show("The following CK3 mods required by the active playthrough are not enabled in your Paradox Launcher playset:" + Environment.NewLine + Environment.NewLine + missingList + Environment.NewLine + Environment.NewLine + "Do you still want to continue?",
+                                                                         "CK3 Mods Not Enabled",
+                                                                         MessageBoxButtons.YesNo,
+                                                                         MessageBoxIcon.Warning);
+                                            if (result == DialogResult.No)
+                                            {
+                                                Program.Logger.Debug("User cancelled execution because required CK3 mods are not enabled.");
+                                                return; // Stop execution
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -3022,6 +3046,14 @@ public async static Task CloseTotalWarProcess()
         /*---------------------------------------------
          * :::::::::::LOADING SCREEN FUNCS:::::::::::::
          ---------------------------------------------*/
+        // Returns the InnerText of the named UnitMappers node, or "False" if the node is missing.
+        // This prevents a NullReferenceException when UnitMappers.xml is out of date or lacks a node
+        // (e.g. a playthrough added in a newer version). Mirrors GetOrCreateUnitMapperOption's safe default.
+        private static string GetUnitMapperState(XmlDocument doc, string name)
+        {
+            return doc.SelectSingleNode($"//UnitMappers [@name='{name}']")?.InnerText ?? "False";
+        }
+
         void ChangeLoadingScreenImage()
         {
             Program.Logger.Debug("Changing loading screen image based on playthrough.");
@@ -3029,11 +3061,11 @@ public async static Task CloseTotalWarProcess()
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
-            var ck3ToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']")!.InnerText;
-            var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']")!.InnerText;
-            var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']")!.InnerText;
-            var agotToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']")!.InnerText; // Added AGOT tab
-            var bookmarksPlusToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']")!.InnerText;
+            var ck3ToggleStateStr = GetUnitMapperState(xmlDoc, "DefaultCK3");
+            var tfeToggleStateStr = GetUnitMapperState(xmlDoc, "TheFallenEagle");
+            var lotrToggleStateStr = GetUnitMapperState(xmlDoc, "RealmsInExile");
+            var agotToggleStateStr = GetUnitMapperState(xmlDoc, "AGOT");
+            var bookmarksPlusToggleStateStr = GetUnitMapperState(xmlDoc, "BookmarksPlus");
 
             string playthrough = "";
             if (ck3ToggleStateStr == "True") playthrough = "Medieval";

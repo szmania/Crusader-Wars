@@ -202,10 +202,12 @@ namespace CrusaderWars.unit_mapper
         }
 
         [SupportedOSPlatform("windows")]
-        private static (List<ModFile> requiredMods, List<Submod> submods) ParseModsFileFromMapperPath(string mapperPath)
+        private static (List<ModFile> requiredMods, List<Submod> submods, List<(string fileName, string? displayName)> ck3ModFileNames) ParseModsFileFromMapperPath(string mapperPath)
         {
             var requiredMods = new List<ModFile>();
             var submods = new List<Submod>();
+            var ck3ModFileNames = new List<string>();
+            var ck3ModNames = new List<string>();
             string modsPath = Path.Combine(mapperPath, "Mods.xml");
             if (File.Exists(modsPath))
             {
@@ -213,6 +215,16 @@ namespace CrusaderWars.unit_mapper
                 xmlDocument.Load(modsPath);
                 if (xmlDocument.DocumentElement != null)
                 {
+                    string? ck3Attr = xmlDocument.DocumentElement.Attributes?["ck3_mod_file_names"]?.Value;
+                    if (!string.IsNullOrWhiteSpace(ck3Attr))
+                    {
+                        ck3ModFileNames.AddRange(ck3Attr.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0));
+                    }
+                    string? ck3NamesAttr = xmlDocument.DocumentElement.Attributes?["ck3_mod_names"]?.Value;
+                    if (!string.IsNullOrWhiteSpace(ck3NamesAttr))
+                    {
+                        ck3ModNames.AddRange(ck3NamesAttr.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0));
+                    }
                     foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
                     {
                         if (node is XmlComment) continue;
@@ -266,13 +278,19 @@ namespace CrusaderWars.unit_mapper
                 MessageBox.Show($"Mods.xml was not found in {mapperPath}", "Crusader Conflicts: Crusader Conflicts: Unit Mappers Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
-            return (requiredMods, submods);
+            if (ck3ModNames.Count > ck3ModFileNames.Count)
+                Program.Logger.Debug($"Warning: 'ck3_mod_names' has {ck3ModNames.Count} entries but 'ck3_mod_file_names' has {ck3ModFileNames.Count}. Extra names ignored.");
+            var ck3ModPairs = new List<(string fileName, string? displayName)>();
+            for (int i = 0; i < ck3ModFileNames.Count; i++)
+                ck3ModPairs.Add((ck3ModFileNames[i], i < ck3ModNames.Count ? ck3ModNames[i] : null));
+            return (requiredMods, submods, ck3ModPairs);
         }
         [SupportedOSPlatform("windows")]
-        public static (List<ModFile> requiredMods, List<Submod> submods) GetUnitMappersModsCollectionFromTag(string tag, string gameType)
+        public static (List<ModFile> requiredMods, List<Submod> submods, List<(string fileName, string? displayName)> ck3ModFileNames) GetUnitMappersModsCollectionFromTag(string tag, string gameType)
         {
             var allRequiredMods = new List<ModFile>();
             var allSubmods = new List<Submod>();
+            var allCk3ModFileNames = new List<(string fileName, string? displayName)>();
 
             var unit_mappers_folder = Directory.GetDirectories(Path.Combine(@".\unit mappers", gameType));
             if (tag == "Custom")
@@ -288,8 +306,13 @@ namespace CrusaderWars.unit_mapper
                             string fileTag = File.ReadAllText(tagFile).Trim();
                             if (selectedMapperTag.Equals(fileTag, StringComparison.OrdinalIgnoreCase))
                             {
-                                var (mods, submods) = ParseModsFileFromMapperPath(mapper);
+                                var (mods, submods, ck3ModFileNames) = ParseModsFileFromMapperPath(mapper);
                                 allRequiredMods.AddRange(mods);
+                                foreach (var pair in ck3ModFileNames)
+                                {
+                                    if (!allCk3ModFileNames.Any(p => p.fileName.Equals(pair.fileName, StringComparison.OrdinalIgnoreCase)))
+                                        allCk3ModFileNames.Add(pair);
+                                }
                                 foreach (var newSubmod in submods)
                                 {
                                     var existingSubmod = allSubmods.FirstOrDefault(s => s.Tag == newSubmod.Tag);
@@ -332,8 +355,13 @@ namespace CrusaderWars.unit_mapper
                         string fileTag = File.ReadAllText(tagFile).Trim();
                         if (tag == fileTag)
                         {
-                            var (mods, submods) = ParseModsFileFromMapperPath(mapper);
+                            var (mods, submods, ck3ModFileNames) = ParseModsFileFromMapperPath(mapper);
                             allRequiredMods.AddRange(mods);
+                            foreach (var pair in ck3ModFileNames)
+                            {
+                                if (!allCk3ModFileNames.Any(p => p.fileName.Equals(pair.fileName, StringComparison.OrdinalIgnoreCase)))
+                                    allCk3ModFileNames.Add(pair);
+                            }
                             foreach (var newSubmod in submods)
                             {
                                 var existingSubmod = allSubmods.FirstOrDefault(s => s.Tag == newSubmod.Tag);
@@ -366,7 +394,7 @@ namespace CrusaderWars.unit_mapper
                 }
             }
 
-            return (allRequiredMods, allSubmods);
+            return (allRequiredMods, allSubmods, allCk3ModFileNames);
         }
 
         // Fix for CS8602 and CS8600
@@ -1110,16 +1138,17 @@ namespace CrusaderWars.unit_mapper
                                     else
                                         continue;
                                 }
-
                                 if (node.Attributes?["type"]?.Value == unit.GetName())
                                 {
-                                    // Original code: max = MaxType.GetMax(node.Attributes["type"].Value);
-                                    // This line is potentially problematic as "type" attribute is unit name, not a max category or number.
-                                    // Logging the input and result as per instruction to not alter logic.
-                                    if (node.Attributes?["type"]?.Value is string inputToMaxType)
+                                    if (node.Attributes?["max"]?.Value is string maxAttrValue)
                                     {
-                                        max = MaxType.GetMax(inputToMaxType);
-                                        Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (input to MaxType.GetMax: '{inputToMaxType}'): {max}");
+                                        max = MaxType.GetMax(maxAttrValue);
+                                        Program.Logger.Debug($"Assigned max for Default unit '{unit.GetName()}' (from attribute '{maxAttrValue}'): {max}");
+                                    }
+                                    else
+                                    {
+                                        Program.Logger.Debug($"WARNING: Unit '{unit.GetName()}' in 'Default' faction found, but 'max' attribute is missing. Keeping previous max value: {max}");
+                                        break;
                                     }
                                 }
                             }
