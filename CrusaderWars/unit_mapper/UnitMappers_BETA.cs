@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using System.Runtime.Versioning;
@@ -2266,10 +2267,12 @@ namespace CrusaderWars.unit_mapper
         {
             if (string.IsNullOrEmpty(variant.Key)) return false;
 
-            // Legacy: province name contains the key. Also: key contains the province name,
-            // so custom keys like "custom_edessa" still match the CK3 province "Edessa".
-            return provinceName.IndexOf(variant.Key, StringComparison.OrdinalIgnoreCase) >= 0
-                || variant.Key.IndexOf(provinceName, StringComparison.OrdinalIgnoreCase) >= 0;
+            // Word-based match: split the key into words (e.g. "custom_edessa" -> "custom", "edessa")
+            // and match if any whole word appears in the province name, case-insensitive.
+            // Partial words like "edes" or "cust" never match.
+            var keyWords = Regex.Split(variant.Key, @"[^\p{L}\p{N}]+");
+            return keyWords.Any(word => word.Length > 0
+                && Regex.IsMatch(provinceName, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase));
         }
 
         public static (string X, string Y, List<string>? orientations)? GetSettlementMap(string faction, string battleType, string provinceName)
