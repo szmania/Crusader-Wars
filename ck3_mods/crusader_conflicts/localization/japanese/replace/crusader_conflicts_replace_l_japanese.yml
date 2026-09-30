@@ -1,1 +1,5 @@
 l_japanese:
+ cc_victorious_momentum_modifier:0 "[cc_victorious_momentum|E]"
+ cc_humbling_defeat_modifier:0 "[cc_humbling_defeat|E]"
+ cc_decisive_victory_modifier:0 "[cc_decisive_victory|E]"
+ cc_mourning_battle_modifier:0 "[cc_mourning_battle|E]"

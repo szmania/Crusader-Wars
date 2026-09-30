@@ -19,6 +19,9 @@ namespace CrusaderWars.armies
         bool isArmyOutOfSupplies { get; set; }
         bool isArmyRecentlyDisembarked { get; set; }
         bool isFightingHostileFaith { get; set; }
+        bool isVictoriousMomentum { get; set; }
+        bool isHumblingDefeat { get; set; }
+        bool isDecisiveVictory { get; set; }
 
         public Modifiers(string modifiers_text_side)
         {
@@ -30,12 +33,15 @@ namespace CrusaderWars.armies
             int xp = 0;
             if (isLiegeLeadingArmy) xp += 1;
             if (isFightingHostileFaith) xp += 1;
+            if (isVictoriousMomentum) xp += 1;
+            if (isDecisiveVictory) xp += 1;
 
             if (isRealmInDebt) xp -= 1;
             if (isArmyGathering) xp -= 1;
             if (isArmyLowOnSupplies) xp -= 1;
             if (isArmyOutOfSupplies) xp -= 2;
             if (isArmyRecentlyDisembarked) xp -= 3;
+            if (isHumblingDefeat) xp -= 1;
 
             return xp;
         }
@@ -53,6 +59,9 @@ namespace CrusaderWars.armies
             if (modifiers_text_side.Contains("cc_advantage_nosupplies")) { isArmyOutOfSupplies = true; }
             if (modifiers_text_side.Contains("faith_hostility")) { isFightingHostileFaith = true; }
             if (modifiers_text_side.Contains("recently_disembarked")) { isArmyRecentlyDisembarked = true; }
+            if (modifiers_text_side.Contains("cc_victorious_momentum")) { isVictoriousMomentum = true; }
+            if (modifiers_text_side.Contains("cc_decisive_victory")) { isDecisiveVictory = true; }
+            if (modifiers_text_side.Contains("cc_humbling_defeat")) { isHumblingDefeat = true; }
         }
 
     }
