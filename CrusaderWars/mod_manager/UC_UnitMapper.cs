@@ -48,6 +48,7 @@ namespace CrusaderWars.mod_manager
             uC_Toggle1.SetState(state);
             RequiredModsList = requiredMods;
             _playthroughTag = playthroughTag;
+            Tag = playthroughTag; // Needed by Options.PlaythroughToggle_Clicked
             _availableSubmods = submods;
 
             BtnSubmods.Visible = _availableSubmods != null && _availableSubmods.Any();
@@ -263,6 +264,11 @@ namespace CrusaderWars.mod_manager
             return uC_Toggle1.State;
         }
 
+        public void SetState(bool state)
+        {
+            uC_Toggle1.SetState(state);
+        }
+
         private static List<string> ValidateUnitMapper(string unitMapperDirectory)
         {
             var allErrors = new List<string>();
@@ -381,6 +387,15 @@ namespace CrusaderWars.mod_manager
             uC_Toggle1.Enabled = false;
             BtnVerifyMods.Enabled = false;
             button1.Enabled = false;
+            // Disable ALL playthrough toggles during validation to close the race window
+            // (clicking another toggle mid-validation starts a second exclusion chain).
+            if (AllControlsReferences != null)
+            {
+                foreach (var controlReference in AllControlsReferences)
+                {
+                    if (controlReference != this) { controlReference.uC_Toggle1.Enabled = false; }
+                }
+            }
 
             // Create and show a simple status form
             Form statusForm = new Form
@@ -556,12 +571,27 @@ namespace CrusaderWars.mod_manager
                 }
                 ToggleClicked?.Invoke(this, EventArgs.Empty);
             }
+            catch (Exception ex)
+            {
+                // An unexpected validation error must not leave the playthrough half-enabled
+                // (and must not disturb the previously enabled playthrough).
+                Program.Logger.Debug("WARNING: Playthrough validation failed unexpectedly for " + _playthroughTag + ": " + ex.Message);
+                uC_Toggle1.SetState(false);
+                ToggleClicked?.Invoke(this, EventArgs.Empty);
+            }
             finally
             {
                 // Restore UI state
                 statusForm.Close();
                 this.Cursor = Cursors.Default;
                 uC_Toggle1.Enabled = true;
+            if (AllControlsReferences != null)
+            {
+                foreach (var controlReference in AllControlsReferences)
+                {
+                    if (controlReference != this) { controlReference.uC_Toggle1.Enabled = true; }
+                }
+            }
                 BtnVerifyMods.Enabled = true;
                 button1.Enabled = true;
             }

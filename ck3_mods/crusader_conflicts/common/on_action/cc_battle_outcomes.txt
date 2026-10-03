@@ -1,0 +1,88 @@
+﻿######################################################################
+#  Crusader Conflicts Battle-Outcome On-Actions
+#  Uses the official chaining pattern (see stock common/on_action/_on_actions.info):
+#  a vanilla on_action may only have ONE trigger and ONE effect block, so we
+#  chain our own named on_action instead of appending to the vanilla one.
+######################################################################
+
+# Root = Winning combat side; scope:wipe = was this a wipe?
+on_combat_end_winner = {
+	on_actions = { cc_battle_outcome_winner }
+}
+
+# Root = Losing combat side; scope:wipe = was this a wipe?
+on_combat_end_loser = {
+	on_actions = { cc_battle_outcome_loser }
+}
+
+# Root = character just about to die; scope:killer where known
+on_death = {
+	on_actions = { cc_battle_death_outcome }
+}
+
+
+cc_battle_outcome_winner = {
+	effect = {
+		side_commander ?= {
+			add_character_modifier = { modifier = cc_victorious_momentum_modifier years = 2 }
+		}
+		every_side_knight ?= {
+			add_character_modifier = { modifier = cc_victorious_momentum_modifier years = 2 }
+		}
+		# Decisive (wipe) victory: stronger bonus on top of momentum.
+		if = {
+			limit = { exists = scope:wipe }
+			side_commander ?= {
+				add_character_modifier = { modifier = cc_decisive_victory_modifier years = 2 }
+			}
+			every_side_knight ?= {
+				add_character_modifier = { modifier = cc_decisive_victory_modifier years = 2 }
+			}
+		}
+	}
+}
+
+cc_battle_outcome_loser = {
+	effect = {
+		side_commander ?= {
+			add_character_modifier = { modifier = cc_humbling_defeat_modifier years = 2 }
+		}
+		every_side_knight ?= {
+			add_character_modifier = { modifier = cc_humbling_defeat_modifier years = 2 }
+		}
+	}
+}
+
+# Root = the character who died. Only fires for deaths in battle.
+cc_battle_death_outcome = {
+	trigger = {
+		death_reason = death_battle
+	}
+	effect = {
+		# Mourning modifiers for close family who had a positive opinion of the deceased.
+		mother ?= {
+			if = {
+				limit = { opinion = { target = root value > 0 } }
+				add_character_modifier = { modifier = cc_mourning_battle_modifier years = 3 }
+			}
+		}
+		father ?= {
+			if = {
+				limit = { opinion = { target = root value > 0 } }
+				add_character_modifier = { modifier = cc_mourning_battle_modifier years = 3 }
+			}
+		}
+		every_spouse ?= {
+			if = {
+				limit = { opinion = { target = root value > 0 } }
+				add_character_modifier = { modifier = cc_mourning_battle_modifier years = 3 }
+			}
+		}
+		every_child ?= {
+			if = {
+				limit = { opinion = { target = root value > 0 } }
+				add_character_modifier = { modifier = cc_mourning_battle_modifier years = 3 }
+			}
+		}
+	}
+}
