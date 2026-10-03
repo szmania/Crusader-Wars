@@ -1738,24 +1738,46 @@ namespace CrusaderWars
             }
         }
 
-        void WriteUnitMappersOptions()
+        void WriteUnitMappersOptions(UC_UnitMapper? preferredActive = null)
         {
             string file = @".\settings\UnitMappers.xml";
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(file);
 
-            var CrusaderKings_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='DefaultCK3']");
-            if (CrusaderKings_Node != null) CrusaderKings_Node.InnerText = CrusaderKings_Tab.GetState().ToString();
-            var TheFallenEagle_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']");
-            if (TheFallenEagle_Node != null) TheFallenEagle_Node.InnerText = TheFallenEagle_Tab.GetState().ToString();
-            var RealmsInExile_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']");
-            if (RealmsInExile_Node != null) RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
-            var AGOT_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='AGOT']");
-            if (AGOT_Node != null && AGOT_Tab != null) AGOT_Node.InnerText = AGOT_Tab.GetState().ToString();
-            var BookmarksPlus_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='BookmarksPlus']");
-            if (BookmarksPlus_Node != null && BookmarksPlus_Tab != null) BookmarksPlus_Node.InnerText = BookmarksPlus_Tab.GetState().ToString();
-            var Custom_Node = xmlDoc.SelectSingleNode("//UnitMappers [@name='Custom']");
-            if (Custom_Node != null && Custom_Tab != null) Custom_Node.InnerText = Custom_Tab.GetState().ToString();
+            // Enforce a single enabled playthrough at the write layer: keep only the
+            // intended tab (the one whose toggle triggered this write, or the first
+            // enabled in playset order as a fallback) and force the rest off.
+            var tabs = new (string Name, UC_UnitMapper? Tab)[]
+            {
+                ("DefaultCK3", CrusaderKings_Tab),
+                ("TheFallenEagle", TheFallenEagle_Tab),
+                ("RealmsInExile", RealmsInExile_Tab),
+                ("AGOT", AGOT_Tab),
+                ("BookmarksPlus", BookmarksPlus_Tab),
+                ("Custom", Custom_Tab),
+            };
+
+            UC_UnitMapper? intended = preferredActive;
+            if (intended != null && !intended.GetState()) intended = null; // user toggled it off
+            if (intended == null)
+            {
+                intended = tabs.FirstOrDefault(t => t.Tab != null && t.Tab.GetState()).Tab;
+            }
+
+            foreach (var (name, tab) in tabs)
+            {
+                var node = xmlDoc.SelectSingleNode("//UnitMappers [@name='" + name + "']");
+                if (node == null) continue;
+
+                bool shouldBeEnabled = intended != null && ReferenceEquals(tab, intended);
+                bool wasEnabled = tab != null && tab.GetState();
+                if (wasEnabled && !shouldBeEnabled)
+                {
+                    Program.Logger.Debug("WARNING: Multiple playthroughs were enabled; forcing " + name + " off to keep a single active playthrough.");
+                    tab!.SetState(false);
+                }
+                node.InnerText = shouldBeEnabled ? "True" : "False";
+            }
 
             xmlDoc.Save(file);
         }
@@ -1811,7 +1833,7 @@ namespace CrusaderWars
         {
             if (sender is UC_UnitMapper { Tag: string activePlaythroughTag } && !string.IsNullOrEmpty(activePlaythroughTag))
             {
-                WriteUnitMappersOptions();
+                WriteUnitMappersOptions(sender as UC_UnitMapper);
             }
 
             CheckPlaythroughSelection();
