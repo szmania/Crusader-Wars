@@ -59,6 +59,7 @@ namespace CrusaderWars
 
 
         private int _myVariable = 0;
+        private bool _lastUnitMappersEnabled = true;
 
         private void CreateRequiredDirectories()
         {
@@ -567,6 +568,12 @@ namespace CrusaderWars
 
                 bool gamePaths = VerifyGamePaths();
                 bool unitMappers = VerifyEnabledUnitMappers();
+                // Refresh the top-right playthrough panel when the enabled-mappers state changes
+                if (unitMappers != _lastUnitMappersEnabled)
+                {
+                    _lastUnitMappersEnabled = unitMappers;
+                    UpdatePlaythroughDisplay();
+                }
 
 
                 if (!gamePaths || !unitMappers)
@@ -1053,6 +1060,8 @@ namespace CrusaderWars
                     SubmodManager.SetActiveSubmodsForPlaythrough(activePlaythroughTag, new List<string>());
                     SubmodManager.SaveActiveSubmods();
                     Program.Logger.Debug($"Cleared active submods for '{activePlaythroughTag}'.");
+                    // Refresh the top-right playthrough panel after deactivating a playthrough
+                    UpdatePlaythroughDisplay();
                 }
                 else
                 {
@@ -3292,7 +3301,7 @@ namespace CrusaderWars
             Program.Logger.Debug("Website button clicked.");
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
             PlaySound(@"..\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://crusader-conflicts-website.vercel.app/") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://crusader-conflicts.vercel.app/") { UseShellExecute = true });
 
         }
 
