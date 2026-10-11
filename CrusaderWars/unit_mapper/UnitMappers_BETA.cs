@@ -274,7 +274,7 @@ namespace CrusaderWars.unit_mapper
             var allRequiredMods = new List<ModFile>();
             var allSubmods = new List<Submod>();
 
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            var unit_mappers_folder = GetMapperDirectories();
             if (tag == "Custom")
             {
                 string selectedMapperTag = ModOptions.GetSelectedCustomMapper();
@@ -371,6 +371,29 @@ namespace CrusaderWars.unit_mapper
 
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
+
+        /// <summary>
+        /// Root of the unit mappers directory (contains the 'attila' and 'schemas' subdirectories).
+        /// </summary>
+        public static string UnitMappersRootDir => @".\unit_mappers";
+
+        /// <summary>
+        /// Directory containing the Attila unit mapper folders (unit_mappers\attila).
+        /// </summary>
+        public static string AttilaMappersDir => Path.Combine(UnitMappersRootDir, "attila");
+
+        /// <summary>
+        /// Directory containing the XML schemas (unit_mappers\schemas).
+        /// </summary>
+        public static string SchemasDir => Path.Combine(UnitMappersRootDir, "schemas");
+
+        /// <summary>
+        /// Returns all unit mapper folders located in unit_mappers\attila.
+        /// </summary>
+        public static string[] GetMapperDirectories()
+        {
+            return Directory.Exists(AttilaMappersDir) ? Directory.GetDirectories(AttilaMappersDir) : Array.Empty<string>();
+        }
         public static string? GetLoadedUnitMapperString()
         {
             switch (GetLoadedUnitMapperName())
@@ -832,7 +855,7 @@ namespace CrusaderWars.unit_mapper
             AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
 
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            var unit_mappers_folder = GetMapperDirectories();
             if (tag == "Custom")
             {
                 string customMapperTag = ModOptions.GetSelectedCustomMapper();

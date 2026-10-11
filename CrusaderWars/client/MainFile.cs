@@ -72,8 +72,9 @@ namespace CrusaderWars
                 Directory.CreateDirectory(@".\data\sounds");
                 Directory.CreateDirectory(@".\font");
                 Directory.CreateDirectory(@".\settings");
-                Directory.CreateDirectory(@".\unit mappers");
-                Directory.CreateDirectory(@".\unit mappers\schemas");
+                Directory.CreateDirectory(@".\unit_mappers");
+                Directory.CreateDirectory(@".\unit_mappers\attila");
+                Directory.CreateDirectory(@".\unit_mappers\schemas");
                 Program.Logger.Debug("Required directories created/verified.");
             }
             catch (Exception ex)
@@ -373,7 +374,7 @@ namespace CrusaderWars
             {
                 var allErrors = await Task.Run(() =>
                 {
-                    string unitMappersBaseDir = @".\unit mappers";
+                    string unitMappersBaseDir = UnitMappers_BETA.AttilaMappersDir;
                     var unitMapperDirectories = new List<string>();
                     var errors = new List<string>();
 
@@ -824,7 +825,7 @@ namespace CrusaderWars
 
                 var allErrors = new List<string>();
                 string playthroughFolderPath = "";
-                string unitMappersDir = @".\unit mappers";
+                string unitMappersDir = UnitMappers_BETA.AttilaMappersDir;
 
                 // Find playthrough directory
                 if (Directory.Exists(unitMappersDir))
@@ -1069,7 +1070,7 @@ namespace CrusaderWars
             if (!string.IsNullOrEmpty(activePlaythroughTag))
             {
                 string playthroughFolderPath = "";
-                string unitMappersDir = @".\unit mappers";
+                string unitMappersDir = UnitMappers_BETA.AttilaMappersDir;
                 if (Directory.Exists(unitMappersDir))
                 {
                     string tagToFind = activePlaythroughTag;
@@ -1145,7 +1146,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    Program.Logger.Debug($"Active playthrough '{activePlaythroughTag}' is set, but its folder was not found in 'unit mappers'.");
+                    Program.Logger.Debug($"Active playthrough '{activePlaythroughTag}' is set, but its folder was not found in 'unit_mappers'.");
                     activePlaythroughTag = ""; // Folder not found, treat as no playthrough selected
                 }
             }

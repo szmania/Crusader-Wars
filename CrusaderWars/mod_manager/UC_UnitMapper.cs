@@ -67,7 +67,7 @@ namespace CrusaderWars.mod_manager
         private void PopulateCustomMappers()
         {
             customMapperComboBox.Items.Clear();
-            string unitMappersDir = @".\unit mappers";
+            string unitMappersDir = UnitMappers_BETA.AttilaMappersDir;
             if (Directory.Exists(unitMappersDir))
             {
                 var customTags = Directory.GetDirectories(unitMappersDir)
@@ -310,7 +310,7 @@ namespace CrusaderWars.mod_manager
             {
                 // XML VALIDATION LOGIC
                 var allErrors = new List<string>();
-                string unitMappersBaseDir = @".\unit mappers";
+                string unitMappersBaseDir = UnitMappers_BETA.AttilaMappersDir;
                 var unitMapperDirectories = new List<string>();
 
                 if (_playthroughTag == "Custom")
@@ -850,7 +850,7 @@ namespace CrusaderWars.mod_manager
         public static List<string> ValidateUnitMapper(string unitMapperDirectory)
         {
             var allErrors = new List<string>();
-            string schemasDir = @".\unit mappers\schemas";
+            string schemasDir = UnitMappers_BETA.SchemasDir;
 
             // Validate Mods.xml
             string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");

@@ -289,7 +289,9 @@ namespace CWUpdater
                 else
                 {
                     Logger.Log("Applying Unit Mappers update.");
-                    await ApplyUpdate(downloadPath, AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit mappers"));
+                    // Mappers live under unit_mappers\attila; schemas stay under unit_mappers\schemas.
+                    string unitMappersRoot = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\data\updater", @"\unit_mappers");
+                    await ApplyUnitMappersUpdate(downloadPath, unitMappersRoot);
                 }
             }
             catch (Exception ex)
@@ -534,7 +536,7 @@ del ""%~f0""
                                 continue;
                             }
 
-                            string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
+                            string unitMappersDir = Path.Combine(applicationPath, "unit_mappers");
                             string settingsDir = Path.Combine(applicationPath, "settings");
                             string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
                             string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
@@ -654,6 +656,279 @@ del ""%~f0""
             }
 
         }
+        /// <summary>
+        /// Applies a unit mappers update. Mappers are extracted into unit_mappers\attila while
+        /// unit_mappers\schemas stays in place. Existing mapper folders at the old root location
+        /// (pre-attila layout) are migrated into attila, and custom mappers are preserved.
+        /// </summary>
+        public async Task ApplyUnitMappersUpdate(string updateFilePath, string unitMappersRoot)
+        {
+            Logger.Log($"Applying unit mappers update from '{updateFilePath}' to root '{unitMappersRoot}'.");
+            label1.Text = "Applying update...";
+
+            string attilaDir = Path.Combine(unitMappersRoot, "attila");
+            string schemasDir = Path.Combine(unitMappersRoot, "schemas");
+            string tempDirectory = Path.Combine(Path.GetTempPath(), "update");
+            string backupPath = Path.Combine(Path.GetTempPath(), "app_backup");
+
+            try
+            {
+                // Ensure the root exists (fresh installs may not have it yet).
+                Directory.CreateDirectory(unitMappersRoot);
+
+                // Step 1: Backup existing files (schemas + mappers)
+                Logger.Log("Backing up unit mappers files.");
+                BackupApplicationFiles(unitMappersRoot, backupPath);
+
+                if (Directory.Exists(tempDirectory))
+                {
+                    Directory.Delete(tempDirectory, true);
+                }
+                try
+                {
+                    Logger.Log("Extracting update file.");
+                    ZipFile.ExtractToDirectory(updateFilePath, tempDirectory);
+
+                    if (!Directory.EnumerateFileSystemEntries(tempDirectory).Any())
+                    {
+                        throw new System.IO.InvalidDataException("The update archive is empty and cannot be applied.");
+                    }
+
+                    // Handle GitHub's container folder in zips
+                    string sourceRoot = tempDirectory;
+                    var subdirectories = Directory.GetDirectories(tempDirectory);
+                    if (subdirectories.Length == 1 && !Directory.GetFiles(tempDirectory).Any())
+                    {
+                        sourceRoot = subdirectories[0];
+                        Logger.Log($"Update content found in sub-directory: {sourceRoot}");
+                    }
+
+                    // Step 2: One-time migration of the old structure.
+                    // Old layout: mapper folders + schemas directly under unit_mappers.
+                    // New layout: mapper folders under unit_mappers\attila, schemas stay at unit_mappers\schemas.
+                    var rootEntries = Directory.GetFileSystemEntries(unitMappersRoot);
+                    var stragglers = rootEntries
+                        .Where(e => !e.Equals(attilaDir, StringComparison.OrdinalIgnoreCase)
+                                 && !e.Equals(schemasDir, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    if (stragglers.Any())
+                    {
+                        Logger.Log("Old unit mappers structure detected. Migrating mapper folders into 'attila' subdirectory.");
+                        Directory.CreateDirectory(attilaDir);
+
+                        foreach (var entry in stragglers)
+                        {
+                            string entryName = Path.GetFileName(entry);
+                            string migrationTarget = Path.Combine(attilaDir, entryName);
+
+                            // If the new update package or an existing mapper already provides this folder,
+                            // prefer the incoming content: move the old copy aside into _old before replacing.
+                            if (Directory.Exists(migrationTarget) || File.Exists(migrationTarget))
+                            {
+                                Logger.Log($"'{entryName}' already exists in attila; old copy will be replaced by update content.");
+                                await RetryActionAsync(() =>
+                                {
+                                    if (Directory.Exists(entry)) Directory.Delete(entry, true);
+                                    else File.Delete(entry);
+                                }, $"Delete old root entry {entryName}");
+                            }
+                            else
+                            {
+                                Logger.Log($"Migrating '{entryName}' into attila.");
+                                await RetryActionAsync(() => MoveDirectoryCrossVolume(entry, migrationTarget), $"Migrate {entryName}");
+                            }
+                        }
+                    }
+
+                    // Step 3: Replace mapper content inside attila.
+                    // Custom mappers (tag starting with 'Custom') are preserved.
+                    Directory.CreateDirectory(attilaDir);
+                    var customBackupPath = Path.Combine(Path.GetTempPath(), "cw_custom_mappers_backup");
+                    if (Directory.Exists(customBackupPath)) Directory.Delete(customBackupPath, true);
+                    Directory.CreateDirectory(customBackupPath);
+
+                    foreach (var dir in Directory.GetDirectories(attilaDir))
+                    {
+                        string tagFile = Path.Combine(dir, "tag.txt");
+                        bool isCustom = false;
+                        if (File.Exists(tagFile))
+                        {
+                            try
+                            {
+                                isCustom = File.ReadAllText(tagFile).Trim().StartsWith("Custom", StringComparison.OrdinalIgnoreCase);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Log($"Error reading tag file {tagFile}: {ex.Message}");
+                            }
+                        }
+
+                        if (isCustom)
+                        {
+                            string dirName = Path.GetFileName(dir);
+                            string destination = Path.Combine(customBackupPath, dirName);
+                            Logger.Log($"Backing up custom mapper: {dir} to {destination}");
+                            await RetryActionAsync(() => MoveDirectoryCrossVolume(dir, destination), $"Backup custom mapper {dirName}");
+                        }
+                    }
+
+                    // Clear attila and copy the new mapper content in.
+                    foreach (var dir in Directory.GetDirectories(attilaDir))
+                    {
+                        await RetryActionAsync(() => Directory.Delete(dir, true), $"Clear old mapper dir {Path.GetFileName(dir)}");
+                    }
+                    foreach (var file in Directory.GetFiles(attilaDir))
+                    {
+                        await RetryActionAsync(() => File.Delete(file), $"Clear old mapper file {Path.GetFileName(file)}");
+                    }
+
+                    Logger.Log($"Copying new mapper content from '{sourceRoot}' to '{attilaDir}'.");
+                    foreach (var file in Directory.GetFiles(sourceRoot, "*", SearchOption.AllDirectories))
+                    {
+                        string relativePath = file.Substring(sourceRoot.Length + 1);
+                        string destinationPath = Path.Combine(attilaDir, relativePath);
+                        string? destinationDir = Path.GetDirectoryName(destinationPath);
+                        if (!string.IsNullOrEmpty(destinationDir) && !Directory.Exists(destinationDir))
+                        {
+                            Directory.CreateDirectory(destinationDir);
+                        }
+                        File.Copy(file, destinationPath, true);
+                    }
+
+                    // Step 4: Restore custom mappers.
+                    if (Directory.Exists(customBackupPath))
+                    {
+                        foreach (var dir in Directory.GetDirectories(customBackupPath))
+                        {
+                            string dirName = Path.GetFileName(dir);
+                            string destination = Path.Combine(attilaDir, dirName);
+
+                            if (Directory.Exists(destination))
+                            {
+                                Logger.Log($"Conflicting custom mapper '{dirName}' in update package. Deleting to prioritize user's custom mapper.");
+                                await RetryActionAsync(() => Directory.Delete(destination, true), $"Delete conflicting custom mapper {dirName}");
+                            }
+
+                            Logger.Log($"Restoring custom mapper: {dir} to {destination}");
+                            await RetryActionAsync(() => MoveDirectoryCrossVolume(dir, destination), $"Restore custom mapper {dirName}");
+                        }
+                        Directory.Delete(customBackupPath, true);
+                    }
+
+                    // Step 5: Ensure schemas directory exists at the root level (update may also ship schemas).
+                    // Schemas from the update package are copied to unit_mappers\schemas (never into attila).
+                    string sourceSchemasDir = Path.Combine(sourceRoot, "schemas");
+                    if (Directory.Exists(sourceSchemasDir))
+                    {
+                        Logger.Log($"Copying schemas from update package to '{schemasDir}'.");
+                        Directory.CreateDirectory(schemasDir);
+                        foreach (var file in Directory.GetFiles(sourceSchemasDir, "*", SearchOption.AllDirectories))
+                        {
+                            string relativePath = file.Substring(sourceSchemasDir.Length + 1);
+                            string destinationPath = Path.Combine(schemasDir, relativePath);
+                            string? destinationDir = Path.GetDirectoryName(destinationPath);
+                            if (!string.IsNullOrEmpty(destinationDir) && !Directory.Exists(destinationDir))
+                            {
+                                Directory.CreateDirectory(destinationDir);
+                            }
+                            File.Copy(file, destinationPath, true);
+                        }
+                    }
+                    Directory.CreateDirectory(schemasDir); // Ensure it always exists even if the package has no schemas
+
+                    // Step 6: Clean up backup if update was successful
+                    Logger.Log("Update successful, deleting backup.");
+                    Directory.Delete(backupPath, true);
+
+                    MessageBox.Show("Unit Mappers update completed successfully! The application will now restart.",
+                                    "Update Successful",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
+
+                    Logger.Log("Update applied successfully.");
+                    RestartApplication();
+                }
+                catch (System.IO.InvalidDataException ex)
+                {
+                    Logger.Log($"Error extracting update file (corrupt/incomplete ZIP or empty archive): {ex.ToString()}");
+                    MessageBox.Show(
+                        $"The downloaded update file is corrupt, incomplete, or empty. Please check your internet connection and try again.\n\nError: {ex.Message}",
+                        "Crusader Conflicts: Update Failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    if (File.Exists(updateFilePath))
+                    {
+                        try
+                        {
+                            File.Delete(updateFilePath);
+                            Logger.Log($"Deleted corrupt update file: {updateFilePath}");
+                        }
+                        catch (Exception deleteEx)
+                        {
+                            Logger.Log($"Failed to delete corrupt update file '{updateFilePath}': {deleteEx.Message}");
+                        }
+                    }
+                    RestartApplication(false); // Restart main app without updating version
+                }
+                catch (UnauthorizedAccessException uaEx)
+                {
+                    Logger.Log($"Access Denied Error during unit mappers update: {uaEx.ToString()}");
+                    MessageBox.Show(
+                        "The updater was blocked from modifying a file or directory.\n\n" +
+                        "This is often caused by Antivirus software or Windows' 'Controlled Folder Access' feature.\n\n" +
+                        "Please try the following:\n" +
+                        "1. Run the main application as an Administrator.\n" +
+                        "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                        "3. Temporarily disable 'Controlled Folder Access' in Windows Security settings.\n\n" +
+                        $"Technical Details: {uaEx.Message}",
+                        "Crusader Conflicts: Update Failed (Access Denied)",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    Logger.Log("Rolling back to backup due to UnauthorizedAccessException.");
+                    RestoreBackup(backupPath, unitMappersRoot);
+                    this.Close();
+                }
+            }
+            catch (IOException ioEx)
+            {
+                Logger.Log($"I/O Error during unit mappers update after multiple retries: {ioEx.ToString()}");
+                MessageBox.Show(
+                    "The updater could not access a file or directory because it is locked by another process.\n\n" +
+                    "This is often caused by Antivirus software or a cloud sync client (like Dropbox, OneDrive, or MEGA).\n\n" +
+                    "Please try the following:\n" +
+                    "1. Temporarily pause your cloud sync client.\n" +
+                    "2. Add an exception for 'CrusaderConflicts.exe' and 'CWUpdater.exe' in your antivirus software.\n" +
+                    "3. Close any other programs that might be accessing the application folder and try again.\n\n" +
+                    $"Technical Details: {ioEx.Message}",
+                    "Crusader Conflicts: Update Failed (File Locked)",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                Logger.Log("Rolling back to backup due to IOException.");
+                RestoreBackup(backupPath, unitMappersRoot);
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error applying unit mappers update: {ex.ToString()}");
+                MessageBox.Show($"Error applying update: {ex.Message}{ex.TargetSite}", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                Logger.Log("Rolling back to backup.");
+                RestoreBackup(backupPath, unitMappersRoot);
+                this.Close();
+            }
+            finally
+            {
+                if (Directory.Exists(tempDirectory))
+                {
+                    Directory.Delete(tempDirectory, true);
+                }
+            }
+        }
+
         private void DeleteObsoleteFilesAndDirectories(string applicationPath, string tempDirectory)
         {
             Logger.Log("Starting deletion of obsolete files and directories.");
@@ -700,7 +975,7 @@ del ""%~f0""
             else if (!IsUnitMappers) // Application updater
             {
                 string settingsDir = Path.Combine(applicationPath, "settings");
-                string unitMappersDir = Path.Combine(applicationPath, "unit mappers");
+                string unitMappersDir = Path.Combine(applicationPath, "unit_mappers");
                 string battleFilesDir = Path.Combine(applicationPath, "data", "battle files");
                 string saveFileDataDir = Path.Combine(applicationPath, "data", "save_file_data");
 
@@ -734,7 +1009,7 @@ del ""%~f0""
 
                 foreach (var dir in existingDirs.OrderByDescending(d => d.Length))
                 {
-                    // Skip the updater, settings, and unit mappers directories
+                    // Skip the updater, settings, and unit_mappers directories
                     if (dir.StartsWith(updaterDir, StringComparison.OrdinalIgnoreCase) || updaterDir.StartsWith(dir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(settingsDir, StringComparison.OrdinalIgnoreCase) ||
                         dir.StartsWith(unitMappersDir, StringComparison.OrdinalIgnoreCase) ||
