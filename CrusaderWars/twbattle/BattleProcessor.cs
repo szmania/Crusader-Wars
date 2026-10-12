@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -33,7 +33,9 @@ namespace CrusaderWars.twbattle
         public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
-            public int NextUnitKeyIndexToReplace { get; set; } = 0;
+            public List<string> RemainingSuspects { get; set; } = new List<string>();
+            public List<List<string>> ReplacedBatches { get; set; } = new List<List<string>>();
+            public Dictionary<string, string> SuspectKeyFactions { get; set; } = new Dictionary<string, string>();
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
             public int MapVariantOffset { get; set; } = 0;
@@ -685,6 +687,10 @@ namespace CrusaderWars.twbattle
                                     if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
                                         allUnitKeys.Add(key);
+                                        if (!string.IsNullOrEmpty(faction) && faction != UnitMappers_BETA.NOT_FOUND_KEY && !autofixState.SuspectKeyFactions.ContainsKey(key))
+                                        {
+                                            autofixState.SuspectKeyFactions[key] = faction;
+                                        }
                                     }
                                 }
                             }
@@ -697,6 +703,10 @@ namespace CrusaderWars.twbattle
                                 foreach (var levyData in levy_porcentages)
                                 {
                                     allUnitKeys.Add(levyData.unit_key);
+                                    if (!string.IsNullOrEmpty(faction) && !autofixState.SuspectKeyFactions.ContainsKey(levyData.unit_key))
+                                    {
+                                        autofixState.SuspectKeyFactions[levyData.unit_key] = faction;
+                                    }
                                 }
                             }
                             for (int level = 1; level <= 20; level++)
@@ -707,6 +717,10 @@ namespace CrusaderWars.twbattle
                                     foreach (var garrisonData in garrison_porcentages)
                                     {
                                         allUnitKeys.Add(garrisonData.unit_key);
+                                        if (!string.IsNullOrEmpty(faction) && faction != UnitMappers_BETA.NOT_FOUND_KEY && !autofixState.SuspectKeyFactions.ContainsKey(garrisonData.unit_key))
+                                        {
+                                            autofixState.SuspectKeyFactions[garrisonData.unit_key] = faction;
+                                        }
                                     }
                                 }
                             }
@@ -735,6 +749,12 @@ namespace CrusaderWars.twbattle
                             return false;
                         }
                         Program.Logger.Debug($"Found {autofixState.ProblematicUnitKeys.Count} unique unit keys to test: {string.Join(", ", autofixState.ProblematicUnitKeys)}");
+
+                        // Batch-bisection mode: every key starts as a suspect; each crash cycle
+                        // replaces half of the remaining suspects with generic alternatives.
+                        autofixState.RemainingSuspects = new List<string>(autofixState.ProblematicUnitKeys);
+                        autofixState.ReplacedBatches = new List<List<string>>();
+                        Program.Logger.Debug("Autofix unit strategy initialized in batch-bisection mode.");
                     }
 
                     autofixState.FailureCount++;
@@ -1233,6 +1253,13 @@ namespace CrusaderWars.twbattle
                                 messageText += $"The original map ({autofixState.OriginalFieldMapDescription}) is likely buggy. ";
                                 originalMapInfo = autofixState.OriginalFieldMapDescription;
                             }
+
+                            var allReplacedKeys = autofixState.ReplacedBatches.SelectMany(b => b).Distinct().ToList();
+                            if (allReplacedKeys.Any())
+                            {
+                                messageText += "\n\nReplaced unit keys (potential bad unit keys):\n" + string.Join("\n", allReplacedKeys) + "\n\n";
+                            }
+
                             messageText += "Please report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         }
                         else // wasManualToolUsed
@@ -1256,6 +1283,16 @@ namespace CrusaderWars.twbattle
                                     if (!string.IsNullOrEmpty(originalMapInfo))
                                     {
                                         report.AppendLine($"[Original Buggy Map]: {originalMapInfo}");
+                                    }
+
+                                    var allReplacedKeysForReport = autofixState.ReplacedBatches.SelectMany(b => b).Distinct().ToList();
+                                    if (allReplacedKeysForReport.Any())
+                                    {
+                                        report.AppendLine("[Replaced Unit Keys (potential bad unit keys)]:");
+                                        foreach (var replacedKey in allReplacedKeysForReport)
+                                        {
+                                            report.AppendLine($" - {replacedKey}");
+                                        }
                                     }
                                     report.AppendLine();
                                 }
@@ -2066,15 +2103,45 @@ namespace CrusaderWars.twbattle
 
         private static (bool, string) TryUnitFix(AutofixState autofixState, Form? form)
         {
-            if (autofixState.NextUnitKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
-                return (false, ""); // No more units to try replacing
+            if (!autofixState.RemainingSuspects.Any())
+                return (false, ""); // All suspects replaced and the battle still crashes - strategy exhausted
 
-            string unitKeyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-            autofixState.NextUnitKeyIndexToReplace++;
+            // Batch bisection: replace half of the remaining suspects per crash cycle so the
+            // culprit set is isolated in ~log2(N) restarts instead of one key per restart.
+            int totalSuspects = autofixState.ReplacedBatches.Sum(b => b.Count) + autofixState.RemainingSuspects.Count;
+            int batchSize = Math.Max(1, (int)Math.Ceiling(autofixState.RemainingSuspects.Count / 2.0));
+            List<string> batch = autofixState.RemainingSuspects.Take(batchSize).ToList();
+            autofixState.RemainingSuspects.RemoveRange(0, batch.Count);
+            autofixState.ReplacedBatches.Add(batch);
 
-            // For automatic unit fix, we'll just log that a unit was replaced
-            // The actual replacement logic would be more complex and depend on the specific unit
-            return (true, $"replacing problematic unit '{unitKeyToReplace}' with a generic alternative");
+            // Resolve a safe generic replacement for each suspect key and register it in
+            // AutofixReplacements; UnitMappers_BETA.ProcessUnitKeyResult applies these at unit-write time.
+            List<AvailableUnit> availableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+            foreach (string suspectKey in batch)
+            {
+                string faction = autofixState.SuspectKeyFactions.TryGetValue(suspectKey, out string? f) ? f : string.Empty;
+                AvailableUnit? genericUnit = availableUnits
+                    .Where(u => !string.IsNullOrEmpty(faction) && u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) && !u.IsSiege)
+                    .OrderBy(u => u.AttilaUnitKey)
+                    .FirstOrDefault()
+                    ?? availableUnits
+                        .Where(u => !string.IsNullOrEmpty(faction) && u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase))
+                        .OrderBy(u => u.AttilaUnitKey)
+                        .FirstOrDefault();
+
+                if (genericUnit == null)
+                {
+                    Program.Logger.Debug($"Autofix: No generic replacement unit found for key '{suspectKey}' (faction '{faction}'). Skipping this key.");
+                    continue;
+                }
+
+                AutofixReplacements[suspectKey] = (genericUnit.AttilaUnitKey, false);
+                Program.Logger.Debug($"Autofix: Registered replacement '{suspectKey}' -> '{genericUnit.AttilaUnitKey}' (faction '{faction}').");
+            }
+
+            Program.Logger.Debug($"Autofix batch {autofixState.ReplacedBatches.Count}: replacing [{string.Join(", ", batch)}]. {autofixState.RemainingSuspects.Count} suspects remaining.");
+
+            return (true, $"replacing {batch.Count} of {totalSuspects} suspect units with generic alternatives (batch {autofixState.ReplacedBatches.Count})");
         }
 
         private static (bool, string) TryMapVariantFix(AutofixState autofixState)
