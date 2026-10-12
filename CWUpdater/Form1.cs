@@ -706,10 +706,15 @@ del ""%~f0""
                     // Step 2: One-time migration of the old structure.
                     // Old layout: mapper folders + schemas directly under unit_mappers.
                     // New layout: mapper folders under unit_mappers\attila, schemas stay at unit_mappers\schemas.
-                    var rootEntries = Directory.GetFileSystemEntries(unitMappersRoot);
-                    var stragglers = rootEntries
-                        .Where(e => !e.Equals(attilaDir, StringComparison.OrdinalIgnoreCase)
-                                 && !e.Equals(schemasDir, StringComparison.OrdinalIgnoreCase))
+                    // Only DIRECTORIES are migrated; loose files at the root (e.g. README.md, LICENSE) stay in place.
+                    var nonMigratedFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        "attila",   // already the new target location
+                        "schemas"   // schemas stay at unit_mappers\schemas
+                    };
+
+                    var stragglers = Directory.GetDirectories(unitMappersRoot)
+                        .Where(d => !nonMigratedFolderNames.Contains(Path.GetFileName(d)))
                         .ToList();
 
                     if (stragglers.Any())
@@ -723,15 +728,11 @@ del ""%~f0""
                             string migrationTarget = Path.Combine(attilaDir, entryName);
 
                             // If the new update package or an existing mapper already provides this folder,
-                            // prefer the incoming content: move the old copy aside into _old before replacing.
-                            if (Directory.Exists(migrationTarget) || File.Exists(migrationTarget))
+                            // prefer the incoming content: delete the old copy so the update content wins.
+                            if (Directory.Exists(migrationTarget))
                             {
                                 Logger.Log($"'{entryName}' already exists in attila; old copy will be replaced by update content.");
-                                await RetryActionAsync(() =>
-                                {
-                                    if (Directory.Exists(entry)) Directory.Delete(entry, true);
-                                    else File.Delete(entry);
-                                }, $"Delete old root entry {entryName}");
+                                await RetryActionAsync(() => Directory.Delete(entry, true), $"Delete old root entry {entryName}");
                             }
                             else
                             {
