@@ -950,6 +950,8 @@ namespace CrusaderWars.twbattle
                                 string replacementsInfo = string.IsNullOrEmpty(autofixState.LastReplacementDetails) ? "" : $"\n\nReplacements for this attempt (bad key -> replacement key):\n{autofixState.LastReplacementDetails}";
                                 string messageText = $"Attempting fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.{replacementsInfo}\n\nPlease note this information if you plan to report a bug on our Discord server:";
                                 string discordUrl = "https://discord.gg/eFZTprHh3j";
+                                string reportContentWithReplacements = string.IsNullOrEmpty(autofixState.LastReplacementDetails) ? fixDescription : fixDescription + "\n\nReplacements this attempt (bad key -> replacement key):\n" + autofixState.LastReplacementDetails;
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, reportContentWithReplacements);
                                 ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, fixDescription);
                             });
                         }
@@ -1543,17 +1545,22 @@ namespace CrusaderWars.twbattle
                 panel.AutoScroll = true;
                 messageForm.Controls.Add(panel);
 
-                Label messageLabel = new Label();
-                messageLabel.Text = messageText;
-                messageLabel.AutoSize = true;
-                messageLabel.MaximumSize = new Size(460, 0);
-                messageLabel.Location = new Point(10, 10);
-                panel.Controls.Add(messageLabel);
+                RichTextBox messageTextBox = new RichTextBox();
+                messageTextBox.Text = messageText;
+                messageTextBox.ReadOnly = true;
+                messageTextBox.BorderStyle = BorderStyle.None;
+                messageTextBox.BackColor = SystemColors.Control;
+                messageTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+                messageTextBox.WordWrap = true;
+                messageTextBox.ScrollBars = RichTextBoxScrollBars.Vertical;
+                messageTextBox.Size = new Size(460, 160);
+                messageTextBox.Location = new Point(10, 10);
+                panel.Controls.Add(messageTextBox);
 
                 LinkLabel linkLabel = new LinkLabel();
                 linkLabel.Text = linkText;
                 linkLabel.AutoSize = true;
-                linkLabel.Location = new Point(10, messageLabel.Bottom + 10);
+                linkLabel.Location = new Point(10, messageTextBox.Bottom + 10);
                 linkLabel.LinkClicked += (sender, e) =>
                 {
                     try
