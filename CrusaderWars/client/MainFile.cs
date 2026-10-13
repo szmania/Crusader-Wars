@@ -808,6 +808,9 @@ namespace CrusaderWars
             infoLabel.MaximumSize = new Size(1000, 0);
             this.infoLabel.AutoSize = true;
 
+            // Fire-and-forget telemetry registration (respects the telemetry opt-in setting internally).
+            _ = TelemetryClient.RegisterIfNeeded();
+
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
             await _updater.CheckAppVersion();

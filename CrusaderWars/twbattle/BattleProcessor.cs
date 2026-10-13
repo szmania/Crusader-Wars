@@ -648,6 +648,10 @@ namespace CrusaderWars.twbattle
 
                     Program.Logger.Debug("Attila process terminated without a complete battle log. Presumed crash.");
 
+                    // Report all battle units to the telemetry backend as bad-units (crash).
+                    try { client.TelemetryClient.SubmitUnits("bad", attacker_armies, defender_armies); }
+                    catch (Exception telemetryEx) { Program.Logger.Debug($"Telemetry: bad-units submission error: {telemetryEx.Message}"); }
+
                     // Resume CK3 if it was suspended (i.e., not closed) so the user can interact while deciding next steps.
                     if (!ModOptions.CloseCK3DuringBattle())
                     {
@@ -1207,6 +1211,10 @@ namespace CrusaderWars.twbattle
                     twbattle.BattleState.ClearBattleState();
                     Unit.ResetUniqueIDCounter();
                     Program.Logger.Debug("Battle finished. Clearing battle state.");
+
+                    // Report all battle units to the telemetry backend as good-units (successful battle).
+                    try { client.TelemetryClient.SubmitUnits("good", attacker_armies, defender_armies); }
+                    catch (Exception telemetryEx) { Program.Logger.Debug($"Telemetry: good-units submission error: {telemetryEx.Message}"); }
 
                     // Show successful autofix/manual tool message if applicable
                     bool wasAutofixSuccess = autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription);

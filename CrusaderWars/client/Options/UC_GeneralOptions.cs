@@ -40,6 +40,8 @@ namespace CrusaderWars.client
         public string GetSiegeEnginesInFieldBattles() => OptionSelection_SiegeEngines.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
         public string GetShowPostBattleReport() => OptionSelection_ShowPostBattleReport.SelectedItem?.ToString() ?? "Enabled";
+        [SupportedOSPlatform("windows")]
+        public string GetSendAnonymousTelemetry() => chkSendTelemetry.Checked ? "Enabled" : "Disabled";
 
         // Methods to set values of controls
         [SupportedOSPlatform("windows")]
@@ -62,5 +64,7 @@ namespace CrusaderWars.client
         public void SetSiegeEnginesInFieldBattles(string value) { OptionSelection_SiegeEngines.SelectedItem = value; }
         [SupportedOSPlatform("windows")]
         public void SetShowPostBattleReport(string value) { OptionSelection_ShowPostBattleReport.SelectedItem = value; }
+        [SupportedOSPlatform("windows")]
+        public void SetSendAnonymousTelemetry(string value) { chkSendTelemetry.Checked = value != "Disabled"; }
     }
 }

@@ -431,6 +431,7 @@ namespace CrusaderWars
                 var CombineKnights_Value = GetOptionValue(xmlDoc, "CombineKnights", "Disabled");
                 var LinuxSetupCompleted_Value = GetOptionValue(xmlDoc, "LinuxSetupCompleted", "False");
                 var LevyMinSize_Value = GetOptionValue(xmlDoc, "LevyMinSize", "10");
+                var SendAnonymousTelemetry_Value = GetOptionValue(xmlDoc, "SendAnonymousTelemetry", "Enabled");
 
 
                 xmlDoc.Save(file);
@@ -475,6 +476,7 @@ namespace CrusaderWars
                 ModOptions.optionsValuesCollection.Add("CombineKnights", CombineKnights_Value);
                 ModOptions.optionsValuesCollection.Add("LinuxSetupCompleted", LinuxSetupCompleted_Value);
                 ModOptions.optionsValuesCollection.Add("LevyMinSize", LevyMinSize_Value);
+                ModOptions.optionsValuesCollection.Add("SendAnonymousTelemetry", SendAnonymousTelemetry_Value);
                 ModOptions.SelectedCustomMapper = SelectedCustomMapper_Value;
                 Program.Logger.Debug("Options collection populated.");
 
@@ -549,6 +551,7 @@ namespace CrusaderWars
                 AddDefaultOption(xmlDoc, root, "CombineKnights", "Disabled");
                 AddDefaultOption(xmlDoc, root, "LinuxSetupCompleted", "False");
                 AddDefaultOption(xmlDoc, root, "LevyMinSize", "10");
+                AddDefaultOption(xmlDoc, root, "SendAnonymousTelemetry", "Enabled");
 
                 xmlDoc.Save(file);
                 Program.Logger.Debug("Default Options.xml file created successfully.");
@@ -825,6 +828,9 @@ namespace CrusaderWars
 
                     var ShowPostBattleReport_Node = xmlDoc.SelectSingleNode("//Option [@name='ShowPostBattleReport']");
                     if (ShowPostBattleReport_Node != null) ShowPostBattleReport_Node.InnerText = General_Tab.GetShowPostBattleReport();
+
+                    var SendAnonymousTelemetry_Node = xmlDoc.SelectSingleNode("//Option [@name='SendAnonymousTelemetry']");
+                    if (SendAnonymousTelemetry_Node != null) SendAnonymousTelemetry_Node.InnerText = General_Tab.GetSendAnonymousTelemetry();
                 }
 
 

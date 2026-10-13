@@ -150,6 +150,11 @@ namespace CrusaderWars.unit_mapper
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
+        /// <summary>StartDate from the active mapper's Time Period.xml (empty if not parsed).</summary>
+        public static string MapperStartDate { get; private set; } = string.Empty;
+        /// <summary>EndDate from the active mapper's Time Period.xml (empty if not parsed).</summary>
+        public static string MapperEndDate { get; private set; } = string.Empty;
+
         private static Dictionary<string, XmlDocument>? _factionFileCache;
         private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
         private static Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>? _garrisonCache;
@@ -981,6 +986,9 @@ namespace CrusaderWars.unit_mapper
                 if (!int.TryParse(endYearStr, out endYear)) isDefault = true;
 
                 if (isDefault) { startYear = 0; endYear = 9999; }
+
+                MapperStartDate = startYearStr;
+                MapperEndDate = endYearStr;
 
                 if ((Date.Year >= startYear && Date.Year <= endYear))
                 {
