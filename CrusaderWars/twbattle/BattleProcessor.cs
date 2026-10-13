@@ -36,6 +36,7 @@ namespace CrusaderWars.twbattle
             public List<string> RemainingSuspects { get; set; } = new List<string>();
             public List<List<string>> ReplacedBatches { get; set; } = new List<List<string>>();
             public Dictionary<string, string> SuspectKeyFactions { get; set; } = new Dictionary<string, string>();
+            public string LastReplacementDetails { get; set; } = "";
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
             public int MapVariantOffset { get; set; } = 0;
@@ -946,7 +947,8 @@ namespace CrusaderWars.twbattle
 
                             form.Invoke((MethodInvoker)delegate
                             {
-                                string messageText = $"Attempting fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                string replacementsInfo = string.IsNullOrEmpty(autofixState.LastReplacementDetails) ? "" : $"\n\nReplacements for this attempt (bad key -> replacement key):\n{autofixState.LastReplacementDetails}";
+                                string messageText = $"Attempting fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.{replacementsInfo}\n\nPlease note this information if you plan to report a bug on our Discord server:";
                                 string discordUrl = "https://discord.gg/eFZTprHh3j";
                                 ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, fixDescription);
                             });
@@ -2117,6 +2119,7 @@ namespace CrusaderWars.twbattle
             // Resolve a safe generic replacement for each suspect key and register it in
             // AutofixReplacements; UnitMappers_BETA.ProcessUnitKeyResult applies these at unit-write time.
             List<AvailableUnit> availableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+            var replacementDetails = new System.Text.StringBuilder();
             foreach (string suspectKey in batch)
             {
                 string faction = autofixState.SuspectKeyFactions.TryGetValue(suspectKey, out string? f) ? f : string.Empty;
@@ -2131,13 +2134,17 @@ namespace CrusaderWars.twbattle
 
                 if (genericUnit == null)
                 {
+                    replacementDetails.AppendLine($" - {suspectKey} -> (no safe replacement found — key will remain unchanged)");
                     Program.Logger.Debug($"Autofix: No generic replacement unit found for key '{suspectKey}' (faction '{faction}'). Skipping this key.");
                     continue;
                 }
 
                 AutofixReplacements[suspectKey] = (genericUnit.AttilaUnitKey, false);
+                replacementDetails.AppendLine($" - {suspectKey} -> {genericUnit.AttilaUnitKey}");
                 Program.Logger.Debug($"Autofix: Registered replacement '{suspectKey}' -> '{genericUnit.AttilaUnitKey}' (faction '{faction}').");
             }
+
+            autofixState.LastReplacementDetails = replacementDetails.ToString().TrimEnd();
 
             Program.Logger.Debug($"Autofix batch {autofixState.ReplacedBatches.Count}: replacing [{string.Join(", ", batch)}]. {autofixState.RemainingSuspects.Count} suspects remaining.");
 
