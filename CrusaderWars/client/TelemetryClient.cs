@@ -166,14 +166,14 @@ namespace CrusaderWars.client
 
             var keys = unitKeys.Take(MaxUnitKeys).ToList();
             string playthroughTag = GetPlaythroughTag();
-            string startDate = UnitMappers_BETA.MapperStartDate;
-            string endDate = UnitMappers_BETA.MapperEndDate;
+            string startYear = UnitMappers_BETA.MapperStartDate;
+            string endYear = UnitMappers_BETA.MapperEndDate;
 
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    await SubmitUnitsCoreAsync(kind, playthroughTag, startDate, endDate, keys);
+                    await SubmitUnitsCoreAsync(kind, playthroughTag, startYear, endYear, keys);
                 }
                 catch (Exception ex)
                 {
@@ -182,7 +182,7 @@ namespace CrusaderWars.client
             });
         }
 
-        private static async Task SubmitUnitsCoreAsync(string kind, string playthroughTag, string startDate, string endDate, List<string> keys)
+        private static async Task SubmitUnitsCoreAsync(string kind, string playthroughTag, string startYear, string endYear, List<string> keys)
         {
             string baseUrl = BaseUrl;
             if (string.IsNullOrEmpty(baseUrl))
@@ -203,8 +203,8 @@ namespace CrusaderWars.client
                 client_id = _clientId,
                 playthrough_tag = playthroughTag,
                 total_war_game = "attila",
-                start_date = startDate,
-                end_date = endDate,
+                start_year = startYear,
+                end_year = endYear,
                 unit_keys = keys
             };
 
