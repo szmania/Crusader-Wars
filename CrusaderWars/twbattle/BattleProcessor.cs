@@ -648,15 +648,39 @@ namespace CrusaderWars.twbattle
 
                     Program.Logger.Debug("Attila process terminated without a complete battle log. Presumed crash.");
 
-                    // Report all battle units to the telemetry backend as bad-units (crash).
-                    try { client.TelemetryClient.SubmitUnits("bad", attacker_armies, defender_armies); }
-                    catch (Exception telemetryEx) { Program.Logger.Debug($"Telemetry: bad-units submission error: {telemetryEx.Message}"); }
-
                     // Resume CK3 if it was suspended (i.e., not closed) so the user can interact while deciding next steps.
                     if (!ModOptions.CloseCK3DuringBattle())
                     {
                         ProcessCommands.ResumeProcess();
                         Program.Logger.Debug("CK3 process resumed after Attila crash.");
+                    }
+
+                    // Report all battle units to the telemetry backend as bad-units (crash),
+                    // but only after confirming with the user that Attila actually crashed.
+                    if (client.ModOptions.GetSendAnonymousTelemetry())
+                    {
+                        bool userConfirmedCrash = false;
+                        if (form != null && !form.IsDisposed)
+                        {
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                userConfirmedCrash = MessageBox.Show(form,
+                                    "Did Total War: Attila crash while loading the battle (after the main menu)?",
+                                    "Crusader Conflicts: Crash Report",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Question) == DialogResult.Yes;
+                            });
+                        }
+
+                        if (userConfirmedCrash)
+                        {
+                            try { client.TelemetryClient.SubmitUnits("bad", attacker_armies, defender_armies); }
+                            catch (Exception telemetryEx) { Program.Logger.Debug($"Telemetry: bad-units submission error: {telemetryEx.Message}"); }
+                        }
+                        else
+                        {
+                            Program.Logger.Debug("Telemetry: user did not confirm an Attila crash. Skipping bad-units submission.");
+                        }
                     }
 
                     // --- Autofix Logic ---
