@@ -327,20 +327,20 @@
     <None Update="settings\\schemas\\UnitMappers.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\\schemas\\cultures.xsd">
+    <None Update="unit_mappers\\schemas\\cultures.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\\schemas\\factions.xsd">
+    <None Update="unit_mappers\\schemas\\factions.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="unit_mapper\schemas\mods.xsd">
-      <Link>unit mappers\schemas\mods.xsd</Link>
+      <Link>unit_mappers\schemas\mods.xsd</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\\schemas\\timeperiod.xsd">
+    <None Update="unit_mappers\\schemas\\timeperiod.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="unit mappers\\schemas\\titles.xsd">
+    <None Update="unit_mappers\\schemas\\titles.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

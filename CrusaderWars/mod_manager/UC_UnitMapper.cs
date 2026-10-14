@@ -272,7 +272,7 @@ namespace CrusaderWars.mod_manager
         private static List<string> ValidateUnitMapper(string unitMapperDirectory)
         {
             var allErrors = new List<string>();
-            string schemasDir = @".\\unit mappers\\schemas";
+            string schemasDir = @".\\unit_mappers\\schemas";
 
             // Validate Mods.xml
             string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
