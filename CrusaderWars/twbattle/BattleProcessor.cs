@@ -956,8 +956,13 @@ namespace CrusaderWars.twbattle
                             });
                         }
 
-                        // Mark the current strategy as tried and clear it for the next attempt
-                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.DeploymentZoneEditor)
+                        // Mark the current strategy as tried and clear it for the next attempt.
+                        // Units is exempt: batch replacement needs repeat runs until RemainingSuspects is empty
+                        // (exhaustion is handled by the fixApplied == false branch below).
+                        if (autofixState.CurrentStrategy.HasValue
+                            && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement
+                            && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.DeploymentZoneEditor
+                            && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.Units)
                         {
                             autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
                         }
