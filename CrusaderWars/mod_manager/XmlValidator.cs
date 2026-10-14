@@ -54,6 +54,11 @@ namespace CrusaderWars.mod_manager
 
                 settings.ValidationEventHandler += (sender, args) =>
                 {
+                    // Ignore missing sha256 attribute errors
+                    if (args.Message.Contains("'sha256'"))
+                    {
+                        return;
+                    }
                     string message;
                     if (args.Exception != null)
                     {
