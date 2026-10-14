@@ -969,4 +969,4 @@ namespace CrusaderWars.mod_manager
         }
     }
 
-    }
+}
