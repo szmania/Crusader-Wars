@@ -2115,10 +2115,10 @@ namespace CrusaderWars.twbattle
             if (!autofixState.RemainingSuspects.Any())
                 return (false, ""); // All suspects replaced and the battle still crashes - strategy exhausted
 
-            // Batch bisection: replace half of the remaining suspects per crash cycle so the
-            // culprit set is isolated in ~log2(N) restarts instead of one key per restart.
+            // Fixed batch: replace up to 5 remaining suspects per crash cycle.
             int totalSuspects = autofixState.ReplacedBatches.Sum(b => b.Count) + autofixState.RemainingSuspects.Count;
-            int batchSize = Math.Max(1, (int)Math.Ceiling(autofixState.RemainingSuspects.Count / 2.0));
+            const int MaxBatchSize = 5;
+            int batchSize = Math.Min(MaxBatchSize, autofixState.RemainingSuspects.Count);
             List<string> batch = autofixState.RemainingSuspects.Take(batchSize).ToList();
             autofixState.RemainingSuspects.RemoveRange(0, batch.Count);
             autofixState.ReplacedBatches.Add(batch);
