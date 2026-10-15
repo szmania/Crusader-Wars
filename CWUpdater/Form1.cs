@@ -710,6 +710,7 @@ del ""%~f0""
                     var nonMigratedFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                     {
                         "attila",   // already the new target location
+                        "rome_2",   // reserved for the Rome 2 mapper set; never migrate into attila
                         "schemas"   // schemas stay at unit_mappers\schemas
                     };
 
@@ -788,6 +789,15 @@ del ""%~f0""
                     foreach (var file in Directory.GetFiles(sourceRoot, "*", SearchOption.AllDirectories))
                     {
                         string relativePath = file.Substring(sourceRoot.Length + 1);
+
+                        // 'schemas' belongs at unit_mappers\schemas (handled in Step 5) and must not be nested into attila.
+                        string topFolder = relativePath.Split(Path.DirectorySeparatorChar)[0];
+                        if (topFolder.Equals("schemas", StringComparison.OrdinalIgnoreCase))
+                        {
+                            Logger.Log($"Skipping '{relativePath}' (schemas are copied to the root schemas directory).");
+                            continue;
+                        }
+
                         string destinationPath = Path.Combine(attilaDir, relativePath);
                         string? destinationDir = Path.GetDirectoryName(destinationPath);
                         if (!string.IsNullOrEmpty(destinationDir) && !Directory.Exists(destinationDir))
