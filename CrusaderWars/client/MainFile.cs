@@ -85,11 +85,61 @@ namespace CrusaderWars
                 Environment.Exit(1);
             }
         }
+
+        /// <summary>
+        /// Migrates unit mapper folders from the old top-level .\unit_mappers layout into
+        /// .\unit_mappers\attila, where the app now expects them. Runs at startup before
+        /// the playthrough display is built; folders already migrated are left untouched.
+        /// </summary>
+        private static void MigrateTopLevelUnitMappersToAttila()
+        {
+            string topLevelMappersDir = @".\unit_mappers";
+            string attilaMappersDir = Path.Combine(topLevelMappersDir, "attila");
+            if (!Directory.Exists(topLevelMappersDir) || !Directory.Exists(attilaMappersDir))
+            {
+                return;
+            }
+
+            foreach (var mapperDir in Directory.GetDirectories(topLevelMappersDir))
+            {
+                string mapperName = Path.GetFileName(mapperDir);
+                if (mapperName.Equals("attila", StringComparison.OrdinalIgnoreCase) ||
+                    mapperName.Equals("rome_2", StringComparison.OrdinalIgnoreCase) ||
+                    mapperName.Equals("schemas", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Only move folders that look like unit mapper folders.
+                if (!File.Exists(Path.Combine(mapperDir, "tag.txt")) && !File.Exists(Path.Combine(mapperDir, "Mods.xml")))
+                {
+                    continue;
+                }
+
+                string destinationDir = Path.Combine(attilaMappersDir, mapperName);
+                if (Directory.Exists(destinationDir))
+                {
+                    Program.Logger.Debug($"Migration skipped for '{mapperName}': a folder with the same name already exists in '{attilaMappersDir}'.");
+                    continue;
+                }
+
+                try
+                {
+                    Directory.Move(mapperDir, destinationDir);
+                    Program.Logger.Debug($"Migrated unit mapper folder '{mapperName}' into '{attilaMappersDir}'.");
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Failed to migrate unit mapper folder '{mapperName}' into '{attilaMappersDir}': {ex.Message}");
+                }
+            }
+        }
         public HomePage()
         {
             Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
             CreateRequiredDirectories();
+            MigrateTopLevelUnitMappersToAttila();
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
@@ -1271,7 +1321,7 @@ namespace CrusaderWars
                 }
                 else
                 {
-                    Program.Logger.Debug($"Active playthrough '{activePlaythroughTag}' is set, but its folder was not found in 'unit_mappers'.");
+                    Program.Logger.Debug($"Active playthrough '{activePlaythroughTag}' is set, but its folder was not found in '{UnitMappers_BETA.AttilaMappersDir}'.");
                     activePlaythroughTag = ""; // Folder not found, treat as no playthrough selected
                 }
             }
