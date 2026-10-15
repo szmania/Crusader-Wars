@@ -51,7 +51,11 @@ namespace CrusaderWars.client
         {
             get
             {
-                string url = Environment.GetEnvironmentVariable("TELEMETRY_API_BASE_URL") ?? "";
+                string url = Environment.GetEnvironmentVariable("TELEMETRY_API_BASE_URL");
+                if (string.IsNullOrWhiteSpace(url))
+                {
+                    url = "https://crusader-conflicts.vercel.app";
+                }
                 return url.TrimEnd('/');
             }
         }
@@ -85,11 +89,6 @@ namespace CrusaderWars.client
         private static async Task RegisterAsync()
         {
             string baseUrl = BaseUrl;
-            if (string.IsNullOrEmpty(baseUrl))
-            {
-                Program.Logger.Debug("Telemetry: TELEMETRY_API_BASE_URL not set, skipping registration.");
-                return;
-            }
 
             string fingerprint = GetOrCreateFingerprint();
             using var http = new HttpClient { Timeout = HttpTimeout };
@@ -185,11 +184,6 @@ namespace CrusaderWars.client
         private static async Task SubmitUnitsCoreAsync(string kind, string playthroughTag, string startYear, string endYear, List<string> keys)
         {
             string baseUrl = BaseUrl;
-            if (string.IsNullOrEmpty(baseUrl))
-            {
-                Program.Logger.Debug("Telemetry: TELEMETRY_API_BASE_URL not set, skipping submission.");
-                return;
-            }
 
             LoadCredentials();
             if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken))
