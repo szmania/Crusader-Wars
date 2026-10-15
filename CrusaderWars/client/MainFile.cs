@@ -93,8 +93,8 @@ namespace CrusaderWars
         /// </summary>
         private static void MigrateTopLevelUnitMappersToAttila()
         {
-            string topLevelMappersDir = @".\unit_mappers";
-            string attilaMappersDir = Path.Combine(topLevelMappersDir, "attila");
+            string topLevelMappersDir = UnitMappers_BETA.UnitMappersRootDir;
+            string attilaMappersDir = UnitMappers_BETA.AttilaMappersDir;
             if (!Directory.Exists(topLevelMappersDir) || !Directory.Exists(attilaMappersDir))
             {
                 return;
