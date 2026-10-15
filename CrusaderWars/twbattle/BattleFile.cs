@@ -27,7 +27,58 @@ namespace CrusaderWars
         public static string? Unit_Script_Name { get; set; }
 
         //Get User Path
-        static string battlePath = Directory.GetFiles("data\\battle files\\script", "tut_battle.xml", SearchOption.AllDirectories)[0];
+        // Resolved lazily via ResolveBattleTemplatePath() instead of an eager initializer:
+        // the template lives in a subfolder of 'data\battle files\script' that may not exist
+        // relative to the current working directory, and a throwing field initializer only
+        // surfaces as an opaque TypeInitializationException.
+        static readonly string battlePath = ResolveBattleTemplatePath();
+
+        private static string ResolveBattleTemplatePath()
+        {
+            const string templateName = "tut_battle.xml";
+            var searchRoots = new List<string>();
+
+            // 1 & 2: current working directory and the executable's directory
+            searchRoots.Add(Path.Combine(Directory.GetCurrentDirectory(), "data", "battle files", "script"));
+            searchRoots.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "battle files", "script"));
+
+            // 3: walk up from each base (max 4 parent levels) — covers running the exe
+            // from bin\Debug\... with the data folder at a repo/parent root.
+            foreach (var basePath in searchRoots.ToList())
+            {
+                var dir = new DirectoryInfo(basePath);
+                for (int i = 0; i < 4 && dir.Parent != null; i++)
+                {
+                    dir = dir.Parent;
+                    searchRoots.Add(Path.Combine(dir.FullName, "data", "battle files", "script"));
+                }
+            }
+
+            foreach (var candidate in searchRoots.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                if (!Directory.Exists(candidate)) continue;
+                try
+                {
+                    string? match = Directory.GetFiles(candidate, templateName, SearchOption.AllDirectories).FirstOrDefault();
+                    if (match != null)
+                    {
+                        Program.Logger.Debug($"Battle template resolved: {match}");
+                        return match;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Could not search '{candidate}' for '{templateName}': {ex.Message}");
+                }
+            }
+
+            string searched = string.Join(", ", searchRoots.Distinct(StringComparer.OrdinalIgnoreCase));
+            Program.Logger.Debug($"ERROR: Battle template '{templateName}' not found. Searched: {searched}");
+            throw new FileNotFoundException(
+                $"Battle template '{templateName}' was not found. The application data folder is incomplete. " +
+                "Expected under 'data\\battle files\\script'. Copy the full 'data' folder from your Crusader Conflicts " +
+                $"installation or release package into the application folder. Directories searched: {searched}");
+        }
 
         public static void ClearFile()
         {
