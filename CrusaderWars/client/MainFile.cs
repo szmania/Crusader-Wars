@@ -1002,7 +1002,7 @@ namespace CrusaderWars
                     return;
                 }
 
-// Only add the 'v' prefix if the version string doesn't already start with it
+                // Only add the 'v' prefix if the version string doesn't already start with it
                 string umVersionDisplay = _umVersion ?? "0.0.0";
                 if (!umVersionDisplay.StartsWith("v", StringComparison.OrdinalIgnoreCase))
                 {
