@@ -999,7 +999,13 @@ namespace CrusaderWars
                     return;
                 }
 
-                MessageBox.Show(this, $"The Unit Mappers have been updated to v{_umVersion}.\n\n" +
+// Only add the 'v' prefix if the version string doesn't already start with it
+                string umVersionDisplay = _umVersion ?? "0.0.0";
+                if (!umVersionDisplay.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                {
+                    umVersionDisplay = "v" + umVersionDisplay;
+                }
+                MessageBox.Show(this, $"The Unit Mappers have been updated to {umVersionDisplay}.\n\n" +
                                       $"The application will now re-validate your currently selected playthrough ('{GetFriendlyPlaythroughName(activePlaythroughTag)}') to ensure compatibility.",
                                       "Unit Mappers Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
