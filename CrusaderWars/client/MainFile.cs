@@ -950,6 +950,13 @@ namespace CrusaderWars
         private async Task CheckForUnitMapperUpdateAndRevalidate()
         {
             Program.Logger.Debug("Checking for unit mapper update and revalidating if necessary...");
+
+            // A mapper update may have extracted folders into the old top-level layout.
+            // Relocate them before re-validating: the search below only looks in
+            // UnitMappers_BETA.AttilaMappersDir, so a stranded folder would make the
+            // active playthrough look missing and get deactivated.
+            MigrateTopLevelUnitMappersToAttila();
+
             string versionFilePath = @".\settings\last_um_version.txt";
             string lastKnownVersion = "0.0.0";
 
