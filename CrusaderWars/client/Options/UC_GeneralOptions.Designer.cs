@@ -50,7 +50,8 @@
             this.label_SiegeEngines = new System.Windows.Forms.Label();
             this.OptionSelection_SiegeEngines = new System.Windows.Forms.ComboBox();
             this.label_ShowPostBattleReport = new System.Windows.Forms.Label();
-            this.chkSendTelemetry = new System.Windows.Forms.CheckBox();
+            this.label_SendTelemetry = new System.Windows.Forms.Label();
+            this.OptionSelection_SendTelemetry = new System.Windows.Forms.ComboBox();
             this.OptionSelection_ShowPostBattleReport = new System.Windows.Forms.ComboBox();
             this.General_ToopTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
@@ -83,7 +84,8 @@
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SiegeEngines, 1, 5);
             this.tableLayoutPanel1.Controls.Add(this.label_ShowPostBattleReport, 0, 9);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_ShowPostBattleReport, 1, 9);
-            this.tableLayoutPanel1.Controls.Add(this.chkSendTelemetry, 0, 10);
+            this.tableLayoutPanel1.Controls.Add(this.label_SendTelemetry, 0, 10);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SendTelemetry, 1, 10);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -406,21 +408,36 @@
             this.General_ToopTip.SetToolTip(this.OptionSelection_ShowPostBattleReport, "Enabled: Shows a detailed report screen after each battle.\r\nDisabled: Skips the r" +
             "eport screen and returns directly to CK3.");
             // 
-            // chkSendTelemetry
+            // label_SendTelemetry
             // 
-            this.chkSendTelemetry.AutoSize = true;
-            this.chkSendTelemetry.Checked = true;
-            this.tableLayoutPanel1.SetColumnSpan(this.chkSendTelemetry, 2);
-            this.chkSendTelemetry.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkSendTelemetry.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkSendTelemetry.ForeColor = System.Drawing.Color.White;
-            this.chkSendTelemetry.Location = new System.Drawing.Point(3, 322);
-            this.chkSendTelemetry.Name = "chkSendTelemetry";
-            this.chkSendTelemetry.Size = new System.Drawing.Size(420, 22);
-            this.chkSendTelemetry.TabIndex = 20;
-            this.chkSendTelemetry.Text = "Send anonymous battle data to the Crusader Conflicts team to help improve the app";
-            this.General_ToopTip.SetToolTip(this.chkSendTelemetry, "Checked: sends the list of Attila unit keys used in each battle (crashes and successful battles) to the Crusader Conflicts team, along with your playthrough tag. No personal data is sent.");
-            this.chkSendTelemetry.UseVisualStyleBackColor = true;
+            this.label_SendTelemetry.AutoSize = true;
+            this.label_SendTelemetry.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_SendTelemetry.ForeColor = System.Drawing.Color.White;
+            this.label_SendTelemetry.Location = new System.Drawing.Point(3, 320);
+            this.label_SendTelemetry.Name = "label_SendTelemetry";
+            this.label_SendTelemetry.Size = new System.Drawing.Size(216, 19);
+            this.label_SendTelemetry.TabIndex = 20;
+            this.label_SendTelemetry.Text = "Send Anonymous Telemetry:";
+            // 
+            // OptionSelection_SendTelemetry
+            // 
+            this.OptionSelection_SendTelemetry.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.OptionSelection_SendTelemetry.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_SendTelemetry.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OptionSelection_SendTelemetry.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_SendTelemetry.FormattingEnabled = true;
+            this.OptionSelection_SendTelemetry.Items.AddRange(new object[] {
+            "Enabled",
+            "Disabled"});
+            this.OptionSelection_SendTelemetry.Location = new System.Drawing.Point(360, 323);
+            this.OptionSelection_SendTelemetry.Name = "OptionSelection_SendTelemetry";
+            this.OptionSelection_SendTelemetry.Size = new System.Drawing.Size(181, 26);
+            this.OptionSelection_SendTelemetry.TabIndex = 21;
+            this.General_ToopTip.SetToolTip(this.OptionSelection_SendTelemetry, "Enabled: sends the list of Attila unit keys used in each battle (crashes and succ" +
+        "essful battles) to the Crusader Conflicts team, along with your playthrough tag." +
+        " No personal data is sent.\r\nDisabled: no battle data is sent.");
             // 
             // General_ToopTip
             // 
@@ -469,6 +486,7 @@
         private System.Windows.Forms.ComboBox OptionSelection_SiegeEngines;
         private System.Windows.Forms.Label label_ShowPostBattleReport;
         private System.Windows.Forms.ComboBox OptionSelection_ShowPostBattleReport;
-        private System.Windows.Forms.CheckBox chkSendTelemetry;
+        private System.Windows.Forms.Label label_SendTelemetry;
+        private System.Windows.Forms.ComboBox OptionSelection_SendTelemetry;
     }
 }

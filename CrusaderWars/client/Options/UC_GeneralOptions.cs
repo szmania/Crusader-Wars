@@ -41,7 +41,7 @@ namespace CrusaderWars.client
         [SupportedOSPlatform("windows")]
         public string GetShowPostBattleReport() => OptionSelection_ShowPostBattleReport.SelectedItem?.ToString() ?? "Enabled";
         [SupportedOSPlatform("windows")]
-        public string GetSendAnonymousTelemetry() => chkSendTelemetry.Checked ? "Enabled" : "Disabled";
+        public string GetSendAnonymousTelemetry() => OptionSelection_SendTelemetry.SelectedItem?.ToString() ?? "Enabled";
 
         // Methods to set values of controls
         [SupportedOSPlatform("windows")]
@@ -65,6 +65,6 @@ namespace CrusaderWars.client
         [SupportedOSPlatform("windows")]
         public void SetShowPostBattleReport(string value) { OptionSelection_ShowPostBattleReport.SelectedItem = value; }
         [SupportedOSPlatform("windows")]
-        public void SetSendAnonymousTelemetry(string value) { chkSendTelemetry.Checked = value != "Disabled"; }
+        public void SetSendAnonymousTelemetry(string value) { OptionSelection_SendTelemetry.SelectedItem = value; }
     }
 }
