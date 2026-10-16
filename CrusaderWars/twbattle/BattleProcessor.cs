@@ -619,6 +619,7 @@ namespace CrusaderWars.twbattle
             string attilaLogPath = Properties.Settings.Default.VAR_log_attila;
 
             bool battleEnded = false;
+            bool badUnitsSubmitted = false; // Send bad-units telemetry only once, on the first crash before any autofix.
 
             form.infoLabel.Text = "Waiting for TW:Attila battle to end...";
             form.Text = "Crusader Conflicts (Waiting for TW:Attila battle to end...)";
@@ -660,7 +661,7 @@ namespace CrusaderWars.twbattle
 
                     // Report all battle units to the telemetry backend as bad-units (crash),
                     // but only after confirming with the user that Attila actually crashed.
-                    if (client.ModOptions.GetSendAnonymousTelemetry())
+                    if (client.ModOptions.GetSendAnonymousTelemetry() && !badUnitsSubmitted)
                     {
                         bool userConfirmedCrash = false;
                         if (form != null && !form.IsDisposed)
@@ -679,6 +680,7 @@ namespace CrusaderWars.twbattle
                         {
                             try { client.TelemetryClient.SubmitUnits("bad", attacker_armies, defender_armies); }
                             catch (Exception telemetryEx) { Program.Logger.Debug($"Telemetry: bad-units submission error: {telemetryEx.Message}"); }
+                            badUnitsSubmitted = true;
                         }
                         else
                         {
