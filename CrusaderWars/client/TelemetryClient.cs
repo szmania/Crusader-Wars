@@ -310,7 +310,9 @@ namespace CrusaderWars.client
                 {
                     if (!File.Exists(CredentialsPath)) return;
                     using var doc = JsonDocument.Parse(File.ReadAllText(CredentialsPath));
-                    _fingerprint = doc.RootElement.TryGetProperty("hardware_fingerprint", out var fp) ? fp.GetString() : null;
+                    // Backend requires a 64-char LOWERCASE SHA-256 hex string; older cached
+                    // credentials were written uppercase, so normalize on load.
+                    _fingerprint = doc.RootElement.TryGetProperty("hardware_fingerprint", out var fp) ? fp.GetString()?.ToLowerInvariant() : null;
                     _clientId = doc.RootElement.TryGetProperty("client_id", out var cid) ? cid.GetString() : null;
                     _accessToken = doc.RootElement.TryGetProperty("access_token", out var tok) ? tok.GetString() : null;
                 }
@@ -388,14 +390,15 @@ namespace CrusaderWars.client
             }
 
             string raw = $"{machineGuid}|{cpuName}|{Environment.MachineName}";
-            string fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(raw)));
+            // Convert.ToHexString() emits uppercase; the backend requires lowercase hex.
+            string fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(raw))).ToLowerInvariant();
 
             // If MachineGuid was missing, mix in the SMBIOS UUID (or a persisted random GUID)
             // so the fingerprint is still stable and unique per machine.
             if (string.IsNullOrEmpty(machineGuid))
             {
                 string fallback = !string.IsNullOrEmpty(smbiosUuid) ? smbiosUuid : GetPersistedRandomGuid();
-                fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{fallback}|{cpuName}|{Environment.MachineName}")));
+                fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{fallback}|{cpuName}|{Environment.MachineName}"))).ToLowerInvariant();
             }
 
             _fingerprint = fingerprint;
