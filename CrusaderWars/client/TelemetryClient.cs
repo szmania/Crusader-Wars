@@ -62,6 +62,25 @@ namespace CrusaderWars.client
         private const int MaxUnitKeys = 500;
         private static readonly TimeSpan HttpTimeout = TimeSpan.FromSeconds(10);
 
+        // Exponential backoff for telemetry retries: base * 2^attempt, capped, with full jitter.
+        private const int BackoffBaseMs = 1000;
+        private const int BackoffMaxMs = 30000;
+        private const int MaxSubmitAttempts = 3;
+        private static readonly Random BackoffJitter = new Random();
+
+        /// <summary>
+        /// Computes an exponential backoff delay with full jitter:
+        /// random(0, min(base * 2^attempt, max)). Jitter prevents synchronized
+        /// retry storms when many clients hit the backend at once.
+        /// </summary>
+        private static int ComputeBackoffMs(int attempt)
+        {
+            // Cap the exponent to avoid int overflow for large attempt counts.
+            int exponent = Math.Min(attempt, 30);
+            long capped = Math.Min((long)BackoffBaseMs << exponent, BackoffMaxMs);
+            return BackoffJitter.Next(0, (int)capped + 1);
+        }
+
         private static readonly string CredentialsPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "CrusaderWars3", "client.json");
@@ -248,8 +267,7 @@ namespace CrusaderWars.client
             };
 
             bool reRegistered = false;
-            int backoffMs = 1000;
-            for (int attempt = 0; attempt < 3; attempt++)
+            for (int attempt = 0; attempt < MaxSubmitAttempts; attempt++)
             {
                 using var http = new HttpClient { Timeout = HttpTimeout };
                 http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
@@ -267,18 +285,20 @@ namespace CrusaderWars.client
                 int status = (int)resp.StatusCode;
                 if (status == 401 && !reRegistered)
                 {
-                    // Token revoked/rotated: re-register once and retry.
-                    Program.Logger.Debug("Telemetry: 401 from backend, re-registering once.");
+                    // Token revoked/rotated: re-register once, back off, and retry.
+                    int delay = ComputeBackoffMs(attempt);
+                    Program.Logger.Debug($"Telemetry: 401 from backend, re-registering once and retrying in {delay}ms.");
                     await RegisterAsync();
                     reRegistered = true;
+                    await Task.Delay(delay);
                     continue;
                 }
                 if (status == 429)
                 {
-                    // Rate limited: exponential backoff and retry.
-                    Program.Logger.Debug($"Telemetry: 429 rate limited, backing off {backoffMs}ms.");
-                    await Task.Delay(backoffMs);
-                    backoffMs *= 2;
+                    // Rate limited: exponential backoff with jitter, then retry.
+                    int delay = ComputeBackoffMs(attempt);
+                    Program.Logger.Debug($"Telemetry: 429 rate limited, backing off {delay}ms.");
+                    await Task.Delay(delay);
                     continue;
                 }
                 Program.Logger.Debug($"Telemetry: submit {kind}-units returned {status}.");
