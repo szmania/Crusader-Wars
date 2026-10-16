@@ -431,6 +431,7 @@
             this.OptionSelection_SendTelemetry.Items.AddRange(new object[] {
             "Enabled",
             "Disabled"});
+            this.OptionSelection_SendTelemetry.SelectedIndex = 0;
             this.OptionSelection_SendTelemetry.Location = new System.Drawing.Point(360, 323);
             this.OptionSelection_SendTelemetry.Name = "OptionSelection_SendTelemetry";
             this.OptionSelection_SendTelemetry.Size = new System.Drawing.Size(181, 26);

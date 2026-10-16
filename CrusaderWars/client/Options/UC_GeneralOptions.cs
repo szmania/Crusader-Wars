@@ -65,6 +65,6 @@ namespace CrusaderWars.client
         [SupportedOSPlatform("windows")]
         public void SetShowPostBattleReport(string value) { OptionSelection_ShowPostBattleReport.SelectedItem = value; }
         [SupportedOSPlatform("windows")]
-        public void SetSendAnonymousTelemetry(string value) { OptionSelection_SendTelemetry.SelectedItem = value; }
+        public void SetSendAnonymousTelemetry(string value) { OptionSelection_SendTelemetry.SelectedItem = value; if (OptionSelection_SendTelemetry.SelectedItem == null) OptionSelection_SendTelemetry.SelectedIndex = 0; }
     }
 }

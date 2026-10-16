@@ -617,6 +617,7 @@ namespace CrusaderWars
                     General_Tab.SetSeparateArmies(ModOptions.optionsValuesCollection["SeparateArmies"]);
                     General_Tab.SetSiegeEnginesInFieldBattles(ModOptions.optionsValuesCollection["SiegeEnginesInFieldBattles"]);
                     General_Tab.SetShowPostBattleReport(ModOptions.optionsValuesCollection["ShowPostBattleReport"]);
+                    General_Tab.SetSendAnonymousTelemetry(ModOptions.optionsValuesCollection["SendAnonymousTelemetry"]);
                 }
 
 
