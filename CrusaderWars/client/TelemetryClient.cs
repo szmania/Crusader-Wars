@@ -76,7 +76,9 @@ namespace CrusaderWars.client
                 try
                 {
                     LoadCredentials();
-                    if (!string.IsNullOrEmpty(_clientId) && !string.IsNullOrEmpty(_accessToken)) return;
+                    // Always register so the backend receives the current client version,
+                    // even when cached credentials already exist (the backend upserts by
+                    // hardware fingerprint, so this refreshes the stored client_version).
                     await RegisterAsync();
                 }
                 catch (Exception ex)
