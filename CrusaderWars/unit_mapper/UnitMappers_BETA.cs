@@ -987,11 +987,13 @@ namespace CrusaderWars.unit_mapper
 
                 if (isDefault) { startYear = 0; endYear = 9999; }
 
-                MapperStartDate = startYearStr;
-                MapperEndDate = endYearStr;
-
                 if ((Date.Year >= startYear && Date.Year <= endYear))
                 {
+                    // Only record the time period of the mapper that actually covers the
+                    // current battle year; otherwise the last-processed mapper (e.g. a later
+                    // era in the same playthrough) would overwrite these for telemetry.
+                    MapperStartDate = startYearStr;
+                    MapperEndDate = endYearStr;
                     // MODS and SUBMODS
                     string modsPath = Path.Combine(mapperPath, "Mods.xml");
                     if (File.Exists(modsPath))
