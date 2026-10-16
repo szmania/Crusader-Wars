@@ -25,7 +25,40 @@ namespace CrusaderWars.client
     [SupportedOSPlatform("windows")]
     internal static class TelemetryClient
     {
-        private const string ClientVersion = "1.0.0";
+        private static string ClientVersion
+        {
+            get
+            {
+                // Read the real app version from app_version.txt (same source as the main menu label).
+                // Falls back to the assembly version, then "1.0.0" only if both fail.
+                try
+                {
+                    string version_path = Path.Combine(Directory.GetCurrentDirectory(), "app_version.txt");
+                    if (File.Exists(version_path))
+                    {
+                        string fileContent = File.ReadAllText(version_path);
+                        var match = System.Text.RegularExpressions.Regex.Match(fileContent, "\"(.+)\"");
+                        if (match.Success)
+                        {
+                            return match.Groups[1].Value;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Telemetry: could not read app_version.txt: {ex.Message}");
+                }
+
+                try
+                {
+                    return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
+                }
+                catch
+                {
+                    return "1.0.0";
+                }
+            }
+        }
         private const int MaxUnitKeys = 500;
         private static readonly TimeSpan HttpTimeout = TimeSpan.FromSeconds(10);
 
@@ -70,7 +103,11 @@ namespace CrusaderWars.client
         /// </summary>
         public static Task RegisterIfNeeded()
         {
-            if (!ModOptions.GetSendAnonymousTelemetry()) return Task.CompletedTask;
+            if (!ModOptions.GetSendAnonymousTelemetry())
+            {
+                Program.Logger.Debug("Telemetry: registration skipped (anonymous telemetry disabled).");
+                return Task.CompletedTask;
+            }
             return Task.Run(async () =>
             {
                 try
@@ -93,6 +130,7 @@ namespace CrusaderWars.client
             string baseUrl = BaseUrl;
 
             string fingerprint = GetOrCreateFingerprint();
+            Program.Logger.Debug($"Telemetry: registering client at {baseUrl}/api/v1/clients/register (client_version={ClientVersion}).");
             using var http = new HttpClient { Timeout = HttpTimeout };
             var payload = new { hardware_fingerprint = fingerprint, client_version = ClientVersion };
             using var resp = await http.PostAsJsonAsync($"{baseUrl}/api/v1/clients/register", payload);
@@ -119,7 +157,11 @@ namespace CrusaderWars.client
         /// </summary>
         public static void SubmitUnits(string kind, List<Army> attacker_armies, List<Army> defender_armies)
         {
-            if (!ModOptions.GetSendAnonymousTelemetry()) return;
+            if (!ModOptions.GetSendAnonymousTelemetry())
+            {
+                Program.Logger.Debug($"Telemetry: {kind}-units submission skipped (anonymous telemetry disabled).");
+                return;
+            }
 
             var unitKeys = new HashSet<string>(StringComparer.Ordinal);
             foreach (var army in (attacker_armies ?? new List<Army>()).Concat(defender_armies ?? new List<Army>()))
@@ -166,6 +208,7 @@ namespace CrusaderWars.client
             }
 
             var keys = unitKeys.Take(MaxUnitKeys).ToList();
+            Program.Logger.Debug($"Telemetry: collected {unitKeys.Count} unit keys for {kind}-units (submitting {keys.Count}, cap {MaxUnitKeys}).");
             string playthroughTag = GetPlaythroughTag();
             string startYear = UnitMappers_BETA.MapperStartDate;
             string endYear = UnitMappers_BETA.MapperEndDate;
@@ -213,8 +256,13 @@ namespace CrusaderWars.client
                 if (!string.IsNullOrEmpty(_fingerprint))
                     http.DefaultRequestHeaders.Add("X-HW-Fingerprint", _fingerprint);
 
+                Program.Logger.Debug($"Telemetry: POST {baseUrl}/api/v1/telemetry/{kind}-units (attempt {attempt + 1}/3, {keys.Count} unit keys, playthrough='{playthroughTag}', years={startYear}-{endYear}).");
                 using var resp = await http.PostAsJsonAsync($"{baseUrl}/api/v1/telemetry/{kind}-units", payload);
-                if (resp.IsSuccessStatusCode) return;
+                if (resp.IsSuccessStatusCode)
+                {
+                    Program.Logger.Debug($"Telemetry: {kind}-units submission succeeded ({(int)resp.StatusCode}).");
+                    return;
+                }
 
                 int status = (int)resp.StatusCode;
                 if (status == 401 && !reRegistered)
