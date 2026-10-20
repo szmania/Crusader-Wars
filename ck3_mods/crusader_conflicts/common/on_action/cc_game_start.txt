@@ -21,11 +21,12 @@ cwalert_setup_after_game_start_on_actions = {
 		every_player = { # Intro event
 		 	trigger_event = cwalert.1
 			debug_log = "CW_SAVE_PURGE_debug_log_on_action3"
-			console_log = "CW_SAVE_PURGE_console_log_on_action"
-			console_history = "CW_SAVE_PURGE_console_history_on_action"
-			console_hist = "CW_SAVE_PURGE_console_history_on_action"
-			"[ExecuteConsoleCommand(Concatenate('battle_max:', 'purge'))]"
+			# CC option settings persist as character variables (cc_op_*) set by the cc_set_*
+			# scripted guis in 02_cc_options.txt when the player clicks an option button in
+			# cc_options.gui. The GUI button states read these variables directly, so settings
+			# survive save/load with no script-side restoration needed here.
+			# NOTE: ExecuteConsoleCommand is a GUI-only data function and cannot be run from
+			# on_action effects (the former 'battle_max:purge' line was a parse error).
 		}
 	}
 }
-
