@@ -211,26 +211,19 @@ namespace CrusaderWars.mod_manager
                 StringBuilder modsMessage = new StringBuilder();
                 string messageBoxTitle = $"{_playthroughTag} - Required Mods"; // Dynamic title
 
-                if (_playthroughTag == "AGOT")
-                {
-                    modsMessage.Append("For the 'A Game of Thrones (AGOT)' playthrough, please ensure you have the following CK3 submod installed:\n");
-                    modsMessage.Append("• Lord of the Tides (adds House Velaryon)\n");
-                    modsMessage.Append("  Download: https://www.moddb.com/downloads/lord-of-the-tides-v04\n");
-                    modsMessage.Append("\n");
-                    modsMessage.Append("Additionally, the following Total War: Attila mods are required:\n");
-                }
-                else // TheFallenEagle
-                {
-                    modsMessage.Append($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:\n");
-                }
+                modsMessage.Append($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:\n");
 
                 if (RequiredModsList != null && RequiredModsList.Count > 0)
                 {
-                    foreach (var (mod, _, screenName, _) in RequiredModsList)
+                    foreach (var (mod, _, screenName, url) in RequiredModsList)
                     {
                         modsMessage.Append($"- {(string.IsNullOrEmpty(screenName) ? mod : $"{screenName} ({mod})")}\n");
+                        if (!string.IsNullOrEmpty(url))
+                        {
+                            modsMessage.Append($"  Download: {url}\n");
+                        }
                     }
-                    modsMessage.Append("\nPlease ensure these are enabled in the Attila Mod Manager.\n");
+                    modsMessage.Append("\nPlease ensure these are subscribed to in Steam or in your Total War: Attila data folder, do not enable these mods Crusader Conflicts will do that for you.\n");
                 }
                 else
                 {
@@ -244,14 +237,7 @@ namespace CrusaderWars.mod_manager
                     }
                 }
 
-                if (_playthroughTag == "AGOT")
-                {
-                    ShowClickableMessageBox(modsMessage.ToString(), messageBoxTitle);
-                }
-                else
-                {
-                    MessageBox.Show(modsMessage.ToString(), messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                ShowClickableMessageBox(modsMessage.ToString(), messageBoxTitle);
             }
             else if (!string.IsNullOrEmpty(SteamCollectionLink)) // Original logic for other playthroughs
             {
