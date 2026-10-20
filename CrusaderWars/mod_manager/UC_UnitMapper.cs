@@ -205,39 +205,13 @@ namespace CrusaderWars.mod_manager
         [SupportedOSPlatform("windows")]
         private void button1_Click(object sender, EventArgs e)
         {
-            if (_playthroughTag == "TheFallenEagle" || _playthroughTag == "AGOT") // Modified condition
+            if (_playthroughTag == "AGOT")
             {
-                // Build a string containing the list of mods
-                StringBuilder modsMessage = new StringBuilder();
-                string messageBoxTitle = $"{_playthroughTag} - Required Mods"; // Dynamic title
-
-                modsMessage.Append($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:\n");
-
-                if (RequiredModsList != null && RequiredModsList.Count > 0)
-                {
-                    foreach (var (mod, _, screenName, url) in RequiredModsList)
-                    {
-                        modsMessage.Append($"- {(string.IsNullOrEmpty(screenName) ? mod : $"{screenName} ({mod})")}\n");
-                        if (!string.IsNullOrEmpty(url))
-                        {
-                            modsMessage.Append($"  Download: {url}\n");
-                        }
-                    }
-                    modsMessage.Append("\nPlease ensure these are subscribed to in Steam or in your Total War: Attila data folder, do not enable these mods Crusader Conflicts will do that for you.\n");
-                }
-                else
-                {
-                    if (_playthroughTag == "AGOT")
-                    {
-                        modsMessage.Append("No additional Total War: Attila mods are listed as required for this playthrough.\n");
-                    }
-                    else
-                    {
-                        modsMessage.Append($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.\n");
-                    }
-                }
-
-                ShowClickableMessageBox(modsMessage.ToString(), messageBoxTitle);
+                Process.Start(new ProcessStartInfo("https://crusader-conflicts.vercel.app/playthroughs/a-game-of-thrones") { UseShellExecute = true });
+            }
+            else if (_playthroughTag == "TheFallenEagle")
+            {
+                Process.Start(new ProcessStartInfo("https://crusader-conflicts.vercel.app/playthroughs/late-roman-era") { UseShellExecute = true });
             }
             else if (!string.IsNullOrEmpty(SteamCollectionLink)) // Original logic for other playthroughs
             {
