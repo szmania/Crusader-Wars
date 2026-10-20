@@ -1,0 +1,33 @@
+﻿######################################################################
+#  Crusader Conflicts Battle-Outcome Modifiers
+#  Granted automatically by cc_battle_outcomes.txt on_action chains.
+#  advantage-category effects so they appear in the advantage tooltip
+#  and are detectable by the CrusaderWars C# log parser.
+######################################################################
+
+# Granted to the winning side's commander and knights (2 years).
+cc_victorious_momentum_modifier = {
+	icon = martial_positive
+	advantage = 2
+}
+
+# Granted to the losing side's commander and knights (2 years).
+cc_humbling_defeat_modifier = {
+	icon = martial_negative
+	advantage = -2
+}
+
+# Granted on top of victorious momentum when the enemy side was wiped (2 years).
+cc_decisive_victory_modifier = {
+	icon = martial_positive
+	advantage = 3
+}
+
+# Granted to close family of a character slain in battle, if they had a
+# positive opinion of the deceased (3 years). Mirrors vanilla grief patterns.
+cc_mourning_battle_modifier = {
+	icon = stress_negative
+	diplomacy = -1
+	martial = -1
+	stress_gain_mult = 0.1
+}
