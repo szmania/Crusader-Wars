@@ -46,6 +46,26 @@ namespace CrusaderWars.armies
             return xp;
         }
 
+        public List<string> GetModifierDescriptions()
+        {
+            var descriptions = new List<string>();
+
+            if (isVictoriousMomentum) descriptions.Add("Victorious Momentum (+1 XP)");
+            if (isDecisiveVictory) descriptions.Add("Decisive Victory (+1 XP)");
+            if (isLiegeLeadingArmy) descriptions.Add("Leader Commanding (+1 XP)");
+            if (isFightingHostileFaith) descriptions.Add("Fighting a Hostile Faith (+1 XP)");
+            if (IsDefendingStrait) descriptions.Add("Defending a Strait");
+            if (IsDefendingRiver) descriptions.Add("Defending a River");
+            if (isHumblingDefeat) descriptions.Add("Humbling Defeat (-1 XP)");
+            if (isRealmInDebt) descriptions.Add("Realm in Debt (-1 XP)");
+            if (isArmyGathering) descriptions.Add("Army Gathering (-1 XP)");
+            if (isArmyLowOnSupplies) descriptions.Add("Low on Supplies (-1 XP)");
+            if (isArmyOutOfSupplies) descriptions.Add("No Supplies (-2 XP)");
+            if (isArmyRecentlyDisembarked) descriptions.Add("Recently Disembarked (-3 XP)");
+
+            return descriptions;
+        }
+
         void ReadModifiers(string modifiers_text_side)
         {
 

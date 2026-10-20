@@ -1871,6 +1871,10 @@ namespace CrusaderWars.twbattle
         {
             var report = new BattleReport();
 
+            // Battle modifiers (snapshot from the CK3 log at battle start)
+            report.AttackerModifiers = CK3LogData.LeftSide.GetModifiers()?.GetModifierDescriptions() ?? new List<string>();
+            report.DefenderModifiers = CK3LogData.RightSide.GetModifiers()?.GetModifierDescriptions() ?? new List<string>();
+
             // Basic battle info
             report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle";
             report.BattleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
@@ -1914,15 +1918,15 @@ namespace CrusaderWars.twbattle
             }
 
             // Attacker side
-            report.AttackerSide = GenerateSideReport(attacker_armies, "Attackers");
+            report.AttackerSide = GenerateSideReport(attacker_armies, "Attackers", report.AttackerModifiers);
 
             // Defender side
-            report.DefenderSide = GenerateSideReport(defender_armies, "Defenders");
+            report.DefenderSide = GenerateSideReport(defender_armies, "Defenders", report.DefenderModifiers);
 
             return report;
         }
 
-        private static SideReport GenerateSideReport(List<Army> armies, string sideName)
+        private static SideReport GenerateSideReport(List<Army> armies, string sideName, List<string>? sideModifiers = null)
         {
             var sideReport = new SideReport
             {
@@ -2056,12 +2060,14 @@ namespace CrusaderWars.twbattle
                         if (correspondingUnit?.GetRegimentType() == RegimentType.Commander && army.Commander != null)
                         {
                             var commanderReport = GetCharacterReport(army.Commander);
+                            commanderReport.Modifiers = sideModifiers ?? new List<string>();
                             unit.Characters.Add(commanderReport);
                         }
                         // Add knight commander info if this is an MAA unit with a knight commander
                         else if (correspondingUnit?.GetRegimentType() == RegimentType.MenAtArms && correspondingUnit.KnightCommander != null)
                         {
                             var knightCommanderReport = GetCharacterReport(correspondingUnit.KnightCommander);
+                            knightCommanderReport.Modifiers = sideModifiers ?? new List<string>();
                             unit.Characters.Add(knightCommanderReport);
                         }
                         // Add knight details if this is a knight unit
@@ -2076,7 +2082,8 @@ namespace CrusaderWars.twbattle
                                     BodyguardSize = knight.GetSoldiers(),
                                     Kills = knight.GetKills(),
                                     Fallen = knight.HasFallen(),
-                                    Status = knight.HasFallen() ? "Slain" : "Unharmed"
+                                    Status = knight.HasFallen() ? "Slain" : "Unharmed",
+                                    Modifiers = sideModifiers ?? new List<string>()
                                 });
                             }
                             unit.KnightDetails = knightDetails;
