@@ -94,7 +94,7 @@ namespace CrusaderWars.client
         private sealed class Credentials
         {
             public string? hardware_fingerprint { get; set; }
-            public string? client_id { get; set; }
+            public string? id { get; set; }
             public string? access_token { get; set; }
             public string? client_version { get; set; }
         }
@@ -160,7 +160,7 @@ namespace CrusaderWars.client
             }
 
             using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
-            _clientId = doc.RootElement.GetProperty("client_id").GetString();
+            _clientId = doc.RootElement.GetProperty("id").GetString();
             _accessToken = doc.RootElement.GetProperty("access_token").GetString();
             SaveCredentials(fingerprint);
             Program.Logger.Debug("Telemetry: client registered successfully.");
@@ -258,7 +258,7 @@ namespace CrusaderWars.client
 
             var payload = new
             {
-                client_id = _clientId,
+                id = _clientId,
                 playthrough_tag = playthroughTag,
                 total_war_game = "attila",
                 start_year = startYear,
@@ -333,7 +333,7 @@ namespace CrusaderWars.client
                     // Backend requires a 64-char LOWERCASE SHA-256 hex string; older cached
                     // credentials were written uppercase, so normalize on load.
                     _fingerprint = doc.RootElement.TryGetProperty("hardware_fingerprint", out var fp) ? fp.GetString()?.ToLowerInvariant() : null;
-                    _clientId = doc.RootElement.TryGetProperty("client_id", out var cid) ? cid.GetString() : null;
+                    _clientId = doc.RootElement.TryGetProperty("id", out var cid) ? cid.GetString() : null;
                     _accessToken = doc.RootElement.TryGetProperty("access_token", out var tok) ? tok.GetString() : null;
                 }
                 catch (Exception ex)
@@ -353,7 +353,7 @@ namespace CrusaderWars.client
                     var creds = new Credentials
                     {
                         hardware_fingerprint = fingerprint,
-                        client_id = _clientId,
+                        id = _clientId,
                         access_token = _accessToken,
                         client_version = ClientVersion
                     };
