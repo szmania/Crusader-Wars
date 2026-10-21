@@ -4,5 +4,5 @@ tags={
 	"Warfare"
 }
 name="Crusader Conflicts [Win/Linux]"
-supported_version="1.19.*"
+supported_version="1.20.*"
 path="mod/crusader_conflicts"
