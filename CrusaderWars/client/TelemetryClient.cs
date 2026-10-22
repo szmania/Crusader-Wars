@@ -59,6 +59,34 @@ namespace CrusaderWars.client
                 }
             }
         }
+        /// <summary>
+        /// Reads the installed Unit Mappers version from um_version.txt (same source as the
+        /// main menu mappers label). Falls back to "1.0.0" if the file is missing or unreadable.
+        /// </summary>
+        private static string UnitMappersVersion
+        {
+            get
+            {
+                try
+                {
+                    string version_path = Path.Combine(Directory.GetCurrentDirectory(), "um_version.txt");
+                    if (File.Exists(version_path))
+                    {
+                        string fileContent = File.ReadAllText(version_path);
+                        var match = System.Text.RegularExpressions.Regex.Match(fileContent, "\"(.+)\"");
+                        if (match.Success)
+                        {
+                            return match.Groups[1].Value;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Telemetry: could not read um_version.txt: {ex.Message}");
+                }
+                return "1.0.0";
+            }
+        }
         private const int MaxUnitKeys = 500;
         private static readonly TimeSpan HttpTimeout = TimeSpan.FromSeconds(10);
 
@@ -149,9 +177,9 @@ namespace CrusaderWars.client
             string baseUrl = BaseUrl;
 
             string fingerprint = GetOrCreateFingerprint();
-            Program.Logger.Debug($"Telemetry: registering client at {baseUrl}/api/v1/clients/register (client_version={ClientVersion}).");
+            Program.Logger.Debug($"Telemetry: registering client at {baseUrl}/api/v1/clients/register (client_version={ClientVersion}, unit_mappers_version={UnitMappersVersion}).");
             using var http = new HttpClient { Timeout = HttpTimeout };
-            var payload = new { hardware_fingerprint = fingerprint, client_version = ClientVersion };
+            var payload = new { hardware_fingerprint = fingerprint, client_version = ClientVersion, unit_mappers_version = UnitMappersVersion };
             using var resp = await http.PostAsJsonAsync($"{baseUrl}/api/v1/clients/register", payload);
             if (!resp.IsSuccessStatusCode)
             {
@@ -305,6 +333,69 @@ namespace CrusaderWars.client
                 return;
             }
             Program.Logger.Debug($"Telemetry: submit {kind}-units gave up after retries.");
+        }
+
+        /// <summary>
+        /// Fetches known-good Attila unit keys from the telemetry backend via
+        /// GET /api/v1/telemetry/good-units (bearer-token auth). Fire-and-forget
+        /// safe: returns an empty list on any failure and never throws.
+        /// </summary>
+        public static async Task<List<string>> GetGoodUnitsAsync()
+        {
+            if (!ModOptions.GetSendAnonymousTelemetry())
+            {
+                Program.Logger.Debug("Telemetry: good-units fetch skipped (anonymous telemetry disabled).");
+                return new List<string>();
+            }
+
+            try
+            {
+                string baseUrl = BaseUrl;
+
+                LoadCredentials();
+                if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken))
+                {
+                    await RegisterAsync();
+                    if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken)) return new List<string>();
+                }
+
+                var query = new List<string> { $"playthrough_tag={Uri.EscapeDataString(GetPlaythroughTag())}" };
+                if (int.TryParse(UnitMappers_BETA.MapperStartDate, out int startYear)) query.Add($"start_year={startYear}");
+                if (int.TryParse(UnitMappers_BETA.MapperEndDate, out int endYear)) query.Add($"end_year={endYear}");
+
+                using var http = new HttpClient { Timeout = HttpTimeout };
+                http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                if (!string.IsNullOrEmpty(_fingerprint))
+                    http.DefaultRequestHeaders.Add("X-HW-Fingerprint", _fingerprint);
+                http.DefaultRequestHeaders.Add("Unit-Mappers-Version", UnitMappersVersion);
+
+                string requestUrl = $"{baseUrl}/api/v1/telemetry/good-units?{string.Join("&", query)}";
+                Program.Logger.Debug($"Telemetry: GET {requestUrl}.");
+                using var resp = await http.GetAsync(requestUrl);
+                if (!resp.IsSuccessStatusCode)
+                {
+                    Program.Logger.Debug($"Telemetry: good-units fetch returned {(int)resp.StatusCode}.");
+                    return new List<string>();
+                }
+
+                using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
+                var unitKeys = new List<string>();
+                if (doc.RootElement.TryGetProperty("unit_keys", out var keysElement) && keysElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var key in keysElement.EnumerateArray())
+                    {
+                        string? unitKey = key.GetString();
+                        if (!string.IsNullOrEmpty(unitKey)) unitKeys.Add(unitKey);
+                    }
+                }
+                Program.Logger.Debug($"Telemetry: fetched {unitKeys.Count} good unit keys.");
+                return unitKeys;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Telemetry: good-units fetch failed: {ex.Message}");
+                return new List<string>();
+            }
         }
 
         // ------------------------------------------------------------------
