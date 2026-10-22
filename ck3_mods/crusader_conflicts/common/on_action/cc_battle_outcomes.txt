@@ -55,7 +55,13 @@ cc_battle_outcome_loser = {
 
 # Root = the character who died. Only fires for deaths in battle.
 cc_battle_death_outcome = {
+	# NOTE: on_death also fires for characters who survive (second-chance perks
+	# like know_thyself, event survival rolls, raid/courtier events). The
+	# death_reason trigger errors on living characters, so the is_alive guard
+	# MUST come first - same pattern as vanilla accolade_on_actions.txt, which
+	# prefixes every death_reason check with is_alive = no.
 	trigger = {
+		is_alive = no
 		death_reason = death_battle
 	}
 	effect = {
