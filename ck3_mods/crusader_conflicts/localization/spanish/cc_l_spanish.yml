@@ -1,76 +1,76 @@
 ﻿l_spanish:
 	#
 	### Event/Alert Window button texts ###
-	ccalert.1.title: "Crusader Conflicts Notification|"Quality of Life" Pre-Beta|March 2024"
-	ccalert.1.desc: "#high The mod updated to v0.9.11 "Qaulity of Life!", update your Crusader Conflicts Launcher now if you haven't, to avoid bugs.\n\nThe Crusader Conflicts launcher is #high separate #! from the Steam Workshop CK3 mod. Steam will automatically update the CK3 mod file, but Steam does #high NOT #! automatically update the CrusaderConflicts.exe launcher. You need to open CK3 atleast once and then go the the CC Launcher and update, if you don't open it, the launcher will not detect any update!.\n\n#X If you do not download the updated launcher your Attila battles will crash. You have been warned."
- 	ccalert.1.a: "I will update Crusader Conflicts Launcher now!"
+	ccalert.1.title: "Notificación de conflictos de cruzados|Pre-Beta de "Calidad de vida"|Marzo 2024"
+ccalert.1.desc: "#high El mod se actualizó a v0.9.11 "¡Calidad de vida!", actualiza tu Crusader Conflicts Launcher ahora si aún no lo has hecho, para evitar errores.\n\nEl lanzador de Crusader Conflicts es #high separado #! del mod de CK3 de Steam Workshop. Steam actualizará automáticamente el archivo del mod de CK3, pero Steam #high NO #! actualiza automáticamente el lanzador CrusaderConflicts.exe. Debes abrir CK3 al menos una vez y luego ir al CC Launcher y actualizar; si no lo abres, el lanzador no detectará ninguna actualización.\n\n#X Si no descargas el lanzador actualizado, tus batallas de Attila fallarán. Has sido advertido."
+ 	ccalert.1.a: "¡Actualizaré Crusader Conflicts Launcher ahora!"
 	#
 	#
 	### Battle Window button texts ###
-	cc_bw_fight_button: "Fight the battle yourself!"
-	cc_bw_fight_button_disabled: "This character may not control battles.\nSee Mod Options: Preferences"
-	cc_bw_options_button: "Crusader Conflicts Mod Options"
-	cc_bw_wait_button: "Wait just a few more days to fight the battle..."
+	cc_bw_fight_button: "¡Pelea la batalla tú mismo!"
+	cc_bw_fight_button_disabled: "Este personaje no puede controlar las batallas.\nVer Opciones de Mod: Preferencias"
+	cc_bw_options_button: "Opciones de modificación de Crusader Conflicts"
+	cc_bw_wait_button: "Espera unos días más para librar la batalla..."
 	#
 	#
 	### Mod Option Window texts ###
-	cc_op_window_title: "#high Crusader Conflicts Mod Options"
-	cc_op_tab1_title: "#clickable About Mod"
-	cc_op_tab2_title: "#clickable Battle Scale"
-	cc_op_tab3_title: "#clickable Unit Size"
-	cc_op_tab4_title: "#clickable Preferences"
-	cc_op_tab5_title: "#clickable CK3 to Attila Units"
+	cc_op_window_title: "#high Opciones de modificación de Crusader Conflicts"
+	cc_op_tab1_title: "#clickable Acerca de Mod"
+	cc_op_tab2_title: "#clickable Escala de batalla"
+	cc_op_tab3_title: "#clickable Tamaño de la unidad"
+	cc_op_tab4_title: "#clickable Preferencias"
+	cc_op_tab5_title: "#clickable CK3 a las unidades de Atila"
 	#
 	### About Mod tab texts ###
-	cc_op_tab1_desc: "Crusader Conflicts Mod Options currently only available in #high English#! localization."
-	cc_op_page1_desc: "#clickable Mod Details"
-	cc_op_about_head: "About Mod"
-	cc_op_about_hsub: "How It Works:\n\n\n\n#i Required:#!\n\n\n\n#i #high Unit Mappers:#! #!\n\n\n#X Not Supported:#!"
-	cc_op_about_desc: "#high Crusader Conflicts#! reads in details about the battle you #high Crusader Kings 3#! character is involved in and converts that into a #high Total War: Attila battle#! that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the #clickable Troop By Culture#! tabs.\n\n#i Crusader Conflicts mod standalone application\nSteam Versions of Crusader Kings 3, Total War: Attila, Attila DLC - Age of Charlemagne#!\n\n#i #high This is how the mod knows which units to use on Attila. Each one has required mods/DLC's, that you need to enable when the unit mapper is loaded. The structure of them is basically assigning cultures and heritages names to a group of units of the mods/dlc's.#!\n\n#X 1212 AD Scripts module - do not subscribe to this particular part of the 1212 AD mod\nCultural Armies Pack - CK3 mod#!"
-	cc_op_help_head: "Help & Community"
-	cc_op_help_hsub: "Help FAQ:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHave Questions? Need Help?"
-	cc_op_help_desc: "#high Attila battles run poorly/lags!#! - Lower your graphics options in Attila, lower the #clickable Battle Scale#! options. Battles above 20k/40k will stutter.\n#high Attila battles unit numbers don't match #clickable Unit Size #!options!#! - Review Attila graphics option for UNIT SIZE is set to ULTRA. Lower than ULTRA will result in smaller units.\n#high Attila crashes when trying to load!#! - You either didn't enabled the correct mods for the loaded unit mapper, or, the loaded unit mapper has a unit key incorrect, that it's present on the battle.\n#high Clicking the Play Battle Button does nothing!#! - Review that Crusader Conflicts Launcher is up and running, by clicking the center flag icon.\n#high Why can't I control some battles!#! - You have to go to #clickable Preferences#! , and choose the desired characters that can fight. This is the only option that you need to set after every battle and when ck3 starts.\n#high Inaccurate battle results!#! - After you win a battle, there is no point of running down troops, their casualities will not count.\n#high I can't find CrusaderConflicts.pack!#! - CrusaderConflicts.pack gets remade every battle, you don't need to subscribe to anything, it should be a the bottom of your mod list.\n#high After battle loading is too slow!#! - For this we recommend to delete CrusaderWars_Battle save from time to time.\n#high Attila units are not from my culture!#! - The culture of the units is based on the commander culture, so if you have a commander that is not from your culture, the units will be of his culture.\n\n#high Discord - https://discord.gg/eFZTprHh3j"
-	cc_op_thank_head: "Acknowledgements"
-	cc_op_thank_hsub: "From the Crusader Conflicts Devs.."
-	cc_op_thank_desc: "We congrats every ck3 and total war modder, for giving us the opportunity to use their mods with ours and having absolute historically accurate units! We are changing the modding industry for the better! We also want to thanks the community and our patreon supporters, thank you for believing in our project, we love you so much!."
+	cc_op_tab1_desc: "Las opciones de modificación de Crusader Conflicts actualmente solo están disponibles en #high Inglés#! localización."
+	cc_op_page1_desc: "#clickable Detalles de la modificación"
+	cc_op_about_head: "Acerca de Mod"
+	cc_op_about_hsub: "Cómo funciona:\n\n\n\n#i Requerido:#!\n\n\n\n#i #high Mapeadores de unidades:#! #!\n\n\n#X No compatible:#!"
+	cc_op_about_desc: "#high Conflictos cruzados#! lee en detalle sobre la batalla que #high Reyes cruzados 3#! El personaje está involucrado y lo convierte en un #high Total War: Batalla de Atila#! que puedes controlar directamente. Los levas, hombres de armas y caballeros se convierten en unidades equivalentes en Total War: Attila. Para obtener información detallada sobre cómo se convierten las unidades, consulte la #clickable Tropa por cultura#! cortina a la italiana.\n\n#i Aplicación independiente mod Crusader Conflicts\nVersiones Steam de Crusader Kings 3, Total War: Attila, Atila DLC - Era de Carlomagno#!\n\n#i #high Así es como el mod sabe qué unidades usar en Atila. Cada uno tiene modificaciones/DLC requeridos, que debes habilitar cuando se carga el asignador de unidades. La estructura de los mismos es básicamente asignar nombres de culturas y herencias a un grupo de unidades de los mods/dlc.#!\n\n#X 1212 Módulo AD Scripts: no se suscriba a esta parte particular del 1212 mod AD\nPaquete de ejércitos culturales - CK3 modo#!"
+	cc_op_help_head: "Ayuda y comunidad"
+	cc_op_help_hsub: "Preguntas frecuentes sobre ayuda:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n¿Tiene preguntas? ¿Necesitar ayuda?"
+	cc_op_help_desc: "#high ¡Las batallas de Atila funcionan mal/se retrasan!#! - Baja tus opciones de gráficos en Atila, baja el #clickable Escala de batalla#! opciones. Batallas arriba 20k/40k tartamudeará.\n#high Los números de unidades de batalla de Atila no coinciden #clickable Tamaño de la unidad #!opciones!#! - Revise que la opción de gráficos de Attila para TAMAÑO DE UNIDAD esté configurada en ULTRA. Un valor inferior a ULTRA dará como resultado unidades más pequeñas.\n#high ¡Atila se bloquea al intentar cargar!#! - O no habilitaste las modificaciones correctas para el mapeador de unidades cargado, o el mapeador de unidades cargado tiene una clave de unidad incorrecta que está presente en la batalla.\n#high ¡Hacer clic en el botón Jugar batalla no hace nada!#! - Comprueba que Crusader Conflicts Launcher esté en funcionamiento haciendo clic en el icono de la bandera central.\n#high ¿Por qué no puedo controlar algunas batallas?#! - Tienes que ir a #clickable Preferencias#! y elige los personajes deseados que puedan luchar. Esta es la única opción que debes configurar después de cada batalla y cuando ck3 comienza.\n#high ¡Resultados de batalla inexactos!#! - Después de ganar una batalla, no tiene sentido agotar tropas, sus bajas no contarán.\n#high ¡No puedo encontrar CrusaderConflicts.pack!#! - CrusaderConflicts.pack se rehace en cada batalla, no necesitas suscribirte a nada, debe estar al final de tu lista de mods.\n#high ¡Después de la batalla la carga es demasiado lenta!#! - Para ello recomendamos eliminar el guardado de CrusaderWars_Battle de vez en cuando.\n#high ¡Las unidades de Atila no son de mi cultura!#! - La cultura de las unidades se basa en la cultura del comandante, por lo que si tienes un comandante que no es de tu cultura, las unidades serán de su cultura.\n\n#high discordia - https://discord.gg/eFZTprHh3j"
+	cc_op_thank_head: "Expresiones de gratitud"
+	cc_op_thank_hsub: "De los desarrolladores de Crusader Conflicts."
+	cc_op_thank_desc: "Felicitamos a todos los ck.3 y total war modder, por darnos la oportunidad de usar sus mods con los nuestros y tener unidades históricamente precisas. ¡Estamos mejorando la industria del modding! También queremos agradecer a la comunidad y a nuestros seguidores de patreon, gracias por creer en nuestro proyecto, ¡os queremos mucho!."
 	#
 	### Troops by Culture conversions for both default attila and with 1212 AD HEADERS ### 
-	cc_op_page2_desc: "#clickable Troops by Culture (Default)"
-	cc_op_page3_desc: "#clickable Troops by Culture with 1212 AD (Optional)"
+	cc_op_page2_desc: "#clickable Tropas por cultura (predeterminado)"
+	cc_op_page3_desc: "#clickable Tropas por cultura con 1212 Anuncio (opcional)"
 	#
 	### Battle Scale tab texts ###
-	cc_op_tab2_desc: "Adjustments for overall [battle|E] size, used to manage performance vs scope of manual battles.\n\n#high Only impacts manual battles controlled in Total War: Attila. No impact to normal Crusader Kings 3 battles.#!"
-	cc_op_scale_head: "Overall Battle Size Scale"
-	cc_op_scale_desc: "Overall scaling of Crusader Kings 3 [army|E] totals to Total War: Attila battles. Used to help increase performance on lower end machines for the manual battles.\n\nWhen set to 50% this option will convert a Crusader Kings 3 battle with a total of 40,000 [soldiers|E] into a Total War: Attila battle of 20,000. All unit types will be scaled equally.\n\n#high Default value is 100% #!\n#i Decrease to improve battle performance#!"
-	cc_op_automax_head: "Auto Scale Beyond Maximum Battle Limit"
-	cc_op_automax_desc: "When enabled, a [battle|E] that exceeds the #high Maximum Battle Limit#! of [soldiers|E] will be automatically scaled down to the limit set in #high Maximum Battle Limit#!. Used to help manage massive, large, end game battles that would crash Total War: Attila.\n\n#high Default value is Enabled #!\n#X Disabling this option may cause crashes"
-	cc_op_max_head: "Maximum Battle Limit"
-	cc_op_max_desc: "When Auto Scale is Enabled - a [battle|E] that exceed this amount of [soldiers|E] will be scaled down to this limit. Used to help manage large, end game battles.\n\nWhen set to 20,000 this option will convert a Crusader Kings 3 battle with 40,000 [soldiers|E] down to a Total War: Attila battle of 20,000 soldiers. All unit types will be scaled equally.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 40,000#!\n#i Decrease to improve battle performance#!"
+	cc_op_tab2_desc: "Ajustes para el general [battle|E] tamaño, utilizado para gestionar el rendimiento frente al alcance de las batallas manuales.\n\n#high Sólo afecta a las batallas manuales controladas en Total War: Attila. Sin impacto para los Reyes Cruzados normales. 3 batallas.#!"
+	cc_op_scale_head: "Escala de tamaño general de la batalla"
+	cc_op_scale_desc: "Escalado general de Crusader Kings 3 [army|E] totales de batallas de Total War: Attila. Se utiliza para ayudar a aumentar el rendimiento en máquinas de gama baja para las batallas manuales.\n\nCuando se establece en 50% esta opción convertirá a Crusader Kings 3 batalla con un total de 40,000 [soldiers|E] en una Guerra Total: Atila batalla de 20,000. Todos los tipos de unidades se escalarán por igual.\n\n#high El valor predeterminado es 100% #!\n#i Disminuir para mejorar el rendimiento en batalla.#!"
+	cc_op_automax_head: "Escala automática más allá del límite máximo de batalla"
+	cc_op_automax_desc: "Cuando está habilitado, un [battle|E] que excede el #high Límite máximo de batalla#! de [soldiers|E] se reducirá automáticamente hasta el límite establecido en #high Límite máximo de batalla#!. Se utiliza para ayudar a gestionar batallas masivas y grandes al final del juego que colapsarían Total War: Attila.\n\n#high El valor predeterminado está habilitado #!\n#X Deshabilitar esta opción puede causar fallas"
+	cc_op_max_head: "Límite máximo de batalla"
+	cc_op_max_desc: "Cuando la escala automática está habilitada: [battle|E] que excedan esta cantidad de [soldiers|E] se reducirá hasta este límite. Se utiliza para ayudar a gestionar grandes batallas finales.\n\nCuando se establece en 20,000 esta opción convertirá a Crusader Kings 3 batalla con 40,000 [soldiers|E] hasta una batalla de Total War: Atila de 20,000 soldados. Todos los tipos de unidades se escalarán por igual.\n\N#high Total War: Attila debe configurarse en tamaño de unidad ULTRA para que las batallas utilicen este valor exacto.#! Si el tamaño de la unidad se establece por debajo de ULTRA, tu número de hombres por unidad puede reducirse en la batalla.\n\n#high El valor predeterminado es 40,000#!\n#i Disminuir para mejorar el rendimiento en batalla.#!"
 	#
 	### Unit Size tab texts ###
-	cc_op_tab3_desc: "In Crusader Conflicts battles all [soldiers|E] from participating armies are represented by individual units that can be controlled. The following [regiments|E] types can have their unit size adjusted.\n\n#high Non default options will effect battle balance, which may make battles easier or more difficult."
-	cc_op_unit1_head: "Levies Unit Size"
-	cc_op_unit1_desc: "[levies|E] are represented in battle by a mixture of units. In Crusader Conflicts battles most cultures will field their levies as 65% light spear units, 10% light ranged units, and 25% medium infantry units. Certain cultures have differences.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 200 #!"
-	cc_op_unit2_head: "Melee Men-at-Arms Unit Size"
-	cc_op_unit2_desc: "Melee [men_at_arms|E] regiments are soldiers with improved armor, weapons and training compared to levies. These troops are represented by units that fight using melee weapons such as swords, axes, spears or pikes.\n\n[regiment|E] types of [spearmen|E], [skirmishers|E], and [heavy_infantry|E] use this unit size in battle.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 200 #!"
-	cc_op_unit3_head: "Ranged Men-at-Arms Unit Size"
-	cc_op_unit3_desc: "Ranged [men_at_arms|E] regiments are soldiers with improved armor, weapons and training compared to levies. These troops are represented by units that fight using ranged weapons such as bows, crossbows, slings, or javelins.\n\n[regiment|E] types of [archers|E] use this unit size in battle.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 200 #!"
-	cc_op_unit4_head: "Cavalry Men-at-Arms Unit Size"
-	cc_op_unit4_desc: "Cavalry [men_at_arms|E] regiments are soldiers with mounts such as horses or camels, improved armor, weapons and training compared to levies. These troops are represented by units that fight from mounts using both ranged and melee weapons.\n\n[regiment|E] types of [light_cavalry|E] and [heavy_cavalry|E] use this unit size in battle.\n\n#high Default value is 100 #!"
-	cc_op_unit5_head: "loc_Siege Men-at-Arms Unit Size"
-	cc_op_unit5_desc: "loc_Description about how siege weapons are split. may not ever need this\n\n#high Default value is 100 #!"
+	cc_op_tab3_desc: "En Crusader Conflicts, todas las batallas [soldiers|E] Los ejércitos participantes están representados por unidades individuales que pueden ser controladas. La siguiente [regiments|E] Los tipos pueden ajustar el tamaño de su unidad.\n\n#high Las opciones no predeterminadas afectarán el equilibrio de la batalla, lo que puede hacer que las batallas sean más fáciles o más difíciles."
+	cc_op_unit1_head: "Tamaño de la unidad de impuestos"
+	cc_op_unit1_desc: "[levies|E] están representados en batalla por una mezcla de unidades. En las batallas de los Conflictos Cruzados, la mayoría de las culturas desplegarán sus levas como 65% unidades de lanza ligera, 10% de unidades de alcance ligero, y 25% unidades de infantería media. Ciertas culturas tienen diferencias.\n\N#high Total War: Attila debe configurarse en tamaño de unidad ULTRA para que las batallas utilicen este valor exacto.#! Si el tamaño de la unidad se establece por debajo de ULTRA, tu número de hombres por unidad puede reducirse en la batalla.\n\n#high El valor predeterminado es 200 #!"
+	cc_op_unit2_head: "Tamaño de la unidad de hombres de armas cuerpo a cuerpo"
+	cc_op_unit2_desc: "Pelea confusa [men_at_arms|E] Los regimientos son soldados con armaduras, armas y entrenamiento mejorados en comparación con los reclutas. Estas tropas están representadas por unidades que luchan utilizando armas cuerpo a cuerpo como espadas, hachas, lanzas o picas.\n\n[regiment|E] tipos de [spearmen|E], [skirmishers|E], y [heavy_infantry|E] Usa este tamaño de unidad en la batalla.\n\N#high Total War: Attila debe configurarse en tamaño de unidad ULTRA para que las batallas utilicen este valor exacto.#! Si el tamaño de la unidad se establece por debajo de ULTRA, tu número de hombres por unidad puede reducirse en la batalla.\n\n#high El valor predeterminado es 200 #!"
+	cc_op_unit3_head: "Tamaño de la unidad de hombres de armas a distancia"
+	cc_op_unit3_desc: "a distancia [men_at_arms|E] Los regimientos son soldados con armaduras, armas y entrenamiento mejorados en comparación con los reclutas. Estas tropas están representadas por unidades que luchan utilizando armas a distancia como arcos, ballestas, hondas o jabalinas.\n\n[regiment|E] tipos de [archers|E] Usa este tamaño de unidad en la batalla.\n\N#high Total War: Attila debe configurarse en tamaño de unidad ULTRA para que las batallas utilicen este valor exacto.#! Si el tamaño de la unidad se establece por debajo de ULTRA, tu número de hombres por unidad puede reducirse en la batalla.\n\n#high El valor predeterminado es 200 #!"
+	cc_op_unit4_head: "Tamaño de la unidad de hombres de armas de caballería"
+	cc_op_unit4_desc: "Caballería [men_at_arms|E] Los regimientos son soldados con monturas como caballos o camellos, armaduras, armas y entrenamiento mejorados en comparación con las levas. Estas tropas están representadas por unidades que luchan desde monturas usando armas a distancia y cuerpo a cuerpo.\n\n[regiment|E] tipos de [light_cavalry|E] y [heavy_cavalry|E] Usa este tamaño de unidad en la batalla.\n\n#high El valor predeterminado es 100 #!"
+	cc_op_unit5_head: "loc_Siege Tamaño de unidad de hombres de armas"
+	cc_op_unit5_desc: "loc_Descripción sobre cómo se dividen las armas de asedio. Puede que nunca necesites esto\n\n#high El valor predeterminado es 100 #!"
 	#
 	### Prefs & Battle Rules tab texts ###
-	cc_op_tab4_desc: "Specific options to allow for different types of Army Commanders to assume direct control in Atilla\n\n#high Default values are highly recommended for first time users of the mod. #!"
-	cc_op_control1_head: "Direct Battle Control"
-	cc_op_control1_desc: "The [commander|E] determines which battles may be directly controlled in Attila.\n\nPlayer Character Only offers a balance of risk vs reward and fits with the vanilla CK3 roleplay experience.\nPlayer & Marshal will also allow your [marshal|E] to assume direct battle control.\nAll Dynasty will allow any member of your [dynasty|E] to assume direct battle control.\nAll Characters will allow any character you name as [commander|E] to assume direct battle control.\n\n#high Default value is Player Character Only #!\n\n#X Non default options will greatly reduce the difficulty of your Crusader Kings 3 campaign"
-	cc_op_unitnames_head: "Direct Battle Unit Names"
-	cc_op_unitnames_desc: "Do you want unit names to be crazy or standardized like the CK3 generalize Men at arms names?\n\n#high Default value is Flavorful Unit Names #!\n\n#X Use Flavorful Unit Names if you are using a CK3 overhaul such as AGOT, or a mod that adjusts the Men At Arms names in Crusader Kings 3"
+	cc_op_tab4_desc: "Opciones específicas para permitir que diferentes tipos de comandantes del ejército asuman el control directo en Atila\n\n#high Los valores predeterminados son muy recomendables para los usuarios primerizos del mod. #!"
+	cc_op_control1_head: "Control de batalla directo"
+	cc_op_control1_desc: "El [commander|E] determina qué batallas pueden controlarse directamente en Atila.\n\nSolo el personaje del jugador ofrece un equilibrio entre riesgo y recompensa y encaja con el CK básico.3 experiencia de juego de roles.\nPlayer & Marshal también permitirá que tu [marshal|E] asumir el control directo de la batalla.\nAll Dynasty permitirá que cualquier miembro de tu [dynasty|E] asumir el control directo de la batalla.\nTodos los personajes permitirá que cualquier personaje que nombre como [commander|E] asumir el control directo de la batalla.\n\n#high El valor predeterminado es solo personaje del jugador. #!\n\n#X Las opciones no predeterminadas reducirán en gran medida la dificultad de tus Crusader Kings. 3 campaña"
+	cc_op_unitnames_head: "Nombres de unidades de batalla directa"
+	cc_op_unitnames_desc: "¿Quieres que los nombres de las unidades sean locos o estandarizados como el CK?3 ¿Generalizar los nombres de Hombres de armas?\n\n#high El valor predeterminado es Nombres de unidades sabrosos #!\n\n#X Utilice nombres de unidades sabrosos si está utilizando un CK3 revisión como AGOT, o un mod que ajusta los nombres de Men At Arms en Crusader Kings 3"
 	
 	#
 	### Troops by Culture conversions for both default attila and with 1212 AD DETAILED ### 
-	cc_op_def1: "#Details here for Default Units"
-	cc_op_def2: "Details here for 1212 AD Units"
+	cc_op_def1: "#Details aquí para unidades predeterminadas"
+	cc_op_def2: "Detalles aquí para 1212 Unidades AD"
 
 	#Extracting Data
 	player_id: "[GetPlayer.MakeScope.Var('left_side_commander').Char.GetID]"
@@ -89,18 +89,18 @@
 	player_knight_effectiveness: "[GetPlayer.MakeScope.Var('left_side_warleader').Char.GetKnightEffectivenessBreakdown]"
     global_date_year: "[GetCurrentDate.GetYear]"
     global_date_month: "[GetCurrentDate.GetMonthOfYear]"
-	global_culture_ids_var:"[GetPlayer.MakeScope.Var('id_var').Char.GetCulture.GetID]"
+	global_culture_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetCulture.GetID]"
 	global_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetID]"
 
 	#
 	### Unit Mapping ### 
-	cc_op_tab5_desc: "details about unit mapping, both default and CK3 mod compatibility ".
-	cc_op_tab5_default: "#clickable Troops by Culture (Defaults)"
-	cc_op_tab5_compatmods: "#clickable Troops by Culture (Compatible Mods)"
-	cc_op_tab5_custom: "#clickable Troops by Culture (Customize)"
-	cc_op_about_hsub_um: "How It Works:\n\n\n\n#i Required:#!\n\n\n\n#i #high Optional:#! #!\n\n#X Not Supported:#!"
-	cc_op_about_desc_um: "#high Crusader Conflicts#! reads in details about the battle you #high Crusader Kings 3#! character is involved in and converts that into a #high Total War: Attila battle#! that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the #clickable Troop By Culture#! tabs.\n\n#i Steam Versions of Crusader Kings 3, Total War: Attila, Attila DLC - Age of Charlemagne\nSubscribed to Crusader Conflicts mod for BOTH Crusader Kings 3 AND Total War: Attila\nCrusader Conflicts mod standalone application #!\n\n#i #high Total War: Attila mod - 1212 AD (model packs 1-8)#! #!- for additional cultural units#!\n\n#X 1212 AD Scripts module - do not subscribe to this particular part of the 1212 AD mod#!"
-	cc_op_help_hsub_um: "Help FAQ:\n\n\n\n\n\n\nHave Questions? Need Help?"
-	cc_op_help_desc_um: "#high Attila battles run poorly/lags!#! - Lower your graphics options in Attila, lower the #clickable Battle Scale#! options. Also make sure that Crusader Kings 3 is being completely suspended in the background.\n#high Attila battles unit numbers don't match #clickable Unit Size #!options!#! - Review Attila graphics option for UNIT SIZE is set to ULTRA. Lower than ULTRA will result in smaller units.\n#high Attila crashes when trying to load!#! - Review that you are NOT using the 1212 AD Scripts mod.\n#high Clicking the Play Battle Button does nothing!#! - Review that you are launching CK3 via the CrusaderConflicts.exe clicking the center flag icon, do not manually launch CK3 from Steam.\n#high Why can't I control some battles!#! - Manual battles are only available when the player character is personally commanding the army.\n\n#high Discord - #! https://discord.gg/eFZTprHh3j"
-	cc_op_thank_hsub_um: "1212 AD Mod Team"
-	cc_op_thank_desc_um: "For making an insanely expansive medieval mod for Attila so we can use more relevant units!"
+	cc_op_tab5_desc: "detalles sobre el mapeo de unidades, tanto predeterminado como CK3 compatibilidad de mods ".
+	cc_op_tab5_default: "#clickable Tropas por cultura (valores predeterminados)"
+	cc_op_tab5_compatmods: "#clickable Tropas por cultura (Mods compatibles)"
+	cc_op_tab5_custom: "#clickable Tropas por cultura (Personalizar)"
+	cc_op_about_hsub_um: "Cómo funciona:\n\n\n\n#i Requerido:#!\n\n\n\n#i #high Opcional:#! #!\n\n#X No compatible:#!"
+	cc_op_about_desc_um: "#high Conflictos cruzados#! lee en detalle sobre la batalla que #high Reyes cruzados 3#! El personaje está involucrado y lo convierte en un #high Total War: Batalla de Atila#! que puedes controlar directamente. Los levas, hombres de armas y caballeros se convierten en unidades equivalentes en Total War: Attila. Para obtener información detallada sobre cómo se convierten las unidades, consulte la #clickable Tropa por cultura#! cortina a la italiana.\n\n#i Versiones Steam de Crusader Kings 3, Total War: Attila, Atila DLC - Era de Carlomagno\nSuscrito al mod Crusader Conflicts para AMBOS Crusader Kings 3 Y Guerra Total: Atila\nAplicación independiente mod Crusader Conflicts #!\n\n#i #high Total War: Atila mod - 1212 AD (paquetes de modelos 1-8)#! #!- para unidades culturales adicionales#!\n\n#X 1212 Módulo AD Scripts: no se suscriba a esta parte particular del 1212 mod AD#!"
+	cc_op_help_hsub_um: "Preguntas frecuentes sobre ayuda:\n\n\n\n\n\n\n¿Tiene preguntas? ¿Necesitar ayuda?"
+	cc_op_help_desc_um: "#high ¡Las batallas de Atila funcionan mal/se retrasan!#! - Baja tus opciones de gráficos en Atila, baja el #clickable Escala de batalla#! opciones. También asegúrese de que Crusader Kings 3 está completamente suspendido en el fondo.\n#high Los números de unidades de batalla de Atila no coinciden #clickable Tamaño de la unidad #!opciones!#! - Revise que la opción de gráficos de Attila para TAMAÑO DE UNIDAD esté configurada en ULTRA. Un valor inferior a ULTRA dará como resultado unidades más pequeñas.\n#high ¡Atila se bloquea al intentar cargar!#! - Revisa que NO estés utilizando el 1212 Mod de secuencias de comandos AD.\n#high ¡Hacer clic en el botón Jugar batalla no hace nada!#! - Revisa que estás lanzando CK3 a través de CrusaderConflicts.exe haciendo clic en el ícono de la bandera central, no inicie CK manualmente3 de vapor.\n#high ¿Por qué no puedo controlar algunas batallas?#! - Las batallas manuales solo están disponibles cuando el personaje del jugador comanda personalmente el ejército.\n\n#high discordia - #! https://discord.gg/eFZTprHh3j"
+	cc_op_thank_hsub_um: "1212 Equipo de modificación AD"
+	cc_op_thank_desc_um: "¡Por hacer un mod medieval increíblemente expansivo para Atila para que podamos usar unidades más relevantes!"
