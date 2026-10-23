@@ -26,6 +26,8 @@ namespace CrusaderWars.client
         private string _lastAvailableSearch = "";
         private readonly Color _searchHighlightColor = Color.Yellow;
         private bool _programmaticSelect = false;
+        private HashSet<string> _badUnitKeys = new HashSet<string>(StringComparer.Ordinal);
+        private const string BuggyMarker = " [BUGGY UNIT?]";
 
         public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements, Dictionary<string, string> unitScreenNames)
         {
@@ -57,13 +59,22 @@ namespace CrusaderWars.client
         }
 
         [SupportedOSPlatform("windows")]
-        private void UnitReplacerForm_Load(object sender, EventArgs e)
+        private async void UnitReplacerForm_Load(object sender, EventArgs e)
         {
             PopulateCurrentUnitsTree();
             PopulateAvailableUnitsTree();
             // After populating, update visuals to show any existing replacements
             UpdateCurrentUnitsTreeVisuals();
             UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
+
+            // Fire-and-forget: fetch known-bad unit keys and mark them. Never blocks the tool.
+            var badKeys = await TelemetryClient.GetBadUnitsAsync();
+            if (IsDisposed) return;
+            _badUnitKeys = new HashSet<string>(badKeys, StringComparer.Ordinal);
+            if (_badUnitKeys.Any())
+            {
+                UpdateCurrentUnitsTreeVisuals();
+            }
         }
 
         private void PopulateCurrentUnitsTree()
@@ -107,6 +118,7 @@ namespace CrusaderWars.client
                         var regimentType = unitGroup.Key.RegimentType;
 
                         string attilaKeyDisplay = "";
+                        string nodeAttilaKey = "";
                         if (regimentType == RegimentType.MenAtArms || regimentType == RegimentType.Commander || regimentType == RegimentType.Knight)
                         {
                             string originalAttilaKey = unitGroup.First().GetAttilaUnitKey();
@@ -114,6 +126,7 @@ namespace CrusaderWars.client
                             bool isReplaced = Replacements.TryGetValue((originalAttilaKey, unitGroup.First().IsPlayer()), out replacementInfo);
 
                             string keyToDisplay = isReplaced ? replacementInfo.replacementKey : originalAttilaKey;
+                            nodeAttilaKey = keyToDisplay;
 
                             if (!string.IsNullOrEmpty(keyToDisplay) && keyToDisplay != UnitMappers_BETA.NOT_FOUND_KEY)
                             {
@@ -148,7 +161,7 @@ namespace CrusaderWars.client
 
                         var groupNode = new TreeNode(displayName)
                         {
-                            Tag = new { TypeIdentifier = nameToShow, RegimentType = regimentType, IsSplitLevyNode = false }
+                            Tag = new { TypeIdentifier = nameToShow, RegimentType = regimentType, IsSplitLevyNode = false, AttilaKey = nodeAttilaKey }
                         };
                         factionNode.Nodes.Add(groupNode);
                     }
@@ -203,7 +216,7 @@ namespace CrusaderWars.client
                                     string displayName = $"Levy: [{screenNameDisplay}] [{levyKey}] ({kvp.Value} men)";
                                     var levyNode = new TreeNode(displayName)
                                     {
-                                        Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true }
+                                        Tag = new { RegimentType = RegimentType.Levy, TypeIdentifier = levyKey, IsSplitLevyNode = true, AttilaKey = levyKey }
                                     };
                                     factionNode.Nodes.Add(levyNode);
                                 }
@@ -265,7 +278,7 @@ namespace CrusaderWars.client
                                 string displayName = $"Garrison: [{screenNameDisplay}] [{garrisonKey}] ({kvp.Value} men)";
                                 var garrisonNode = new TreeNode(displayName)
                                 {
-                                    Tag = new { RegimentType = RegimentType.Garrison, TypeIdentifier = garrisonKey, IsSplitLevyNode = true } // Re-using IsSplitLevyNode for similar behavior
+                                    Tag = new { RegimentType = RegimentType.Garrison, TypeIdentifier = garrisonKey, IsSplitLevyNode = true, AttilaKey = garrisonKey } // Re-using IsSplitLevyNode for similar behavior
                                 };
                                 factionNode.Nodes.Add(garrisonNode);
                             }
@@ -339,6 +352,11 @@ namespace CrusaderWars.client
                         {
                             Tag = unit.AttilaUnitKey // Store the key
                         };
+                        if (_badUnitKeys.Contains(unit.AttilaUnitKey))
+                        {
+                            unitNode.Text += BuggyMarker;
+                            unitNode.ForeColor = Color.Red;
+                        }
                         typeNode.Nodes.Add(unitNode);
                     }
                 }
@@ -447,10 +465,13 @@ namespace CrusaderWars.client
                         dynamic tag = nodeTag;
                         RegimentType regimentType = tag.RegimentType;
                         string typeIdentifier = tag.TypeIdentifier;
+                        string nodeAttilaKey = tag.AttilaKey;
                         bool nodeIsPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
                         string faction = node.Parent?.Text ?? ""; // Get faction from parent node
                         bool isSplitLevyNode = tag.GetType().GetProperty("IsSplitLevyNode") != null && tag.IsSplitLevyNode;
 
+                        int markerIndex = node.Text.IndexOf(BuggyMarker, StringComparison.Ordinal);
+                        if (markerIndex > 0) node.Text = node.Text.Substring(0, markerIndex);
                         int arrowIndex = node.Text.IndexOf(" ->");
                         if (arrowIndex > 0) node.Text = node.Text.Substring(0, arrowIndex);
                         node.ForeColor = tvCurrentUnits.ForeColor;
@@ -494,7 +515,15 @@ namespace CrusaderWars.client
                             node.ForeColor = Color.MediumSeaGreen;
                             HighlightAvailableUnitNode(replacementInfo.replacementKey);
                         }
-                    }
+
+                        // Red overrides green: mark nodes whose effective (post-replacement) key is known-bad.
+                        string effectiveKey = isReplaced ? replacementInfo.replacementKey : nodeAttilaKey;
+                        if (!string.IsNullOrEmpty(effectiveKey) && _badUnitKeys.Contains(effectiveKey))
+                        {
+                            if (!node.Text.EndsWith(BuggyMarker, StringComparison.Ordinal)) node.Text += BuggyMarker;
+                            node.ForeColor = Color.Red;
+                        }
+                        }
                     if (node.Nodes != null && node.Nodes.Count > 0)
                     {
                         TraverseNodes(node.Nodes);
@@ -502,6 +531,30 @@ namespace CrusaderWars.client
                 }
             };
             TraverseNodes(tvCurrentUnits.Nodes);
+            ApplyBadUnitMarkersToAvailableTree();
+        }
+
+        /// <summary>
+        /// Idempotently marks right-tree leaf nodes whose Attila unit key is known-bad
+        /// with the buggy marker and red text. Re-run after any full color reset.
+        /// </summary>
+        private void ApplyBadUnitMarkersToAvailableTree()
+        {
+            if (!_badUnitKeys.Any()) return;
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+            {
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                {
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                    {
+                        if (unitNode.Tag is string key && _badUnitKeys.Contains(key))
+                        {
+                            if (!unitNode.Text.EndsWith(BuggyMarker, StringComparison.Ordinal)) unitNode.Text += BuggyMarker;
+                            unitNode.ForeColor = Color.Red;
+                        }
+                    }
+                }
+            }
         }
 
         private (string faction, string unitText) FindAvailableUnitNodeText(string key)
@@ -514,7 +567,7 @@ namespace CrusaderWars.client
                     {
                         if (unitNode.Tag as string == key)
                         {
-                            return (factionNode.Text, unitNode.Text);
+                            return (factionNode.Text, unitNode.Text.Replace(BuggyMarker, ""));
                         }
                     }
                 }
