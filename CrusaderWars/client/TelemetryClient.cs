@@ -342,10 +342,22 @@ namespace CrusaderWars.client
         /// </summary>
         public static async Task<List<string>> GetGoodUnitsAsync()
         {
+            var (unitKeys, _) = await GetGoodUnitsWithStatusAsync();
+            return unitKeys;
+        }
+
+        /// <summary>
+        /// Status-aware variant of GetGoodUnitsAsync. Returns the known-good unit keys plus
+        /// a backendReachable flag: false when the request could not be completed (telemetry
+        /// disabled, network/DNS/timeout failure, or a 5xx service-outage response); true
+        /// when the backend responded (including 4xx auth/data errors). Never throws.
+        /// </summary>
+        public static async Task<(List<string> unitKeys, bool backendReachable)> GetGoodUnitsWithStatusAsync()
+        {
             if (!ModOptions.GetSendAnonymousTelemetry())
             {
                 Program.Logger.Debug("Telemetry: good-units fetch skipped (anonymous telemetry disabled).");
-                return new List<string>();
+                return (new List<string>(), false);
             }
 
             try
@@ -356,7 +368,9 @@ namespace CrusaderWars.client
                 if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken))
                 {
                     await RegisterAsync();
-                    if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken)) return new List<string>();
+                    // RegisterAsync completed without a network error, so the backend is
+                    // reachable even when it rejected the registration (credentials stay empty).
+                    if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken)) return (new List<string>(), true);
                 }
 
                 var query = new List<string> { $"playthrough_tag={Uri.EscapeDataString(GetPlaythroughTag())}" };
@@ -375,7 +389,9 @@ namespace CrusaderWars.client
                 if (!resp.IsSuccessStatusCode)
                 {
                     Program.Logger.Debug($"Telemetry: good-units fetch returned {(int)resp.StatusCode}.");
-                    return new List<string>();
+                    // 5xx indicates the backend service is down (treat as unreachable);
+                    // 4xx means the backend responded, so it is reachable.
+                    return (new List<string>(), (int)resp.StatusCode < 500);
                 }
 
                 using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
@@ -389,15 +405,92 @@ namespace CrusaderWars.client
                     }
                 }
                 Program.Logger.Debug($"Telemetry: fetched {unitKeys.Count} good unit keys.");
-                return unitKeys;
+                return (unitKeys, true);
             }
             catch (Exception ex)
             {
                 Program.Logger.Debug($"Telemetry: good-units fetch failed: {ex.Message}");
-                return new List<string>();
+                return (new List<string>(), false);
             }
         }
+        /// <summary>
+        /// Fetches known-bad Attila unit keys from the telemetry backend via
+        /// GET /api/v1/telemetry/bad-units (bearer-token auth). Fire-and-forget
+        /// safe: returns an empty list on any failure and never throws.
+        /// </summary>
+        public static async Task<List<string>> GetBadUnitsAsync()
+        {
+            var (unitKeys, _) = await GetBadUnitsWithStatusAsync();
+            return unitKeys;
+        }
 
+        /// <summary>
+        /// Status-aware variant of GetBadUnitsAsync. Returns the known-bad unit keys plus
+        /// a backendReachable flag: false when the request could not be completed (telemetry
+        /// disabled, network/DNS/timeout failure, or a 5xx service-outage response); true
+        /// when the backend responded (including 4xx auth/data errors). Never throws.
+        /// </summary>
+        public static async Task<(List<string> unitKeys, bool backendReachable)> GetBadUnitsWithStatusAsync()
+        {
+            if (!ModOptions.GetSendAnonymousTelemetry())
+            {
+                Program.Logger.Debug("Telemetry: bad-units fetch skipped (anonymous telemetry disabled).");
+                return (new List<string>(), false);
+            }
+
+            try
+            {
+                string baseUrl = BaseUrl;
+
+                LoadCredentials();
+                if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken))
+                {
+                    await RegisterAsync();
+                    // RegisterAsync completed without a network error, so the backend is
+                    // reachable even when it rejected the registration (credentials stay empty).
+                    if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken)) return (new List<string>(), true);
+                }
+
+                var query = new List<string> { $"playthrough_tag={Uri.EscapeDataString(GetPlaythroughTag())}" };
+                if (int.TryParse(UnitMappers_BETA.MapperStartDate, out int startYear)) query.Add($"start_year={startYear}");
+                if (int.TryParse(UnitMappers_BETA.MapperEndDate, out int endYear)) query.Add($"end_year={endYear}");
+
+                using var http = new HttpClient { Timeout = HttpTimeout };
+                http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                if (!string.IsNullOrEmpty(_fingerprint))
+                    http.DefaultRequestHeaders.Add("X-HW-Fingerprint", _fingerprint);
+                http.DefaultRequestHeaders.Add("Unit-Mappers-Version", UnitMappersVersion);
+
+                string requestUrl = $"{baseUrl}/api/v1/telemetry/bad-units?{string.Join("&", query)}";
+                Program.Logger.Debug($"Telemetry: GET {requestUrl}.");
+                using var resp = await http.GetAsync(requestUrl);
+                if (!resp.IsSuccessStatusCode)
+                {
+                    Program.Logger.Debug($"Telemetry: bad-units fetch returned {(int)resp.StatusCode}.");
+                    // 5xx indicates the backend service is down (treat as unreachable);
+                    // 4xx means the backend responded, so it is reachable.
+                    return (new List<string>(), (int)resp.StatusCode < 500);
+                }
+
+                using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
+                var unitKeys = new List<string>();
+                if (doc.RootElement.TryGetProperty("unit_keys", out var keysElement) && keysElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var key in keysElement.EnumerateArray())
+                    {
+                        string? unitKey = key.GetString();
+                        if (!string.IsNullOrEmpty(unitKey)) unitKeys.Add(unitKey);
+                    }
+                }
+                Program.Logger.Debug($"Telemetry: fetched {unitKeys.Count} bad unit keys.");
+                return (unitKeys, true);
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Telemetry: bad-units fetch failed: {ex.Message}");
+                return (new List<string>(), false);
+            }
+        }
         // ------------------------------------------------------------------
         // Helpers
         // ------------------------------------------------------------------

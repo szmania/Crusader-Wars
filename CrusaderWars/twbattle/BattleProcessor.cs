@@ -30,6 +30,10 @@ namespace CrusaderWars.twbattle
         private static readonly Random _random = new Random();
         public static Dictionary<string, (string replacementKey, bool isSiege)> AutofixReplacements { get; private set; } = new Dictionary<string, (string, bool)>();
 
+        // Set once the backend-unreachable warning popup has been shown, so the user is
+        // never popup-spammed when the telemetry backend stays unreachable across battles.
+        private static bool _backendUnreachablePopupShown = false;
+
         public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
@@ -766,7 +770,25 @@ namespace CrusaderWars.twbattle
                         // Seed/prioritize from backend known-bad units: keys reported bad by
                         // telemetry that are present in this battle are ordered first, so the
                         // first autofix batch targets them before random bisection continues.
-                        var badUnits = await TelemetryClient.GetBadUnitsAsync();
+                        var (badUnits, backendReachable) = await TelemetryClient.GetBadUnitsWithStatusAsync();
+                        // Popup only when telemetry is deliberately enabled (opt-in) and the backend
+                        // still could not be reached. When telemetry is disabled, reachable=false is a
+                        // deliberate opt-out — never popup for that.
+                        if (ModOptions.GetSendAnonymousTelemetry() && !backendReachable && !_backendUnreachablePopupShown && form != null && !form.IsDisposed)
+                        {
+                            // One-time notice (first crash only): the backend could not be reached
+                            // while telemetry is enabled. Never blocks the battle - the standard
+                            // suspect list is used below.
+                            _backendUnreachablePopupShown = true;
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                MessageBox.Show(form,
+                                    "Could not reach the Crusader Conflicts backend (check your internet connection).\n\nKnown-bad unit data is unavailable; the autofixer will use the standard suspect list.",
+                                    "Crusader Conflicts: Backend Unreachable",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                            });
+                        }
                         var badSet = new HashSet<string>(badUnits, StringComparer.Ordinal);
                         var badInBattle = fullSuspectList.Where(k => badSet.Contains(k)).ToList();
                         if (badInBattle.Any())
