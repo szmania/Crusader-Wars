@@ -757,11 +757,28 @@ namespace CrusaderWars.twbattle
                             }
                         }
 
-                        autofixState.ProblematicUnitKeys = allUnitKeys
+                        var fullSuspectList = allUnitKeys
                             .Where(key => !string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             .Distinct()
                             .OrderBy(key => _random.Next())
                             .ToList();
+
+                        // Seed/prioritize from backend known-bad units: keys reported bad by
+                        // telemetry that are present in this battle are ordered first, so the
+                        // first autofix batch targets them before random bisection continues.
+                        var badUnits = await TelemetryClient.GetBadUnitsAsync();
+                        var badSet = new HashSet<string>(badUnits, StringComparer.Ordinal);
+                        var badInBattle = fullSuspectList.Where(k => badSet.Contains(k)).ToList();
+                        if (badInBattle.Any())
+                        {
+                            Program.Logger.Debug($"Autofix: {badInBattle.Count} backend bad unit key(s) matched this battle and were prioritized first: {string.Join(", ", badInBattle)}");
+                            autofixState.ProblematicUnitKeys = badInBattle.Concat(fullSuspectList.Except(badInBattle)).ToList();
+                        }
+                        else
+                        {
+                            Program.Logger.Debug("Autofix: no backend bad unit keys matched this battle; using the standard randomized suspect list.");
+                            autofixState.ProblematicUnitKeys = fullSuspectList;
+                        }
 
                         if (!autofixState.ProblematicUnitKeys.Any())
                         {
@@ -929,7 +946,7 @@ namespace CrusaderWars.twbattle
                             (fixApplied, fixDescription) = TryDeploymentFix(autofixState);
                             break;
                         case AutofixState.AutofixStrategy.Units:
-                            (fixApplied, fixDescription) = TryUnitFix(autofixState, form);
+                            (fixApplied, fixDescription) = await TryUnitFix(autofixState, form);
                             break;
                         case AutofixState.AutofixStrategy.MapVariant:
                             (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
@@ -2156,7 +2173,7 @@ namespace CrusaderWars.twbattle
             return (true, $"changing deployment rotation to {rotationState}");
         }
 
-        private static (bool, string) TryUnitFix(AutofixState autofixState, Form? form)
+        private static async Task<(bool, string)> TryUnitFix(AutofixState autofixState, Form? form)
         {
             if (!autofixState.RemainingSuspects.Any())
                 return (false, ""); // All suspects replaced and the battle still crashes - strategy exhausted
@@ -2169,13 +2186,30 @@ namespace CrusaderWars.twbattle
             autofixState.RemainingSuspects.RemoveRange(0, batch.Count);
             autofixState.ReplacedBatches.Add(batch);
 
-            // Resolve a safe generic replacement for each suspect key and register it in
+            // Resolve a safe replacement for each suspect key and register it in
             // AutofixReplacements; UnitMappers_BETA.ProcessUnitKeyResult applies these at unit-write time.
+            // In-kind first: replace each suspect with a known-good unit (telemetry good-units)
+            // of the same type and faction; fall back to a generic alternative when no match exists.
             List<AvailableUnit> availableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+            HashSet<string> goodUnitKeys = new HashSet<string>(await TelemetryClient.GetGoodUnitsAsync(), StringComparer.Ordinal);
+            var availableByKey = availableUnits
+                .Where(u => !string.IsNullOrEmpty(u.AttilaUnitKey))
+                .GroupBy(u => u.AttilaUnitKey, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
             var replacementDetails = new System.Text.StringBuilder();
             foreach (string suspectKey in batch)
             {
                 string faction = autofixState.SuspectKeyFactions.TryGetValue(suspectKey, out string? f) ? f : string.Empty;
+                // In-kind known-good replacement first; generic alternative as fallback.
+                AvailableUnit? inKindUnit = FindInKindGoodReplacement(suspectKey, faction, goodUnitKeys, availableByKey);
+                if (inKindUnit != null)
+                {
+                    AutofixReplacements[suspectKey] = (inKindUnit.AttilaUnitKey, false);
+                    replacementDetails.AppendLine($" - {suspectKey} -> {inKindUnit.AttilaUnitKey}");
+                    Program.Logger.Debug($"Autofix: Registered in-kind good replacement '{suspectKey}' -> '{inKindUnit.AttilaUnitKey}' (faction '{faction}').");
+                    continue;
+                }
+
                 AvailableUnit? genericUnit = availableUnits
                     .Where(u => !string.IsNullOrEmpty(faction) && u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) && !u.IsSiege)
                     .OrderBy(u => u.AttilaUnitKey)
@@ -2201,7 +2235,53 @@ namespace CrusaderWars.twbattle
 
             Program.Logger.Debug($"Autofix batch {autofixState.ReplacedBatches.Count}: replacing [{string.Join(", ", batch)}]. {autofixState.RemainingSuspects.Count} suspects remaining.");
 
-            return (true, $"replacing {batch.Count} of {totalSuspects} suspect units with generic alternatives (batch {autofixState.ReplacedBatches.Count})");
+            return (true, $"replacing {batch.Count} of {totalSuspects} suspect units with known-good or generic alternatives (batch {autofixState.ReplacedBatches.Count})");
+        }
+
+        /// <summary>
+        /// Finds an in-kind known-good replacement for a suspect unit key: a key from the
+        /// telemetry good-units list whose available unit matches the suspect's unit type
+        /// (levy with levy, garrison with garrison, general with general, knight with knight,
+        /// men-at-arms with men-at-arms) and the suspect's faction.
+        /// Men-at-arms prefer non-siege units of the same max category.
+        /// </summary>
+        /// <param name="suspectKey">The suspect Attila unit key to replace.</param>
+        /// <param name="faction">The suspect's Attila faction (from SuspectKeyFactions).</param>
+        /// <param name="goodUnitKeys">Known-good unit keys fetched from telemetry.</param>
+        /// <param name="availableByKey">All available units grouped by Attila unit key.</param>
+        /// <returns>AvailableUnit: An in-kind good replacement, or null when none exists.</returns>
+        private static AvailableUnit? FindInKindGoodReplacement(
+            string suspectKey,
+            string faction,
+            HashSet<string> goodUnitKeys,
+            Dictionary<string, List<AvailableUnit>> availableByKey)
+        {
+            if (string.IsNullOrEmpty(faction) || !availableByKey.TryGetValue(suspectKey, out var suspectUnits))
+                return null; // Unknown suspect or faction: no in-kind match possible.
+
+            var suspectTypes = new HashSet<string>(suspectUnits.Select(u => u.UnitType), StringComparer.OrdinalIgnoreCase);
+
+            var candidates = goodUnitKeys
+                .Where(key => !string.Equals(key, suspectKey, StringComparison.Ordinal) && availableByKey.ContainsKey(key))
+                .SelectMany(key => availableByKey[key])
+                .Where(u => u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) && suspectTypes.Contains(u.UnitType))
+                .ToList();
+
+            if (!candidates.Any())
+                return null;
+
+            var suspectMaa = suspectUnits.FirstOrDefault(u => u.UnitType.Equals("MenAtArm", StringComparison.OrdinalIgnoreCase));
+            if (suspectMaa != null)
+            {
+                // Men-at-arms: prefer non-siege units with the same max category.
+                return candidates
+                    .OrderBy(u => u.IsSiege)
+                    .ThenBy(u => string.Equals(u.MaxCategory, suspectMaa.MaxCategory, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                    .ThenBy(u => u.AttilaUnitKey)
+                    .First();
+            }
+
+            return candidates.OrderBy(u => u.AttilaUnitKey).First();
         }
 
         private static (bool, string) TryMapVariantFix(AutofixState autofixState)
