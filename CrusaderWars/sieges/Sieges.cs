@@ -76,7 +76,9 @@ namespace CrusaderWars.twbattle
 
 
             int level = HoldingLevel;
-            if (level > 4) level = 4; // Attila maps typically have a max level (e.g., 4)
+            // Attila settlement maps only expose two tile_upgrade variants:
+            // level1 (unfortified) and level2 (walled/standard).
+            if (level > 1) level = 2;
             if (level < 1) level = 1;
             levelUpgradeTag = $"<tile_upgrade>level{level}</tile_upgrade>";
 
