@@ -585,7 +585,7 @@ namespace CrusaderWars.client
                     u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
                     u.AttilaUnitKey.Equals(effectiveKey, StringComparison.Ordinal));
 
-                AvailableUnit? replacement = PickBulkReplacement(faction, unitType, suspect, regimentType, effectiveKey);
+                AvailableUnit? replacement = PickBulkReplacement(faction, unitType, suspect, regimentType);
                 if (replacement == null)
                 {
                     unreplaceable.Add(effectiveKey);
@@ -644,7 +644,7 @@ namespace CrusaderWars.client
         /// L4 any faction. Within the pool, prefer known-good keys, then type-specific
         /// tiebreaks, then alphabetical key.
         /// </summary>
-        private AvailableUnit? PickBulkReplacement(string faction, string unitType, AvailableUnit? suspect, RegimentType regimentType, string suspectKey)
+        private AvailableUnit? PickBulkReplacement(string faction, string unitType, AvailableUnit? suspect, RegimentType regimentType)
         {
             var allOfType = _allAvailableUnits.Where(u => u.UnitType.Equals(unitType, StringComparison.OrdinalIgnoreCase)).ToList();
 

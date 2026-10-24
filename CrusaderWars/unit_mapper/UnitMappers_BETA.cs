@@ -2146,6 +2146,54 @@ namespace CrusaderWars.unit_mapper
             return factions.ToList();
         }
 
+        /// <summary>
+        /// Reverse lookup of <see cref="GetFactionsByHeritage"/>: returns the heritage name
+        /// whose Heritage/@faction or Heritage/Culture/@faction equals the given Attila
+        /// faction. Used by the Unit Replacer bulk-replace fallback chain to find
+        /// heritage-sibling factions. Returns an empty string when no match is found.
+        /// </summary>
+        public static string GetHeritageByFaction(string attilaFaction)
+        {
+            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath) || string.IsNullOrEmpty(attilaFaction))
+            {
+                return string.Empty;
+            }
+
+            string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
+
+            foreach (var xml_file in files_paths)
+            {
+                XmlDocument CulturesFile = new XmlDocument();
+                CulturesFile.Load(xml_file);
+                if (CulturesFile.DocumentElement == null) continue;
+
+                foreach (XmlNode heritageNode in CulturesFile.DocumentElement.SelectNodes("Heritage"))
+                {
+                    string? heritageName = heritageNode.Attributes?["name"]?.Value;
+                    if (string.IsNullOrEmpty(heritageName)) continue;
+
+                    if (heritageNode.Attributes?["faction"]?.Value is string heritageFaction &&
+                        heritageFaction.Equals(attilaFaction, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return heritageName;
+                    }
+
+                    foreach (XmlNode cultureNode in heritageNode.SelectNodes("Culture"))
+                    {
+                        if (cultureNode.Attributes?["faction"]?.Value is string cultureFaction &&
+                            cultureFaction.Equals(attilaFaction, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return heritageName;
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
         public static string GetAttilaFaction(string CultureName, string HeritageName)
         {
             Program.Logger.Debug($"Searching faction for Culture:{CultureName}, Heritage:{HeritageName}");
