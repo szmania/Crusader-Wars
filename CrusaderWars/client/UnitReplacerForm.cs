@@ -606,15 +606,25 @@ namespace CrusaderWars.client
                 }
                 else
                 {
-                    Unit? representativeUnit = (regimentType == RegimentType.MenAtArms)
-                        ? _currentUnits.FirstOrDefault(u => u.GetName() == typeIdentifier && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction)
-                        : _currentUnits.FirstOrDefault(u => u.GetRegimentType() == regimentType && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction);
-
-                    if (representativeUnit != null && !string.IsNullOrEmpty(representativeUnit.GetAttilaUnitKey()))
+                    IEnumerable<Unit> unitsToReplace;
+                    if (regimentType == RegimentType.MenAtArms)
                     {
-                        Replacements[(representativeUnit.GetAttilaUnitKey(), isPlayerAlliance)] = (replacement.AttilaUnitKey, isSiege);
+                        unitsToReplace = _currentUnits.Where(u => u.GetName() == typeIdentifier && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction);
                     }
                     else
+                    {
+                        unitsToReplace = _currentUnits.Where(u => u.GetRegimentType() == regimentType && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction);
+                    }
+
+                    bool registered = false;
+                    foreach (var unit in unitsToReplace)
+                    {
+                        if (string.IsNullOrEmpty(unit.GetAttilaUnitKey())) continue;
+                        Replacements[(unit.GetAttilaUnitKey(), isPlayerAlliance)] = (replacement.AttilaUnitKey, isSiege);
+                        registered = true;
+                    }
+
+                    if (!registered)
                     {
                         unreplaceable.Add(effectiveKey);
                         continue;
@@ -776,6 +786,7 @@ namespace CrusaderWars.client
                             {
                                 isReplaced = true;
                             }
+                        }
                         else if (regimentType == RegimentType.Garrison)
                         {
                             // Per-key lookup on the node's OWN key (not a level-1 representative) so
@@ -786,7 +797,6 @@ namespace CrusaderWars.client
                             {
                                 isReplaced = true;
                             }
-                        }
                         }
                         else
                         {
