@@ -1625,6 +1625,15 @@ namespace CrusaderWars.twbattle
 
                 RichTextBox messageTextBox = new RichTextBox();
                 messageTextBox.Text = messageText;
+                // Red-color every case-exact "Buggy Unit?" label in the message pane.
+                int searchStart = 0;
+                while (messageTextBox.Find("Buggy Unit?", searchStart, RichTextBoxFinds.MatchCase) >= 0)
+                {
+                    messageTextBox.SelectionColor = Color.Red;
+                    searchStart = messageTextBox.SelectionStart + messageTextBox.SelectionLength;
+                }
+                // Drop the leftover selection so the pane opens unscrolled/unhighlighted.
+                messageTextBox.SelectionLength = 0;
                 messageTextBox.ReadOnly = true;
                 messageTextBox.BorderStyle = BorderStyle.None;
                 messageTextBox.BackColor = SystemColors.Control;
@@ -2227,7 +2236,7 @@ namespace CrusaderWars.twbattle
                 if (inKindUnit != null)
                 {
                     AutofixReplacements[suspectKey] = (inKindUnit.AttilaUnitKey, false);
-                    replacementDetails.AppendLine($" - {suspectKey} -> {inKindUnit.AttilaUnitKey}");
+                    replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> {inKindUnit.AttilaUnitKey}");
                     Program.Logger.Debug($"Autofix: Registered in-kind good replacement '{suspectKey}' -> '{inKindUnit.AttilaUnitKey}' (faction '{faction}').");
                     continue;
                 }
@@ -2243,13 +2252,13 @@ namespace CrusaderWars.twbattle
 
                 if (genericUnit == null)
                 {
-                    replacementDetails.AppendLine($" - {suspectKey} -> (no safe replacement found — key will remain unchanged)");
+                    replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> (no safe replacement found — key will remain unchanged)");
                     Program.Logger.Debug($"Autofix: No generic replacement unit found for key '{suspectKey}' (faction '{faction}'). Skipping this key.");
                     continue;
                 }
 
                 AutofixReplacements[suspectKey] = (genericUnit.AttilaUnitKey, false);
-                replacementDetails.AppendLine($" - {suspectKey} -> {genericUnit.AttilaUnitKey}");
+                replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> {genericUnit.AttilaUnitKey}");
                 Program.Logger.Debug($"Autofix: Registered replacement '{suspectKey}' -> '{genericUnit.AttilaUnitKey}' (faction '{faction}').");
             }
 

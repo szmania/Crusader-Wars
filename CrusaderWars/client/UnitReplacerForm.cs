@@ -27,6 +27,9 @@ namespace CrusaderWars.client
         private readonly Color _searchHighlightColor = Color.Yellow;
         private bool _programmaticSelect = false;
         private HashSet<string> _badUnitKeys = new HashSet<string>(StringComparer.Ordinal);
+        // Candidate-preference signal only (never used for marking): keys the backend
+        // reports as known-good are preferred when picking bulk replacements.
+        private HashSet<string> _goodUnitKeys = new HashSet<string>(StringComparer.Ordinal);
         private const string BuggyMarker = " [BUGGY UNIT?]";
 
         public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements, Dictionary<string, string> unitScreenNames)
@@ -61,20 +64,71 @@ namespace CrusaderWars.client
         [SupportedOSPlatform("windows")]
         private async void UnitReplacerForm_Load(object sender, EventArgs e)
         {
-            PopulateCurrentUnitsTree();
-            PopulateAvailableUnitsTree();
+            // Bulk-update both trees so the initial population paints once instead of per-node.
+            tvCurrentUnits.BeginUpdate();
+            try { PopulateCurrentUnitsTree(); }
+            finally { tvCurrentUnits.EndUpdate(); }
+
+            tvAvailableUnits.BeginUpdate();
+            try { PopulateAvailableUnitsTree(); }
+            finally { tvAvailableUnits.EndUpdate(); }
+
             // After populating, update visuals to show any existing replacements
             UpdateCurrentUnitsTreeVisuals();
             UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
 
-            // Fire-and-forget: fetch known-bad unit keys and mark them. Never blocks the tool.
-            var badKeys = await TelemetryClient.GetBadUnitsAsync();
+            // Non-modal status: the dialog stays interactive while the fetch runs.
+            lblBadUnitsStatus.Text = "Loading buggy-unit data…";
+
+            // Fire-and-forget: fetch known-bad and known-good unit keys in parallel.
+            // Both never throw and return empty lists on failure/telemetry-disabled.
+            var badTask = TelemetryClient.GetBadUnitsAsync();
+            var goodTask = TelemetryClient.GetGoodUnitsAsync();
+            await Task.WhenAll(badTask, goodTask);
             if (IsDisposed) return;
-            _badUnitKeys = new HashSet<string>(badKeys, StringComparer.Ordinal);
-            if (_badUnitKeys.Any())
+
+            _badUnitKeys = new HashSet<string>(badTask.Result, StringComparer.Ordinal);
+            _goodUnitKeys = new HashSet<string>(goodTask.Result, StringComparer.Ordinal);
+
+            // Lightweight marker-only passes (NOT a full visual refresh): the full pass
+            // re-runs per-garrison composition lookups and a full text rebuild, which is
+            // what the user perceived as a hang on the telemetry call.
+            ApplyBadUnitMarkersToCurrentTree();
+            ApplyBadUnitMarkersToAvailableTree();
+
+            lblBadUnitsStatus.Text = _badUnitKeys.Any()
+                ? $"{_badUnitKeys.Count} potentially-buggy unit key(s) loaded"
+                : "No buggy-unit data";
+        }
+
+        /// <summary>
+        /// Idempotently marks left-tree leaf nodes whose effective Attila unit key is
+        /// known-bad with the buggy marker and red text. Leaf-only, no composition
+        /// lookups, no text rebuild — safe to run after the async telemetry fetch.
+        /// </summary>
+        private void ApplyBadUnitMarkersToCurrentTree()
+        {
+            if (!_badUnitKeys.Any()) return;
+
+            Action<TreeNodeCollection> traverse = null;
+            traverse = (nodes) =>
             {
-                UpdateCurrentUnitsTreeVisuals();
-            }
+                foreach (TreeNode node in nodes)
+                {
+                    if (node.Tag is { } nodeTag)
+                    {
+                        dynamic tag = nodeTag;
+                        string nodeAttilaKey = tag.AttilaKey;
+                        if (!string.IsNullOrEmpty(nodeAttilaKey) && _badUnitKeys.Contains(nodeAttilaKey))
+                        {
+                            if (!node.Text.EndsWith(BuggyMarker, StringComparison.Ordinal)) node.Text += BuggyMarker;
+                            node.ForeColor = Color.Red;
+                        }
+                    }
+                    if (node.Nodes != null && node.Nodes.Count > 0) traverse(node.Nodes);
+                }
+            };
+            traverse(tvCurrentUnits.Nodes);
         }
 
         private void PopulateCurrentUnitsTree()
@@ -437,6 +491,242 @@ namespace CrusaderWars.client
             UpdateCurrentUnitsTreeVisuals();
         }
 
+        private void btnReplaceAllBuggy_Click(object sender, EventArgs e)
+        {
+            ReplaceAllBuggyUnits();
+        }
+
+        /// <summary>
+        /// Replaces every known-buggy unit group in the battle with a non-buggy unit of
+        /// similar type. Fallback chain per buggy node: same faction + same unit type,
+        /// then heritage-sibling factions, then "Default", then any faction. Registers
+        /// via the existing Replacements dictionary (same semantics as btnReplace_Click).
+        /// </summary>
+        private void ReplaceAllBuggyUnits()
+        {
+            if (!_badUnitKeys.Any())
+            {
+                MessageBox.Show("No buggy-unit data is available. The backend may be unreachable or telemetry is disabled.", "No Buggy Units", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Collect all leaf nodes in the current tree whose EFFECTIVE key is known-bad.
+            var buggyNodes = new List<TreeNode>();
+            Action<TreeNodeCollection> collect = null;
+            collect = (nodes) =>
+            {
+                foreach (TreeNode node in nodes)
+                {
+                    if (node.Tag is { } nodeTag)
+                    {
+                        dynamic tag = nodeTag;
+                        string nodeAttilaKey = tag.AttilaKey;
+                        bool isPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
+
+                        string faction = node.Parent?.Text ?? "";
+                        bool isSplitLevyNode = tag.GetType().GetProperty("IsSplitLevyNode") != null && tag.IsSplitLevyNode;
+                        RegimentType regimentType = tag.RegimentType;
+                        string typeIdentifier = tag.TypeIdentifier;
+
+                        // Effective key: post-replacement key if already replaced, else the node's own key.
+                        string effectiveKey = nodeAttilaKey;
+                        if (Replacements.TryGetValue((nodeAttilaKey, isPlayerAlliance), out var existing))
+                        {
+                            effectiveKey = existing.replacementKey;
+                        }
+
+                        if (!string.IsNullOrEmpty(effectiveKey) && effectiveKey != UnitMappers_BETA.NOT_FOUND_KEY && _badUnitKeys.Contains(effectiveKey))
+                        {
+                            buggyNodes.Add(node);
+                        }
+                    }
+                    if (node.Nodes != null && node.Nodes.Count > 0) collect(node.Nodes);
+                }
+            };
+            collect(tvCurrentUnits.Nodes);
+
+            if (!buggyNodes.Any())
+            {
+                MessageBox.Show("No buggy units were found in the current battle.", "No Buggy Units", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var replaced = new List<string>();
+            var unreplaceable = new List<string>();
+
+            foreach (var node in buggyNodes)
+            {
+                dynamic tag = node.Tag;
+                string nodeAttilaKey = tag.AttilaKey;
+                bool isPlayerAlliance = node.Parent?.Parent?.Text == "Player's Alliance";
+                string faction = node.Parent?.Text ?? "";
+                bool isSplitLevyNode = tag.GetType().GetProperty("IsSplitLevyNode") != null && tag.IsSplitLevyNode;
+                RegimentType regimentType = tag.RegimentType;
+                string typeIdentifier = tag.TypeIdentifier;
+
+                // Effective key (post-replacement) is what we are replacing away from.
+                string effectiveKey = nodeAttilaKey;
+                if (Replacements.TryGetValue((nodeAttilaKey, isPlayerAlliance), out var existing))
+                {
+                    effectiveKey = existing.replacementKey;
+                }
+
+                string unitType = regimentType switch
+                {
+                    RegimentType.Levy => "Levies",
+                    RegimentType.Garrison => "Garrison",
+                    RegimentType.Commander => "General",
+                    RegimentType.Knight => "Knights",
+                    _ => "MenAtArm"
+                };
+
+                // Determine the suspect AvailableUnit (for MaxCategory / Rank / Level / IsSiege context).
+                AvailableUnit? suspect = _allAvailableUnits.FirstOrDefault(u =>
+                    u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
+                    u.AttilaUnitKey.Equals(effectiveKey, StringComparison.Ordinal));
+
+                AvailableUnit? replacement = PickBulkReplacement(faction, unitType, suspect, regimentType, effectiveKey);
+                if (replacement == null)
+                {
+                    unreplaceable.Add(effectiveKey);
+                    continue;
+                }
+
+                bool isSiege = UnitMappers_BETA.IsUnitKeySiege(replacement.AttilaUnitKey);
+
+                if (isSplitLevyNode)
+                {
+                    Replacements[(typeIdentifier, isPlayerAlliance)] = (replacement.AttilaUnitKey, isSiege);
+                }
+                else if (regimentType == RegimentType.Garrison)
+                {
+                    // Per-key replacement (preserves composition), matching the garrison
+                    // per-key lookup in UpdateCurrentUnitsTreeVisuals.
+                    Replacements[(nodeAttilaKey, isPlayerAlliance)] = (replacement.AttilaUnitKey, isSiege);
+                }
+                else
+                {
+                    Unit? representativeUnit = (regimentType == RegimentType.MenAtArms)
+                        ? _currentUnits.FirstOrDefault(u => u.GetName() == typeIdentifier && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction)
+                        : _currentUnits.FirstOrDefault(u => u.GetRegimentType() == regimentType && u.IsPlayer() == isPlayerAlliance && u.GetAttilaFaction() == faction);
+
+                    if (representativeUnit != null && !string.IsNullOrEmpty(representativeUnit.GetAttilaUnitKey()))
+                    {
+                        Replacements[(representativeUnit.GetAttilaUnitKey(), isPlayerAlliance)] = (replacement.AttilaUnitKey, isSiege);
+                    }
+                    else
+                    {
+                        unreplaceable.Add(effectiveKey);
+                        continue;
+                    }
+                }
+
+                replaced.Add($"{effectiveKey} -> {replacement.AttilaUnitKey}");
+            }
+
+            UpdateCurrentUnitsTreeVisuals();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"Replaced {replaced.Count} buggy unit group(s):");
+            foreach (var line in replaced) sb.AppendLine($"  {line}");
+            if (unreplaceable.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine("Could not find a replacement for:");
+                foreach (var key in unreplaceable.Distinct()) sb.AppendLine($"  {key}");
+            }
+            MessageBox.Show(sb.ToString(), "Replace All Buggy Units", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Picks the best non-buggy replacement for a suspect unit using the fallback chain:
+        /// L1 same faction + same unit type, L2 heritage-sibling factions, L3 "Default",
+        /// L4 any faction. Within the pool, prefer known-good keys, then type-specific
+        /// tiebreaks, then alphabetical key.
+        /// </summary>
+        private AvailableUnit? PickBulkReplacement(string faction, string unitType, AvailableUnit? suspect, RegimentType regimentType, string suspectKey)
+        {
+            var allOfType = _allAvailableUnits.Where(u => u.UnitType.Equals(unitType, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            // Build the fallback chain of candidate pools (stop at first non-empty).
+            var pools = new List<List<AvailableUnit>>();
+
+            var sameFaction = allOfType.Where(u => u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase)).ToList();
+            pools.Add(sameFaction);
+
+            string heritage = UnitMappers_BETA.GetHeritageByFaction(faction);
+            if (!string.IsNullOrEmpty(heritage))
+            {
+                var siblingFactions = new HashSet<string>(UnitMappers_BETA.GetFactionsByHeritage(heritage), StringComparer.OrdinalIgnoreCase);
+                siblingFactions.Remove(faction);
+                pools.Add(allOfType.Where(u => siblingFactions.Contains(u.FactionName)).ToList());
+            }
+
+            pools.Add(allOfType.Where(u => u.FactionName.Equals("Default", StringComparison.OrdinalIgnoreCase) || u.FactionName.Equals("DEFAULT", StringComparison.OrdinalIgnoreCase)).ToList());
+            pools.Add(allOfType);
+
+            foreach (var pool in pools)
+            {
+                var nonBuggy = pool.Where(u => !_badUnitKeys.Contains(u.AttilaUnitKey)).ToList();
+                if (!nonBuggy.Any()) continue;
+
+                var best = PickBestFromPool(nonBuggy, suspect, regimentType);
+                if (best != null) return best;
+            }
+
+            return null;
+        }
+
+        private AvailableUnit? PickBestFromPool(List<AvailableUnit> pool, AvailableUnit? suspect, RegimentType regimentType)
+        {
+            // Prefer known-good keys first.
+            var good = pool.Where(u => _goodUnitKeys.Contains(u.AttilaUnitKey)).ToList();
+            var candidates = good.Any() ? good : pool;
+
+            switch (regimentType)
+            {
+                case RegimentType.MenAtArms:
+                    return candidates
+                        .OrderBy(u => u.IsSiege != (suspect?.IsSiege ?? false))
+                        .ThenBy(u => string.Equals(u.MaxCategory, suspect?.MaxCategory, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                        .ThenBy(u => u.AttilaUnitKey)
+                        .FirstOrDefault();
+
+                case RegimentType.Commander:
+                case RegimentType.Knight:
+                    int requiredRank = 1;
+                    if (regimentType == RegimentType.Commander)
+                    {
+                        var rep = _currentUnits.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Commander);
+                        int charRank = rep?.CharacterRank ?? 1;
+                        requiredRank = charRank >= 4 ? 3 : (charRank == 3 ? 2 : 1);
+                    }
+                    else
+                    {
+                        var rep = _currentUnits.FirstOrDefault(u => u.GetRegimentType() == RegimentType.Knight);
+                        requiredRank = rep?.CharacterRank ?? 1;
+                    }
+
+                    var suitable = candidates.Where(u => (u.Rank ?? 0) <= requiredRank).ToList();
+                    if (suitable.Any())
+                        return suitable.OrderByDescending(u => u.Rank).ThenBy(u => u.AttilaUnitKey).FirstOrDefault();
+                    return candidates.OrderBy(u => u.Rank).ThenBy(u => u.AttilaUnitKey).FirstOrDefault();
+
+                case RegimentType.Garrison:
+                    int suspectLevel = suspect?.Level ?? 1;
+                    var sameLevel = candidates.Where(u => (u.Level ?? 0) == suspectLevel).ToList();
+                    if (sameLevel.Any())
+                        return sameLevel.OrderBy(u => u.AttilaUnitKey).FirstOrDefault();
+                    var atOrBelow = candidates.Where(u => (u.Level ?? 0) <= suspectLevel).ToList();
+                    if (atOrBelow.Any())
+                        return atOrBelow.OrderByDescending(u => u.Level).ThenBy(u => u.AttilaUnitKey).FirstOrDefault();
+                    return candidates.OrderBy(u => u.Level).ThenBy(u => u.AttilaUnitKey).FirstOrDefault();
+
+                default: // Levies
+                    return candidates.OrderBy(u => u.AttilaUnitKey).FirstOrDefault();
+            }
+        }
+
         private void btnReset_Click(object sender, EventArgs e)
         {
             var confirmResult = MessageBox.Show("Are you sure you want to reset all saved unit replacements? This cannot be undone.",
@@ -486,15 +776,17 @@ namespace CrusaderWars.client
                             {
                                 isReplaced = true;
                             }
-                        }
                         else if (regimentType == RegimentType.Garrison)
                         {
-                            // Check for any garrison unit key from this faction and side
-                            var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, 1); // Use level 1 as a representative
-                            if (garrisonTuples.Any() && Replacements.TryGetValue((garrisonTuples.First().unit_key, nodeIsPlayerAlliance), out replacementInfo))
+                            // Per-key lookup on the node's OWN key (not a level-1 representative) so
+                            // per-key garrison replacements from the bulk button show green arrows
+                            // and drop the red marker. Pre-existing all-levels entries still hit
+                            // because they set every level key.
+                            if (!string.IsNullOrEmpty(nodeAttilaKey) && Replacements.TryGetValue((nodeAttilaKey, nodeIsPlayerAlliance), out replacementInfo))
                             {
                                 isReplaced = true;
                             }
+                        }
                         }
                         else
                         {
@@ -746,6 +1038,8 @@ namespace CrusaderWars.client
             btnReplace.Left = newButtonX;
             btnUndo.Left = newButtonX;
             btnReset.Left = newButtonX;
+            btnReplaceAllBuggy.Left = newButtonX;
+            lblBadUnitsStatus.Left = leftTreeViewRight + (gapWidth / 2) - (lblBadUnitsStatus.Width / 2);
         }
 
 

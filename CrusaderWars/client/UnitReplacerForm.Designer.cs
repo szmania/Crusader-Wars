@@ -39,6 +39,7 @@ namespace CrusaderWars.client
             this.InstructionsBox = new System.Windows.Forms.GroupBox();
             this.textBoxInstructions = new System.Windows.Forms.TextBox();
             this.btnUndo = new System.Windows.Forms.Button();
+            this.btnReplaceAllBuggy = new System.Windows.Forms.Button();
             this.UnitReplacerToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.txtSearchCurrent = new System.Windows.Forms.TextBox();
             this.btnPrevCurrent = new System.Windows.Forms.Button();
@@ -49,6 +50,7 @@ namespace CrusaderWars.client
             this.btnSearchCurrent = new System.Windows.Forms.Button();
             this.btnSearchAvailable = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
+            this.lblBadUnitsStatus = new System.Windows.Forms.Label();
             this.lblCurrentSearch = new System.Windows.Forms.Label();
             this.lblAvailableSearch = new System.Windows.Forms.Label();
             this.InstructionsBox.SuspendLayout();
@@ -160,7 +162,7 @@ namespace CrusaderWars.client
             // btnUndo
             // 
             this.btnUndo.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnUndo.Location = new System.Drawing.Point(495, 390);
+            this.btnUndo.Location = new System.Drawing.Point(495, 418);
             this.btnUndo.Name = "btnUndo";
             this.btnUndo.Size = new System.Drawing.Size(100, 23);
             this.btnUndo.TabIndex = 8;
@@ -168,16 +170,38 @@ namespace CrusaderWars.client
             this.btnUndo.UseVisualStyleBackColor = true;
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
+            // btnReplaceAllBuggy
+            // 
+            this.btnReplaceAllBuggy.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnReplaceAllBuggy.Location = new System.Drawing.Point(495, 389);
+            this.btnReplaceAllBuggy.Name = "btnReplaceAllBuggy";
+            this.btnReplaceAllBuggy.Size = new System.Drawing.Size(100, 23);
+            this.btnReplaceAllBuggy.TabIndex = 21;
+            this.btnReplaceAllBuggy.Text = "Replace All Buggy";
+            this.UnitReplacerToolTip.SetToolTip(this.btnReplaceAllBuggy, "Replaces every known-buggy unit in the battle with a non-buggy unit of a similar type (same faction first, then heritage siblings, then Default). Click 'Undo' to clear.");
+            this.btnReplaceAllBuggy.UseVisualStyleBackColor = true;
+            this.btnReplaceAllBuggy.Click += new System.EventHandler(this.btnReplaceAllBuggy_Click);
+            // 
             // btnReset
             // 
             this.btnReset.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnReset.Location = new System.Drawing.Point(495, 419);
+            this.btnReset.Location = new System.Drawing.Point(495, 447);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(100, 23);
             this.btnReset.TabIndex = 19;
             this.btnReset.Text = "Reset All";
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+            // 
+            // lblBadUnitsStatus
+            // 
+            this.lblBadUnitsStatus.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lblBadUnitsStatus.AutoSize = true;
+            this.lblBadUnitsStatus.ForeColor = System.Drawing.Color.DimGray;
+            this.lblBadUnitsStatus.Location = new System.Drawing.Point(495, 475);
+            this.lblBadUnitsStatus.Name = "lblBadUnitsStatus";
+            this.lblBadUnitsStatus.Size = new System.Drawing.Size(35, 13);
+            this.lblBadUnitsStatus.TabIndex = 20;
             // 
             // UnitReplacerToolTip
             // 
@@ -315,8 +339,10 @@ namespace CrusaderWars.client
             this.Controls.Add(this.btnNextCurrent);
             this.Controls.Add(this.btnPrevCurrent);
             this.Controls.Add(this.txtSearchCurrent);
+            this.Controls.Add(this.btnReplaceAllBuggy);
             this.Controls.Add(this.btnUndo);
             this.Controls.Add(this.btnReset);
+            this.Controls.Add(this.lblBadUnitsStatus);
             this.Controls.Add(this.btnSearchCurrent);
             this.Controls.Add(this.btnSearchAvailable);
             this.Controls.Add(this.InstructionsBox);
@@ -355,6 +381,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.GroupBox InstructionsBox;
         private System.Windows.Forms.TextBox textBoxInstructions;
         private System.Windows.Forms.Button btnUndo;
+        private System.Windows.Forms.Button btnReplaceAllBuggy;
         private System.Windows.Forms.ToolTip UnitReplacerToolTip;
         private System.Windows.Forms.Label lblAvailableSearch;
         private System.Windows.Forms.Label lblCurrentSearch;
@@ -367,5 +394,6 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Button btnSearchCurrent;
         private System.Windows.Forms.Button btnSearchAvailable;
         private System.Windows.Forms.Button btnReset;
+        private System.Windows.Forms.Label lblBadUnitsStatus;
     }
 }
