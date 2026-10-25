@@ -119,6 +119,16 @@ namespace CrusaderWars.client
         private static string? _fingerprint;
         private static bool _loaded;
 
+        // 5-minute TTL caches for the bad/good unit fetches. The query inputs (playthrough tag +
+        // mapper year range) are stable within a session, so a short TTL makes reopening the Unit
+        // Replacer (or a second autofix cycle) instant. Only successful fetches are cached, so a
+        // TTL hit always reports backendReachable=true and never masks a backend outage.
+        private static readonly TimeSpan UnitsCacheTtl = TimeSpan.FromMinutes(5);
+        private static (List<string> unitKeys, bool backendReachable) _goodUnitsCache;
+        private static DateTime _goodUnitsCacheTime = DateTime.MinValue;
+        private static (List<string> unitKeys, bool backendReachable) _badUnitsCache;
+        private static DateTime _badUnitsCacheTime = DateTime.MinValue;
+
         private sealed class Credentials
         {
             public string? hardware_fingerprint { get; set; }
@@ -360,6 +370,13 @@ namespace CrusaderWars.client
                 return (new List<string>(), false);
             }
 
+            // TTL cache: reuse the last successful fetch instead of re-hitting the backend.
+            if (_goodUnitsCache.unitKeys != null && _goodUnitsCache.backendReachable && (DateTime.UtcNow - _goodUnitsCacheTime) < UnitsCacheTtl)
+            {
+                Program.Logger.Debug($"Telemetry: good-units served from cache ({_goodUnitsCache.unitKeys.Count} keys).");
+                return _goodUnitsCache;
+            }
+
             try
             {
                 string baseUrl = BaseUrl;
@@ -405,7 +422,9 @@ namespace CrusaderWars.client
                     }
                 }
                 Program.Logger.Debug($"Telemetry: fetched {unitKeys.Count} good unit keys.");
-                return (unitKeys, true);
+                _goodUnitsCache = (unitKeys, true);
+                _goodUnitsCacheTime = DateTime.UtcNow;
+                return _goodUnitsCache;
             }
             catch (Exception ex)
             {
@@ -413,6 +432,7 @@ namespace CrusaderWars.client
                 return (new List<string>(), false);
             }
         }
+
         /// <summary>
         /// Fetches known-bad Attila unit keys from the telemetry backend via
         /// GET /api/v1/telemetry/bad-units (bearer-token auth). Fire-and-forget
@@ -436,6 +456,13 @@ namespace CrusaderWars.client
             {
                 Program.Logger.Debug("Telemetry: bad-units fetch skipped (anonymous telemetry disabled).");
                 return (new List<string>(), false);
+            }
+
+            // TTL cache: reuse the last successful fetch instead of re-hitting the backend.
+            if (_badUnitsCache.unitKeys != null && _badUnitsCache.backendReachable && (DateTime.UtcNow - _badUnitsCacheTime) < UnitsCacheTtl)
+            {
+                Program.Logger.Debug($"Telemetry: bad-units served from cache ({_badUnitsCache.unitKeys.Count} keys).");
+                return _badUnitsCache;
             }
 
             try
@@ -483,7 +510,9 @@ namespace CrusaderWars.client
                     }
                 }
                 Program.Logger.Debug($"Telemetry: fetched {unitKeys.Count} bad unit keys.");
-                return (unitKeys, true);
+                _badUnitsCache = (unitKeys, true);
+                _badUnitsCacheTime = DateTime.UtcNow;
+                return _badUnitsCache;
             }
             catch (Exception ex)
             {

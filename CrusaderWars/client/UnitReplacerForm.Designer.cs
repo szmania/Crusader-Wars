@@ -50,7 +50,9 @@ namespace CrusaderWars.client
             this.btnSearchCurrent = new System.Windows.Forms.Button();
             this.btnSearchAvailable = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
-            this.lblBadUnitsStatus = new System.Windows.Forms.Label();
+            this.loadingOverlayPanel = new System.Windows.Forms.Panel();
+            this.loadingOverlayLabel = new System.Windows.Forms.Label();
+            this.loadingSpinnerTimer = new System.Windows.Forms.Timer(this.components);
             this.lblCurrentSearch = new System.Windows.Forms.Label();
             this.lblAvailableSearch = new System.Windows.Forms.Label();
             this.InstructionsBox.SuspendLayout();
@@ -193,15 +195,33 @@ namespace CrusaderWars.client
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
-            // lblBadUnitsStatus
             // 
-            this.lblBadUnitsStatus.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.lblBadUnitsStatus.AutoSize = true;
-            this.lblBadUnitsStatus.ForeColor = System.Drawing.Color.DimGray;
-            this.lblBadUnitsStatus.Location = new System.Drawing.Point(495, 475);
-            this.lblBadUnitsStatus.Name = "lblBadUnitsStatus";
-            this.lblBadUnitsStatus.Size = new System.Drawing.Size(35, 13);
-            this.lblBadUnitsStatus.TabIndex = 20;
+            // loadingOverlayPanel
+            // 
+            this.loadingOverlayPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(245)))), ((int)(((byte)(245)))));
+            this.loadingOverlayPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.loadingOverlayPanel.Controls.Add(this.loadingOverlayLabel);
+            this.loadingOverlayPanel.Location = new System.Drawing.Point(500, 300);
+            this.loadingOverlayPanel.Name = "loadingOverlayPanel";
+            this.loadingOverlayPanel.Size = new System.Drawing.Size(260, 110);
+            this.loadingOverlayPanel.TabIndex = 22;
+            this.loadingOverlayPanel.Visible = false;
+            this.loadingOverlayPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.LoadingOverlayPanel_Paint);
+            // 
+            // loadingOverlayLabel
+            // 
+            this.loadingOverlayLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.loadingOverlayLabel.Location = new System.Drawing.Point(10, 78);
+            this.loadingOverlayLabel.Name = "loadingOverlayLabel";
+            this.loadingOverlayLabel.Size = new System.Drawing.Size(240, 20);
+            this.loadingOverlayLabel.TabIndex = 0;
+            this.loadingOverlayLabel.Text = "Loading unit data…";
+            this.loadingOverlayLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // loadingSpinnerTimer
+            // 
+            this.loadingSpinnerTimer.Interval = 60;
+            this.loadingSpinnerTimer.Tick += new System.EventHandler(this.LoadingSpinnerTimer_Tick);
             // 
             // UnitReplacerToolTip
             // 
@@ -342,7 +362,6 @@ namespace CrusaderWars.client
             this.Controls.Add(this.btnReplaceAllBuggy);
             this.Controls.Add(this.btnUndo);
             this.Controls.Add(this.btnReset);
-            this.Controls.Add(this.lblBadUnitsStatus);
             this.Controls.Add(this.btnSearchCurrent);
             this.Controls.Add(this.btnSearchAvailable);
             this.Controls.Add(this.InstructionsBox);
@@ -353,6 +372,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.btnReplace);
             this.Controls.Add(this.tvAvailableUnits);
             this.Controls.Add(this.tvCurrentUnits);
+            this.Controls.Add(this.loadingOverlayPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.MaximizeBox = true;
             this.MinimizeBox = true;
@@ -394,6 +414,8 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Button btnSearchCurrent;
         private System.Windows.Forms.Button btnSearchAvailable;
         private System.Windows.Forms.Button btnReset;
-        private System.Windows.Forms.Label lblBadUnitsStatus;
+        private System.Windows.Forms.Panel loadingOverlayPanel;
+        private System.Windows.Forms.Label loadingOverlayLabel;
+        private System.Windows.Forms.Timer loadingSpinnerTimer;
     }
 }

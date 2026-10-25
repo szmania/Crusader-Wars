@@ -31,6 +31,8 @@ namespace CrusaderWars.client
         // reports as known-good are preferred when picking bulk replacements.
         private HashSet<string> _goodUnitKeys = new HashSet<string>(StringComparer.Ordinal);
         private const string BuggyMarker = " [BUGGY UNIT?]";
+        // Owner-drawn spinner state (no image assets): rotating arc angle in degrees.
+        private int _spinnerAngle = 0;
 
         public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements, Dictionary<string, string> unitScreenNames)
         {
@@ -64,26 +66,65 @@ namespace CrusaderWars.client
         [SupportedOSPlatform("windows")]
         private async void UnitReplacerForm_Load(object sender, EventArgs e)
         {
-            // Bulk-update both trees so the initial population paints once instead of per-node.
-            tvCurrentUnits.BeginUpdate();
-            try { PopulateCurrentUnitsTree(); }
-            finally { tvCurrentUnits.EndUpdate(); }
+            // Show the loading overlay + spinner immediately so the UI never looks frozen.
+            ShowLoadingOverlay("Loading unit data…");
 
-            tvAvailableUnits.BeginUpdate();
-            try { PopulateAvailableUnitsTree(); }
-            finally { tvAvailableUnits.EndUpdate(); }
-
-            // After populating, update visuals to show any existing replacements
-            UpdateCurrentUnitsTreeVisuals();
-            UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
-
-            // Non-modal status: the dialog stays interactive while the fetch runs.
-            lblBadUnitsStatus.Text = "Loading buggy-unit data…";
-
-            // Fire-and-forget: fetch known-bad and known-good unit keys in parallel.
+            // Start the telemetry fetches FIRST so their HTTP latency overlaps the tree build.
             // Both never throw and return empty lists on failure/telemetry-disabled.
             var badTask = TelemetryClient.GetBadUnitsAsync();
             var goodTask = TelemetryClient.GetGoodUnitsAsync();
+
+            // Build both trees on a single background worker. All UnitMappers_BETA access happens
+            // there (never concurrently with the UI thread) because its static caches are not
+            // lock-protected. The workers read only immutable inputs and pure static accessors.
+            List<TreeNode> currentRoots;
+            List<TreeNode> availableRoots;
+            try
+            {
+                var build = await Task.Run(() =>
+                {
+                    var current = new List<TreeNode>();
+                    BuildCurrentUnitsTree(current);
+                    var available = new List<TreeNode>();
+                    BuildAvailableUnitsTree(available);
+                    return (current, available);
+                });
+                currentRoots = build.current;
+                availableRoots = build.available;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"UnitReplacerForm: failed to build unit trees: {ex.Message}");
+                currentRoots = new List<TreeNode>();
+                availableRoots = new List<TreeNode>();
+            }
+
+            if (IsDisposed) return;
+
+            // Attach on the UI thread under BeginUpdate/EndUpdate so it paints once.
+            tvCurrentUnits.BeginUpdate();
+            try
+            {
+                tvCurrentUnits.Nodes.Clear();
+                tvCurrentUnits.Nodes.AddRange(currentRoots.ToArray());
+                tvCurrentUnits.ExpandAll();
+            }
+            finally { tvCurrentUnits.EndUpdate(); }
+
+            tvAvailableUnits.BeginUpdate();
+            try
+            {
+                tvAvailableUnits.Nodes.Clear();
+                tvAvailableUnits.Nodes.AddRange(availableRoots.ToArray());
+            }
+            finally { tvAvailableUnits.EndUpdate(); }
+
+            // After populating, update visuals to show any existing replacements.
+            UpdateCurrentUnitsTreeVisuals();
+            UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
+
+            // Now await the telemetry results (already overlapped with the tree build).
+            UpdateLoadingOverlayText("Loading buggy-unit data…");
             await Task.WhenAll(badTask, goodTask);
             if (IsDisposed) return;
 
@@ -96,45 +137,77 @@ namespace CrusaderWars.client
             ApplyBadUnitMarkersToCurrentTree();
             ApplyBadUnitMarkersToAvailableTree();
 
-            lblBadUnitsStatus.Text = _badUnitKeys.Any()
+            HideLoadingOverlay(_badUnitKeys.Any()
                 ? $"{_badUnitKeys.Count} potentially-buggy unit key(s) loaded"
-                : "No buggy-unit data";
+                : "No buggy-unit data");
+        }
+
+        // ------------------------------------------------------------------
+        // Loading overlay + owner-drawn circular spinner (no image assets)
+        // ------------------------------------------------------------------
+
+        private void ShowLoadingOverlay(string message)
+        {
+            PositionLoadingOverlay();
+            loadingOverlayLabel.Text = message;
+            loadingOverlayPanel.Visible = true;
+            loadingOverlayPanel.BringToFront();
+            _spinnerAngle = 0;
+            loadingSpinnerTimer.Start();
+        }
+
+        private void PositionLoadingOverlay()
+        {
+            if (loadingOverlayPanel.IsDisposed) return;
+            // Centre the overlay over the tree area (both TreeViews span the same band).
+            int treeTop = Math.Min(tvCurrentUnits.Top, tvAvailableUnits.Top);
+            int treeHeight = Math.Max(tvCurrentUnits.Height, tvAvailableUnits.Height);
+            loadingOverlayPanel.Left = (ClientSize.Width - loadingOverlayPanel.Width) / 2;
+            loadingOverlayPanel.Top = treeTop + Math.Max(0, (treeHeight - loadingOverlayPanel.Height) / 2);
+        }
+
+        private void UpdateLoadingOverlayText(string message)
+        {
+            if (loadingOverlayPanel.IsDisposed || loadingOverlayLabel.IsDisposed) return;
+            loadingOverlayLabel.Text = message;
+        }
+
+        private async void HideLoadingOverlay(string finalMessage)
+        {
+            loadingSpinnerTimer.Stop();
+            if (loadingOverlayPanel.IsDisposed) return;
+            loadingOverlayLabel.Text = finalMessage;
+            // Brief completion beat so the user sees the final status before the overlay hides.
+            await Task.Delay(1000);
+            if (loadingOverlayPanel.IsDisposed) return;
+            loadingOverlayPanel.Visible = false;
+        }
+
+        private void LoadingSpinnerTimer_Tick(object? sender, EventArgs e)
+        {
+            _spinnerAngle = (_spinnerAngle + 30) % 360;
+            loadingOverlayPanel.Invalidate();
+        }
+
+        private void LoadingOverlayPanel_Paint(object? sender, PaintEventArgs e)
+        {
+            // Owner-drawn rotating arc: a 270-degree sweep so it reads as a spinner.
+            var rect = new Rectangle(
+                (loadingOverlayPanel.Width - 48) / 2,
+                12,
+                48, 48);
+            using (var pen = new Pen(Color.SteelBlue, 4f))
+            {
+                e.Graphics.DrawArc(pen, rect, _spinnerAngle, 270);
+            }
         }
 
         /// <summary>
-        /// Idempotently marks left-tree leaf nodes whose effective Attila unit key is
-        /// known-bad with the buggy marker and red text. Leaf-only, no composition
-        /// lookups, no text rebuild — safe to run after the async telemetry fetch.
+        /// Builds the "Current Battle Units" root nodes. Runs on a background worker: touches only
+        /// the immutable _currentUnits/_allAvailableUnits and pure static UnitMappers_BETA accessors.
         /// </summary>
-        private void ApplyBadUnitMarkersToCurrentTree()
+        private void BuildCurrentUnitsTree(List<TreeNode> roots)
         {
-            if (!_badUnitKeys.Any()) return;
-
-            Action<TreeNodeCollection> traverse = null;
-            traverse = (nodes) =>
-            {
-                foreach (TreeNode node in nodes)
-                {
-                    if (node.Tag is { } nodeTag)
-                    {
-                        dynamic tag = nodeTag;
-                        string nodeAttilaKey = tag.AttilaKey;
-                        if (!string.IsNullOrEmpty(nodeAttilaKey) && _badUnitKeys.Contains(nodeAttilaKey))
-                        {
-                            if (!node.Text.EndsWith(BuggyMarker, StringComparison.Ordinal)) node.Text += BuggyMarker;
-                            node.ForeColor = Color.Red;
-                        }
-                    }
-                    if (node.Nodes != null && node.Nodes.Count > 0) traverse(node.Nodes);
-                }
-            };
-            traverse(tvCurrentUnits.Nodes);
-        }
-
-        private void PopulateCurrentUnitsTree()
-        {
-            tvCurrentUnits.Nodes.Clear();
-
             var groupedUnits = _currentUnits
                 .GroupBy(u => u.IsPlayer() ? "Player's Alliance" : "Enemy's Alliance")
                 .OrderBy(g => g.Key);
@@ -142,7 +215,6 @@ namespace CrusaderWars.client
             foreach (var sideGroup in groupedUnits)
             {
                 var sideNode = new TreeNode(sideGroup.Key);
-                tvCurrentUnits.Nodes.Add(sideNode);
 
                 var unitsByFaction = sideGroup
                     .GroupBy(u => u.GetAttilaFaction())
@@ -186,14 +258,7 @@ namespace CrusaderWars.client
                             {
                                 if (_unitScreenNames.TryGetValue(keyToDisplay, out var screenName))
                                 {
-                                    if (regimentType == RegimentType.MenAtArms)
-                                    {
-                                        attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
-                                    }
-                                    else
-                                    {
-                                        attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
-                                    }
+                                    attilaKeyDisplay = $" [{screenName}] [{keyToDisplay}]";
                                 }
                                 else
                                 {
@@ -265,7 +330,6 @@ namespace CrusaderWars.client
                                 foreach (var kvp in soldiersPerKey.Where(kvp => kvp.Value > 0).OrderBy(kvp => kvp.Key))
                                 {
                                     string levyKey = kvp.Key;
-                                    int soldierCount = kvp.Value;
                                     string screenNameDisplay = _unitScreenNames.TryGetValue(levyKey, out var sn) ? sn : levyKey;
                                     string displayName = $"Levy: [{screenNameDisplay}] [{levyKey}] ({kvp.Value} men)";
                                     var levyNode = new TreeNode(displayName)
@@ -286,12 +350,8 @@ namespace CrusaderWars.client
                         var garrisonComposition = new List<(string unit_key, string name)>();
                         try
                         {
-                            for (int level = 1; level <= 20; level++)
-                            {
-                                var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(factionGroup.Key, level);
-                                garrisonComposition.AddRange(garrisonTuples.Select(g => (g.unit_key, g.name)));
-                            }
-                            garrisonComposition = garrisonComposition.Distinct().ToList();
+                            // Single pass over the cached garrison definitions (was 20x GetFactionGarrison).
+                            garrisonComposition = UnitMappers_BETA.GetFactionGarrisonComposition(factionGroup.Key);
                         }
                         catch (Exception ex)
                         {
@@ -327,7 +387,6 @@ namespace CrusaderWars.client
                             foreach (var kvp in soldiersPerKey.Where(kvp => kvp.Value > 0).OrderBy(kvp => kvp.Key))
                             {
                                 string garrisonKey = kvp.Key;
-                                int soldierCount = kvp.Value;
                                 string screenNameDisplay = _unitScreenNames.TryGetValue(garrisonKey, out var sn) ? sn : garrisonKey;
                                 string displayName = $"Garrison: [{screenNameDisplay}] [{garrisonKey}] ({kvp.Value} men)";
                                 var garrisonNode = new TreeNode(displayName)
@@ -339,15 +398,46 @@ namespace CrusaderWars.client
                         }
                     }
                 }
+                roots.Add(sideNode);
             }
-            tvCurrentUnits.ExpandAll();
         }
 
-        private void PopulateAvailableUnitsTree()
+        /// <summary>
+        /// Idempotently marks left-tree leaf nodes whose effective Attila unit key is
+        /// known-bad with the buggy marker and red text. Leaf-only, no composition
+        /// lookups, no text rebuild — safe to run after the async telemetry fetch.
+        /// </summary>
+        private void ApplyBadUnitMarkersToCurrentTree()
         {
-            tvAvailableUnits.Nodes.Clear();
-            ClearAvailableReplacementHighlights();
+            if (!_badUnitKeys.Any()) return;
 
+            Action<TreeNodeCollection> traverse = null;
+            traverse = (nodes) =>
+            {
+                foreach (TreeNode node in nodes)
+                {
+                    if (node.Tag is { } nodeTag)
+                    {
+                        dynamic tag = nodeTag;
+                        string nodeAttilaKey = tag.AttilaKey;
+                        if (!string.IsNullOrEmpty(nodeAttilaKey) && _badUnitKeys.Contains(nodeAttilaKey))
+                        {
+                            if (!node.Text.EndsWith(BuggyMarker, StringComparison.Ordinal)) node.Text += BuggyMarker;
+                            node.ForeColor = Color.Red;
+                        }
+                    }
+                    if (node.Nodes != null && node.Nodes.Count > 0) traverse(node.Nodes);
+                }
+            };
+            traverse(tvCurrentUnits.Nodes);
+        }
+
+        /// <summary>
+        /// Builds the "Available Replacement Units" root nodes. Runs on a background worker:
+        /// touches only the immutable _allAvailableUnits and _unitScreenNames.
+        /// </summary>
+        private void BuildAvailableUnitsTree(List<TreeNode> roots)
+        {
             var unitsByFaction = _allAvailableUnits
                 .GroupBy(u => u.FactionName)
                 .OrderBy(g => g.Key);
@@ -355,7 +445,6 @@ namespace CrusaderWars.client
             foreach (var factionGroup in unitsByFaction)
             {
                 var factionNode = new TreeNode(factionGroup.Key);
-                tvAvailableUnits.Nodes.Add(factionNode);
 
                 var unitsByType = factionGroup
                     .GroupBy(u => u.UnitType)
@@ -414,6 +503,7 @@ namespace CrusaderWars.client
                         typeNode.Nodes.Add(unitNode);
                     }
                 }
+                roots.Add(factionNode);
             }
         }
 
@@ -451,16 +541,13 @@ namespace CrusaderWars.client
                     Replacements[(originalKey, isPlayerAlliance)] = (replacementKey, isSiege);
                 }
                 else if (regimentType == RegimentType.Garrison)
-                {
-                    for (int level = 1; level <= 20; level++)
+                    // Single pass over the cached garrison definitions (was 20x GetFactionGarrison).
+                    // The union over levels 1..20 equals the full distinct composition, so the set
+                    // of registered keys is unchanged.
+                    foreach (var garrison in UnitMappers_BETA.GetFactionGarrisonComposition(faction))
                     {
-                        var garrisonTuples = UnitMappers_BETA.GetFactionGarrison(faction, level);
-                        foreach (var garrison in garrisonTuples)
-                        {
-                            Replacements[(garrison.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
-                        }
+                        Replacements[(garrison.unit_key, isPlayerAlliance)] = (replacementKey, isSiege);
                     }
-                }
                 else
                 {
                     IEnumerable<Unit> unitsToReplace;
@@ -1049,7 +1136,9 @@ namespace CrusaderWars.client
             btnUndo.Left = newButtonX;
             btnReset.Left = newButtonX;
             btnReplaceAllBuggy.Left = newButtonX;
-            lblBadUnitsStatus.Left = leftTreeViewRight + (gapWidth / 2) - (lblBadUnitsStatus.Width / 2);
+
+            // Keep the loading overlay centred over the tree area while the form resizes.
+            PositionLoadingOverlay();
         }
 
 

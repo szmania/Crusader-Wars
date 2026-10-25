@@ -187,7 +187,18 @@ namespace CrusaderWars.unit_mapper
             foreach (var file in files_paths)
             {
                 XmlDocument doc = new XmlDocument();
-                doc.Load(file);
+                try
+                {
+                    doc.Load(file);
+                }
+                catch (Exception ex)
+                {
+                    // Skip unreadable files instead of aborting the whole cache load; the
+                    // per-key accessors (IsUnitKeySiege, GetMenAtArmMaxCategory) historically
+                    // tolerated bad files, so the cache must too.
+                    Program.Logger.Debug($"Error loading faction file '{Path.GetFileName(file)}' into cache: {ex.Message}");
+                    continue;
+                }
                 if (doc.DocumentElement == null) continue;
                 _factionFileCache[file] = doc;
 
@@ -3000,25 +3011,21 @@ namespace CrusaderWars.unit_mapper
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
             files_paths.Reverse(); // Prioritize submods, as they can override base files
 
+            // Read the parsed documents from the shared faction-file cache instead of
+            // re-loading every faction XML on each call (this runs once per unit key).
+            EnsureFactionCacheLoaded();
+
             foreach (var xml_file in files_paths)
             {
-                try
-                {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue;
+                if (_factionFileCache == null || !_factionFileCache.TryGetValue(xml_file, out var FactionsFile)) continue;
+                if (FactionsFile.DocumentElement == null) continue;
 
-                    // Find a MenAtArm node with the matching key
-                    XmlNode maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@key='{unitKey}']");
-                    if (maaNode != null)
-                    {
-                        // If we find the key, we have our answer.
-                        return maaNode.Attributes?["siege"]?.Value == "true";
-                    }
-                }
-                catch (Exception ex)
+                // Find a MenAtArm node with the matching key
+                XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@key='{unitKey}']");
+                if (maaNode != null)
                 {
-                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in IsUnitKeySiege: {ex.Message}");
+                    // If we find the key, we have our answer.
+                    return maaNode.Attributes?["siege"]?.Value == "true";
                 }
             }
 
@@ -3036,24 +3043,20 @@ namespace CrusaderWars.unit_mapper
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
             files_paths.Reverse(); // Prioritize submods
 
+            // Read the parsed documents from the shared faction-file cache instead of
+            // re-loading every faction XML on each call (this runs once per MAA group).
+            EnsureFactionCacheLoaded();
+
             foreach (var xml_file in files_paths)
             {
-                try
-                {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue;
+                if (_factionFileCache == null || !_factionFileCache.TryGetValue(xml_file, out var FactionsFile)) continue;
+                if (FactionsFile.DocumentElement == null) continue;
 
-                    // Find a MenAtArm node with the matching type attribute
-                    XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
-                    if (maaNode != null)
-                    {
-                        return maaNode.Attributes?["max"]?.Value;
-                    }
-                }
-                catch (Exception ex)
+                // Find a MenAtArm node with the matching type attribute
+                XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
+                if (maaNode != null)
                 {
-                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in GetMenAtArmMaxCategory: {ex.Message}");
+                    return maaNode.Attributes?["max"]?.Value;
                 }
             }
 
