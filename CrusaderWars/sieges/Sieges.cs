@@ -11,14 +11,12 @@ namespace CrusaderWars.twbattle
     public static class Sieges
     {
 
-        /* level 1/2 - default attila
-         * 
-         * level 1 -  no walls
-         *      holding walls = palisade walls
-         * 
-         * level 2 - high walls
+        /* Attila settlement maps expose only two tile_upgrade variants:
+         *
+         * level 1 - no walls (CK3 HoldingLevel 1-2; holding walls = palisade walls)
+         *
+         * level 2 - high walls (CK3 HoldingLevel 3+)
          */
-        // level 3/4 - mk1212 custom cities
         static int HoldingLevel { get; set; }
         static string HoldingLevelKey { get; set; } = string.Empty;
         static string HoldingCulture { get; set; } = string.Empty;
@@ -77,8 +75,9 @@ namespace CrusaderWars.twbattle
 
             int level = HoldingLevel;
             // Attila settlement maps only expose two tile_upgrade variants:
-            // level1 (unfortified) and level2 (walled/standard).
-            if (level > 1) level = 2;
+            // level1 (unfortified/palisade, CK3 HoldingLevel 1-2) and
+            // level2 (walled/standard, CK3 HoldingLevel 3+).
+            if (level > 2) level = 2;
             if (level < 1) level = 1;
             levelUpgradeTag = $"<tile_upgrade>level{level}</tile_upgrade>";
 
