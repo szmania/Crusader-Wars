@@ -158,12 +158,16 @@ namespace CrusaderWars.unit_mapper
         private static Dictionary<string, XmlDocument>? _factionFileCache;
         private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
         private static Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>? _garrisonCache;
+        // Memoizes GetSortedFilePaths results. Keyed by (directory, priority pattern, active-submod
+        // fingerprint) because the ordering depends only on those. Cleared by ClearFactionCache().
+        private static Dictionary<(string directoryPath, string priorityFilePattern, string submodFingerprint), List<string>>? _sortedFilePathsCache;
 
         public static void ClearFactionCache()
         {
             _factionFileCache = null;
             _levyCache = null;
             _garrisonCache = null;
+            _sortedFilePathsCache = null;
         }
 
         private static void EnsureFactionCacheLoaded()
@@ -506,10 +510,23 @@ namespace CrusaderWars.unit_mapper
 
         private static List<string> GetSortedFilePaths(string directoryPath, string priorityFilePattern)
         {
-            var allFiles = Directory.GetFiles(directoryPath, "*.xml").ToList();
             var activeSubmods = string.IsNullOrEmpty(ActivePlaythroughTag)
                 ? new List<string>()
                 : CrusaderWars.mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(ActivePlaythroughTag);
+
+            // Memoize the expensive directory scan + per-file XML tag read. The result depends only
+            // on the directory, the priority pattern, and the active submod set, so cache on that
+            // key and invalidate via ClearFactionCache().
+            string submodFingerprint = ActivePlaythroughTag + "|" + string.Join(",", activeSubmods);
+            var cacheKey = (directoryPath, priorityFilePattern, submodFingerprint);
+            _sortedFilePathsCache ??= new Dictionary<(string, string, string), List<string>>();
+            if (_sortedFilePathsCache.TryGetValue(cacheKey, out var cachedPaths))
+            {
+                // Return a copy: several callers mutate the returned list (e.g. Reverse()).
+                return new List<string>(cachedPaths);
+            }
+
+            var allFiles = Directory.GetFiles(directoryPath, "*.xml").ToList();
 
             var priorityFiles = new List<string>();
             var otherFiles = new List<string>();
@@ -585,7 +602,8 @@ namespace CrusaderWars.unit_mapper
             combinedList.AddRange(submodFiles);
             combinedList.AddRange(addonFiles);
 
-            return combinedList;
+            _sortedFilePathsCache[cacheKey] = combinedList;
+            return new List<string>(combinedList);
         }
 
         [SupportedOSPlatform("windows")]
@@ -1492,6 +1510,42 @@ namespace CrusaderWars.unit_mapper
             return finalGarrisonComposition;
         }
 
+        /// <summary>
+        /// Returns the distinct (unit_key, name) garrison composition for a faction in a single pass
+        /// over the cached garrison definitions. Used by the Unit Replacer to avoid calling
+        /// GetFactionGarrison once per holding level (1..20). Mirrors GetFactionGarrison's
+        /// non-siege safeguard and returns an empty list when the faction has no garrison data.
+        /// </summary>
+        public static List<(string unit_key, string name)> GetFactionGarrisonComposition(string attila_faction)
+        {
+            if (!BattleState.IsSiegeBattle)
+            {
+                return new List<(string, string)>();
+            }
+
+            EnsureFactionCacheLoaded();
+
+            List<(int percentage, string unit_key, string name, string max, int level)>? definitions = null;
+            if (_garrisonCache != null && _garrisonCache.TryGetValue(attila_faction, out var specificGarrisons))
+            {
+                definitions = specificGarrisons;
+            }
+            else if (_garrisonCache != null && _garrisonCache.TryGetValue("Default", out var defaultGarrisons))
+            {
+                definitions = defaultGarrisons;
+            }
+
+            if (definitions == null)
+            {
+                return new List<(string, string)>();
+            }
+
+            return definitions
+                .Select(g => (g.unit_key, g.name))
+                .Distinct()
+                .ToList();
+        }
+
 
         public static string GetGarrisonUnit(string unitType, string culture, string heritage)
         {
@@ -2192,6 +2246,77 @@ namespace CrusaderWars.unit_mapper
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the factions whose resolved subculture equals the given (already-resolved)
+        /// subculture. Resolution mirrors <see cref="GetSubculture"/>: a faction's subculture is
+        /// its own Faction/@subculture attribute, else the Default/DEFAULT faction's subculture.
+        /// Single pass over the Factions XMLs; distinct, ordered alphabetically. Empty list when
+        /// the subculture is null/empty or no faction matches.
+        /// </summary>
+        public static List<string> GetFactionsBySubculture(string subculture)
+        {
+            var factions = new List<string>();
+            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath) || string.IsNullOrEmpty(subculture))
+            {
+                return factions;
+            }
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+
+            // Resolve each faction's subculture with the same rules as GetSubculture: the
+            // faction's own @subculture wins; otherwise the Default faction's subculture.
+            var resolvedSubcultures = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            string defaultSubculture = string.Empty;
+
+            foreach (var xml_file in files_paths)
+            {
+                if (Path.GetExtension(xml_file) != ".xml") continue;
+
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
+
+                XmlNode? defaultNode = FactionsFile.SelectSingleNode("/Factions/Faction[@name='Default' or @name='DEFAULT']");
+                if (defaultNode?.Attributes?["subculture"]?.Value is string foundDefaultSubculture && !string.IsNullOrEmpty(foundDefaultSubculture))
+                {
+                    defaultSubculture = foundDefaultSubculture;
+                }
+
+                foreach (XmlNode factionNode in FactionsFile.SelectNodes("/Factions/Faction"))
+                {
+                    string? factionName = factionNode.Attributes?["name"]?.Value;
+                    if (string.IsNullOrEmpty(factionName)) continue;
+
+                    string? ownSubculture = factionNode.Attributes?["subculture"]?.Value;
+                    if (!string.IsNullOrEmpty(ownSubculture))
+                    {
+                        resolvedSubcultures[factionName] = ownSubculture;
+                    }
+                    else if (!resolvedSubcultures.ContainsKey(factionName))
+                    {
+                        // Placeholder: resolved against the Default subculture after the scan.
+                        resolvedSubcultures[factionName] = string.Empty;
+                    }
+                }
+            }
+
+            foreach (var entry in resolvedSubcultures)
+            {
+                string resolved = string.IsNullOrEmpty(entry.Value) ? defaultSubculture : entry.Value;
+                if (!string.IsNullOrEmpty(resolved) && resolved.Equals(subculture, StringComparison.OrdinalIgnoreCase))
+                {
+                    factions.Add(entry.Key);
+                }
+            }
+
+            return factions
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x, StringComparer.Ordinal)
+                .ToList();
         }
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -1021,7 +1021,6 @@ namespace CrusaderWars.twbattle
                                 string discordUrl = "https://discord.gg/eFZTprHh3j";
                                 string reportContentWithReplacements = string.IsNullOrEmpty(autofixState.LastReplacementDetails) ? fixDescription : fixDescription + "\n\nReplacements this attempt (bad key -> replacement key):\n" + autofixState.LastReplacementDetails;
                                 ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, reportContentWithReplacements);
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, fixDescription);
                             });
                         }
 
@@ -2219,8 +2218,8 @@ namespace CrusaderWars.twbattle
 
             // Resolve a safe replacement for each suspect key and register it in
             // AutofixReplacements; UnitMappers_BETA.ProcessUnitKeyResult applies these at unit-write time.
-            // In-kind first: replace each suspect with a known-good unit (telemetry good-units)
-            // of the same type and faction; fall back to a generic alternative when no match exists.
+            // Candidate faction pool per suspect: own faction -> heritage-sibling factions ->
+            // same-subculture factions -> random same-type draw from any faction.
             List<AvailableUnit> availableUnits = UnitMappers_BETA.GetAllAvailableUnits();
             HashSet<string> goodUnitKeys = new HashSet<string>(await TelemetryClient.GetGoodUnitsAsync(), StringComparer.Ordinal);
             var availableByKey = availableUnits
@@ -2228,38 +2227,77 @@ namespace CrusaderWars.twbattle
                 .GroupBy(u => u.AttilaUnitKey, StringComparer.Ordinal)
                 .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
             var replacementDetails = new System.Text.StringBuilder();
+
+            // Per-call cache so the <=5-suspect batch does not rescan the mapper files for the
+            // same faction repeatedly (heritage/subculture lookups each walk the XML folders).
+            var factionPoolCache = new Dictionary<string, (List<string> heritageFactions, List<string> subcultureFactions)>(StringComparer.OrdinalIgnoreCase);
+
             foreach (string suspectKey in batch)
             {
                 string faction = autofixState.SuspectKeyFactions.TryGetValue(suspectKey, out string? f) ? f : string.Empty;
-                // In-kind known-good replacement first; generic alternative as fallback.
-                AvailableUnit? inKindUnit = FindInKindGoodReplacement(suspectKey, faction, goodUnitKeys, availableByKey);
+
+                // Build the ordered faction pool: own faction, then heritage siblings, then
+                // same-subculture factions (heritage siblings excluded to avoid double visits).
+                var factionPool = new List<string>();
+                if (!string.IsNullOrEmpty(faction))
+                {
+                    factionPool.Add(faction);
+
+                    if (!factionPoolCache.TryGetValue(faction, out var pools))
+                    {
+                        var heritageFactions = new List<string>();
+                        string heritage = UnitMappers_BETA.GetHeritageByFaction(faction);
+                        if (!string.IsNullOrEmpty(heritage))
+                        {
+                            heritageFactions = UnitMappers_BETA.GetFactionsByHeritage(heritage)
+                                .Where(x => !x.Equals(faction, StringComparison.OrdinalIgnoreCase))
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .OrderBy(x => x, StringComparer.Ordinal)
+                                .ToList();
+                        }
+
+                        var subcultureFactions = new List<string>();
+                        string subculture = UnitMappers_BETA.GetSubculture(faction);
+                        if (!string.IsNullOrEmpty(subculture))
+                        {
+                            var heritageSet = new HashSet<string>(heritageFactions, StringComparer.OrdinalIgnoreCase);
+                            subcultureFactions = UnitMappers_BETA.GetFactionsBySubculture(subculture)
+                                .Where(x => !x.Equals(faction, StringComparison.OrdinalIgnoreCase) && !heritageSet.Contains(x))
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .OrderBy(x => x, StringComparer.Ordinal)
+                                .ToList();
+                        }
+
+                        pools = (heritageFactions, subcultureFactions);
+                        factionPoolCache[faction] = pools;
+                    }
+
+                    factionPool.AddRange(pools.heritageFactions);
+                    factionPool.AddRange(pools.subcultureFactions);
+                }
+
+                // In-kind known-good replacement first (own faction -> heritage -> subculture).
+                AvailableUnit? inKindUnit = FindInKindGoodReplacement(suspectKey, factionPool, goodUnitKeys, availableByKey);
                 if (inKindUnit != null)
                 {
-                    AutofixReplacements[suspectKey] = (inKindUnit.AttilaUnitKey, false);
+                    AutofixReplacements[suspectKey] = (inKindUnit.AttilaUnitKey, UnitMappers_BETA.IsUnitKeySiege(inKindUnit.AttilaUnitKey));
                     replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> {inKindUnit.AttilaUnitKey}");
                     Program.Logger.Debug($"Autofix: Registered in-kind good replacement '{suspectKey}' -> '{inKindUnit.AttilaUnitKey}' (faction '{faction}').");
                     continue;
                 }
 
-                AvailableUnit? genericUnit = availableUnits
-                    .Where(u => !string.IsNullOrEmpty(faction) && u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) && !u.IsSiege)
-                    .OrderBy(u => u.AttilaUnitKey)
-                    .FirstOrDefault()
-                    ?? availableUnits
-                        .Where(u => !string.IsNullOrEmpty(faction) && u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase))
-                        .OrderBy(u => u.AttilaUnitKey)
-                        .FirstOrDefault();
-
-                if (genericUnit == null)
+                // Terminal fallback: random same-type draw from any faction.
+                AvailableUnit? randomUnit = PickRandomSameTypeReplacement(suspectKey, availableByKey);
+                if (randomUnit == null)
                 {
                     replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> (no safe replacement found — key will remain unchanged)");
-                    Program.Logger.Debug($"Autofix: No generic replacement unit found for key '{suspectKey}' (faction '{faction}'). Skipping this key.");
+                    Program.Logger.Debug($"Autofix: No available unit of the suspect's type found for key '{suspectKey}' (faction '{faction}'). Skipping this key.");
                     continue;
                 }
 
-                AutofixReplacements[suspectKey] = (genericUnit.AttilaUnitKey, false);
-                replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> {genericUnit.AttilaUnitKey}");
-                Program.Logger.Debug($"Autofix: Registered replacement '{suspectKey}' -> '{genericUnit.AttilaUnitKey}' (faction '{faction}').");
+                AutofixReplacements[suspectKey] = (randomUnit.AttilaUnitKey, UnitMappers_BETA.IsUnitKeySiege(randomUnit.AttilaUnitKey));
+                replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> {randomUnit.AttilaUnitKey}");
+                Program.Logger.Debug($"Autofix: Registered random same-type replacement '{suspectKey}' -> '{randomUnit.AttilaUnitKey}' (faction '{faction}').");
             }
 
             autofixState.LastReplacementDetails = replacementDetails.ToString().TrimEnd();
@@ -2273,29 +2311,83 @@ namespace CrusaderWars.twbattle
         /// Finds an in-kind known-good replacement for a suspect unit key: a key from the
         /// telemetry good-units list whose available unit matches the suspect's unit type
         /// (levy with levy, garrison with garrison, general with general, knight with knight,
-        /// men-at-arms with men-at-arms) and the suspect's faction.
+        /// men-at-arms with men-at-arms) and one of the factions in the ordered pool
+        /// (own faction, then heritage siblings, then same-subculture factions).
         /// Men-at-arms prefer non-siege units of the same max category.
         /// </summary>
         /// <param name="suspectKey">The suspect Attila unit key to replace.</param>
-        /// <param name="faction">The suspect's Attila faction (from SuspectKeyFactions).</param>
+        /// <param name="factionPool">Ordered candidate factions; the first pool that yields a match wins.</param>
         /// <param name="goodUnitKeys">Known-good unit keys fetched from telemetry.</param>
         /// <param name="availableByKey">All available units grouped by Attila unit key.</param>
         /// <returns>AvailableUnit: An in-kind good replacement, or null when none exists.</returns>
         private static AvailableUnit? FindInKindGoodReplacement(
             string suspectKey,
-            string faction,
+            List<string> factionPool,
             HashSet<string> goodUnitKeys,
             Dictionary<string, List<AvailableUnit>> availableByKey)
         {
-            if (string.IsNullOrEmpty(faction) || !availableByKey.TryGetValue(suspectKey, out var suspectUnits))
-                return null; // Unknown suspect or faction: no in-kind match possible.
+            if (factionPool == null || !factionPool.Any() || !availableByKey.TryGetValue(suspectKey, out var suspectUnits))
+                return null; // Unknown suspect or no candidate factions: no in-kind match possible.
 
             var suspectTypes = new HashSet<string>(suspectUnits.Select(u => u.UnitType), StringComparer.OrdinalIgnoreCase);
 
-            var candidates = goodUnitKeys
+            var goodCandidates = goodUnitKeys
                 .Where(key => !string.Equals(key, suspectKey, StringComparison.Ordinal) && availableByKey.ContainsKey(key))
                 .SelectMany(key => availableByKey[key])
-                .Where(u => u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) && suspectTypes.Contains(u.UnitType))
+                .Where(u => suspectTypes.Contains(u.UnitType))
+                .ToList();
+
+            if (!goodCandidates.Any())
+                return null;
+
+            var suspectMaa = suspectUnits.FirstOrDefault(u => u.UnitType.Equals("MenAtArm", StringComparison.OrdinalIgnoreCase));
+
+            // First faction in the pool that yields a same-type known-good candidate wins.
+            foreach (string poolFaction in factionPool)
+            {
+                var candidates = goodCandidates
+                    .Where(u => u.FactionName.Equals(poolFaction, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (!candidates.Any())
+                    continue;
+
+                if (suspectMaa != null)
+                {
+                    // Men-at-arms: prefer non-siege units with the same max category.
+                    return candidates
+                        .OrderBy(u => u.IsSiege)
+                        .ThenBy(u => string.Equals(u.MaxCategory, suspectMaa.MaxCategory, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                        .ThenBy(u => u.AttilaUnitKey)
+                        .First();
+                }
+
+                return candidates.OrderBy(u => u.AttilaUnitKey).First();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Terminal autofix fallback: draws a random available unit of the suspect's own unit
+        /// type from any faction (no known-good requirement). Men-at-arms prefer non-siege
+        /// units; garrisons prefer the suspect's holding level; other types are a plain draw.
+        /// Returns null only when no available unit of the suspect's type exists anywhere.
+        /// </summary>
+        private static AvailableUnit? PickRandomSameTypeReplacement(
+            string suspectKey,
+            Dictionary<string, List<AvailableUnit>> availableByKey)
+        {
+            if (!availableByKey.TryGetValue(suspectKey, out var suspectUnits))
+                return null;
+
+            var suspectTypes = new HashSet<string>(suspectUnits.Select(u => u.UnitType), StringComparer.OrdinalIgnoreCase);
+
+            var candidates = availableByKey.Values
+                .SelectMany(units => units)
+                .Where(u => !string.IsNullOrEmpty(u.AttilaUnitKey)
+                            && !string.Equals(u.AttilaUnitKey, suspectKey, StringComparison.Ordinal)
+                            && suspectTypes.Contains(u.UnitType))
                 .ToList();
 
             if (!candidates.Any())
@@ -2304,15 +2396,21 @@ namespace CrusaderWars.twbattle
             var suspectMaa = suspectUnits.FirstOrDefault(u => u.UnitType.Equals("MenAtArm", StringComparison.OrdinalIgnoreCase));
             if (suspectMaa != null)
             {
-                // Men-at-arms: prefer non-siege units with the same max category.
-                return candidates
-                    .OrderBy(u => u.IsSiege)
-                    .ThenBy(u => string.Equals(u.MaxCategory, suspectMaa.MaxCategory, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
-                    .ThenBy(u => u.AttilaUnitKey)
-                    .First();
+                var nonSiege = candidates.Where(u => !u.IsSiege).ToList();
+                var maaPool = nonSiege.Any() ? nonSiege : candidates;
+                return maaPool[_random.Next(maaPool.Count)];
             }
 
-            return candidates.OrderBy(u => u.AttilaUnitKey).First();
+            var suspectGarrison = suspectUnits.FirstOrDefault(u => u.UnitType.Equals("Garrison", StringComparison.OrdinalIgnoreCase));
+            if (suspectGarrison != null)
+            {
+                int level = GetGarrisonLevelFromUnitKey(suspectKey);
+                var sameLevel = candidates.Where(u => u.Level == level).ToList();
+                var garrisonPool = sameLevel.Any() ? sameLevel : candidates;
+                return garrisonPool[_random.Next(garrisonPool.Count)];
+            }
+
+            return candidates[_random.Next(candidates.Count)];
         }
 
         private static (bool, string) TryMapVariantFix(AutofixState autofixState)
