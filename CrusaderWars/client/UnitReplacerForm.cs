@@ -2,6 +2,7 @@ using CrusaderWars.data.save_file;
 using CrusaderWars.unit_mapper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Versioning;
@@ -33,6 +34,14 @@ namespace CrusaderWars.client
         private const string BuggyMarker = " [BUGGY UNIT?]";
         // Owner-drawn spinner state (no image assets): rotating arc angle in degrees.
         private int _spinnerAngle = 0;
+        // Safety timeout for telemetry fetches (user request): an unreachable backend must
+        // never stall the dialog — after this, continue with empty buggy/good unit lists.
+        private const int TelemetryTimeoutMs = 5000;
+        // O(1) key → available-tree-node index, built once right after the available tree is
+        // attached. Replaces the O(N) full-tree traversal per replaced node in
+        // FindAvailableUnitNodeText/HighlightAvailableUnitNode (the multi-minute load hang).
+        private readonly Dictionary<string, (string faction, string unitText, TreeNode node)> _availableNodeIndex
+            = new Dictionary<string, (string faction, string unitText, TreeNode node)>(StringComparer.OrdinalIgnoreCase);
 
         public UnitReplacerForm(List<Unit> currentUnits, List<AvailableUnit> allAvailableUnits, Dictionary<(string originalKey, bool isPlayerAlliance), (string replacementKey, bool isSiege)> existingReplacements, Dictionary<string, string> unitScreenNames)
         {
@@ -70,27 +79,31 @@ namespace CrusaderWars.client
             ShowLoadingOverlay("Loading unit data…");
 
             // Start the telemetry fetches FIRST so their HTTP latency overlaps the tree build.
-            // Both never throw and return empty lists on failure/telemetry-disabled.
-            var badTask = TelemetryClient.GetBadUnitsAsync();
-            var goodTask = TelemetryClient.GetGoodUnitsAsync();
+            // Both never throw and return empty lists on failure/telemetry-disabled; each is
+            // capped at ~5s so an unreachable backend can never stall the dialog (user req).
+            var badTask = WithTimeout(TelemetryClient.GetBadUnitsAsync(), TelemetryTimeoutMs);
+            var goodTask = WithTimeout(TelemetryClient.GetGoodUnitsAsync(), TelemetryTimeoutMs);
 
             // Build both trees on a single background worker. All UnitMappers_BETA access happens
             // there (never concurrently with the UI thread) because its static caches are not
             // lock-protected. The workers read only immutable inputs and pure static accessors.
+            // The task is started but NOT awaited here, so the form paints immediately and the
+            // telemetry HTTP latency overlaps the build instead of serializing after it.
+            var buildStopwatch = Stopwatch.StartNew();
+            var buildTask = Task.Run(() =>
+            {
+                var current = new List<TreeNode>();
+                BuildCurrentUnitsTree(current);
+                var available = new List<TreeNode>();
+                BuildAvailableUnitsTree(available);
+                return (current, available);
+            });
+
             List<TreeNode> currentRoots;
             List<TreeNode> availableRoots;
             try
             {
-                var build = await Task.Run(() =>
-                {
-                    var current = new List<TreeNode>();
-                    BuildCurrentUnitsTree(current);
-                    var available = new List<TreeNode>();
-                    BuildAvailableUnitsTree(available);
-                    return (current, available);
-                });
-                currentRoots = build.current;
-                availableRoots = build.available;
+                (currentRoots, availableRoots) = await buildTask;
             }
             catch (Exception ex)
             {
@@ -98,16 +111,20 @@ namespace CrusaderWars.client
                 currentRoots = new List<TreeNode>();
                 availableRoots = new List<TreeNode>();
             }
+            buildStopwatch.Stop();
+            Program.Logger.Debug($"UnitReplacerForm: tree build took {buildStopwatch.ElapsedMilliseconds} ms.");
 
             if (IsDisposed) return;
 
             // Attach on the UI thread under BeginUpdate/EndUpdate so it paints once.
+            // (No ExpandAll: expanding thousands of nodes on the UI thread was a
+            // multi-second stall; users expand nodes manually as needed.)
+            var attachStopwatch = Stopwatch.StartNew();
             tvCurrentUnits.BeginUpdate();
             try
             {
                 tvCurrentUnits.Nodes.Clear();
                 tvCurrentUnits.Nodes.AddRange(currentRoots.ToArray());
-                tvCurrentUnits.ExpandAll();
             }
             finally { tvCurrentUnits.EndUpdate(); }
 
@@ -119,8 +136,25 @@ namespace CrusaderWars.client
             }
             finally { tvAvailableUnits.EndUpdate(); }
 
+            // Build the O(1) key → node index for the available tree in ONE pass. This replaces
+            // the O(R × N) full traversals in FindAvailableUnitNodeText/HighlightAvailableUnitNode
+            // (R replaced nodes × N available nodes = tens of millions of TreeNode visits on the
+            // UI thread = minutes of dead UI when many replacements persist across battles).
+            // First key wins (TryAdd) to match the old traversal's first-match semantics.
+            _availableNodeIndex.Clear();
+            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
+                foreach (TreeNode typeNode in factionNode.Nodes)
+                    foreach (TreeNode unitNode in typeNode.Nodes)
+                        if (unitNode.Tag is string key && !string.IsNullOrEmpty(key))
+                            _availableNodeIndex.TryAdd(key, (factionNode.Text, unitNode.Text, unitNode));
+            attachStopwatch.Stop();
+            Program.Logger.Debug($"UnitReplacerForm: tree attach + node index ({_availableNodeIndex.Count} keys) took {attachStopwatch.ElapsedMilliseconds} ms.");
+
             // After populating, update visuals to show any existing replacements.
+            var visualsStopwatch = Stopwatch.StartNew();
             UpdateCurrentUnitsTreeVisuals();
+            visualsStopwatch.Stop();
+            Program.Logger.Debug($"UnitReplacerForm: UpdateCurrentUnitsTreeVisuals took {visualsStopwatch.ElapsedMilliseconds} ms.");
             UnitReplacerForm_Resize(this, EventArgs.Empty); // Initial positioning
 
             // Now await the telemetry results (already overlapped with the tree build).
@@ -134,12 +168,33 @@ namespace CrusaderWars.client
             // Lightweight marker-only passes (NOT a full visual refresh): the full pass
             // re-runs per-garrison composition lookups and a full text rebuild, which is
             // what the user perceived as a hang on the telemetry call.
+            var markersStopwatch = Stopwatch.StartNew();
             ApplyBadUnitMarkersToCurrentTree();
             ApplyBadUnitMarkersToAvailableTree();
+            markersStopwatch.Stop();
+            Program.Logger.Debug($"UnitReplacerForm: bad-unit marker passes took {markersStopwatch.ElapsedMilliseconds} ms.");
 
             HideLoadingOverlay(_badUnitKeys.Any()
                 ? $"{_badUnitKeys.Count} potentially-buggy unit key(s) loaded"
                 : "No buggy-unit data");
+        }
+
+        /// <summary>
+        /// Safety timeout (user request): if a telemetry fetch does not complete within
+        /// timeoutMs, continue with an empty list — the backend is optional for this dialog.
+        /// TelemetryClient fetches never throw, so awaiting the winning task is safe; a
+        /// timed-out fetch is simply abandoned in the background (a CancellationTokenSource
+        /// could not cancel the HTTP call anyway, so Task.WhenAny is the minimal equivalent).
+        /// </summary>
+        private static async Task<List<string>> WithTimeout(Task<List<string>> task, int timeoutMs)
+        {
+            var completed = await Task.WhenAny(task, Task.Delay(timeoutMs));
+            if (completed != task)
+            {
+                Program.Logger.Debug($"UnitReplacerForm: telemetry fetch timed out after {timeoutMs} ms; continuing without it.");
+                return new List<string>();
+            }
+            return await task;
         }
 
         // ------------------------------------------------------------------
@@ -159,11 +214,9 @@ namespace CrusaderWars.client
         private void PositionLoadingOverlay()
         {
             if (loadingOverlayPanel.IsDisposed) return;
-            // Centre the overlay over the tree area (both TreeViews span the same band).
-            int treeTop = Math.Min(tvCurrentUnits.Top, tvAvailableUnits.Top);
-            int treeHeight = Math.Max(tvCurrentUnits.Height, tvAvailableUnits.Height);
+            // Bottom-align the overlay with the OK/Cancel button row; keep horizontal centring.
             loadingOverlayPanel.Left = (ClientSize.Width - loadingOverlayPanel.Width) / 2;
-            loadingOverlayPanel.Top = treeTop + Math.Max(0, (treeHeight - loadingOverlayPanel.Height) / 2);
+            loadingOverlayPanel.Top = btnCancel.Bottom - loadingOverlayPanel.Height;
         }
 
         private void UpdateLoadingOverlayText(string message)
@@ -208,6 +261,11 @@ namespace CrusaderWars.client
         /// </summary>
         private void BuildCurrentUnitsTree(List<TreeNode> roots)
         {
+            // Cache GetMenAtArmMaxCategory per unique MAA type name: each uncached call
+            // XPath-scans EVERY faction XML, so large mapper sets made the tree build take
+            // minutes. Each unique type is now scanned exactly once.
+            var maaMaxCategoryCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
             var groupedUnits = _currentUnits
                 .GroupBy(u => u.IsPlayer() ? "Player's Alliance" : "Enemy's Alliance")
                 .OrderBy(g => g.Key);
@@ -270,7 +328,11 @@ namespace CrusaderWars.client
                         string displayName;
                         if (regimentType == RegimentType.MenAtArms)
                         {
-                            string maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(nameToShow) ?? "Unit";
+                            if (!maaMaxCategoryCache.TryGetValue(nameToShow, out var maxCategory))
+                            {
+                                maxCategory = UnitMappers_BETA.GetMenAtArmMaxCategory(nameToShow) ?? "Unit";
+                                maaMaxCategoryCache[nameToShow] = maxCategory;
+                            }
                             displayName = $"MAA-{nameToShow}: {attilaKeyDisplay} [{maxCategory}] ({unitCount} units, {totalSoldiers} men)";
                         }
                         else
@@ -586,7 +648,8 @@ namespace CrusaderWars.client
         /// <summary>
         /// Replaces every known-buggy unit group in the battle with a non-buggy unit of
         /// similar type. Fallback chain per buggy node: same faction + same unit type,
-        /// then heritage-sibling factions, then "Default", then any faction. Registers
+        /// then heritage-sibling factions, then same-subculture factions, then "Default",
+        /// then any faction. Registers
         /// via the existing Replacements dictionary (same semantics as btnReplace_Click).
         /// </summary>
         private void ReplaceAllBuggyUnits()
@@ -641,6 +704,11 @@ namespace CrusaderWars.client
             var replaced = new List<string>();
             var unreplaceable = new List<string>();
 
+            // Per-call cache so heritage/subculture faction resolution runs once per distinct
+            // faction instead of once per buggy node (each uncached resolution re-scans the
+            // mapper XML folders). Same pattern as BattleProcessor.TryUnitFix's factionPoolCache.
+            var factionPoolCache = new Dictionary<string, (List<string> heritageSiblings, List<string> subcultureFactions)>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var node in buggyNodes)
             {
                 dynamic tag = node.Tag;
@@ -672,7 +740,7 @@ namespace CrusaderWars.client
                     u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase) &&
                     u.AttilaUnitKey.Equals(effectiveKey, StringComparison.Ordinal));
 
-                AvailableUnit? replacement = PickBulkReplacement(faction, unitType, suspect, regimentType);
+                AvailableUnit? replacement = PickBulkReplacement(faction, unitType, suspect, regimentType, factionPoolCache);
                 if (replacement == null)
                 {
                     unreplaceable.Add(effectiveKey);
@@ -737,11 +805,15 @@ namespace CrusaderWars.client
 
         /// <summary>
         /// Picks the best non-buggy replacement for a suspect unit using the fallback chain:
-        /// L1 same faction + same unit type, L2 heritage-sibling factions, L3 "Default",
-        /// L4 any faction. Within the pool, prefer known-good keys, then type-specific
-        /// tiebreaks, then alphabetical key.
+        /// L1 same faction + same unit type, L2 heritage-sibling factions, L3 same-subculture
+        /// factions, L4 "Default", L5 any faction. Within the pool, prefer known-good keys,
+        /// then type-specific tiebreaks, then alphabetical key.
         /// </summary>
-        private AvailableUnit? PickBulkReplacement(string faction, string unitType, AvailableUnit? suspect, RegimentType regimentType)
+        /// <param name="factionPoolCache">Optional per-call cache of faction → (heritage
+        /// siblings, subculture factions) so heritage/subculture resolution runs once per
+        /// distinct faction instead of once per buggy node. When null, resolution runs
+        /// directly with no caching.</param>
+        private AvailableUnit? PickBulkReplacement(string faction, string unitType, AvailableUnit? suspect, RegimentType regimentType, Dictionary<string, (List<string> heritageSiblings, List<string> subcultureFactions)>? factionPoolCache = null)
         {
             var allOfType = _allAvailableUnits.Where(u => u.UnitType.Equals(unitType, StringComparison.OrdinalIgnoreCase)).ToList();
 
@@ -751,12 +823,20 @@ namespace CrusaderWars.client
             var sameFaction = allOfType.Where(u => u.FactionName.Equals(faction, StringComparison.OrdinalIgnoreCase)).ToList();
             pools.Add(sameFaction);
 
-            string heritage = UnitMappers_BETA.GetHeritageByFaction(faction);
-            if (!string.IsNullOrEmpty(heritage))
+            // Resolve heritage siblings + same-subculture factions once per distinct faction
+            // (mirrors BattleProcessor.TryUnitFix's factionPoolCache).
+            var (heritageSiblings, subcultureFactions) = ResolveFactionPools(faction, factionPoolCache);
+
+            if (heritageSiblings.Any())
             {
-                var siblingFactions = new HashSet<string>(UnitMappers_BETA.GetFactionsByHeritage(heritage), StringComparer.OrdinalIgnoreCase);
-                siblingFactions.Remove(faction);
-                pools.Add(allOfType.Where(u => siblingFactions.Contains(u.FactionName)).ToList());
+                var siblingSet = new HashSet<string>(heritageSiblings, StringComparer.OrdinalIgnoreCase);
+                pools.Add(allOfType.Where(u => siblingSet.Contains(u.FactionName)).ToList());
+            }
+
+            if (subcultureFactions.Any())
+            {
+                var subcultureSet = new HashSet<string>(subcultureFactions, StringComparer.OrdinalIgnoreCase);
+                pools.Add(allOfType.Where(u => subcultureSet.Contains(u.FactionName)).ToList());
             }
 
             pools.Add(allOfType.Where(u => u.FactionName.Equals("Default", StringComparison.OrdinalIgnoreCase) || u.FactionName.Equals("DEFAULT", StringComparison.OrdinalIgnoreCase)).ToList());
@@ -772,6 +852,47 @@ namespace CrusaderWars.client
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Resolves the heritage-sibling and same-subculture faction lists for a faction,
+        /// using the per-call cache when provided. The subculture pool excludes the faction
+        /// itself and its heritage siblings (mirrors BattleProcessor.TryUnitFix), and is
+        /// empty when the faction has no resolvable subculture.
+        /// </summary>
+        private static (List<string> heritageSiblings, List<string> subcultureFactions) ResolveFactionPools(
+            string faction,
+            Dictionary<string, (List<string> heritageSiblings, List<string> subcultureFactions)>? factionPoolCache)
+        {
+            if (factionPoolCache != null && factionPoolCache.TryGetValue(faction, out var cached))
+                return cached;
+
+            var heritageSiblings = new List<string>();
+            string heritage = UnitMappers_BETA.GetHeritageByFaction(faction);
+            if (!string.IsNullOrEmpty(heritage))
+            {
+                heritageSiblings = UnitMappers_BETA.GetFactionsByHeritage(heritage)
+                    .Where(x => !x.Equals(faction, StringComparison.OrdinalIgnoreCase))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(x => x, StringComparer.Ordinal)
+                    .ToList();
+            }
+
+            var subcultureFactions = new List<string>();
+            string subculture = UnitMappers_BETA.GetSubculture(faction);
+            if (!string.IsNullOrEmpty(subculture))
+            {
+                var heritageSet = new HashSet<string>(heritageSiblings, StringComparer.OrdinalIgnoreCase);
+                subcultureFactions = UnitMappers_BETA.GetFactionsBySubculture(subculture)
+                    .Where(x => !x.Equals(faction, StringComparison.OrdinalIgnoreCase) && !heritageSet.Contains(x))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(x => x, StringComparer.Ordinal)
+                    .ToList();
+            }
+
+            var result = (heritageSiblings, subcultureFactions);
+            factionPoolCache?.TryAdd(faction, result);
+            return result;
         }
 
         private AvailableUnit? PickBestFromPool(List<AvailableUnit> pool, AvailableUnit? suspect, RegimentType regimentType)
@@ -948,38 +1069,19 @@ namespace CrusaderWars.client
 
         private (string faction, string unitText) FindAvailableUnitNodeText(string key)
         {
-            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
-            {
-                foreach (TreeNode typeNode in factionNode.Nodes)
-                {
-                    foreach (TreeNode unitNode in typeNode.Nodes)
-                    {
-                        if (unitNode.Tag as string == key)
-                        {
-                            return (factionNode.Text, unitNode.Text.Replace(BuggyMarker, ""));
-                        }
-                    }
-                }
-            }
+            // O(1) index lookup (built once at load). The stored text is captured before
+            // buggy markers are appended, and Replace strips them either way, so the result
+            // matches the old live-read full traversal exactly.
+            if (_availableNodeIndex.TryGetValue(key, out var entry))
+                return (entry.faction, entry.unitText.Replace(BuggyMarker, ""));
             return ("Unknown Faction", key);
         }
 
         private void HighlightAvailableUnitNode(string key)
         {
-            foreach (TreeNode factionNode in tvAvailableUnits.Nodes)
-            {
-                foreach (TreeNode typeNode in factionNode.Nodes)
-                {
-                    foreach (TreeNode unitNode in typeNode.Nodes)
-                    {
-                        if (unitNode.Tag as string == key)
-                        {
-                            unitNode.ForeColor = Color.MediumSeaGreen;
-                            return;
-                        }
-                    }
-                }
-            }
+            // O(1) index lookup; no-op when the key is absent, matching the old traversal.
+            if (_availableNodeIndex.TryGetValue(key, out var entry))
+                entry.node.ForeColor = Color.MediumSeaGreen;
         }
 
 
