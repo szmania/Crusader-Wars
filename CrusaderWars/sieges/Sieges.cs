@@ -11,13 +11,15 @@ namespace CrusaderWars.twbattle
     public static class Sieges
     {
 
-        /* Attila settlement maps expose only two tile_upgrade variants:
+        /* Attila settlement maps expose only two tile_upgrade variants (two-axis system):
          *
-         * level 1 - no walls (CK3 HoldingLevel 1-2; holding walls = palisade walls)
+         * level 1 - no walls (low-tier holdings without real fortifications; palisades stay level1)
          *
-         * level 2 - high walls (CK3 HoldingLevel 3+)
+         * level 2 - high walls (stone fortresses, fortified holdings, urban holdings)
          */
         static int HoldingLevel { get; set; }
+        static int SettlementLevel { get; set; } = 1;
+        static int GarrisonTierLevel { get; set; } = 1;
         static string HoldingLevelKey { get; set; } = string.Empty;
         static string HoldingCulture { get; set; } = string.Empty;
         static string GarrisonHeritage { get; set; } = string.Empty;
@@ -34,6 +36,8 @@ namespace CrusaderWars.twbattle
         public static void Reset()
         {
             HoldingLevel = 0;
+            SettlementLevel = 1;
+            GarrisonTierLevel = 1;
             HoldingLevelKey = string.Empty;
             HoldingCulture = string.Empty;
             GarrisonHeritage = string.Empty;
@@ -50,6 +54,8 @@ namespace CrusaderWars.twbattle
         }
 
         public static int GetHoldingLevel() { return HoldingLevel; }
+        public static int GetSettlementLevel() { return SettlementLevel; }
+        public static int GetGarrisonTier() { return GarrisonTierLevel; }
         public static int GetGarrisonSize() { return GarrisonSize; }
         public static string GetGarrisonCulture() { return GarrisonCulture; }
         public static string GetGarrisonHeritage() { return GarrisonHeritage; }
@@ -73,12 +79,13 @@ namespace CrusaderWars.twbattle
             string basePath = $"terrain/tiles/battle/settlement_{architecture}_cities/{architecture}_city_a/medium/";
 
 
-            int level = HoldingLevel;
+            // Two-axis system: settlement level is derived from the holding's physical
+            // structure only (fort-independent). See Sieges_DataTypes.Holding.GetSettlementLevel.
+            int level = SettlementLevel;
             // Attila settlement maps only expose two tile_upgrade variants:
-            // level1 (unfortified/palisade, CK3 HoldingLevel 1-2) and
-            // level2 (walled/standard, CK3 HoldingLevel 3+).
-            if (level > 2) level = 2;
+            // level1 (unfortified/palisade) and level2 (walled/standard).
             if (level < 1) level = 1;
+            if (level > 2) level = 2;
             levelUpgradeTag = $"<tile_upgrade>level{level}</tile_upgrade>";
 
             return levelUpgradeTag;
@@ -109,8 +116,12 @@ namespace CrusaderWars.twbattle
 
         public static void CalculateAndSetHoldingLevel()
         {
-            HoldingLevel = Sieges_DataTypes.Holding.GetLevel(HoldingLevelKey, Data.Province_Buildings.ToArray(), FortLevel);
+            string[] buildings = Data.Province_Buildings.ToArray();
+            HoldingLevel = Sieges_DataTypes.Holding.GetLevel(HoldingLevelKey, buildings, FortLevel);
+            SettlementLevel = Sieges_DataTypes.Holding.GetSettlementLevel(HoldingLevelKey, buildings);
+            GarrisonTierLevel = Sieges_DataTypes.Holding.GetGarrisonTier(HoldingLevelKey, FortLevel);
             Program.Logger.Debug($"Calculated Holding Level: {HoldingLevel} (Base Key: {HoldingLevelKey}, Fort Level: {FortLevel})");
+            Program.Logger.Debug($"Calculated Settlement Level: {SettlementLevel}, Garrison Tier: {GarrisonTierLevel}");
         }
 
         public static void SetHoldingLevelKey(string key)

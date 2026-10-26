@@ -2034,7 +2034,7 @@ namespace CrusaderWars.unit_mapper
                     break;
 
                 case RegimentType.Garrison:
-                    int holdingLevel = BattleState.IsSiegeBattle ? Sieges.GetHoldingLevel() : 1;
+                    int garrisonTier = BattleState.IsSiegeBattle ? Sieges.GetGarrisonTier() : 1;
                     var allGarrisons = new List<(string key, int level)>();
                     foreach (XmlNode garrisonNode in defaultFactionNode.SelectNodes("Garrison"))
                     {
@@ -2049,7 +2049,7 @@ namespace CrusaderWars.unit_mapper
                     }
                     if (allGarrisons.Any())
                     {
-                        var suitableGarrisons = allGarrisons.Where(g => g.level <= holdingLevel).ToList();
+                        var suitableGarrisons = allGarrisons.Where(g => g.level <= garrisonTier).ToList();
                         List<(string key, int level)> finalSelectionPool = suitableGarrisons.Any()
                             ? suitableGarrisons.Where(g => g.level == suitableGarrisons.Max(s => s.level)).ToList()
                             : allGarrisons.Where(g => g.level == allGarrisons.Min(s => s.level)).ToList();

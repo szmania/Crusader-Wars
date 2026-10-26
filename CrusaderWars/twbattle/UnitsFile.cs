@@ -306,8 +306,8 @@ namespace CrusaderWars
 
                     Program.Logger.Debug($"Processing garrisons for faction '{factionName}' with a total of {total_faction_garrison_soldiers} soldiers.");
 
-                    int holdingLevel = twbattle.Sieges.GetHoldingLevel();
-                    var garrison_percentages = UnitMappers_BETA.GetFactionGarrison(factionName, holdingLevel);
+                    int garrisonTier = twbattle.Sieges.GetGarrisonTier();
+                    var garrison_percentages = UnitMappers_BETA.GetFactionGarrison(factionName, garrisonTier);
                     newGarrisonUnits.AddRange(BETA_GarrisonComposition(merged_garrison_unit, army, garrison_percentages, army_xp));
                 }
             }

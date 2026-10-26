@@ -50,6 +50,7 @@
     <Compile Include="BookmarksPlus\MainFilePlaythroughTests.cs" />
     <Compile Include="BookmarksPlus\UnitMapperTests.cs" />
     <Compile Include="BookmarksPlus\UnitCardsNamesTests.cs" />
+    <Compile Include="SiegesTests.cs" />
     <Compile Include="BookmarksPlus\XmlValidationTests.cs" />
   </ItemGroup>
   <ItemGroup>
