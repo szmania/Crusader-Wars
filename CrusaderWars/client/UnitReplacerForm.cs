@@ -656,7 +656,13 @@ namespace CrusaderWars.client
         {
             if (!_badUnitKeys.Any())
             {
-                MessageBox.Show("No buggy-unit data is available. The backend may be unreachable or telemetry is disabled.", "No Buggy Units", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Empty data != backend down: zero keys can simply mean the backend has no
+                // known-buggy units for this playthrough/year range (it also covers a timed-out
+                // fetch — both yield zero keys, and neither is an error to alarm the user about).
+                string message = ModOptions.GetSendAnonymousTelemetry()
+                    ? "The backend returned no known-buggy unit keys for your playthrough / year range, so there is nothing to replace."
+                    : "No buggy-unit data is available (anonymous telemetry is disabled). Enable telemetry in Options to download known-buggy unit data from the backend.";
+                MessageBox.Show(message, "No Buggy Units", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
