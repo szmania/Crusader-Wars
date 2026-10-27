@@ -1407,7 +1407,7 @@ namespace CrusaderWars.twbattle
                                 report.AppendLine($"Location: {provinceName}");
                                 report.AppendLine($"Map Coordinates: ({mapX}, {mapY})");
 
-                                ShowClickableLinkMessageBox(form, messageText, title, "Report on Discord: " + discordUrl, discordUrl, report.ToString());
+                                ShowClickableLinkMessageBox(form, messageText, title, "Report on Discord: " + discordUrl, discordUrl, report.ToString(), true);
                             });
                         }
                     }
@@ -1603,7 +1603,7 @@ namespace CrusaderWars.twbattle
         }
 
         [SupportedOSPlatform("windows")]
-        private static void ShowClickableLinkMessageBox(Form parentForm, string messageText, string title, string linkText, string url, string reportContent)
+        private static void ShowClickableLinkMessageBox(Form parentForm, string messageText, string title, string linkText, string url, string reportContent, bool showCopyToClipboardButton = false)
         {
             // Create a custom form with clickable link
             using (Form messageForm = new Form())
@@ -1677,8 +1677,29 @@ namespace CrusaderWars.twbattle
                 okButton.Anchor = AnchorStyles.Top;
                 panel.Controls.Add(okButton);
 
+                if (showCopyToClipboardButton)
+                {
+                    Button copyButton = new Button();
+                    copyButton.Text = "Copy to Clipboard";
+                    copyButton.Size = new Size(120, 25);
+                    copyButton.Location = new Point(okButton.Left - copyButton.Width - 5, okButton.Top);
+                    copyButton.Anchor = AnchorStyles.Top;
+                    copyButton.Click += (sender, e) =>
+                    {
+                        try
+                        {
+                            Clipboard.SetText(reportContent);
+                            MessageBox.Show("Battle report copied to clipboard!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Failed to copy to clipboard: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+                    panel.Controls.Add(copyButton);
+                }
+
                 messageForm.AcceptButton = okButton;
-                messageForm.ResumeLayout();
 
                 messageForm.ShowDialog(parentForm);
             }

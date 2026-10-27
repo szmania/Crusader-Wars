@@ -1,1 +1,107 @@
-l_japanese:
+﻿l_japanese:
+	#
+	### Event/Alert Window button texts ###
+	ccalert.1.title: "Crusader Conflicts の通知|「クオリティ オブ ライフ」プレベータ|3 月 2024"
+	ccalert.1.desc: "#high MODはvに更新されました0.9.11 「Qaulity of Life!」、バグを避けるためにまだCrusader Conflicts Launcherを更新していない場合は今すぐ更新してください。\n\nCrusader Conflicts ランチャーは #high 別 #! SteamワークショップCKより3 モジュール。 Steam は CK を自動的に更新します3 mod ファイルですが、Steam では可能です #high ない #! CrusaderConflicts.exe ランチャーを自動的に更新します。 CKを開く必要があります3 少なくとも 1 回は、CC ランチャーにアクセスして更新します。開かないと、ランチャーは更新を検出しません。\n\n#X 更新されたランチャーをダウンロードしないと、Attila の戦闘がクラッシュします。あなたは警告を受けました。"
+ 	ccalert.1.a: "今からCrusader Conflicts Launcherをアップデートします！"
+	#
+	#
+	### Battle Window button texts ###
+	cc_bw_fight_button: "自分自身で戦いを挑みましょう！"
+	cc_bw_fight_button_disabled: "このキャラクターは戦闘を制御できない場合があります。\nMod オプション: 環境設定を参照してください。"
+	cc_bw_options_button: "Crusader Conflicts MOD オプション"
+	cc_bw_wait_button: "戦いを戦うためにあと数日待ってください..."
+	#
+	#
+	### Mod Option Window texts ###
+	cc_op_window_title: "#high Crusader Conflicts MOD オプション"
+	cc_op_tab1_title: "#clickable MODについて"
+	cc_op_tab2_title: "#clickable バトルスケール"
+	cc_op_tab3_title: "#clickable ユニットサイズ"
+	cc_op_tab4_title: "#clickable 設定"
+	cc_op_tab5_title: "#clickable CK3 アッティラ部隊へ"
+	#
+	### About Mod tab texts ###
+	cc_op_tab1_desc: "Crusader Conflicts Mod オプションは現在以下でのみ利用可能です #high 英語#! ローカリゼーション。"
+	cc_op_page1_desc: "#clickable MODの詳細"
+	cc_op_about_head: "MODについて"
+	cc_op_about_hsub: "仕組み:\n\n\n\n#i 必須：#!\n\n\n\n#i #high ユニットマッパー:#! #!\n\n\n#X サポートされていない:#!"
+	cc_op_about_desc: "#high 十字軍の紛争#! あなたの戦いについて詳しく読みます #high クルセイダーキングス 3#! キャラクターが関与し、それを #high トータルウォー: アッティラの戦い#! 直接制御できること。賦課金、Men-at-Arms、Knight は Total War: Attila で同等のユニットに変換されます。単位の変換方法の詳細については、「 #clickable 文化別部隊#! タブ。\n\n#i Crusader Conflicts MOD スタンドアロン アプリケーション\nCrusader Kings の Steam バージョン 3、Total War: Attila、Attila DLC - Age of Charlemagne#!\n\n#i #high これは、MOD がどのユニットを Attila で使用するかを知る方法です。それぞれに必要な MOD/DLC があり、ユニット マッパーがロードされるときに有効にする必要があります。それらの構造は基本的に、MOD/DLC のユニットのグループに文化と遺産の名前を割り当てることです。#!\n\n#X 1212 AD スクリプト モジュール - のこの特定の部分をサブスクライブしないでください。 1212 広告モッド\n文化軍パック - CK3 モッド#!"
+	cc_op_help_head: "ヘルプとコミュニティ"
+	cc_op_help_hsub: "ヘルプ FAQ:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nご質問がありますか?助けが必要ですか?"
+	cc_op_help_desc: "#high アッティラの戦いはうまくいかない/遅れます!#! - Attila のグラフィック オプションを下げ、 #clickable バトルスケール#! オプション。上空の戦い 20k/40kは吃音するだろう。\n#high アッティラ戦の部隊番号が一致しません #clickable ユニットサイズ #!オプション！#! - UNIT SIZE の Attila グラフィックス オプションが ULTRA に設定されていることを確認します。 ULTRA より低いと単位が小さくなります。\n#high ロードしようとすると Attila がクラッシュします。#! - ロードされたユニット マッパーの正しい MOD が有効になっていないか、ロードされたユニット マッパーのユニット キーが正しくなく、戦闘に存在します。\n#high 「バトルをプレイ」ボタンをクリックしても何も起こりません。#! - 中央の旗のアイコンをクリックして、Crusader Conflicts Launcher が起動して実行中であることを確認します。\n#high 一部の戦闘を制御できないのはなぜですか!#! - 行かなければなりません #clickable 設定#! を選択し、戦える希望のキャラクターを選択します。これは、毎回の戦闘後とCK時に設定する必要がある唯一のオプションです。3 が始まります。\n#high 戦闘結果が不正確です！#! - 戦闘に勝利した後は、軍隊を消耗させる意味はありません。彼らの死傷者はカウントされません。\n#high CrusaderConflicts.pack が見つかりません。#! - CrusaderConflicts.pack は戦闘ごとに作り直されます。何も購読する必要はありません。MOD リストの一番下に置く必要があります。\n#high 戦闘後のロードが遅すぎる！#! - このため、CrusaderWars_Battle セーブデータを時々削除することをお勧めします。\n#high アッティラの単位は私の文化ではありません。#! - 部隊の文化は指揮官の文化に基づいているため、同じ文化圏に属さない指揮官がいる場合、部隊はその指揮官の文化のものになります。\n\n#high 不協和音 - https://discord.gg/eFZTprHh3j"
+	cc_op_thank_head: "謝辞"
+	cc_op_thank_hsub: "Crusader Conflicts 開発者より"
+	cc_op_thank_desc: "すべてのCKをおめでとうございます3 そしてTotal War MOD制作者、彼らのMODを私たちのMODと一緒に使用する機会を与えてくれて、絶対的に歴史的に正確なユニットを作ってくれました！私たちは改造業界をより良い方向に変えています!また、コミュニティとパトロンのサポーターにも感謝したいと思います。私たちのプロジェクトを信じてくれてありがとう、私たちはあなたをとても愛しています!."
+	#
+	### Troops by Culture conversions for both default attila and with 1212 AD HEADERS ### 
+	cc_op_page2_desc: "#clickable 文化別の軍隊 (デフォルト)"
+	cc_op_page3_desc: "#clickable 文化ごとの軍隊 1212 AD (オプション)"
+	#
+	### Battle Scale tab texts ###
+	cc_op_tab2_desc: "全体的な調整 [battle|E] サイズ。手動戦闘のパフォーマンスと範囲を管理するために使用されます。\n\n#high Total War: Attila で制御される手動戦闘にのみ影響します。通常のクルセイダーキングには影響なし 3 戦い。#!"
+	cc_op_scale_head: "全体的な戦闘規模のスケール"
+	cc_op_scale_desc: "Crusader Kings の全体的なスケーリング 3 [army|E] Total War: Attila の戦いの合計。手動戦闘のローエンド マシンのパフォーマンスを向上させるために使用されます。\n\nに設定すると 50% このオプションは Crusader Kings を変換します 3 合計で戦う 40,000 [soldiers|E] 総力戦へ: アッティラの戦い 20,000。すべての単位タイプは均等にスケールされます。\n\n#high デフォルト値は 100% #!\n#i 減少して戦闘パフォーマンスが向上します#!"
+	cc_op_automax_head: "最大戦闘制限を超える自動スケール"
+	cc_op_automax_desc: "有効にすると、 [battle|E] を超えるもの #high 最大戦闘制限#! の [soldiers|E] で設定された制限まで自動的にスケールダウンされます。 #high 最大戦闘制限#!。 Total War: Attila をクラッシュさせる大規模で大規模なエンドゲームの戦いを管理するために使用されます。\n\n#high デフォルト値は有効です #!\n#X このオプションを無効にするとクラッシュが発生する可能性があります"
+	cc_op_max_head: "最大戦闘制限"
+	cc_op_max_desc: "オートスケールが有効な場合 - a [battle|E] この量を超えるものは [soldiers|E] この制限までスケールダウンされます。大規模なエンドゲーム戦闘の管理に使用されます。\n\nに設定すると 20,000 このオプションはCrusader Kingsを変換します 3 との戦い 40,000 [soldiers|E] 総力戦へ: アッティラの戦い 20,000 兵士たち。すべての単位タイプは均等にスケールされます。\n\N#high Total War: 戦闘でこの正確な値を使用するには、Attila を ULTRA ユニット サイズに設定する必要があります。#! ユニットのサイズが ULTRA 未満に設定されている場合、戦闘中のユニットあたりの人数が減少する可能性があります。\n\n#high デフォルト値は 40,000#!\n#i 減少して戦闘パフォーマンスが向上します#!"
+	#
+	### Unit Size tab texts ###
+	cc_op_tab3_desc: "Crusader Conflicts の戦いではすべて [soldiers|E] 参加する軍隊は、制御可能な個別のユニットによって代表されます。次の [regiments|E] タイプはユニット サイズを調整できます。\n\n#high デフォルト以外のオプションは戦闘バランスに影響を与え、戦闘が簡単になったり難しくなったりする可能性があります。"
+	cc_op_unit1_head: "賦課金単位のサイズ"
+	cc_op_unit1_desc: "[levies|E] 戦闘ではユニットの組み合わせによって表現されます。十字軍紛争の戦いでは、ほとんどの文化が徴収金を次のように徴収します。 65% 光槍ユニット、 10% 光遠距離ユニット、および 25% 中歩兵ユニット。特定の文化には違いがあります。\n\N#high Total War: 戦闘でこの正確な値を使用するには、Attila を ULTRA ユニット サイズに設定する必要があります。#! ユニットのサイズが ULTRA 未満に設定されている場合、戦闘中のユニットあたりの人数が減少する可能性があります。\n\n#high デフォルト値は 200 #!"
+	cc_op_unit2_head: "近接戦闘兵のユニットサイズ"
+	cc_op_unit2_desc: "近接攻撃 [men_at_arms|E] 連隊は、賦課金と比較して改良された装甲、武器、訓練を受けた兵士です。これらの軍隊は、剣、斧、槍、パイクなどの近接武器を使用して戦うユニットによって表されます。\n\n[regiment|E] の種類 [spearmen|E], [skirmishers|E]、 そして [heavy_infantry|E] 戦闘ではこのユニットサイズを使用します。\n\N#high Total War: 戦闘でこの正確な値を使用するには、Attila を ULTRA ユニット サイズに設定する必要があります。#! ユニットのサイズが ULTRA 未満に設定されている場合、戦闘中のユニットあたりの人数が減少する可能性があります。\n\n#high デフォルト値は 200 #!"
+	cc_op_unit3_head: "遠隔武装兵のユニットサイズ"
+	cc_op_unit3_desc: "遠距離攻撃 [men_at_arms|E] 連隊は、賦課金と比較して改良された装甲、武器、訓練を受けた兵士です。これらの軍隊は、弓、クロスボウ、スリング、ジャベリンなどの遠距離武器を使用して戦うユニットによって代表されます。\n\n[regiment|E] の種類 [archers|E] 戦闘ではこのユニットサイズを使用します。\n\N#high Total War: 戦闘でこの正確な値を使用するには、Attila を ULTRA ユニット サイズに設定する必要があります。#! ユニットのサイズが ULTRA 未満に設定されている場合、戦闘中のユニットあたりの人数が減少する可能性があります。\n\n#high デフォルト値は 200 #!"
+	cc_op_unit4_head: "騎兵兵のユニットサイズ"
+	cc_op_unit4_desc: "騎兵 [men_at_arms|E] 連隊は、馬やラクダなどの乗り物を持ち、賦課金と比較して改良された鎧、武器、訓練を受けた兵士です。これらの軍隊は、遠隔武器と近接武器の両方を使用して騎馬から戦うユニットによって代表されます。\n\n[regiment|E] の種類 [light_cavalry|E] そして [heavy_cavalry|E] 戦闘ではこのユニットサイズを使用します。\n\n#high デフォルト値は 100 #!"
+	cc_op_unit5_head: "loc_Siege Men-at-Arms ユニット サイズ"
+	cc_op_unit5_desc: "loc_攻城兵器の分割方法に関する説明。これは決して必要ないかもしれません\n\n#high デフォルト値は 100 #!"
+	#
+	### Prefs & Battle Rules tab texts ###
+	cc_op_tab4_desc: "さまざまなタイプの陸軍司令官がアティラで直接制御できるようにするための特定のオプション\n\n#high MOD を初めて使用するユーザーにはデフォルト値を強くお勧めします。 #!"
+	cc_op_control1_head: "ダイレクトバトルコントロール"
+	cc_op_control1_desc: "の [commander|E] アッティラでどの戦闘を直接制御できるかを決定します。\n\nプレイヤー キャラクターのみがリスクと報酬のバランスを提供し、バニラ CK に適合します3 ロールプレイ体験。\nプレイヤーとマーシャルも許可します [marshal|E] 直接の戦闘制御を引き継ぎます。\nすべての王朝では、あなたのメンバーであれば誰でも許可されます [dynasty|E] 直接の戦闘制御を引き継ぎます。\nすべてのキャラクター では、任意の名前を付けたキャラクターを許可します [commander|E] 直接の戦闘制御を引き継ぎます。\n\n#high デフォルト値はプレイヤーキャラクターのみです #!\n\n#X デフォルト以外のオプションを使用すると、Crusader Kings の難易度が大幅に低下します。 3 キャンペーン"
+	cc_op_unitnames_head: "直接戦闘ユニット名"
+	cc_op_unitnames_desc: "ユニット名をクレイジーにするか、CKのように統一しますか?3 男性の武器名を一般化しますか？\n\n#high デフォルト値は「Flavorful Unit Names」です #!\n\n#X CK を使用している場合は、風味豊かなユニット名を使用してください3 AGOT などのオーバーホール、または Crusader Kings の Men At Arms の名前を調整する MOD 3"
+	
+	#
+	### Troops by Culture conversions for both default attila and with 1212 AD DETAILED ### 
+	cc_op_def1: "#Details デフォルトのユニットについてはこちら"
+	cc_op_def2: "詳細はこちら 1212 ADユニット"
+
+	#Extracting Data
+	player_id: "[GetPlayer.MakeScope.Var('left_side_commander').Char.GetID]"
+	enemy_id: "[GetPlayer.MakeScope.Var('right_side_commander').Char.GetID]"
+	player_rank: "[GetPlayer.MakeScope.Var('left_side_commander').Char.GetPrimaryTitle.GetTierFrame]"
+	enemy_rank: "[GetPlayer.MakeScope.Var('right_side_commander').Char.GetPrimaryTitle.GetTierFrame]"
+	player_name: "[GetPlayer.MakeScope.Var('left_side_name').Char.GetFullNameNoTooltip]"
+	enemy_name: "[GetPlayer.MakeScope.Var('right_side_name').Char.GetFullNameNoTooltip]"
+	player_prowess: "[GetPlayer.MakeScope.Var('left_side_prowess').Char.GetProwess]"
+	enemy_prowess: "[GetPlayer.MakeScope.Var('right_side_prowess').Char.GetProwess]"
+	region_type: "[CombatWindow.GetCombat.GetProvince.Custom('GetProvinceRegion')]"
+	building: "[GetPlayer.MakeScope.Var('unique_map').GetProvince.GetHolding.GetSpecialBuildingType.GetKey]"
+
+	province_id: "[GetPlayer.MakeScope.Var('combat_var').Combat.GetProvince.GetID]"
+
+	player_knight_effectiveness: "[GetPlayer.MakeScope.Var('left_side_warleader').Char.GetKnightEffectivenessBreakdown]"
+    
+    global_date_year: "[GetCurrentDate.GetYear]"
+    global_date_month: "[GetCurrentDate.GetMonthOfYear]"
+	global_culture_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetCulture.GetID]"
+	global_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetID]"
+
+	#
+	### Unit Mapping ### 
+	cc_op_tab5_desc: "単位マッピングの詳細 (デフォルトと CK の両方)3 MODの互換性 ".
+	cc_op_tab5_default: "#clickable 文化別の軍隊 (デフォルト)"
+	cc_op_tab5_compatmods: "#clickable 文化別の軍隊 (互換性のある MOD)"
+	cc_op_tab5_custom: "#clickable 文化別の軍隊 (カスタマイズ)"
+	cc_op_about_hsub_um: "仕組み:\n\n\n\n#i 必須：#!\n\n\n\n#i #high オプション:#! #!\n\n#X サポートされていない:#!"
+	cc_op_about_desc_um: "#high 十字軍の紛争#! あなたの戦いについて詳しく読みます #high クルセイダーキングス 3#! キャラクターが関与し、それを #high トータルウォー: アッティラの戦い#! 直接制御できること。賦課金、Men-at-Arms、Knight は Total War: Attila で同等のユニットに変換されます。単位の変換方法の詳細については、「 #clickable 文化別部隊#! タブ。\n\n#i Crusader Kings の Steam バージョン 3、Total War: Attila、Attila DLC - Age of Charlemagne\nCrusader Kingsの両方のためにCrusader Conflicts modをサブスクライブしました 3 そしてトータル・ウォー: アッティラ\nCrusader Conflicts MOD スタンドアロン アプリケーション #!\n\n#i #high Total War: Attila mod - 1212 AD (モデルパック 1-8)#! #!- 追加の文化単位用#!\n\n#X 1212 AD スクリプト モジュール - のこの特定の部分をサブスクライブしないでください。 1212 広告モッド#!"
+	cc_op_help_hsub_um: "ヘルプ FAQ:\n\n\n\n\n\n\nご質問がありますか?助けが必要ですか?"
+	cc_op_help_desc_um: "#high アッティラの戦いはうまくいかない/遅れます!#! - Attila のグラフィック オプションを下げ、 #clickable バトルスケール#! オプション。 Crusader Kings も確認してください 3 バックグラウンドで完全に停止されています。\n#high アッティラ戦の部隊番号が一致しません #clickable ユニットサイズ #!オプション！#! - UNIT SIZE の Attila グラフィックス オプションが ULTRA に設定されていることを確認します。 ULTRA より低いと単位が小さくなります。\n#high ロードしようとすると Attila がクラッシュします。#! - を使用していないことを確認してください。 1212 ADスクリプトmod。\n#high 「バトルをプレイ」ボタンをクリックしても何も起こりません。#! - CK を起動していることを確認します。3 CrusaderConflicts.exe を使用して中央の旗のアイコンをクリックします。CK を手動で起動しないでください。3 スチームから。\n#high 一部の戦闘を制御できないのはなぜですか!#! - 手動戦闘は、プレイヤーキャラクターが個人的に軍隊を指揮している場合にのみ利用可能です。\n\n#high 不協和音 - #! https://discord.gg/eFZTprHh3j"
+	cc_op_thank_hsub_um: "1212 AD モッドチーム"
+	cc_op_thank_desc_um: "より関連性の高いユニットを使用できるように、アッティラ用に非常に広大な中世 MOD を作成してくれてありがとう!"
