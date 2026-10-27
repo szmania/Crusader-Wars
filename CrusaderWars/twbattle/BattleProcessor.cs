@@ -1700,6 +1700,9 @@ namespace CrusaderWars.twbattle
                 }
 
                 messageForm.AcceptButton = okButton;
+                messageForm.ResumeLayout();
+
+                messageForm.ShowDialog(parentForm);
 
                 messageForm.ShowDialog(parentForm);
             }

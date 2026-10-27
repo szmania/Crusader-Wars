@@ -177,5 +177,252 @@ print_unitnames_2 = {
     effect = {
         debug_log = "unitnames:2"
     }
+}
 
+### CC Options persistence ###
+# These scripted guis store the player's CC option settings as character variables.
+# Character variables persist across save/load cycles (pattern proven in 03_cc_battle_control.txt).
+# cc_game_start.txt reads these variables on game start and re-applies the settings.
+
+# Battle Scale (mutually exclusive)
+cc_set_battle_scale_25 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_battle_scale_50
+		remove_variable = cc_op_battle_scale_100
+		set_variable = cc_op_battle_scale_25
+	}
+}
+
+cc_set_battle_scale_50 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_battle_scale_25
+		remove_variable = cc_op_battle_scale_100
+		set_variable = cc_op_battle_scale_50
+	}
+}
+
+cc_set_battle_scale_100 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_battle_scale_25
+		remove_variable = cc_op_battle_scale_50
+		set_variable = cc_op_battle_scale_100
+	}
+}
+
+# Max Battle Troops (mutually exclusive)
+cc_set_battle_max_20 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_battle_max_40
+		remove_variable = cc_op_battle_max_80
+		set_variable = cc_op_battle_max_20
+	}
+}
+
+cc_set_battle_max_40 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_battle_max_20
+		remove_variable = cc_op_battle_max_80
+		set_variable = cc_op_battle_max_40
+	}
+}
+
+cc_set_battle_max_80 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_battle_max_20
+		remove_variable = cc_op_battle_max_40
+		set_variable = cc_op_battle_max_80
+	}
+}
+
+# Auto Scale (mutually exclusive)
+cc_set_auto_scale_on = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_auto_scale_off
+		set_variable = cc_op_auto_scale_on
+	}
+}
+
+cc_set_auto_scale_off = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_auto_scale_on
+		set_variable = cc_op_auto_scale_off
+	}
+}
+
+# Levy Unit Size (mutually exclusive)
+cc_set_levy_200 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_levy_300
+		remove_variable = cc_op_levy_400
+		set_variable = cc_op_levy_200
+	}
+}
+
+cc_set_levy_300 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_levy_200
+		remove_variable = cc_op_levy_400
+		set_variable = cc_op_levy_300
+	}
+}
+
+cc_set_levy_400 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_levy_200
+		remove_variable = cc_op_levy_300
+		set_variable = cc_op_levy_400
+	}
+}
+
+# Melee MAA Unit Size (mutually exclusive)
+cc_set_melee_160 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_melee_200
+		remove_variable = cc_op_melee_300
+		set_variable = cc_op_melee_160
+	}
+}
+
+cc_set_melee_200 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_melee_160
+		remove_variable = cc_op_melee_300
+		set_variable = cc_op_melee_200
+	}
+}
+
+cc_set_melee_300 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_melee_160
+		remove_variable = cc_op_melee_200
+		set_variable = cc_op_melee_300
+	}
+}
+
+# Ranged MAA Unit Size (mutually exclusive)
+cc_set_ranged_100 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_ranged_200
+		remove_variable = cc_op_ranged_300
+		set_variable = cc_op_ranged_100
+	}
+}
+
+cc_set_ranged_200 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_ranged_100
+		remove_variable = cc_op_ranged_300
+		set_variable = cc_op_ranged_200
+	}
+}
+
+cc_set_ranged_300 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_ranged_100
+		remove_variable = cc_op_ranged_200
+		set_variable = cc_op_ranged_300
+	}
+}
+
+# Mounted MAA Unit Size (mutually exclusive)
+cc_set_mounted_50 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_mounted_100
+		remove_variable = cc_op_mounted_150
+		set_variable = cc_op_mounted_50
+	}
+}
+
+cc_set_mounted_100 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_mounted_50
+		remove_variable = cc_op_mounted_150
+		set_variable = cc_op_mounted_100
+	}
+}
+
+cc_set_mounted_150 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_mounted_50
+		remove_variable = cc_op_mounted_100
+		set_variable = cc_op_mounted_150
+	}
+}
+
+# Direct Battle Control (mutually exclusive)
+cc_set_control_1 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_control_2
+		remove_variable = cc_op_control_3
+		remove_variable = cc_op_control_4
+		set_variable = cc_op_control_1
+	}
+}
+
+cc_set_control_2 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_control_1
+		remove_variable = cc_op_control_3
+		remove_variable = cc_op_control_4
+		set_variable = cc_op_control_2
+	}
+}
+
+cc_set_control_3 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_control_1
+		remove_variable = cc_op_control_2
+		remove_variable = cc_op_control_4
+		set_variable = cc_op_control_3
+	}
+}
+
+cc_set_control_4 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_control_1
+		remove_variable = cc_op_control_2
+		remove_variable = cc_op_control_3
+		set_variable = cc_op_control_4
+	}
+}
+
+# Unit Names (mutually exclusive)
+cc_set_unitnames_1 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_unitnames_2
+		set_variable = cc_op_unitnames_1
+	}
+}
+
+cc_set_unitnames_2 = {
+	scope = character
+	effect = {
+		remove_variable = cc_op_unitnames_1
+		set_variable = cc_op_unitnames_2
+	}
 }

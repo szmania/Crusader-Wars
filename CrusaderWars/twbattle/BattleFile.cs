@@ -591,7 +591,8 @@ namespace CrusaderWars
                 string provinceName = BattleResult.ProvinceName ?? "";
 
                 // This is used as a search parameter and a fallback
-                string searchBattleType = (twbattle.Sieges.GetHoldingLevel() > 1) ? "settlement_standard" : "settlement_unfortified";
+                // Attila settlement level 2 = standard (high walls), level 1 = unfortified.
+                string searchBattleType = (twbattle.Sieges.GetSettlementLevel() >= 2) ? "settlement_standard" : "settlement_unfortified";
 
                 // Try to get the specific battle type from the mapper
                 string? mapperBattleType = UnitMappers_BETA.GetSiegeBattleType(defenderAttilaFaction, searchBattleType, provinceName);
@@ -687,8 +688,8 @@ namespace CrusaderWars
                 string defenderAttilaFaction = UnitMappers_BETA.GetAttilaFaction(twbattle.Sieges.GetGarrisonCulture(), twbattle.Sieges.GetGarrisonHeritage());
 
                 string siegeBattleType;
-                int holdingLevel = twbattle.Sieges.GetHoldingLevel();
-                if (holdingLevel > 1)
+                int settlementLevel = twbattle.Sieges.GetSettlementLevel();
+                if (settlementLevel >= 2)
                 {
                     siegeBattleType = "settlement_standard";
                 }
