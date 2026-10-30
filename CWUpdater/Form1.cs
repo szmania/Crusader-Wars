@@ -657,9 +657,11 @@ del ""%~f0""
 
         }
         /// <summary>
-        /// Applies a unit mappers update. Mappers are extracted into unit_mappers\attila while
-        /// unit_mappers\schemas stays in place. Existing mapper folders at the old root location
-        /// (pre-attila layout) are migrated into attila, and custom mappers are preserved.
+        /// Applies a unit mappers update. A package that ships an 'attila' folder at its root is merged
+        /// into the unit_mappers root (so its 'attila' lands at unit_mappers\attila); legacy packages with
+        /// mappers at the package root are merged into unit_mappers\attila. unit_mappers\schemas stays in
+        /// place. Existing mapper folders at the old root location (pre-attila layout) are migrated into
+        /// attila first, and merge semantics preserve custom mappers.
         /// </summary>
         public async Task ApplyUnitMappersUpdate(string updateFilePath, string unitMappersRoot)
         {
@@ -703,6 +705,11 @@ del ""%~f0""
                         Logger.Log($"Update content found in sub-directory: {sourceRoot}");
                     }
 
+                    // Detect the package shape: new packages ship an 'attila' folder at their root
+                    // (matching the cc-mappers repo layout), legacy packages keep mappers at the root.
+                    bool packageShipsAttila = Directory.Exists(Path.Combine(sourceRoot, "attila"));
+                    Logger.Log($"Package ships 'attila' folder: {packageShipsAttila}.");
+
                     // Step 2: One-time migration of the old structure.
                     // Old layout: mapper folders + schemas directly under unit_mappers.
                     // New layout: mapper folders under unit_mappers\attila, schemas stay at unit_mappers\schemas.
@@ -743,89 +750,44 @@ del ""%~f0""
                         }
                     }
 
-                    // Step 3: Replace mapper content inside attila.
-                    // Custom mappers (tag starting with 'Custom') are preserved.
-                    Directory.CreateDirectory(attilaDir);
-                    var customBackupPath = Path.Combine(Path.GetTempPath(), "cw_custom_mappers_backup");
-                    if (Directory.Exists(customBackupPath)) Directory.Delete(customBackupPath, true);
-                    Directory.CreateDirectory(customBackupPath);
-
-                    foreach (var dir in Directory.GetDirectories(attilaDir))
+                    // Step 3: Merge the new mapper content in place.
+                    // New packages ship an 'attila' folder at their root, so they are merged into the
+                    // unit_mappers root and land at unit_mappers\attila (no attila\attila nesting).
+                    // Legacy packages keep mappers at the package root and are merged into unit_mappers\attila.
+                    // Merging (rather than clearing) preserves custom mappers and avoids an empty-attila window.
+                    // ponytail: merge never prunes, so mapper folders removed upstream linger; upgrade path is
+                    // to diff against a package manifest and delete the leftovers.
+                    if (packageShipsAttila)
                     {
-                        string tagFile = Path.Combine(dir, "tag.txt");
-                        bool isCustom = false;
-                        if (File.Exists(tagFile))
+                        Logger.Log($"Merging package content from '{sourceRoot}' into '{unitMappersRoot}'.");
+                        CopyDirectoryContents(sourceRoot, unitMappersRoot);
+                    }
+                    else
+                    {
+                        Logger.Log($"Merging legacy package content from '{sourceRoot}' into '{attilaDir}'.");
+                        Directory.CreateDirectory(attilaDir);
+                        foreach (var file in Directory.GetFiles(sourceRoot, "*", SearchOption.AllDirectories))
                         {
-                            try
+                            string relativePath = file.Substring(sourceRoot.Length + 1);
+
+                            // 'schemas' belongs at unit_mappers\schemas (handled in Step 5) and must not be nested into attila.
+                            string topFolder = relativePath.Split(Path.DirectorySeparatorChar)[0];
+                            if (topFolder.Equals("schemas", StringComparison.OrdinalIgnoreCase))
                             {
-                                isCustom = File.ReadAllText(tagFile).Trim().StartsWith("Custom", StringComparison.OrdinalIgnoreCase);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Log($"Error reading tag file {tagFile}: {ex.Message}");
-                            }
-                        }
-
-                        if (isCustom)
-                        {
-                            string dirName = Path.GetFileName(dir);
-                            string destination = Path.Combine(customBackupPath, dirName);
-                            Logger.Log($"Backing up custom mapper: {dir} to {destination}");
-                            await RetryActionAsync(() => MoveDirectoryCrossVolume(dir, destination), $"Backup custom mapper {dirName}");
-                        }
-                    }
-
-                    // Clear attila and copy the new mapper content in.
-                    foreach (var dir in Directory.GetDirectories(attilaDir))
-                    {
-                        await RetryActionAsync(() => Directory.Delete(dir, true), $"Clear old mapper dir {Path.GetFileName(dir)}");
-                    }
-                    foreach (var file in Directory.GetFiles(attilaDir))
-                    {
-                        await RetryActionAsync(() => File.Delete(file), $"Clear old mapper file {Path.GetFileName(file)}");
-                    }
-
-                    Logger.Log($"Copying new mapper content from '{sourceRoot}' to '{attilaDir}'.");
-                    foreach (var file in Directory.GetFiles(sourceRoot, "*", SearchOption.AllDirectories))
-                    {
-                        string relativePath = file.Substring(sourceRoot.Length + 1);
-
-                        // 'schemas' belongs at unit_mappers\schemas (handled in Step 5) and must not be nested into attila.
-                        string topFolder = relativePath.Split(Path.DirectorySeparatorChar)[0];
-                        if (topFolder.Equals("schemas", StringComparison.OrdinalIgnoreCase))
-                        {
-                            Logger.Log($"Skipping '{relativePath}' (schemas are copied to the root schemas directory).");
-                            continue;
-                        }
-
-                        string destinationPath = Path.Combine(attilaDir, relativePath);
-                        string? destinationDir = Path.GetDirectoryName(destinationPath);
-                        if (!string.IsNullOrEmpty(destinationDir) && !Directory.Exists(destinationDir))
-                        {
-                            Directory.CreateDirectory(destinationDir);
-                        }
-                        File.Copy(file, destinationPath, true);
-                    }
-
-                    // Step 4: Restore custom mappers.
-                    if (Directory.Exists(customBackupPath))
-                    {
-                        foreach (var dir in Directory.GetDirectories(customBackupPath))
-                        {
-                            string dirName = Path.GetFileName(dir);
-                            string destination = Path.Combine(attilaDir, dirName);
-
-                            if (Directory.Exists(destination))
-                            {
-                                Logger.Log($"Conflicting custom mapper '{dirName}' in update package. Deleting to prioritize user's custom mapper.");
-                                await RetryActionAsync(() => Directory.Delete(destination, true), $"Delete conflicting custom mapper {dirName}");
+                                Logger.Log($"Skipping '{relativePath}' (schemas are copied to the root schemas directory).");
+                                continue;
                             }
 
-                            Logger.Log($"Restoring custom mapper: {dir} to {destination}");
-                            await RetryActionAsync(() => MoveDirectoryCrossVolume(dir, destination), $"Restore custom mapper {dirName}");
+                            string destinationPath = Path.Combine(attilaDir, relativePath);
+                            string? destinationDir = Path.GetDirectoryName(destinationPath);
+                            if (!string.IsNullOrEmpty(destinationDir) && !Directory.Exists(destinationDir))
+                            {
+                                Directory.CreateDirectory(destinationDir);
+                            }
+                            File.Copy(file, destinationPath, true);
                         }
-                        Directory.Delete(customBackupPath, true);
                     }
+                    // Note: a package mapper that collides with a user's Custom_* mapper overwrites it (standard unzip-over semantics).
 
                     // Step 5: Ensure schemas directory exists at the root level (update may also ship schemas).
                     // Schemas from the update package are copied to unit_mappers\schemas (never into attila).
@@ -1121,6 +1083,32 @@ del ""%~f0""
             // Delete the source directory
             Directory.Delete(sourceDir, true);
             Logger.Log("Cross-volume move complete.");
+        }
+
+        private void CopyDirectoryContents(string sourceDir, string destDir)
+        {
+            Logger.Log($"Merging directory contents from '{sourceDir}' to '{destDir}'.");
+
+            string normalizedSource = sourceDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            Directory.CreateDirectory(destDir);
+
+            foreach (string dirPath in Directory.GetDirectories(normalizedSource, "*", SearchOption.AllDirectories))
+            {
+                string relativePath = dirPath.Substring(normalizedSource.Length + 1);
+                Directory.CreateDirectory(Path.Combine(destDir, relativePath));
+            }
+
+            foreach (string filePath in Directory.GetFiles(normalizedSource, "*", SearchOption.AllDirectories))
+            {
+                string relativePath = filePath.Substring(normalizedSource.Length + 1);
+                string destinationPath = Path.Combine(destDir, relativePath);
+                string? destinationDir = Path.GetDirectoryName(destinationPath);
+                if (!string.IsNullOrEmpty(destinationDir) && !Directory.Exists(destinationDir))
+                {
+                    Directory.CreateDirectory(destinationDir);
+                }
+                File.Copy(filePath, destinationPath, true);
+            }
         }
 
         private void RestoreBackup(string backupPath, string applicationPath)
