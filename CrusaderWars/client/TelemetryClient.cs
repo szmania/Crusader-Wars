@@ -144,7 +144,7 @@ namespace CrusaderWars.client
                 string url = Environment.GetEnvironmentVariable("TELEMETRY_API_BASE_URL");
                 if (string.IsNullOrWhiteSpace(url))
                 {
-                    url = "https://crusader-conflicts.vercel.app";
+                    url = "https://crusader-conflicts-be.vercel.app";
                 }
                 return url.TrimEnd('/');
             }
