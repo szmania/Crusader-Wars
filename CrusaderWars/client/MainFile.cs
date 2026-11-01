@@ -89,61 +89,12 @@ namespace CrusaderWars
             }
         }
 
-        /// <summary>
-        /// Migrates unit mapper folders from the old top-level .\unit_mappers layout into
-        /// .\unit_mappers\attila, where the app now expects them. Runs at startup before
-        /// the playthrough display is built; folders already migrated are left untouched.
-        /// </summary>
-        private static void MigrateTopLevelUnitMappersToAttila()
-        {
-            string topLevelMappersDir = UnitMappers_BETA.UnitMappersRootDir;
-            string attilaMappersDir = UnitMappers_BETA.AttilaMappersDir;
-            if (!Directory.Exists(topLevelMappersDir) || !Directory.Exists(attilaMappersDir))
-            {
-                return;
-            }
-
-            foreach (var mapperDir in Directory.GetDirectories(topLevelMappersDir))
-            {
-                string mapperName = Path.GetFileName(mapperDir);
-                if (mapperName.Equals("attila", StringComparison.OrdinalIgnoreCase) ||
-                    mapperName.Equals("rome_2", StringComparison.OrdinalIgnoreCase) ||
-                    mapperName.Equals("schemas", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // Only move folders that look like unit mapper folders.
-                if (!File.Exists(Path.Combine(mapperDir, "tag.txt")) && !File.Exists(Path.Combine(mapperDir, "Mods.xml")))
-                {
-                    continue;
-                }
-
-                string destinationDir = Path.Combine(attilaMappersDir, mapperName);
-                if (Directory.Exists(destinationDir))
-                {
-                    Program.Logger.Debug($"Migration skipped for '{mapperName}': a folder with the same name already exists in '{attilaMappersDir}'.");
-                    continue;
-                }
-
-                try
-                {
-                    Directory.Move(mapperDir, destinationDir);
-                    Program.Logger.Debug($"Migrated unit mapper folder '{mapperName}' into '{attilaMappersDir}'.");
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.Debug($"Failed to migrate unit mapper folder '{mapperName}' into '{attilaMappersDir}': {ex.Message}");
-                }
-            }
-        }
         public HomePage()
         {
             Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
             CreateRequiredDirectories();
             data.MigrationService.MigrateUnitMappersDirectory();
-            MigrateTopLevelUnitMappersToAttila();
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
@@ -968,7 +919,6 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
             // Relocate them before re-validating: the search below only looks in
             // UnitMappers_BETA.AttilaMappersDir, so a stranded folder would make the
             // active playthrough look missing and get deactivated.
-            MigrateTopLevelUnitMappersToAttila();
 
             string versionFilePath = @".\settings\last_um_version.txt";
             string lastKnownVersion = "0.0.0";
@@ -2035,7 +1985,10 @@ private void CreateGameShortcut()
                                 // NEW: Validate mapper-declared CK3 mod file names against the enabled playset
                                 if (!string.IsNullOrEmpty(activePlaythrough))
                                 {
-                                    var ck3ModFileNames = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythrough).ck3ModFileNames;
+                                    // Resolve game type from the playthrough directly: _gameType may still be
+                                    // the default "attila" here on the first click, before SetPlaythrough() runs.
+                                    var gameTypeForLookup = games.GameServiceFactory.ResolveGameTypeFromPlaythrough(activePlaythrough);
+                                    var ck3ModFileNames = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(activePlaythrough, gameTypeForLookup).ck3ModFileNames;
                                     if (ck3ModFileNames.Any())
                                     {
                                         var missingCk3Mods = ck3ModFileNames.Where(pair => !enabledMods.Contains(pair.fileName)).ToList();
