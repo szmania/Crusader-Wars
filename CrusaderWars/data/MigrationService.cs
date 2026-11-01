@@ -19,10 +19,10 @@ namespace CrusaderWars.data
         /// </summary>
         public static void MigrateUnitMappersDirectory()
         {
-            string unitMappersRoot = @".\unit mappers";
+            string unitMappersRoot = CrusaderWars.unit_mapper.UnitMappers_BETA.UnitMappersRootDir;
             string attilaDir = Path.Combine(unitMappersRoot, "attila");
             string rome2Dir = Path.Combine(unitMappersRoot, "rome_2");
-            string backupDir = @".\unit mappers_backup";
+            string backupDir = unitMappersRoot + "_backup";
 
             // If attila subdirectory already exists, migration has already been performed
             if (Directory.Exists(attilaDir))

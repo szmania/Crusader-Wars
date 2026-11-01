@@ -63,7 +63,7 @@ namespace CrusaderWars.games
                 return "Attila"; // Default
 
             // Search in both attila/ and rome_2/ directories
-            string unitMappersBaseDir = @".\unit mappers";
+            string unitMappersBaseDir = CrusaderWars.unit_mapper.UnitMappers_BETA.UnitMappersRootDir;
             
             // Check Rome 2 first
             string rome2Dir = Path.Combine(unitMappersBaseDir, "rome_2");
