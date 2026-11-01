@@ -810,6 +810,33 @@ del ""%~f0""
                     }
                     Directory.CreateDirectory(schemasDir); // Ensure it always exists even if the package has no schemas
 
+                    // Step 5.5: Clean up residual old structure folders at unit_mappers root.
+                    // These are mapper folders left over from failed/partial previous migrations that
+                    // should have been moved into attila. Protected folders (attila, rome_2, schemas)
+                    // are never touched. Cleanup failures are logged but never fail the update.
+                    var protectedFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        "attila",
+                        "rome_2",
+                        "schemas"
+                    };
+                    foreach (var dir in Directory.GetDirectories(unitMappersRoot))
+                    {
+                        string dirName = Path.GetFileName(dir);
+                        // Never delete protected folders or the user's custom mappers.
+                        if (protectedFolders.Contains(dirName) || dirName.StartsWith("Custom", StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        try
+                        {
+                            Logger.Log($"Cleaning up residual old structure folder: {dirName}");
+                            await RetryActionAsync(() => Directory.Delete(dir, true), $"Delete residual folder {dirName}");
+                        }
+                        catch (Exception cleanupEx)
+                        {
+                            Logger.Log($"[WARNING] Could not delete residual folder '{dirName}': {cleanupEx.Message}");
+                        }
+                    }
+
                     // Step 6: Clean up backup if update was successful
                     Logger.Log("Update successful, deleting backup.");
                     Directory.Delete(backupPath, true);
