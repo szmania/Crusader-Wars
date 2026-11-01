@@ -413,6 +413,15 @@
  game_concept_cc_advantage_nosupplies: "No Supplies"
  game_concept_cc_advantage_nosupplies_desc: "This army is starving!"
 
+ game_concept_cc_victorious_momentum:0 "Victorious Momentum"
+ game_concept_cc_victorious_momentum_desc:0 "A recent victory on the battlefield. This commander fights with momentum!"
+ game_concept_cc_humbling_defeat:0 "Humbling Defeat"
+ game_concept_cc_humbling_defeat_desc:0 "A recent defeat on the battlefield. This commander has been humbled!"
+ game_concept_cc_decisive_victory:0 "Decisive Victory"
+ game_concept_cc_decisive_victory_desc:0 "A decisive victory in which the enemy side was wiped out. This commander is unstoppable!"
+ game_concept_cc_mourning_battle:0 "Mourning a Fallen Kin"
+ game_concept_cc_mourning_battle_desc:0 "A close kin was slain in battle. This character mourns their loss."
+
  cc_traits_conditions:"#S Conditions:#!\n"
  cc_traits_affects:"#S Boosts army:#!\n"
  

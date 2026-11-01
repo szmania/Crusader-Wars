@@ -71,7 +71,7 @@ namespace CrusaderWars.sieges
             garrisonArmy.SetIsGarrison(true);
 
             // Create a single placeholder unit for the garrison
-            var unit = new Unit("Garrison", garrisonSize, new Culture(cultureID), RegimentType.Garrison, twbattle.Sieges.GetHoldingLevel());
+            var unit = new Unit("Garrison", garrisonSize, new Culture(cultureID), RegimentType.Garrison, twbattle.Sieges.GetGarrisonTier());
             garrisonArmy.Units.Add(unit);
 
             Program.Logger.Debug($"Created garrison placeholder army with {garrisonSize} soldiers for culture ID {cultureID}.");
@@ -103,12 +103,12 @@ namespace CrusaderWars.sieges
             List<(int porcentage, string unit_key, string name, string max)> garrisonComposition;
             try
             {
-                int holdingLevel = twbattle.Sieges.GetHoldingLevel();
-                garrisonComposition = UnitMappers_BETA.GetFactionGarrison(attilaFaction, holdingLevel);
+                int garrisonTier = twbattle.Sieges.GetGarrisonTier();
+                garrisonComposition = UnitMappers_BETA.GetFactionGarrison(attilaFaction, garrisonTier);
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Could not get garrison composition for faction '{attilaFaction}' at holding level {twbattle.Sieges.GetHoldingLevel()}. Error: {ex.Message}. Cannot generate distributed garrison units.");
+                Program.Logger.Debug($"Could not get garrison composition for faction '{attilaFaction}' at garrison tier {twbattle.Sieges.GetGarrisonTier()}. Error: {ex.Message}. Cannot generate distributed garrison units.");
                 return newUnits; // Return empty list
             }
 
@@ -179,7 +179,7 @@ namespace CrusaderWars.sieges
                     Program.Logger.Debug($"Allocating {soldiers} soldiers to distributed garrison unit '{unit_key}' (merged from multiple definitions)");
                     // Create the Unit, which represents the soldiers in Attila.
                     // Use "Garrison" as the generic name for these distributed units.
-                    var unit = new Unit("Garrison", soldiers, garrisonCulture, RegimentType.Garrison, twbattle.Sieges.GetHoldingLevel());
+                    var unit = new Unit("Garrison", soldiers, garrisonCulture, RegimentType.Garrison, twbattle.Sieges.GetGarrisonTier());
                     unit.SetUnitKey(unit_key); // Set the specific Attila unit key
                     unit.SetMax(UnitMappers_BETA.GetMax(unit)); // Get max based on the unit key/type
                     newUnits.Add(unit);

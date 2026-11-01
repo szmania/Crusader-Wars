@@ -30,10 +30,17 @@ namespace CrusaderWars.twbattle
         private static readonly Random _random = new Random();
         public static Dictionary<string, (string replacementKey, bool isSiege)> AutofixReplacements { get; private set; } = new Dictionary<string, (string, bool)>();
 
+        // Set once the backend-unreachable warning popup has been shown, so the user is
+        // never popup-spammed when the telemetry backend stays unreachable across battles.
+        private static bool _backendUnreachablePopupShown = false;
+
         public class AutofixState
         {
             public List<string> ProblematicUnitKeys { get; set; } = new List<string>();
-            public int NextUnitKeyIndexToReplace { get; set; } = 0;
+            public List<string> RemainingSuspects { get; set; } = new List<string>();
+            public List<List<string>> ReplacedBatches { get; set; } = new List<List<string>>();
+            public Dictionary<string, string> SuspectKeyFactions { get; set; } = new Dictionary<string, string>();
+            public string LastReplacementDetails { get; set; } = "";
             public int FailureCount { get; set; } = 0;
             public string LastAppliedFixDescription { get; set; } = "";
             public int MapVariantOffset { get; set; } = 0;
@@ -616,6 +623,7 @@ HomePage.Games.StartTotalWarProcess();
             string attilaLogPath = Properties.Settings.Default.VAR_log_attila;
 
             bool battleEnded = false;
+            bool badUnitsSubmitted = false; // Send bad-units telemetry only once, on the first crash before any autofix.
 
             form.infoLabel.Text = "Waiting for TW:Attila battle to end...";
             form.Text = "Crusader Conflicts (Waiting for TW:Attila battle to end...)";
@@ -655,6 +663,35 @@ HomePage.Games.StartTotalWarProcess();
                         Program.Logger.Debug("CK3 process resumed after Attila crash.");
                     }
 
+                    // Report all battle units to the telemetry backend as bad-units (crash),
+                    // but only after confirming with the user that Attila actually crashed.
+                    if (client.ModOptions.GetSendAnonymousTelemetry() && !badUnitsSubmitted)
+                    {
+                        bool userConfirmedCrash = false;
+                        if (form != null && !form.IsDisposed)
+                        {
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                userConfirmedCrash = MessageBox.Show(form,
+                                    "Did Total War: Attila crash while loading the battle (after the main menu)?",
+                                    "Crusader Conflicts: Crash Report",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Question) == DialogResult.Yes;
+                            });
+                        }
+
+                        if (userConfirmedCrash)
+                        {
+                            try { client.TelemetryClient.SubmitUnits("bad", attacker_armies, defender_armies); }
+                            catch (Exception telemetryEx) { Program.Logger.Debug($"Telemetry: bad-units submission error: {telemetryEx.Message}"); }
+                            badUnitsSubmitted = true;
+                        }
+                        else
+                        {
+                            Program.Logger.Debug("Telemetry: user did not confirm an Attila crash. Skipping bad-units submission.");
+                        }
+                    }
+
                     // --- Autofix Logic ---
                     if (autofixState == null) // First crash
                     {
@@ -685,6 +722,10 @@ HomePage.Games.StartTotalWarProcess();
                                     if (!string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                                     {
                                         allUnitKeys.Add(key);
+                                        if (!string.IsNullOrEmpty(faction) && faction != UnitMappers_BETA.NOT_FOUND_KEY && !autofixState.SuspectKeyFactions.ContainsKey(key))
+                                        {
+                                            autofixState.SuspectKeyFactions[key] = faction;
+                                        }
                                     }
                                 }
                             }
@@ -697,6 +738,10 @@ HomePage.Games.StartTotalWarProcess();
                                 foreach (var levyData in levy_porcentages)
                                 {
                                     allUnitKeys.Add(levyData.unit_key);
+                                    if (!string.IsNullOrEmpty(faction) && !autofixState.SuspectKeyFactions.ContainsKey(levyData.unit_key))
+                                    {
+                                        autofixState.SuspectKeyFactions[levyData.unit_key] = faction;
+                                    }
                                 }
                             }
                             for (int level = 1; level <= 20; level++)
@@ -707,16 +752,55 @@ HomePage.Games.StartTotalWarProcess();
                                     foreach (var garrisonData in garrison_porcentages)
                                     {
                                         allUnitKeys.Add(garrisonData.unit_key);
+                                        if (!string.IsNullOrEmpty(faction) && faction != UnitMappers_BETA.NOT_FOUND_KEY && !autofixState.SuspectKeyFactions.ContainsKey(garrisonData.unit_key))
+                                        {
+                                            autofixState.SuspectKeyFactions[garrisonData.unit_key] = faction;
+                                        }
                                     }
                                 }
                             }
                         }
 
-                        autofixState.ProblematicUnitKeys = allUnitKeys
+                        var fullSuspectList = allUnitKeys
                             .Where(key => !string.IsNullOrEmpty(key) && key != UnitMappers_BETA.NOT_FOUND_KEY)
                             .Distinct()
                             .OrderBy(key => _random.Next())
                             .ToList();
+
+                        // Seed/prioritize from backend known-bad units: keys reported bad by
+                        // telemetry that are present in this battle are ordered first, so the
+                        // first autofix batch targets them before random bisection continues.
+                        var (badUnits, backendReachable) = await TelemetryClient.GetBadUnitsWithStatusAsync();
+                        // Popup only when telemetry is deliberately enabled (opt-in) and the backend
+                        // still could not be reached. When telemetry is disabled, reachable=false is a
+                        // deliberate opt-out — never popup for that.
+                        if (ModOptions.GetSendAnonymousTelemetry() && !backendReachable && !_backendUnreachablePopupShown && form != null && !form.IsDisposed)
+                        {
+                            // One-time notice (first crash only): the backend could not be reached
+                            // while telemetry is enabled. Never blocks the battle - the standard
+                            // suspect list is used below.
+                            _backendUnreachablePopupShown = true;
+                            form.Invoke((MethodInvoker)delegate
+                            {
+                                MessageBox.Show(form,
+                                    "Could not reach the Crusader Conflicts backend (check your internet connection).\n\nKnown-bad unit data is unavailable; the autofixer will use the standard suspect list.",
+                                    "Crusader Conflicts: Backend Unreachable",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                            });
+                        }
+                        var badSet = new HashSet<string>(badUnits, StringComparer.Ordinal);
+                        var badInBattle = fullSuspectList.Where(k => badSet.Contains(k)).ToList();
+                        if (badInBattle.Any())
+                        {
+                            Program.Logger.Debug($"Autofix: {badInBattle.Count} backend bad unit key(s) matched this battle and were prioritized first: {string.Join(", ", badInBattle)}");
+                            autofixState.ProblematicUnitKeys = badInBattle.Concat(fullSuspectList.Except(badInBattle)).ToList();
+                        }
+                        else
+                        {
+                            Program.Logger.Debug("Autofix: no backend bad unit keys matched this battle; using the standard randomized suspect list.");
+                            autofixState.ProblematicUnitKeys = fullSuspectList;
+                        }
 
                         if (!autofixState.ProblematicUnitKeys.Any())
                         {
@@ -735,6 +819,12 @@ HomePage.Games.StartTotalWarProcess();
                             return false;
                         }
                         Program.Logger.Debug($"Found {autofixState.ProblematicUnitKeys.Count} unique unit keys to test: {string.Join(", ", autofixState.ProblematicUnitKeys)}");
+
+                        // Batch-bisection mode: every key starts as a suspect; each crash cycle
+                        // replaces half of the remaining suspects with generic alternatives.
+                        autofixState.RemainingSuspects = new List<string>(autofixState.ProblematicUnitKeys);
+                        autofixState.ReplacedBatches = new List<List<string>>();
+                        Program.Logger.Debug("Autofix unit strategy initialized in batch-bisection mode.");
                     }
 
                     autofixState.FailureCount++;
@@ -878,7 +968,7 @@ HomePage.Games.StartTotalWarProcess();
                             (fixApplied, fixDescription) = TryDeploymentFix(autofixState);
                             break;
                         case AutofixState.AutofixStrategy.Units:
-                            (fixApplied, fixDescription) = TryUnitFix(autofixState, form);
+                            (fixApplied, fixDescription) = await TryUnitFix(autofixState, form);
                             break;
                         case AutofixState.AutofixStrategy.MapVariant:
                             (fixApplied, fixDescription) = TryMapVariantFix(autofixState);
@@ -926,14 +1016,21 @@ HomePage.Games.StartTotalWarProcess();
 
                             form.Invoke((MethodInvoker)delegate
                             {
-                                string messageText = $"Attempting fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.\n\nPlease note this information if you plan to report a bug on our Discord server:";
+                                string replacementsInfo = string.IsNullOrEmpty(autofixState.LastReplacementDetails) ? "" : $"\n\nReplacements for this attempt (bad key -> replacement key):\n{autofixState.LastReplacementDetails}";
+                                string messageText = $"Attempting fix #{autofixState.FailureCount}.\n\nThe application will now try {fixDescription} and restart the battle.{replacementsInfo}\n\nPlease note this information if you plan to report a bug on our Discord server:";
                                 string discordUrl = "https://discord.gg/eFZTprHh3j";
-                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, fixDescription);
+                                string reportContentWithReplacements = string.IsNullOrEmpty(autofixState.LastReplacementDetails) ? fixDescription : fixDescription + "\n\nReplacements this attempt (bad key -> replacement key):\n" + autofixState.LastReplacementDetails;
+                                ShowClickableLinkMessageBox(form, messageText, "Crusader Conflicts: Applying Autofix", "Report on Discord: " + discordUrl, discordUrl, reportContentWithReplacements);
                             });
                         }
 
-                        // Mark the current strategy as tried and clear it for the next attempt
-                        if (autofixState.CurrentStrategy.HasValue && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.DeploymentZoneEditor)
+                        // Mark the current strategy as tried and clear it for the next attempt.
+                        // Units is exempt: batch replacement needs repeat runs until RemainingSuspects is empty
+                        // (exhaustion is handled by the fixApplied == false branch below).
+                        if (autofixState.CurrentStrategy.HasValue
+                            && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.ManualUnitReplacement
+                            && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.DeploymentZoneEditor
+                            && autofixState.CurrentStrategy.Value != AutofixState.AutofixStrategy.Units)
                         {
                             autofixState.TriedStrategies.Add(autofixState.CurrentStrategy.Value);
                         }
@@ -1208,6 +1305,10 @@ HomePage.Games.StartTotalWarProcess();
                     Unit.ResetUniqueIDCounter();
                     Program.Logger.Debug("Battle finished. Clearing battle state.");
 
+                    // Report all battle units to the telemetry backend as good-units (successful battle).
+                    try { client.TelemetryClient.SubmitUnits("good", attacker_armies, defender_armies); }
+                    catch (Exception telemetryEx) { Program.Logger.Debug($"Telemetry: good-units submission error: {telemetryEx.Message}"); }
+
                     // Show successful autofix/manual tool message if applicable
                     bool wasAutofixSuccess = autofixState != null && !string.IsNullOrEmpty(autofixState.LastAppliedFixDescription);
                     bool wasManualToolUsed = BattleState.DeploymentZoneOverrideAttacker != null || BattleState.ManualUnitReplacements.Any();
@@ -1233,6 +1334,13 @@ HomePage.Games.StartTotalWarProcess();
                                 messageText += $"The original map ({autofixState.OriginalFieldMapDescription}) is likely buggy. ";
                                 originalMapInfo = autofixState.OriginalFieldMapDescription;
                             }
+
+                            var allReplacedKeys = autofixState.ReplacedBatches.SelectMany(b => b).Distinct().ToList();
+                            if (allReplacedKeys.Any())
+                            {
+                                messageText += "\n\nReplaced unit keys (potential bad unit keys):\n" + string.Join("\n", allReplacedKeys) + "\n\n";
+                            }
+
                             messageText += "Please report this on the Crusader Conflicts Discord server so it can be fixed in future updates.";
                         }
                         else // wasManualToolUsed
@@ -1256,6 +1364,16 @@ HomePage.Games.StartTotalWarProcess();
                                     if (!string.IsNullOrEmpty(originalMapInfo))
                                     {
                                         report.AppendLine($"[Original Buggy Map]: {originalMapInfo}");
+                                    }
+
+                                    var allReplacedKeysForReport = autofixState.ReplacedBatches.SelectMany(b => b).Distinct().ToList();
+                                    if (allReplacedKeysForReport.Any())
+                                    {
+                                        report.AppendLine("[Replaced Unit Keys (potential bad unit keys)]:");
+                                        foreach (var replacedKey in allReplacedKeysForReport)
+                                        {
+                                            report.AppendLine($" - {replacedKey}");
+                                        }
                                     }
                                     report.AppendLine();
                                 }
@@ -1289,7 +1407,7 @@ HomePage.Games.StartTotalWarProcess();
                                 report.AppendLine($"Location: {provinceName}");
                                 report.AppendLine($"Map Coordinates: ({mapX}, {mapY})");
 
-                                ShowClickableLinkMessageBox(form, messageText, title, "Report on Discord: " + discordUrl, discordUrl, report.ToString());
+                                ShowClickableLinkMessageBox(form, messageText, title, "Report on Discord: " + discordUrl, discordUrl, report.ToString(), true);
                             });
                         }
                     }
@@ -1485,7 +1603,7 @@ HomePage.Games.StartTotalWarProcess();
         }
 
         [SupportedOSPlatform("windows")]
-        private static void ShowClickableLinkMessageBox(Form parentForm, string messageText, string title, string linkText, string url, string reportContent)
+        private static void ShowClickableLinkMessageBox(Form parentForm, string messageText, string title, string linkText, string url, string reportContent, bool showCopyToClipboardButton = false)
         {
             // Create a custom form with clickable link
             using (Form messageForm = new Form())
@@ -1504,17 +1622,31 @@ HomePage.Games.StartTotalWarProcess();
                 panel.AutoScroll = true;
                 messageForm.Controls.Add(panel);
 
-                Label messageLabel = new Label();
-                messageLabel.Text = messageText;
-                messageLabel.AutoSize = true;
-                messageLabel.MaximumSize = new Size(460, 0);
-                messageLabel.Location = new Point(10, 10);
-                panel.Controls.Add(messageLabel);
+                RichTextBox messageTextBox = new RichTextBox();
+                messageTextBox.Text = messageText;
+                // Red-color every case-exact "Buggy Unit?" label in the message pane.
+                int searchStart = 0;
+                while (messageTextBox.Find("Buggy Unit?", searchStart, RichTextBoxFinds.MatchCase) >= 0)
+                {
+                    messageTextBox.SelectionColor = Color.Red;
+                    searchStart = messageTextBox.SelectionStart + messageTextBox.SelectionLength;
+                }
+                // Drop the leftover selection so the pane opens unscrolled/unhighlighted.
+                messageTextBox.SelectionLength = 0;
+                messageTextBox.ReadOnly = true;
+                messageTextBox.BorderStyle = BorderStyle.None;
+                messageTextBox.BackColor = SystemColors.Control;
+                messageTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+                messageTextBox.WordWrap = true;
+                messageTextBox.ScrollBars = RichTextBoxScrollBars.Vertical;
+                messageTextBox.Size = new Size(460, 160);
+                messageTextBox.Location = new Point(10, 10);
+                panel.Controls.Add(messageTextBox);
 
                 LinkLabel linkLabel = new LinkLabel();
                 linkLabel.Text = linkText;
                 linkLabel.AutoSize = true;
-                linkLabel.Location = new Point(10, messageLabel.Bottom + 10);
+                linkLabel.Location = new Point(10, messageTextBox.Bottom + 10);
                 linkLabel.LinkClicked += (sender, e) =>
                 {
                     try
@@ -1545,10 +1677,32 @@ HomePage.Games.StartTotalWarProcess();
                 okButton.Anchor = AnchorStyles.Top;
                 panel.Controls.Add(okButton);
 
+                if (showCopyToClipboardButton)
+                {
+                    Button copyButton = new Button();
+                    copyButton.Text = "Copy to Clipboard";
+                    copyButton.Size = new Size(120, 25);
+                    copyButton.Location = new Point(okButton.Left - copyButton.Width - 5, okButton.Top);
+                    copyButton.Anchor = AnchorStyles.Top;
+                    copyButton.Click += (sender, e) =>
+                    {
+                        try
+                        {
+                            Clipboard.SetText(reportContent);
+                            MessageBox.Show("Battle report copied to clipboard!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Failed to copy to clipboard: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+                    panel.Controls.Add(copyButton);
+                }
+
                 messageForm.AcceptButton = okButton;
                 messageForm.ResumeLayout();
-
                 messageForm.ShowDialog(parentForm);
+
             }
         }
 
@@ -1786,6 +1940,10 @@ HomePage.Games.StartTotalWarProcess();
         {
             var report = new BattleReport();
 
+            // Battle modifiers (snapshot from the CK3 log at battle start)
+            report.AttackerModifiers = CK3LogData.LeftSide.GetModifiers()?.GetModifierDescriptions() ?? new List<string>();
+            report.DefenderModifiers = CK3LogData.RightSide.GetModifiers()?.GetModifierDescriptions() ?? new List<string>();
+
             // Basic battle info
             report.BattleName = BattleResult.ProvinceName ?? "Unknown Battle";
             report.BattleDate = $"{Date.Day}/{Date.Month}/{Date.Year}";
@@ -1829,15 +1987,15 @@ HomePage.Games.StartTotalWarProcess();
             }
 
             // Attacker side
-            report.AttackerSide = GenerateSideReport(attacker_armies, "Attackers");
+            report.AttackerSide = GenerateSideReport(attacker_armies, "Attackers", report.AttackerModifiers);
 
             // Defender side
-            report.DefenderSide = GenerateSideReport(defender_armies, "Defenders");
+            report.DefenderSide = GenerateSideReport(defender_armies, "Defenders", report.DefenderModifiers);
 
             return report;
         }
 
-        private static SideReport GenerateSideReport(List<Army> armies, string sideName)
+        private static SideReport GenerateSideReport(List<Army> armies, string sideName, List<string>? sideModifiers = null)
         {
             var sideReport = new SideReport
             {
@@ -1971,12 +2129,14 @@ HomePage.Games.StartTotalWarProcess();
                         if (correspondingUnit?.GetRegimentType() == RegimentType.Commander && army.Commander != null)
                         {
                             var commanderReport = GetCharacterReport(army.Commander);
+                            commanderReport.Modifiers = sideModifiers ?? new List<string>();
                             unit.Characters.Add(commanderReport);
                         }
                         // Add knight commander info if this is an MAA unit with a knight commander
                         else if (correspondingUnit?.GetRegimentType() == RegimentType.MenAtArms && correspondingUnit.KnightCommander != null)
                         {
                             var knightCommanderReport = GetCharacterReport(correspondingUnit.KnightCommander);
+                            knightCommanderReport.Modifiers = sideModifiers ?? new List<string>();
                             unit.Characters.Add(knightCommanderReport);
                         }
                         // Add knight details if this is a knight unit
@@ -1991,7 +2151,8 @@ HomePage.Games.StartTotalWarProcess();
                                     BodyguardSize = knight.GetSoldiers(),
                                     Kills = knight.GetKills(),
                                     Fallen = knight.HasFallen(),
-                                    Status = knight.HasFallen() ? "Slain" : "Unharmed"
+                                    Status = knight.HasFallen() ? "Slain" : "Unharmed",
+                                    Modifiers = sideModifiers ?? new List<string>()
                                 });
                             }
                             unit.KnightDetails = knightDetails;
@@ -2064,17 +2225,214 @@ HomePage.Games.StartTotalWarProcess();
             return (true, $"changing deployment rotation to {rotationState}");
         }
 
-        private static (bool, string) TryUnitFix(AutofixState autofixState, Form? form)
+        private static async Task<(bool, string)> TryUnitFix(AutofixState autofixState, Form? form)
         {
-            if (autofixState.NextUnitKeyIndexToReplace >= autofixState.ProblematicUnitKeys.Count)
-                return (false, ""); // No more units to try replacing
+            if (!autofixState.RemainingSuspects.Any())
+                return (false, ""); // All suspects replaced and the battle still crashes - strategy exhausted
 
-            string unitKeyToReplace = autofixState.ProblematicUnitKeys[autofixState.NextUnitKeyIndexToReplace];
-            autofixState.NextUnitKeyIndexToReplace++;
+            // Fixed batch: replace up to 5 remaining suspects per crash cycle.
+            int totalSuspects = autofixState.ReplacedBatches.Sum(b => b.Count) + autofixState.RemainingSuspects.Count;
+            const int MaxBatchSize = 5;
+            int batchSize = Math.Min(MaxBatchSize, autofixState.RemainingSuspects.Count);
+            List<string> batch = autofixState.RemainingSuspects.Take(batchSize).ToList();
+            autofixState.RemainingSuspects.RemoveRange(0, batch.Count);
+            autofixState.ReplacedBatches.Add(batch);
 
-            // For automatic unit fix, we'll just log that a unit was replaced
-            // The actual replacement logic would be more complex and depend on the specific unit
-            return (true, $"replacing problematic unit '{unitKeyToReplace}' with a generic alternative");
+            // Resolve a safe replacement for each suspect key and register it in
+            // AutofixReplacements; UnitMappers_BETA.ProcessUnitKeyResult applies these at unit-write time.
+            // Candidate faction pool per suspect: own faction -> heritage-sibling factions ->
+            // same-subculture factions -> random same-type draw from any faction.
+            List<AvailableUnit> availableUnits = UnitMappers_BETA.GetAllAvailableUnits();
+            HashSet<string> goodUnitKeys = new HashSet<string>(await TelemetryClient.GetGoodUnitsAsync(), StringComparer.Ordinal);
+            var availableByKey = availableUnits
+                .Where(u => !string.IsNullOrEmpty(u.AttilaUnitKey))
+                .GroupBy(u => u.AttilaUnitKey, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+            var replacementDetails = new System.Text.StringBuilder();
+
+            // Per-call cache so the <=5-suspect batch does not rescan the mapper files for the
+            // same faction repeatedly (heritage/subculture lookups each walk the XML folders).
+            var factionPoolCache = new Dictionary<string, (List<string> heritageFactions, List<string> subcultureFactions)>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string suspectKey in batch)
+            {
+                string faction = autofixState.SuspectKeyFactions.TryGetValue(suspectKey, out string? f) ? f : string.Empty;
+
+                // Build the ordered faction pool: own faction, then heritage siblings, then
+                // same-subculture factions (heritage siblings excluded to avoid double visits).
+                var factionPool = new List<string>();
+                if (!string.IsNullOrEmpty(faction))
+                {
+                    factionPool.Add(faction);
+
+                    if (!factionPoolCache.TryGetValue(faction, out var pools))
+                    {
+                        var heritageFactions = new List<string>();
+                        string heritage = UnitMappers_BETA.GetHeritageByFaction(faction);
+                        if (!string.IsNullOrEmpty(heritage))
+                        {
+                            heritageFactions = UnitMappers_BETA.GetFactionsByHeritage(heritage)
+                                .Where(x => !x.Equals(faction, StringComparison.OrdinalIgnoreCase))
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .OrderBy(x => x, StringComparer.Ordinal)
+                                .ToList();
+                        }
+
+                        var subcultureFactions = new List<string>();
+                        string subculture = UnitMappers_BETA.GetSubculture(faction);
+                        if (!string.IsNullOrEmpty(subculture))
+                        {
+                            var heritageSet = new HashSet<string>(heritageFactions, StringComparer.OrdinalIgnoreCase);
+                            subcultureFactions = UnitMappers_BETA.GetFactionsBySubculture(subculture)
+                                .Where(x => !x.Equals(faction, StringComparison.OrdinalIgnoreCase) && !heritageSet.Contains(x))
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .OrderBy(x => x, StringComparer.Ordinal)
+                                .ToList();
+                        }
+
+                        pools = (heritageFactions, subcultureFactions);
+                        factionPoolCache[faction] = pools;
+                    }
+
+                    factionPool.AddRange(pools.heritageFactions);
+                    factionPool.AddRange(pools.subcultureFactions);
+                }
+
+                // In-kind known-good replacement first (own faction -> heritage -> subculture).
+                AvailableUnit? inKindUnit = FindInKindGoodReplacement(suspectKey, factionPool, goodUnitKeys, availableByKey);
+                if (inKindUnit != null)
+                {
+                    AutofixReplacements[suspectKey] = (inKindUnit.AttilaUnitKey, UnitMappers_BETA.IsUnitKeySiege(inKindUnit.AttilaUnitKey));
+                    replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> {inKindUnit.AttilaUnitKey}");
+                    Program.Logger.Debug($"Autofix: Registered in-kind good replacement '{suspectKey}' -> '{inKindUnit.AttilaUnitKey}' (faction '{faction}').");
+                    continue;
+                }
+
+                // Terminal fallback: random same-type draw from any faction.
+                AvailableUnit? randomUnit = PickRandomSameTypeReplacement(suspectKey, availableByKey);
+                if (randomUnit == null)
+                {
+                    replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> (no safe replacement found — key will remain unchanged)");
+                    Program.Logger.Debug($"Autofix: No available unit of the suspect's type found for key '{suspectKey}' (faction '{faction}'). Skipping this key.");
+                    continue;
+                }
+
+                AutofixReplacements[suspectKey] = (randomUnit.AttilaUnitKey, UnitMappers_BETA.IsUnitKeySiege(randomUnit.AttilaUnitKey));
+                replacementDetails.AppendLine($" - {suspectKey} (Buggy Unit?) -> {randomUnit.AttilaUnitKey}");
+                Program.Logger.Debug($"Autofix: Registered random same-type replacement '{suspectKey}' -> '{randomUnit.AttilaUnitKey}' (faction '{faction}').");
+            }
+
+            autofixState.LastReplacementDetails = replacementDetails.ToString().TrimEnd();
+
+            Program.Logger.Debug($"Autofix batch {autofixState.ReplacedBatches.Count}: replacing [{string.Join(", ", batch)}]. {autofixState.RemainingSuspects.Count} suspects remaining.");
+
+            return (true, $"replacing {batch.Count} of {totalSuspects} suspect units with known-good or generic alternatives (batch {autofixState.ReplacedBatches.Count})");
+        }
+
+        /// <summary>
+        /// Finds an in-kind known-good replacement for a suspect unit key: a key from the
+        /// telemetry good-units list whose available unit matches the suspect's unit type
+        /// (levy with levy, garrison with garrison, general with general, knight with knight,
+        /// men-at-arms with men-at-arms) and one of the factions in the ordered pool
+        /// (own faction, then heritage siblings, then same-subculture factions).
+        /// Men-at-arms prefer non-siege units of the same max category.
+        /// </summary>
+        /// <param name="suspectKey">The suspect Attila unit key to replace.</param>
+        /// <param name="factionPool">Ordered candidate factions; the first pool that yields a match wins.</param>
+        /// <param name="goodUnitKeys">Known-good unit keys fetched from telemetry.</param>
+        /// <param name="availableByKey">All available units grouped by Attila unit key.</param>
+        /// <returns>AvailableUnit: An in-kind good replacement, or null when none exists.</returns>
+        private static AvailableUnit? FindInKindGoodReplacement(
+            string suspectKey,
+            List<string> factionPool,
+            HashSet<string> goodUnitKeys,
+            Dictionary<string, List<AvailableUnit>> availableByKey)
+        {
+            if (factionPool == null || !factionPool.Any() || !availableByKey.TryGetValue(suspectKey, out var suspectUnits))
+                return null; // Unknown suspect or no candidate factions: no in-kind match possible.
+
+            var suspectTypes = new HashSet<string>(suspectUnits.Select(u => u.UnitType), StringComparer.OrdinalIgnoreCase);
+
+            var goodCandidates = goodUnitKeys
+                .Where(key => !string.Equals(key, suspectKey, StringComparison.Ordinal) && availableByKey.ContainsKey(key))
+                .SelectMany(key => availableByKey[key])
+                .Where(u => suspectTypes.Contains(u.UnitType))
+                .ToList();
+
+            if (!goodCandidates.Any())
+                return null;
+
+            var suspectMaa = suspectUnits.FirstOrDefault(u => u.UnitType.Equals("MenAtArm", StringComparison.OrdinalIgnoreCase));
+
+            // First faction in the pool that yields a same-type known-good candidate wins.
+            foreach (string poolFaction in factionPool)
+            {
+                var candidates = goodCandidates
+                    .Where(u => u.FactionName.Equals(poolFaction, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (!candidates.Any())
+                    continue;
+
+                if (suspectMaa != null)
+                {
+                    // Men-at-arms: prefer non-siege units with the same max category.
+                    return candidates
+                        .OrderBy(u => u.IsSiege)
+                        .ThenBy(u => string.Equals(u.MaxCategory, suspectMaa.MaxCategory, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                        .ThenBy(u => u.AttilaUnitKey)
+                        .First();
+                }
+
+                return candidates.OrderBy(u => u.AttilaUnitKey).First();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Terminal autofix fallback: draws a random available unit of the suspect's own unit
+        /// type from any faction (no known-good requirement). Men-at-arms prefer non-siege
+        /// units; garrisons prefer the suspect's holding level; other types are a plain draw.
+        /// Returns null only when no available unit of the suspect's type exists anywhere.
+        /// </summary>
+        private static AvailableUnit? PickRandomSameTypeReplacement(
+            string suspectKey,
+            Dictionary<string, List<AvailableUnit>> availableByKey)
+        {
+            if (!availableByKey.TryGetValue(suspectKey, out var suspectUnits))
+                return null;
+
+            var suspectTypes = new HashSet<string>(suspectUnits.Select(u => u.UnitType), StringComparer.OrdinalIgnoreCase);
+
+            var candidates = availableByKey.Values
+                .SelectMany(units => units)
+                .Where(u => !string.IsNullOrEmpty(u.AttilaUnitKey)
+                            && !string.Equals(u.AttilaUnitKey, suspectKey, StringComparison.Ordinal)
+                            && suspectTypes.Contains(u.UnitType))
+                .ToList();
+
+            if (!candidates.Any())
+                return null;
+
+            var suspectMaa = suspectUnits.FirstOrDefault(u => u.UnitType.Equals("MenAtArm", StringComparison.OrdinalIgnoreCase));
+            if (suspectMaa != null)
+            {
+                var nonSiege = candidates.Where(u => !u.IsSiege).ToList();
+                var maaPool = nonSiege.Any() ? nonSiege : candidates;
+                return maaPool[_random.Next(maaPool.Count)];
+            }
+
+            var suspectGarrison = suspectUnits.FirstOrDefault(u => u.UnitType.Equals("Garrison", StringComparison.OrdinalIgnoreCase));
+            if (suspectGarrison != null)
+            {
+                int level = GetGarrisonLevelFromUnitKey(suspectKey);
+                var sameLevel = candidates.Where(u => u.Level == level).ToList();
+                var garrisonPool = sameLevel.Any() ? sameLevel : candidates;
+                return garrisonPool[_random.Next(garrisonPool.Count)];
+            }
+
+            return candidates[_random.Next(candidates.Count)];
         }
 
         private static (bool, string) TryMapVariantFix(AutofixState autofixState)

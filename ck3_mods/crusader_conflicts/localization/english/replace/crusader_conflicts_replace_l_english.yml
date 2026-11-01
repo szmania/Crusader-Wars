@@ -29,6 +29,10 @@
 
 
  leading_own_troops_modifier:0 "[cc_advantage_leading|E]"
+ cc_victorious_momentum_modifier:0 "[cc_victorious_momentum|E]"
+ cc_humbling_defeat_modifier:0 "[cc_humbling_defeat|E]"
+ cc_decisive_victory_modifier:0 "[cc_decisive_victory|E]"
+ cc_mourning_battle_modifier:0 "[cc_mourning_battle|E]"
  defender_river:0 "[cc_advantage_river|E] Defending a River Crossing"
  defender_river_large:0 "[cc_advantage_big_river|E] Defending a Major River Crossing"
  defender_strait:0 "[cc_advantage_strait|E] Defending a Strait Crossing"

@@ -63,6 +63,7 @@ namespace CrusaderWars.client
             PopulateSide(defenderSideNode, _report.DefenderSide);
             treeViewReport.Nodes.Add(defenderSideNode);
 
+
             // Expand top-level nodes
             attackerSideNode.Expand();
             defenderSideNode.Expand();
@@ -283,6 +284,19 @@ namespace CrusaderWars.client
                                 {
                                     knightDetailNode.ForeColor = Color.LightGreen;
                                 }
+                                var knightModifiersNode = new TreeNode("Modifiers:") { ForeColor = Color.Yellow };
+                                if (knight.Modifiers != null && knight.Modifiers.Any())
+                                {
+                                    foreach (var modifier in knight.Modifiers)
+                                    {
+                                        knightModifiersNode.Nodes.Add(new TreeNode(modifier) { ForeColor = Color.Yellow });
+                                    }
+                                }
+                                else
+                                {
+                                    knightModifiersNode.Nodes.Add(new TreeNode("None") { ForeColor = Color.Gray });
+                                }
+                                knightDetailNode.Nodes.Add(knightModifiersNode);
                                 knightsNode.Nodes.Add(knightDetailNode);
                             }
                             node.Nodes.Add(knightsNode);
@@ -331,6 +345,19 @@ namespace CrusaderWars.client
                             {
                                 charNode.ForeColor = Color.LightGreen;
                             }
+                            var modifiersNode = new TreeNode("Modifiers:") { ForeColor = Color.Yellow };
+                            if (character.Modifiers != null && character.Modifiers.Any())
+                            {
+                                foreach (var modifier in character.Modifiers)
+                                {
+                                    modifiersNode.Nodes.Add(new TreeNode(modifier) { ForeColor = Color.Yellow });
+                                }
+                            }
+                            else
+                            {
+                                modifiersNode.Nodes.Add(new TreeNode("None") { ForeColor = Color.Gray });
+                            }
+                            charNode.Nodes.Add(modifiersNode);
                             charactersNode.Nodes.Add(charNode);
                         }
                         node.Nodes.Add(charactersNode);
@@ -392,6 +419,7 @@ namespace CrusaderWars.client
             }
             sb.AppendLine();
 
+
             // Total Statistics
             sb.AppendLine("=== TOTAL STATISTICS ===");
             sb.AppendLine($"Total Deployed: {lblTotalDeployed.Text.Replace("Total Deployed: ", "")}");
@@ -433,6 +461,7 @@ namespace CrusaderWars.client
                         foreach (var character in unit.Characters)
                         {
                             sb.AppendLine($"      {character.Name}: {character.Status} - {character.Details}");
+                            sb.AppendLine($"      Modifiers: {((character.Modifiers != null && character.Modifiers.Any()) ? string.Join("; ", character.Modifiers) : "None")}");
                         }
                     }
                 }

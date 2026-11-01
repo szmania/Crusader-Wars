@@ -15,6 +15,10 @@ namespace CrusaderWars.client
         public string WallDamage { get; set; } = string.Empty; // "No Damage", "Damaged", "Breached", "N/A"
         public double? WarScoreValue { get; set; }
 
+        // Battle modifiers active on each side (snapshot from the CK3 log at battle start)
+        public List<string> AttackerModifiers { get; set; } = new List<string>();
+        public List<string> DefenderModifiers { get; set; } = new List<string>();
+
         // New Battle Details
         public string BattleName { get; set; } = string.Empty;
         public string BattleDate { get; set; } = string.Empty;
@@ -99,6 +103,7 @@ namespace CrusaderWars.client
         public string Name { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty; // "Unharmed", "Wounded", "Slain", "Captured"
         public string Details { get; set; } = string.Empty; // e.g., "Wounded (Severely Injured)", "Gained trait: Scarred"
+        public List<string> Modifiers { get; set; } = new List<string>(); // Battle modifiers active on this character's side
     }
 
     // New class to hold individual knight details for the combined unit
@@ -109,5 +114,6 @@ namespace CrusaderWars.client
         public int Kills { get; set; }
         public bool Fallen { get; set; }
         public string Status { get; set; } = string.Empty; // "Unharmed", "Wounded", "Slain", "Captured"
+        public List<string> Modifiers { get; set; } = new List<string>(); // Battle modifiers active on this character's side
     }
 }

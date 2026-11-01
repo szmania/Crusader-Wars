@@ -1,76 +1,76 @@
 ﻿l_simp_chinese:
 	#
 	### Event/Alert Window button texts ###
-	ccalert.1.title: "Crusader Conflicts Notification|"Quality of Life" Pre-Beta|March 2024"
-	ccalert.1.desc: "#high The mod updated to v0.9.11 "Qaulity of Life!", update your Crusader Conflicts Launcher now if you haven't, to avoid bugs.\n\nThe Crusader Conflicts launcher is #high separate #! from the Steam Workshop CK3 mod. Steam will automatically update the CK3 mod file, but Steam does #high NOT #! automatically update the CrusaderConflicts.exe launcher. You need to open CK3 atleast once and then go the the CW Launcher and update, if you don't open it, the launcher will not detect any update!.\n\n#X If you do not download the updated launcher your Attila battles will crash. You have been warned."
- 	ccalert.1.a: "I will update Crusader Conflicts Launcher now!"
+	ccalert.1.title: "十字军冲突通知|“生活质量”预测试|三月 2024"
+	ccalert.1.desc: "#high 模组更新为v0.9.11 “生活质量！”，如果您还没有更新您的十字军冲突启动器，请立即更新，以避免出现错误。\n\n十字军冲突发射器是 #high 分离 #! 来自 Steam 创意工坊 CK3 模组。 Steam会自动更新CK3 mod 文件，但 Steam 可以 #high 不是 #! 自动更新 CrusaderConflicts.exe 启动器。你需要打开CK3 至少一次，然后进入 CW 启动器并更新，如果不打开它，启动器将不会检测到任何更新！。\n\n#X 如果您不下载更新的启动器，您的阿提拉战斗将会崩溃。你已被警告过。"
+ 	ccalert.1.a: "我现在就更新十字军冲突启动器！"
 	#
 	#
 	### Battle Window button texts ###
-	cc_bw_fight_button: "Fight the battle yourself!"
-	cc_bw_fight_button_disabled: "This character may not control battles.\nSee Mod Options: Preferences"
-	cc_bw_options_button: "Crusader Conflicts Mod Options"
-	cc_bw_wait_button: "Wait just a few more days to fight the battle..."
+	cc_bw_fight_button: "亲自去战斗吧！"
+	cc_bw_fight_button_disabled: "该角色可能无法控制战斗。\n请参阅模组选项：首选项"
+	cc_bw_options_button: "十字军冲突 Mod 选项"
+	cc_bw_wait_button: "再等几天就可以打仗了……"
 	#
 	#
 	### Mod Option Window texts ###
-	cc_op_window_title: "#high Crusader Conflicts Mod Options"
-	cc_op_tab1_title: "#clickable About Mod"
-	cc_op_tab2_title: "#clickable Battle Scale"
-	cc_op_tab3_title: "#clickable Unit Size"
-	cc_op_tab4_title: "#clickable Preferences"
-	cc_op_tab5_title: "#clickable CK3 to Attila Units"
+	cc_op_window_title: "#high 十字军冲突 Mod 选项"
+	cc_op_tab1_title: "#clickable 关于模组"
+	cc_op_tab2_title: "#clickable 战斗规模"
+	cc_op_tab3_title: "#clickable 单位尺寸"
+	cc_op_tab4_title: "#clickable 偏好设置"
+	cc_op_tab5_title: "#clickable CK3 阿提拉单位"
 	#
 	### About Mod tab texts ###
-	cc_op_tab1_desc: "Crusader Conflicts Mod Options currently only available in #high English#! localization."
-	cc_op_page1_desc: "#clickable Mod Details"
-	cc_op_about_head: "About Mod"
-	cc_op_about_hsub: "How It Works:\n\n\n\n#i Required:#!\n\n\n\n#i #high Unit Mappers:#! #!\n\n\n#X Not Supported:#!"
-	cc_op_about_desc: "#high Crusader Conflicts#! reads in details about the battle you #high Crusader Kings 3#! character is involved in and converts that into a #high Total War: Attila battle#! that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the #clickable Troop By Culture#! tabs.\n\n#i Crusader Conflicts mod standalone application\nSteam Versions of Crusader Kings 3, Total War: Attila, Attila DLC - Age of Charlemagne#!\n\n#i #high This is how the mod knows which units to use on Attila. Each one has required mods/DLC's, that you need to enable when the unit mapper is loaded. The structure of them is basically assigning cultures and heritages names to a group of units of the mods/dlc's.#!\n\n#X 1212 AD Scripts module - do not subscribe to this particular part of the 1212 AD mod\nCultural Armies Pack - CK3 mod#!"
-	cc_op_help_head: "Help & Community"
-	cc_op_help_hsub: "Help FAQ:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHave Questions? Need Help?"
-	cc_op_help_desc: "#high Attila battles run poorly/lags!#! - Lower your graphics options in Attila, lower the #clickable Battle Scale#! options. Battles above 20k/40k will stutter.\n#high Attila battles unit numbers don't match #clickable Unit Size #!options!#! - Review Attila graphics option for UNIT SIZE is set to ULTRA. Lower than ULTRA will result in smaller units.\n#high Attila crashes when trying to load!#! - You either didn't enabled the correct mods for the loaded unit mapper, or, the loaded unit mapper has a unit key incorrect, that it's present on the battle.\n#high Clicking the Play Battle Button does nothing!#! - Review that Crusader Conflicts Launcher is up and running, by clicking the center flag icon.\n#high Why can't I control some battles!#! - You have to go to #clickable Preferences#! , and choose the desired characters that can fight. This is the only option that you need to set after every battle and when ck3 starts.\n#high Inaccurate battle results!#! - After you win a battle, there is no point of running down troops, their casualities will not count.\n#high I can't find CrusaderConflicts.pack!#! - CrusaderConflicts.pack gets remade every battle, you don't need to subscribe to anything, it should be a the bottom of your mod list.\n#high After battle loading is too slow!#! - For this we recommend to delete CrusaderWars_Battle save from time to time.\n#high Attila units are not from my culture!#! - The culture of the units is based on the commander culture, so if you have a commander that is not from your culture, the units will be of his culture.\n\n#high Discord - https://discord.gg/eFZTprHh3j"
-	cc_op_thank_head: "Acknowledgements"
-	cc_op_thank_hsub: "From the Crusader Conflicts Devs.."
-	cc_op_thank_desc: "We congrats every ck3 and total war modder, for giving us the opportunity to use their mods with ours and having absolute historically accurate units! We are changing the modding industry for the better! We also want to thanks the community and our patreon supporters, thank you for believing in our project, we love you so much!."
+	cc_op_tab1_desc: "Crusader Conflicts Mod 选项目前仅适用于 #high 英语#! 本土化。"
+	cc_op_page1_desc: "#clickable 模组详情"
+	cc_op_about_head: "关于模组"
+	cc_op_about_hsub: "运作原理：\n\n\n\n#i 必需的：#!\n\n\n\n#i #high 单位映射器：#! #!\n\n\n#X 不支持：#!"
+	cc_op_about_desc: "#high 十字军冲突#! 阅读有关您的战斗的详细信息 #high 十字军之王 3#! 角色参与并将其转换为 #high 全面战争：阿提拉之战#! 您可以直接控制。征召兵、武装人员和骑士在《全面战争：阿提拉》中转换为同等单位。有关如何转换单位的详细信息，请参阅 #clickable 文化队伍#! 选项卡。\n\n#i Crusader Conflicts mod 独立应用程序\nSteam 版本的十字军之王 3, 全面战争：阿提拉，阿提拉 DLC - 查理曼时代#!\n\n#i #high 这就是模组如何知道在阿提拉上使用哪些单位的方式。每个都有必需的 mods/DLC，您需要在加载单位映射器时启用它们。它们的结构基本上是将文化和遗产名称分配给 mods/dlc 的一组单位。#!\n\n#X 1212 AD 脚本模块 - 不要订阅该特定部分 1212 广告模式\n文化大军包 - CK3 模组#!"
+	cc_op_help_head: "帮助和社区"
+	cc_op_help_hsub: "帮助常见问题：\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n有疑问吗？需要帮助吗？"
+	cc_op_help_desc: "#high 阿提拉的战斗进行得很糟糕/滞后！#! - 降低《阿提拉》中的图形选项，降低 #clickable 战斗规模#! 选项。以上战斗 20k/40k 会结巴。\n#high 阿提拉战斗单位编号不匹配 #clickable 单位尺寸 #!选项！#! - 查看 Attila 图形选项，将“单位大小”设置为“ULTRA”。低于 ULTRA 将导致单位更小。\n#high 阿提拉在尝试加载时崩溃了！#! - 您要么没有为加载的单位映射器启用正确的模组，要么加载的单位映射器的单位键不正确，它出现在战斗中。\n#high 单击“开始战斗”按钮没有任何反应！#! - 单击中心标志图标，检查 Crusader Conflicts Launcher 是否已启动并正在运行。\n#high 为什么有些战斗我无法掌控！#! - 你必须去 #clickable 偏好设置#! ，然后选择想要的可以战斗的角色。这是您在每次战斗后和 ck 时需要设置的唯一选项3 开始。\n#high 战斗结果不准确！#! - 赢得一场战斗后，没有必要去追击军队，他们的伤亡不会被计算在内。\n#high 我找不到 CrusaderConflicts.pack！#! - CrusaderConflicts.pack 每场战斗都会重制，你不需要订阅任何东西，它应该是你的 mod 列表的底部。\n#high 战斗后加载太慢！#! - 为此，我们建议不时删除 CrusaderWars_Battle 保存的内容。\n#high 阿提拉单位不是来自我的文化！#! - 单位的文化是基于指挥官文化的，所以如果你的指挥官不是你的文化，那么单位将是他的文化。\n\n#high 不和谐- https://discord.gg/eFZTprHh3j"
+	cc_op_thank_head: "致谢"
+	cc_op_thank_hsub: "来自十字军冲突开发者.."
+	cc_op_thank_desc: "我们祝贺每一位ck3 还有全面战争模组制作者，让我们有机会将他们的模组与我们的模组一起使用，并拥有绝对历史准确的单位！我们正在让改装行业变得更好！我们还要感谢社区和我们的 patreon 支持者，感谢您对我们项目的信任，我们非常爱您！"
 	#
 	### Troops by Culture conversions for both default attila and with 1212 AD HEADERS ### 
-	cc_op_page2_desc: "#clickable Troops by Culture (Default)"
-	cc_op_page3_desc: "#clickable Troops by Culture with 1212 AD (Optional)"
+	cc_op_page2_desc: "#clickable 按文化划分的部队（默认）"
+	cc_op_page3_desc: "#clickable 部队文化 1212 广告（可选）"
 	#
 	### Battle Scale tab texts ###
-	cc_op_tab2_desc: "Adjustments for overall [battle|E] size, used to manage performance vs scope of manual battles.\n\n#high Only impacts manual battles controlled in Total War: Attila. No impact to normal Crusader Kings 3 battles.#!"
-	cc_op_scale_head: "Overall Battle Size Scale"
-	cc_op_scale_desc: "Overall scaling of Crusader Kings 3 [army|E] totals to Total War: Attila battles. Used to help increase performance on lower end machines for the manual battles.\n\nWhen set to 50% this option will convert a Crusader Kings 3 battle with a total of 40,000 [soldiers|E] into a Total War: Attila battle of 20,000. All unit types will be scaled equally.\n\n#high Default value is 100% #!\n#i Decrease to improve battle performance#!"
-	cc_op_automax_head: "Auto Scale Beyond Maximum Battle Limit"
-	cc_op_automax_desc: "When enabled, a [battle|E] that exceeds the #high Maximum Battle Limit#! of [soldiers|E] will be automatically scaled down to the limit set in #high Maximum Battle Limit#!. Used to help manage massive, large, end game battles that would crash Total War: Attila.\n\n#high Default value is Enabled #!\n#X Disabling this option may cause crashes"
-	cc_op_max_head: "Maximum Battle Limit"
-	cc_op_max_desc: "When Auto Scale is Enabled - a [battle|E] that exceed this amount of [soldiers|E] will be scaled down to this limit. Used to help manage large, end game battles.\n\nWhen set to 20,000 this option will convert a Crusader Kings 3 battle with 40,000 [soldiers|E] down to a Total War: Attila battle of 20,000 soldiers. All unit types will be scaled equally.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 40,000#!\n#i Decrease to improve battle performance#!"
+	cc_op_tab2_desc: "整体调整 [battle|E] 大小，用于管理性能与手动战斗的范围。\n\n#high 仅影响《全面战争：阿提拉》中控制的手动战斗。对普通十字军之王没有影响 3 战斗。#!"
+	cc_op_scale_head: "总体战斗规模"
+	cc_op_scale_desc: "十字军之王的整体规模 3 [army|E] 全面战争：阿提拉战役总计。用于帮助提高低端机器的手动战斗性能。\n\n当设置为 50% 此选项将转换十字军之王 3 与总共战斗 40,000 [soldiers|E] 全面战争：阿提拉之战 20,000。所有单位类型都将同等缩放。\n\n#high 默认值为 100% #!\n#i 减少以提高战斗力#!"
+	cc_op_automax_head: "自动缩放超出最大战斗限制"
+	cc_op_automax_desc: "启用后，会出现一个 [battle|E] 超过了 #high 最大战斗限制#! 的 [soldiers|E] 将自动缩小到设置的限制 #high 最大战斗限制#!。用于帮助管理可能导致《全面战争：阿提拉》崩溃的大规模最终游戏战斗。\n\n#high 默认值为启用 #!\n#X 禁用此选项可能会导致崩溃"
+	cc_op_max_head: "最大战斗限制"
+	cc_op_max_desc: "启用自动缩放时 - a [battle|E] 超过这个数量的 [soldiers|E] 将缩小至此限制。用于帮助管理大型的最终游戏战斗。\n\n当设置为 20,000 此选项将转换十字军之王 3 与战斗 40,000 [soldiers|E] 全面战争：阿提拉之战 20,000 士兵。所有单位类型都将同等缩放。\n\N#high 《全面战争：阿提拉》必须设置为“ULTRA”单位大小才能让战斗使用该精确值。#! 如果单位规模设置为低于“ULTRA”，则战斗中每个单位的人数可能会减少。\n\n#high 默认值为 40,000#!\n#i 减少以提高战斗力#!"
 	#
 	### Unit Size tab texts ###
-	cc_op_tab3_desc: "In Crusader Conflicts battles all [soldiers|E] from participating armies are represented by individual units that can be controlled. The following [regiments|E] types can have their unit size adjusted.\n\n#high Non default options will effect battle balance, which may make battles easier or more difficult."
-	cc_op_unit1_head: "Levies Unit Size"
-	cc_op_unit1_desc: "[levies|E] are represented in battle by a mixture of units. In Crusader Conflicts battles most cultures will field their levies as 65% light spear units, 10% light ranged units, and 25% medium infantry units. Certain cultures have differences.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 200 #!"
-	cc_op_unit2_head: "Melee Men-at-Arms Unit Size"
-	cc_op_unit2_desc: "Melee [men_at_arms|E] regiments are soldiers with improved armor, weapons and training compared to levies. These troops are represented by units that fight using melee weapons such as swords, axes, spears or pikes.\n\n[regiment|E] types of [spearmen|E], [skirmishers|E], and [heavy_infantry|E] use this unit size in battle.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 200 #!"
-	cc_op_unit3_head: "Ranged Men-at-Arms Unit Size"
-	cc_op_unit3_desc: "Ranged [men_at_arms|E] regiments are soldiers with improved armor, weapons and training compared to levies. These troops are represented by units that fight using ranged weapons such as bows, crossbows, slings, or javelins.\n\n[regiment|E] types of [archers|E] use this unit size in battle.\n\N#high Total War: Attila must be set to ULTRA unit size to have battles use this exact value.#! If unit size is set below ULTRA your number of men per unit may be reduced in battle.\n\n#high Default value is 200 #!"
-	cc_op_unit4_head: "Cavalry Men-at-Arms Unit Size"
-	cc_op_unit4_desc: "Cavalry [men_at_arms|E] regiments are soldiers with mounts such as horses or camels, improved armor, weapons and training compared to levies. These troops are represented by units that fight from mounts using both ranged and melee weapons.\n\n[regiment|E] types of [light_cavalry|E] and [heavy_cavalry|E] use this unit size in battle.\n\n#high Default value is 100 #!"
-	cc_op_unit5_head: "loc_Siege Men-at-Arms Unit Size"
-	cc_op_unit5_desc: "loc_Description about how siege weapons are split. may not ever need this\n\n#high Default value is 100 #!"
+	cc_op_tab3_desc: "在十字军冲突中所有的战斗 [soldiers|E] 参与的军队由可以控制的单个单位代表。下列 [regiments|E] 类型可以调整其单位大小。\n\n#high 非默认选项会影响战斗平衡，这可能会使战斗变得更容易或更困难。"
+	cc_op_unit1_head: "征费单位规模"
+	cc_op_unit1_desc: "[levies|E] 在战斗中由多种单位代表。在十字军冲突中，大多数文化都会将征召的士兵部署为 65% 轻矛单位， 10% 光程单位，以及 25% 中型步兵单位。某些文化存在差异。\n\N#high 《全面战争：阿提拉》必须设置为“ULTRA”单位大小才能让战斗使用该精确值。#! 如果单位规模设置为低于“ULTRA”，则战斗中每个单位的人数可能会减少。\n\n#high 默认值为 200 #!"
+	cc_op_unit2_head: "近战武装人员单位规模"
+	cc_op_unit2_desc: "近战 [men_at_arms|E] 与征召兵相比，团是拥有改进的装甲、武器和训练的士兵。这些部队以使用剑、斧头、长矛或长矛等近战武器进行战斗的单位为代表。\n\n[regiment|E] 的类型 [spearmen|E], [skirmishers|E]， 和 [heavy_infantry|E] 在战斗中使用这个单位尺寸。\n\N#high 《全面战争：阿提拉》必须设置为“ULTRA”单位大小才能让战斗使用该精确值。#! 如果单位规模设置为低于“ULTRA”，则战斗中每个单位的人数可能会减少。\n\n#high 默认值为 200 #!"
+	cc_op_unit3_head: "远程武装部队规模"
+	cc_op_unit3_desc: "远程 [men_at_arms|E] 与征召兵相比，团是拥有改进的装甲、武器和训练的士兵。这些部队以使用弓、弩、投石索或标枪等远程武器进行战斗的部队为代表。\n\n[regiment|E] 的类型 [archers|E] 在战斗中使用这个单位尺寸。\n\N#high 《全面战争：阿提拉》必须设置为“ULTRA”单位大小才能让战斗使用该精确值。#! 如果单位规模设置为低于“ULTRA”，则战斗中每个单位的人数可能会减少。\n\n#high 默认值为 200 #!"
+	cc_op_unit4_head: "骑兵部队规模"
+	cc_op_unit4_desc: "骑兵 [men_at_arms|E] 团是拥有马或骆驼等坐骑的士兵，与征召兵相比，他们拥有改进的盔甲、武器和训练。这些部队由使用远程和近战武器的坐骑作战的部队代表。\n\n[regiment|E] 的类型 [light_cavalry|E] 和 [heavy_cavalry|E] 在战斗中使用这个单位尺寸。\n\n#high 默认值为 100 #!"
+	cc_op_unit5_head: "loc_Siege 士兵单位规模"
+	cc_op_unit5_desc: "loc_关于攻城武器如何分割的描述。可能永远不需要这个\n\n#high 默认值为 100 #!"
 	#
 	### Prefs & Battle Rules tab texts ###
-	cc_op_tab4_desc: "Specific options to allow for different types of Army Commanders to assume direct control in Atilla\n\n#high Default values are highly recommended for first time users of the mod. #!"
-	cc_op_control1_head: "Direct Battle Control"
-	cc_op_control1_desc: "The [commander|E] determines which battles may be directly controlled in Attila.\n\nPlayer Character Only offers a balance of risk vs reward and fits with the vanilla CK3 roleplay experience.\nPlayer & Marshal will also allow your [marshal|E] to assume direct battle control.\nAll Dynasty will allow any member of your [dynasty|E] to assume direct battle control.\nAll Characters will allow any character you name as [commander|E] to assume direct battle control.\n\n#high Default value is Player Character Only #!\n\n#X Non default options will greatly reduce the difficulty of your Crusader Kings 3 campaign"
-	cc_op_unitnames_head: "Direct Battle Unit Names"
-	cc_op_unitnames_desc: "Do you want unit names to be crazy or standardized like the CK3 generalize Men at arms names?\n\n#high Default value is Flavorful Unit Names #!\n\n#X Use Flavorful Unit Names if you are using a CK3 overhaul such as AGOT, or a mod that adjusts the Men At Arms names in Crusader Kings 3"
+	cc_op_tab4_desc: "允许不同类型的陆军指挥官直接控制阿蒂拉的特定选项\n\n#high 强烈建议首次使用该模组的用户使用默认值。 #!"
+	cc_op_control1_head: "直接战斗控制"
+	cc_op_control1_desc: "这 [commander|E] 决定哪些战斗可以由阿提拉直接控制。\n\n仅玩家角色提供了风险与奖励的平衡，并且适合原版 CK3 角色扮演体验。\n球员和元帅也将允许您 [marshal|E] 承担直接战斗控制权。\n所有王朝将允许您的任何成员 [dynasty|E] 承担直接战斗控制权。\n所有角色将允许您命名的任何角色 [commander|E] 承担直接战斗控制权。\n\n#high 默认值为仅限玩家角色 #!\n\n#X 非默认选项将大大降低你的十字军之王的难度 3 活动"
+	cc_op_unitnames_head: "直接战斗单位名称"
+	cc_op_unitnames_desc: "你想要疯狂的单位名称还是像 CK 那样标准化3 概括男性武装人员的名字？\n\n#high 默认值是美味的单位名称 #!\n\n#X 如果您使用的是 CK，请使用有趣的单位名称3 大修，例如 AGOT，或调整《十字军之王》中武装人员名称的模组 3"
 	
 	#
 	### Troops by Culture conversions for both default attila and with 1212 AD DETAILED ### 
-	cc_op_def1: "#Details here for Default Units"
-	cc_op_def2: "Details here for 1212 AD Units"
+	cc_op_def1: "#Details 此处为默认单位"
+	cc_op_def2: "详细信息请参见此处 1212 广告单位"
 
 	#Extracting Data
 	player_id: "[GetPlayer.MakeScope.Var('left_side_commander').Char.GetID]"
@@ -89,18 +89,18 @@
 	player_knight_effectiveness: "[GetPlayer.MakeScope.Var('left_side_warleader').Char.GetKnightEffectivenessBreakdown]"
     global_date_year: "[GetCurrentDate.GetYear]"
     global_date_month: "[GetCurrentDate.GetMonthOfYear]"
-	global_culture_ids_var:"[GetPlayer.MakeScope.Var('id_var').Char.GetCulture.GetID]"
+	global_culture_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetCulture.GetID]"
 	global_ids_var: "[GetPlayer.MakeScope.Var('id_var').Char.GetID]"
 
 	#
 	### Unit Mapping ### 
-	cc_op_tab5_desc: "details about unit mapping, both default and CK3 mod compatibility ".
-	cc_op_tab5_default: "#clickable Troops by Culture (Defaults)"
-	cc_op_tab5_compatmods: "#clickable Troops by Culture (Compatible Mods)"
-	cc_op_tab5_custom: "#clickable Troops by Culture (Customize)"
-	cc_op_about_hsub_um: "How It Works:\n\n\n\n#i Required:#!\n\n\n\n#i #high Optional:#! #!\n\n#X Not Supported:#!"
-	cc_op_about_desc_um: "#high Crusader Conflicts#! reads in details about the battle you #high Crusader Kings 3#! character is involved in and converts that into a #high Total War: Attila battle#! that you can directly control. Levies, Men-at-Arms and Knights are converted to equivalent units in Total War: Attila. For detailed information on how the units are converted see the #clickable Troop By Culture#! tabs.\n\n#i Steam Versions of Crusader Kings 3, Total War: Attila, Attila DLC - Age of Charlemagne\nSubscribed to Crusader Conflicts mod for BOTH Crusader Kings 3 AND Total War: Attila\nCrusader Conflicts mod standalone application #!\n\n#i #high Total War: Attila mod - 1212 AD (model packs 1-8)#! #!- for additional cultural units#!\n\n#X 1212 AD Scripts module - do not subscribe to this particular part of the 1212 AD mod#!"
-	cc_op_help_hsub_um: "Help FAQ:\n\n\n\n\n\n\nHave Questions? Need Help?"
-	cc_op_help_desc_um: "#high Attila battles run poorly/lags!#! - Lower your graphics options in Attila, lower the #clickable Battle Scale#! options. Also make sure that Crusader Kings 3 is being completely suspended in the background.\n#high Attila battles unit numbers don't match #clickable Unit Size #!options!#! - Review Attila graphics option for UNIT SIZE is set to ULTRA. Lower than ULTRA will result in smaller units.\n#high Attila crashes when trying to load!#! - Review that you are NOT using the 1212 AD Scripts mod.\n#high Clicking the Play Battle Button does nothing!#! - Review that you are launching CK3 via the CrusaderConflicts.exe clicking the center flag icon, do not manually launch CK3 from Steam.\n#high Why can't I control some battles!#! - Manual battles are only available when the player character is personally commanding the army.\n\n#high Discord - #! https://discord.gg/eFZTprHh3j"
-	cc_op_thank_hsub_um: "1212 AD Mod Team"
-	cc_op_thank_desc_um: "For making an insanely expansive medieval mod for Attila so we can use more relevant units!"
+	cc_op_tab5_desc: "有关单位映射的详细信息，包括默认值和 CK3 模组兼容性 ".
+	cc_op_tab5_default: "#clickable 按文化划分的部队（默认）"
+	cc_op_tab5_compatmods: "#clickable 文化部队（兼容模组）"
+	cc_op_tab5_custom: "#clickable 按文化划分的军队（定制）"
+	cc_op_about_hsub_um: "运作原理：\n\n\n\n#i 必需的：#!\n\n\n\n#i #high 选修的：#! #!\n\n#X 不支持：#!"
+	cc_op_about_desc_um: "#high 十字军冲突#! 阅读有关您的战斗的详细信息 #high 十字军之王 3#! 角色参与并将其转换为 #high 全面战争：阿提拉之战#! 您可以直接控制。征召兵、武装人员和骑士在《全面战争：阿提拉》中转换为同等单位。有关如何转换单位的详细信息，请参阅 #clickable 文化队伍#! 选项卡。\n\n#i Steam 版本的十字军之王 3, 全面战争：阿提拉，阿提拉 DLC - 查理曼时代\n订阅十字军之王的十字军冲突模组 3 以及《全面战争：阿提拉》\nCrusader Conflicts mod 独立应用程序 #!\n\n#i #high 全面战争：阿提拉 mod - 1212 AD（模型包 1-8)#! #!- 对于其他文化单位#!\n\n#X 1212 AD 脚本模块 - 不要订阅该特定部分 1212 广告模式#!"
+	cc_op_help_hsub_um: "帮助常见问题：\n\n\n\n\n\n\n有疑问吗？需要帮助吗？"
+	cc_op_help_desc_um: "#high 阿提拉的战斗进行得很糟糕/滞后！#! - 降低《阿提拉》中的图形选项，降低 #clickable 战斗规模#! 选项。还要确保十字军之王 3 完全暂停在后台。\n#high 阿提拉战斗单位编号不匹配 #clickable 单位尺寸 #!选项！#! - 查看 Attila 图形选项，将“单位大小”设置为“ULTRA”。低于 ULTRA 将导致单位更小。\n#high 阿提拉在尝试加载时崩溃了！#! - 检查您是否没有使用 1212 AD 脚本模组。\n#high 单击“开始战斗”按钮没有任何反应！#! - 检查您是否正在启动 CK3 通过 CrusaderConflicts.exe 单击中心标志图标，不要手动启动 CK3 来自蒸汽。\n#high 为什么有些战斗我无法掌控！#! - 手动战斗仅在玩家角色亲自指挥军队时可用。\n\n#high 不和谐- #! https://discord.gg/eFZTprHh3j"
+	cc_op_thank_hsub_um: "1212 AD模组团队"
+	cc_op_thank_desc_um: "为阿提拉制作一个极其广阔的中世纪模组，这样我们就可以使用更多相关的单位！"

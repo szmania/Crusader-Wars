@@ -1,0 +1,20 @@
+﻿######################################################################
+#  Crusader Conflicts Battle-Outcome Game Concepts
+#  Reuses existing mod/vanilla textures - no new binary assets.
+######################################################################
+
+cc_victorious_momentum = {
+	texture = "gfx/interface/icons/advantage_leading.dds"
+}
+
+cc_humbling_defeat = {
+	texture = "gfx/interface/icons/combat_effects/supply_state_starving_advantage.dds"
+}
+
+cc_decisive_victory = {
+	texture = "gfx/interface/icons/advantage_leading.dds"
+}
+
+cc_mourning_battle = {
+	texture = "gfx/interface/icons/combat_effects/supply_state_running_low_advantage.dds"
+}

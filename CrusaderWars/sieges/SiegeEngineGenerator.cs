@@ -36,11 +36,12 @@ namespace CrusaderWars.sieges
             }
             else // Logic for when siege progress is sufficient
             {
-                // Determine which wall height to exclude from siege equipment
-                // Holding level 1 or 2 means we exclude 15m equipment
-                // Holding level 3 or higher means we exclude 8m equipment
-                string excludedWallHeight = (holdingLevel >= 3) ? "8m" : "15m";
-                Program.Logger.Debug($"Excluding engines with wall height '{excludedWallHeight}' based on holding level ({holdingLevel}).");
+                // Determine which wall height to exclude from siege equipment.
+                // Two-axis system: Attila settlement level 2 (high walls) excludes 8m equipment;
+                // settlement level 1 (unfortified/palisade) excludes 15m equipment.
+                int settlementLevel = Sieges.GetSettlementLevel();
+                string excludedWallHeight = (settlementLevel >= 2) ? "8m" : "15m";
+                Program.Logger.Debug($"Excluding engines with wall height '{excludedWallHeight}' based on settlement level ({settlementLevel}).");
 
                 // Filter out engines designed for the wrong wall height.
                 // This correctly includes engines for the required height AND engines with no height requirement (like rams).

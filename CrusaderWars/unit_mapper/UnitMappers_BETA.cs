@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using System.Runtime.Versioning;
@@ -149,15 +150,24 @@ namespace CrusaderWars.unit_mapper
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
+        /// <summary>StartDate from the active mapper's Time Period.xml (empty if not parsed).</summary>
+        public static string MapperStartDate { get; private set; } = string.Empty;
+        /// <summary>EndDate from the active mapper's Time Period.xml (empty if not parsed).</summary>
+        public static string MapperEndDate { get; private set; } = string.Empty;
+
         private static Dictionary<string, XmlDocument>? _factionFileCache;
         private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
         private static Dictionary<string, List<(int percentage, string unit_key, string name, string max, int level)>>? _garrisonCache;
+        // Memoizes GetSortedFilePaths results. Keyed by (directory, priority pattern, active-submod
+        // fingerprint) because the ordering depends only on those. Cleared by ClearFactionCache().
+        private static Dictionary<(string directoryPath, string priorityFilePattern, string submodFingerprint), List<string>>? _sortedFilePathsCache;
 
         public static void ClearFactionCache()
         {
             _factionFileCache = null;
             _levyCache = null;
             _garrisonCache = null;
+            _sortedFilePathsCache = null;
         }
 
         private static void EnsureFactionCacheLoaded()
@@ -177,7 +187,18 @@ namespace CrusaderWars.unit_mapper
             foreach (var file in files_paths)
             {
                 XmlDocument doc = new XmlDocument();
-                doc.Load(file);
+                try
+                {
+                    doc.Load(file);
+                }
+                catch (Exception ex)
+                {
+                    // Skip unreadable files instead of aborting the whole cache load; the
+                    // per-key accessors (IsUnitKeySiege, GetMenAtArmMaxCategory) historically
+                    // tolerated bad files, so the cache must too.
+                    Program.Logger.Debug($"Error loading faction file '{Path.GetFileName(file)}' into cache: {ex.Message}");
+                    continue;
+                }
                 if (doc.DocumentElement == null) continue;
                 _factionFileCache[file] = doc;
 
@@ -292,7 +313,7 @@ namespace CrusaderWars.unit_mapper
             var allSubmods = new List<Submod>();
             var allCk3ModFileNames = new List<(string fileName, string? displayName)>();
 
-            var unit_mappers_folder = Directory.GetDirectories(Path.Combine(@".\unit mappers", gameType));
+            var unit_mappers_folder = GetMapperDirectories();
             if (tag == "Custom")
             {
                 string selectedMapperTag = ModOptions.GetSelectedCustomMapper();
@@ -399,7 +420,30 @@ namespace CrusaderWars.unit_mapper
 
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
-                public static string? GetLoadedUnitMapperString(string gameType)
+
+        /// <summary>
+        /// Root of the unit mappers directory (contains the 'attila' and 'schemas' subdirectories).
+        /// </summary>
+        public static string UnitMappersRootDir => @".\unit_mappers";
+
+        /// <summary>
+        /// Directory containing the Attila unit mapper folders (unit_mappers\attila).
+        /// </summary>
+        public static string AttilaMappersDir => Path.Combine(UnitMappersRootDir, "attila");
+
+        /// <summary>
+        /// Directory containing the XML schemas (unit_mappers\schemas).
+        /// </summary>
+        public static string SchemasDir => Path.Combine(UnitMappersRootDir, "schemas");
+
+        /// <summary>
+        /// Returns all unit mapper folders located in unit_mappers\attila.
+        /// </summary>
+        public static string[] GetMapperDirectories()
+        {
+            return Directory.Exists(AttilaMappersDir) ? Directory.GetDirectories(AttilaMappersDir) : Array.Empty<string>();
+        }
+        public static string? GetLoadedUnitMapperString(string gameType)
         {
             var mapperName = GetLoadedUnitMapperName();
             if (mapperName == null) return null;
@@ -469,10 +513,23 @@ namespace CrusaderWars.unit_mapper
 
         private static List<string> GetSortedFilePaths(string directoryPath, string priorityFilePattern)
         {
-            var allFiles = Directory.GetFiles(directoryPath, "*.xml").ToList();
             var activeSubmods = string.IsNullOrEmpty(ActivePlaythroughTag)
                 ? new List<string>()
                 : CrusaderWars.mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(ActivePlaythroughTag);
+
+            // Memoize the expensive directory scan + per-file XML tag read. The result depends only
+            // on the directory, the priority pattern, and the active submod set, so cache on that
+            // key and invalidate via ClearFactionCache().
+            string submodFingerprint = ActivePlaythroughTag + "|" + string.Join(",", activeSubmods);
+            var cacheKey = (directoryPath, priorityFilePattern, submodFingerprint);
+            _sortedFilePathsCache ??= new Dictionary<(string, string, string), List<string>>();
+            if (_sortedFilePathsCache.TryGetValue(cacheKey, out var cachedPaths))
+            {
+                // Return a copy: several callers mutate the returned list (e.g. Reverse()).
+                return new List<string>(cachedPaths);
+            }
+
+            var allFiles = Directory.GetFiles(directoryPath, "*.xml").ToList();
 
             var priorityFiles = new List<string>();
             var otherFiles = new List<string>();
@@ -548,7 +605,8 @@ namespace CrusaderWars.unit_mapper
             combinedList.AddRange(submodFiles);
             combinedList.AddRange(addonFiles);
 
-            return combinedList;
+            _sortedFilePathsCache[cacheKey] = combinedList;
+            return new List<string>(combinedList);
         }
 
         [SupportedOSPlatform("windows")]
@@ -856,7 +914,7 @@ namespace CrusaderWars.unit_mapper
             AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
 
-            var unit_mappers_folder = Directory.GetDirectories(Path.Combine(@".\unit mappers", gameType));
+            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             if (tag == "Custom")
             {
                 string customMapperTag = ModOptions.GetSelectedCustomMapper();
@@ -952,6 +1010,11 @@ namespace CrusaderWars.unit_mapper
 
                 if ((Date.Year >= startYear && Date.Year <= endYear))
                 {
+                    // Only record the time period of the mapper that actually covers the
+                    // current battle year; otherwise the last-processed mapper (e.g. a later
+                    // era in the same playthrough) would overwrite these for telemetry.
+                    MapperStartDate = startYearStr;
+                    MapperEndDate = endYearStr;
                     // MODS and SUBMODS
                     string modsPath = Path.Combine(mapperPath, "Mods.xml");
                     if (File.Exists(modsPath))
@@ -1448,6 +1511,42 @@ namespace CrusaderWars.unit_mapper
 
             Program.Logger.Debug($"Final garrison composition for '{attila_faction}' includes {finalGarrisonComposition.Count} unit types.");
             return finalGarrisonComposition;
+        }
+
+        /// <summary>
+        /// Returns the distinct (unit_key, name) garrison composition for a faction in a single pass
+        /// over the cached garrison definitions. Used by the Unit Replacer to avoid calling
+        /// GetFactionGarrison once per holding level (1..20). Mirrors GetFactionGarrison's
+        /// non-siege safeguard and returns an empty list when the faction has no garrison data.
+        /// </summary>
+        public static List<(string unit_key, string name)> GetFactionGarrisonComposition(string attila_faction)
+        {
+            if (!BattleState.IsSiegeBattle)
+            {
+                return new List<(string, string)>();
+            }
+
+            EnsureFactionCacheLoaded();
+
+            List<(int percentage, string unit_key, string name, string max, int level)>? definitions = null;
+            if (_garrisonCache != null && _garrisonCache.TryGetValue(attila_faction, out var specificGarrisons))
+            {
+                definitions = specificGarrisons;
+            }
+            else if (_garrisonCache != null && _garrisonCache.TryGetValue("Default", out var defaultGarrisons))
+            {
+                definitions = defaultGarrisons;
+            }
+
+            if (definitions == null)
+            {
+                return new List<(string, string)>();
+            }
+
+            return definitions
+                .Select(g => (g.unit_key, g.name))
+                .Distinct()
+                .ToList();
         }
 
 
@@ -2002,7 +2101,7 @@ namespace CrusaderWars.unit_mapper
                     break;
 
                 case RegimentType.Garrison:
-                    int holdingLevel = BattleState.IsSiegeBattle ? Sieges.GetHoldingLevel() : 1;
+                    int garrisonTier = BattleState.IsSiegeBattle ? Sieges.GetGarrisonTier() : 1;
                     var allGarrisons = new List<(string key, int level)>();
                     foreach (XmlNode garrisonNode in defaultFactionNode.SelectNodes("Garrison"))
                     {
@@ -2017,7 +2116,7 @@ namespace CrusaderWars.unit_mapper
                     }
                     if (allGarrisons.Any())
                     {
-                        var suitableGarrisons = allGarrisons.Where(g => g.level <= holdingLevel).ToList();
+                        var suitableGarrisons = allGarrisons.Where(g => g.level <= garrisonTier).ToList();
                         List<(string key, int level)> finalSelectionPool = suitableGarrisons.Any()
                             ? suitableGarrisons.Where(g => g.level == suitableGarrisons.Max(s => s.level)).ToList()
                             : allGarrisons.Where(g => g.level == allGarrisons.Min(s => s.level)).ToList();
@@ -2102,6 +2201,125 @@ namespace CrusaderWars.unit_mapper
                 }
             }
             return factions.ToList();
+        }
+
+        /// <summary>
+        /// Reverse lookup of <see cref="GetFactionsByHeritage"/>: returns the heritage name
+        /// whose Heritage/@faction or Heritage/Culture/@faction equals the given Attila
+        /// faction. Used by the Unit Replacer bulk-replace fallback chain to find
+        /// heritage-sibling factions. Returns an empty string when no match is found.
+        /// </summary>
+        public static string GetHeritageByFaction(string attilaFaction)
+        {
+            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath) || string.IsNullOrEmpty(attilaFaction))
+            {
+                return string.Empty;
+            }
+
+            string cultures_folder_path = LoadedUnitMapper_FolderPath + @"\Cultures";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(cultures_folder_path, priorityFilePattern);
+
+            foreach (var xml_file in files_paths)
+            {
+                XmlDocument CulturesFile = new XmlDocument();
+                CulturesFile.Load(xml_file);
+                if (CulturesFile.DocumentElement == null) continue;
+
+                foreach (XmlNode heritageNode in CulturesFile.DocumentElement.SelectNodes("Heritage"))
+                {
+                    string? heritageName = heritageNode.Attributes?["name"]?.Value;
+                    if (string.IsNullOrEmpty(heritageName)) continue;
+
+                    if (heritageNode.Attributes?["faction"]?.Value is string heritageFaction &&
+                        heritageFaction.Equals(attilaFaction, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return heritageName;
+                    }
+
+                    foreach (XmlNode cultureNode in heritageNode.SelectNodes("Culture"))
+                    {
+                        if (cultureNode.Attributes?["faction"]?.Value is string cultureFaction &&
+                            cultureFaction.Equals(attilaFaction, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return heritageName;
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the factions whose resolved subculture equals the given (already-resolved)
+        /// subculture. Resolution mirrors <see cref="GetSubculture"/>: a faction's subculture is
+        /// its own Faction/@subculture attribute, else the Default/DEFAULT faction's subculture.
+        /// Single pass over the Factions XMLs; distinct, ordered alphabetically. Empty list when
+        /// the subculture is null/empty or no faction matches.
+        /// </summary>
+        public static List<string> GetFactionsBySubculture(string subculture)
+        {
+            var factions = new List<string>();
+            if (string.IsNullOrEmpty(LoadedUnitMapper_FolderPath) || string.IsNullOrEmpty(subculture))
+            {
+                return factions;
+            }
+
+            string factions_folder_path = LoadedUnitMapper_FolderPath + @"\Factions";
+            string priorityFilePattern = !string.IsNullOrEmpty(ActivePlaythroughTag) ? $"OfficialCC_{ActivePlaythroughTag}_*" : string.Empty;
+            var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
+
+            // Resolve each faction's subculture with the same rules as GetSubculture: the
+            // faction's own @subculture wins; otherwise the Default faction's subculture.
+            var resolvedSubcultures = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            string defaultSubculture = string.Empty;
+
+            foreach (var xml_file in files_paths)
+            {
+                if (Path.GetExtension(xml_file) != ".xml") continue;
+
+                XmlDocument FactionsFile = new XmlDocument();
+                FactionsFile.Load(xml_file);
+                if (FactionsFile.DocumentElement == null) continue;
+
+                XmlNode? defaultNode = FactionsFile.SelectSingleNode("/Factions/Faction[@name='Default' or @name='DEFAULT']");
+                if (defaultNode?.Attributes?["subculture"]?.Value is string foundDefaultSubculture && !string.IsNullOrEmpty(foundDefaultSubculture))
+                {
+                    defaultSubculture = foundDefaultSubculture;
+                }
+
+                foreach (XmlNode factionNode in FactionsFile.SelectNodes("/Factions/Faction"))
+                {
+                    string? factionName = factionNode.Attributes?["name"]?.Value;
+                    if (string.IsNullOrEmpty(factionName)) continue;
+
+                    string? ownSubculture = factionNode.Attributes?["subculture"]?.Value;
+                    if (!string.IsNullOrEmpty(ownSubculture))
+                    {
+                        resolvedSubcultures[factionName] = ownSubculture;
+                    }
+                    else if (!resolvedSubcultures.ContainsKey(factionName))
+                    {
+                        // Placeholder: resolved against the Default subculture after the scan.
+                        resolvedSubcultures[factionName] = string.Empty;
+                    }
+                }
+            }
+
+            foreach (var entry in resolvedSubcultures)
+            {
+                string resolved = string.IsNullOrEmpty(entry.Value) ? defaultSubculture : entry.Value;
+                if (!string.IsNullOrEmpty(resolved) && resolved.Equals(subculture, StringComparison.OrdinalIgnoreCase))
+                {
+                    factions.Add(entry.Key);
+                }
+            }
+
+            return factions
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x, StringComparer.Ordinal)
+                .ToList();
         }
 
         public static string GetAttilaFaction(string CultureName, string HeritageName)
@@ -2254,6 +2472,18 @@ namespace CrusaderWars.unit_mapper
             return faction;
         }
 
+        private static bool MatchesVariantKey(SettlementVariant variant, string provinceName)
+        {
+            if (string.IsNullOrEmpty(variant.Key)) return false;
+
+            // Word-based match: split the key into words (e.g. "custom_edessa" -> "custom", "edessa")
+            // and match if any whole word appears in the province name, case-insensitive.
+            // Partial words like "edes" or "cust" never match.
+            var keyWords = Regex.Split(variant.Key, @"[^\p{L}\p{N}]+");
+            return keyWords.Any(word => word.Length > 0
+                && Regex.IsMatch(provinceName, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase));
+        }
+
         public static (string X, string Y, List<string>? orientations)? GetSettlementMap(string faction, string battleType, string provinceName)
         {
             BattleStateBridge.Clear(); // Clear any previous overrides at the start of a new map search.
@@ -2315,7 +2545,7 @@ namespace CrusaderWars.unit_mapper
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, provinceName));
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found unique settlement map variant '{uniqueMatch.Key}' for Province '{provinceName}'.");
@@ -2435,7 +2665,7 @@ namespace CrusaderWars.unit_mapper
 
                 foreach (var uniqueMap in matchingUniqueMaps)
                 {
-                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, provinceName));
                     if (uniqueMatch != null)
                     {
                         Program.Logger.Debug($"Found siege battle type '{uniqueMap.BattleType}' from unique map by variant key '{uniqueMatch.Key}'.");
@@ -2533,7 +2763,7 @@ namespace CrusaderWars.unit_mapper
                                      .ToList();
             foreach (var uniqueMap in matchingUniqueMaps)
             {
-                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => provinceName.IndexOf(v.Key, StringComparison.OrdinalIgnoreCase) >= 0);
+                var uniqueMatch = uniqueMap.Variants.FirstOrDefault(v => MatchesVariantKey(v, provinceName));
                 if (uniqueMatch != null)
                 {
                     return $"Unique Map ('{uniqueMatch.Key}')";
@@ -2773,25 +3003,21 @@ namespace CrusaderWars.unit_mapper
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
             files_paths.Reverse(); // Prioritize submods, as they can override base files
 
+            // Read the parsed documents from the shared faction-file cache instead of
+            // re-loading every faction XML on each call (this runs once per unit key).
+            EnsureFactionCacheLoaded();
+
             foreach (var xml_file in files_paths)
             {
-                try
-                {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue;
+                if (_factionFileCache == null || !_factionFileCache.TryGetValue(xml_file, out var FactionsFile)) continue;
+                if (FactionsFile.DocumentElement == null) continue;
 
-                    // Find a MenAtArm node with the matching key
-                    XmlNode maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@key='{unitKey}']");
-                    if (maaNode != null)
-                    {
-                        // If we find the key, we have our answer.
-                        return maaNode.Attributes?["siege"]?.Value == "true";
-                    }
-                }
-                catch (Exception ex)
+                // Find a MenAtArm node with the matching key
+                XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@key='{unitKey}']");
+                if (maaNode != null)
                 {
-                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in IsUnitKeySiege: {ex.Message}");
+                    // If we find the key, we have our answer.
+                    return maaNode.Attributes?["siege"]?.Value == "true";
                 }
             }
 
@@ -2809,24 +3035,20 @@ namespace CrusaderWars.unit_mapper
             var files_paths = GetSortedFilePaths(factions_folder_path, priorityFilePattern);
             files_paths.Reverse(); // Prioritize submods
 
+            // Read the parsed documents from the shared faction-file cache instead of
+            // re-loading every faction XML on each call (this runs once per MAA group).
+            EnsureFactionCacheLoaded();
+
             foreach (var xml_file in files_paths)
             {
-                try
-                {
-                    XmlDocument FactionsFile = new XmlDocument();
-                    FactionsFile.Load(xml_file);
-                    if (FactionsFile.DocumentElement == null) continue;
+                if (_factionFileCache == null || !_factionFileCache.TryGetValue(xml_file, out var FactionsFile)) continue;
+                if (FactionsFile.DocumentElement == null) continue;
 
-                    // Find a MenAtArm node with the matching type attribute
-                    XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
-                    if (maaNode != null)
-                    {
-                        return maaNode.Attributes?["max"]?.Value;
-                    }
-                }
-                catch (Exception ex)
+                // Find a MenAtArm node with the matching type attribute
+                XmlNode? maaNode = FactionsFile.SelectSingleNode($"//MenAtArm[@type='{menAtArmType}']");
+                if (maaNode != null)
                 {
-                    Program.Logger.Debug($"Error reading or parsing faction file '{Path.GetFileName(xml_file)}' in GetMenAtArmMaxCategory: {ex.Message}");
+                    return maaNode.Attributes?["max"]?.Value;
                 }
             }
 

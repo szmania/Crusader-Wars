@@ -68,9 +68,30 @@ public class WindowsProcessController : IProcessController
         if (string.IsNullOrEmpty(processName))
             throw new ArgumentException("Process name cannot be null or empty.", nameof(processName));
 
+        // If the target process is not running, pssuspend exits with -1 and throws.
+        // Check first and skip gracefully instead of aborting the battle flow.
+        string lookupName = processName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+            ? processName.Substring(0, processName.Length - 4)
+            : processName;
+        if (Process.GetProcessesByName(lookupName).Length == 0)
+        {
+            Program.Logger.Debug($"WARNING: Cannot suspend '{processName}' - process is not running. Continuing without suspending.");
+            return;
+        }
+
         Program.Logger.Debug($"Suspending {processName} via pssuspend64.exe.");
-        ProcessRuntime(processName);
-        Program.Logger.Debug($"Successfully suspended {processName}.");
+        try
+        {
+            ProcessRuntime(processName);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Program.Logger.Debug($"WARNING: Failed to suspend '{processName}': {ex.Message}. Continuing without suspending.");
+        }
+        catch (FileNotFoundException ex)
+        {
+            Program.Logger.Debug($"WARNING: Failed to suspend '{processName}': {ex.Message}. Continuing without suspending.");
+        }
     }
 
     /// <inheritdoc/>
@@ -90,6 +111,11 @@ public class WindowsProcessController : IProcessController
             // This error is expected if the process is not suspended.
             // We log it for debugging but don't throw, allowing the program to continue.
             Program.Logger.Debug($"Could not resume '{processName}', it was likely not suspended. Error: {ex.Message}");
+        }
+        catch (FileNotFoundException ex)
+        {
+            // pssuspend64.exe is missing; log and continue rather than crashing the resume path.
+            Program.Logger.Debug($"WARNING: Could not resume '{processName}': {ex.Message}. Continuing without resuming.");
         }
     }
 }

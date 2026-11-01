@@ -457,6 +457,15 @@ public static int GetKnightPrisonerChance()
             return true; // Default to enabled
         }
 
+        public static bool GetSendAnonymousTelemetry()
+        {
+            if (optionsValuesCollection.TryGetValue("SendAnonymousTelemetry", out var value))
+            {
+                return value != "Disabled";
+            }
+            return true; // Opted-in by default
+        }
+
         public static bool GetLinuxSetupCompleted()
         {
             return optionsValuesCollection.TryGetValue("LinuxSetupCompleted", out var value) && bool.TryParse(value, out bool result) && result;

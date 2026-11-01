@@ -39,6 +39,7 @@ namespace CrusaderWars.client
             this.InstructionsBox = new System.Windows.Forms.GroupBox();
             this.textBoxInstructions = new System.Windows.Forms.TextBox();
             this.btnUndo = new System.Windows.Forms.Button();
+            this.btnReplaceAllBuggy = new System.Windows.Forms.Button();
             this.UnitReplacerToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.txtSearchCurrent = new System.Windows.Forms.TextBox();
             this.btnPrevCurrent = new System.Windows.Forms.Button();
@@ -49,6 +50,9 @@ namespace CrusaderWars.client
             this.btnSearchCurrent = new System.Windows.Forms.Button();
             this.btnSearchAvailable = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
+            this.loadingOverlayPanel = new System.Windows.Forms.Panel();
+            this.loadingOverlayLabel = new System.Windows.Forms.Label();
+            this.loadingSpinnerTimer = new System.Windows.Forms.Timer(this.components);
             this.lblCurrentSearch = new System.Windows.Forms.Label();
             this.lblAvailableSearch = new System.Windows.Forms.Label();
             this.InstructionsBox.SuspendLayout();
@@ -61,7 +65,7 @@ namespace CrusaderWars.client
             this.tvCurrentUnits.Location = new System.Drawing.Point(12, 196);
             this.tvCurrentUnits.HideSelection = false;
             this.tvCurrentUnits.Name = "tvCurrentUnits";
-            this.tvCurrentUnits.Size = new System.Drawing.Size(480, 424);
+            this.tvCurrentUnits.Size = new System.Drawing.Size(570, 424);
             this.tvCurrentUnits.TabIndex = 0;
             this.tvCurrentUnits.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvCurrentUnits_BeforeSelect);
             this.tvCurrentUnits.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvCurrentUnits_NodeMouseClick);
@@ -70,9 +74,9 @@ namespace CrusaderWars.client
             // 
             this.tvAvailableUnits.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvAvailableUnits.Location = new System.Drawing.Point(592, 196);
+            this.tvAvailableUnits.Location = new System.Drawing.Point(698, 196);
             this.tvAvailableUnits.Name = "tvAvailableUnits";
-            this.tvAvailableUnits.Size = new System.Drawing.Size(480, 424);
+            this.tvAvailableUnits.Size = new System.Drawing.Size(570, 424);
             this.tvAvailableUnits.TabIndex = 1;
             // 
             // btnReplace
@@ -160,7 +164,7 @@ namespace CrusaderWars.client
             // btnUndo
             // 
             this.btnUndo.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnUndo.Location = new System.Drawing.Point(495, 390);
+            this.btnUndo.Location = new System.Drawing.Point(495, 418);
             this.btnUndo.Name = "btnUndo";
             this.btnUndo.Size = new System.Drawing.Size(100, 23);
             this.btnUndo.TabIndex = 8;
@@ -168,16 +172,56 @@ namespace CrusaderWars.client
             this.btnUndo.UseVisualStyleBackColor = true;
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
+            // btnReplaceAllBuggy
+            // 
+            this.btnReplaceAllBuggy.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnReplaceAllBuggy.Location = new System.Drawing.Point(495, 389);
+            this.btnReplaceAllBuggy.Name = "btnReplaceAllBuggy";
+            this.btnReplaceAllBuggy.Size = new System.Drawing.Size(100, 23);
+            this.btnReplaceAllBuggy.TabIndex = 21;
+            this.btnReplaceAllBuggy.Text = "Replace All Buggy";
+            this.UnitReplacerToolTip.SetToolTip(this.btnReplaceAllBuggy, "Replaces every known-buggy unit in the battle with a non-buggy unit of a similar type (same faction first, then heritage siblings, then Default). Click 'Undo' to clear.");
+            this.btnReplaceAllBuggy.UseVisualStyleBackColor = true;
+            this.btnReplaceAllBuggy.Click += new System.EventHandler(this.btnReplaceAllBuggy_Click);
+            // 
             // btnReset
             // 
             this.btnReset.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnReset.Location = new System.Drawing.Point(495, 419);
+            this.btnReset.Location = new System.Drawing.Point(495, 447);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(100, 23);
             this.btnReset.TabIndex = 19;
             this.btnReset.Text = "Reset All";
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+            // 
+            // 
+            // loadingOverlayPanel
+            // 
+            this.loadingOverlayPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(245)))), ((int)(((byte)(245)))));
+            this.loadingOverlayPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.loadingOverlayPanel.Controls.Add(this.loadingOverlayLabel);
+            this.loadingOverlayPanel.Location = new System.Drawing.Point(500, 300);
+            this.loadingOverlayPanel.Name = "loadingOverlayPanel";
+            this.loadingOverlayPanel.Size = new System.Drawing.Size(260, 110);
+            this.loadingOverlayPanel.TabIndex = 22;
+            this.loadingOverlayPanel.Visible = false;
+            this.loadingOverlayPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.LoadingOverlayPanel_Paint);
+            // 
+            // loadingOverlayLabel
+            // 
+            this.loadingOverlayLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.loadingOverlayLabel.Location = new System.Drawing.Point(10, 78);
+            this.loadingOverlayLabel.Name = "loadingOverlayLabel";
+            this.loadingOverlayLabel.Size = new System.Drawing.Size(240, 20);
+            this.loadingOverlayLabel.TabIndex = 0;
+            this.loadingOverlayLabel.Text = "Loading unit data…";
+            this.loadingOverlayLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // loadingSpinnerTimer
+            // 
+            this.loadingSpinnerTimer.Interval = 60;
+            this.loadingSpinnerTimer.Tick += new System.EventHandler(this.LoadingSpinnerTimer_Tick);
             // 
             // UnitReplacerToolTip
             // 
@@ -315,6 +359,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.btnNextCurrent);
             this.Controls.Add(this.btnPrevCurrent);
             this.Controls.Add(this.txtSearchCurrent);
+            this.Controls.Add(this.btnReplaceAllBuggy);
             this.Controls.Add(this.btnUndo);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnSearchCurrent);
@@ -327,6 +372,7 @@ namespace CrusaderWars.client
             this.Controls.Add(this.btnReplace);
             this.Controls.Add(this.tvAvailableUnits);
             this.Controls.Add(this.tvCurrentUnits);
+            this.Controls.Add(this.loadingOverlayPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.MaximizeBox = true;
             this.MinimizeBox = true;
@@ -355,6 +401,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.GroupBox InstructionsBox;
         private System.Windows.Forms.TextBox textBoxInstructions;
         private System.Windows.Forms.Button btnUndo;
+        private System.Windows.Forms.Button btnReplaceAllBuggy;
         private System.Windows.Forms.ToolTip UnitReplacerToolTip;
         private System.Windows.Forms.Label lblAvailableSearch;
         private System.Windows.Forms.Label lblCurrentSearch;
@@ -367,5 +414,8 @@ namespace CrusaderWars.client
         private System.Windows.Forms.Button btnSearchCurrent;
         private System.Windows.Forms.Button btnSearchAvailable;
         private System.Windows.Forms.Button btnReset;
+        private System.Windows.Forms.Panel loadingOverlayPanel;
+        private System.Windows.Forms.Label loadingOverlayLabel;
+        private System.Windows.Forms.Timer loadingSpinnerTimer;
     }
 }

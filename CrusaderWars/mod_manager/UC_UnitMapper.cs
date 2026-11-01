@@ -50,6 +50,7 @@ namespace CrusaderWars.mod_manager
             RequiredModsList = requiredMods;
             _playthroughTag = playthroughTag;
             _gameType = gameType; // Store it
+            Tag = playthroughTag; // Needed by Options.PlaythroughToggle_Clicked
             _availableSubmods = submods;
 
             BtnSubmods.Visible = _availableSubmods != null && _availableSubmods.Any();
@@ -69,7 +70,7 @@ namespace CrusaderWars.mod_manager
         private void PopulateCustomMappers()
         {
             customMapperComboBox.Items.Clear();
-            string unitMappersDir = Path.Combine(@".\unit mappers", _gameType);
+            string unitMappersDir = Path.Combine(UnitMappers_BETA.AttilaMappersDir, _gameType);
             if (Directory.Exists(unitMappersDir))
             {
                 var customTags = Directory.GetDirectories(unitMappersDir)
@@ -206,53 +207,13 @@ namespace CrusaderWars.mod_manager
         [SupportedOSPlatform("windows")]
         private void button1_Click(object sender, EventArgs e)
         {
-            if (_playthroughTag == "TheFallenEagle" || _playthroughTag == "AGOT") // Modified condition
+            if (_playthroughTag == "AGOT")
             {
-                // Build a string containing the list of mods
-                StringBuilder modsMessage = new StringBuilder();
-                string messageBoxTitle = $"{_playthroughTag} - Required Mods"; // Dynamic title
-
-                if (_playthroughTag == "AGOT")
-                {
-                    modsMessage.Append("For the 'A Game of Thrones (AGOT)' playthrough, please ensure you have the following CK3 submod installed:\n");
-                    modsMessage.Append("• Lord of the Tides (adds House Velaryon)\n");
-                    modsMessage.Append("  Download: https://www.moddb.com/downloads/lord-of-the-tides-v04\n");
-                    modsMessage.Append("\n");
-                    modsMessage.Append("Additionally, the following Total War: Attila mods are required:\n");
-                }
-                else // TheFallenEagle
-                {
-                    modsMessage.Append($"{_playthroughTag} playthrough requires the following mods for Total War: Attila:\n");
-                }
-
-                if (RequiredModsList != null && RequiredModsList.Count > 0)
-                {
-                    foreach (var (mod, _, screenName, _) in RequiredModsList)
-                    {
-                        modsMessage.Append($"- {(string.IsNullOrEmpty(screenName) ? mod : $"{screenName} ({mod})")}\n");
-                    }
-                    modsMessage.Append("\nPlease ensure these are enabled in the Attila Mod Manager.\n");
-                }
-                else
-                {
-                    if (_playthroughTag == "AGOT")
-                    {
-                        modsMessage.Append("No additional Total War: Attila mods are listed as required for this playthrough.\n");
-                    }
-                    else
-                    {
-                        modsMessage.Append($"No specific required mods are listed for '{_playthroughTag}' playthrough at this time.\n");
-                    }
-                }
-
-                if (_playthroughTag == "AGOT")
-                {
-                    ShowClickableMessageBox(modsMessage.ToString(), messageBoxTitle);
-                }
-                else
-                {
-                    MessageBox.Show(modsMessage.ToString(), messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                Process.Start(new ProcessStartInfo("https://crusader-conflicts.vercel.app/playthroughs/a-game-of-thrones") { UseShellExecute = true });
+            }
+            else if (_playthroughTag == "TheFallenEagle")
+            {
+                Process.Start(new ProcessStartInfo("https://crusader-conflicts.vercel.app/playthroughs/late-roman-era") { UseShellExecute = true });
             }
             else if (!string.IsNullOrEmpty(SteamCollectionLink)) // Original logic for other playthroughs
             {
@@ -265,10 +226,15 @@ namespace CrusaderWars.mod_manager
             return uC_Toggle1.State;
         }
 
+        public void SetState(bool state)
+        {
+            uC_Toggle1.SetState(state);
+        }
+
         private static List<string> ValidateUnitMapper(string unitMapperDirectory)
         {
             var allErrors = new List<string>();
-            string schemasDir = @".\\unit mappers\\schemas";
+            string schemasDir = @".\\unit_mappers\\schemas";
 
             // Validate Mods.xml
             string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
@@ -383,6 +349,15 @@ namespace CrusaderWars.mod_manager
             uC_Toggle1.Enabled = false;
             BtnVerifyMods.Enabled = false;
             button1.Enabled = false;
+            // Disable ALL playthrough toggles during validation to close the race window
+            // (clicking another toggle mid-validation starts a second exclusion chain).
+            if (AllControlsReferences != null)
+            {
+                foreach (var controlReference in AllControlsReferences)
+                {
+                    if (controlReference != this) { controlReference.uC_Toggle1.Enabled = false; }
+                }
+            }
 
             // Create and show a simple status form
             Form statusForm = new Form
@@ -407,7 +382,7 @@ namespace CrusaderWars.mod_manager
             {
                 // XML VALIDATION LOGIC
                 var allErrors = new List<string>();
-                string unitMappersBaseDir = @".\unit mappers";
+                string unitMappersBaseDir = UnitMappers_BETA.AttilaMappersDir;
                 var unitMapperDirectories = new List<string>();
 
                 if (_playthroughTag == "Custom")
@@ -558,12 +533,27 @@ namespace CrusaderWars.mod_manager
                 }
                 ToggleClicked?.Invoke(this, EventArgs.Empty);
             }
+            catch (Exception ex)
+            {
+                // An unexpected validation error must not leave the playthrough half-enabled
+                // (and must not disturb the previously enabled playthrough).
+                Program.Logger.Debug("WARNING: Playthrough validation failed unexpectedly for " + _playthroughTag + ": " + ex.Message);
+                uC_Toggle1.SetState(false);
+                ToggleClicked?.Invoke(this, EventArgs.Empty);
+            }
             finally
             {
                 // Restore UI state
                 statusForm.Close();
                 this.Cursor = Cursors.Default;
                 uC_Toggle1.Enabled = true;
+            if (AllControlsReferences != null)
+            {
+                foreach (var controlReference in AllControlsReferences)
+                {
+                    if (controlReference != this) { controlReference.uC_Toggle1.Enabled = true; }
+                }
+            }
                 BtnVerifyMods.Enabled = true;
                 button1.Enabled = true;
             }

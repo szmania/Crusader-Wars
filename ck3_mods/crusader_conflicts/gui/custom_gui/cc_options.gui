@@ -142,7 +142,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('battle_scale:', '25'))]"   # Set reduced 25% battle scale ratio for increase pc performance
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_scale', 'scale1' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_scale', 'scale1' )]"                                        
+                                    onclick = "[GetScriptedGui('cc_set_battle_scale_25').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_scale', 'scale1' ), GetPlayer.MakeScope.Var('cc_op_battle_scale_25').IsSet)]"                                        
                                     }
 
                                     button_standard_big = {
@@ -155,7 +156,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('battle_scale:', '50'))]"   # Set reduced 50% battle scale ratio for increase pc performance
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_scale', 'scale2' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_scale', 'scale2' )]"                                        
+                                    onclick = "[GetScriptedGui('cc_set_battle_scale_50').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_scale', 'scale2' ), GetPlayer.MakeScope.Var('cc_op_battle_scale_50').IsSet)]"                                        
                                     }
 
                                     button_standard_big = {
@@ -168,7 +170,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('battle_scale:', '100'))]"   # Set 100% battle scale ratio for default pc performance
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_scale', 'scale3' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_scale', 'scale3' )]"                                        
+                                    onclick = "[GetScriptedGui('cc_set_battle_scale_100').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_scale', 'scale3' ), GetPlayer.MakeScope.Var('cc_op_battle_scale_100').IsSet)]"                                        
                                     }
                                 }
                             }
@@ -213,7 +216,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('battle_max:', '20000'))]"   # Set 20k max troops for battle increase pc performance
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_maxnum', 'maxnum1' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_maxnum', 'maxnum1' )]"                                        
+                                    onclick = "[GetScriptedGui('cc_set_battle_max_20').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_maxnum', 'maxnum1' ), GetPlayer.MakeScope.Var('cc_op_battle_max_20').IsSet)]"                                        
                                     }
 
                                     button_standard_big = {
@@ -226,7 +230,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('battle_max:', '40000'))]"   # Set 40k max troops for battle default pc performance
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_maxnum', 'maxnum2' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_maxnum', 'maxnum2' )]"
+                                    onclick = "[GetScriptedGui('cc_set_battle_max_40').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_maxnum', 'maxnum2' ), GetPlayer.MakeScope.Var('cc_op_battle_max_40').IsSet)]"
                                     }
 
                                     button_standard_big = {
@@ -239,7 +244,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('battle_max:', '80000'))]"   # Set 80k max troops for battle decrease pc performance
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_maxnum', 'maxnum3' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_maxnum', 'maxnum3' )]"
+                                    onclick = "[GetScriptedGui('cc_set_battle_max_80').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_maxnum', 'maxnum3' ), GetPlayer.MakeScope.Var('cc_op_battle_max_80').IsSet)]"
                                     }
                                 }
                             }
@@ -284,7 +290,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('auto_scale:', '1'))]"   # Enables army number scaling, default
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_auto_scale', 'auto_enable' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_auto_scale', 'auto_enable' )]"
+                                    onclick = "[GetScriptedGui('cc_set_auto_scale_on').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_auto_scale', 'auto_enable' ), GetPlayer.MakeScope.Var('cc_op_auto_scale_on').IsSet)]"
                                     }
                                     
 
@@ -298,7 +305,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('auto_scale:', '0'))]"   # Disables army number scaling completely, not recommended 
 			                            }
                                     onclick = "[GetVariableSystem.Set( 'cc_op_auto_scale', 'auto_disable' )]"
-                                    down = "[GetVariableSystem.HasValue( 'cc_op_auto_scale', 'auto_disable' )]"
+                                    onclick = "[GetScriptedGui('cc_set_auto_scale_off').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                    down = "[Or(GetVariableSystem.HasValue( 'cc_op_auto_scale', 'auto_disable' ), GetPlayer.MakeScope.Var('cc_op_auto_scale_off').IsSet)]"
                                     }
                                 }
                             }
@@ -365,7 +373,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_levy:', '200'))]"   # Set unit size per type for levy
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_levysize', 'levysize1' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_levysize', 'levysize1' )]"
+                                        onclick = "[GetScriptedGui('cc_set_levy_200').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_levysize', 'levysize1' ), GetPlayer.MakeScope.Var('cc_op_levy_200').IsSet)]"
                                     }
 
                                     #button_primary_big = {
@@ -379,7 +388,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_levy:', '300'))]"    # Set unit size per type for levy
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_levysize', 'levysize2' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_levysize', 'levysize2' )]"
+                                        onclick = "[GetScriptedGui('cc_set_levy_300').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_levysize', 'levysize2' ), GetPlayer.MakeScope.Var('cc_op_levy_300').IsSet)]"
 
                                     }
 
@@ -393,7 +403,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_levy:', '400'))]"    # Set unit size per type for levy
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_levysize', 'levysize3' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_levysize', 'levysize3' )]"
+                                        onclick = "[GetScriptedGui('cc_set_levy_400').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_levysize', 'levysize3' ), GetPlayer.MakeScope.Var('cc_op_levy_400').IsSet)]"
 
                                     }
 
@@ -457,7 +468,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_melee_maa:', '160'))]"    # Set unit size per type for melee maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_meleesize', 'meleesize1' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_meleesize', 'meleesize1' )]"
+                                        onclick = "[GetScriptedGui('cc_set_melee_160').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_meleesize', 'meleesize1' ), GetPlayer.MakeScope.Var('cc_op_melee_160').IsSet)]"
 
                                     }
                                     #button_primary_big = {
@@ -471,7 +483,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_melee_maa:', '200'))]"     # Set unit size per type for melee maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_meleesize', 'meleesize2' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_meleesize', 'meleesize2' )]"
+                                        onclick = "[GetScriptedGui('cc_set_melee_200').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_meleesize', 'meleesize2' ), GetPlayer.MakeScope.Var('cc_op_melee_200').IsSet)]"
                                     }
 
                                     button_standard_big = {
@@ -484,7 +497,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_melee_maa:', '300'))]"    # Set unit size per type for melee maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_meleesize', 'meleesize3' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_meleesize', 'meleesize3' )]"
+                                        onclick = "[GetScriptedGui('cc_set_melee_300').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_meleesize', 'meleesize3' ), GetPlayer.MakeScope.Var('cc_op_melee_300').IsSet)]"
                                     }
                                 }
                             }
@@ -529,7 +543,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_ranged_maa:', '100'))]"     # Set unit size per type for ranged maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_rangedsize', 'rangedsize1' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_rangedsize', 'rangedsize1' )]"
+                                        onclick = "[GetScriptedGui('cc_set_ranged_100').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_rangedsize', 'rangedsize1' ), GetPlayer.MakeScope.Var('cc_op_ranged_100').IsSet)]"
                                     }
 
                                     #button_primary_big = {
@@ -543,7 +558,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_ranged_maa:', '200'))]"    # Set unit size per type for ranged maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_rangedsize', 'rangedsize2' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_rangedsize', 'rangedsize2' )]"
+                                        onclick = "[GetScriptedGui('cc_set_ranged_200').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_rangedsize', 'rangedsize2' ), GetPlayer.MakeScope.Var('cc_op_ranged_200').IsSet)]"
                                     }
 
                                     button_standard_big = {
@@ -556,7 +572,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_ranged_maa:', '300'))]"    # Set unit size per type for ranged maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_rangedsize', 'rangedsize3' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_rangedsize', 'rangedsize3' )]"
+                                        onclick = "[GetScriptedGui('cc_set_ranged_300').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_rangedsize', 'rangedsize3' ), GetPlayer.MakeScope.Var('cc_op_ranged_300').IsSet)]"
                                     }
                                 }
                             }
@@ -601,7 +618,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_mounted_maa:', '50'))]"    # Set unit size per type for mounted maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_mountedsize', 'mountedsize1' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_mountedsize', 'mountedsize1' )]"
+                                        onclick = "[GetScriptedGui('cc_set_mounted_50').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_mountedsize', 'mountedsize1' ), GetPlayer.MakeScope.Var('cc_op_mounted_50').IsSet)]"
                                     }
 
                                     #button_primary_big = {
@@ -615,7 +633,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_mounted_maa:', '100'))]"    # Set unit size per type for mounted maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_mountedsize', 'mountedsize2' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_mountedsize', 'mountedsize2' )]"
+                                        onclick = "[GetScriptedGui('cc_set_mounted_100').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_mountedsize', 'mountedsize2' ), GetPlayer.MakeScope.Var('cc_op_mounted_100').IsSet)]"
                                     }
 
                                     button_standard_big = {
@@ -628,7 +647,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unit_mounted_maa:', '150'))]"    # Set unit size per type for mounted maa
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_mountedsize', 'mountedsize3' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_mountedsize', 'mountedsize3' )]"
+                                        onclick = "[GetScriptedGui('cc_set_mounted_150').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_mountedsize', 'mountedsize3' ), GetPlayer.MakeScope.Var('cc_op_mounted_150').IsSet)]"
                                     }
                                 }
                             }
@@ -690,7 +710,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('control:', '1'))]"    # Set commander type for direct control to player character only
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_control', 'control1' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_control', 'control1' )]"
+                                        onclick = "[GetScriptedGui('cc_set_control_1').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_control', 'control1' ), GetPlayer.MakeScope.Var('cc_op_control_1').IsSet)]"
                                     }
 
                                     #button_primary_big = {
@@ -704,7 +725,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('control:', '2'))]"    # Set commander type for direct control to player character and marshal
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_control', 'control2' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_control', 'control2' )]"
+                                        onclick = "[GetScriptedGui('cc_set_control_2').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_control', 'control2' ), GetPlayer.MakeScope.Var('cc_op_control_2').IsSet)]"
                                     }
 
                                     button_standard_big = {
@@ -717,7 +739,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('control:', '3'))]"    # Set commander type for direct control to any dynasty members
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_control', 'control3' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_control', 'control3' )]"
+                                        onclick = "[GetScriptedGui('cc_set_control_3').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_control', 'control3' ), GetPlayer.MakeScope.Var('cc_op_control_3').IsSet)]"
                                     }
 
                                     button_standard_big = {
@@ -730,7 +753,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('control:', '4'))]"    # Set commander type for direct control to any character
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_control', 'control4' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_control', 'control4' )]"
+                                        onclick = "[GetScriptedGui('cc_set_control_4').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_control', 'control4' ), GetPlayer.MakeScope.Var('cc_op_control_4').IsSet)]"
                                     }
                                 }
                             }
@@ -776,7 +800,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unitnames:', '1'))]"    # Set default flavorful unit names (fancy names from AD1212)
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_unitnames', 'unitnames1' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_unitnames', 'unitnames1' )]"
+                                        onclick = "[GetScriptedGui('cc_set_unitnames_1').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_unitnames', 'unitnames1' ), GetPlayer.MakeScope.Var('cc_op_unitnames_1').IsSet)]"
 
                                     }
 
@@ -790,7 +815,8 @@ window = {
 				                            on_start = "[ExecuteConsoleCommand(Concatenate('unitnames:', '2'))]"    # Set simplified unit names (use the CK3 MAA names in Attila like Heavy Footman)
 			                            }
                                         onclick = "[GetVariableSystem.Set( 'cc_op_unitnames', 'unitnames2' )]"
-                                        down = "[GetVariableSystem.HasValue( 'cc_op_unitnames', 'unitnames2' )]"
+                                        onclick = "[GetScriptedGui('cc_set_unitnames_2').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+                                        down = "[Or(GetVariableSystem.HasValue( 'cc_op_unitnames', 'unitnames2' ), GetPlayer.MakeScope.Var('cc_op_unitnames_2').IsSet)]"
 
                                     }
                                 }

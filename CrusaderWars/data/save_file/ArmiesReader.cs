@@ -380,7 +380,7 @@ if (BattleResult.Player_Combat is not null)
             }
             catch (Exception ex)
             {
-                Program.Logger.Debug($"Error processing army data: {ex.Message}");
+                Program.Logger.Debug($"Error processing army data: {ex}");
                 throw new Exception("Error processing army data", ex);
             }
         }

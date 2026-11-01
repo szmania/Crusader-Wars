@@ -223,6 +223,85 @@ namespace CrusaderWars.sieges
                 Program.Logger.Debug($"  - Final holding level: {finalLevel} (base level + fort level {fortLevel}).");
                 return finalLevel;
             }
+
+            /// <summary>
+            /// AXIS 1 - Attila settlement map level (tile_upgrade level1/level2).
+            /// Driven by the holding's physical structure, independent of fort level:
+            ///   - castle_01/02, tribe_01/02: level1 unless real fortifications built
+            ///     (curtain_walls/watchtowers/hill_forts/forest_forts; palisades stay level1)
+            ///   - castle_03/04: always level2 (stone fortresses)
+            ///   - city_*/temple_*/unknown: level2 (urban default)
+            /// </summary>
+            public static int GetSettlementLevel(string holding_key, string[] buildings_key)
+            {
+                bool fortifiedBuilding = false;
+                if (buildings_key.Length > 0)
+                {
+                    foreach (var building in buildings_key)
+                    {
+                        if (building.Contains("curtain_walls_") ||
+                            building.Contains("watchtowers_") ||
+                            building.Contains("hill_forts_") ||
+                            building.Contains("forest_forts_"))
+                        {
+                            fortifiedBuilding = true;
+                            break;
+                        }
+                    }
+                }
+
+                switch (holding_key)
+                {
+                    // Wooden/earthen structures: level1 until real fortifications are built
+                    case "castle_01":
+                    case "castle_02":
+                    case "tribe_01":
+                    case "tribe_02":
+                        return fortifiedBuilding ? 2 : 1;
+
+                    // Stone fortresses: always high walls
+                    case "castle_03":
+                    case "castle_04":
+                        return 2;
+
+                    // Urban holdings and any unknown/custom holding types: high walls default
+                    default:
+                        return 2;
+                }
+            }
+
+            /// <summary>
+            /// AXIS 2 - Garrison unit quality tier (mapper XML Garrison level 1-4).
+            /// Base tier from the holding's structure + fort level boost, capped at 4:
+            ///   fort 0-11 -> +0, 12-19 -> +1, 20-27 -> +2, 28+ -> +3
+            /// </summary>
+            public static int GetGarrisonTier(string holding_key, int fortLevel)
+            {
+                int baseTier;
+                switch (holding_key)
+                {
+                    case "castle_01":
+                    case "tribe_01": baseTier = 1; break;
+                    case "castle_02":
+                    case "tribe_02": baseTier = 2; break;
+                    case "castle_03": baseTier = 3; break;
+                    case "castle_04": baseTier = 4; break;
+                    default: baseTier = 1; break;
+                }
+
+                int fortBoost;
+                if (fortLevel <= 11) fortBoost = 0;
+                else if (fortLevel <= 19) fortBoost = 1;
+                else if (fortLevel <= 27) fortBoost = 2;
+                else fortBoost = 3;
+
+                int tier = baseTier + fortBoost;
+                if (tier < 1) tier = 1;
+                if (tier > 4) tier = 4;
+
+                Program.Logger.Debug($"  - Garrison tier: {tier} (base {baseTier} from '{holding_key}' + fort boost {fortBoost}).");
+                return tier;
+            }
         };
     }
 }

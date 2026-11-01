@@ -1,4 +1,4 @@
-namespace CrusaderWars.client
+﻿namespace CrusaderWars.client
 {
     partial class UC_GeneralOptions
     {
@@ -50,6 +50,8 @@ namespace CrusaderWars.client
             this.label_SiegeEngines = new System.Windows.Forms.Label();
             this.OptionSelection_SiegeEngines = new System.Windows.Forms.ComboBox();
             this.label_ShowPostBattleReport = new System.Windows.Forms.Label();
+            this.label_SendTelemetry = new System.Windows.Forms.Label();
+            this.OptionSelection_SendTelemetry = new System.Windows.Forms.ComboBox();
             this.OptionSelection_ShowPostBattleReport = new System.Windows.Forms.ComboBox();
             this.General_ToopTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
@@ -82,10 +84,12 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SiegeEngines, 1, 5);
             this.tableLayoutPanel1.Controls.Add(this.label_ShowPostBattleReport, 0, 9);
             this.tableLayoutPanel1.Controls.Add(this.OptionSelection_ShowPostBattleReport, 1, 9);
+            this.tableLayoutPanel1.Controls.Add(this.label_SendTelemetry, 0, 10);
+            this.tableLayoutPanel1.Controls.Add(this.OptionSelection_SendTelemetry, 1, 10);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 10;
+            this.tableLayoutPanel1.RowCount = 11;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
@@ -96,7 +100,8 @@ namespace CrusaderWars.client
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(544, 320);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(544, 352);
             this.tableLayoutPanel1.TabIndex = 28;
             // 
             // label_CloseCK3
@@ -401,7 +406,39 @@ namespace CrusaderWars.client
             this.OptionSelection_ShowPostBattleReport.Size = new System.Drawing.Size(181, 26);
             this.OptionSelection_ShowPostBattleReport.TabIndex = 19;
             this.General_ToopTip.SetToolTip(this.OptionSelection_ShowPostBattleReport, "Enabled: Shows a detailed report screen after each battle.\r\nDisabled: Skips the r" +
-        "eport screen and returns directly to CK3.");
+            "eport screen and returns directly to CK3.");
+            // 
+            // label_SendTelemetry
+            // 
+            this.label_SendTelemetry.AutoSize = true;
+            this.label_SendTelemetry.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_SendTelemetry.ForeColor = System.Drawing.Color.White;
+            this.label_SendTelemetry.Location = new System.Drawing.Point(3, 320);
+            this.label_SendTelemetry.Name = "label_SendTelemetry";
+            this.label_SendTelemetry.Size = new System.Drawing.Size(216, 19);
+            this.label_SendTelemetry.TabIndex = 20;
+            this.label_SendTelemetry.Text = "Send Anonymous Telemetry:";
+            // 
+            // OptionSelection_SendTelemetry
+            // 
+            this.OptionSelection_SendTelemetry.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.OptionSelection_SendTelemetry.BackColor = System.Drawing.Color.White;
+            this.OptionSelection_SendTelemetry.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OptionSelection_SendTelemetry.Font = new System.Drawing.Font("Paradox King Script", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OptionSelection_SendTelemetry.FormattingEnabled = true;
+            this.OptionSelection_SendTelemetry.Items.AddRange(new object[] {
+            "Enabled",
+            "Disabled"});
+            this.OptionSelection_SendTelemetry.SelectedIndex = 0;
+            this.OptionSelection_SendTelemetry.Location = new System.Drawing.Point(360, 323);
+            this.OptionSelection_SendTelemetry.Name = "OptionSelection_SendTelemetry";
+            this.OptionSelection_SendTelemetry.Size = new System.Drawing.Size(181, 26);
+            this.OptionSelection_SendTelemetry.TabIndex = 21;
+            this.General_ToopTip.SetToolTip(this.OptionSelection_SendTelemetry, "Enabled: sends the list of Attila unit keys used in each battle (crashes and succ" +
+        "essful battles) to the Crusader Conflicts team, along with your playthrough tag." +
+        " No personal data is sent.\r\nDisabled: no battle data is sent.");
             // 
             // General_ToopTip
             // 
@@ -450,5 +487,7 @@ namespace CrusaderWars.client
         private System.Windows.Forms.ComboBox OptionSelection_SiegeEngines;
         private System.Windows.Forms.Label label_ShowPostBattleReport;
         private System.Windows.Forms.ComboBox OptionSelection_ShowPostBattleReport;
+        private System.Windows.Forms.Label label_SendTelemetry;
+        private System.Windows.Forms.ComboBox OptionSelection_SendTelemetry;
     }
 }

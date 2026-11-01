@@ -78,7 +78,7 @@ namespace CrusaderWars.mod_manager
         [SupportedOSPlatform("windows")]
         static void RemoveRequiredMods()
         {
-            string[] unitMappers_folders = Directory.GetDirectories(@".\unit mappers\");
+            string[] unitMappers_folders = UnitMappers_BETA.GetMapperDirectories();
             ModsPaths.RemoveAll(x => x.GetName() == "CrusaderConflicts.pack");
 
             foreach (var mapper in unitMappers_folders)

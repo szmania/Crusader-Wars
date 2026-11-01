@@ -60,6 +60,7 @@ namespace CrusaderWars
 
 
         private int _myVariable = 0;
+        private bool _lastUnitMappersEnabled = true;
         private string _gameType = "attila"; // Default to Attila; resolved from active playthrough
 
         private void CreateRequiredDirectories()
@@ -74,10 +75,10 @@ namespace CrusaderWars
                 Directory.CreateDirectory(@".\data\sounds");
                 Directory.CreateDirectory(@".\font");
                 Directory.CreateDirectory(@".\settings");
-                Directory.CreateDirectory(@".\unit mappers");
-                Directory.CreateDirectory(@".\unit mappers\schemas");
-                Directory.CreateDirectory(@".\unit mappers\attila");
-                Directory.CreateDirectory(@".\unit mappers\rome_2");
+                Directory.CreateDirectory(@".\unit_mappers");
+                Directory.CreateDirectory(@".\unit_mappers\attila");
+                Directory.CreateDirectory(@".\unit_mappers\rome_2");
+                Directory.CreateDirectory(@".\unit_mappers\schemas");
                 Program.Logger.Debug("Required directories created/verified.");
             }
             catch (Exception ex)
@@ -87,12 +88,62 @@ namespace CrusaderWars
                 Environment.Exit(1);
             }
         }
+
+        /// <summary>
+        /// Migrates unit mapper folders from the old top-level .\unit_mappers layout into
+        /// .\unit_mappers\attila, where the app now expects them. Runs at startup before
+        /// the playthrough display is built; folders already migrated are left untouched.
+        /// </summary>
+        private static void MigrateTopLevelUnitMappersToAttila()
+        {
+            string topLevelMappersDir = UnitMappers_BETA.UnitMappersRootDir;
+            string attilaMappersDir = UnitMappers_BETA.AttilaMappersDir;
+            if (!Directory.Exists(topLevelMappersDir) || !Directory.Exists(attilaMappersDir))
+            {
+                return;
+            }
+
+            foreach (var mapperDir in Directory.GetDirectories(topLevelMappersDir))
+            {
+                string mapperName = Path.GetFileName(mapperDir);
+                if (mapperName.Equals("attila", StringComparison.OrdinalIgnoreCase) ||
+                    mapperName.Equals("rome_2", StringComparison.OrdinalIgnoreCase) ||
+                    mapperName.Equals("schemas", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Only move folders that look like unit mapper folders.
+                if (!File.Exists(Path.Combine(mapperDir, "tag.txt")) && !File.Exists(Path.Combine(mapperDir, "Mods.xml")))
+                {
+                    continue;
+                }
+
+                string destinationDir = Path.Combine(attilaMappersDir, mapperName);
+                if (Directory.Exists(destinationDir))
+                {
+                    Program.Logger.Debug($"Migration skipped for '{mapperName}': a folder with the same name already exists in '{attilaMappersDir}'.");
+                    continue;
+                }
+
+                try
+                {
+                    Directory.Move(mapperDir, destinationDir);
+                    Program.Logger.Debug($"Migrated unit mapper folder '{mapperName}' into '{attilaMappersDir}'.");
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Failed to migrate unit mapper folder '{mapperName}' into '{attilaMappersDir}': {ex.Message}");
+                }
+            }
+        }
         public HomePage()
         {
             Options.ReadOptionsFile(); // Moved to the beginning of the constructor
             Program.Logger.Debug("HomePage initializing...");
-CreateRequiredDirectories();
+            CreateRequiredDirectories();
             data.MigrationService.MigrateUnitMappersDirectory();
+            MigrateTopLevelUnitMappersToAttila();
             LoadFont();
             InitializeComponent();
             this.Font = new Font("Microsoft Sans Serif", 8.25f);
@@ -311,7 +362,7 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
         private static List<string> ValidateUnitMapper(string unitMapperDirectory)
         {
             var allErrors = new List<string>();
-            string schemasDir = @".\\unit mappers\\schemas";
+            string schemasDir = UnitMappers_BETA.SchemasDir;
 
             // Validate Mods.xml
             string modsXml = Path.Combine(unitMapperDirectory, "Mods.xml");
@@ -482,7 +533,7 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
             {
                 var allErrors = await Task.Run(() =>
                 {
-                    string unitMappersBaseDir = @".\unit mappers";
+                    string unitMappersBaseDir = UnitMappers_BETA.AttilaMappersDir;
                     var unitMapperDirectories = new List<string>();
                     var errors = new List<string>();
 
@@ -578,6 +629,12 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
 
                 bool gamePaths = VerifyGamePaths();
                 bool unitMappers = VerifyEnabledUnitMappers();
+                // Refresh the top-right playthrough panel when the enabled-mappers state changes
+                if (unitMappers != _lastUnitMappersEnabled)
+                {
+                    _lastUnitMappersEnabled = unitMappers;
+                    UpdatePlaythroughDisplay();
+                }
 
 
                 if (!gamePaths || !unitMappers)
@@ -811,6 +868,9 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
             infoLabel.MaximumSize = new Size(1000, 0);
             this.infoLabel.AutoSize = true;
 
+            // Fire-and-forget telemetry registration (respects the telemetry opt-in setting internally).
+            _ = TelemetryClient.RegisterIfNeeded();
+
             Program.Logger.Debug("Starting updater checks...");
             Program.Logger.Debug("Initiating app and unit mappers version checks.");
             await _updater.CheckAppVersion();
@@ -903,6 +963,13 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
         private async Task CheckForUnitMapperUpdateAndRevalidate()
         {
             Program.Logger.Debug("Checking for unit mapper update and revalidating if necessary...");
+
+            // A mapper update may have extracted folders into the old top-level layout.
+            // Relocate them before re-validating: the search below only looks in
+            // UnitMappers_BETA.AttilaMappersDir, so a stranded folder would make the
+            // active playthrough look missing and get deactivated.
+            MigrateTopLevelUnitMappersToAttila();
+
             string versionFilePath = @".\settings\last_um_version.txt";
             string lastKnownVersion = "0.0.0";
 
@@ -945,13 +1012,19 @@ string rome2Executable = Path.GetFileName(Properties.Settings.Default.VAR_rome2_
                     return;
                 }
 
-                MessageBox.Show(this, $"The Unit Mappers have been updated to v{_umVersion}.\n\n" +
+                // Only add the 'v' prefix if the version string doesn't already start with it
+                string umVersionDisplay = _umVersion ?? "0.0.0";
+                if (!umVersionDisplay.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                {
+                    umVersionDisplay = "v" + umVersionDisplay;
+                }
+                MessageBox.Show(this, $"The Unit Mappers have been updated to {umVersionDisplay}.\n\n" +
                                       $"The application will now re-validate your currently selected playthrough ('{GetFriendlyPlaythroughName(activePlaythroughTag)}') to ensure compatibility.",
                                       "Unit Mappers Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 var allErrors = new List<string>();
                 string playthroughFolderPath = "";
-                string unitMappersDir = @".\unit mappers";
+                string unitMappersDir = UnitMappers_BETA.AttilaMappersDir;
 
                 // Find playthrough directory
                 if (Directory.Exists(unitMappersDir))
@@ -1064,6 +1137,8 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
                     SubmodManager.SetActiveSubmodsForPlaythrough(activePlaythroughTag, new List<string>());
                     SubmodManager.SaveActiveSubmods();
                     Program.Logger.Debug($"Cleared active submods for '{activePlaythroughTag}'.");
+                    // Refresh the top-right playthrough panel after deactivating a playthrough
+                    UpdatePlaythroughDisplay();
                 }
                 else
                 {
@@ -1196,7 +1271,7 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
             if (!string.IsNullOrEmpty(activePlaythroughTag))
             {
                 string playthroughFolderPath = "";
-                string unitMappersDir = @".\unit mappers";
+                string unitMappersDir = UnitMappers_BETA.AttilaMappersDir;
                 if (Directory.Exists(unitMappersDir))
                 {
                     string tagToFind = activePlaythroughTag;
@@ -1272,7 +1347,7 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                 }
                 else
                 {
-                    Program.Logger.Debug($"Active playthrough '{activePlaythroughTag}' is set, but its folder was not found in 'unit mappers'.");
+                    Program.Logger.Debug($"Active playthrough '{activePlaythroughTag}' is set, but its folder was not found in '{UnitMappers_BETA.AttilaMappersDir}'.");
                     activePlaythroughTag = ""; // Folder not found, treat as no playthrough selected
                 }
             }
@@ -3306,7 +3381,7 @@ public async static Task CloseTotalWarProcess()
             Program.Logger.Debug("Website button clicked.");
             WebsiteBTN.BackgroundImage = Properties.Resources.website_btn_new_click;
             PlaySound(@"..\data\sounds\metal-dagger-hit-185444.wav");
-            Process.Start(new ProcessStartInfo("https://crusader-conflicts-website.vercel.app/") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://crusader-conflicts.vercel.app/") { UseShellExecute = true });
 
         }
 
