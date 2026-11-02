@@ -520,6 +520,22 @@ del ""%~f0""
                         Logger.Log("Deleting obsolete files and directories.");
                         DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
 
+                        // Clean up the legacy CW.lnk shortcut (renamed to CC.lnk). Only CW.lnk is removed; CC.lnk is never touched.
+                        string legacyShortcutPath = Path.Combine(applicationPath, "CW.lnk");
+                        if (File.Exists(legacyShortcutPath))
+                        {
+                            try
+                            {
+                                await RetryActionAsync(() => File.Delete(legacyShortcutPath), "Delete legacy CW.lnk");
+                                Logger.Log($"Deleted legacy shortcut: {legacyShortcutPath}");
+                            }
+                            catch (Exception ex)
+                            {
+                                // Cleanup failure must not fail the whole update.
+                                Logger.Log($"[WARNING] Could not delete legacy CW.lnk '{legacyShortcutPath}': {ex.Message}");
+                            }
+                        }
+
                         // Copy new and updated files
                         Logger.Log("Copying new and updated files.");
                         foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
