@@ -17,7 +17,7 @@ namespace CrusaderWars.locs
     {
         static List<string> default_text_files = new List<string>()
         {
-            "CW_special_ability_phases.loc",
+            "CC_special_ability_phases.loc",
             "random_localisation_strings.loc",
             "tutorial_historical_battles.loc.tsv",
             "tutorial_historical_battles_factions.loc.tsv",

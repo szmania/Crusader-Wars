@@ -1584,7 +1584,7 @@ namespace CrusaderWars
         // This method creates a shortcut for Attila
         private void CreateAttilaShortcut()
         {
-            string shortcutPath = @".\CW.lnk";
+            string shortcutPath = @".\CC.lnk";
             string targetPath = Properties.Settings.Default.VAR_attila_path;
             string workingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
             string arguments = "used_mods_cc.txt";
@@ -2259,7 +2259,7 @@ namespace CrusaderWars
                         Program.Logger.Debug("Waiting for CRUSADERCONFLICTS keyword in CK3 log...");
                         try
                         {
-                            //Wait for CW keyword
+                            //Wait for CC keyword
                             while (!battleHasStarted)
                             {
                                 if (token.IsCancellationRequested)
@@ -3060,12 +3060,12 @@ namespace CrusaderWars
 
                 if (isLinux)
                 {
-                    shortcutPath = @".\data\attila\Attila CW.lnk";
+                    shortcutPath = @".\data\attila\Attila CC.lnk";
                     Program.Logger.Debug($"Using Linux shortcut path: {shortcutPath}");
                 }
                 else
                 {
-                    shortcutPath = @".\CW.lnk";
+                    shortcutPath = @".\CC.lnk";
                     Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
                 }
 
