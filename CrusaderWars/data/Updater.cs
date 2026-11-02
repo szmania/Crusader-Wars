@@ -32,7 +32,7 @@ namespace CrusaderWars
             try
             {
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
+                client.DefaultRequestHeaders.Add("User-Agent", "CC App Updater");
                 string json = await client.GetStringAsync(releasesUrl);
 
                 using (JsonDocument document = JsonDocument.Parse(json))
@@ -432,7 +432,7 @@ namespace CrusaderWars
             try
             {
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Add("User-Agent", "CW App Updater");
+                client.DefaultRequestHeaders.Add("User-Agent", "CC App Updater");
                 string json = await client.GetStringAsync(releaseApiUrl); // Fetch single release object
 
                 using (JsonDocument document = JsonDocument.Parse(json))
@@ -706,7 +706,7 @@ namespace CrusaderWars
             string[] users = { "szmania" };
 
             client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("User-Agent", "CW App Version Checker");
+            client.DefaultRequestHeaders.Add("User-Agent", "CC App Version Checker");
 
             foreach (var user in users)
             {

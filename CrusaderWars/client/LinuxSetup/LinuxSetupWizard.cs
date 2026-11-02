@@ -487,9 +487,9 @@ namespace CrusaderWars.client.LinuxSetup
 
             _steamConfigStep.SetStatus("Final step! Please configure Total War: Attila in Steam.\n\n" +
                                      "Under Properties -> General -> Launch Options, set the following:\n\n" +
-                                     "%command% used_mods_cw.txt\n\n" +
+                                     "%command% used_mods_cc.txt\n\n" +
                                      "This allows Crusader Conflicts to manage which mods are active for battles.");
-            await _steamManager.SetLaunchOptions("325610", "%command% used_mods_cw.txt");
+            await _steamManager.SetLaunchOptions("325610", "%command% used_mods_cc.txt");
 
             lblStatus.Text = "Attila configuration instructions provided.";
         }
