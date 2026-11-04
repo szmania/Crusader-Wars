@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Linq;
+using CrusaderWars.games;
 
 namespace CrusaderWars
 {

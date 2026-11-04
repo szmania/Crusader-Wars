@@ -122,7 +122,12 @@ namespace CrusaderWars.terrain
         }
 
 
-        public static void SetSeason(string season)
+public static void SetSeason(string season)
+        {
+            SetSeason("attila", season);
+        }
+
+        public static void SetSeason(string gameType, string season)
         {
             Reset();
             Season = season;

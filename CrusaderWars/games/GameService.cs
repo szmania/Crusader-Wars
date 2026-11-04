@@ -16,7 +16,10 @@ namespace CrusaderWars.games
         public abstract string GetModDataPath();
         public abstract string GetWorkshopPath();
         public abstract string GetModActivationFileName();
-        public abstract string GetShortcutArguments();
+public abstract string GetShortcutArguments();
+        public abstract string GetBattleFilesPath();
+        public abstract string GetScriptPath();
+        public abstract string GetBattleTemplatePath();
 
         // Virtual methods that can be overridden if needed
         public virtual void CreateShortcut(string shortcutPath)

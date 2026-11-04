@@ -8,7 +8,11 @@ namespace CrusaderWars.games
     {
         public override string GetProcessName() => "Rome2";
         public override string GetExecutableName() => "Rome2.exe";
-        public override string GetGameType() => "Rome2";
+public override string GetGameType() => "Rome2";
+
+        public override string GetBattleFilesPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\rome_2_battle_files");
+        public override string GetScriptPath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\rome_2_battle_files\\script\\tut_tutorial_battle");
+        public override string GetBattleTemplatePath() => Path.Combine(Path.GetDirectoryName(GetGamePath())!, "data\\rome_2_battle_files\\script");
 
         public override string GetLogPath()
         {
