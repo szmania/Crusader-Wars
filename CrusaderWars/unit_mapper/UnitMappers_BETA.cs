@@ -95,6 +95,7 @@ namespace CrusaderWars.unit_mapper
     class TerrainsUM
     {
         string AttilaMap { get; set; }
+        string Rome2Map { get; set; }
         List<(string building, string x, string y)> HistoricalMaps { get; set; }
         List<(string terrain, string x, string y)> NormalMaps { get; set; }
         public List<SettlementMap> SettlementMaps { get; private set; }
@@ -102,9 +103,10 @@ namespace CrusaderWars.unit_mapper
         public List<LandBridgeMap> LandBridgeMaps { get; private set; }
         public List<CoastalMap> CoastalMaps { get; private set; }
 
-        internal TerrainsUM(string attilaMap, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps, List<LandBridgeMap> landBridgeMaps, List<CoastalMap> coastalMaps)
+        internal TerrainsUM(string attilaMap, string rome2Map, List<(string building, string x, string y)> historicalMaps, List<(string terrain, string x, string y)> normalMaps, List<SettlementMap> settlementMaps, List<UniqueSettlementMap> uniqueSettlementMaps, List<LandBridgeMap> landBridgeMaps, List<CoastalMap> coastalMaps)
         {
             AttilaMap = attilaMap;
+            Rome2Map = rome2Map;
             HistoricalMaps = historicalMaps;
             NormalMaps = normalMaps;
             SettlementMaps = settlementMaps;
@@ -114,6 +116,7 @@ namespace CrusaderWars.unit_mapper
         }
 
         public string GetAttilaMap() { return AttilaMap; }
+        public string GetRome2Map() { return Rome2Map; }
         public List<(string building, string x, string y)> GetHistoricalMaps() { return HistoricalMaps; }
         public List<(string terrain, string x, string y)> GetNormalMaps() { return NormalMaps; }
         public List<SettlementMap> GetSettlementMaps() { return SettlementMaps; }
@@ -633,6 +636,7 @@ namespace CrusaderWars.unit_mapper
             try
             {
                 string attilaMap = "";
+                string rome2Map = "";
                 var historicMaps = new Dictionary<string, (string x, string y)>();
                 var normalMapsByTerrain = new Dictionary<string, List<(string x, string y)>>();
                 var settlementMapsByCompositeKey = new Dictionary<(string faction, string battleType, string provinces), SettlementMap>();
@@ -652,6 +656,10 @@ namespace CrusaderWars.unit_mapper
                         if (Element.Name == "Attila_Map" || Element.Name == "Map")
                         {
                             attilaMap = Element.Name == "Map" ? Element.Attributes?["name"]?.Value ?? string.Empty : Element.InnerText;
+                        }
+                        else if (Element.Name == "Rome2_Map")
+                        {
+                            rome2Map = Element.InnerText;
                         }
                         else if (Element.Name == "Historic_Maps")
                         {
@@ -898,7 +906,7 @@ namespace CrusaderWars.unit_mapper
                 var uniqueSettlementMapsList = uniqueSettlementMapsByCompositeKey.Values.ToList();
                 SiegeEngines.AddRange(siegeEngines.Values);
 
-                Terrains = new TerrainsUM(attilaMap, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList, landBridgeMaps, coastalMaps);
+                Terrains = new TerrainsUM(attilaMap, rome2Map, historicMapsList, normalMapsList, settlementMapsList, uniqueSettlementMapsList, landBridgeMaps, coastalMaps);
             }
             catch (Exception ex)
             {

@@ -17,6 +17,7 @@ using CrusaderWars.unit_mapper;
 using static CrusaderWars.terrain.Lands;
 using System.Text;
 using CrusaderWars.data.battle_results;
+using CrusaderWars.games;
 
 
 namespace CrusaderWars
@@ -24,6 +25,7 @@ namespace CrusaderWars
     public static class BattleFile
     {
         private static bool PlayerIsSiegeDefender { get; set; }
+        private static string GameMap = "Terrain/battles/main_attila_map/";
         public static string? Unit_Script_Name { get; set; }
 
         //Get User Path
@@ -243,7 +245,7 @@ namespace CrusaderWars
             //Write battle description
             SetBattleDescription(player_army, total_soldiers);
             //Write battle map
-            SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
+            SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GameMap);
             //Write essential data
             CloseBattle();
         }
@@ -428,7 +430,7 @@ namespace CrusaderWars
             //Write battle description
             SetBattleDescription(player_main_army, total_soldiers);
             //Write battle map
-            SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
+            SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GameMap);
             //Write essential data
             CloseBattle();
             Program.Logger.Debug("--- Finished FriendliesOnlyArmies setup ---");
@@ -566,7 +568,7 @@ namespace CrusaderWars
             //Write battle description
             SetBattleDescription(player_main_army, total_soldiers);
             //Write battle map
-            SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GetAttilaMap());
+            SetBattleTerrain(battleMap.X, battleMap.Y, Weather.GetWeather(), GameMap);
             //Write essential data
             CloseBattle();
         }
@@ -747,6 +749,8 @@ namespace CrusaderWars
 
 
             DetermineBattleType();
+
+            GameMap = (games.GameServiceFactory.GetCurrentGameService().GetGameType() == "Rome2") ? GetRome2Map() : GetAttilaMap();
 
 
             //  ALL CONTROLED ARMIES
@@ -947,6 +951,21 @@ namespace CrusaderWars
         {
             File.AppendAllText(battlePath, "<?xml version=\"1.0\"?>\n<battle>\n");
 
+        }
+
+        private static string GetRome2Map()
+        {
+            string default_rome2_map = "Terrain/battles/main_rome_map/";
+            string? rome2Map = UnitMappers_BETA.Terrains?.GetRome2Map();
+
+            if (!string.IsNullOrEmpty(rome2Map))
+            {
+                return rome2Map;
+            }
+            else
+            {
+                return default_rome2_map;
+            }
         }
 
         private static void OpenPlayerAlliance()
@@ -1580,7 +1599,7 @@ namespace CrusaderWars
             File.AppendAllText(battlePath, battleDescriptionBuilder.ToString());
         }
 
-        private static void SetBattleTerrain(string X, string Y, string weather_key, string attila_map)
+        private static void SetBattleTerrain(string X, string Y, string weather_key, string game_map)
         {
             string battleMapDefinitionContent;
 
@@ -1590,14 +1609,14 @@ namespace CrusaderWars
                 string escalationLevel = twbattle.Sieges.GetHoldingEscalation();
                 string escalationTag = Sieges_DataTypes.Escalation.GetEscalationTileUpgrade(escalationLevel);
 
-                battleMapDefinitionContent = $"<name>{attila_map}</name>\n" +
+                battleMapDefinitionContent = $"<name>{game_map}</name>\n" +
                                              $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n" +
                                              $"{levelUpgradeTag}\n" +
                                              $"{escalationTag}\n";
             }
             else
             {
-                battleMapDefinitionContent = $"<name>{attila_map}</name>\n" +
+                battleMapDefinitionContent = $"<name>{game_map}</name>\n" +
                                              $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n";
             }
 
