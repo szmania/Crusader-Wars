@@ -447,7 +447,42 @@ namespace CrusaderWars.unit_mapper
         }
         public static string? GetLoadedUnitMapperString()
         {
-            return string.IsNullOrWhiteSpace(MapperLoadingScreenName) ? null : MapperLoadingScreenName;
+            // Prioritize the dynamically loaded name from TimePeriod.xml
+            if (!string.IsNullOrWhiteSpace(MapperLoadingScreenName))
+            {
+                return MapperLoadingScreenName;
+            }
+
+            // Fallback to legacy logic based on mapper folder name
+            switch (GetLoadedUnitMapperName())
+            {
+                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
+                    return "EARLY MEDIEVAL";
+                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
+                    return "HIGH MEDIEVAL";
+                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
+                    return "LATE MEDIEVAL";
+                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
+                    return "RENAISSANCE";
+                case "OfficialCC_TheFallenEagle_FallOfTheEagles":
+                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
+                    return "LATE ANTIQUITY";
+                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
+                    return "POST ROMAN";
+                case "OfficialCC_RealmsInExile_TheDawnlessDays":
+                    return "SECOND AGE";
+                case "OfficialCC_AGOT_SevenKingdoms":
+                    return "AGE OF THE TARGARYENS";
+                case "OfficialCC_BookmarksPlus_AncientEmpires":
+                    return "PAX ROMANA";
+                case "OfficialCC_BookmarksPlus_FallOfTheEagles":
+                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
+                    return "LATE ANTIQUITY";
+                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
+                    return "POST ROMAN";
+                default:
+                    return null;
+            }
         }
 
         public static void ClearProvinceMapCache()
