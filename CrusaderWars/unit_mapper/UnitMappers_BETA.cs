@@ -154,6 +154,8 @@ namespace CrusaderWars.unit_mapper
         public static string MapperStartDate { get; private set; } = string.Empty;
         /// <summary>EndDate from the active mapper's Time Period.xml (empty if not parsed).</summary>
         public static string MapperEndDate { get; private set; } = string.Empty;
+        /// <summary>loading_screen_name attribute from the active mapper's TimePeriod.xml (empty if not parsed).</summary>
+        public static string MapperLoadingScreenName { get; private set; } = string.Empty;
 
         private static Dictionary<string, XmlDocument>? _factionFileCache;
         private static Dictionary<string, (List<(int porcentage, string unit_key, string name, string max)>, string)>? _levyCache;
@@ -445,35 +447,7 @@ namespace CrusaderWars.unit_mapper
         }
         public static string? GetLoadedUnitMapperString()
         {
-            switch (GetLoadedUnitMapperName())
-            {
-                case "OfficialCC_DefaultCK3_EarlyMedieval_919Mod":
-                    return "EARLY MEDIEVAL";
-                case "OfficialCC_DefaultCK3_HighMedieval_MK1212Mod":
-                    return "HIGH MEDIEVAL";
-                case "OfficialCC_DefaultCK3_LateMedieval_MK1212Mod":
-                    return "LATE MEDIEVAL";
-                case "OfficialCC_DefaultCK3_Renaissance_MK1212Mod":
-                    return "RENAISSANCE";
-                case "OfficialCC_TheFallenEagle_FallOfTheEagles":
-                case "OfficialCC_TheFallenEagle_FireforgedEmpire":
-                    return "LATE ANTIQUITY";
-                case "OfficialCC_TheFallenEagle_AgeOfJustinian":
-                    return "POST ROMAN";
-                case "OfficialCC_RealmsInExile_TheDawnlessDays":
-                    return "SECOND AGE";
-                case "OfficialCC_AGOT_SevenKingdoms":
-                    return "AGE OF THE TARGARYENS";
-                case "OfficialCC_BookmarksPlus_AncientEmpires":
-                    return "PAX ROMANA";
-                case "OfficialCC_BookmarksPlus_FallOfTheEagles":
-                case "OfficialCC_BookmarksPlus_FireforgedEmpire":
-                    return "LATE ANTIQUITY";
-                case "OfficialCC_BookmarksPlus_AgeOfJustinian":
-                    return "POST ROMAN";
-                default:
-                    return null;
-            }
+            return string.IsNullOrWhiteSpace(MapperLoadingScreenName) ? null : MapperLoadingScreenName;
         }
 
         public static void ClearProvinceMapCache()
@@ -1023,6 +997,7 @@ namespace CrusaderWars.unit_mapper
                     // era in the same playthrough) would overwrite these for telemetry.
                     MapperStartDate = startYearStr;
                     MapperEndDate = endYearStr;
+                    MapperLoadingScreenName = xmlDocument.DocumentElement.Attributes?["loading_screen_name"]?.Value ?? string.Empty;
                     // MODS and SUBMODS
                     string modsPath = Path.Combine(mapperPath, "Mods.xml");
                     if (File.Exists(modsPath))
