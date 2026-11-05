@@ -147,7 +147,9 @@ namespace CrusaderWars.unit_mapper
         public static string? ActivePlaythroughTag { get; private set; }
         public const string NOT_FOUND_KEY = "not_found";
         private static readonly Random _random = new Random();
-        private static Dictionary<string, (string X, string Y, List<string>? orientations)> _provinceMapCache = new Dictionary<string, (string X, string Y, List<string>? orientations)>();
+private static Dictionary<string, (string X, string Y, List<string>? orientations)> _provinceMapCache = new Dictionary<string, (string X, string Y, List<string>? orientations)>();
+        private static Dictionary<string, string> _playthroughScreenNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, string> _playthroughScreenNamesShort = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public static List<SiegeEngine> SiegeEngines { get; private set; } = new List<SiegeEngine>();
 
@@ -248,6 +250,16 @@ namespace CrusaderWars.unit_mapper
                     if (!string.IsNullOrWhiteSpace(ck3NamesAttr))
                     {
                         ck3ModNames.AddRange(ck3NamesAttr.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0));
+                    }
+string? screenNameAttr = xmlDocument.DocumentElement.Attributes?["playthrough_screen_name"]?.Value;
+                    string? screenNameShortAttr = xmlDocument.DocumentElement.Attributes?["playthrough_screen_name_short"]?.Value;
+                    if (!string.IsNullOrEmpty(screenNameAttr))
+                    {
+                        _playthroughScreenNames[ActivePlaythroughTag] = screenNameAttr;
+                    }
+                    if (!string.IsNullOrEmpty(screenNameShortAttr))
+                    {
+                        _playthroughScreenNamesShort[ActivePlaythroughTag] = screenNameShortAttr;
                     }
                     foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
                     {
@@ -487,6 +499,30 @@ namespace CrusaderWars.unit_mapper
                 default:
                     return null;
             }
+        }
+
+        /// <summary>
+        /// Returns the playthrough screen name from Mods.xml for the given tag, or null if not found.
+        /// </summary>
+        public static string? GetPlaythroughScreenName(string tag)
+        {
+            if (_playthroughScreenNames.TryGetValue(tag, out var name))
+            {
+                return name;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the playthrough short screen name from Mods.xml for the given tag, or null if not found.
+        /// </summary>
+        public static string? GetPlaythroughScreenNameShort(string tag)
+        {
+            if (_playthroughScreenNamesShort.TryGetValue(tag, out var name))
+            {
+                return name;
+            }
+            return null;
         }
 
         public const string PlaythroughThumbnailFileName = "playthrough_thumbnail.png";

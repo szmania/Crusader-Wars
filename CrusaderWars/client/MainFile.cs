@@ -2970,8 +2970,12 @@ namespace CrusaderWars
                 case "BookmarksPlus":
                     return "Bookmarks+ (pre-768)";
                 case "Custom":
+                    string? customName = UnitMappers_BETA.GetPlaythroughScreenName(tag);
+                    if (!string.IsNullOrEmpty(customName)) return customName;
                     return "Custom";
                 default:
+                    string? friendlyName = UnitMappers_BETA.GetPlaythroughScreenName(tag);
+                    if (!string.IsNullOrEmpty(friendlyName)) return friendlyName;
                     return "Selected"; // A safe default
             }
         }
