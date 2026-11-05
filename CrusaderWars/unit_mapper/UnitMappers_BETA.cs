@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -423,6 +424,9 @@ namespace CrusaderWars.unit_mapper
         // Fix for CS8602 and CS8600
         public static string? GetLoadedUnitMapperName() { return LoadedUnitMapper_FolderPath is string path ? Path.GetFileName(path) : null; }
 
+        /// <summary>Full folder path of the active (tag + time-period matching) mapper, or null.</summary>
+        public static string? GetLoadedUnitMapperPath() { return LoadedUnitMapper_FolderPath; }
+
         /// <summary>
         /// Root of the unit mappers directory (contains the 'attila' and 'schemas' subdirectories).
         /// </summary>
@@ -483,6 +487,174 @@ namespace CrusaderWars.unit_mapper
                 default:
                     return null;
             }
+        }
+
+        public const string PlaythroughThumbnailFileName = "playthrough_thumbnail.png";
+
+        public const string LoadingScreenFileName = "loading_screen.png";
+
+        /// <summary>
+        /// Returns the path to playthrough_thumbnail.png inside the mapper folder(s) matching
+        /// the given playthrough tag (Custom resolves to the selected custom mapper), or null
+        /// when no mapper folder for the tag contains the file.
+        /// </summary>
+        public static string? GetPlaythroughThumbnailPath(string tag)
+        {
+            string tagToFind = tag == "Custom" ? ModOptions.GetSelectedCustomMapper() : tag;
+            if (string.IsNullOrEmpty(tagToFind)) return null;
+
+            foreach (var mapper in GetMapperDirectories())
+            {
+                string tagFile = Path.Combine(mapper, "tag.txt");
+                if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
+                {
+                    string thumb = Path.Combine(mapper, PlaythroughThumbnailFileName);
+                    if (File.Exists(thumb)) return thumb;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Hardcoded fallback thumbnail per playthrough tag, used when the mapper folder
+        /// has no playthrough_thumbnail.png.
+        /// </summary>
+        public static Bitmap GetFallbackPlaythroughThumbnail(string tag)
+        {
+            return tag switch
+            {
+                "TheFallenEagle" => Properties.Resources.tfe,
+                "RealmsInExile" => Properties.Resources.LOTR,
+                "AGOT" => Properties.Resources.playthrough_agot,
+                "BookmarksPlus" => Properties.Resources.playthrough_bookmarksplus,
+                _ => Properties.Resources._default,
+            };
+        }
+
+        /// <summary>
+        /// Loads the playthrough thumbnail for a tag: playthrough_thumbnail.png from the
+        /// mapper folder when present, otherwise the hardcoded fallback resource (or the
+        /// provided fallback). The file is read into memory so the source file is never
+        /// locked; the returned Bitmap is owned by the caller.
+        /// </summary>
+        public static Bitmap LoadPlaythroughThumbnail(string tag, Bitmap? fallback = null)
+        {
+            string? thumbPath = GetPlaythroughThumbnailPath(tag);
+            if (thumbPath != null)
+            {
+                try
+                {
+                    byte[] imageBytes = File.ReadAllBytes(thumbPath);
+                    using (var ms = new MemoryStream(imageBytes))
+                    {
+                        return new Bitmap(ms);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error loading playthrough thumbnail '{thumbPath}': {ex.Message}. Using fallback.");
+                }
+            }
+            // Copy the shared resource bitmap so the caller can safely dispose it.
+            Bitmap fb = fallback ?? GetFallbackPlaythroughThumbnail(tag);
+            return new Bitmap(fb);
+        }
+
+        /// <summary>
+        /// Returns the path to loading_screen.png inside the mapper folder matching the tag AND
+        /// whose TimePeriod.xml range covers the current game year (Date.Year). Prefers the
+        /// actively loaded mapper (LoadedUnitMapper_FolderPath). Custom resolves like thumbnails.
+        /// </summary>
+        public static string? GetLoadingScreenPath(string tag)
+        {
+            string tagToFind = tag == "Custom" ? ModOptions.GetSelectedCustomMapper() : tag;
+            if (string.IsNullOrEmpty(tagToFind)) return null;
+
+            // Priority 1: the actively loaded mapper (already tag + time-period matched by ProcessMapper).
+            if (LoadedUnitMapper_FolderPath is string loadedPath)
+            {
+                string loadedTagFile = Path.Combine(loadedPath, "tag.txt");
+                if (File.Exists(loadedTagFile) &&
+                    File.ReadAllText(loadedTagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
+                {
+                    string loadedScreen = Path.Combine(loadedPath, LoadingScreenFileName);
+                    if (File.Exists(loadedScreen)) return loadedScreen;
+                }
+            }
+
+            // Priority 2: scan mapper folders for a tag + time-period match (covers the first-battle
+            // ordering gap where LoadedUnitMapper_FolderPath is not yet set). Last match wins.
+            string? result = null;
+            foreach (var mapper in GetMapperDirectories())
+            {
+                string tagFile = Path.Combine(mapper, "tag.txt");
+                if (!File.Exists(tagFile) ||
+                    !File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (!IsYearInMapperTimePeriod(mapper)) continue;
+
+                string screen = Path.Combine(mapper, LoadingScreenFileName);
+                if (File.Exists(screen)) result = screen;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// True when the current game year (Date.Year) falls within the mapper folder's
+        /// Time Period.xml / TimePeriod.xml range. Missing/unparseable dates are treated as
+        /// the full range (0..9999), mirroring ProcessMapper.
+        /// </summary>
+        private static bool IsYearInMapperTimePeriod(string mapperPath)
+        {
+            string timePeriodPath = Path.Combine(mapperPath, "Time Period.xml");
+            if (!File.Exists(timePeriodPath))
+                timePeriodPath = Path.Combine(mapperPath, "TimePeriod.xml");
+            if (!File.Exists(timePeriodPath)) return false;
+
+            try
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(timePeriodPath);
+                string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
+                string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
+
+                int startYear = 0, endYear = 9999;
+                if (!int.TryParse(startYearStr, out startYear)) startYear = 0;
+                if (!int.TryParse(endYearStr, out endYear)) endYear = 9999;
+
+                return Date.Year >= startYear && Date.Year <= endYear;
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Debug($"Error reading time period for mapper '{mapperPath}': {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Loads loading_screen.png from the active mapper (in memory, no file locks), or returns
+        /// a copy of the provided fallback bitmap when absent. The returned Bitmap is owned by the caller.
+        /// </summary>
+        public static Bitmap LoadLoadingScreen(string tag, Bitmap fallback)
+        {
+            string? screenPath = GetLoadingScreenPath(tag);
+            if (screenPath != null)
+            {
+                try
+                {
+                    byte[] imageBytes = File.ReadAllBytes(screenPath);
+                    using (var ms = new MemoryStream(imageBytes))
+                    {
+                        return new Bitmap(ms);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error loading loading screen '{screenPath}': {ex.Message}. Using fallback.");
+                }
+            }
+            return new Bitmap(fallback);
         }
 
         public static void ClearProvinceMapCache()

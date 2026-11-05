@@ -3136,6 +3136,33 @@ namespace CrusaderWars
             if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
             if (bookmarksPlusToggleStateStr == "True") playthrough = "BookmarksPlus";
 
+            // Prefer a mapper-provided loading_screen.png matching the active playthrough tag
+            // and the current game year; fall back to the hardcoded images below when absent.
+            string activeTag = GetActivePlaythroughTag();
+            if (!string.IsNullOrEmpty(activeTag))
+            {
+                try
+                {
+                    string? screenPath = UnitMappers_BETA.GetLoadingScreenPath(activeTag);
+                    if (screenPath != null)
+                    {
+                        byte[] imageBytes = File.ReadAllBytes(screenPath);
+                        using (var ms = new MemoryStream(imageBytes))
+                        {
+                            var custom = new Bitmap(ms);
+                            loadingScreen!.BackgroundImage?.Dispose();
+                            loadingScreen!.BackgroundImage = custom;
+                            Program.Logger.Debug($"Using mapper loading screen '{screenPath}' for playthrough '{activeTag}'.");
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error loading mapper loading screen for '{activeTag}': {ex.Message}. Using fallback.");
+                }
+            }
+
             Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
             switch (playthrough)
             {
