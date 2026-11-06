@@ -134,6 +134,24 @@ namespace CrusaderWars.unit_mapper
         public bool IsSiege { get; set; }
     }
 
+    /// <summary>
+    /// Metadata for a single playthrough discovered from a mapper folder. One instance per
+    /// playthrough tag (multiple era folders sharing a tag collapse into one entry).
+    /// </summary>
+    public class PlaythroughInfo
+    {
+        public string Tag { get; set; } = string.Empty;
+        public string ScreenName { get; set; } = string.Empty;
+        public string ScreenNameShort { get; set; } = string.Empty;
+        public int StartYear { get; set; }
+        public int EndYear { get; set; } = 9999;
+        public string LoadingScreenName { get; set; } = string.Empty;
+        public string FolderPath { get; set; } = string.Empty;
+        public bool HasThumbnail { get; set; }
+        public bool HasLoadingScreen { get; set; }
+        public bool IsCustom { get; set; }
+    }
+
     internal static class UnitMappers_BETA
     {
         /*----------------------------------------------------------------
@@ -251,15 +269,18 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
                     {
                         ck3ModNames.AddRange(ck3NamesAttr.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0));
                     }
-string? screenNameAttr = xmlDocument.DocumentElement.Attributes?["playthrough_screen_name"]?.Value;
+                    string? screenNameAttr = xmlDocument.DocumentElement.Attributes?["playthrough_screen_name"]?.Value;
                     string? screenNameShortAttr = xmlDocument.DocumentElement.Attributes?["playthrough_screen_name_short"]?.Value;
+                    // Null-safe key: ActivePlaythroughTag is null when this runs outside a battle load
+                    // (e.g. dynamic tab generation), which previously caused an NRE here.
+                    string screenNameKey = ActivePlaythroughTag ?? string.Empty;
                     if (!string.IsNullOrEmpty(screenNameAttr))
                     {
-                        _playthroughScreenNames[ActivePlaythroughTag] = screenNameAttr;
+                        _playthroughScreenNames[screenNameKey] = screenNameAttr;
                     }
                     if (!string.IsNullOrEmpty(screenNameShortAttr))
                     {
-                        _playthroughScreenNamesShort[ActivePlaythroughTag] = screenNameShortAttr;
+                        _playthroughScreenNamesShort[screenNameKey] = screenNameShortAttr;
                     }
                     foreach (XmlNode node in xmlDocument.DocumentElement.ChildNodes)
                     {
@@ -460,9 +481,135 @@ string? screenNameAttr = xmlDocument.DocumentElement.Attributes?["playthrough_sc
         public static string[] GetMapperDirectories()
         {
             return Directory.Exists(AttilaMappersDir) ? Directory.GetDirectories(AttilaMappersDir) : Array.Empty<string>();
-        }
-        public static string? GetLoadedUnitMapperString()
+
+        /// <summary>
+        /// Scans unit_mappers\attila for mapper folders and returns one <see cref="PlaythroughInfo"/>
+        /// per distinct playthrough tag (multiple era folders sharing a tag collapse into one entry,
+        /// keeping the folder with the earliest StartDate for ordering). Custom_* folders are
+        /// excluded — they feed the Custom tab dropdown, not their own tabs. Folders without a
+        /// tag.txt are skipped. Non-numeric StartDate (e.g. "DEFAULT") is treated as year 0.
+        /// </summary>
+        public static List<PlaythroughInfo> GetAllPlaythroughInfos()
         {
+            var byTag = new Dictionary<string, PlaythroughInfo>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var mapper in GetMapperDirectories())
+            {
+                string tagFile = Path.Combine(mapper, "tag.txt");
+                if (!File.Exists(tagFile)) continue;
+
+                string tag;
+                try
+                {
+                    tag = File.ReadAllText(tagFile).Trim();
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading tag.txt in '{mapper}': {ex.Message}");
+                    continue;
+                }
+                if (string.IsNullOrEmpty(tag)) continue;
+
+                // Custom_* folders are not their own playthroughs; they populate the Custom dropdown.
+                if (tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)) continue;
+
+                var info = ReadPlaythroughInfoFromFolder(mapper, tag);
+
+                if (byTag.TryGetValue(tag, out var existing))
+                {
+                    // Keep the representative folder with the earliest StartDate for ordering,
+                    // but preserve any richer metadata already collected from a sibling folder.
+                    if (info.StartYear < existing.StartYear)
+                    {
+                        info.ScreenName = string.IsNullOrEmpty(info.ScreenName) ? existing.ScreenName : info.ScreenName;
+                        info.ScreenNameShort = string.IsNullOrEmpty(info.ScreenNameShort) ? existing.ScreenNameShort : info.ScreenNameShort;
+                        info.LoadingScreenName = string.IsNullOrEmpty(info.LoadingScreenName) ? existing.LoadingScreenName : info.LoadingScreenName;
+                        info.HasThumbnail = info.HasThumbnail || existing.HasThumbnail;
+                        info.HasLoadingScreen = info.HasLoadingScreen || existing.HasLoadingScreen;
+                        byTag[tag] = info;
+                    }
+                    else
+                    {
+                        existing.HasThumbnail = existing.HasThumbnail || info.HasThumbnail;
+                        existing.HasLoadingScreen = existing.HasLoadingScreen || info.HasLoadingScreen;
+                        if (string.IsNullOrEmpty(existing.ScreenName)) existing.ScreenName = info.ScreenName;
+                        if (string.IsNullOrEmpty(existing.ScreenNameShort)) existing.ScreenNameShort = info.ScreenNameShort;
+                        if (string.IsNullOrEmpty(existing.LoadingScreenName)) existing.LoadingScreenName = info.LoadingScreenName;
+                    }
+                }
+                else
+                {
+                    byTag[tag] = info;
+                }
+            }
+
+            return byTag.Values.ToList();
+        }
+
+        /// <summary>
+        /// Reads Mods.xml (screen names) and TimePeriod.xml (dates, loading screen name) from a
+        /// single mapper folder. Never throws: unreadable/missing files yield defaults.
+        /// </summary>
+        private static PlaythroughInfo ReadPlaythroughInfoFromFolder(string mapperPath, string tag)
+        {
+            var info = new PlaythroughInfo
+            {
+                Tag = tag,
+                FolderPath = mapperPath,
+                StartYear = 0,
+                EndYear = 9999,
+                HasThumbnail = File.Exists(Path.Combine(mapperPath, PlaythroughThumbnailFileName)),
+                HasLoadingScreen = File.Exists(Path.Combine(mapperPath, LoadingScreenFileName)),
+            };
+
+            string modsPath = Path.Combine(mapperPath, "Mods.xml");
+            if (File.Exists(modsPath))
+            {
+                try
+                {
+                    XmlDocument xmlDocument = new XmlDocument();
+                    xmlDocument.Load(modsPath);
+                    if (xmlDocument.DocumentElement != null)
+                    {
+                        info.ScreenName = xmlDocument.DocumentElement.Attributes?["playthrough_screen_name"]?.Value ?? string.Empty;
+                        info.ScreenNameShort = xmlDocument.DocumentElement.Attributes?["playthrough_screen_name_short"]?.Value ?? string.Empty;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading Mods.xml in '{mapperPath}': {ex.Message}");
+                }
+            }
+
+            string timePeriodPath = Path.Combine(mapperPath, "Time Period.xml");
+            if (!File.Exists(timePeriodPath))
+                timePeriodPath = Path.Combine(mapperPath, "TimePeriod.xml");
+            if (File.Exists(timePeriodPath))
+            {
+                try
+                {
+                    XmlDocument xmlDocument = new XmlDocument();
+                    xmlDocument.Load(timePeriodPath);
+                    if (xmlDocument.DocumentElement != null)
+                    {
+                        info.LoadingScreenName = xmlDocument.DocumentElement.Attributes?["loading_screen_name"]?.Value ?? string.Empty;
+                    }
+                    string startYearStr = xmlDocument.SelectSingleNode("//StartDate")?.InnerText ?? "Default";
+                    string endYearStr = xmlDocument.SelectSingleNode("//EndDate")?.InnerText ?? "Default";
+                    // Non-numeric (e.g. "DEFAULT") means "any year": start 0, end 9999.
+                    if (!int.TryParse(startYearStr, out int startYear)) startYear = 0;
+                    if (!int.TryParse(endYearStr, out int endYear)) endYear = 9999;
+                    info.StartYear = startYear;
+                    info.EndYear = endYear;
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error reading TimePeriod.xml in '{mapperPath}': {ex.Message}");
+                }
+            }
+
+            return info;
+        }
             // Prioritize the dynamically loaded name from TimePeriod.xml
             if (!string.IsNullOrWhiteSpace(MapperLoadingScreenName))
             {
