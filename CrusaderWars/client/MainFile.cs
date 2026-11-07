@@ -2920,6 +2920,17 @@ private void CreateGameShortcut()
         }
         private string GetFriendlyPlaythroughName(string tag)
         {
+            // First try to get the dynamic playthrough info from mapper folders
+            var info = UnitMappers_BETA.GetPlaythroughInfoByTag(tag);
+            if (info != null)
+            {
+                // Prefer ScreenNameShort for compact labels, fall back to ScreenName
+                if (!string.IsNullOrEmpty(info.ScreenNameShort))
+                    return info.ScreenNameShort;
+                if (!string.IsNullOrEmpty(info.ScreenName))
+                    return info.ScreenName;
+            }
+            // Fallback to legacy hardcoded names for known tags
             switch (tag)
             {
                 case "DefaultCK3":
@@ -2933,8 +2944,12 @@ private void CreateGameShortcut()
                 case "BookmarksPlus":
                     return "Bookmarks+ (pre-768)";
                 case "Custom":
+                    string? customName = UnitMappers_BETA.GetPlaythroughScreenName(tag);
+                    if (!string.IsNullOrEmpty(customName)) return customName;
                     return "Custom";
                 default:
+                    string? friendlyName = UnitMappers_BETA.GetPlaythroughScreenName(tag);
+                    if (!string.IsNullOrEmpty(friendlyName)) return friendlyName;
                     return "Selected"; // A safe default
             }
         }
@@ -3101,6 +3116,33 @@ public async static Task CloseTotalWarProcess()
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
             if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
             if (bookmarksPlusToggleStateStr == "True") playthrough = "BookmarksPlus";
+
+            // Prefer a mapper-provided loading_screen.png matching the active playthrough tag
+            // and the current game year; fall back to the hardcoded images below when absent.
+            string activeTag = GetActivePlaythroughTag();
+            if (!string.IsNullOrEmpty(activeTag))
+            {
+                try
+                {
+                    string? screenPath = UnitMappers_BETA.GetLoadingScreenPath(activeTag);
+                    if (screenPath != null)
+                    {
+                        byte[] imageBytes = File.ReadAllBytes(screenPath);
+                        using (var ms = new MemoryStream(imageBytes))
+                        {
+                            var custom = new Bitmap(ms);
+                            loadingScreen!.BackgroundImage?.Dispose();
+                            loadingScreen!.BackgroundImage = custom;
+                            Program.Logger.Debug($"Using mapper loading screen '{screenPath}' for playthrough '{activeTag}'.");
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error loading mapper loading screen for '{activeTag}': {ex.Message}. Using fallback.");
+                }
+            }
 
             Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
             switch (playthrough)
