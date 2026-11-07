@@ -523,7 +523,17 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         {
             var byTag = new Dictionary<string, PlaythroughInfo>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var mapper in GetMapperDirectories())
+            // Scan both game subdirectories (attila/ and rome_2/) so playthroughs that live
+            // only in one game's folder (e.g. BronzeAgeReborn in rome_2/) are still discovered.
+            var allMapperDirs = new List<string>();
+            foreach (var subDir in new[] { "attila", "rome_2" })
+            {
+                string subDirPath = Path.Combine(UnitMappersRootDir, subDir);
+                if (Directory.Exists(subDirPath))
+                    allMapperDirs.AddRange(Directory.GetDirectories(subDirPath));
+            }
+
+            foreach (var mapper in allMapperDirs)
             {
                 string tagFile = Path.Combine(mapper, "tag.txt");
                 if (!File.Exists(tagFile)) continue;

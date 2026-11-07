@@ -1012,10 +1012,12 @@ Status_Attila_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__
                 Status_Rome2_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__1_;
             }
 
-            // Bronze Age (Rome 2) playthrough tab is only usable with a valid Rome2.exe path
+            // Bronze Age (Rome 2) playthrough tab is only usable when the Rome2.exe path is
+            // configured AND the BronzeAgeReborn playthrough tag exists in the mappers.
             bool rome2Configured = IsRome2PathConfigured();
-            Btn_Rome2Tab.Enabled = rome2Configured;
-            Btn_Rome2Tab.ForeColor = rome2Configured ? Color.White : Color.Gray;
+            bool bronzeAgeUsable = rome2Configured && BronzeAge_Tab != null;
+            Btn_Rome2Tab.Enabled = bronzeAgeUsable;
+            Btn_Rome2Tab.ForeColor = bronzeAgeUsable ? Color.White : Color.Gray;
         }
 
 
@@ -1499,8 +1501,10 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
         private void Btn_Rome2Tab_Click(object sender, EventArgs e)
         {
             if (!IsRome2PathConfigured()) return;
-            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BronzeAge_Tab)
-                ChangeUnitMappersTab(BronzeAge_Tab);
+            var bronzeAgeTab = BronzeAge_Tab;
+            if (bronzeAgeTab == null) return; // Tag absent from the mappers; nothing to switch to
+            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != bronzeAgeTab)
+                ChangeUnitMappersTab(bronzeAgeTab);
         }
 
         private void Btn_CustomTab_Click(object sender, EventArgs e)
@@ -1518,6 +1522,7 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
 
         void ChangeUnitMappersTab(Control control)
         {
+            if (control == null) return; // Guard: a playthrough tag may be absent from the mappers
             UMpanel.Controls.Clear();
             UMpanel.Controls.Add(control);
             control.Location = new System.Drawing.Point((UMpanel.Width - control.Width) / 2, 0); // Centered horizontally
@@ -1698,6 +1703,7 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                 "RealmsInExile" => Btn_LOTRTab,
                 "AGOT" => Btn_AGOTTab,
                 "BookmarksPlus" => Btn_BookmarksPlusTab,
+                "BronzeAgeReborn" => Btn_Rome2Tab,
                 "Custom" => Btn_CustomTab,
                 _ => null,
             };
