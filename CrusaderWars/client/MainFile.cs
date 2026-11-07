@@ -2957,6 +2957,17 @@ namespace CrusaderWars
         }
         private string GetFriendlyPlaythroughName(string tag)
         {
+            // First try to get the dynamic playthrough info from mapper folders
+            var info = UnitMappers_BETA.GetPlaythroughInfoByTag(tag);
+            if (info != null)
+            {
+                // Prefer ScreenNameShort for compact labels, fall back to ScreenName
+                if (!string.IsNullOrEmpty(info.ScreenNameShort))
+                    return info.ScreenNameShort;
+                if (!string.IsNullOrEmpty(info.ScreenName))
+                    return info.ScreenName;
+            }
+            // Fallback to legacy hardcoded names for known tags
             switch (tag)
             {
                 case "DefaultCK3":
