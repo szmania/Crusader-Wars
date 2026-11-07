@@ -464,8 +464,8 @@
             this.Btn_CK3Tab.Name = "Btn_CK3Tab";
             this.Btn_CK3Tab.Size = new System.Drawing.Size(113, 28);
             this.Btn_CK3Tab.TabIndex = 0;
-            this.Btn_CK3Tab.Text = "Crusader Kings";
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CK3Tab, "Standard Crusader Kings time frame with the Age of Justinian 555, Anno Domini 919, and Medieval Kingdoms 1212 AD mods for Attila.");
+            this.Btn_CK3Tab.Text = "CK3";
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_CK3Tab, "Standard Crusader Kings 3 time frame with the Age of Justinian 555, Anno Domini 919, and Medieval Kingdoms 1212 AD mods for Attila");
             this.Btn_CK3Tab.UseVisualStyleBackColor = false;
             this.Btn_CK3Tab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_CK3Tab.Click += new System.EventHandler(this.Btn_CK3Tab_Click);
@@ -544,7 +544,7 @@
             this.Btn_BookmarksPlusTab.Name = "Btn_BookmarksPlusTab";
             this.Btn_BookmarksPlusTab.Size = new System.Drawing.Size(100, 28);
             this.Btn_BookmarksPlusTab.TabIndex = 4;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_BookmarksPlusTab, "Bookmarks+ (pre-768) playthrough.");
+            this.ToolTip_UnitMappers.SetToolTip(this.Btn_BookmarksPlusTab, "Bookmarks+ mod (pre-768)");
             this.Btn_BookmarksPlusTab.Text = "Bookmarks+";
             this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
             this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;

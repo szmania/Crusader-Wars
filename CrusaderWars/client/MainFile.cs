@@ -1584,7 +1584,7 @@ namespace CrusaderWars
         // This method creates a shortcut for Attila
         private void CreateAttilaShortcut()
         {
-            string shortcutPath = @".\CW.lnk";
+            string shortcutPath = @".\CC.lnk";
             string targetPath = Properties.Settings.Default.VAR_attila_path;
             string workingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
             string arguments = "used_mods_cc.txt";
@@ -2259,7 +2259,7 @@ namespace CrusaderWars
                         Program.Logger.Debug("Waiting for CRUSADERCONFLICTS keyword in CK3 log...");
                         try
                         {
-                            //Wait for CW keyword
+                            //Wait for CC keyword
                             while (!battleHasStarted)
                             {
                                 if (token.IsCancellationRequested)
@@ -2970,8 +2970,12 @@ namespace CrusaderWars
                 case "BookmarksPlus":
                     return "Bookmarks+ (pre-768)";
                 case "Custom":
+                    string? customName = UnitMappers_BETA.GetPlaythroughScreenName(tag);
+                    if (!string.IsNullOrEmpty(customName)) return customName;
                     return "Custom";
                 default:
+                    string? friendlyName = UnitMappers_BETA.GetPlaythroughScreenName(tag);
+                    if (!string.IsNullOrEmpty(friendlyName)) return friendlyName;
                     return "Selected"; // A safe default
             }
         }
@@ -3060,12 +3064,12 @@ namespace CrusaderWars
 
                 if (isLinux)
                 {
-                    shortcutPath = @".\data\attila\Attila CW.lnk";
+                    shortcutPath = @".\data\attila\Attila CC.lnk";
                     Program.Logger.Debug($"Using Linux shortcut path: {shortcutPath}");
                 }
                 else
                 {
-                    shortcutPath = @".\CW.lnk";
+                    shortcutPath = @".\CC.lnk";
                     Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
                 }
 
@@ -3135,6 +3139,33 @@ namespace CrusaderWars
             if (lotrToggleStateStr == "True") playthrough = "Lotr";
             if (agotToggleStateStr == "True") playthrough = "AGOT"; // Added AGOT tab
             if (bookmarksPlusToggleStateStr == "True") playthrough = "BookmarksPlus";
+
+            // Prefer a mapper-provided loading_screen.png matching the active playthrough tag
+            // and the current game year; fall back to the hardcoded images below when absent.
+            string activeTag = GetActivePlaythroughTag();
+            if (!string.IsNullOrEmpty(activeTag))
+            {
+                try
+                {
+                    string? screenPath = UnitMappers_BETA.GetLoadingScreenPath(activeTag);
+                    if (screenPath != null)
+                    {
+                        byte[] imageBytes = File.ReadAllBytes(screenPath);
+                        using (var ms = new MemoryStream(imageBytes))
+                        {
+                            var custom = new Bitmap(ms);
+                            loadingScreen!.BackgroundImage?.Dispose();
+                            loadingScreen!.BackgroundImage = custom;
+                            Program.Logger.Debug($"Using mapper loading screen '{screenPath}' for playthrough '{activeTag}'.");
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error loading mapper loading screen for '{activeTag}': {ex.Message}. Using fallback.");
+                }
+            }
 
             Program.Logger.Debug($"Playthrough detected: {playthrough}. Setting background image.");
             switch (playthrough)

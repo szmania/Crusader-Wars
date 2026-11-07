@@ -520,6 +520,22 @@ del ""%~f0""
                         Logger.Log("Deleting obsolete files and directories.");
                         DeleteObsoleteFilesAndDirectories(applicationPath, tempDirectory);
 
+                        // Clean up the legacy CW.lnk shortcut (renamed to CC.lnk). Only CW.lnk is removed; CC.lnk is never touched.
+                        string legacyShortcutPath = Path.Combine(applicationPath, "CW.lnk");
+                        if (File.Exists(legacyShortcutPath))
+                        {
+                            try
+                            {
+                                await RetryActionAsync(() => File.Delete(legacyShortcutPath), "Delete legacy CW.lnk");
+                                Logger.Log($"Deleted legacy shortcut: {legacyShortcutPath}");
+                            }
+                            catch (Exception ex)
+                            {
+                                // Cleanup failure must not fail the whole update.
+                                Logger.Log($"[WARNING] Could not delete legacy CW.lnk '{legacyShortcutPath}': {ex.Message}");
+                            }
+                        }
+
                         // Copy new and updated files
                         Logger.Log("Copying new and updated files.");
                         foreach (var file in Directory.GetFiles(tempDirectory, "*", SearchOption.AllDirectories))
@@ -809,6 +825,33 @@ del ""%~f0""
                         }
                     }
                     Directory.CreateDirectory(schemasDir); // Ensure it always exists even if the package has no schemas
+
+                    // Step 5.5: Clean up residual old structure folders at unit_mappers root.
+                    // These are mapper folders left over from failed/partial previous migrations that
+                    // should have been moved into attila. Protected folders (attila, rome_2, schemas)
+                    // are never touched. Cleanup failures are logged but never fail the update.
+                    var protectedFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        "attila",
+                        "rome_2",
+                        "schemas"
+                    };
+                    foreach (var dir in Directory.GetDirectories(unitMappersRoot))
+                    {
+                        string dirName = Path.GetFileName(dir);
+                        // Never delete protected folders or the user's custom mappers.
+                        if (protectedFolders.Contains(dirName) || dirName.StartsWith("Custom", StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        try
+                        {
+                            Logger.Log($"Cleaning up residual old structure folder: {dirName}");
+                            await RetryActionAsync(() => Directory.Delete(dir, true), $"Delete residual folder {dirName}");
+                        }
+                        catch (Exception cleanupEx)
+                        {
+                            Logger.Log($"[WARNING] Could not delete residual folder '{dirName}': {cleanupEx.Message}");
+                        }
+                    }
 
                     // Step 6: Clean up backup if update was successful
                     Logger.Log("Update successful, deleting backup.");

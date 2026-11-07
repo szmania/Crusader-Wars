@@ -1636,31 +1636,31 @@ namespace CrusaderWars
                 var customMods =
                     CrusaderWars.unit_mapper.UnitMappers_BETA.GetUnitMappersModsCollectionFromTag("Custom");
 
-                CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default,
+                CrusaderKings_Tab = new UC_UnitMapper(UnitMappers_BETA.LoadPlaythroughThumbnail("DefaultCK3"),
                     "https://crusader-conflicts-website.vercel.app/playthroughs/medieval-eras#mod-requirements",
                     ck3Mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     ck3ToggleState, "DefaultCK3", ck3Mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-                TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe,
+                TheFallenEagle_Tab = new UC_UnitMapper(UnitMappers_BETA.LoadPlaythroughThumbnail("TheFallenEagle"),
                     "https://crusader-conflicts-website.vercel.app/playthroughs/late-roman-era#mod-requirements",
                     tfeMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     tfeToggleState, "TheFallenEagle",
                     tfeMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
                 TheFallenEagle_Tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
-                RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR,
+                RealmsInExile_Tab = new UC_UnitMapper(UnitMappers_BETA.LoadPlaythroughThumbnail("RealmsInExile"),
                     "https://crusader-conflicts-website.vercel.app/playthroughs/realms-in-exile#mod-requirements",
                     lotrMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     lotrToggleState, "RealmsInExile",
                     lotrMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-                AGOT_Tab = new UC_UnitMapper(Properties.Resources.playthrough_agot,
+                AGOT_Tab = new UC_UnitMapper(UnitMappers_BETA.LoadPlaythroughThumbnail("AGOT"),
                     "https://crusader-conflicts-website.vercel.app/playthroughs/agot#mod-requirements",
                     agotMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     agotToggleState, "AGOT", agotMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-                BookmarksPlus_Tab = new UC_UnitMapper(Properties.Resources.playthrough_bookmarksplus,
+                BookmarksPlus_Tab = new UC_UnitMapper(UnitMappers_BETA.LoadPlaythroughThumbnail("BookmarksPlus"),
                     "https://crusader-conflicts-website.vercel.app/playthroughs/bookmarks-plus",
                     bookmarksPlusMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     bookmarksPlusToggleState, "BookmarksPlus",
                     bookmarksPlusMods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
-                Custom_Tab = new UC_UnitMapper(LoadCustomPlaythroughImage(),
+                Custom_Tab = new UC_UnitMapper(UnitMappers_BETA.LoadPlaythroughThumbnail("Custom", LoadCustomPlaythroughImage()),
                     "https://crusader-conflicts-website.vercel.app/playthroughs/custom-playthrough",
                     customMods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
                     customToggleState, "Custom",
