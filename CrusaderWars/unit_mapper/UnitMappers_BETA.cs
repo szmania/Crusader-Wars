@@ -146,6 +146,7 @@ namespace CrusaderWars.unit_mapper
         public int StartYear { get; set; }
         public int EndYear { get; set; } = 9999;
         public string LoadingScreenName { get; set; } = string.Empty;
+        public string Tooltip { get; set; } = string.Empty;
         public string FolderPath { get; set; } = string.Empty;
         public bool HasThumbnail { get; set; }
         public bool HasLoadingScreen { get; set; }
@@ -527,6 +528,7 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
                         info.ScreenName = string.IsNullOrEmpty(info.ScreenName) ? existing.ScreenName : info.ScreenName;
                         info.ScreenNameShort = string.IsNullOrEmpty(info.ScreenNameShort) ? existing.ScreenNameShort : info.ScreenNameShort;
                         info.LoadingScreenName = string.IsNullOrEmpty(info.LoadingScreenName) ? existing.LoadingScreenName : info.LoadingScreenName;
+                        info.Tooltip = string.IsNullOrEmpty(info.Tooltip) ? existing.Tooltip : info.Tooltip;
                         info.HasThumbnail = info.HasThumbnail || existing.HasThumbnail;
                         info.HasLoadingScreen = info.HasLoadingScreen || existing.HasLoadingScreen;
                         byTag[tag] = info;
@@ -678,6 +680,18 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         }
 
         public const string PlaythroughThumbnailFileName = "playthrough_thumbnail.png";
+
+        /// <summary>
+        /// Returns the <see cref="PlaythroughInfo"/> for a playthrough tag discovered from the
+        /// mapper folders (screen names, tooltip, dates), or null when the tag is unknown.
+        /// Unlike <see cref="GetPlaythroughScreenName"/> this does not depend on a battle having
+        /// been loaded, so it is safe to call for tab labels and tooltips at startup.
+        /// </summary>
+        public static PlaythroughInfo? GetPlaythroughInfoByTag(string tag)
+        {
+            if (string.IsNullOrEmpty(tag)) return null;
+            return GetAllPlaythroughInfos().FirstOrDefault(p => p.Tag.Equals(tag, StringComparison.OrdinalIgnoreCase));
+        }
 
         public const string LoadingScreenFileName = "loading_screen.png";
 
