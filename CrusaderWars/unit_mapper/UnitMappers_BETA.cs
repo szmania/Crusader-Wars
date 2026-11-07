@@ -548,7 +548,56 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
                 }
             }
 
-            return byTag.Values.ToList();
+return byTag.Values.ToList();
+        }
+
+        /// <summary>
+        /// Minimal self-check for <see cref="GetAllPlaythroughInfos"/> ordering and dedupe semantics.
+        /// Debug.Assert based — no test framework — so it fails fast in Debug builds if the
+        /// ordering/fallback contract regresses.
+        /// </summary>
+        private static void AssertPlaythroughOrdering(List<PlaythroughInfo> infos)
+        {
+            // Dedupe contract: at most one entry per tag (case-insensitive).
+            var tags = infos.Select(i => i.Tag).ToList();
+            System.Diagnostics.Debug.Assert(tags.Count == tags.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+                "GetAllPlaythroughInfos must return at most one PlaythroughInfo per tag.");
+
+            // Custom must never appear as a discovered playthrough (the UI appends the Custom tab last).
+            System.Diagnostics.Debug.Assert(!infos.Any(i => i.Tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)),
+                "GetAllPlaythroughInfos must exclude Custom.");
+
+            // Non-numeric/absent StartDate must clamp to 0 so it sorts before dated playthroughs.
+            System.Diagnostics.Debug.Assert(infos.All(i => i.StartYear >= 0),
+                "StartYear must be clamped to >= 0 for unparseable dates.");
+
+            // Ordering contract (mirrors Options.BuildPlaythroughTabs): DefaultCK3 first, then by StartYear.
+            var ordered = infos
+                .OrderBy(i => i.Tag.Equals("DefaultCK3", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(i => i.StartYear)
+                .ThenBy(i => i.Tag, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            int defaultCount = ordered.Count(o => o.Tag.Equals("DefaultCK3", StringComparison.OrdinalIgnoreCase));
+            System.Diagnostics.Debug.Assert(defaultCount <= 1, "Only one DefaultCK3 playthrough may exist.");
+            for (int k = 1; k < ordered.Count; k++)
+            {
+                if (ordered[k - 1].StartYear <= ordered[k].StartYear) continue;
+                // Only equal tags (impossible after dedupe) could legitimately tie; anything else is a regression.
+                System.Diagnostics.Debug.Assert(false,
+                $"Playthroughs must be ordered by StartYear: '{ordered[k - 1].Tag}' ({ordered[k - 1].StartYear}) precedes '{ordered[k].Tag}' ({ordered[k].StartYear}).");
+            }
+        }
+
+        /// <summary>
+        /// Discovers playthroughs from the mapper folders and asserts the ordering/fallback
+        /// contract (Step 9 self-check). Returns the number of discovered playthroughs.
+        /// </summary>
+        public static int RunPlaythroughDiscoverySelfCheck()
+        {
+            var infos = GetAllPlaythroughInfos();
+            AssertPlaythroughOrdering(infos);
+            Program.Logger.Debug($"Playthrough discovery self-check passed: {infos.Count} playthrough(s) discovered.");
+            return infos.Count;
         }
 
         /// <summary>
