@@ -668,7 +668,7 @@ namespace CrusaderWars.client
 
             // Collect all leaf nodes in the current tree whose EFFECTIVE key is known-bad.
             var buggyNodes = new List<TreeNode>();
-            Action<TreeNodeCollection> collect = null;
+            Action<TreeNodeCollection> collect = null!;
             collect = (nodes) =>
             {
                 foreach (TreeNode node in nodes)
@@ -1186,7 +1186,7 @@ namespace CrusaderWars.client
         private void SelectRange(TreeNode startNode, TreeNode endNode)
         {
             List<TreeNode> allNodes = new List<TreeNode>();
-            Action<TreeNodeCollection> collectNodes = null;
+            Action<TreeNodeCollection> collectNodes = null!;
             collectNodes = (nodes) =>
             {
                 foreach (TreeNode node in nodes)

@@ -1464,6 +1464,7 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
         private UC_UnitMapper? RealmsInExile_Tab => GetTabByTag("RealmsInExile");
         private UC_UnitMapper? AGOT_Tab => GetTabByTag("AGOT");
         private UC_UnitMapper? BookmarksPlus_Tab => GetTabByTag("BookmarksPlus");
+        private UC_UnitMapper? BronzeAge_Tab => GetTabByTag("BronzeAgeReborn");
         private UC_UnitMapper? Custom_Tab => GetTabByTag("Custom");
 
         private UC_UnitMapper? GetTabByTag(string tag)
@@ -1675,14 +1676,15 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
         private UC_UnitMapper CreatePlaythroughTab(PlaythroughInfo info, bool state)
         {
             string tag = info.Tag;
-            var mods = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(tag);
+            string gameType = games.GameServiceFactory.ResolveGameTypeFromPlaythrough(tag);
+            var mods = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(tag, gameType);
             string link = LegacyPlaythroughLinks.TryGetValue(tag, out var l) ? l : LegacyPlaythroughLinks["Custom"];
             Bitmap image = tag == "Custom"
                 ? UnitMappers_BETA.LoadPlaythroughThumbnail("Custom", LoadCustomPlaythroughImage())
                 : UnitMappers_BETA.LoadPlaythroughThumbnail(tag);
             var tab = new UC_UnitMapper(image, link,
                 mods.requiredMods.Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url)).ToList(),
-                state, tag, mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList());
+                state, tag, mods.submods.GroupBy(s => s.Tag).Select(g => g.First()).ToList(), gameType);
             if (tag == "TheFallenEagle") tab.SetSteamLinkButtonTooltip("Now requires TW:Attila mod 'Age of Justinian 555 2.0'.");
             return tab;
         }

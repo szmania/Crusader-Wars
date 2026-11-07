@@ -1076,8 +1076,9 @@ namespace CrusaderWars
             {
                 int deployables_boost = UnitsFile.GetCommanderTraitsObj(army.IsPlayer())?.GetDeployablesBoost() ?? 0;
                 int army_soldiers = army.Units.Sum(unit => unit.GetSoldiers());
-                army.SetDefences(new DefensiveSystem(army_soldiers, army.Commander.Martial, deployables_boost));
-                string PR_DefensiveDeployments = army.Defences.GetText();
+                var defences = new DefensiveSystem(army_soldiers, army.Commander.Martial, deployables_boost);
+                army.SetDefences(defences);
+                string PR_DefensiveDeployments = defences.GetText();
                 File.AppendAllText(battlePath, PR_DefensiveDeployments);
             }
         }
