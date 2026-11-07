@@ -44,16 +44,64 @@ namespace CrusaderWars.games
             if (string.IsNullOrEmpty(playthroughTag))
                 return "Attila"; // Default
 
-            return playthroughTag switch
+// Fast-path for the known legacy tags (avoids a filesystem scan).
+            switch (playthroughTag)
             {
-                "DefaultCK3" => "Attila",
-                "TheFallenEagle" => "Attila",
-                "RealmsInExile" => "Attila",
-                "AGOT" => "Attila",
-                "BronzeAgeReborn" => "Rome2",
-                "Custom" => ResolveCustomPlaythroughGameType(),
-                _ => "Attila" // Default fallback
-            };
+                case "DefaultCK3":
+                case "TheFallenEagle":
+                case "RealmsInExile":
+                case "AGOT":
+                case "BookmarksPlus":
+                    return "Attila";
+                case "BronzeAgeReborn":
+                    return "Rome2";
+                case "Custom":
+                    return ResolveCustomPlaythroughGameType();
+            }
+
+            // Unknown tag: resolve from the mapper folders so dynamically discovered
+            // Rome 2-only playthroughs are not misclassified as Attila.
+            return ResolveGameTypeFromMapperFolders(playthroughTag);
+        }
+
+        /// <summary>
+        /// Resolves the game type for a playthrough tag by scanning the unit mapper
+        /// subdirectories. Returns "Rome2" when the tag exists only under rome_2/,
+        /// "Attila" when it exists only under attila/, "Attila" when it exists in
+        /// both (blended playthroughs default to Attila), and "Attila"
+        /// as the legacy default when the tag is found in neither.
+        /// </summary>
+        private static string ResolveGameTypeFromMapperFolders(string playthroughTag)
+        {
+            bool inAttila = TagExistsInMapperSubDir(playthroughTag, "attila");
+            bool inRome2 = TagExistsInMapperSubDir(playthroughTag, "rome_2");
+
+            // Blended (present in both) and Attila-only both resolve to Attila; only a
+            // Rome 2-only tag resolves to Rome2. Unknown tags fall through to Attila.
+            if (inRome2 && !inAttila)
+                return "Rome2";
+            return "Attila";
+        }
+
+        /// <summary>
+        /// True when a mapper folder directly under the given unit mapper subdirectory
+        /// has a tag.txt whose trimmed content matches the playthrough tag
+        /// (case-insensitive).
+        /// </summary>
+        private static bool TagExistsInMapperSubDir(string playthroughTag, string subDirName)
+        {
+            string subDir = Path.Combine(CrusaderWars.unit_mapper.UnitMappers_BETA.UnitMappersRootDir, subDirName);
+            if (!Directory.Exists(subDir))
+                return false;
+
+            foreach (var dir in Directory.GetDirectories(subDir))
+            {
+                string tagFile = Path.Combine(dir, "tag.txt");
+                if (File.Exists(tagFile) &&
+                    File.ReadAllText(tagFile).Trim().Equals(playthroughTag, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         private static string ResolveCustomPlaythroughGameType()
