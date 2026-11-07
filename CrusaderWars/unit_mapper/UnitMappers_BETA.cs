@@ -480,7 +480,10 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         /// </summary>
         public static string[] GetMapperDirectories()
         {
-            return Directory.Exists(AttilaMappersDir) ? Directory.GetDirectories(AttilaMappersDir) : Array.Empty<string>();
+            return Directory.Exists(AttilaMappersDir)
+                ? Directory.GetDirectories(AttilaMappersDir)
+                : Array.Empty<string>();
+        }
 
         /// <summary>
         /// Scans unit_mappers\attila for mapper folders and returns one <see cref="PlaythroughInfo"/>
@@ -610,6 +613,8 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
 
             return info;
         }
+        public static string? GetLoadedUnitMapperString()
+        {
             // Prioritize the dynamically loaded name from TimePeriod.xml
             if (!string.IsNullOrWhiteSpace(MapperLoadingScreenName))
             {
