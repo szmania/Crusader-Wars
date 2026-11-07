@@ -353,7 +353,7 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
             var allSubmods = new List<Submod>();
             var allCk3ModFileNames = new List<(string fileName, string? displayName)>();
 
-            var unit_mappers_folder = GetMapperDirectories();
+            var unit_mappers_folder = GetMapperDirectories(gameType);
             if (tag == "Custom")
             {
                 string selectedMapperTag = ModOptions.GetSelectedCustomMapper();
@@ -480,8 +480,31 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         public static string SchemasDir => Path.Combine(UnitMappersRootDir, "schemas");
 
         /// <summary>
-        /// Returns all unit mapper folders located in unit_mappers\attila.
+        /// Maps a game type identifier ("Attila"/"Rome2") to its unit mapper subdirectory
+        /// name under <see cref="UnitMappersRootDir"/> ("attila"/"rome_2"). Unknown game
+        /// types fall back to "attila" to preserve legacy behaviour.
         /// </summary>
+        public static string GetMapperSubDir(string gameType)
+        {
+            return gameType switch
+            {
+                "Rome2" => "rome_2",
+                _ => "attila",
+            };
+        }
+
+        /// <summary>
+        /// Returns all unit mapper folders located in the game-specific subdirectory
+        /// (unit_mappers\attila or unit_mappers\rome_2) resolved from <paramref name="gameType"/>.
+        /// </summary>
+        public static string[] GetMapperDirectories(string gameType)
+        {
+            string dir = Path.Combine(UnitMappersRootDir, GetMapperSubDir(gameType));
+            return Directory.Exists(dir)
+                ? Directory.GetDirectories(dir)
+                : Array.Empty<string>();
+        }
+
         public static string[] GetMapperDirectories()
         {
             return Directory.Exists(AttilaMappersDir)
@@ -1353,7 +1376,17 @@ return byTag.Values.ToList();
             AvailableSubmods.Clear();
             List<string> requiredMods = new List<string>();
 
-            var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
+            // Scan the game-specific subdirectory first, then the other game's subdirectory,
+            // so a blended playthrough (same tag in attila/ and rome_2/) aggregates mods from both.
+            string primarySubDir = GetMapperSubDir(gameType);
+            string otherSubDir = primarySubDir == "attila" ? "rome_2" : "attila";
+            var unit_mappers_folder = new List<string>();
+            foreach (var subDir in new[] { primarySubDir, otherSubDir })
+            {
+                string subDirPath = Path.Combine(UnitMappersRootDir, subDir);
+                if (Directory.Exists(subDirPath))
+                    unit_mappers_folder.AddRange(Directory.GetDirectories(subDirPath));
+            }
             if (tag == "Custom")
             {
                 string customMapperTag = ModOptions.GetSelectedCustomMapper();
