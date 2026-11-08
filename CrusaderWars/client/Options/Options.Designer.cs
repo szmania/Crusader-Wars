@@ -75,7 +75,6 @@
             this.Btn_AGOTTab = new System.Windows.Forms.Button();
             this.Btn_BookmarksPlusTab = new System.Windows.Forms.Button();
             this.Btn_CustomTab = new System.Windows.Forms.Button();
-            this.Btn_Rome2Tab = new System.Windows.Forms.Button();
             this.TableLayoutGamePaths = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
             this.Btn_GamePaths = new System.Windows.Forms.Button();
@@ -474,7 +473,6 @@
             //
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.Transparent;
             this.flowLayoutPanel2.Controls.Add(this.Btn_CK3Tab);
-            this.flowLayoutPanel2.Controls.Add(this.Btn_Rome2Tab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_TFETab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_LOTRTab);
             this.flowLayoutPanel2.Controls.Add(this.Btn_AGOTTab);
@@ -585,25 +583,6 @@
             this.Btn_BookmarksPlusTab.UseVisualStyleBackColor = false;
             this.Btn_BookmarksPlusTab.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Btn_BookmarksPlusTab.Click += new System.EventHandler(this.Btn_BookmarksPlusTab_Click);
-            // Btn_Rome2Tab
-            //
-            this.Btn_Rome2Tab.AutoSize = true;
-            this.Btn_Rome2Tab.BackColor = System.Drawing.Color.LightGray;
-            this.Btn_Rome2Tab.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("Btn_Rome2Tab.BackgroundImage")));
-            this.Btn_Rome2Tab.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Btn_Rome2Tab.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.Btn_Rome2Tab.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Btn_Rome2Tab.Font = new System.Drawing.Font("Paradox King Script", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Btn_Rome2Tab.ForeColor = System.Drawing.Color.White;
-            this.Btn_Rome2Tab.Location = new System.Drawing.Point(122, 3);
-            this.Btn_Rome2Tab.Name = "Btn_Rome2Tab";
-            this.Btn_Rome2Tab.Size = new System.Drawing.Size(80, 28);
-            this.Btn_Rome2Tab.TabIndex = 4;
-            this.ToolTip_UnitMappers.SetToolTip(this.Btn_Rome2Tab, "Bronze Age Reborn playthrough. Requires Rome2.exe.");
-            this.Btn_Rome2Tab.Text = "Bronze Age";
-            this.Btn_Rome2Tab.UseVisualStyleBackColor = false;
-            this.Btn_Rome2Tab.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Btn_Rome2Tab.Click += new System.EventHandler(this.Btn_Rome2Tab_Click);
             //
             // Btn_CustomTab
             //
@@ -869,7 +848,6 @@ this.TableLayoutGamePaths.ColumnCount = 3;
         internal System.Windows.Forms.Button Btn_AGOTTab;
         internal System.Windows.Forms.Button Btn_BookmarksPlusTab;
 internal System.Windows.Forms.Button Btn_CustomTab;
-        internal System.Windows.Forms.Button Btn_Rome2Tab;
         private System.Windows.Forms.PictureBox Status_Ck3_Icon;
 private System.Windows.Forms.PictureBox Status_Attila_Icon;
         private System.Windows.Forms.PictureBox Status_Rome2_Icon;

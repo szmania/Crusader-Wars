@@ -1012,12 +1012,6 @@ Status_Attila_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__
                 Status_Rome2_Icon.BackgroundImage = CrusaderWars.Properties.Resources.warning__1_;
             }
 
-            // Bronze Age (Rome 2) playthrough tab is only usable when the Rome2.exe path is
-            // configured AND the BronzeAgeReborn playthrough tag exists in the mappers.
-            bool rome2Configured = IsRome2PathConfigured();
-            bool bronzeAgeUsable = rome2Configured && BronzeAge_Tab != null;
-            Btn_Rome2Tab.Enabled = bronzeAgeUsable;
-            Btn_Rome2Tab.ForeColor = bronzeAgeUsable ? Color.White : Color.Gray;
         }
 
 
@@ -1466,7 +1460,6 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
         private UC_UnitMapper? RealmsInExile_Tab => GetTabByTag("RealmsInExile");
         private UC_UnitMapper? AGOT_Tab => GetTabByTag("AGOT");
         private UC_UnitMapper? BookmarksPlus_Tab => GetTabByTag("BookmarksPlus");
-        private UC_UnitMapper? BronzeAge_Tab => GetTabByTag("BronzeAgeReborn");
         private UC_UnitMapper? Custom_Tab => GetTabByTag("Custom");
 
         private UC_UnitMapper? GetTabByTag(string tag)
@@ -1495,16 +1488,6 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
         {
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != BookmarksPlus_Tab)
                 ChangeUnitMappersTab(BookmarksPlus_Tab);
-        }
-        private bool IsRome2PathConfigured() => Path.GetFileName(Properties.Settings.Default.VAR_rome2_path ?? string.Empty).Equals("Rome2.exe", StringComparison.OrdinalIgnoreCase) && File.Exists(Properties.Settings.Default.VAR_rome2_path);
-
-        private void Btn_Rome2Tab_Click(object sender, EventArgs e)
-        {
-            if (!IsRome2PathConfigured()) return;
-            var bronzeAgeTab = BronzeAge_Tab;
-            if (bronzeAgeTab == null) return; // Tag absent from the mappers; nothing to switch to
-            if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != bronzeAgeTab)
-                ChangeUnitMappersTab(bronzeAgeTab);
         }
 
         private void Btn_CustomTab_Click(object sender, EventArgs e)
@@ -1543,8 +1526,6 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             }
 
 
-            Btn_Rome2Tab.FlatAppearance.BorderSize = 1;
-            Btn_Rome2Tab.FlatAppearance.BorderColor = Color.Black;
 
             // Highlight active button
             // The button paired with the selected tab (same index in both lists)
@@ -1703,8 +1684,7 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                 "RealmsInExile" => Btn_LOTRTab,
                 "AGOT" => Btn_AGOTTab,
                 "BookmarksPlus" => Btn_BookmarksPlusTab,
-                "BronzeAgeReborn" => Btn_Rome2Tab,
-                "Custom" => Btn_CustomTab,
+"Custom" => Btn_CustomTab,
                 _ => null,
             };
         }
