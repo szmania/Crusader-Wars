@@ -80,7 +80,7 @@ string unitMappersDir = Path.Combine(UnitMappers_BETA.UnitMappersRootDir, UnitMa
                                               if (File.Exists(tagFile))
                                               {
                                                   string tag = File.ReadAllText(tagFile).Trim();
-                                                  if (tag.StartsWith("Custom", StringComparison.OrdinalIgnoreCase))
+if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                                                   {
                                                       return tag;
                                                   }

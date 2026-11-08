@@ -513,25 +513,35 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
         }
 
         /// <summary>
-        /// Scans unit_mappers\attila for mapper folders and returns one <see cref="PlaythroughInfo"/>
-        /// per distinct playthrough tag (multiple era folders sharing a tag collapse into one entry,
-        /// keeping the folder with the earliest StartDate for ordering). Custom_* folders are
-        /// excluded — they feed the Custom tab dropdown, not their own tabs. Folders without a
-        /// tag.txt are skipped. Non-numeric StartDate (e.g. "DEFAULT") is treated as year 0.
+        /// Returns all mapper folders across both game subdirectories (attila/ and rome_2/).
+        /// Discovery and asset lookups use this so a playthrough living in either game's folder
+        /// is found regardless of the active game type.
+        /// </summary>
+        private static List<string> GetAllMapperDirectories()
+        {
+            var dirs = new List<string>();
+            foreach (var subDir in new[] { "attila", "rome_2" })
+            {
+                string subDirPath = Path.Combine(UnitMappersRootDir, subDir);
+                if (Directory.Exists(subDirPath))
+                    dirs.AddRange(Directory.GetDirectories(subDirPath));
+            }
+            return dirs;
+        }
+
+        /// <summary>
+        /// Scans the game subdirectories (unit_mappers\attila and unit_mappers\rome_2) for mapper
+        /// folders and returns one <see cref="PlaythroughInfo"/> per distinct playthrough tag
+        /// (multiple era folders sharing a tag collapse into one entry, keeping the folder with the
+        /// earliest StartDate for ordering). Custom and Custom_* folders are excluded — they feed the
+        /// Custom tab dropdown, not their own tabs. Folders without a tag.txt are skipped.
+        /// Non-numeric StartDate (e.g. "DEFAULT") is treated as year 0.
         /// </summary>
         public static List<PlaythroughInfo> GetAllPlaythroughInfos()
         {
             var byTag = new Dictionary<string, PlaythroughInfo>(StringComparer.OrdinalIgnoreCase);
 
-            // Scan both game subdirectories (attila/ and rome_2/) so playthroughs that live
-            // only in one game's folder (e.g. BronzeAgeReborn in rome_2/) are still discovered.
-            var allMapperDirs = new List<string>();
-            foreach (var subDir in new[] { "attila", "rome_2" })
-            {
-                string subDirPath = Path.Combine(UnitMappersRootDir, subDir);
-                if (Directory.Exists(subDirPath))
-                    allMapperDirs.AddRange(Directory.GetDirectories(subDirPath));
-            }
+            var allMapperDirs = GetAllMapperDirectories();
 
             foreach (var mapper in allMapperDirs)
             {
@@ -550,8 +560,10 @@ private static Dictionary<string, (string X, string Y, List<string>? orientation
                 }
                 if (string.IsNullOrEmpty(tag)) continue;
 
-                // Custom_* folders are not their own playthroughs; they populate the Custom dropdown.
-                if (tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)) continue;
+                // Custom and Custom_* folders are not their own playthroughs; they populate the
+                // Custom tab's dropdown instead of getting a dedicated tab.
+                if (tag.Equals("Custom", StringComparison.OrdinalIgnoreCase) ||
+                    tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase)) continue;
 
                 var info = ReadPlaythroughInfoFromFolder(mapper, tag);
 
@@ -599,9 +611,11 @@ return byTag.Values.ToList();
             System.Diagnostics.Debug.Assert(tags.Count == tags.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
                 "GetAllPlaythroughInfos must return at most one PlaythroughInfo per tag.");
 
-            // Custom must never appear as a discovered playthrough (the UI appends the Custom tab last).
-            System.Diagnostics.Debug.Assert(!infos.Any(i => i.Tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)),
-                "GetAllPlaythroughInfos must exclude Custom.");
+            // Custom and Custom_* must never appear as discovered playthroughs (the UI appends the
+            // Custom tab last, and Custom_* tags populate its dropdown).
+            System.Diagnostics.Debug.Assert(!infos.Any(i => i.Tag.Equals("Custom", StringComparison.OrdinalIgnoreCase)
+                || i.Tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase)),
+                "GetAllPlaythroughInfos must exclude Custom and Custom_*.");
 
             // Non-numeric/absent StartDate must clamp to 0 so it sorts before dated playthroughs.
             System.Diagnostics.Debug.Assert(infos.All(i => i.StartYear >= 0),
@@ -781,7 +795,7 @@ return byTag.Values.ToList();
             string tagToFind = tag == "Custom" ? ModOptions.GetSelectedCustomMapper() : tag;
             if (string.IsNullOrEmpty(tagToFind)) return null;
 
-            foreach (var mapper in GetMapperDirectories())
+            foreach (var mapper in GetAllMapperDirectories())
             {
                 string tagFile = Path.Combine(mapper, "tag.txt");
                 if (File.Exists(tagFile) && File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
@@ -863,7 +877,7 @@ return byTag.Values.ToList();
             // Priority 2: scan mapper folders for a tag + time-period match (covers the first-battle
             // ordering gap where LoadedUnitMapper_FolderPath is not yet set). Last match wins.
             string? result = null;
-            foreach (var mapper in GetMapperDirectories())
+            foreach (var mapper in GetAllMapperDirectories())
             {
                 string tagFile = Path.Combine(mapper, "tag.txt");
                 if (!File.Exists(tagFile) ||
