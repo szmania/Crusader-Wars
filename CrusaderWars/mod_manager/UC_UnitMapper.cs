@@ -468,7 +468,7 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                     statusLabel.Text = update;
                 });
 
-                var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(RequiredModsList, progress));
+                var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(RequiredModsList, progress, _gameType));
 
                 // 1. Check for missing files (highest priority)
                 if (verificationResult.MissingFiles.Any())
@@ -727,7 +727,7 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
 
                 try
                 {
-                    var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(RequiredModsList, progress));
+                    var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(RequiredModsList, progress, _gameType));
 
                     // 1. Check for missing files
                     if (verificationResult.MissingFiles.Any())
@@ -872,7 +872,7 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
 
                     try
                     {
-                        var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToValidate, progress));
+                        var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToValidate, progress, _gameType));
 
                         if (verificationResult.MissingFiles.Any())
                         {

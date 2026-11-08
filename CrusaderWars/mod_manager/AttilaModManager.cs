@@ -12,6 +12,7 @@ using System.Xml;
 using System.Runtime.Versioning;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using CrusaderWars.games;
 using CrusaderWars.unit_mapper;
 
 namespace CrusaderWars.mod_manager
@@ -152,43 +153,40 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        public static string? GetWorkshopFolderPath()
+        public static string? GetWorkshopFolderPath(string gameType = "Attila")
         {
-            string attilaPath = Properties.Settings.Default.VAR_attila_path;
-            if (string.IsNullOrEmpty(attilaPath) || !System.IO.File.Exists(attilaPath))
-            {
+            var gameService = games.GameServiceFactory.GetGameService(gameType);
+            string gamePath = gameService.GetGamePath();
+            if (string.IsNullOrEmpty(gamePath) || !System.IO.File.Exists(gamePath))
                 return null;
-            }
 
-            DirectoryInfo? dirInfo = new DirectoryInfo(Path.GetDirectoryName(attilaPath)!);
+            DirectoryInfo? dirInfo = new DirectoryInfo(Path.GetDirectoryName(gamePath)!);
 
             // Search upwards for the "steamapps" folder
             while (dirInfo != null && dirInfo.Name.ToLower() != "steamapps")
-            {
                 dirInfo = dirInfo.Parent;
-            }
 
             // If "steamapps" was found, construct the workshop path
             if (dirInfo != null)
-            {
-                return Path.Combine(dirInfo.FullName, "workshop", "content", "325610");
-            }
+                return Path.Combine(dirInfo.FullName, "workshop", "content", gameService.GetSteamAppId());
 
             return null; // "steamapps" not found
         }
 
         [SupportedOSPlatform("windows")]
-        public static void CreateUserModsFile()
+        public static void CreateUserModsFile(string gameType = "Attila")
         {
-            Program.Logger.Debug("Creating user mods file for Attila...");
-            // CREATE ESSENTIAL FILE TO OPEN ATTILA AUTOMATICALLY
-            string steam_app_id_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "steam_appid.txt");
+            var gameService = games.GameServiceFactory.GetGameService(gameType);
+            Program.Logger.Debug($"Creating user mods file for {gameType}...");
+            // CREATE ESSENTIAL FILE TO OPEN THE GAME AUTOMATICALLY
+            string gamePath = gameService.GetGamePath();
+            string steam_app_id_path = gamePath.Replace(gameService.GetExecutableName(), "steam_appid.txt");
             if (!File.Exists(steam_app_id_path))
             {
-                File.WriteAllText(steam_app_id_path, "325610");
+                File.WriteAllText(steam_app_id_path, gameService.GetSteamAppId());
             }
 
-            string userMods_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", "used_mods_cc.txt");
+            string userMods_path = gamePath.Replace(gameService.GetExecutableName(), gameService.GetModActivationFileName());
 
             // Clear existing content
             File.WriteAllText(userMods_path, "");
@@ -264,11 +262,12 @@ namespace CrusaderWars.mod_manager
             }
         }
         [SupportedOSPlatform("windows")]
-        public static void ReadInstalledMods()
+        public static void ReadInstalledMods(string gameType = "Attila")
         {
-            Program.Logger.Debug("Reading installed Attila mods...");
-            string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
-            string? workshop_folder_path = GetWorkshopFolderPath();
+            var gameService = games.GameServiceFactory.GetGameService(gameType);
+            Program.Logger.Debug($"Reading installed {gameType} mods...");
+            string data_folder_path = gameService.GetModDataPath();
+            string? workshop_folder_path = GetWorkshopFolderPath(gameType);
 
             ModsPaths = new List<Mod>();
             //Read data folder
@@ -278,29 +277,8 @@ namespace CrusaderWars.mod_manager
                 var fileName = Path.GetFileName(file);
                 if (Path.GetExtension(fileName) == ".pack")
                 {
-                    // Skip Attila Packs
-                    if (fileName == "belisarius.pack" ||
-                       fileName == "boot.pack" ||
-                       fileName == "charlemagne.pack" ||
-                       fileName == "data.pack" ||
-                       fileName == "local_en.pack" ||
-                       fileName == "local_en_shared_rome2.pack" ||
-                       fileName == "models.pack" ||
-                       fileName == "models1.pack" ||
-                       fileName == "models2.pack" ||
-                       fileName == "models3.pack" ||
-                       fileName == "movies.pack" ||
-                       fileName == "music.pack" ||
-                       fileName == "music_en_shared_rome2.pack" ||
-                       fileName == "slavs.pack" ||
-                       fileName == "sound.pack" ||
-                       fileName == "terrain.pack" ||
-                       fileName == "terrain2.pack" ||
-                       fileName == "tiles.pack" ||
-                       fileName == "tiles2.pack" ||
-                       fileName == "tiles3.pack" ||
-                       fileName == "tiles4.pack" ||
-                       fileName == "blood.pack")
+                    // Skip vanilla game packs (base + DLC) — never shown as optional mods
+                    if (IsBaseGamePack(fileName, gameType))
                     {
                         continue;
                     }
@@ -354,9 +332,9 @@ namespace CrusaderWars.mod_manager
         }
 
         [SupportedOSPlatform("windows")]
-        public static void ReadInstalledModsAndPopulateModManager()
+        public static void ReadInstalledModsAndPopulateModManager(string gameType = "Attila")
         {
-            ReadInstalledMods();
+            ReadInstalledMods(gameType);
 
             //  SET AT MOD MANAGER
             Bitmap? steamImg = LoadBitmapWithReducedSize(@".\data\mod manager\steamlogo.png");
@@ -473,6 +451,36 @@ namespace CrusaderWars.mod_manager
             }
         }
 
+        // Base (vanilla) game pack files that must never appear in the mod manager list.
+        // The two games ship different packs, so the list is selected by game type.
+        private static readonly HashSet<string> AttilaBaseGamePacks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "belisarius.pack", "boot.pack", "charlemagne.pack", "data.pack",
+            "local_en.pack", "local_en_shared_rome2.pack", "models.pack", "models1.pack",
+            "models2.pack", "models3.pack", "movies.pack", "music.pack",
+            "music_en_shared_rome2.pack", "slavs.pack", "sound.pack", "terrain.pack",
+            "terrain2.pack", "tiles.pack", "tiles2.pack", "tiles3.pack",
+            "tiles4.pack", "blood.pack"
+        };
+
+        // Rome 2 base packs share the Warscape naming conventions (data_rome2.pack, etc.).
+        // ponytail: contains the well-known base/DLC packs; any missed pack still just shows
+        // up in the optional list, it is never auto-enabled.
+        private static readonly HashSet<string> Rome2BaseGamePacks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "boot.pack", "data_rome2.pack", "models_rome2.pack", "models2_rome2.pack",
+            "models3_rome2.pack", "terrain_rome2.pack", "tiles_rome2.pack", "tiles2_rome2.pack",
+            "tiles3_rome2.pack", "local_en.pack", "local_en_shared_rome2.pack",
+            "music_en_shared_rome2.pack", "movies.pack", "music.pack", "sound.pack", "blood.pack"
+        };
+
+        private static bool IsBaseGamePack(string fileName, string gameType)
+        {
+            return gameType == "Rome2"
+                ? Rome2BaseGamePacks.Contains(fileName)
+                : AttilaBaseGamePacks.Contains(fileName);
+        }
+
         public static string CalculateSHA256(string filePath)
         {
             using (var sha256 = SHA256.Create())
@@ -486,7 +494,7 @@ namespace CrusaderWars.mod_manager
         }
 
         [SupportedOSPlatform("windows")]
-        public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress)
+        public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress, string gameType = "Attila")
         {
             Program.Logger.Debug("Verifying mod files...");
             var result = new VerificationResult();
@@ -507,8 +515,9 @@ namespace CrusaderWars.mod_manager
             Program.Logger.Debug($"Mods to verify: {string.Join(", ", modStates.Keys)}");
 
             // Verify data folder (priority location)
-            string data_folder_path = Properties.Settings.Default.VAR_attila_path.Replace("Attila.exe", @"data\");
-            Program.Logger.Debug($"Checking Attila data folder: {data_folder_path}");
+            var gameService = games.GameServiceFactory.GetGameService(gameType);
+            string data_folder_path = gameService.GetModDataPath();
+            Program.Logger.Debug($"Checking {gameType} data folder: {data_folder_path}");
             if (Directory.Exists(data_folder_path))
             {
                 var dataModsPaths = Directory.GetFiles(data_folder_path);
@@ -557,13 +566,13 @@ namespace CrusaderWars.mod_manager
             }
             else
             {
-                MessageBox.Show("Error reading Attila data folder. This is caused by wrong Attila path.", "Crusader Conflicts: Game Paths Error",
+                MessageBox.Show($"Error reading {gameType} data folder. This is caused by wrong {gameType} path.", "Crusader Conflicts: Game Paths Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
             }
 
             // Verify workshop folder (only for mods not yet matched)
-            string? workshop_folder_path = AttilaModManager.GetWorkshopFolderPath();
-            Program.Logger.Debug($"Checking Attila workshop folder: {workshop_folder_path}");
+            string? workshop_folder_path = GetWorkshopFolderPath(gameType);
+            Program.Logger.Debug($"Checking {gameType} workshop folder: {workshop_folder_path}");
             if (Directory.Exists(workshop_folder_path))
             {
                 var steamModsFoldersPaths = Directory.GetDirectories(workshop_folder_path);

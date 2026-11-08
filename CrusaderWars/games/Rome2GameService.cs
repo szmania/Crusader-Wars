@@ -65,9 +65,11 @@ public override string GetGameType() => "Rome2";
 
         public override string GetModActivationFileName() => "used_mods_cc.txt";
 
+        public override string GetSteamAppId() => "214950";
+
         public override string GetShortcutArguments() => "used_mods_cc.txt";
 
-        protected override string GetGamePath() => client.ModOptions.GetGamePath("Rome2");
+        public override string GetGamePath() => client.ModOptions.GetGamePath("Rome2");
     
     }
 }

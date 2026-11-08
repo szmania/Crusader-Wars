@@ -16,6 +16,7 @@ namespace CrusaderWars.games
         public abstract string GetModDataPath();
         public abstract string GetWorkshopPath();
         public abstract string GetModActivationFileName();
+        public abstract string GetSteamAppId();
 public abstract string GetShortcutArguments();
         public abstract string GetBattleFilesPath();
         public abstract string GetScriptPath();
@@ -98,7 +99,8 @@ public abstract string GetShortcutArguments();
             return fileName == expectedExe || fileName == $"{expectedExe}.exe";
         }
 
-        // Protected helper method to get the game path from ModOptions
-        protected abstract string GetGamePath();
+        // Helper method to get the game path from ModOptions
+        // public so game-agnostic consumers (e.g. the mod manager) can resolve paths per game type.
+        public abstract string GetGamePath();
     }
 }

@@ -1032,7 +1032,7 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
                     VerificationResult verificationResult;
                     try
                     {
-                        verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToVerify, progress));
+                        verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(modsToVerify, progress, _gameType == "attila" ? "Attila" : _gameType));
                     }
                     finally
                     {
@@ -2310,12 +2310,12 @@ private void CreateGameShortcut()
                                 DataSearch.Search(log);
 
                                 Program.Logger.Debug("Reading installed Attila mods...");
-                                AttilaModManager.ReadInstalledMods();
+                                AttilaModManager.ReadInstalledMods(games.GameServiceFactory.ResolveGameTypeFromPlaythrough(UnitMappers_BETA.ActivePlaythroughTag ?? ""));
                                 Program.Logger.Debug("Setting playthrough...");
                                 SetPlaythrough();
                                 UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString(_gameType));
                                 Program.Logger.Debug("Creating user mods file for Attila...");
-                                AttilaModManager.CreateUserModsFile();
+                                AttilaModManager.CreateUserModsFile(games.GameServiceFactory.ResolveGameTypeFromPlaythrough(UnitMappers_BETA.ActivePlaythroughTag ?? ""));
                             }
                         }
                         catch (Exception ex)
@@ -2681,9 +2681,9 @@ private void CreateGameShortcut()
                 Program.Logger.Debug("Re-loading army data for continued battle.");
 
                 // Re-initialize mod and unit mapper context
-                AttilaModManager.ReadInstalledMods();
+                AttilaModManager.ReadInstalledMods(_gameType == "attila" ? "Attila" : _gameType);
                 SetPlaythrough();
-                AttilaModManager.CreateUserModsFile();
+                AttilaModManager.CreateUserModsFile(_gameType == "attila" ? "Attila" : _gameType);
 
                 DataSearch.FindSiegeCombatID();
                 if (!twbattle.BattleState.IsSiegeBattle)
