@@ -33,6 +33,32 @@ namespace CrusaderWars.mod_manager
 
         public string GetPlaythroughTag() { return _playthroughTag; }
 
+        /// <summary>
+        /// Resolves the display title for this playthrough tab: hardcoded screen names for the
+        /// legacy tags (mirroring the fallbacks in HomePage.GetFriendlyPlaythroughName), the
+        /// selected custom mapper for the Custom tab, and the mapper's Mods.xml screen name
+        /// for dynamic playthroughs.
+        /// </summary>
+        private string ResolvePlaythroughTitle()
+        {
+            switch (_playthroughTag)
+            {
+                case "DefaultCK3": return "Crusader Kings";
+                case "TheFallenEagle": return "The Fallen Eagle";
+                case "RealmsInExile": return "Realms in Exile (LOTR)";
+                case "AGOT": return "A Game of Thrones (AGOT)";
+                case "BookmarksPlus": return "Bookmarks+ (pre-768)";
+                case "Custom":
+                    string customMapper = client.ModOptions.GetSelectedCustomMapper();
+                    return string.IsNullOrEmpty(customMapper) ? "Custom" : customMapper;
+                default:
+                    var info = UnitMappers_BETA.GetPlaythroughInfoByTag(_playthroughTag);
+                    if (!string.IsNullOrEmpty(info?.ScreenNameShort)) return info.ScreenNameShort!;
+                    if (!string.IsNullOrEmpty(info?.ScreenName)) return info.ScreenName!;
+                    return _playthroughTag;
+            }
+        }
+
         public UC_UnitMapper(Bitmap image, string steamCollectionLink, List<(string FileName, string Sha256, string? ScreenName, string? Url)> requiredMods, bool state, string playthroughTag, List<Submod> submods, string gameType) // Add gameType
         {
             InitializeComponent();
@@ -51,9 +77,11 @@ namespace CrusaderWars.mod_manager
             _playthroughTag = playthroughTag;
             _gameType = gameType; // Store it
             Tag = playthroughTag; // Needed by Options.PlaythroughToggle_Clicked
+            playthroughTitleLabel.Text = ResolvePlaythroughTitle();
             _availableSubmods = submods;
 
             BtnSubmods.Visible = _availableSubmods != null && _availableSubmods.Any();
+
 
             if (_playthroughTag == "Custom")
             {
@@ -138,11 +166,13 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                 this._availableSubmods.Clear();
                 BtnSubmods.Visible = false;
                 client.ModOptions.SelectedCustomMapper = "";
+                playthroughTitleLabel.Text = ResolvePlaythroughTitle();
                 return;
             }
 
             // 1. Update the static ModOptions
             client.ModOptions.SelectedCustomMapper = selectedMapper;
+            playthroughTitleLabel.Text = ResolvePlaythroughTitle();
 
             // 2. Persist the selection immediately for the main window
             try

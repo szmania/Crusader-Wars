@@ -35,6 +35,7 @@ namespace CrusaderWars.mod_manager
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.uC_Toggle1 = new CrusaderWars.client.UC_Toggle();
             this.BtnSubmods = new System.Windows.Forms.Button();
+            this.playthroughTitleLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -49,6 +50,7 @@ namespace CrusaderWars.mod_manager
             // 
             // button1
             // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
             this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.button1.FlatAppearance.BorderSize = 0;
@@ -93,6 +95,7 @@ namespace CrusaderWars.mod_manager
             // 
             // BtnSubmods
             // 
+            this.BtnSubmods.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnSubmods.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
             this.BtnSubmods.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnSubmods.FlatAppearance.BorderSize = 0;
@@ -113,6 +116,7 @@ namespace CrusaderWars.mod_manager
             // customMapperLabel
             // 
             this.customMapperLabel = new System.Windows.Forms.Label();
+            this.customMapperLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.customMapperLabel.AutoSize = true;
             this.customMapperLabel.Font = new System.Drawing.Font("Paradox King Script", 9.75F);
             this.customMapperLabel.ForeColor = System.Drawing.Color.White;
@@ -126,6 +130,7 @@ namespace CrusaderWars.mod_manager
             // customMapperComboBox
             // 
             this.customMapperComboBox = new System.Windows.Forms.ComboBox();
+            this.customMapperComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.customMapperComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.customMapperComboBox.FormattingEnabled = true;
             this.customMapperComboBox.Location = new System.Drawing.Point(380, 30);
@@ -133,6 +138,20 @@ namespace CrusaderWars.mod_manager
             this.customMapperComboBox.Size = new System.Drawing.Size(160, 21);
             this.customMapperComboBox.TabIndex = 6;
             this.customMapperComboBox.Visible = false;
+            // 
+            // playthroughTitleLabel
+            // 
+            this.playthroughTitleLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.playthroughTitleLabel.AutoSize = false;
+            this.playthroughTitleLabel.BackColor = System.Drawing.Color.Transparent;
+            this.playthroughTitleLabel.Font = new System.Drawing.Font("Paradox King Script", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.playthroughTitleLabel.ForeColor = System.Drawing.Color.White;
+            this.playthroughTitleLabel.Location = new System.Drawing.Point(0, 8);
+            this.playthroughTitleLabel.Name = "playthroughTitleLabel";
+            this.playthroughTitleLabel.Size = new System.Drawing.Size(890, 30);
+            this.playthroughTitleLabel.TabIndex = 7;
+            this.playthroughTitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // UC_UnitMapper
             // 
@@ -145,8 +164,9 @@ namespace CrusaderWars.mod_manager
             this.Controls.Add(this.uC_Toggle1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.BtnVerifyMods);
+            this.Controls.Add(this.playthroughTitleLabel);
             this.Name = "UC_UnitMapper";
-            this.Size = new System.Drawing.Size(580, 185);
+            this.Size = new System.Drawing.Size(890, 185);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.UC_UnitMapper_Paint);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
@@ -162,6 +182,7 @@ namespace CrusaderWars.mod_manager
         private System.Windows.Forms.Button BtnVerifyMods;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button BtnSubmods;
+        private System.Windows.Forms.Label playthroughTitleLabel;
         internal System.Windows.Forms.Label customMapperLabel;
         internal System.Windows.Forms.ComboBox customMapperComboBox;
     }
