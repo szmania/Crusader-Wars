@@ -498,7 +498,7 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                     statusLabel.Text = update;
                 });
 
-                var verificationResult = await Task.Run(() => AttilaModManager.VerifyModFiles(RequiredModsList, progress, _gameType));
+                var verificationResult = await VerifyAllErasBothGamesAsync(progress, "Validating mod files...");
 
                 // 1. Check for missing files (highest priority)
                 if (verificationResult.MissingFiles.Any())
@@ -721,6 +721,66 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
         }
 
         [SupportedOSPlatform("windows")]
+        private async Task<VerificationResult> VerifyAllErasBothGamesAsync(
+            IProgress<string> progress, string initialStatus)
+        {
+            // 5.15.7 (D3): verify the tag's required mods for ALL eras in BOTH games, not just
+            // the currently loaded era. A mid-campaign era switch can otherwise crash on stale
+            // mods the active era never referenced. Per game: collect, dedupe by
+            // (FileName, Sha256), then one VerifyModFiles call (paths are game-specific).
+            var combined = new VerificationResult();
+
+            foreach (var game in new[] { "Attila", "Rome2" })
+            {
+                // Games whose exe path is not configured are skipped: verification needs the
+                // game's data/workshop folders to exist (5.15.7 rule 4).
+                if (!games.GameServiceFactory.GetGameService(game)
+                        .ValidatePath(games.GameServiceFactory.GetGameService(game).GetGamePath()))
+                {
+                    Program.Logger.Debug(
+                        $"Mapper verification skipped for game '{game}': executable path not configured.");
+                    continue;
+                }
+
+                // A tag with no folder in this game's dir has no mods to verify here.
+                var collection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(_playthroughTag, game);
+                var mods = collection.requiredMods
+                    .Select(m => (m.FileName, m.Sha256, m.ScreenName, m.Url))
+                    .Where(m => !string.IsNullOrEmpty(m.FileName))
+                    .GroupBy(m => (m.FileName, m.Sha256))
+                    .Select(g => g.First())
+                    .ToList();
+                if (!mods.Any()) continue;
+
+                // Prefix progress so the user can tell which game a pack belongs to (5.15.7 rule 5).
+                string gamePrefix = game == "Rome2" ? "[TW: Rome 2] " : "[TW: Attila] ";
+                var gameProgress = new Progress<string>(msg => progress.Report(gamePrefix + msg));
+
+                statusLabelDelegate?.Invoke(gamePrefix + initialStatus);
+                var result = await Task.Run(() =>
+                    AttilaModManager.VerifyModFiles(mods, gameProgress, game));
+
+                combined.MissingFiles.AddRange(result.MissingFiles);
+                combined.MismatchedFiles.AddRange(result.MismatchedFiles);
+            }
+
+            // Dedupe across games: the same pack can be required by both games' eras.
+            // MissingFiles/MismatchedFiles are read-only (get-only) properties, so dedupe in place.
+            var uniqueMissing = combined.MissingFiles.Distinct().ToList();
+            combined.MissingFiles.Clear();
+            combined.MissingFiles.AddRange(uniqueMissing);
+
+            var uniqueMismatched = combined.MismatchedFiles.Distinct().ToList();
+            combined.MismatchedFiles.Clear();
+            combined.MismatchedFiles.AddRange(uniqueMismatched);
+
+            return combined;
+        }
+
+        // Optional status-label reporter injected by callers that own a status form; keeps this
+        // helper independent of each button's modal state form.
+        private Action<string>? statusLabelDelegate;
+
         private async void BtnVerifyMods_Click(object sender, EventArgs e)
         {
             if (RequiredModsList != null)
