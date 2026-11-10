@@ -1042,9 +1042,9 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
                     if (verificationResult.MissingFiles.Any())
                     {
                         allErrors.Add("Missing required mod files:");
-                        foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                        foreach (var (fileName, screenName, url, game) in verificationResult.MissingFiles)
                         {
-                            allErrors.Add($"  - {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}" + (!string.IsNullOrEmpty(url) ? $" -> {url}" : ""));
+                            allErrors.Add($"  - {AttilaModManager.GetGameLabel(game)} {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}" + (!string.IsNullOrEmpty(url) ? $" -> {url}" : ""));
                         }
                     }
                     if (verificationResult.MismatchedFiles.Any())
@@ -2309,13 +2309,13 @@ private void CreateGameShortcut()
                                 Program.Logger.Debug("Searching log data...");
                                 DataSearch.Search(log);
 
-                                Program.Logger.Debug("Reading installed Attila mods...");
-                                AttilaModManager.ReadInstalledMods(games.GameServiceFactory.ResolveGameTypeFromPlaythrough(UnitMappers_BETA.ActivePlaythroughTag ?? ""));
                                 Program.Logger.Debug("Setting playthrough...");
-                                SetPlaythrough();
+                                SetPlaythrough(); // sets _gameType from ResolvedBattleGameType (5.15.4)
+                                Program.Logger.Debug($"Reading installed mods for game type: {_gameType}...");
+                                AttilaModManager.ReadInstalledMods(_gameType == "attila" ? "Attila" : _gameType);
                                 UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString(_gameType));
-                                Program.Logger.Debug("Creating user mods file for Attila...");
-                                AttilaModManager.CreateUserModsFile(games.GameServiceFactory.ResolveGameTypeFromPlaythrough(UnitMappers_BETA.ActivePlaythroughTag ?? ""));
+                                Program.Logger.Debug($"Creating user mods file for game type: {_gameType}...");
+                                AttilaModManager.CreateUserModsFile(_gameType == "attila" ? "Attila" : _gameType);
                             }
                         }
                         catch (Exception ex)
@@ -2680,10 +2680,13 @@ private void CreateGameShortcut()
             {
                 Program.Logger.Debug("Re-loading army data for continued battle.");
 
-                // Re-initialize mod and unit mapper context
+                // Re-initialize mod and unit mapper context. Order matters: SetPlaythrough
+                // resolves the battle game type (5.15.4) before either mod-manager call, so
+                // both operate on the same game.
+                SetPlaythrough(); // sets _gameType from ResolvedBattleGameType
                 AttilaModManager.ReadInstalledMods(_gameType == "attila" ? "Attila" : _gameType);
-                SetPlaythrough();
                 AttilaModManager.CreateUserModsFile(_gameType == "attila" ? "Attila" : _gameType);
+                Program.Logger.Debug($"Continued battle using game type: {_gameType}");
 
                 DataSearch.FindSiegeCombatID();
                 if (!twbattle.BattleState.IsSiegeBattle)
@@ -2977,7 +2980,13 @@ private void CreateGameShortcut()
                 }
             }
             var activeSubmods = mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(tagName);
-            AttilaModManager.SetLoadingRequiredMods(UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(tagName, activeSubmods, _gameType));
+            // 5.15.4: game type is resolved per battle inside GetUnitMapperModFromTagAndTimePeriod
+            // (tag + Date.Year + MapperSelections). Adopt the resolved type afterwards; the
+            // tag-level fallback above stays as the pre-battle guess for UI contexts.
+            var requiredMods = UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(tagName, activeSubmods);
+            _gameType = UnitMappers_BETA.ResolvedBattleGameType;
+            Program.Logger.Debug($"Battle game type resolved: {_gameType}");
+            AttilaModManager.SetLoadingRequiredMods(requiredMods);
         }
 
 
@@ -3959,7 +3968,8 @@ public async static Task CloseTotalWarProcess()
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
                 var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(selectedPlaythrough);
-                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods, _gameType);
+                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods);
+                _gameType = UnitMappers_BETA.ResolvedBattleGameType;
 
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {
@@ -4106,7 +4116,8 @@ public async static Task CloseTotalWarProcess()
 
                 UnitMappers_BETA.ClearFactionCache(); // Clear any old data
                 var activeSubmods = SubmodManager.GetActiveSubmodsForPlaythrough(selectedPlaythrough);
-                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods, _gameType);
+                UnitMappers_BETA.GetUnitMapperModFromTagAndTimePeriod(selectedPlaythrough, activeSubmods);
+                _gameType = UnitMappers_BETA.ResolvedBattleGameType;
 
                 if (string.IsNullOrEmpty(UnitMappers_BETA.GetLoadedUnitMapperName()))
                 {

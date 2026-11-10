@@ -61,7 +61,7 @@ namespace CrusaderWars.mod_manager
 
     public class VerificationResult
     {
-        public List<(string FileName, string? ScreenName, string? Url)> MissingFiles { get; } = new List<(string, string?, string?)>();
+        public List<(string FileName, string? ScreenName, string? Url, string Game)> MissingFiles { get; } = new List<(string, string?, string?, string)>();
         public List<(string FileName, string ExpectedSha, string? ScreenName, string? Url)> MismatchedFiles { get; } = new List<(string, string, string?, string?)>();
     }
 
@@ -494,6 +494,13 @@ namespace CrusaderWars.mod_manager
         }
 
         [SupportedOSPlatform("windows")]
+        /// <summary>Display label for a game type, matching the progress-reporter prefixes
+        /// used by UC_UnitMapper.VerifyAllErasBothGamesAsync.</summary>
+        public static string GetGameLabel(string gameType)
+        {
+            return gameType == "Rome2" ? "[TW: Rome 2]" : "[TW: Attila]";
+        }
+
         public static VerificationResult VerifyModFiles(List<(string FileName, string Sha256, string? ScreenName, string? Url)> modsToVerifyList, IProgress<string>? progress, string gameType = "Attila")
         {
             Program.Logger.Debug("Verifying mod files...");
@@ -636,7 +643,7 @@ namespace CrusaderWars.mod_manager
                 if (!modState.Found)
                 {
                     // Mod not found in any location
-                    result.MissingFiles.Add((fileName, info.ScreenName, info.Url));
+                    result.MissingFiles.Add((fileName, info.ScreenName, info.Url, gameType));
                 }
                 else if (!modState.Matched)
                 {
