@@ -207,6 +207,7 @@
             this.label1.Font = new System.Drawing.Font("Yu Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
+            this.label1.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.label1.Size = new System.Drawing.Size(107, 21);
             this.label1.TabIndex = 16;
             this.label1.Text = "Playthroughs";
@@ -466,7 +467,9 @@
             this.UMpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.UMpanel.Location = new System.Drawing.Point(3, 64);
             this.UMpanel.Name = "UMpanel";
-            this.UMpanel.Size = new System.Drawing.Size(890, 185);
+            this.UMpanel.Size = new System.Drawing.Size(890, 225);
+this.UMpanel.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.UMpanel.Padding = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.UMpanel.TabIndex = 32;
             //
             // flowLayoutPanel2
@@ -480,6 +483,8 @@
             this.flowLayoutPanel2.Controls.Add(this.Btn_CustomTab);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 24);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.flowLayoutPanel2.Padding = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.flowLayoutPanel2.Size = new System.Drawing.Size(890, 34);
             this.flowLayoutPanel2.TabIndex = 33;
             this.flowLayoutPanel2.WrapContents = false;
@@ -662,7 +667,7 @@ this.TableLayoutGamePaths.ColumnCount = 3;
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TableLayoutPlaythroughs.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(896, 252);
+this.TableLayoutPlaythroughs.Size = new System.Drawing.Size(896, 330);
             this.TableLayoutPlaythroughs.TabIndex = 38;
             this.TableLayoutPlaythroughs.Paint += new System.Windows.Forms.PaintEventHandler(this.TableLayoutPlaythroughs_Paint);
             //
