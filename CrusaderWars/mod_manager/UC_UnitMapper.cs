@@ -30,6 +30,7 @@ namespace CrusaderWars.mod_manager
         private List<Submod> _availableSubmods = new List<Submod>();
         private readonly string _playthroughTag;
         private readonly string _gameType; // Add this
+        private bool _initializingGameSelection; // Guards SelectedIndexChanged during programmatic init
 
         public string GetPlaythroughTag() { return _playthroughTag; }
 
@@ -93,6 +94,118 @@ namespace CrusaderWars.mod_manager
                 customMapperComboBox.SelectedIndexChanged += CustomMapperComboBox_SelectedIndexChanged;
                 toolTip2.SetToolTip(customMapperComboBox, "Select a custom unit mapper. The values are from the 'tag.txt' file within each custom mapper folder, which must be prefixed with 'Custom'.");
             }
+
+            InitializeGameSelection();
+        }
+
+        /// <summary>
+        /// Shows the Attila/Rome2 preference dropdown only when mapper folders for this
+        /// playthrough tag exist in BOTH game subdirectories, and initializes it from
+        /// MapperSelectionsStore ("Auto" when no explicit selection is stored).
+        /// </summary>
+        private void InitializeGameSelection()
+        {
+            string tagToFind = _playthroughTag == "Custom" ? client.ModOptions.GetSelectedCustomMapper() : _playthroughTag;
+            bool bothGamesCoverTag = FindMapperFolderForTag("Attila", tagToFind) != null
+                                  && FindMapperFolderForTag("Rome2", tagToFind) != null;
+            if (!bothGamesCoverTag)
+            {
+                twGameLabel.Visible = false;
+                twGameComboBox.Visible = false;
+                return;
+            }
+
+            twGameComboBox.Items.Clear();
+            twGameComboBox.Items.AddRange(new object[] { "Auto", "Attila", "Rome2" });
+
+            _initializingGameSelection = true;
+            try
+            {
+                string selected = "Auto";
+                foreach (var (game, _) in MapperSelectionsStore.GetSelectionsForTag(_playthroughTag))
+                {
+                    if (game.Equals("Attila", StringComparison.OrdinalIgnoreCase) ||
+                        game.Equals("Rome2", StringComparison.OrdinalIgnoreCase))
+                    {
+                        selected = game.Equals("Rome2", StringComparison.OrdinalIgnoreCase) ? "Rome2" : "Attila";
+                        break;
+                    }
+                }
+                twGameComboBox.SelectedItem = selected;
+            }
+            finally
+            {
+                _initializingGameSelection = false;
+            }
+
+            twGameComboBox.SelectedIndexChanged -= GameSelectionComboBox_SelectedIndexChanged;
+            twGameComboBox.SelectedIndexChanged += GameSelectionComboBox_SelectedIndexChanged;
+
+            twGameLabel.Visible = true;
+            twGameComboBox.Visible = true;
+
+            toolTip2.SetToolTip(twGameLabel, "Preferred Total War game for this playthrough.");
+            toolTip2.SetToolTip(twGameComboBox,
+                "Choose which Total War game runs this playthrough when mapper folders exist for both games.\n" +
+                "'Auto' lets Crusader Conflicts decide (Attila is used when both games cover the same year).");
+        }
+
+        /// <summary>Returns the mapper folder name under the game's subdirectory whose tag.txt matches tagToFind, or null.</summary>
+        private static string? FindMapperFolderForTag(string game, string tagToFind)
+        {
+            if (string.IsNullOrEmpty(tagToFind)) return null;
+            foreach (var dir in UnitMappers_BETA.GetMapperDirectories(game))
+            {
+                string tagFile = Path.Combine(dir, "tag.txt");
+                if (File.Exists(tagFile) &&
+                    File.ReadAllText(tagFile).Trim().Equals(tagToFind, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Path.GetFileName(dir);
+                }
+            }
+            return null;
+        }
+
+        private void GameSelectionComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (_initializingGameSelection) return;
+            if (twGameComboBox.SelectedItem is not string choice) return;
+
+            string tagToFind = _playthroughTag == "Custom" ? client.ModOptions.GetSelectedCustomMapper() : _playthroughTag;
+
+            if (choice == "Auto")
+            {
+                // Clear any stored preference so battle-time resolution falls back to the default.
+                Program.Logger.Debug($"TW game preference for '{_playthroughTag}': Auto (clearing stored selections).");
+                foreach (string game in MapperSelectionsStore.SupportedGames)
+                {
+                    string? folder = FindMapperFolderForTag(game, tagToFind);
+                    if (folder != null) MapperSelectionsStore.RemoveSelection(_playthroughTag, game, folder);
+                }
+            }
+            else
+            {
+                string? folder = FindMapperFolderForTag(choice, tagToFind);
+                if (folder != null)
+                {
+                    MapperSelectionsStore.SetSelection(_playthroughTag, choice, folder);
+                    Program.Logger.Debug($"TW game preference for '{_playthroughTag}': {choice} (folder '{folder}').");
+                }
+                else
+                {
+                    Program.Logger.Debug($"TW game preference for '{_playthroughTag}': no {choice} mapper folder found for tag '{tagToFind}'.");
+                }
+
+                // Only one selection per tag: drop the other game's entry so the choice is unambiguous.
+                foreach (string game in MapperSelectionsStore.SupportedGames)
+                {
+                    if (game.Equals(choice, StringComparison.OrdinalIgnoreCase)) continue;
+                    string? otherFolder = FindMapperFolderForTag(game, tagToFind);
+                    if (otherFolder != null) MapperSelectionsStore.RemoveSelection(_playthroughTag, game, otherFolder);
+                }
+            }
+
+            MapperSelectionsStore.Flush();
         }
 
         private void PopulateCustomMappers()
@@ -167,6 +280,8 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                 BtnSubmods.Visible = false;
                 client.ModOptions.SelectedCustomMapper = "";
                 playthroughTitleLabel.Text = ResolvePlaythroughTitle();
+                twGameLabel.Visible = false;
+                twGameComboBox.Visible = false;
                 return;
             }
 
@@ -201,6 +316,10 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
 
             // 4. Update the UI
             BtnSubmods.Visible = this._availableSubmods.Any();
+
+            // 5. The custom mapper may live in a different game's folder set, so re-evaluate
+            // whether the Attila/Rome2 preference dropdown applies.
+            InitializeGameSelection();
         }
 
         public void SetPulsing(bool isPulsing)
