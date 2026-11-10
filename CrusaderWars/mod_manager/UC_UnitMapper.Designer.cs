@@ -155,32 +155,25 @@ this.customMapperComboBox.Location = new System.Drawing.Point(720, 30);
             this.playthroughTitleLabel.TabIndex = 7;
             this.playthroughTitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // twGameLabel
+            // BtnTwGame
             // 
-            this.twGameLabel = new System.Windows.Forms.Label();
-            this.twGameLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.twGameLabel.AutoSize = true;
-            this.twGameLabel.Font = new System.Drawing.Font("Paradox King Script", 9.75F);
-            this.twGameLabel.ForeColor = System.Drawing.Color.White;
-            this.twGameLabel.Location = new System.Drawing.Point(720, 136);
-            this.twGameLabel.Name = "twGameLabel";
-            this.twGameLabel.Size = new System.Drawing.Size(101, 16);
-            this.twGameLabel.TabIndex = 8;
-            this.twGameLabel.Text = "TW Game:";
-            this.twGameLabel.Visible = false;
-            // 
-            // twGameComboBox
-            // 
-            this.twGameComboBox = new System.Windows.Forms.ComboBox();
-            this.twGameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.twGameComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.twGameComboBox.FormattingEnabled = true;
-            this.twGameComboBox.Location = new System.Drawing.Point(720, 154);
-            this.twGameComboBox.Name = "twGameComboBox";
-            this.twGameComboBox.Size = new System.Drawing.Size(160, 21);
-            this.twGameComboBox.TabIndex = 9;
-            this.twGameComboBox.Visible = false;
-            this.toolTip1.SetToolTip(this.twGameComboBox, "When both Total War: Attila and Total War: Rome 2 have a mapper for this playthrough in the same time period, this chooses which game is used. 'Auto' prefers Attila.");
+            this.BtnTwGame = new System.Windows.Forms.Button();
+            this.BtnTwGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnTwGame.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(53)))), ((int)(((byte)(0)))));
+            this.BtnTwGame.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.BtnTwGame.FlatAppearance.BorderSize = 0;
+            this.BtnTwGame.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BtnTwGame.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnTwGame.ForeColor = System.Drawing.Color.White;
+            this.BtnTwGame.Location = new System.Drawing.Point(720, 154);
+            this.BtnTwGame.Name = "BtnTwGame";
+            this.BtnTwGame.Size = new System.Drawing.Size(160, 30);
+            this.BtnTwGame.TabIndex = 9;
+            this.BtnTwGame.Text = "TW GAME SELECTION";
+            this.toolTip1.SetToolTip(this.BtnTwGame, "Choose which Total War game runs this playthrough for each time period. Only shown when both Attila and Rome 2 have mappers for this playthrough.");
+            this.BtnTwGame.UseVisualStyleBackColor = true;
+            this.BtnTwGame.Visible = false;
+            this.BtnTwGame.Click += new System.EventHandler(this.BtnTwGame_Click);
             // 
             // UC_UnitMapper
             // 
@@ -194,10 +187,9 @@ this.customMapperComboBox.Location = new System.Drawing.Point(720, 30);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.BtnVerifyMods);
             this.Controls.Add(this.playthroughTitleLabel);
-            this.Controls.Add(this.twGameLabel);
-            this.Controls.Add(this.twGameComboBox);
+            this.Controls.Add(this.BtnTwGame);
             this.Name = "UC_UnitMapper";
-            this.Size = new System.Drawing.Size(890, 185);
+            this.Size = new System.Drawing.Size(890, 225);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.UC_UnitMapper_Paint);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
@@ -216,7 +208,6 @@ this.customMapperComboBox.Location = new System.Drawing.Point(720, 30);
         private System.Windows.Forms.Label playthroughTitleLabel;
         internal System.Windows.Forms.Label customMapperLabel;
         internal System.Windows.Forms.ComboBox customMapperComboBox;
-        internal System.Windows.Forms.Label twGameLabel;
-        internal System.Windows.Forms.ComboBox twGameComboBox;
+        internal System.Windows.Forms.Button BtnTwGame;
     }
 }
