@@ -505,9 +505,9 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                 {
                     var sb = new StringBuilder();
                     sb.Append("You are missing these required mods:\n");
-                    foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                    foreach (var (fileName, screenName, url, game) in verificationResult.MissingFiles)
                     {
-                        string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
+                        string line = $"- {AttilaModManager.GetGameLabel(game)} {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                         if (!string.IsNullOrEmpty(url))
                         {
                             line += $"\n  {url}";
@@ -824,9 +824,9 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                     {
                         var sb = new StringBuilder();
                         sb.Append("You are missing these mods:\n");
-                        foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                        foreach (var (fileName, screenName, url, game) in verificationResult.MissingFiles)
                         {
-                            string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
+                            string line = $"- {AttilaModManager.GetGameLabel(game)} {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                             if (!string.IsNullOrEmpty(url))
                             {
                                 line += $"\n  {url}";
@@ -968,9 +968,9 @@ if (tag.StartsWith("Custom_", StringComparison.OrdinalIgnoreCase))
                         {
                             var sb = new StringBuilder();
                             sb.Append("You are missing these required sub-mod files:\n");
-                            foreach (var (fileName, screenName, url) in verificationResult.MissingFiles)
+                            foreach (var (fileName, screenName, url, game) in verificationResult.MissingFiles)
                             {
-                                string line = $"- {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
+                                string line = $"- {AttilaModManager.GetGameLabel(game)} {(string.IsNullOrEmpty(screenName) ? fileName : $"{screenName} ({fileName})")}";
                                 if (!string.IsNullOrEmpty(url))
                                 {
                                     line += $"\n  {url}";

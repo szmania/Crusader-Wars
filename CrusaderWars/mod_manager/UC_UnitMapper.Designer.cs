@@ -57,7 +57,7 @@ namespace CrusaderWars.mod_manager
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(380, 60);
+this.button1.Location = new System.Drawing.Point(720, 60);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(160, 30);
             this.button1.TabIndex = 2;
@@ -87,10 +87,11 @@ namespace CrusaderWars.mod_manager
             // 
             this.uC_Toggle1.BackgroundImage = global::CrusaderWars.Properties.Resources.toggle_no;
             this.uC_Toggle1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.uC_Toggle1.Location = new System.Drawing.Point(183, 53);
+this.uC_Toggle1.Location = new System.Drawing.Point(405, 42);
             this.uC_Toggle1.Name = "uC_Toggle1";
             this.uC_Toggle1.Size = new System.Drawing.Size(80, 60);
-            this.uC_Toggle1.TabIndex = 1;
+this.uC_Toggle1.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.uC_Toggle1, "Enable or disable this playthrough. Only one playthrough can be active at a time.");
             this.uC_Toggle1.Click += new System.EventHandler(this.uC_Toggle1_Click);
             // 
             // BtnSubmods
@@ -102,7 +103,7 @@ namespace CrusaderWars.mod_manager
             this.BtnSubmods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnSubmods.Font = new System.Drawing.Font("Paradox King Script", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnSubmods.ForeColor = System.Drawing.Color.White;
-            this.BtnSubmods.Location = new System.Drawing.Point(380, 100);
+this.BtnSubmods.Location = new System.Drawing.Point(720, 100);
             this.BtnSubmods.Name = "BtnSubmods";
             this.BtnSubmods.Size = new System.Drawing.Size(160, 30);
             this.BtnSubmods.TabIndex = 4;
@@ -120,7 +121,7 @@ namespace CrusaderWars.mod_manager
             this.customMapperLabel.AutoSize = true;
             this.customMapperLabel.Font = new System.Drawing.Font("Paradox King Script", 9.75F);
             this.customMapperLabel.ForeColor = System.Drawing.Color.White;
-            this.customMapperLabel.Location = new System.Drawing.Point(377, 10);
+this.customMapperLabel.Location = new System.Drawing.Point(779, 10);
             this.customMapperLabel.Name = "customMapperLabel";
             this.customMapperLabel.Size = new System.Drawing.Size(101, 16);
             this.customMapperLabel.TabIndex = 5;
@@ -133,7 +134,7 @@ namespace CrusaderWars.mod_manager
             this.customMapperComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.customMapperComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.customMapperComboBox.FormattingEnabled = true;
-            this.customMapperComboBox.Location = new System.Drawing.Point(380, 30);
+this.customMapperComboBox.Location = new System.Drawing.Point(720, 30);
             this.customMapperComboBox.Name = "customMapperComboBox";
             this.customMapperComboBox.Size = new System.Drawing.Size(160, 21);
             this.customMapperComboBox.TabIndex = 6;
