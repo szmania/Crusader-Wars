@@ -37,7 +37,6 @@ namespace CrusaderWars.mod_manager
         private readonly List<YearRangeRow> _rows;
         private readonly string _playthroughTag;
         private bool _suppressCellEvents;
-        private readonly ToolTip _toolTip = new ToolTip();
 
         /// <param name="rows">Pre-built year-range rows with availability flags and stored selections.</param>
         public TwGameSelectionForm(List<YearRangeRow> rows, string playthroughTag)
@@ -68,7 +67,6 @@ namespace CrusaderWars.mod_manager
                     attilaCell.ReadOnly = !row.AttilaAvailable || attilaLocked;
                     attilaCell.Style.BackColor = row.AttilaAvailable ? System.Drawing.SystemColors.Window : System.Drawing.SystemColors.ControlDark;
                     attilaCell.Style.ForeColor = row.AttilaAvailable ? System.Drawing.SystemColors.ControlText : System.Drawing.SystemColors.GrayText;
-                    _toolTip.SetToolTip(attilaCell, $"Attila: {row.ScreenName}");
 
                     // Rome 2 cell — locked on when it's the only option for this row
                     var rome2Cell = (DataGridViewCheckBoxCell)gridRow.Cells["colRome2"];
@@ -77,7 +75,6 @@ namespace CrusaderWars.mod_manager
                     rome2Cell.ReadOnly = !row.Rome2Available || rome2Locked;
                     rome2Cell.Style.BackColor = row.Rome2Available ? System.Drawing.SystemColors.Window : System.Drawing.SystemColors.ControlDark;
                     rome2Cell.Style.ForeColor = row.Rome2Available ? System.Drawing.SystemColors.ControlText : System.Drawing.SystemColors.GrayText;
-                    _toolTip.SetToolTip(rome2Cell, $"Rome 2: {row.ScreenName}");
                 }
             }
             finally
