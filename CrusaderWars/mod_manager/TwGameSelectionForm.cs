@@ -125,6 +125,16 @@ namespace CrusaderWars.mod_manager
                 dataGridViewGames.CommitEdit(DataGridViewDataErrorContexts.Commit);
         }
 
+        private void dataGridViewGames_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= _rows.Count) return;
+
+            var row = _rows[e.RowIndex];
+            if (e.ColumnIndex == dataGridViewGames.Columns["colAttila"].Index)
+                e.ToolTipText = $"Attila: {row.ScreenName}";
+            else if (e.ColumnIndex == dataGridViewGames.Columns["colRome2"].Index)
+                e.ToolTipText = $"Rome 2: {row.ScreenName}";
+        }
         private void btnOk_Click(object sender, EventArgs e)
         {
             Result.Clear();
