@@ -292,17 +292,18 @@ namespace CrusaderWars.unit_mapper
                     {
                         writer.WriteStartElement("Folder");
                         writer.WriteAttributeString("Game", game);
-                        writer.WriteString(folder);
-                        writer.WriteEndElement();
-                    }
-                    writer.WriteEndElement();
-                }
-
-                writer.WriteEndElement();
-                writer.WriteEndDocument();
             }
 
-            File.Replace(tmpPath, Path.GetFullPath(FilePath), null);
+            string fullDestPath = Path.GetFullPath(FilePath);
+            if (!File.Exists(fullDestPath))
+            {
+                File.Copy(tmpPath, fullDestPath, true);
+                try { File.Delete(tmpPath); } catch { }
+            }
+            else
+            {
+                File.Replace(tmpPath, fullDestPath, null);
+            }
         }
 
         private static void CreateDefaultFile()
