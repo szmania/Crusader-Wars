@@ -15,6 +15,11 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <!-- Unit tests live in the separate CrusaderWars.Tests project; keep them out of the shipped app assembly. -->
+  <ItemGroup>
+    <Compile Remove="tests\**" />
+  </ItemGroup>
+
     <ItemGroup>
       <PackageReference Include="SharpZipLib" Version="1.4.2" />
       <PackageReference Include="System.Management" Version="9.0.0" />
@@ -325,6 +330,9 @@
     <None Update="settings\\schemas\\Paths.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="settings\\schemas\\MapperSelections.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="settings\\schemas\\UnitMappers.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -344,6 +352,19 @@
     <None Update="unit_mappers\\schemas\\titles.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="unit mappers\\schemas\\mods.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\timeperiod.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="unit mappers\\schemas\\titles.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
   </ItemGroup>
     <ItemGroup>
         <None Update="unit_mappers\schemas\cultures.xsd">
