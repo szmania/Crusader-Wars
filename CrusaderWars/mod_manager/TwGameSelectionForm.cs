@@ -24,9 +24,9 @@ namespace CrusaderWars.mod_manager
             public bool Rome2Available { get; set; }
             public string AttilaFolder { get; set; } = string.Empty;
             public string Rome2Folder { get; set; } = string.Empty;
+            public string ScreenName { get; set; } = string.Empty;
             public bool AttilaSelected { get; set; }
             public bool Rome2Selected { get; set; }
-            public string ScreenName { get; set; } = string.Empty;
 
             public string Label => StartYear == 0 && EndYear >= 9999 ? "Any Year" : $"{StartYear} AD \u2013 {EndYear} AD";
         }
