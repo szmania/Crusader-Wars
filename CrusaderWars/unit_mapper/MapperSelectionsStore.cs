@@ -21,7 +21,7 @@ namespace CrusaderWars.unit_mapper
         // in one place so availability checks and the folder dialog enumerate the same set.
         public static readonly string[] SupportedGames = { "Attila", "Rome2" };
 
-        private static Dictionary<string, List<(string Game, string Folder)>>? _selections;
+private static Dictionary<string, List<(string Game, string Folder)>>? _selections;
         private static bool _dirty;
 
         private static readonly string FilePath = @".\settings\MapperSelections.xml";
@@ -89,9 +89,9 @@ namespace CrusaderWars.unit_mapper
             EnsureLoaded();
             if (string.IsNullOrEmpty(tag) || _selections == null ||
                 !_selections.TryGetValue(tag, out var entries))
-                return new List<(string, string)>();
+                return new List<(string Game, string Folder)>();
 
-            return entries.Select(e => (e.Game, e.Folder)).ToList();
+            return entries;
         }
 
         /// <summary>Write path (folder-dialog OK, custom-dropdown change). Custom tag uses
@@ -292,18 +292,21 @@ namespace CrusaderWars.unit_mapper
                     {
                         writer.WriteStartElement("Folder");
                         writer.WriteAttributeString("Game", game);
+                        writer.WriteString(folder);
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
             }
 
             string fullDestPath = Path.GetFullPath(FilePath);
-            if (!File.Exists(fullDestPath))
-            {
-                File.Copy(tmpPath, fullDestPath, true);
-                try { File.Delete(tmpPath); } catch { }
-            }
-            else
-            {
+            if (File.Exists(fullDestPath))
                 File.Replace(tmpPath, fullDestPath, null);
-            }
+            else
+                File.Move(tmpPath, fullDestPath);
         }
 
         private static void CreateDefaultFile()

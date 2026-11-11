@@ -1508,7 +1508,9 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             if (control == null) return; // Guard: a playthrough tag may be absent from the mappers
             UMpanel.Controls.Clear();
             UMpanel.Controls.Add(control);
-            control.Location = new System.Drawing.Point((UMpanel.Width - control.Width) / 2, 0); // Centered horizontally
+            // Fill the panel: the playthrough window (and its yellow selection border) now
+            // spans the full width, aligning its left edge with the 'Playthroughs' label above.
+            control.Dock = DockStyle.Fill;
             control.BringToFront();
 
             // Define colors
@@ -1717,6 +1719,9 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             {
                 entries = usable
                     .OrderBy(i => i.Tag.Equals("DefaultCK3", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                    // "DEFAULT"/non-numeric StartYear is clamped to 0 by ReadPlaythroughInfoFromFolder;
+                    // sort those to the end (just before Custom) instead of ahead of dated playthroughs.
+                    .ThenBy(i => i.StartYear == 0 ? 1 : 0)
                     .ThenBy(i => i.StartYear)
                     .ThenBy(i => i.Tag, StringComparer.OrdinalIgnoreCase)
                     .Select(i => (i.Tag, (PlaythroughInfo?)i))
@@ -1764,6 +1769,13 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
                 }
                 _playthroughTabButtons.Add(btn);
             }
+
+            // Reorder FlowLayoutPanel controls to match the sorted button order
+            flowLayoutPanel2.SuspendLayout();
+            flowLayoutPanel2.Controls.Clear();
+            foreach (var btn in _playthroughTabButtons)
+                flowLayoutPanel2.Controls.Add(btn);
+            flowLayoutPanel2.ResumeLayout();
 
             // Each tab needs references to all the others (mutual exclusion on toggle).
             foreach (var tab in _playthroughTabs)
@@ -1949,6 +1961,10 @@ Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes?["path"]?.Value ?
             // If validation passes, proceed with saving and cleanup
             SaveValuesToOptionsFile();
             WriteUnitMappersOptions();
+            // 5.15.2 rule 6: flush per-tag mapper folder selections on form close, alongside
+            // WriteUnitMappersOptions. Immediate-persist writers (folder dialog, custom
+            // dropdown) call Flush themselves; this is the safety net for a dirty model.
+            unit_mapper.MapperSelectionsStore.Flush();
             SubmodManager.SaveActiveSubmods(); // Save active submods
 
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
