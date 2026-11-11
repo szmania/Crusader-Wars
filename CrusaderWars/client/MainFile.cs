@@ -61,7 +61,7 @@ namespace CrusaderWars
 
         private int _myVariable = 0;
         private bool _lastUnitMappersEnabled = true;
-        private string _gameType = "attila"; // Default to Attila; resolved from active playthrough
+public string _gameType = "attila"; // Default to Attila; resolved from active playthrough
 
         private void CreateRequiredDirectories()
         {
@@ -1544,7 +1544,15 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
         // This method creates a shortcut for Attila
 private void CreateGameShortcut()
         {
-            string shortcutPath = @".\CC.lnk";
+            // Determine shortcut name based on game type
+            string shortcutName = _gameType switch
+            {
+                "attila" => "CC Attila.lnk",
+                "rome_2" => "CC Rome2.lnk",
+                _ => "CC.lnk"
+            };
+            string shortcutPath = @".\" + shortcutName;
+
             string targetPath = Properties.Settings.Default.VAR_attila_path;
             string workingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
             string arguments = "used_mods_cc.txt";
@@ -3042,22 +3050,29 @@ private void CreateGameShortcut()
                 }
             }
 
-public static void StartTotalWarProcess()
-            {
-                Program.Logger.Debug("Starting Total War: Attila process...");
-                string shortcutPath;
-                bool isLinux = new client.LinuxSetup.Services.LinuxEnvironmentDetector().IsRunningOnLinux();
+public static void StartTotalWarProcess(string gameType)
+        {
+            Program.Logger.Debug("Starting Total War: Attila process...");
+            string shortcutPath;
+            bool isLinux = new client.LinuxSetup.Services.LinuxEnvironmentDetector().IsRunningOnLinux();
 
-                if (isLinux)
+            if (isLinux)
+            {
+                shortcutPath = @".\data\attila\Attila CC.lnk";
+                Program.Logger.Debug($"Using Linux shortcut path: {shortcutPath}");
+            }
+            else
+            {
+                // Determine shortcut name based on game type
+                string shortcutName = gameType switch
                 {
-                    shortcutPath = @".\data\attila\Attila CC.lnk";
-                    Program.Logger.Debug($"Using Linux shortcut path: {shortcutPath}");
-                }
-                else
-                {
-                    shortcutPath = @".\CC.lnk";
-                    Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
-                }
+                    "attila" => "CC Attila.lnk",
+                    "rome_2" => "CC Rome2.lnk",
+                    _ => "CC.lnk"
+                };
+                shortcutPath = @"." + shortcutName;
+                Program.Logger.Debug($"Using Windows shortcut path: {shortcutPath}");
+            }
 
                 if (!System.IO.File.Exists(shortcutPath))
                 {
