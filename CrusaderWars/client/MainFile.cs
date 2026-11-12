@@ -53,6 +53,8 @@ namespace CrusaderWars
         private Label playthroughNameLabel = null!;
         private Label playthroughSubmodsTitleLabel = null!;
         private Label playthroughSubmodsListLabel = null!;
+        private Label playthroughGameMappingTitleLabel = null!;
+        private Label playthroughGameMappingListLabel = null!;
 
         // Pre-release opt-in animation fields
         private System.Windows.Forms.Timer? _preReleasePulseTimer;
@@ -1174,12 +1176,29 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
             playthroughSubmodsListLabel.MaximumSize = new Size(190, 0); // Allow for multiple lines
             playthroughSubmodsListLabel.Visible = false; // Initially hidden
 
+            // Total War Game by Era Title Label
+            playthroughGameMappingTitleLabel.Text = "Total War Game by Era:";
+            playthroughGameMappingTitleLabel.Font = new Font("Microsoft Sans Serif", 9f, FontStyle.Bold | FontStyle.Underline);
+            playthroughGameMappingTitleLabel.ForeColor = Color.WhiteSmoke;
+            playthroughGameMappingTitleLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughSubmodsListLabel.Bottom + 5);
+            playthroughGameMappingTitleLabel.AutoSize = true;
+            playthroughGameMappingTitleLabel.Visible = false; // Initially hidden
+
+            // Total War Game by Era List Label
+            playthroughGameMappingListLabel.Font = new Font("Microsoft Sans Serif", 8f, FontStyle.Italic);
+            playthroughGameMappingListLabel.ForeColor = Color.WhiteSmoke;
+            playthroughGameMappingListLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughGameMappingTitleLabel.Bottom + 2);
+            playthroughGameMappingListLabel.AutoSize = true;
+            playthroughGameMappingListLabel.MaximumSize = new Size(190, 0);
+            playthroughGameMappingListLabel.Visible = false; // Initially hidden
             // Add controls
             playthroughPanel.Controls.Add(playthroughPictureBox);
             playthroughPanel.Controls.Add(playthroughTitleLabel);
             playthroughPanel.Controls.Add(playthroughNameLabel);
             playthroughPanel.Controls.Add(playthroughSubmodsTitleLabel);
             playthroughPanel.Controls.Add(playthroughSubmodsListLabel);
+            playthroughPanel.Controls.Add(playthroughGameMappingTitleLabel);
+            playthroughPanel.Controls.Add(playthroughGameMappingListLabel);
             this.Controls.Add(playthroughPanel);
             playthroughPanel.BringToFront();
             playthroughPanel.ResumeLayout(false);
@@ -1318,10 +1337,14 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                 playthroughPanel.Visible = true;
                 playthroughSubmodsTitleLabel.Visible = false;
                 playthroughSubmodsListLabel.Visible = false;
+                playthroughGameMappingTitleLabel.Visible = false;
+                playthroughGameMappingListLabel.Visible = false;
                 playthroughPanel.Size = new Size(280, 80);
             }
             else
             {
+                // Tracks the bottom-most visible row so the panel is sized once at the end.
+                int lastBottom = playthroughNameLabel.Bottom;
                 // Handle sub-mods display
                 var activeSubmodTags = mod_manager.SubmodManager.GetActiveSubmodsForPlaythrough(activePlaythroughTag);
                 if (activeSubmodTags.Any())
@@ -1342,21 +1365,53 @@ userFriendlyName = $"Custom ({ModOptions.GetSelectedCustomMapper()})";
                         playthroughSubmodsListLabel.Visible = true;
                         playthroughSubmodsListLabel.Text = string.Join("\n", activeSubmodScreenNames);
 
-                        // Adjust panel size
-                        playthroughPanel.Size = new Size(280, playthroughSubmodsListLabel.Bottom + 10);
+                        // Track the bottom of the last visible row; the panel is sized once below.
+                        lastBottom = playthroughSubmodsListLabel.Bottom;
                     }
                     else
                     {
                         playthroughSubmodsTitleLabel.Visible = false;
                         playthroughSubmodsListLabel.Visible = false;
-                        playthroughPanel.Size = new Size(280, playthroughNameLabel.Bottom + 10);
+                        lastBottom = playthroughNameLabel.Bottom;
                     }
                 }
                 else
                 {
                     playthroughSubmodsTitleLabel.Visible = false;
                     playthroughSubmodsListLabel.Visible = false;
-                    playthroughPanel.Size = new Size(280, playthroughNameLabel.Bottom + 10);
+                    lastBottom = playthroughNameLabel.Bottom;
+
+                // Total War game per era (year-range -> game mapping).
+                try
+                {
+                    var gameRows = mod_manager.TwGameSelectionForm.BuildRows(activePlaythroughTag);
+                    if (gameRows.Any())
+                    {
+                        var mappingLines = gameRows
+                            .Select(r => $"• {r.Label}: {(r.AttilaSelected ? "TW: Attila" : r.Rome2Selected ? "TW: Rome 2" : "—")}")
+                            .ToList();
+
+                        playthroughGameMappingTitleLabel.Location = new Point(playthroughPictureBox.Right + 10, lastBottom + 5);
+                        playthroughGameMappingTitleLabel.Visible = true;
+                        playthroughGameMappingListLabel.Location = new Point(playthroughPictureBox.Right + 10, playthroughGameMappingTitleLabel.Bottom + 2);
+                        playthroughGameMappingListLabel.Text = string.Join("\n", mappingLines);
+                        playthroughGameMappingListLabel.Visible = true;
+                        lastBottom = playthroughGameMappingListLabel.Bottom;
+                    }
+                    else
+                    {
+                        playthroughGameMappingTitleLabel.Visible = false;
+                        playthroughGameMappingListLabel.Visible = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.Debug($"Error building Total War game mapping display: {ex.Message}");
+                    playthroughGameMappingTitleLabel.Visible = false;
+                    playthroughGameMappingListLabel.Visible = false;
+                }
+
+                playthroughPanel.Size = new Size(280, lastBottom + 10);
                 }
             }
         }
