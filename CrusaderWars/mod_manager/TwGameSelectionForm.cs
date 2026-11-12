@@ -133,9 +133,19 @@ namespace CrusaderWars.mod_manager
 
             var row = _rows[e.RowIndex];
             if (e.ColumnIndex == dataGridViewGames.Columns["colAttila"].Index)
-                e.ToolTipText = $"Attila: {row.ScreenName}";
+            {
+                if (row.AttilaScreenNames.Any())
+                    e.ToolTipText = "TW: Attila Mods:\n" + string.Join("\n", row.AttilaScreenNames.Select(s => "• " + s));
+                else
+                    e.ToolTipText = "TW: Attila: No mods specified";
+            }
             else if (e.ColumnIndex == dataGridViewGames.Columns["colRome2"].Index)
-                e.ToolTipText = $"Rome 2: {row.ScreenName}";
+            {
+                if (row.Rome2ScreenNames.Any())
+                    e.ToolTipText = "TW: Rome 2 Mods:\n" + string.Join("\n", row.Rome2ScreenNames.Select(s => "• " + s));
+                else
+                    e.ToolTipText = "TW: Rome 2: No mods specified";
+            }
         }
         private void btnOk_Click(object sender, EventArgs e)
         {
