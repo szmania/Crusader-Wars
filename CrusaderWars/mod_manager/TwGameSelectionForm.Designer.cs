@@ -61,7 +61,6 @@ namespace CrusaderWars.mod_manager
             this.dataGridViewGames.TabIndex = 0;
             this.dataGridViewGames.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewGames_CellValueChanged);
             this.dataGridViewGames.CurrentCellDirtyStateChanged += new System.EventHandler(this.dataGridViewGames_CurrentCellDirtyStateChanged);
-            this.dataGridViewGames.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.dataGridViewGames_CellToolTipTextNeeded);
             // 
             // colYearRange
             // 

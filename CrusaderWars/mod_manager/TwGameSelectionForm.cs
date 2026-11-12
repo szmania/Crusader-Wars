@@ -77,6 +77,15 @@ namespace CrusaderWars.mod_manager
                     rome2Cell.ReadOnly = !row.Rome2Available || rome2Locked;
                     rome2Cell.Style.BackColor = row.Rome2Available ? System.Drawing.SystemColors.Window : System.Drawing.SystemColors.ControlDark;
                     rome2Cell.Style.ForeColor = row.Rome2Available ? System.Drawing.SystemColors.ControlText : System.Drawing.SystemColors.GrayText;
+
+                    // Tooltips are set directly on the cells: CellToolTipTextNeeded does not fire
+                    // for an unbound grid, so the handler never ran.
+                    attilaCell.ToolTipText = row.AttilaScreenNames.Any()
+                        ? "TW: Attila Mods:\n" + string.Join("\n", row.AttilaScreenNames.Select(s => "• " + s))
+                        : "TW: Attila: No mods specified";
+                    rome2Cell.ToolTipText = row.Rome2ScreenNames.Any()
+                        ? "TW: Rome 2 Mods:\n" + string.Join("\n", row.Rome2ScreenNames.Select(s => "• " + s))
+                        : "TW: Rome 2: No mods specified";
                 }
             }
             finally
@@ -127,26 +136,6 @@ namespace CrusaderWars.mod_manager
                 dataGridViewGames.CommitEdit(DataGridViewDataErrorContexts.Commit);
         }
 
-        private void dataGridViewGames_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.RowIndex >= _rows.Count) return;
-
-            var row = _rows[e.RowIndex];
-            if (e.ColumnIndex == dataGridViewGames.Columns["colAttila"].Index)
-            {
-                if (row.AttilaScreenNames.Any())
-                    e.ToolTipText = "TW: Attila Mods:\n" + string.Join("\n", row.AttilaScreenNames.Select(s => "• " + s));
-                else
-                    e.ToolTipText = "TW: Attila: No mods specified";
-            }
-            else if (e.ColumnIndex == dataGridViewGames.Columns["colRome2"].Index)
-            {
-                if (row.Rome2ScreenNames.Any())
-                    e.ToolTipText = "TW: Rome 2 Mods:\n" + string.Join("\n", row.Rome2ScreenNames.Select(s => "• " + s));
-                else
-                    e.ToolTipText = "TW: Rome 2: No mods specified";
-            }
-        }
         private void btnOk_Click(object sender, EventArgs e)
         {
             Result.Clear();
@@ -175,8 +164,7 @@ namespace CrusaderWars.mod_manager
             string tagToFind = playthroughTag == "Custom" ? client.ModOptions.GetSelectedCustomMapper() : playthroughTag;
             if (string.IsNullOrEmpty(tagToFind)) return new List<YearRangeRow>();
 
-            // Collect (game, folder, startYear, endYear, screenName) for every matching mapper folder.
-            var entries = new List<(string Game, string Folder, int StartYear, int EndYear, string ScreenName)>();
+            var entries = new List<(string Game, string Folder, int StartYear, int EndYear, List<string> ScreenNames)>();
 
             foreach (string game in MapperSelectionsStore.SupportedGames)
             {
@@ -188,7 +176,7 @@ namespace CrusaderWars.mod_manager
                         continue;
 
                     var (startYear, endYear) = ReadTimePeriod(dir);
-                    entries.Add((game, Path.GetFileName(dir), startYear, endYear, GetModScreenName(dir)));
+                    entries.Add((game, Path.GetFileName(dir), startYear, endYear, GetModScreenNames(dir)));
                 }
             }
 
@@ -232,7 +220,11 @@ namespace CrusaderWars.mod_manager
                     Rome2Available = rome2Covers.Any(),
                     AttilaFolder = attilaCovers.FirstOrDefault().Folder ?? string.Empty,
                     Rome2Folder = rome2Covers.FirstOrDefault().Folder ?? string.Empty,
-                    ScreenName = attilaCovers.FirstOrDefault().ScreenName ?? rome2Covers.FirstOrDefault().ScreenName ?? string.Empty,
+                    ScreenName = attilaCovers.SelectMany(e => e.ScreenNames).FirstOrDefault()
+                                 ?? rome2Covers.SelectMany(e => e.ScreenNames).FirstOrDefault()
+                                 ?? string.Empty,
+                    AttilaScreenNames = attilaCovers.SelectMany(e => e.ScreenNames).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
+                    Rome2ScreenNames = rome2Covers.SelectMany(e => e.ScreenNames).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
                 };
 
                 // Default selection: Attila wins when both cover (D1). Stored selection overrides.
@@ -292,32 +284,53 @@ namespace CrusaderWars.mod_manager
             }
         }
 
-        private static string GetModScreenName(string mapperPath)
+        /// <summary>
+        /// Reads every individual mod/submod screen_name from the mapper folder's Mods.xml.
+        /// Handles &lt;Mod screen_name="..."&gt; at the top level and &lt;Submod screen_name="..."&gt;
+        /// with nested &lt;Mod screen_name="..."&gt; children. Returns an empty list when the
+        /// file is missing, unreadable, or has no screen names.
+        /// </summary>
+        private static List<string> GetModScreenNames(string mapperPath)
         {
+            var screenNames = new List<string>();
             string modsPath = Path.Combine(mapperPath, "Mods.xml");
-            if (!File.Exists(modsPath)) return string.Empty;
+            if (!File.Exists(modsPath)) return screenNames;
             try
             {
                 var xmlDoc = new XmlDocument();
                 xmlDoc.Load(modsPath);
-                if (xmlDoc.DocumentElement == null) return string.Empty;
-                var screenNames = new List<string>();
+                if (xmlDoc.DocumentElement == null) return screenNames;
+
                 foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
                 {
-                    string? sn = node.Attributes?["screen_name"]?.Value;
-                    if (!string.IsNullOrEmpty(sn)) screenNames.Add(sn);
-                    foreach (XmlNode sub in node.ChildNodes)
+                    if (node is XmlComment) continue;
+
+                    if (node.Name == "Mod")
                     {
-                        string? subSn = sub.Attributes?["screen_name"]?.Value;
-                        if (!string.IsNullOrEmpty(subSn)) screenNames.Add(subSn);
+                        AddScreenName(screenNames, node);
+                    }
+                    else if (node.Name == "Submod")
+                    {
+                        foreach (XmlNode sub in node.ChildNodes)
+                        {
+                            if (sub is XmlComment) continue;
+                            if (sub.Name == "Mod") AddScreenName(screenNames, sub);
+                        }
                     }
                 }
-                return string.Join(", ", screenNames.Distinct(StringComparer.OrdinalIgnoreCase));
+
+                return screenNames.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             }
             catch
             {
-                return string.Empty;
+                return screenNames;
             }
+        }
+
+        private static void AddScreenName(List<string> screenNames, XmlNode node)
+        {
+            string? sn = node.Attributes?["screen_name"]?.Value;
+            if (!string.IsNullOrEmpty(sn)) screenNames.Add(sn);
         }
     }
 }
