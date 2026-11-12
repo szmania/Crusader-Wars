@@ -1207,6 +1207,11 @@ var modsCollection = UnitMappers_BETA.GetUnitMappersModsCollectionFromTag(active
 
         private void UpdatePlaythroughDisplay()
         {
+            // Guard: Timer_Tick (started in the constructor) can fire before Form1_Load runs
+            // InitializePlaythroughDisplay(), leaving the panel fields null. Bail out instead
+            // of throwing NullReferenceException.
+            if (playthroughPanel == null) return;
+
             Program.Logger.Debug("Updating playthrough display on main screen.");
             string activePlaythroughTag = "";
             string userFriendlyName = "";
@@ -3115,7 +3120,7 @@ private void CreateGameShortcut()
                 }
             }
 
-public static void StartTotalWarProcess(string gameType)
+    public static void StartTotalWarProcess(string gameType)
         {
             string gameDisplayName = gameType == "rome_2" ? "Total War: Rome 2" : "Total War: Attila";
             Program.Logger.Debug($"Starting {gameDisplayName} process...");
@@ -3160,10 +3165,10 @@ public static void StartTotalWarProcess(string gameType)
                 Process.Start(new ProcessStartInfo(shortcutPath) { UseShellExecute = true });
             }
 
-public async static Task CloseTotalWarProcess()
+        public async static Task CloseTotalWarProcess()
             {
                 // Kill whichever Total War game the current battle resolved to (Attila or Rome 2).
-                string processName = unit_mapper.UnitMappers_BETA.ResolvedBattleGameType == "Rome2" ? "Rome2" : "Attila";
+                string processName = unit_mapper.UnitMappers_BETA.ResolvedBattleGameType == "rome_2" ? "Rome2" : "Attila";
                 string gameDisplayName = processName == "Rome2" ? "Total War: Rome 2" : "Total War: Attila";
                 Program.Logger.Debug($"Closing {gameDisplayName} process...");
                 Process[] process_attila = Process.GetProcessesByName(processName);
