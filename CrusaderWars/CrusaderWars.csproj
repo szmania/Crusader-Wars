@@ -384,7 +384,10 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-      <Content Include="data\battle files\**\*">
+      <Content Include="data\attila_battle_files\**\*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="data\rome_2_battle_files\**\*">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
