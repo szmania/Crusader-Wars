@@ -268,22 +268,33 @@ namespace CrusaderWars.data.battle_results
         public static void ClearAttilaLog()
         {
             Program.Logger.Debug("Entering ClearAttilaLog method.");
-            string Attila_Path = Properties.Settings.Default.VAR_attila_path;
-            Properties.Settings.Default.VAR_log_attila = Attila_Path.Substring(0, Attila_Path.IndexOf("Attila.exe")) + "data\\BattleResults_log.txt";
-            Properties.Settings.Default.Save();
-            string path_attila_log = Properties.Settings.Default.VAR_log_attila;
-            Program.Logger.Debug($"Attila log file path to clear: {path_attila_log}");
+            // Resolve the log path for whichever Total War game this battle uses
+            // (Attila or Rome 2) via the game service instead of hardcoding Attila.
+            string gameType = CrusaderWars.unit_mapper.UnitMappers_BETA.ResolvedBattleGameType;
+            var gameService = CrusaderWars.games.GameServiceFactory.GetGameService(gameType);
+            string logPath = gameService.GetLogPath();
 
-            bool isCreated = false;
-            if (isCreated == false)
+            // Persist the resolved path into the matching setting so ModOptions.GetLogPath
+            // and other readers observe the same value for the active game.
+            if (gameType == "Rome2")
+                Properties.Settings.Default.VAR_log_rome2 = logPath;
+            else
+                Properties.Settings.Default.VAR_log_attila = logPath;
+            Properties.Settings.Default.Save();
+
+            Program.Logger.Debug($"{gameType} log file path to clear: {logPath}");
+
+            if (string.IsNullOrEmpty(logPath))
             {
-                using (FileStream logFile = File.Open(path_attila_log, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    isCreated = true;
-                    logFile.Close();
-                }
+                Program.Logger.Debug($"{gameType} log path is not configured. Skipping log clear.");
+                return;
             }
-            Program.Logger.Debug("Attila log file cleared successfully.");
+
+            using (FileStream logFile = File.Open(logPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            {
+                logFile.Close();
+            }
+            Program.Logger.Debug($"{gameType} log file cleared successfully.");
         }
     }
 }
